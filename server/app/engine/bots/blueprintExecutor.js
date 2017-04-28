@@ -76,6 +76,7 @@ blueprintExecutor.execute = function execute(botId,auditTrail,reqBody,userName,c
 
 
 function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback){
+    var stackName = null,domainName = null;
     async.waterfall([
         function (next) {
             Blueprints.getById(blueprintId,next);
@@ -83,7 +84,7 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
         function(blueprint,next){
             if(blueprint !== null) {
                 if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
-                    var stackName = reqBody.stackName;
+                    stackName = reqBody.stackName;
                     if (stackName === '' || stackName === null) {
                         next({code: 400, message: "Invalid Stack name"}, null);
                         return;
@@ -100,7 +101,7 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                     }
                 }
                 else if (blueprint.domainNameCheck === true) {
-                    var domainName = reqBody.domainName;
+                    domainName = reqBody.domainName;
                     if (domainName === '' || domainName === null) {
                         next({code: 400, message: "Invalid Domain name"}, null);
                         return;

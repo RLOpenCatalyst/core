@@ -258,7 +258,7 @@ catalystSync.getLogdata = function getLogdata(){
                                 for(var index=0;index<body.length;index++) {
                                    var auditData = auditQueue.getAuditDetails(body[index].bot_run_id);
                                     if (body[index].state === 'terminated') {
-                                        var timestampEnded = new Date(body[index].finished_at).getTime();
+                                        var timestampEnded = new Date().getTime();
                                         var msg= body[index].status.text
                                         logsDao.insertLog({
                                             referenceId: auditData.logRefId,
@@ -266,28 +266,27 @@ catalystSync.getLogdata = function getLogdata(){
                                             log: msg,
                                             timestamp: timestampEnded
                                         });
-                                        if(auditData.env === 'local'){
-                                            logsDao.insertLog({
-                                                referenceId: auditData.logRefId,
-                                                err: false,
-                                                log: auditData.botId+' BOTs execution success on '+auditData.env,
-                                                timestamp: timestampEnded
-                                            });
-                                        }else{
-                                            logsDao.insertLog({
-                                            referenceId: auditData.logRefId,
-                                            err: false,
-                                            log: auditData.botId + ' BOTs execution success on Node ' + auditData.instanceIP,
-                                            timestamp: timestampEnded
-                                            });
-                                        }
-                                        
                                         if(body[index].log !== '...'||body[index].log !== '') {
                                             logsDao.insertLog({
                                                 referenceId: auditData.logRefId,
                                                 err: false,
                                                 log: body[index].log.replace(/\n/g,"\\n"),
                                                 timestamp: timestampEnded
+                                            });
+                                        }
+                                        if(auditData.env === 'local'){
+                                            logsDao.insertLog({
+                                                referenceId: auditData.logRefId,
+                                                err: false,
+                                                log: auditData.botId+' BOTs execution is success on '+auditData.env,
+                                                timestamp: timestampEnded
+                                            });
+                                        }else{
+                                            logsDao.insertLog({
+                                            referenceId: auditData.logRefId,
+                                            err: false,
+                                            log: auditData.botId + ' BOTs execution is success on Node ' + auditData.instanceIP,
+                                            timestamp: timestampEnded
                                             });
                                         }
                                         var resultTaskExecution = {
@@ -319,14 +318,13 @@ catalystSync.getLogdata = function getLogdata(){
                                                 });
                                                 
                                             });
-                                        }
-                                        else {
+                                        } else {
                                             instanceModel.updateActionLog(auditData.logRefId[0], auditData.logRefId[1], false, timestampEnded);
                                             auditData.instanceLog.endedOn = timestampEnded;
                                             auditData.instanceLog.actionStatus = "success";
                                             auditData.instanceLog.logs = {
                                                 err: false,
-                                                log: auditData.botId+' BOTs execution success on Node '+auditData.instanceIP,
+                                                log: auditData.botId+' BOTs execution is success on Node '+auditData.instanceIP,
                                                 timestamp: new Date().getTime()
                                             };
                                             instanceLogModel.createOrUpdate(auditData.logRefId[1], auditData.logRefId[0], auditData.instanceLog, function (err, logData) {
@@ -350,13 +348,7 @@ catalystSync.getLogdata = function getLogdata(){
                                         continue;
                                     }
                                     else {
-                                        var timestampEnded = new Date(body[index].finished_at).getTime();;
-                                        logsDao.insertLog({
-                                            referenceId: auditData.logRefId,
-                                            err: true,
-                                            log: auditData.botId+' BOTs execution unsuccess on '+auditData.env,
-                                            timestamp: timestampEnded
-                                        });
+                                        var timestampEnded = new Date().getTime();
                                         if(body[index].log !== '...'||body[index].log !== '') {
                                             logsDao.insertLog({
                                                 referenceId: auditData.logRefId,
@@ -365,6 +357,12 @@ catalystSync.getLogdata = function getLogdata(){
                                                 timestamp: timestampEnded
                                             });
                                         }
+                                        logsDao.insertLog({
+                                            referenceId: auditData.logRefId,
+                                            err: true,
+                                            log: auditData.botId+' BOTs execution is unsuccess on '+auditData.env,
+                                            timestamp: timestampEnded
+                                        });
                                         var resultTaskExecution = {
                                             "actionStatus": 'failed',
                                             "status": 'failed',

@@ -253,8 +253,6 @@ organizationService.getTreeNew = function getTreeNew(userName,source,callback) {
     var orgIds = [];
     var desPath = appConfig.tempDir + userName + "_getTreeNew.json";
     fileIo.exists(desPath,function(existCheck){
-        console.log(existCheck);
-        console.log(typeof existCheck);
         if(existCheck === true && source === "organization"){
             fileIo.readFile(desPath,function(err,fileData){
                 if(err){
