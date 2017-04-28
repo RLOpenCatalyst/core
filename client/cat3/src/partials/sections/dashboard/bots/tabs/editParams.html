@@ -63,8 +63,6 @@
 	            </tbody>
 	         </table>
       	</div>
-            <div class="margintop-7" ng-if="botType ==='script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
-      		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'blueprint' || botType === 'script'" ng-show="botCheck" class="chefExecution">
             <div ng-if="botType ==='chef'" ng-show="showAttributeList" class="param-table">
                <label class="pull-left botsLabel">Chef Attributes</label>
                <table class="table table-bordered">
@@ -83,6 +81,8 @@
                   </tbody>
                </table>
             </div>
+            <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
+      		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'blueprint' || botType === 'script'" ng-show="botCheck" class="chefExecution">
             <fieldset id="editParamPage">
             <legend>Remote Machine</legend><br>
       		<div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
@@ -169,7 +169,7 @@
 		</fieldset>
    </form>
 	<div id="botEditFooter" class="pager margintop-5">
-		<button type="button" ng-if="botType !== 'UI' && botType !== 'blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='chef' && selectedInstanceList.length <= 0 || botType ==='jenkins' && editParamsForm.$invalid || disableJenkinsExecute" ng-click="executeBot('instance')">
+		<button type="button" ng-if="botType !== 'UI' && botType !== 'blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='jenkins' && editParamsForm.$invalid || disableJenkinsExecute" ng-click="executeBot('instance')">
 			<i class="fa fa-check white"></i> Execute
 		</button>
       <button type="button" ng-if="botType ==='blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="selectedBlueprintList.length <= 0" ng-click="executeBot('blueprints')">
