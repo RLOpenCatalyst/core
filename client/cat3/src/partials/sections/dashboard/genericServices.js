@@ -169,6 +169,23 @@
             }
         };
 
+        genericServices.showLogsForJenkins = function(response) {
+            $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/bots/view/jenkinsLogForBots.html',
+                controller: 'jenkinsLogCtrlForBots',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return response;
+                    }
+                }
+            }).result.then(function() {
+            }, function() {
+            });
+        };
+
         genericServices.showLogsForBots = function(response) {
             $modal.open({
                 animation: true,
