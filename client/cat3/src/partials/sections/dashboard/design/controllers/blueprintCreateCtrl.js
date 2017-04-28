@@ -834,15 +834,21 @@
                         });
                         blueprintCreateJSON.blueprintType = 'azure_arm';
                         blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
-                        var instanceObj = {};
+                        var instanceObj = null;
                         for(var i =0;i<blueprintCreation.getAzureVMDetails.length;i++){
-
+                        if($scope.runlistWithKey){
                             instanceObj[blueprintCreation.getAzureVMDetails[i].name]= {
                                 username: blueprintCreation.getAzureVMDetails[i].username,
                                 password: blueprintCreation.getAzureVMDetails[i].password,
                                 runlist: responseFormatter.formatSelectedChefRunList($scope.runlistWithKey[blueprintCreation.getAzureVMDetails[i].name]),
                                 attributes: responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributesWithKey[blueprintCreation.getAzureVMDetails[i].name])
                             };
+                        } else {
+                            instanceObj[blueprintCreation.getAzureVMDetails[i].name]= {
+                                username: blueprintCreation.getAzureVMDetails[i].username,
+                                password: blueprintCreation.getAzureVMDetails[i].password
+                            };
+                        }
                             blueprintCreateJSON.cftInstances = instanceObj;
 
                         }
