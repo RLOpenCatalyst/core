@@ -345,7 +345,70 @@ catalystSync.getLogdata = function getLogdata(){
                                         
                                     } 
                                     else if(body[index].state === 'active'){
-                                        continue;
+                                        if(auditData.retryCount === 180) {
+                                            logsDao.insertLog({
+                                                referenceId: auditData.logRefId,
+                                                err: true,
+                                                log: 'Request time-out BOTs execution is unsuccess',
+                                                timestamp: timestampEnded
+                                            });
+                                            var resultTaskExecution = {
+                                                "actionStatus": 'failed',
+                                                "status": 'failed',
+                                                "endedOn": timestampEnded,
+                                                "actionLogId": auditData.auditId
+                                            };
+                                            auditQueue.popAudit(auditData.botId);
+                                            if(auditData.env === 'local'){
+                                                auditTrailService.updateAuditTrail('BOT', auditData.auditTrailId, resultTaskExecution, function (err, data) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                    }
+                                                    logger.debug(auditData.botId+" BOTs Execution Done on "+auditData.env);
+                                                    botService.updateSavedTimePerBots(auditData.bot_id, 'BOT', function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Failed to update bots saved Time: ", err);
+                                                        }
+                                                        noticeService.notice(auditData.userName, {
+                                                            title: "BOTs Execution",
+                                                            body: auditData.botId+" is Failed"
+                                                        }, "error", function (err, data) {
+                                                            if (err) {
+                                                                logger.error("Error in Notification Service, ", err);
+                                                            }
+                                                            next(null)
+                                                        });
+                                                    });
+                                                });
+                                            }
+                                            else{
+                                                instanceModel.updateActionLog(auditData.logRefId[0], auditData.logRefId[1], false, timestampEnded);
+                                                auditData.instanceLog.endedOn = timestampEnded;
+                                                auditData.instanceLog.actionStatus = "failed";
+                                                auditData.instanceLog.logs = {
+                                                    err: true,
+                                                    log: 'Unable to execute bot',
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(auditData.logRefId[1], auditData.logRefId[0], auditData.instanceLog, function (err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                    noticeService.notice(auditData.userName, {
+                                                        title: "BOTs Execution",
+                                                        body: auditData.botId+" is Failed"
+                                                    }, "error", function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Error in Notification Service, ", err);
+                                                        }
+                                                        next(null)
+                                                    });
+                                                });
+                                            }
+                                        }else{
+                                            auditQueue.incRetryCount(auditData.botId);
+                                            continue;
+                                        }
                                     }
                                     else {
                                         var timestampEnded = new Date().getTime();
