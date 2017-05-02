@@ -168,8 +168,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
             var count = 0;
             body.forEach(function(auditTrailDetail){
                 var auditData = auditQueue.getAuditDetails("remoteAuditId",auditTrailDetail.bot_run_id);
-                if((auditData === null || auditData === 'undefined' || typeof auditData === 'undefined') && (auditTrailDetail.state === 'terminated' || auditTrailDetail.state === 'failed')) {
-                    console.log("Durgesh") ;
+                if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'terminated' || auditTrailDetail.state === 'failed')) {
                     var timestampEnded = new Date().getTime();
                     count++;
                     logsDao.insertLog({
