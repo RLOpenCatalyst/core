@@ -14,8 +14,10 @@ var noticeService = require('_pr/services/noticeService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceModel = require('_pr/model/classes/instance/instance.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var appConfig = require('_pr/config');
 
 var catalystSync = module.exports = {};
+var botEngineTimeOut  = appConfig.botEngineTimeOut || 180;
 
 catalystSync.executeScheduledInstances = function executeScheduledInstances() {
     logger.debug("Instance Scheduler is started. ");
@@ -345,7 +347,7 @@ catalystSync.getLogdata = function getLogdata(){
                                         
                                     } 
                                     else if(body[index].state === 'active'){
-                                        if(auditData.retryCount === 180) {
+                                        if(auditData.retryCount === botEngineTimeOut) {
                                             logsDao.insertLog({
                                                 referenceId: auditData.logRefId,
                                                 err: true,
