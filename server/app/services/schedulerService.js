@@ -169,6 +169,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
             body.forEach(function(auditTrailDetail){
                 var auditData = auditQueue.getAuditDetails("remoteAuditId",auditTrailDetail.bot_run_id);
                 if((auditData === null || auditData === 'undefined' || typeof auditData === 'undefined') && (auditTrailDetail.state === 'terminated' || auditTrailDetail.state === 'failed')) {
+                    console.log("Durgesh") ;
                     var timestampEnded = new Date().getTime();
                     count++;
                     logsDao.insertLog({
@@ -284,75 +285,8 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                     if(count ===body.length){
                         callback(null,null);
                     }
-                }else if((auditData === null || auditData === 'undefined' || typeof auditData === 'undefined')  !== null && auditTrailDetail.state === 'active') {
-                    count++;
-                    if (auditData.retryCount === botEngineTimeOut) {
-                        logsDao.insertLog({
-                            referenceId: auditData.logRefId,
-                            err: true,
-                            log: 'Request time-out BOTs execution is unsuccess',
-                            timestamp: new Date().getTime()
-                        });
-                        var resultTaskExecution = {
-                            "actionStatus": 'failed',
-                            "status": 'failed',
-                            "endedOn": new Date().getTime(),
-                            "actionLogId": auditData.auditId
-                        };
-                        auditQueue.popAudit('remoteAuditId', auditData.remoteAuditId);
-                        if (auditData.env === 'local') {
-                            auditTrailService.updateAuditTrail('BOT', auditData.auditTrailId, resultTaskExecution, function (err, data) {
-                                if (err) {
-                                    logger.error("Failed to create or update bots Log: ", err);
-                                }
-                                logger.debug(auditData.botId + " BOTs Execution Done on " + auditData.env);
-                                botService.updateSavedTimePerBots(auditData.bot_id, 'BOT', function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to update bots saved Time: ", err);
-                                    }
-                                    noticeService.notice(auditData.userName, {
-                                        title: "BOTs Execution",
-                                        body: auditData.botId + " is Failed"
-                                    }, "error", function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in Notification Service, ", err);
-                                        }
-                                        next(null)
-                                    });
-                                });
-                            });
-                        } else {
-                            instancesDao.updateActionLog(auditData.logRefId[0], auditData.logRefId[1], false, timestampEnded);
-                            auditData.instanceLog.endedOn = new Date().getTime();
-                            auditData.instanceLog.actionStatus = "failed";
-                            auditData.instanceLog.logs = {
-                                err: true,
-                                log: 'Unable to execute bot',
-                                timestamp: new Date().getTime()
-                            };
-                            instanceLogModel.createOrUpdate(auditData.logRefId[1], auditData.logRefId[0], auditData.instanceLog, function (err, logData) {
-                                if (err) {
-                                    logger.error("Failed to create or update instanceLog: ", err);
-                                }
-                                noticeService.notice(auditData.userName, {
-                                    title: "BOTs Execution",
-                                    body: auditData.botId + " is Failed on Remote"
-                                }, "error", function (err, data) {
-                                    if (err) {
-                                        logger.error("Error in Notification Service, ", err);
-                                    }
-                                });
-                            });
-                        }
-                    } else {
-                        auditQueue.incRetryCount('auditId', auditData.auditId);
-                    }
-                    if(count ===body.length){
-                        callback(null,null);
-                    }
                 }else{
                     count++;
-                    logger.debug("BOT Engine Audit Trail is going on");
                     if(count ===body.length){
                         callback(null,null);
                     }

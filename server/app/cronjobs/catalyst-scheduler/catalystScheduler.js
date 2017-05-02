@@ -229,7 +229,7 @@ catalystSync.getBotAuditLogData = function getBotAuditLogData(){
             });
             schedulerService.getExecutorAuditTrailDetails(auditList,logQueue[0].serverUrl,function(err,data){
                 if(err){
-                    logger.error("Error in Getting Audit-Trail Details");
+                    logger.error("Error in Getting Audit-Trail Details:",err);
                     return;
                 }else{
                     logger.debug("BOT Audit Trail is Successfully Executed");
