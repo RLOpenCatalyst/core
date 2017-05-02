@@ -227,15 +227,20 @@ catalystSync.getBotAuditLogData = function getBotAuditLogData(){
                     auditList.push(log.remoteAuditId);
                 }
             });
-            schedulerService.getExecutorAuditTrailDetails(auditList,logQueue[0].serverUrl,function(err,data){
-                if(err){
-                    logger.error("Error in Getting Audit-Trail Details:",err);
-                    return;
-                }else{
-                    logger.debug("BOT Audit Trail is Successfully Executed");
-                    return;
-                }
-            });
+            if(auditList.length > 0 && (logQueue[0].serverUrl !=='undefined' || typeof logQueue[0].serverUrl !=='undefined')) {
+                schedulerService.getExecutorAuditTrailDetails(auditList, logQueue[0].serverUrl, function (err, data) {
+                    if (err) {
+                        logger.error("Error in Getting Audit-Trail Details:", err);
+                        return;
+                    } else {
+                        logger.debug("BOT Audit Trail is Successfully Executed");
+                        return;
+                    }
+                });
+            }else{
+                logger.debug("Audit-Queue is not valid: ",auditList,logQueue[0].serverUrl);
+                return;
+            }
         }else{
             logger.debug("There is no Audit Trails Data");
             return;
