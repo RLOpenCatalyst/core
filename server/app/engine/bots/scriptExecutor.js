@@ -185,7 +185,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     link:res.body.link,
                     status:"pending",
                     serverUrl:serverUrl,
-                    env:"local"
+                    env:"local",
+                    retryCount:0
                 }
                 auditQueue.setAudit(auditQueueDetails);
                 return;
@@ -380,7 +381,8 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                         link:res.body.link,
                         status:"pending",
                         serverUrl:serverUrl,
-                        env:"remote"
+                        env:"remote",
+                        retryCount:0
                     }
                     auditQueue.setAudit(auditQueueDetails);
                 }

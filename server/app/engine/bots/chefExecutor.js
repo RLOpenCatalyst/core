@@ -202,7 +202,8 @@ function executeChefOnLocal(botsChefDetails, auditTrail, userName, botHostDetail
                         link: res.body.link,
                         status: "pending",
                         serverUrl: serverUrl,
-                        env: "local"
+                        env: "local",
+                        retryCount:0
                     }
                     auditQueue.setAudit(auditQueueDetails);
                     return;
@@ -421,7 +422,8 @@ function executeChefOnRemote(instance, botDetails, actionLogId, userName, botHos
                             link: res.body.link,
                             status: "pending",
                             serverUrl: serverUrl,
-                            env: "remote"
+                            env: "remote",
+                            retryCount:0
                         }
                         auditQueue.setAudit(auditQueueDetails);
                         if(reqData.attributes !== null) {
