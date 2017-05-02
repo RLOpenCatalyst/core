@@ -7,7 +7,6 @@ var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 var cronTab = require('node-crontab');
 var auditQueue = require('_pr/config/global-data.js');
-var auditTrailService = require('_pr/services/auditTrailService.js');
 var catalystSync = module.exports = {};
 
 catalystSync.executeScheduledInstances = function executeScheduledInstances() {

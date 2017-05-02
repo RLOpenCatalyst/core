@@ -14,4 +14,8 @@ auditQueueServices.getAuditDetails = function getAuditDetails(fieldName,fieldVal
 }
 auditQueueServices.popAudit = function popAudit(fieldName,fieldValue) {
     auditQueue.splice(auditQueue.indexOf(auditQueue.filter(function(value) {return value[fieldName] === fieldValue})[0]),1)
+};
+auditQueueServices.incRetryCount = function incRetryCount(fieldName,fieldValue) {
+    var index = auditQueue.indexOf(auditQueue.filter(function(value) {return value[fieldName] === fieldValue})[0]);
+    auditQueue[index] += 1;
 }
