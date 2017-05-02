@@ -56,63 +56,37 @@ chefExecutor.execute = function execute(botsDetails, auditTrail, userName, execu
                             log: 'BOT execution has started for Chef BOTs ' + botsDetails.id,
                             timestamp: new Date().getTime()
                         });
-                        parallelChefExecuteList.push(function (callback) { executeChefOnRemote(instances[0], botsDetails, actionLogId, userName, botHostDetails, callback); });
-                        if (parallelChefExecuteList.length === botsDetails.params.nodeIds.length) {
-                            var botAuditTrailObj = {
-                                botId: botsDetails._id,
-                                actionId: actionLogId
-                            }
-                            callback(null, botAuditTrailObj);
-                            async.parallel(parallelChefExecuteList, function (err, results) {
-                                if (err) {
-                                    logger.error("Error in Executor", err);
-                                    var resultTaskExecution = {
-                                        "actionStatus": 'failed',
-                                        "status": 'failed',
-                                        "endedOn": new Date().getTime(),
-                                        "actionLogId": actionLogId
-                                    };
-                                    logsDao.insertLog({
-                                        referenceId: [actionLogId, botsDetails._id],
-                                        err: true,
-                                        log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id + " on Remote",
-                                        timestamp: new Date().getTime()
-                                    });
-                                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
-                                        if (err) {
-                                            logger.error("Failed to create or update bots Log: ", err);
-                                        }
-                                        return;
-                                    });
-                                }else {
-                                    logger.debug(botsDetails.id+" BOT execution has Done")
-                                    var resultTaskExecution = {
-                                        "actionStatus": 'success',
-                                        "status": 'success',
-                                        "endedOn": new Date().getTime(),
-                                        "actionLogId": actionLogId
-                                    };
-                                    logsDao.insertLog({
-                                        referenceId: [actionLogId, botsDetails._id],
-                                        err: false,
-                                        log: 'BOT has been executed successfully for Script BOTs  ' + botsDetails.id +" on Remote",
-                                        timestamp: new Date().getTime()
-                                    });
-                                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
-                                        if (err) {
-                                            logger.error("Failed to create or update bots Log: ", err);
-                                        }
-                                        var botOldService = require('_pr/services/botOldService');
-                                        botOldService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
-                                            if (err) {
-                                                logger.error("Failed to update bots saved Time: ", err);
-                                            }
-                                        });
-                                        return;
-                                    });
-                                }
-                            })
+                        var botAuditTrailObj = {
+                            botId: botsDetails._id,
+                            actionId: actionLogId
                         }
+                        callback(null, botAuditTrailObj);
+                        executeChefOnRemote(instances[0], botsDetails, actionLogId,auditTrail._id, userName, botHostDetails, function(err,data) {
+                            if (err) {
+                                logger.error("Error in Executor", err);
+                                var resultTaskExecution = {
+                                    "actionStatus": 'failed',
+                                    "status": 'failed',
+                                    "endedOn": new Date().getTime(),
+                                    "actionLogId": actionLogId
+                                };
+                                logsDao.insertLog({
+                                    referenceId: [actionLogId, botsDetails._id],
+                                    err: true,
+                                    log: 'BOTs execution is failed for Chef BOTs  ' + botsDetails.id + " on Remote",
+                                    timestamp: new Date().getTime()
+                                });
+                                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
+                                    if (err) {
+                                        logger.error("Failed to create or update bots Log: ", err);
+                                    }
+                                    return;
+                                });
+                            }else{
+                                logger.debug("BOT Execution is going on:::::");
+                                return;
+                            }
+                        })
                     } else {
                         logger.debug("No Instance Detail Available.");
                         return;
@@ -244,7 +218,7 @@ function executeChefOnLocal(botsChefDetails, auditTrail, userName, botHostDetail
 };
 
 
-function executeChefOnRemote(instance, botDetails, actionLogId, userName, botHostDetails, callback) {
+function executeChefOnRemote(instance, botDetails, actionLogId, auditTrailId, userName, botHostDetails, callback) {
     var timestampStarted = new Date().getTime();
     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
     instance.tempActionLogId = actionLog._id;
@@ -413,10 +387,10 @@ function executeChefOnRemote(instance, botDetails, actionLogId, userName, botHos
                             botId: botDetails.id,
                             bot_id: botDetails._id,
                             logRefId: logsReferenceIds,
-                            auditId: '',
+                            auditId: actionLogId,
                             instanceLog: instanceLog,
                             instanceIP: instance.instanceIP,
-                            auditTrailId: '',
+                            auditTrailId: auditTrailId,
                             remoteAuditId: res.body.bot_run_id,
                             link: res.body.link,
                             status: "pending",

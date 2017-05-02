@@ -791,13 +791,23 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '16') {
                         // For Template
                         logger.debug("Id for templateType: ", req.params.id);
-                        masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch TemplateType.');
-                            }
-                            res.send(JSON.stringify(templateList));
-                            return;
-                        });
+                        if(req.query.source ==='design') {
+                            masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }else{
+                            masterUtil.getTemplateTypes(orgList, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }
                     } else if (req.params.id === '19') {
                         // For ServiceCommand
                         masterUtil.getServiceCommands(orgList, function (err, serviceCommandList) {
@@ -1024,14 +1034,23 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '16') {
                         // For Template
                         logger.debug("Id for templateType: ", req.params.id);
-                        masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch TemplateType.');
-                            }
-                            res.send(JSON.stringify(templateList));
-                            return;
-                        });
-
+                        if(req.query.source ==='design') {
+                            masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }else{
+                            masterUtil.getTemplateTypes(orgList, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }
                     } else if (req.params.id === '19') {
                         // For ServiceCommand
                         masterUtil.getServiceCommands(orgList, function (err, serviceCommandList) {

@@ -9,9 +9,9 @@ auditQueueServices.setAudit = function setAudit(auditQueueDetails) {
 auditQueueServices.getAudit = function getAudit() {
     return auditQueue;
 }
-auditQueueServices.getAuditDetails = function getAuditDetails(remoteAuditId) {
-    return auditQueue.filter(function (value) { return value.remoteAuditId == remoteAuditId; })[0]
+auditQueueServices.getAuditDetails = function getAuditDetails(fieldName,fieldValue) {
+    return auditQueue.filter(function (value) { return value[fieldName] == fieldValue; })[0]
 }
-auditQueueServices.popAudit = function popAudit(botId) {
-    auditQueue.splice(auditQueue.indexOf(auditQueue.filter(function(value) {return value.botId === botId})[0]),1)
+auditQueueServices.popAudit = function popAudit(fieldName,fieldValue) {
+    auditQueue.splice(auditQueue.indexOf(auditQueue.filter(function(value) {return value[fieldName] === fieldValue})[0]),1)
 }
