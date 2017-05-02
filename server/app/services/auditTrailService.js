@@ -225,79 +225,84 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
             if(botAuditTrail.length > 0 && botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj
             && (botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== null || botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== '')){
                 srnTicketNo = botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
-                serviceNow.getCMDBList(next);
-            }else{
-                next({code:400,message:"There is no records are available for Service Now Ticket Sync"},null);
-            }
-        },
-        function(srnServerDetails,next){
-            if(srnServerDetails.length > 0) {
-                var tableName = 'incident';
-                var config = {
-                    username: srnServerDetails[0].servicenowusername,
-                    password: srnServerDetails[0].servicenowpassword,
-                    host: srnServerDetails[0].url,
-                    ticketNo: srnTicketNo
-                };
-                serviceNow.getConfigItems(tableName,config,function (err, ticketData) {
+                serviceNow.getCMDBList(function(err,srnServerDetails) {
                     if (err) {
-                        logger.error("Error in Getting Servicenow Config Items:", err);
                         next(err, null);
-                        return;
-                    } else if (!ticketData.result) {
-                        logger.error("ServiceNow CI data fetch error");
-                        next({code: 303, message: "No Data is available in ServiceNow against ticketNo:"+srnTicketNo}, null);
-                        return;
-                    } else {
-                        var serviceNowObj = {
-                            ticketNo:srnTicketNo,
-                            ticketLink:srnServerDetails[0].url+'/api/now/table/' + tableName+"?number="+srnTicketNo,
-                            shortDesc:ticketData.result[0].short_description,
-                            desc:ticketData.result[0].description,
-                            openedAt:toTimestamp(ticketData.result[0].opened_at),
-                            createdOn:toTimestamp(ticketData.result[0].sys_created_on),
-                            closedAt:toTimestamp(ticketData.result[0].closed_at),
-                            updatedOn:toTimestamp(ticketData.result[0].sys_updated_on),
-                            resolvedAt:toTimestamp(ticketData.result[0].resolved_at),
-                            state:checkServiceNowTicketState(ticketData.result[0].state),
-                            priority:checkServiceNowTicketPriority(ticketData.result[0].priority),
-                            category:ticketData.result[0].category
+                    } else if (srnServerDetails.length > 0) {
+                        var tableName = 'incident';
+                        var config = {
+                            username: srnServerDetails[0].servicenowusername,
+                            password: srnServerDetails[0].servicenowpassword,
+                            host: srnServerDetails[0].url,
+                            ticketNo: srnTicketNo
                         };
-                        var request = require('request');
-                        var host = ticketData.result[0].resolved_by.link.replace(/.*?:\/\//g, "");
-                        var serviceNowURL = 'https://' + config.username + ':' + config.password + '@' + host;
-                        var options = {
-                            url: serviceNowURL,
-                            headers: {
-                                'User-Agent': 'request',
-                                'Accept': 'application/json'
+                        serviceNow.getConfigItems(tableName, config, function (err, ticketData) {
+                            if (err) {
+                                logger.error("Error in Getting Servicenow Config Items:", err);
+                                next(err, null);
+                                return;
+                            } else if (!ticketData.result) {
+                                logger.error("ServiceNow CI data fetch error");
+                                next({
+                                    code: 303,
+                                    message: "No Data is available in ServiceNow against ticketNo:" + srnTicketNo
+                                }, null);
+                                return;
+                            } else {
+                                var serviceNowObj = {
+                                    ticketNo: srnTicketNo,
+                                    ticketLink: srnServerDetails[0].url + '/api/now/table/' + tableName + "?number=" + srnTicketNo,
+                                    shortDesc: ticketData.result[0].short_description,
+                                    desc: ticketData.result[0].description,
+                                    openedAt: toTimestamp(ticketData.result[0].opened_at),
+                                    createdOn: toTimestamp(ticketData.result[0].sys_created_on),
+                                    closedAt: toTimestamp(ticketData.result[0].closed_at),
+                                    updatedOn: toTimestamp(ticketData.result[0].sys_updated_on),
+                                    resolvedAt: toTimestamp(ticketData.result[0].resolved_at),
+                                    state: checkServiceNowTicketState(ticketData.result[0].state),
+                                    priority: checkServiceNowTicketPriority(ticketData.result[0].priority),
+                                    category: ticketData.result[0].category
+                                };
+                                var request = require('request');
+                                var host = ticketData.result[0].resolved_by.link.replace(/.*?:\/\//g, "");
+                                var serviceNowURL = 'https://' + config.username + ':' + config.password + '@' + host;
+                                var options = {
+                                    url: serviceNowURL,
+                                    headers: {
+                                        'User-Agent': 'request',
+                                        'Accept': 'application/json'
+                                    }
+                                };
+                                request(options, function (error, response, body) {
+                                    if (!error && response.statusCode == 200) {
+                                        var info = JSON.parse(body);
+                                        serviceNowObj.resolvedBy = info.result.user_name;
+                                    } else {
+                                        serviceNowObj.resolvedBy = "admin";
+                                    }
+                                    botAuditTrail.updateBotAuditTrail(auditTrailId, {
+                                        'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj
+                                    }, function (err, data) {
+                                        if (err) {
+                                            logger.error(err);
+                                            next(err, null);
+                                            return;
+                                        } else {
+                                            next(null, data);
+                                            return;
+                                        }
+                                    })
+                                });
                             }
-                        };
-                        request(options, function(error, response, body) {
-                            if (!error && response.statusCode == 200) {
-                                var info = JSON.parse(body);
-                                serviceNowObj.resolvedBy = info.result.user_name;
-                            }else {
-                                serviceNowObj.resolvedBy = "admin";
-                            }
-                            botAuditTrail.updateBotAuditTrail(auditTrailId, {
-                                'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj
-                            }, function (err, data) {
-                                if (err) {
-                                    logger.error(err);
-                                    next(err, null);
-                                    return;
-                                }else {
-                                    next(null, data);
-                                    return;
-                                }
-                            })
                         });
+                    } else {
+                        logger.info("There is no Service Now Server details available. Please configure first for serviceNow Syncing");
+                        next(null,null);
                     }
                 });
             }else{
-                next({code:500,message:"There is no Service Now Server details available. Please configure first for serviceNow Syncing"})
-                return;
+                logger.info("There is no records are available for Service Now Ticket Sync");
+                next(null,null);
             }
         }
 
