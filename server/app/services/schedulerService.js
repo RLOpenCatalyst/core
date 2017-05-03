@@ -168,27 +168,28 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
             var count = 0;
             body.forEach(function(auditTrailDetail){
                 var auditData = auditQueue.getAuditDetails("remoteAuditId",auditTrailDetail.bot_run_id);
-                console.log(auditData);
                 if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'terminated' || auditTrailDetail.state === 'failed')) {
                     var timestampEnded = new Date().getTime();
                     count++;
+                    if (auditTrailDetail.log !== '...' || auditTrailDetail.log !== '') {
+                        var logList = auditTrailDetail.log.split("\n");
+                        logList.forEach(function (log) {
+                            if(log !== null && log !== '') {
+                                logsDao.insertLog({
+                                    referenceId: auditData.logRefId,
+                                    err: auditTrailDetail.state === 'terminated' ? false : true,
+                                    log: log,
+                                    timestamp: timestampEnded
+                                });
+                            }
+                        })
+                    }
                     logsDao.insertLog({
                         referenceId: auditData.logRefId,
                         err: auditTrailDetail.state === 'terminated' ? false : true,
                         log: auditTrailDetail.status.text,
                         timestamp: timestampEnded
                     });
-                    if (auditTrailDetail.log !== '...' || auditTrailDetail.log !== '') {
-                        var logList = auditTrailDetail.log.split("\n");
-                        logList.forEach(function (log) {
-                            logsDao.insertLog({
-                                referenceId: auditData.logRefId,
-                                err: auditTrailDetail.state === 'terminated' ? false : true,
-                                log: log,
-                                timestamp: timestampEnded
-                            });
-                        })
-                    }
                     if (auditData.env === 'local') {
                         logsDao.insertLog({
                             referenceId: auditData.logRefId,
@@ -288,9 +289,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                 }else if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'active' )) {
                     var timestampEnded = new Date().getTime();
                     count++;
-                    console.log(botEngineTimeOut);
                     if (auditData.retryCount === botEngineTimeOut) {
-                        console.log("True");
                         logsDao.insertLog({
                             referenceId: auditData.logRefId,
                             err: auditTrailDetail.state === 'terminated' ? false : true,
@@ -376,7 +375,6 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                             });
                         }
                     }else{
-                        console.log("false");
                         auditQueue.incRetryCount('auditId', auditData.auditId);
                     }
                     if(count ===body.length){
@@ -398,9 +396,12 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
 }
 
 schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots,callback) {
-    logger.debug("New Bots Scheduler is started for - "+bots.name);
     var currentDate = new Date().getTime();
-    if(currentDate >= bots.scheduler.cronEndOn){
+    if(bots.isScheduled === false && bots.cronJobId){        
+        crontab.cancelJob(bots.cronJobId);        
+         logger.debug("Bots Scheduler has ended for - "+bots.name);
+        callback(null,null);    
+    }else if(currentDate >= bots.scheduler.cronEndOn && bots.isScheduled === true){
         crontab.cancelJob(bots.cronJobId);
         botDao.updateBotsScheduler(bots._id,function(err, updatedData) {
             if (err) {
@@ -408,11 +409,12 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
                 callback(err,null);
                 return;
             }
-            logger.debug("Scheduler is ended on for New Bots. "+bots.name);
+            logger.debug("Scheduler has ended on for New Bots. "+bots.name);
             callback(null,updatedData);
             return;
         });
     }else{
+        logger.debug("New Bots Scheduler has started for - "+bots.name);
         var cronJobId = cronTab.scheduleJob(bots.scheduler.cronPattern, function () {
             botDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
                 if(err){

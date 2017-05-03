@@ -37,7 +37,7 @@
                 <span ng-show="newSchedule.repeatBy.$touched && newSchedule.repeatBy.$invalid" class="inputValidationMsg">
                </span>
                </label>
-               <select name="repeatBy" class="form-control-date" ng-model="repeatBy" >
+               <select name="repeatBy" class="form-control-date" ng-model="repeatBy" required>
                   <option value="" selected="selected">Choose</option>
                   <option ng-repeat="repeatBy in repeatCount(30)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
                </select>
@@ -94,8 +94,11 @@
             <!--dropdown ends here-->
          </fieldset>
          <div class="modal-footer">
+           <button ng-show="showForScheduled" type="button" class="btn cat-btn-close" ng-click="unschedule()">
+           <i class="fa fa-undo black"></i> Unschedule
+           </button>
            <button type="submit" class="btn cat-btn-update" ng-disabled="newSchedule.$invalid" ng-click="ok()">
-           <i class="fa fa-check white"></i> Save
+           <i class="fa fa-repeat white"></i> Schedule
            </button>      
         </div>
       </div>
