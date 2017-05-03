@@ -3,8 +3,8 @@
 var logger = require('_pr/logger')(module);
 var mongodbConnect = require('_pr/lib/mongodb');
 var appConfig = require('_pr/config');
-var bots = require('_pr/model/bots/1.0/bots.js');
-var botService = require('_pr/services/botsService.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botOldService = require('_pr/services/botOldService.js');
 
 var dbOptions = {
     host: process.env.DB_HOST || appConfig.db.host,
@@ -21,7 +21,7 @@ mongodbConnect(dbOptions, function(err) {
 });
 
 
-bots.getAllBots({isDeleted:false}, function(err, bots) {
+botOld.getAllBots({isDeleted:false}, function(err, bots) {
     if (err) {
         logger.error("Failed to fetch Bots: ", err);
         process.exit();
@@ -30,12 +30,12 @@ bots.getAllBots({isDeleted:false}, function(err, bots) {
         var count = 0;
         for (var i = 0; i < bots.length; i++) {
             (function(bot) {
-                botService.updateSavedTimePerBots(bot.botId,'BOTs',function(err,data){
+                botOldService.updateSavedTimePerBots(bot.botId,'BOTOLD',function(err,data){
                     if(err){
                         logger.error("Error in updating BOTs Saved Time. ",err);
                     }
                     count++;
-                    if(count === bots.length){
+                    if(count === botOld.length){
                         logger.debug("All BOTs updated.");
                         process.exit();
                     }

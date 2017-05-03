@@ -1472,7 +1472,9 @@ input[type="text"].ui-grid-filter-input{
     font-weight: 500;
 }
 
-.bp-panel-body {
+.bots-panel-body {
+    max-height: 230px;
+    min-height: 230px;
     overflow-y:auto!important;
 }
 
@@ -1561,7 +1563,7 @@ input[type="text"].ui-grid-filter-input{
     }
     .navbar-top-links li a {
         padding: 15px;
-        min-height: 50px;
+        min-height: 49px;
     }
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
         background-color: #525961;
@@ -1589,4 +1591,66 @@ input[type="text"].ui-grid-filter-input{
 
 .pluginBlueprintImageLogo {
     height: 28px;
+}
+
+// calender
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #40BAF1 !important;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+    border-bottom: 1px solid #ccc;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #40BAF1 !important;
+    color: #fff;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #40BAF1 !important;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #40BAF1 !important;
+    color: #fff;
+}
+#dtp-svg-clock {
+    line[Attributes Style] {
+     stroke: #40BAF1 !important;
+    }
+    circle[Attributes Style] {
+         fill: #40BAF1 !important;
+    }
+}
+
+.font-size-16{
+  font-size: 16px !important;
+}
+
+.padding6 {
+    padding: 6.5px!important
+}
+
+@media (min-width: 1550px) {
+    .bots-panel-body {
+        max-height: 350px;
+        min-height: 350px;
+        overflow-y:auto!important;
+    }
+}
+
+.form-controlSelect {
+    display: inline;
+    width: 60%;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 1.428571429;
+    color: #555;
+    vertical-align: middle;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    height: 30px;
 }

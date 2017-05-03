@@ -59,6 +59,12 @@
 							Applications
 						</a>
 					</li>
+					<li ng-class="{active:tab.isSet('Dashboard')}">
+						<a ng-click="tab.setTab('Dashboard');removeActive()">
+                            <i class="fa fa-tachometer black"></i>
+							Dashboard
+						</a>
+					</li>
 				</ul>
 				<div class="{{tab.isSet('Instances')? 'show-grid-tab':'hide-grid'}}">
 					 <div ng-include="tab.templates.instance.url"></div>
@@ -81,6 +87,9 @@
 				<div class="{{tab.isSet('Applications')? 'show-grid-tab':'hide-grid'}}">
 					  <div ng-include="tab.templates.application.url"></div>
 				</div>
+                <div class="{{tab.isSet('Dashboard')? 'show-grid-tab':'hide-grid'}}">
+                    <iFrame src="{{dashboardUrlWZ | trustAsResourceUrl}}" frameborder="0" width="100%" height="800" allowfullscreen></iFrame>
+                </div>
 			</div>
 		</div>
 	</div>

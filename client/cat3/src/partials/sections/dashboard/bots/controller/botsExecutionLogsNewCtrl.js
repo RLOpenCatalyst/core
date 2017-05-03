@@ -14,7 +14,6 @@
         };
     }])
     .controller('botsExecutionLogsNewCtrl',['$scope', 'items', '$rootScope', 'botsCreateService', 'botPollingSetting','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, botsCreateService, botPollingSetting, genSevs, toastr, $modalInstance, $timeout) {
-        $scope.isLogsLoading = true;
         angular.extend($scope, {
             logListInitial: [],
             logListDelta: []

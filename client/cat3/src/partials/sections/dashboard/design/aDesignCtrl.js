@@ -6,7 +6,7 @@
 				url: "/:providerName/list",
 				templateUrl: "src/partials/sections/dashboard/design/view/designListView.html",
 				controller: "blueprintListCtrl as bpList",
-				params:{templateObj:{}},
+				params:{filterhide: false, templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -24,7 +24,7 @@
 				url: "/:providerName/new",
 				templateUrl: "src/partials/sections/dashboard/design/view/blueprintCreate.html",
 				controller: "blueprintCreateCtrl as bpCreate",
-				params:{templateObj:{}},
+				params:{filterhide:true, templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -42,7 +42,7 @@
 				url: "/:providerName/composite",
 				templateUrl: "src/partials/sections/dashboard/design/view/createComposite.html",
 				controller: "createCompositeCtrl as createCBP",
-				params:{templateObj:{}},
+				params:{filterhide:true, templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -83,7 +83,7 @@
 		};
 		design.tempType=function (providers) {
 			var params = {
-				url: '/d4dMasters/readmasterjsonnew/16'
+				url: '/d4dMasters/readmasterjsonnew/16?source=design'
 			};
 			genericServices.promiseGet(params).then(function (template){
 				design.templateTypes=template;

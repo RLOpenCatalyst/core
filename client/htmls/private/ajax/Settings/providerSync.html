@@ -733,7 +733,22 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +',resourceType:S3,category:assigned',
+            "ajax": {
+                "url": '/resources?filterBy=providerId:'+ urlproviderId +',resourceType:S3,category:assigned',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
@@ -791,7 +806,22 @@
             "createdRow": function( row, data ) {
                 $( row ).attr({"data-id" : data._id})
             },
-            "ajax": '/providers/' + urlproviderId + '/managedInstanceList',
+            "ajax": {
+                "url": '/providers/' + urlproviderId + '/managedInstanceList',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "platformId","orderable" : true  },
                 {"data": "hardware.os","orderable" : false  },
@@ -884,7 +914,22 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +',resourceType:RDS,category:assigned',
+            "ajax": {
+                "url": '/resources?filterBy=providerId:'+ urlproviderId +',resourceType:RDS,category:assigned',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
@@ -1776,7 +1821,22 @@
                 "createdRow": function( row, data ) {
                     $( row ).attr({"instanceId" : data._id})
                 },
-                "ajax": '/providers/' + urlproviderId + '/unmanagedInstanceList',
+                "ajax": {
+                    "url": '/providers/' + urlproviderId + '/unmanagedInstanceList',
+                    "data": function( result ) {
+                        var columnIndex = parseInt(result.order[0].column);
+                        var newResult = {
+                            draw:result.draw,
+                            page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                            pageSize:result.length,
+                            sortOrder:result.order[0].dir,
+                            sortBy:result.columns[columnIndex].data,
+                            filterBy:result.filterBy,
+                            search:result.search.value
+                        }
+                        return newResult;
+                    }
+                },
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
@@ -1836,7 +1896,22 @@
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
+                "ajax": {
+                    "url": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
+                    "data": function( result ) {
+                        var columnIndex = parseInt(result.order[0].column);
+                        var newResult = {
+                            draw:result.draw,
+                            page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                            pageSize:result.length,
+                            sortOrder:result.order[0].dir,
+                            sortBy:result.columns[columnIndex].data,
+                            filterBy:result.filterBy,
+                            search:result.search.value
+                        }
+                        return newResult;
+                    }
+                },
                 "createdRow": function( row, data ) {
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
@@ -1893,7 +1968,22 @@
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
+                "ajax": {
+                    "url": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
+                    "data": function( result ) {
+                        var columnIndex = parseInt(result.order[0].column);
+                        var newResult = {
+                            draw:result.draw,
+                            page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                            pageSize:result.length,
+                            sortOrder:result.order[0].dir,
+                            sortBy:result.columns[columnIndex].data,
+                            filterBy:result.filterBy,
+                            search:result.search.value
+                        }
+                        return newResult;
+                    }
+                },
                 "createdRow": function( row, data ) {
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
@@ -1950,7 +2040,22 @@
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/providers/' + urlproviderId + '/unassigned-instances',
+                "ajax": {
+                    "url": '/providers/' + urlproviderId + '/unassigned-instances',
+                    "data": function( result ) {
+                        var columnIndex = parseInt(result.order[0].column);
+                        var newResult = {
+                            draw:result.draw,
+                            page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                            pageSize:result.length,
+                            sortOrder:result.order[0].dir,
+                            sortBy:result.columns[columnIndex].data,
+                            filterBy:result.filterBy,
+                            search:result.search.value
+                        }
+                        return newResult;
+                    }
+                },
                 "createdRow": function( row, data ) {
                     $( row ).attr({"instanceId" : data._id,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },

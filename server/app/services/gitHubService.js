@@ -22,14 +22,14 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 var targz = require('targz');
 var async = require('async');
-var execCmd = require('exec');
+var execCmd = require('child_process').exec;
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
-var botsNewService = require("_pr/services/botsNewService.js");
+var botService = require("_pr/services/botService.js");
 var fs = require('fs');
 var dircompare = require('dir-compare');
-var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var glob = require("glob");
 var mkdirp = require('mkdirp');
@@ -53,7 +53,6 @@ gitGubService.checkIfGitHubExists = function checkIfGitHubExists(gitHubId, callb
         }
     });
 };
-
 
 gitGubService.createGitHub = function createGitHub(gitHubObj, callback) {
     if(gitHubObj.repositoryType === 'Private' && gitHubObj.authenticationType === 'userName'){
@@ -282,7 +281,7 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                     });
                     bots.push(reqBody[index].botName);
                 }
-                botsNewService.syncBotsWithGitHub(gitHubId, function (err, data) {
+                botService.syncBotsWithGitHub(gitHubId, function (err, data) {
                     if (err) {
                         callback(err,null)
                         logger.error("Error in Syncing GIT-Hub.", err);
@@ -378,7 +377,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
             gitHubModel.getGitHubById(gitHubId,callback);
         },
         botsDetails:function(callback){
-            botsDao.getBotsByBotId(botId,callback);
+            botDao.getBotsByBotId(botId,callback);
         }
     },function(err,result) {
         if(err){
@@ -404,7 +403,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                 async.parallel([
                     function(callback) {
                         if(result.botsDetails[0].type ==='script') {
-                            var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/Script_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
+                            var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/'+result.botsDetails[0].type+'_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
                             gitHubSingleSync(formattedGitHub, cmdFull, cmd, callback);
                         }else{
                             callback(null,result.botsDetails[0]);
@@ -419,7 +418,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                         callback(err,null);
                         return;
                     }else{
-                        botsNewService.syncSingleBotsWithGitHub(botId, function (err, data) {
+                        botService.syncSingleBotsWithGitHub(botId, function (err, data) {
                             if (err) {
                                 logger.error("Error in Syncing GIT-Hub.", err);
                                 callback(err, null);
@@ -553,15 +552,14 @@ function formatGitHubResponse(gitHub,callback) {
 function gitHubCloning(gitHubDetails,task,cmd,callback){
     var filePath = appConfig.botFactoryDir +gitHubDetails.repositoryName+'.tgz';
     var destPath = appConfig.botFactoryDir + gitHubDetails._id;
-    var botFactoryDirPath = appConfig.botFactoryDir;
-    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;                                
+    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;
     var options = {compareContent: true,excludeFilter:'*.md',skipSymlinks:true};
     if(fs.existsSync(filePath)){
         fs.unlinkSync(filePath)
     }
     if(task && task === 'sync'){
         execCmd(cmd, function (err, out, code) {
-            if (code === 0) {
+            if (err === null) {
                 targz.decompress({
                     src: filePath,
                     dest: destPath
@@ -586,7 +584,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                     if(fs.existsSync(destPath)){
                                         fse.removeSync(destPath)
                                     }
-                                    botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
+                                    botService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
                                         if (err) {
                                             callback(err, null);
                                             logger.error("Error in Syncing GIT-Hub.", err);
@@ -624,7 +622,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                                 "branch":gitHubDetails.repositoryBranch, 
                                                 "repo":gitHubDetails.repositoryOwner+'/'+gitHubDetails.repositoryName};
                                             var options = {
-                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory",
+                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory?auth=password",
                                                 headers: {
                                                     'Content-Type': 'application/json'
                                                 },
@@ -655,7 +653,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
     }else {
         execCmd(cmd, function (err, out, code) {
             destPath = destPath + '.temp';
-            if (code === 0) {
+            if (err === null) {
                 if(fs.existsSync(destPath)){
                     fse.removeSync(destPath)
                 }
@@ -757,7 +755,7 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
     if(fs.existsSync(upload))
         fse.removeSync(upload);
     execCmd(cmdFull, function (err, out, code) {
-        if(code === 0 && out.trim() !== '404: Not Found'){
+        if(err === null && out.trim() !== '404: Not Found'){
             var response = JSON.parse(out);
             if(response.length){
                 for (var index = 0; index < response.length; index++) {
@@ -798,7 +796,7 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
     });
     function writeFile(cmd,callback){
         execCmd(cmd,function(err,out,code) {
-            if(code === 0 && out.trim() !== '404: Not Found'){
+            if(err === null && out.trim() !== '404: Not Found'){
                 var fileres = JSON.parse(out);
                 var destFile = filepath+fileres.path;
                 var uploadFile = upload+fileres.path;

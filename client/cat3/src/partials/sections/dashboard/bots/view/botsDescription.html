@@ -4,19 +4,19 @@
       
       <div class="grid-card-base bot-card-hero no-card-links" style="margin-top:20px;margin-left:0px!important">
          <div class="image-cell two-tone-11">
-            <img class="highlight" alt="{{templateSelected.botCategory}}" ng-src="{{botIcon}}">
+            <img class="highlight" title="{{templateSelected.category}}" alt="{{templateSelected.category}}" ng-src="{{botIcon}}">
          </div>
          <div class="bot-content">
             <h3 title="{{templateSelected.name?templateSelected.name:templateSelected.botName}}">{{templateSelected.name?templateSelected.name:templateSelected.botName}}</h3>
             <ul class="ul-vert-bar">
                <li class="publisher" title="{{templateSelected.desc?templateSelected.desc:templateSelected.botDesc}}">{{templateSelected.desc?templateSelected.desc:templateSelected.botDesc}}</li>
+               <li ng-if="templateSelected.executionCount">Runs:&nbsp;<span>{{templateSelected.executionCount}}</li> 
                <li ng-if="templateSelected.lastRunTime" title="{{templateSelected.lastRunTime | timestampToLocaleTime}}"><i class="fa fa-clock-o"></i>&nbsp;<span am-time-ago="templateSelected.lastRunTime"> {{templateSelected.lastRunTime}}</span></li>
-               <li ng-if="templateSelected.executionCount">Total Runs:&nbsp;<span>{{templateSelected.executionCount}}</li> 
             </ul>
          </div>
-         <div class="pull-right" style="margin-top:-14px;">
+         <div class="pull-right" style="margin-top:-24px;">
             <button type="button" ng-if="templateSelected.source ==='GitHub'" class="btn cat-btn-update btn-primary btnDescription" title="BOT Sync" ng-click="botSync(templateSelected)"><i style="color: #fff" ng-class="{'fa fa-refresh' : activeClass !== templateSelected, 'fa fa-refresh fa-spin' : activeClass === templateSelected}"></i><span class="marginleft5">Sync</span></button>
-            <button type="button" title="Bots List" class="btn cat-btn-update btn-primary btnDescription" ui-sref="dashboard.bots.library">
+            <button type="button" title="BOT List" class="btn cat-btn-update btn-primary btnDescription" ui-sref="dashboard.bots.library">
                <i class="fa fa-chevron-left" style="color: #fff"></i><span class="marginleft5">Back</span>
             </button>
          </div> 
@@ -32,7 +32,7 @@
             <li ng-class="{active:tab.isSet('ReadMe')}">
                <a ng-click="tab.setTab('ReadMe')">
                <i class="fa fa-codepen black"></i>&nbsp;
-               Read Me
+               Definition
                </a>
             </li>
             <li ng-class="{active:tab.isSet('Report')}">
@@ -41,12 +41,12 @@
                History
                </a>
             </li>
-            <li ng-class="{active:tab.isSet('Param')}">
+            <!-- <li ng-class="{active:tab.isSet('Param')}">
                <a ng-click="tab.setTab('Param')">
                <i class="fa fa-info black"></i>&nbsp;
                Param
                </a>
-            </li>
+            </li> -->
             <li ng-class="{active:tab.isSet('Schedule')}">
                <a ng-click="tab.setTab('Schedule')">
                <i class="fa fa-calendar black"></i>&nbsp;
@@ -59,6 +59,12 @@
                Settings
                </a>
             </li>
+            <!-- <li ng-class="{active:tab.isSet('Help')}">
+               <a ng-click="tab.setTab('Help')">
+               <i class="fa fa-question black"></i>&nbsp;
+               Help
+               </a>
+            </li> -->
          </ul>
       </div>
    </div>
@@ -68,9 +74,9 @@
    <div class="{{tab.isSet('Execute')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.execute.url"></div>
    </div>
-   <div class="{{tab.isSet('Param')? 'show-grid-tab':'hide-grid'}}">
+   <!-- <div class="{{tab.isSet('Param')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.param.url"></div>
-   </div>
+   </div> -->
    <div class="{{tab.isSet('Report')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.report.url"></div>
    </div>
@@ -80,4 +86,7 @@
    <div class="{{tab.isSet('Settings')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.settings.url"></div>
    </div>
+   <!-- <div class="{{tab.isSet('Help')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.help.url"></div>
+   </div> -->
 </div>
