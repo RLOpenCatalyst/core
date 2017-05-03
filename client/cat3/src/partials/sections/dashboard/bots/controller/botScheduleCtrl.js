@@ -151,6 +151,9 @@
                 if(response){
                     toastr.success('BOTs Unscheduled successfully');
                     $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                    $scope.defaultSelection();
+                    $scope.repeatBy = '';
+                    $scope.showForScheduled = false;
                     $scope.$dismiss('cancel');
                 }
             });
