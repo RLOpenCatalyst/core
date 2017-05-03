@@ -39,8 +39,11 @@ var Schema = mongoose.Schema;
 var resourceService = require('_pr/services/resourceService');
 var auditTrailService = require('_pr/services/auditTrailService');
 var noticeService = require('_pr/services/noticeService.js');
+var resourceMapService = require('_pr/services/resourceMapService.js');
+
 
 var AWSInstanceBlueprintSchema = new Schema({
+    _id:false,
     keyPairId: {
         type: String,
         required: true,
@@ -68,26 +71,33 @@ var AWSInstanceBlueprintSchema = new Schema({
     },
     instanceType: {
         type: String,
-        //  required: true
+        required: false,
+        trim: true
     },
     instanceOS: {
         type: String,
-        // required: true
+        required: false,
+        trim: true
     },
     instanceCount: {
         type: String,
+        required: false,
+        trim: true
     },
     instanceAmiid: {
         type: String,
-        //  required: true
+        required: false,
+        trim: true
     },
     instanceUsername: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     imageId: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     }
 });
 
@@ -198,8 +208,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                         });
                         return;
                     }
-
-
+                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                        var resourceMapObj = {
+                            stackName: domainName,
+                            stackType: "SoftwareStack",
+                            stackStatus: "CREATED",
+                            resources: []
+                        }
+                        if(launchParams.blueprintData.templateType !== 'chef'){
+                            resourceMapObj.stackType = "OSImage";
+                        }
+                        resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
+                            if (err) {
+                                logger.error("resourceMapService.createNewResourceMap is Failed ==>", err);
+                            }
+                        })
+                    }
                     var newinstanceIDs = [];
 
                     function addinstancewrapper(instanceData, instancesLength) {
@@ -231,6 +255,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             instanceType: self.instanceType,
                             catUser: launchParams.sessionUser,
                             monitor: launchParams.monitor,
+                            domainName:launchParams.domainName?launchParams.domainName:null,
                             hardware: {
                                 platform: 'unknown',
                                 platformVersion: 'unknown',
@@ -409,6 +434,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 logger.error("Failed to create or update bots Log: ", err);
                                             }
                                         });
+                                        logsDao.insertLog({
+                                            referenceId:logsReferenceIds,
+                                            err: true,
+                                            log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
+                                            timestamp: new Date().getTime()
+                                        });
                                     }
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
@@ -426,9 +457,24 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     });
                                     awsLogger.error("waitForInstanceRunnnigState returned an error  >>", err);
                                     logger.error("waitForInstanceRunnnigState returned an error  >>", err);
+                                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                        var resourceObj = {
+                                            stackStatus:"ERROR",
+                                            resources:[
+                                                {
+                                                    id:instance.id,
+                                                    type:"instance"
+                                                }
+                                            ]
+                                        }
+                                        resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                            if(err){
+                                                logger.error("Error in updating Resource Map.",err);
+                                            }
+                                        });
+                                    }
                                     return;
                                 }
-                                logger.debug("Enter waitForInstanceRunnnigState :", instanceData);
                                 instance.instanceIP = instanceData.PublicIpAddress || instanceData.PrivateIpAddress;
                                 instancesDao.updateInstanceIp(instance.id, instance.instanceIP, function (err, updateCount) {
                                     if (err) {
@@ -493,6 +539,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }
                                             });
+                                            logsDao.insertLog({
+                                                referenceId:logsReferenceIds,
+                                                err: true,
+                                                log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
+                                                timestamp: new Date().getTime()
+                                            });
                                         }
 
                                         logsDao.insertLog({
@@ -511,6 +563,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         });
                                         awsLogger.error("Instance ok state wait failed. Unable to bootstrap");
                                         logger.error('intance wait failed ==> ', err);
+                                        if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                            var resourceObj = {
+                                                stackStatus:"ERROR",
+                                                resources:[
+                                                    {
+                                                        id:instance.id,
+                                                        type:"instance"
+                                                    }
+                                                ]
+                                            }
+                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                if(err){
+                                                    logger.error("Error in updating Resource Map.",err);
+                                                }
+                                            });
+                                        }
                                         return;
                                     }
 
@@ -556,6 +624,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         logger.error("Failed to create or update bots Log: ", err);
                                                     }
                                                 });
+                                                logsDao.insertLog({
+                                                    referenceId:logsReferenceIds,
+                                                    err: true,
+                                                    log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
+                                                    timestamp: new Date().getTime()
+                                                });
                                             }
 
                                             var timestampEnded = new Date().getTime();
@@ -575,6 +649,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             });
                                             awsLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                            if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                var resourceObj = {
+                                                    stackStatus:"ERROR",
+                                                    resources:[
+                                                        {
+                                                            id:instance.id,
+                                                            type:"instance"
+                                                        }
+                                                    ]
+                                                }
+                                                resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                    if(err){
+                                                        logger.error("Error in updating Resource Map.",err);
+                                                    }
+                                                });
+                                            }
 
                                             if (instance.hardware.os != 'windows')
                                                 return;
@@ -652,6 +742,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 logger.error("Failed to create or update bot Log: ", err);
                                                             }
                                                         });
+                                                        logsDao.insertLog({
+                                                            referenceId:logsReferenceIds,
+                                                            err: true,
+                                                            log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
+                                                            timestamp: new Date().getTime()
+                                                        });
                                                     }
                                                     logger.error("knife launch err ==>", err);
                                                     instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
@@ -673,6 +769,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         }
                                                     });
                                                     awsLogger.error("Bootstrap failed");
+                                                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                        var resourceObj = {
+                                                            stackStatus:"ERROR",
+                                                            resources:[
+                                                                {
+                                                                    id:instance.id,
+                                                                    type:"instance"
+                                                                }
+                                                            ]
+                                                        }
+                                                        resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                            if(err){
+                                                                logger.error("Error in updating Resource Map.",err);
+                                                            }
+                                                        });
+                                                    }
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
 
 
@@ -703,11 +815,17 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                 }
-                                                                var botService = require('_pr/services/botsService');
-                                                                botService.updateSavedTimePerBots(launchParams.botId,launchParams.auditType,function(err,data){
+                                                                var botOldService = require('_pr/services/botOldService');
+                                                                botOldService.updateSavedTimePerBots(launchParams.botId,launchParams.auditType,function(err,data){
                                                                     if (err) {
                                                                         logger.error("Failed to update bots saved Time: ", err);
                                                                     }
+                                                                    logsDao.insertLog({
+                                                                        referenceId:logsReferenceIds,
+                                                                        err: false,
+                                                                        log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
+                                                                        timestamp: new Date().getTime()
+                                                                    });
                                                                 });
                                                             });
                                                         }
@@ -736,9 +854,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             resourceService.updateDomainNameForInstance(domainName, instance.instanceIP, instance.id, awsSettings, function (err, updateDomainName) {
                                                                 if (err) {
                                                                     logger.error("resourceService.updateDomainNameForInstance Failed ==>", err);
-                                                                    return;
                                                                 }
                                                                 logger.debug("Domain name is updated successfully");
+                                                            });
+                                                            var resourceObj = {
+                                                                stackStatus:"COMPLETED",
+                                                                resources:[
+                                                                    {
+                                                                        id:instance.id,
+                                                                        type:"instance"
+                                                                    }
+                                                                ]
+                                                            }
+                                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                                if(err){
+                                                                    logger.error("Error in updating Resource Map.",err);
+                                                                }
                                                             });
                                                         }
                                                         instanceLog.endedOn = new Date().getTime();
@@ -759,13 +890,20 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                 }
-                                                                var botService = require('_pr/services/botsService');
-                                                                botService.updateSavedTimePerBots(launchParams.botId,launchParams.auditType,function(err,data){
+                                                                var botOldService = require('_pr/services/botOldService');
+                                                                botOldService.updateSavedTimePerBots(launchParams.botId,launchParams.auditType,function(err,data){
                                                                     if (err) {
                                                                         logger.error("Failed to update bots saved Time: ", err);
                                                                     }
+                                                                    logsDao.insertLog({
+                                                                        referenceId:logsReferenceIds,
+                                                                        err: false,
+                                                                        log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
+                                                                        timestamp: new Date().getTime()
+                                                                    });
                                                                 });
                                                             });
+
                                                         }
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                         launchParams.infraManager.getNode(instance.chefNodeName, function (err, nodeData) {
@@ -853,6 +991,28 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                     logger.error("Failed to create or update bot Log: ", err);
                                                                 }
                                                             });
+                                                            logsDao.insertLog({
+                                                                referenceId:logsReferenceIds,
+                                                                err: true,
+                                                                log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
+                                                                timestamp: new Date().getTime()
+                                                            });
+                                                        }
+                                                        if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                            var resourceObj = {
+                                                                stackStatus:"ERROR",
+                                                                resources:[
+                                                                    {
+                                                                        id:instance.id,
+                                                                        type:"instance"
+                                                                    }
+                                                                ]
+                                                            }
+                                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                                if(err){
+                                                                    logger.error("Error in updating Resource Map.",err);
+                                                                }
+                                                            });
                                                         }
                                                         var timestampEnded = new Date().getTime();
                                                         logsDao.insertLog({
@@ -928,8 +1088,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
 
 
                     for (var ic = 0; ic < instanceDataAll.length; ic++) {
-                        logger.debug('InstanceDataAll ' + JSON.stringify(instanceDataAll));
-                        logger.debug('Length : ' + instanceDataAll.length);
                         addinstancewrapper(instanceDataAll[ic], instanceDataAll.length);
                     }
                 });

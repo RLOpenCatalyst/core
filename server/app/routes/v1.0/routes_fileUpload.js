@@ -20,7 +20,7 @@
 var logger = require('_pr/logger')(module);
 var uuid = require('node-uuid');
 var fileUpload = require('_pr/model/file-upload/file-upload');
-var fileIo = require('_pr/lib/utils/fileio');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/fileUpload*', sessionVerificationFunc);
@@ -37,15 +37,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 if(err){
                     res.send({message: "Unable to upload file"});
                 }
-                removeScriptFile(req.files.file.path);
                 res.send({fileId:fileData});
+                apiUtil.removeFile(req.files.file.path);
             })
         } else if(req.query.fileId !== '' && req.query.fileId !== null) {
-            removeScriptFile(req.files.file.path);
             res.send({fileId:req.query.fileId});
+            apiUtil.removeFile(req.files.file.path);
         } else{
-            removeScriptFile(req.files.file.path);
             res.send({message: "Bad Request"});
+            apiUtil.removeFile(req.files.file.path);
         }
     });
 
@@ -68,14 +68,3 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 };
 
-function removeScriptFile(filePath) {
-    fileIo.removeFile(filePath, function(err, result) {
-        if (err) {
-            logger.error(err);
-            return;
-        } else {
-            logger.debug("Successfully Remove file");
-            return
-        }
-    })
-}

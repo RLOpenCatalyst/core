@@ -296,29 +296,7 @@
 						$scope.chefBluePrintList[bi]._isBlueprintSelected = false;
 					}
 				},
-				ok: function () {
-					//these values are common across all task types
-					var taskJSON={};
-					if($scope.checkBotType){
-						taskJSON = {
-							taskType: $scope.taskType,
-							name: $scope.name,
-							description: $scope.description,
-							botType:$scope.botType,
-							botCategory: $scope.botCategory,
-						    shortDesc:$scope.shortDesc,
-						    manualExecutionTime:$scope.manualExecutionTime,
-							serviceDeliveryCheck:$scope.checkBotType
-						};
-						$scope.taskSaving = true;
-					}else{
-						taskJSON = {
-							taskType: $scope.taskType,
-							name: $scope.name,
-							description: $scope.description
-						};
-						$scope.taskSaving = true;
-					}
+				saveTask : function(taskJSON){
 					//checking for name of the task
 					if (!taskJSON.name.trim()) {
 						$scope.inputValidationMsg='Please enter the name of the task.';
@@ -352,41 +330,126 @@
 							}
 						}
 					}
+				},
+				saveChefTask: function(taskJSON) {
+					taskJSON.blueprintIds = [];
+					taskJSON.role = $scope.role.name;
+					for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
+						if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
+							taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
+						}
+					}
+					if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
+						$scope.inputValidationMsg='Please select a node or blueprint or role';
+						$scope.taskSaving = false;
+						return false;
+					}
+					if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
+						$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
+						$scope.taskSaving = false;
+						return false;
+					}
+
+					if (taskJSON.nodeIds.length && taskJSON.role) {
+						$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
+						$scope.taskSaving = false;
+						return false;
+					}
+
+					if (taskJSON.blueprintIds.length && taskJSON.role) {
+						$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
+						$scope.taskSaving = false;
+						return false;
+					}
+
+					taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
+					taskJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
+				},
+				saveJenkinsTask: function(taskJSON){
+					taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
+					if (!taskJSON.jenkinsServerId.length) {
+						$scope.inputValidationMsg='Please select the Jenkins Server';
+						$scope.taskSaving = false;
+						return false;
+					}
+					taskJSON.autoSyncFlag = $scope.autoSync.flag;
+					taskJSON.jobName = $scope.jenkinJobSelected;
+					if (!taskJSON.jobName.length) {
+						$scope.inputValidationMsg='Please select one Job';
+						$scope.taskSaving = false;
+						return false;
+					}
+					taskJSON.jobURL = $scope.jobUrl;
+					if (!taskJSON.jobURL.length) {
+						$scope.inputValidationMsg='No Job Url';
+						$scope.taskSaving = false;
+						return false;
+					}
+					taskJSON.isParameterized = $scope.isParameterized.flag;
+					taskJSON.jobResultURL = $scope.jobResultURL;
+					//first time execute will get result from jobResultURLPattern.
+					taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
+					taskJSON.parameterized = $scope.jenkinsParamsList;
+					taskJSON.isTaskScheduled = $scope._isEventSelected.flag;
+					taskJSON.taskScheduler = $scope.cronDetails;
+				},
+				saveScriptTask: function(taskJSON){
+					taskJSON.scriptDetails = [];
+					taskJSON.isSudo = $scope.isSudo;
+					taskJSON.scriptTypeName = $scope.scriptTypeSelelct;
+					if (!taskJSON.scriptTypeName.length) {
+						$scope.inputValidationMsg='Please select one Script Type';
+						$scope.taskSaving = false;
+						return false;
+					}
+					
+					for (var k = 0; k < $scope.scriptTaskList.length; k++) {
+						if ($scope.scriptTaskList[k]._isScriptSelected) {
+							var scriptId = $scope.scriptTaskList[k]._id;
+							var obj = {
+								scriptId: scriptId,
+								scriptParameters:[]
+							};
+							if($scope.scriptParamsObj[scriptId]){
+								obj.scriptParameters = $scope.scriptParamsObj[scriptId];
+							}
+							taskJSON.scriptDetails.push(obj);
+						}
+					}
+					if (!taskJSON.scriptDetails.length) {
+						$scope.inputValidationMsg = 'Please select a script';
+						$scope.taskSaving = false;
+						return false;
+					}
+				},
+				ok: function () {
+					var taskJSON={};
+					//these values are common across all task types
+					
+					if($scope.checkBotType){
+						taskJSON = {
+							taskType: $scope.taskType,
+							name: $scope.name,
+							description: $scope.description,
+							botType:$scope.botType,
+							botCategory: $scope.botCategory,
+						    shortDesc:$scope.shortDesc,
+						    manualExecutionTime:$scope.manualExecutionTime,
+							serviceDeliveryCheck:$scope.checkBotType
+						};
+						$scope.taskSaving = true;
+					}else{
+						taskJSON = {
+							taskType: $scope.taskType,
+							name: $scope.name,
+							description: $scope.description
+						};
+						$scope.taskSaving = true;
+					}
+					$scope.saveTask(taskJSON);
 					/*This will get the values in order to create chef type task and check for any chef node selections*/
 					if ($scope.taskType === "chef") {
-						
-						taskJSON.blueprintIds = [];
-						taskJSON.role = $scope.role.name;
-						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
-							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
-								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
-							}
-						}
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
-							$scope.inputValidationMsg='Please select a node or blueprint or role';
-							$scope.taskSaving = false;
-							return false;
-						}
-						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
-							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
-							$scope.taskSaving = false;
-							return false;
-						}
-
-						if (taskJSON.nodeIds.length && taskJSON.role) {
-							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
-							$scope.taskSaving = false;
-							return false;
-						}
-
-						if (taskJSON.blueprintIds.length && taskJSON.role) {
-							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
-							$scope.taskSaving = false;
-							return false;
-						}
-
-						taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
-						taskJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
+						$scope.saveChefTask(taskJSON);
 					}
 					/*This will get the values in order to create puppet type task and check for any puppet node selections*/
 					if ($scope.taskType === "puppet") {
@@ -402,63 +465,13 @@
 							return false;
 						}
 					}
+					//if task type is jenkins
 					if ($scope.taskType === "jenkins") {
-						taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
-						if (!taskJSON.jenkinsServerId.length) {
-							$scope.inputValidationMsg='Please select the Jenkins Server';
-							$scope.taskSaving = false;
-							return false;
-						}
-						taskJSON.autoSyncFlag = $scope.autoSync.flag;
-						taskJSON.jobName = $scope.jenkinJobSelected;
-						if (!taskJSON.jobName.length) {
-							$scope.inputValidationMsg='Please select one Job';
-							$scope.taskSaving = false;
-							return false;
-						}
-						taskJSON.jobURL = $scope.jobUrl;
-						if (!taskJSON.jobURL.length) {
-							$scope.inputValidationMsg='No Job Url';
-							$scope.taskSaving = false;
-							return false;
-						}
-						taskJSON.isParameterized = $scope.isParameterized.flag;
-						taskJSON.jobResultURL = $scope.jobResultURL;
-						//first time execute will get result from jobResultURLPattern.
-						taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
-						taskJSON.parameterized = $scope.jenkinsParamsList;
-						taskJSON.isTaskScheduled = $scope._isEventSelected.flag;
-						taskJSON.taskScheduler = $scope.cronDetails;
+						$scope.saveJenkinsTask(taskJSON);
 					}
 					//if task type is script
 					if ($scope.taskType === "script") {
-						taskJSON.scriptDetails = [];
-						taskJSON.isSudo = $scope.isSudo;
-						taskJSON.scriptTypeName = $scope.scriptTypeSelelct;
-						if (!taskJSON.scriptTypeName.length) {
-							$scope.inputValidationMsg='Please select one Script Type';
-							$scope.taskSaving = false;
-							return false;
-						}
-						
-						for (var k = 0; k < $scope.scriptTaskList.length; k++) {
-							if ($scope.scriptTaskList[k]._isScriptSelected) {
-								var scriptId = $scope.scriptTaskList[k]._id;
-								var obj = {
-									scriptId: scriptId,
-									scriptParameters:[]
-								};
-								if($scope.scriptParamsObj[scriptId]){
-									obj.scriptParameters = $scope.scriptParamsObj[scriptId];
-								}
-								taskJSON.scriptDetails.push(obj);
-							}
-						}
-						if (!taskJSON.scriptDetails.length) {
-							$scope.inputValidationMsg = 'Please select a script';
-							$scope.taskSaving = false;
-							return false;
-						}
+						$scope.saveScriptTask(taskJSON);
 					}
 					
 					//checking whether its a update or a new task creation
@@ -595,35 +608,45 @@
 
 			var allBlueprints = workzoneServices.getBlueprints();
 			var allRunlist = workzoneServices.getCookBookListForOrg();
+			$scope.getChefDetails = function(instances,blueprints,roles){
+				if(items.taskConfig && items.taskConfig.role) {
+					$scope.role.name = items.taskConfig.role;
+				}
+				$scope.editRunListAttributes = true;
+				$scope.isScriptInstanceLoading = false;
+				$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList	(instances), items.taskConfig.nodeIds);
+				$scope.isNewTaskPageLoading = false;
+				$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
+				$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
+				$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
+				$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
+				$scope.chefRoleList = roles;
+				if (items.blueprintIds.length){
+					$scope.targetType="blueprint";
+				}else if(items.taskConfig && items.taskConfig.nodeIds && items.taskConfig.nodeIds.length){
+					$scope.targetType="instance";
+				} else {
+					$scope.targetType="role";
+				}
+			};
+			$scope.getScriptDetails = function(instances){
+				$scope.isSudo=items.taskConfig.isSudo;
+				$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
+				$scope.isScriptInstanceLoading = false;
+				$scope.isNewTaskPageLoading = false;
+				$scope.targetType="instance";
+			};
 			$q.all([allInstances,allBlueprints,allRunlist]).then(function(promiseObjs) {
 				$scope.isTargetTypesLoading = false;
 				$scope.isScriptNodesLoading = false;
 				var instances = promiseObjs[0].data;
 				var blueprints = promiseObjs[1].data;
 				var roles = Object.keys(promiseObjs[2].data.roles);
+
 				/*Identifying the chef nodes and adding a flag for identifying the selection in the angular checkbox selection*/
 				if ($scope.taskType === "chef") {
 					if($scope.isEditMode){
-						if(items.taskConfig && items.taskConfig.role) {
-							$scope.role.name = items.taskConfig.role;
-						}
-						$scope.editRunListAttributes = true;
-						$scope.isScriptInstanceLoading = false;
-						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList	(instances), items.taskConfig.nodeIds);
-						$scope.isNewTaskPageLoading = false;
-						$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
-						$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
-						$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
-						$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
-						$scope.chefRoleList = roles;
-
-						if (items.blueprintIds.length){
-							$scope.targetType="blueprint";
-						}else if(items.taskConfig && items.taskConfig.nodeIds && items.taskConfig.nodeIds.length){
-							$scope.targetType="instance";
-						} else {
-							$scope.targetType="role";
-						}
+						$scope.getChefDetails(instances,blueprints,roles);
 					}else{
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
 						$scope.isNewTaskPageLoading = false;
@@ -644,11 +667,7 @@
 				/*Identifying the nodes and script list and checking for task type to be script*/
 				if ($scope.taskType === "script") {
 					if($scope.isEditMode){
-						$scope.isSudo=items.taskConfig.isSudo;
-						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
-						$scope.isScriptInstanceLoading = false;
-						$scope.isNewTaskPageLoading = false;
-						$scope.targetType="instance";
+						$scope.getScriptDetails(instances);
 					}else{
 						$scope.isSudo = false;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
@@ -722,4 +741,4 @@
 			}
 		}
 		]);
-})(angular);
+}(angular));

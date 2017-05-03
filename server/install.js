@@ -48,6 +48,7 @@ function getDefaultsConfig() {
         scriptDirName :'scriptDir',
         staticUploadDir: '/var/chef/cache/uploads',
         app_run_secure_port: 443,
+        botEngineTimeOut:180,
         cryptoSettings: {
             algorithm: "aes192",
             password: "pass@!@#",
@@ -123,7 +124,8 @@ function getDefaultsConfig() {
                 "containerLogs":"createdOn",
                 "bots":"createdOn",
                 "gitHub":"createdOn",
-                "notice":"createdOn"
+                "notice":"createdOn",
+                "resourceMap":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,

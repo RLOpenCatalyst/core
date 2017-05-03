@@ -924,7 +924,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
 function getResources(query, next) {
     async.parallel([
             function (callback) {
-                resources.getResources(query, callback);
+                resources.getResourcesWithPagination(query, callback);
             }
         ],
         function(err, results) {
@@ -1179,7 +1179,7 @@ function updateDomainNameForInstance(domainName,publicIP,instanceId,awsSettings,
                     })(hostedZones.HostedZones[i]);
                 }
             }else{
-                next(null,null);
+                next(null,[]);
             }
         },
         function(paramList,next){

@@ -48,12 +48,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/audit-trail/bots-summary', function(req,res){
-        auditTrailService.getBOTsSummary(req.query,'BOTs',function(err,botSummary){
+        auditTrailService.getBOTsSummary(req.query,'BOTOLD',function(err,botSummary){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
             }
             return res.status(200).send(botSummary);
+        })
+    });
+
+    app.get('/audit-trail/:auditId/srnTicketSync', function(req,res){
+        auditTrailService.syncCatalystWithServiceNow(req.params.auditId,function(err,srnTicketSync){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(srnTicketSync);
         })
     });
 
@@ -136,25 +146,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
                 function(next) {
                     instanceLogModel.getLogsByActionId(req.params.actionId, next);
-                }
-
-            ],
-            function(err, results) {
-                if (err)
-                    return res.status(500).send(err);
-                else
-                    return res.status(200).send(results);
-            });
-    }
-
-    app.post('/audit-trail/bots-action/update', updateBOTsAction);
-
-    function updateBOTsAction(req, res, next) {
-        req.body.userName = req.session.user.cn;
-        async.waterfall(
-            [
-                function(next) {
-                    auditTrailService.updateBOTsAction(req.body, next);
                 }
 
             ],

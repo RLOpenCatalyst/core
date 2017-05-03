@@ -24,7 +24,7 @@
         $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
             $scope.templateSelected = reqParams;
             items = $scope.templateSelected;
-            $scope.scheduleDeatils = items;
+            $scope.scheduleDetails = items;
             $scope.checkForScheduler();
         });
 
@@ -33,20 +33,19 @@
         }else{
             $scope.isScheduled = false;
         }
-        $scope.scheduleDeatils = items;
+        $scope.scheduleDetails = items;
+        $scope.validDateRange=false;
         $scope.botId = items._id;
 
         $scope.checkForScheduler = function() {
-            if($scope.scheduleDeatils.type === 'blueprints') {
-                if($scope.scheduleDeatils.executionCount <=0) {
-                    $scope.showForBlueprints = true;
-                    $scope.showForAll = false;
-                } else {
-                    $scope.showForBlueprints = false;
-                    $scope.showForAll = true;
-                }
-            } else {
-                $scope.showForBlueprints = false;
+            if($scope.scheduleDetails.type === 'blueprints' && $scope.scheduleDetails.executionCount <=0) {
+                $scope.showForBlueprints = true;
+                $scope.showForAll = false;
+            } else if($scope.scheduleDetails.type === 'UI' || $scope.scheduleDetails.type === 'jenkins') {
+                $scope.noSchedulerForBots = true;
+                $scope.showForAll = false;
+            } else if($scope.scheduleDetails.type === 'chef' || $scope.scheduleDetails.type === 'script' || $scope.scheduleDetails.type === 'blueprints'){
+                $scope.showForAll = true;
             }
         };
 
@@ -59,15 +58,9 @@
         if(items.isScheduled === true && items.scheduler !== null){
             if(items.scheduler.cronStartOn && items.scheduler.cronEndOn) {
                 var newStartOn = parseInt(items.scheduler.cronStartOn);
-                var newDate = new Date(newStartOn).toLocaleDateString();
-                var datearray = newDate.split("/");
-                var newdate = datearray[1] + '/' + datearray[0] + '/' + datearray[2];
-                $scope.schedulerStartOn = newdate;
+                $scope.schedulerStartOn = moment(new Date(newStartOn)).format('MM/DD/YYYY');
                 var newEndOn = parseInt(items.scheduler.cronEndOn);
-                var newEndData = new Date(newEndOn).toLocaleDateString();   
-                var datearrayNew = newEndData.split("/");
-                var newdateEnd = datearrayNew[1] + '/' + datearrayNew[0] + '/' + datearrayNew[2];
-                $scope.schedulerEndOn = newdateEnd;
+                $scope.schedulerEndOn = moment(new Date(newEndOn)).format('MM/DD/YYYY');
             } else {
                 $scope.schedulerStartOn = items.scheduler.cronStartOn;
                 $scope.schedulerEndOn = items.scheduler.cronEndOn;
@@ -130,7 +123,7 @@
                 isScheduled:true
             };
             var param={
-                url:'/botsNew/' + $scope.botId + '/scheduler',
+                url:'/bot/' + $scope.botId + '/scheduler',
                 data: reqBody
             };
             genSevs.promisePut(param).then(function (response) {

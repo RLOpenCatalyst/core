@@ -14,7 +14,7 @@
 
 			botService.getBOTDetails = function(botId) {
 				var params = {
-					url: '/botsNew?filterBy=id:' + botId,
+					url: '/bot?filterBy=id:' + botId,
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
@@ -34,7 +34,7 @@
 					urlParam = 'timestamp=' + timestamp;
 				}
 				var params = {
-					url: '/botsNew/' + botId + '/bots-History/' + botsHistoryId +'/logs?' + urlParam,
+					url: '/bot/' + botId + '/bot-History/' + botsHistoryId +'/logs?' + urlParam,
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
@@ -51,7 +51,7 @@
 
 			botService.postCreateBots = function (bots) {
 				var params = {
-					url: '/botsNew',
+					url: '/bot',
 					data: bots
 				};
 				return genericServices.promisePost(params);
@@ -99,11 +99,36 @@
 
 			botService.botExecute = function(botId,reqBody) {
 				var params = {
-					url: '/botsNew/' + botId + '/execute',
+					url: '/bot/' + botId + '/execute',
 					data: reqBody
 				};
 				return genericServices.promisePost(params);
-			}
-			
+			};
+
+			botService.getJenkinsServerDetails = function() {
+				var params = {
+					url: '/jenkins',
+					inlineLoader: true
+				};
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getJenkinsLogs = function(taskId, jobname, buildNumber) {
+				var params = {
+					url: '/jenkins/' + taskId + '/jobs/' + jobname + '/builds/' +
+						buildNumber + '/output',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getJenkinsServerJobList =  function (jenkinsServerId) {
+				var params = {
+					url : '/jenkins/' + jenkinsServerId + '/jobs',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
         }]);
 })(angular);

@@ -151,7 +151,22 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "destroy":true,
-        "ajax": '/resources?filterBy=providerId:'+ providerId +',resourceType:RDS,category:assigned',
+        "ajax": {
+            "url":  '/resources?filterBy=providerId:'+ providerId +',resourceType:RDS,category:assigned',
+            "data": function( result ) {
+                var columnIndex = parseInt(result.order[0].column);
+                var newResult = {
+                    draw:result.draw,
+                    page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                    pageSize:result.length,
+                    sortOrder:result.order[0].dir,
+                    sortBy:result.columns[columnIndex].data,
+                    filterBy:result.filterBy,
+                    search:result.search.value
+                }
+                return newResult;
+            }
+        },
         "columns": [
             {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
             {"data": "masterDetails.orgName","orderable" : false,
@@ -208,7 +223,22 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=resourceType:RDS,category:assigned',
+            "ajax": {
+                "url":  '/resources?filterBy=resourceType:RDS,category:assigned',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                 {"data": "masterDetails.orgName","orderable" : false,
@@ -276,7 +306,22 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "destroy":true,
-        "ajax": '/resources?filterBy=providerId:'+ providerId +',resourceType:RDS,category:unassigned',
+        "ajax": {
+            "url": '/resources?filterBy=providerId:'+ providerId +',resourceType:RDS,category:unassigned',
+            "data": function( result ) {
+                var columnIndex = parseInt(result.order[0].column);
+                var newResult = {
+                    draw:result.draw,
+                    page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                    pageSize:result.length,
+                    sortOrder:result.order[0].dir,
+                    sortBy:result.columns[columnIndex].data,
+                    filterBy:result.filterBy,
+                    search:result.search.value
+                }
+                return newResult;
+            }
+        },
         "createdRow": function( row, data ) {
             $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
         },
@@ -300,7 +345,22 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=resourceType:RDS,category:unassigned',
+            "ajax": {
+                "url": '/resources?filterBy=resourceType:RDS,category:unassigned',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "createdRow": function( row, data ) {
                 $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
             },

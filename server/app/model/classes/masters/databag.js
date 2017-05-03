@@ -19,11 +19,11 @@ limitations under the License.
 
 // Now persistance of Data Bag not required.So disabling it.
 
-var logger = require('../../../lib/logger')(module);
+var logger = require('_pr/lib/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-var schemaValidator = require('../../dao/schema-validator');
+var schemaValidator = require('_pr/model/dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
 
 var Schema = mongoose.Schema;
@@ -65,9 +65,9 @@ datBagSchema.statics.saveDataBag = function(aDataBag,callback){
 datBagSchema.statics.getDataBagEncryptionInfo = function(dataBagName,dataBagItemId,callback){
 	logger.debug("Enter getDataBagEncryptionInfo().");
 	this.find({
-		"dataBagName" : dataBagName/*,
-		"dataBagItemId" : dataBagItemId*/
-/*	},function(err,aDataBag){
+		"dataBagName" : dataBagName,
+		"dataBagItemId" : dataBagItemId
+	},function(err,aDataBag){
 		if(err){
 			callback(err,null);
 			return;
@@ -94,6 +94,4 @@ datBagSchema.statics.removeDataBagById = function(dataBagId, callback) {
 };
 
 var DataBagModel = mongoose.model('DataBagModel', datBagSchema);
-
 module.exports = DataBagModel;
-*/

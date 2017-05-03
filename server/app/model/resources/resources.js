@@ -62,6 +62,17 @@ ResourceSchema.statics.getResourceById = function(resourceId,callback) {
     });
 };
 
+ResourceSchema.statics.getResources = function(queryObj,callback) {
+    Resources.find(queryObj, function(err, data) {
+        if (err) {
+            logger.error("Failed to getResources", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 ResourceSchema.statics.deleteResourcesByResourceType = function(resourceType,callback) {
     Resources.update({
         resourceType: resourceType
@@ -170,11 +181,11 @@ ResourceSchema.statics.updateResourceTag = function(params, fields, callback) {
     });
 };
 
-ResourceSchema.statics.getResources=function(dataBaseQueryObj,callback){
+ResourceSchema.statics.getResourcesWithPagination=function(dataBaseQueryObj,callback){
     dataBaseQueryObj.queryObj.isDeleted = false;
     Resources.paginate(dataBaseQueryObj.queryObj, dataBaseQueryObj.options, function(err, data) {
         if (err) {
-            logger.error("Failed to getResources", err);
+            logger.error("Failed to getResourcesWithPagination", err);
             callback(err, null);
             return;
         }

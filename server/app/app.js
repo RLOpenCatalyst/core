@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
+//require('@risingstack/trace');
 var express = require("express");
 var app = express();
 var path = require("path");
@@ -28,6 +28,7 @@ var expressLogger = require('_pr/logger').ExpressLogger();
 var passport = require('passport');
 var passportLdapStrategy = require('./lib/ldapPassportStrategy.js');
 var passportADStrategy = require('./lib/adPassportStrategy.js');
+var globalData = require('_pr/config/global-data.js');
 var Tail = require('tail').Tail;
 
 // express middleware
@@ -99,7 +100,7 @@ mongoDbConnect(dboptions, function(err) {
         logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
     }
 });
-
+globalData.init();
 var mongoStore = new MongoStore({
     mongooseConnection: mongoose.connection
 }, function() {
@@ -205,6 +206,7 @@ io.sockets.on('connection', function(socket) {
     var month = dt.getMonth() + 1;
     if (month < 10)
         month = '0' + month;
+    logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate());
     var tail;
     if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'))
         tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'); //catalyst.log.2015-06-19
@@ -225,6 +227,7 @@ catalystSync.executeSerialScheduledTasks();
 catalystSync.executeParallelScheduledTasks();
 catalystSync.executeScheduledBots();
 catalystSync.executeNewScheduledBots();
+catalystSync.getBotAuditLogData();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
     require('_pr/services/noticeService.js').init(io,server.address());
