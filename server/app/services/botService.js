@@ -122,7 +122,7 @@ botService.createNew = function createNew(reqBody,callback) {
 }
 
 botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
-    if(botObj.scheduler  && botObj.scheduler !== null && Object.keys(botObj.scheduler).length !== 0) {
+    if(botObj.scheduler  && botObj.scheduler !== null && Object.keys(botObj.scheduler).length !== 0 && botObj.isScheduled && botObj.isScheduled === true) {
         botObj.scheduler = apiUtil.createCronJobPattern(botObj.scheduler);
         botObj.isScheduled =true;
     }else{

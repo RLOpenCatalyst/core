@@ -168,27 +168,28 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
             var count = 0;
             body.forEach(function(auditTrailDetail){
                 var auditData = auditQueue.getAuditDetails("remoteAuditId",auditTrailDetail.bot_run_id);
-                console.log(auditData);
                 if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'terminated' || auditTrailDetail.state === 'failed')) {
                     var timestampEnded = new Date().getTime();
                     count++;
+                    if (auditTrailDetail.log !== '...' || auditTrailDetail.log !== '') {
+                        var logList = auditTrailDetail.log.split("\n");
+                        logList.forEach(function (log) {
+                            if(log !== null && log !== '') {
+                                logsDao.insertLog({
+                                    referenceId: auditData.logRefId,
+                                    err: auditTrailDetail.state === 'terminated' ? false : true,
+                                    log: log,
+                                    timestamp: timestampEnded
+                                });
+                            }
+                        })
+                    }
                     logsDao.insertLog({
                         referenceId: auditData.logRefId,
                         err: auditTrailDetail.state === 'terminated' ? false : true,
                         log: auditTrailDetail.status.text,
                         timestamp: timestampEnded
                     });
-                    if (auditTrailDetail.log !== '...' || auditTrailDetail.log !== '') {
-                        var logList = auditTrailDetail.log.split("\n");
-                        logList.forEach(function (log) {
-                            logsDao.insertLog({
-                                referenceId: auditData.logRefId,
-                                err: auditTrailDetail.state === 'terminated' ? false : true,
-                                log: log,
-                                timestamp: timestampEnded
-                            });
-                        })
-                    }
                     if (auditData.env === 'local') {
                         logsDao.insertLog({
                             referenceId: auditData.logRefId,
@@ -288,9 +289,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                 }else if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'active' )) {
                     var timestampEnded = new Date().getTime();
                     count++;
-                    console.log(botEngineTimeOut);
                     if (auditData.retryCount === botEngineTimeOut) {
-                        console.log("True");
                         logsDao.insertLog({
                             referenceId: auditData.logRefId,
                             err: auditTrailDetail.state === 'terminated' ? false : true,
@@ -376,7 +375,6 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                             });
                         }
                     }else{
-                        console.log("false");
                         auditQueue.incRetryCount('auditId', auditData.auditId);
                     }
                     if(count ===body.length){
