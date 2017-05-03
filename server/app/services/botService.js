@@ -331,7 +331,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                                     executionType:botDetails[0].type,
                                     manualExecutionTime:botDetails[0].manualExecutionTime
                                 };
-                                if(reqBody.ref){
+                                if(schedulerCallCheck === false && reqBody.ref && reqBody.ref !== null){
                                     auditTrailObj.serviceNowTicketRefObj =  {
                                         ticketNo:reqBody.ref
                                     }

@@ -83,7 +83,7 @@
 		};
 		design.tempType=function (providers) {
 			var params = {
-				url: '/d4dMasters/readmasterjsonnew/16'
+				url: '/d4dMasters/readmasterjsonnew/16?source=design'
 			};
 			genericServices.promiseGet(params).then(function (template){
 				design.templateTypes=template;
