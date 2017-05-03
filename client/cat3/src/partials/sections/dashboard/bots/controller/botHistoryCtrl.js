@@ -23,6 +23,12 @@
                 $scope.getSavedTime();
             });
 
+            $scope.refreshHistoryPage = function() {
+                $scope.taskHistoryListView();
+                $scope.getExecutionTime();
+                $scope.getSavedTime();
+            }
+
             if($scope.templateSelected) {
                 items = $scope.templateSelected; 
             } 

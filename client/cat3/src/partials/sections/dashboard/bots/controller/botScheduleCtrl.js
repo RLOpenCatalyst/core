@@ -8,14 +8,14 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, genSevs, workzoneServices, toastr) {
+    .controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'toastr', function ($scope, $rootScope, genSevs, toastr) {
         
         var items;
         $scope.showForAll = true;
         $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
             $scope.templateSelected = reqParams;
         });
-        
+        $scope.showForScheduled = false;
 
         if($scope.templateSelected) {
             items = $scope.templateSelected;
@@ -56,6 +56,7 @@
         };
 
         if(items.isScheduled === true && items.scheduler !== null){
+            $scope.showForScheduled = true;
             if(items.scheduler.cronStartOn && items.scheduler.cronEndOn) {
                 var newStartOn = parseInt(items.scheduler.cronStartOn);
                 $scope.schedulerStartOn = moment(new Date(newStartOn)).format('MM/DD/YYYY');
@@ -75,6 +76,7 @@
             $scope.selectedMonth =  items.scheduler.selectedMonth || (items.scheduler.cronMonth && items.scheduler.cronMonth !==null)  ? items.scheduler.cronMonth.toString() : '';
             /*$scope.currentDate = items.scheduler.startDate;*/
         } else {
+            $scope.showForScheduled = false;
             $scope.defaultSelection();
         }
         
@@ -134,6 +136,25 @@
                 }
             });
         };
+
+        $scope.unschedule = function() {
+            var reqBody = null;
+            reqBody = {
+                scheduler: {},
+                isScheduled: false
+            };
+            var param={
+                url:'/bot/' + $scope.botId + '/scheduler',
+                data: reqBody
+            };
+            genSevs.promisePut(param).then(function (response) {
+                if(response){
+                    toastr.success('BOTs Unscheduled successfully');
+                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                    $scope.$dismiss('cancel');
+                }
+            });
+        }
         $scope.checkForScheduler();
     }]);
 })(angular);
