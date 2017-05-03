@@ -85,7 +85,6 @@ var Docker = function() {
                 return;
             }
             if (data.length) {
-                logger.debug(data[0]);
                 logger.debug('reached docker cmd');
                 var instanceoptions = data[0];
                 credentialCrpto.decryptCredential(instanceoptions.credentials, function(err, decrptedCredentials) {

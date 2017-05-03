@@ -43,8 +43,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
             function(azureProviderDetails,next){
                 if(azureProviderDetails !== null) {
                     azureProviderDetails = JSON.parse(azureProviderDetails);
-                    var pemFile = appConfig.instancePemFilesDir + azureProviderDetails._id + azureProviderDetails.pemFileName;
-                    var keyFile = appConfig.instancePemFilesDir + azureProviderDetails._id + azureProviderDetails.keyFileName;
+                    var pemFile = appConfig.instancePemFilesDir + azureProviderDetails._id +'_' + azureProviderDetails.pemFileName;
+                    var keyFile = appConfig.instancePemFilesDir + azureProviderDetails._id +'_' + azureProviderDetails.keyFileName;
                     var cryptConfig = appConfig.cryptoSettings;
                     var cryptography = new Cryptography(cryptConfig.algorithm, cryptConfig.password);
                     var uniqueVal = uuid.v4().split('-')[0];
@@ -143,8 +143,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
             function(azureProviderDetails,next){
                 if(azureProviderDetails !== null) {
                     azureProviderDetails = JSON.parse(azureProviderDetails);
-                    var pemFile = appConfig.instancePemFilesDir + azureProviderDetails._id + azureProviderDetails.pemFileName;
-                    var keyFile = appConfig.instancePemFilesDir + azureProviderDetails._id + azureProviderDetails.keyFileName;
+                    var pemFile = appConfig.instancePemFilesDir + azureProviderDetails._id +'_' + azureProviderDetails.pemFileName;
+                    var keyFile = appConfig.instancePemFilesDir + azureProviderDetails._id +'_' + azureProviderDetails.keyFileName;
                     var cryptConfig = appConfig.cryptoSettings;
                     var cryptography = new Cryptography(cryptConfig.algorithm, cryptConfig.password);
                     var uniqueVal = uuid.v4().split('-')[0];

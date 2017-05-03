@@ -133,6 +133,10 @@ function Configmgmt() {
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 callback(null, 'd4dModelMastersBOTsRemoteServer');
                 break;
+            case "33":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersAnsibleServer');
+                break;
                 
         }
     };
@@ -231,6 +235,10 @@ function Configmgmt() {
             case "32":
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 return ('botremoteserver');
+                break;
+            case "33":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('ansibleserver');
                 break;
 
         };

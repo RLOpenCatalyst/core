@@ -26,6 +26,7 @@ var TaskHistory = require('./taskHistory');
 
 
 var compositeTaskSchema = taskTypeSchema.extend({
+	_id:false,
 	assignTasks: [String]
 });
 

@@ -75,7 +75,7 @@
 				dockerParamsString: function() {
 					var dockerParameters = null;
 					if ($scope.dockerParams.name) {
-						dockerParameters = '--name ' + $scope.dockerParams.name;
+						dockerParameters = '-name ' + $scope.dockerParams.name;
 					}
 					if ($scope.dockerParams.port) {
 						dockerParameters += ' -p ' + $scope.dockerParams.port;

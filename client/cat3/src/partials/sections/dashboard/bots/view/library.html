@@ -21,7 +21,7 @@
    <div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
       <form name="filterForm" class="">
          <div>
-            <div class="repo-job-details-wrapper-inner marginbottom10">BOT Filter:</div>
+            <div class="repo-job-details-wrapper-inner marginbottom10">Filter</div>
             <div class="col-lg-12 col-md-12 form-group">
                <label for="">Functionality:</label>
                <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibCategory">
@@ -64,7 +64,7 @@
                 <i class="fa fa-list"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfBots}}" value="0" duration="1">{{botSummary.totalNoOfBots}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfBots}}</span> 
                   <small>Total BOTs</small>
                 </h3>
               </div>
@@ -76,7 +76,7 @@
                 <i class="fa fa-cogs"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfRunningBots}}" value="0" duration="1">{{botSummary.totalNoOfRunningBots}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfRunningBots}}</span> 
                   <small>Running BOTs</small>
                 </h3>
               </div>
@@ -88,7 +88,7 @@
                 <i class="fa fa-save"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span>
                   <small>Time saved</small>
                 </h3>
               </div>
@@ -98,7 +98,7 @@
                 <i class="fa fa-power-off"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfServiceNowTickets}}" value="0" duration="1">{{botSummary.totalNoOfServiceNowTickets}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfServiceNowTickets}}</span>
                   <small>Tickets Resolved</small>
                 </h3>
               </div>
@@ -109,7 +109,7 @@
                 <i class="fa fa-remove"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfFailedBots}}" value="0" duration="1">{{botSummary.totalNoOfFailedBots}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfFailedBots}}</span> 
                   <small>Failed BOTs</small>
                 </h3>
               </div>
@@ -122,6 +122,7 @@
     <div class="botsWidth">
       <div class="marginleft35 margintop8 botsWidth  box-infobox" style="border-top-color:floralwhite"></div>
       <div class="gallery-header top-stats marginCheck">
+        <span ng-show="noShowForServiceNow">
           <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Grid View" ng-click="setCardView('pageReset')"  >
               <i class="fa fa-th black"></i>
               Grid
@@ -139,6 +140,7 @@
          <span ng-if="botLibType" class="marginleft10 box-title font-size-15"><span>Type</span>
          <span class="badge">{{botLibType}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
          </span>
+      </span>
          <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
             <span class="bot-library-search">
                <label>&nbsp;
@@ -150,24 +152,29 @@
          </form>
       </div>
       <loading size="large" name="isBotLibraryPageLoading" type="block" align="center"></loading>
-      <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive" ng-repeat="botsDetails in botLibGridOptions.data">
+      <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive && noShowForServiceNow" ng-repeat="botsDetails in botLibGridOptions.data">
          <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
             <a class="appnav" title="Go to Details" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})">
                <div class="image-cell two-tone-11">
-                  <img class="highlight" alt="{{botsDetails.botCategory}}" ng-src="{{botsDetails.imagePath}}">
+                  <img class="highlight" title="{{botsDetails.category}}" alt="{{botsDetails.category}}" ng-src="{{botsDetails.imagePath}}">
                </div>
                <div class="info-cell">
                   <div title="{{botsDetails.name ? botsDetails.name:botsDetails.botName}}" class="title">{{botsDetails.name ? botsDetails.name:botsDetails.botName}}</div>
-                  <div class="publisher"><i ng-if="botsDetails.lastRunTime" class="fa fa-clock-o"></i>&nbsp;<span title="{{botsDetails.lastRunTime | timestampToLocaleTime}}" am-time-ago="botsDetails.lastRunTime">
-                      {{botsDetails.lastRunTime}} &nbsp;&nbsp;</span>
-                  </div>
-               </div>
-               <div class="desc-cell">
+                  <div class="desc-cell">
                   <div title="{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}" class="description">{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}</div>
                </div>
-                <div title="{{botsDetails.executionCount}}" class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</span></div>
-                <div class="pull-right" style="margin-top:5px;">
-                  <a ng-if="botsDetails.source ==='GitHub'" class="margin10 cursor" title="BOT Sync"><i ng-class="{'fa fa-refresh' : activeClass !== botsDetails, 'fa fa-refresh fa-spin' : activeClass === botsDetails}" ng-click="botSync(botsDetails)"></i></a>
+                  
+               </div>
+               <div class="publisher">
+                  </div>
+                <ul class="ul-vert-bar pull-left botsExecution" ng-if="botsDetails.executionCount">
+                  <li class="publisher" title="{{botsDetails.executionCount}}">Runs:&nbsp;{{botsDetails.executionCount}}</li>
+                  <li class="publisher" title="{{botsDetails.lastRunTime | timestampToLocaleTime}}"><i class="fa fa-clock-o"></i>&nbsp;<span am-time-ago="botsDetails.lastRunTime">
+                      {{botsDetails.lastRunTime}} &nbsp;&nbsp;
+                </ul>
+                <div class="pull-right" style="margin-top:8px;">
+                  <!-- <a ng-if="botsDetails.source ==='GitHub'" class="margin10 cursor" title="BOT Sync"><i ng-class="{'fa fa-refresh' : activeClass !== botsDetails, 'fa fa-refresh fa-spin' : activeClass === botsDetails}" ng-click="botSync(botsDetails)"></i></a> -->
+                  <a class="margin10 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})" title="Execute"><i class="fa fa-play font-size-16"></i></a>
                </div>
             </a>
          </div>
@@ -186,14 +193,24 @@
             </div>
         </div>
     </div>   
-   <!--cards section ends here-->
+   <!--card section ends here-->
 
-   <!--table section start here-->
-   <div class="col-lg-12" style="padding-left: 2.3%;">
-   <div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
-      No data Available
+   <!--table section starts here-->
+   <div class="col-lg-12 paddingForScreen" >
+     <div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
+        No data Available
+     </div>
+     <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid gridHeightBots"></div>
    </div>
-   <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
- </div>
    <!--table section ends here -->
+
+   <!--table section for serviceNow starts here-->
+    <loading size="large" name="isBotServiceNowPageLoading" type="block" align="center"></loading>
+   <div class="col-lg-12 paddingForScreen" ng-show="!noShowForServiceNow">
+     <div class="alert alert-info text-center" ng-if="!botServiceNowLibGridOptions.data.length > 0 && !isBotServiceNowPageLoading">
+        No data Available
+     </div>
+     <div id="grid2" ng-if="botServiceNowLibGridOptions.data.length >0 && !isBotServiceNowPageLoading" ui-grid="botServiceNowLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid gridHeightBots"></div>
+   </div>
+   <!--table section for serviceNow ends here -->
 </div>

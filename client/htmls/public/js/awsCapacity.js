@@ -230,16 +230,31 @@ $(document).ready(function() {
     function loadAllManagedInstances() {
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
+            urlManagedNoProvider = "/tracked-instances?category=managed&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId +",providerType:aws";
+            urlManagedProvider = "/tracked-instances?category=managed&filterBy=orgId:" + orgId +",providerType:aws";
         }
         $('.footer').addClass('hidden');
         $('#instanceListTable').DataTable({
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
+            "ajax": {
+                "url":  urlManagedNoProvider ? urlManagedNoProvider : urlManagedProvider,
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [{
                 "data": "platformId",
                 "orderable": true
@@ -287,16 +302,31 @@ $(document).ready(function() {
     function loadAllUnManagedInstances() {
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId +  ",providerId:" + orgProviderId;
+            urlManagedNoProvider = "/tracked-instances?category=assigned&filterBy=orgId:" + orgId +  ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
+            urlManagedProvider = "/tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
         }
         $('.footer').addClass('hidden');
         $('#instanceAssignedTable').DataTable({
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
+            "ajax": {
+                "url":  urlManagedNoProvider ? urlManagedNoProvider : urlManagedProvider,
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [{
                 "data": "platformId",
                 "orderable": true
@@ -384,7 +414,22 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": url,
+            "ajax": {
+                "url":  url,
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "createdRow": function(row, data) {
                 $(row).attr({
                     "instanceId": data._id,

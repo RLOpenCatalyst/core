@@ -15,7 +15,7 @@ function taskSync(){
     async.parallel({
         botSync  : function(callback){
             var query={
-                auditType:'BOTs',
+                auditType:'BOTOLD',
                 actionStatus:'running',
                 isDeleted:false
             };
@@ -23,7 +23,7 @@ function taskSync(){
         },
         botNewSync  : function(callback){
             var query={
-                auditType:'BOTsNew',
+                auditType:'BOT',
                 actionStatus:'running',
                 isDeleted:false
             };

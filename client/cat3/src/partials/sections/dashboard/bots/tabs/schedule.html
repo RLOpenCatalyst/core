@@ -1,24 +1,22 @@
-<div id="botLibraryPage" ng-controller="botScheduleCtrl">
-  
-  <div class="container summary-container marginleft35 alert alert-info text-center" ng-if="scheduleDeatils.type === 'UI' || scheduleDeatils.type === 'jenkins'" align="center">Under Construction</div> 
-  <div class="container summary-container marginleft35 alert alert-info text-center" ng-show="showForBlueprints" align="center">Execute the BOT atleast once for the Scheduler to activate(Applicable only for Blueprints)</div>
-  <div ng-if="scheduleDeatils.type ==='script' || scheduleDeatils.type === 'chef' || scheduleDeatils.type ==='blueprints'" ng-show="showForAll" class="container summary-container marginleft35 scheduleBorder">
-      <div class="boxed-group schedulerZone">
+<div id='addEventsPage' ng-controller="botScheduleCtrl">
+   <form name="newSchedule" novalidate>
+      <div class="boxed-group schedulerZone container summary-container marginleft35 scheduleBorder">
         <h3>Scheduler</h3>
-      <form name="newSchedule" novalidate>
          <!--dropdown for selecting the repeat type-->
-
-         <div class="col-lg-6 col-md-6">
+         <div class="container summary-container marginleft35 alert alert-info text-center" ng-show="noSchedulerForBots" align="center">Under Construction</div> 
+         <div class="container summary-container marginleft35 alert alert-info text-center" ng-show="showForBlueprints" align="center">Execute the BOT atleast once for the Scheduler to activate(Applicable only for Blueprints)</div>
+        <div ng-show="showForAll">
+         <div class="col-lg-6 col-md-6 ">
             <label>Starts on: <span class="red">*</span>
             </label>
-            <input id="date-start"  ng-change="dateChange()"   type="text"  ng-model="schedulerStartOn" class="form-control-date"  >
-         </div>
-         <div class="col-lg-6 col-md-6">
+            <input id="date-start"  ng-change="dateChange()" required  type="text"  ng-model="schedulerStartOn" class="form-control-date"  >
+            </div>
+            <div class="col-lg-6 col-md-6 ">
             <label>Ends on: <span class="red">*</span>
             </label>
-            <input ng-change="dateChange()" type="text"   id="date-end" ng-model="schedulerEndOn" class="form-control-date"  >
+            <input ng-change="dateChange()" type="text"  id="date-end" ng-model="schedulerEndOn" class="form-control-date" required >
             <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
-         </div>
+            </div>
          <div class="clearfix margintop15 "></div>
          <div class="clearfix margintop15"></div>
           <div>
@@ -39,7 +37,7 @@
                 <span ng-show="newSchedule.repeatBy.$touched && newSchedule.repeatBy.$invalid" class="inputValidationMsg">
                </span>
                </label>
-               <select name="repeatBy" class="form-control-date" ng-model="repeatBy" >
+               <select name="repeatBy" class="form-control-date" ng-model="repeatBy" required>
                   <option value="" selected="selected">Choose</option>
                   <option ng-repeat="repeatBy in repeatCount(30)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
                </select>
@@ -95,52 +93,50 @@
             <!--starts at dropdown ends here-->
             <!--dropdown ends here-->
          </fieldset>
-          </div>
-      
-      <div class="modal-footer">
-         <!-- <button type="button" class="btn cat-btn-close" ng-click="cancel()">
-         <i class="fa fa-times black"></i> Cancel
-         </button> -->
-         <button type="submit" class="btn cat-btn-update" ng-disabled="newSchedule.$invalid" ng-click="ok()">
-         <i class="fa fa-check white"></i> Save
-         </button>      
+         <div class="modal-footer">
+           <button ng-show="showForScheduled" type="button" class="btn cat-btn-close" ng-click="unschedule()">
+           <i class="fa fa-undo black"></i> Unschedule
+           </button>
+           <button type="submit" class="btn cat-btn-update" ng-disabled="newSchedule.$invalid" ng-click="ok()">
+           <i class="fa fa-repeat white"></i> Schedule
+           </button>      
+        </div>
+      </div>
       </div>
    </form>
- </div>
-  </div>
 </div>
 
-
 <script>
-  $(document).ready(function () {
-      $('#date-end').bootstrapMaterialDatePicker({
-          format: 'MM/DD/YYYY ',
-          weekStart: 1,
-          time: false,
-          switchOnClick : true,
-          nowButton : true,
-      });
-      $('#date-start').bootstrapMaterialDatePicker({
-          format: 'MM/DD/YYYY',
-          weekStart: 1,
-          time: false,
-          switchOnClick : true,
-          nowButton : true,
-      }).on('change', function(e, date)
-      {
-          $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
-      });
-      $.material.init();
-      $(document).on('click', 'input.time', function(){
-          var $this = $(this);
-          setTimeout(function () {
-              $this.bootstrapMaterialDatePicker({
-                  format: 'HH:mm',
-                  date: false,
-                  switchOnClick : true,
-              });
-          },100);
+    $(document).ready(function () {
+        $('#date-end').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY ',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        });
+        $('#date-start').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        }).on('change', function(e, date)
+        {
+            $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
+        });
+        $.material.init();
+        $(document).on('click', 'input.time', function(){
+            var $this = $(this);
+            setTimeout(function () {
+                $this.bootstrapMaterialDatePicker({
+                    format: 'HH:mm',
+                    date: false,
+                    switchOnClick : true,
+                });
+            },100);
 
-      });
-  });
+        });
+    });
+
 </script>

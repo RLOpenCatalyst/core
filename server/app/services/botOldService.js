@@ -16,8 +16,8 @@
  */
 
 var logger = require('_pr/logger')(module);
-var botsDao = require('_pr/model/bots/1.1/botsDao.js');
-var bots = require('_pr/model/bots/1.0/bots.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
 var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var async = require("async");
@@ -32,11 +32,11 @@ const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
 
-const errorType = 'botsService';
+const errorType = 'botOldService';
 
-var botsService = module.exports = {};
+var botOldService = module.exports = {};
 
-botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCategory,linkedSubCategory,callback) {
+botOldService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCategory,linkedSubCategory,callback) {
     logger.debug("In createOrUpdateBots....");
     var botsObj = {
         botId: botsDetail._id,
@@ -69,12 +69,12 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
         versionOptional = versionsList[versionsList.length-1].ver;
         botsObj.version = versionOptional;
     }
-    bots.getBotsById(botsDetail._id,function(err,data){
+    botOld.getBotsById(botsDetail._id,function(err,data){
         if(err){
             callback(err,null);
             return;
         }else if(data.length === 0){
-            bots.createNew(botsObj, function (err, saveBotsData) {
+            botOld.createNew(botsObj, function (err, saveBotsData) {
                 if (err) {
                     logger.error(err);
                     callback(err, null);
@@ -85,7 +85,7 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
             })
         }else{
             botsObj.isDeleted = false;
-            bots.updateBotsDetail(botsObj.botId,botsObj,function(err,updateBotsData){
+            botOld.updateBotsDetail(botsObj.botId,botsObj,function(err,updateBotsData){
                 if(err){
                     logger.error(err);
                     callback(err,null);
@@ -103,7 +103,7 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
     });
 }
 
-botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
+botOldService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
     if(botObj.botScheduler  && botObj.botScheduler !== null && Object.keys(botObj.botScheduler).length !== 0) {
         botObj.botScheduler = apiUtil.createCronJobPattern(botObj.botScheduler);
         botObj.isBotScheduled =true;
@@ -111,13 +111,13 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
         botObj.botScheduler ={};
         botObj.isBotScheduled =false;
     }
-    bots.updateBotsDetail(botId,botObj,function(err,data){
+    botOld.updateBotsDetail(botId,botObj,function(err,data){
         if(err){
             logger.error(err);
             callback(err,null);
             return;
         }else {
-            bots.getBotsById(botId, function (err, botsData) {
+            botOld.getBotsById(botId, function (err, botsData) {
                 if (err) {
                     logger.error(err);
                 } else if(botsData.length > 0){
@@ -165,7 +165,7 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
     });
 }
 
-botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
+botOldService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -179,7 +179,7 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
         function(queryObj, next) {
             if(actionStatus !== null){
                 var query = {
-                    auditType: 'BOTs',
+                    auditType: 'BOTOLD',
                     actionStatus: actionStatus,
                     isDeleted:false
                 };
@@ -194,15 +194,15 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
                             }
                         }
                         queryObj.queryObj.botId = {$in:botsIds};
-                        bots.getBotsList(queryObj, next);
+                        botOld.getBotsList(queryObj, next);
                     } else {
                         queryObj.queryObj.botId = null;
-                        bots.getBotsList(queryObj, next);
+                        botOld.getBotsList(queryObj, next);
                     }
                 });
             }else if(serviceNowCheck === true){
                 var query = {
-                    auditType: 'BOTs',
+                    auditType: 'BOTOLD',
                     actionStatus: 'success',
                     user: 'servicenow',
                     isDeleted:false
@@ -218,14 +218,14 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
                             }
                         }
                         queryObj.queryObj.botId = {$in:botsIds};
-                        bots.getBotsList(queryObj, next);
+                        botOld.getBotsList(queryObj, next);
                     } else {
                         queryObj.queryObj.botId = null;
-                        bots.getBotsList(queryObj, next);
+                        botOld.getBotsList(queryObj, next);
                     }
                 });
             } else{
-                bots.getBotsList(queryObj, next);
+                botOld.getBotsList(queryObj, next);
             }
         },
         function(botList, next) {
@@ -244,7 +244,7 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
                     apiUtil.paginationResponse(filterBotList, reqData, callback);
                 },
                 botSummary:function(callback){
-                   auditTrailService.getBOTsSummary(botsQuery,'BOTs',callback)
+                   auditTrailService.getBOTsSummary(botsQuery,'BOTOLD',callback)
                }
             },function(err,data){
                if(err){
@@ -270,10 +270,10 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
     });
 }
 
-botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
+botOldService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
     async.waterfall([
         function(next){
-            bots.getBotsById(botId,next);
+            botOld.getBotsById(botId,next);
         },
         function(botDetails,next){
             if(botDetails.length > 0){
@@ -286,7 +286,7 @@ botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
                         }
                     },
                     services: function(callback){
-                        bots.removeSoftBotsById(botId,callback);
+                        botOld.removeSoftBotsById(botId,callback);
                     }
                 },function(err,results){
                     if(err){
@@ -310,8 +310,8 @@ botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
         }
     });
 }
-botsService.removeBotsById = function removeBotsById(botId,callback){
-    bots.removeBotsById(botId,function(err,data){
+botOldService.removeBotsById = function removeBotsById(botId,callback){
+    botOld.removeBotsById(botId,function(err,data){
         if(err){
             logger.error(err);
             callback(err,null);
@@ -322,7 +322,7 @@ botsService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowCheck,callback){
+botOldService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowCheck,callback){
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -335,7 +335,7 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowC
         },
         function(queryObj, next) {
             queryObj.queryObj.auditId = botId;
-            queryObj.queryObj.auditType = 'BOTs';
+            queryObj.queryObj.auditType = 'BOTOLD';
             if(serviceNowCheck === true){
                 queryObj.queryObj.user = 'servicenow';
             }
@@ -355,7 +355,7 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowC
     });
 }
 
-botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,auditType,callback){
+botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,auditType,callback){
     var query = {
         auditType: auditType,
         isDeleted: false,
@@ -382,8 +382,9 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,audit
                 hours: Math.floor(totalTimeInMinutes / 60),
                 minutes: totalTimeInMinutes % 60
             }
-            if(auditType==='BOTs') {
-                bots.updateBotsDetail(botId, {
+            console.log(JSON.stringify(result));
+            if(auditType==='BOTOLD') {
+                botOld.updateBotsDetail(botId, {
                     savedTime: result,
                     executionCount: botAuditTrail.length
                 }, function (err, data) {
@@ -396,7 +397,7 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,audit
                     return;
                 })
             }else{
-                botsDao.updateBotsDetail(botId, {
+                botDao.updateBotsDetail(botId, {
                     savedTime: result,
                     executionCount: botAuditTrail.length
                 }, function (err, data) {
@@ -416,23 +417,23 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,audit
     });
 }
 
-botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,historyId,callback){
+botOldService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
-            bots.getBotsById(botId,next);
+            botOld.getBotsById(botId,next);
         },
         function(bots,next){
-            if(bots.length > 0) {
+            if(botOld.length > 0) {
                 if (bots[0].botLinkedCategory === 'Task') {
                     var query = {
-                        auditType: 'BOTs',
+                        auditType: 'BOTOLD',
                         auditId: botId,
                         auditHistoryId: historyId
                     };
                     auditTrail.getAuditTrails(query, next);
                 }else{
                     var query = {
-                        "auditType": 'BOTs',
+                        "auditType": 'BOTOLD',
                         "auditId": botId,
                         "auditTrailConfig.nodeIdsWithActionLog": {$elemMatch:{actionLogId:ObjectId(historyId)}}
                     };
@@ -454,7 +455,7 @@ botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,h
     });
 }
 
-botsService.executeBots = function executeBots(botId,reqBody,callback){
+botOldService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
             if(reqBody !== null
@@ -473,7 +474,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
                         var botObj = {
                             'botConfig.scriptDetails':encryptedParamList
                         }
-                        bots.updateBotsDetail(botId,botObj,callback);
+                        botOld.updateBotsDetail(botId,botObj,callback);
                     },
                     task: function (callback) {
                         var taskObj = {
@@ -486,11 +487,11 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
                     if (err) {
                         next(err);
                     } else {
-                        bots.getBotsById(botId, next);
+                        botOld.getBotsById(botId, next);
                     }
                 })
             }else{
-                bots.getBotsById(botId, next);
+                botOld.getBotsById(botId, next);
             }
         },
         function(bots,next){
@@ -522,7 +523,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
     });
 }
 
-botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
+botOldService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
     async.waterfall([
         function(next) {
             gitHubService.getGitHubById(gitHubId,next);
@@ -554,7 +555,7 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                             orgId:gitHubDetails.orgId,
                                             orgName:gitHubDetails.orgName
                                         }
-                                        botsDao.createNew(botsObj,function(err,data){
+                                        botDao.createNew(botsObj,function(err,data){
                                             if(err){
                                                 logger.error(err);
                                             }
@@ -673,7 +674,7 @@ function filterDataForServiceNow(botList,callback){
         for(var i = 0; i < botList.docs.length; i++){
             (function(bot){
                 var query={
-                    auditType:'BOTs',
+                    auditType:'BOTOLD',
                     actionStatus:'success',
                     isDeleted:false,
                     user:'servicenow',

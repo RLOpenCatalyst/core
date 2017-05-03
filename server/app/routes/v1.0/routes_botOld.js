@@ -14,15 +14,15 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var botsService = require('_pr/services/botsService.js');
+var botOldService = require('_pr/services/botOldService.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/bots*', sessionVerificationFunc);
+    app.all('/botOld*', sessionVerificationFunc);
 
-    app.get('/bots',function(req,res){
+    app.get('/botOld',function(req,res){
         var actionStatus = null,serviceNowCheck = false;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
@@ -30,7 +30,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
             serviceNowCheck = true;
         }
-        botsService.getBotsList(req.query,actionStatus,serviceNowCheck, function(err,data){
+        botOldService.getBotsList(req.query,actionStatus,serviceNowCheck, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -40,8 +40,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 
-    app.delete('/bots/:botId',function(req,res){
-        botsService.removeSoftBotsById(req.params.botId, function(err,data){
+    app.delete('/botOld/:botId',function(req,res){
+        botOldService.removeSoftBotsById(req.params.botId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -50,12 +50,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/bots/:botId/bots-history',function(req,res){
+    app.get('/botOld/:botId/bot-history',function(req,res){
         var serviceNowCheck = false;
         if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
             serviceNowCheck = true;
         }
-        botsService.getBotsHistory(req.params.botId,req.query, serviceNowCheck,function(err,data){
+        botOldService.getBotsHistory(req.params.botId,req.query, serviceNowCheck,function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -64,8 +64,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/bots/:botId/bots-history/:historyId',function(req,res){
-        botsService.getPerticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
+    app.get('/botOld/:botId/bot-history/:historyId',function(req,res){
+        botOldService.getPerticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -74,7 +74,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.post('/bots/:botId/execute',function(req,res){
+    app.post('/botOld/:botId/execute',function(req,res){
         var reqBody = null;
         if(req.body.category && req.body.category ==='Blueprints') {
             if (!req.body.envId) {
@@ -109,7 +109,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         }
         if(reqBody !== null) {
-            botsService.executeBots(req.params.botId, reqBody, function (err, data) {
+            botOldService.executeBots(req.params.botId, reqBody, function (err, data) {
                 if (err) {
                     return res.status(500).send(err);
                 } else {
@@ -120,8 +120,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }
     });
 
-    app.put('/bots/:botId/scheduler',function(req,res){
-        botsService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
+    app.put('/botOld/:botId/scheduler',function(req,res){
+        botOldService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
