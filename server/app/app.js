@@ -204,16 +204,20 @@ io.set('log level', 1);
 io.sockets.on('connection', function(socket) {
     var dt = new Date();
     var month = dt.getMonth() + 1;
+    var currentDate = dt.getDate();
+    if(currentDate < 10){
+        currentDate = '0'+currentDate;
+    }
     if (month < 10)
         month = '0' + month;
-    logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate());
+    logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate);
     var tail;
-    if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'))
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'); //catalyst.log.2015-06-19
-    else if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'))
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'); //catalyst.log.2015-06-19
+    if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate + '.2'))
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate + '.2'); //catalyst.log.2015-06-19
+    else if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate + '.1'))
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate + '.1'); //catalyst.log.2015-06-19
     else
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate()); //catalyst.log.2015-06-19
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate); //catalyst.log.2015-06-19
     tail.on('line', function(line) {
         socket.emit('log', line);
     });

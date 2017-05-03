@@ -820,12 +820,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                     if (err) {
                                                                         logger.error("Failed to update bots saved Time: ", err);
                                                                     }
-                                                                    logsDao.insertLog({
-                                                                        referenceId:logsReferenceIds,
-                                                                        err: false,
-                                                                        log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
-                                                                        timestamp: new Date().getTime()
-                                                                    });
+                                                                    if(launchParams.bot_id !== null) {
+                                                                        logsDao.insertLog({
+                                                                            referenceId: logsReferenceIds,
+                                                                            err: false,
+                                                                            log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
+                                                                            timestamp: new Date().getTime()
+                                                                        });
+                                                                    }
                                                                 });
                                                             });
                                                         }
@@ -879,32 +881,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             log: "Instance Bootstrapped successfully",
                                                             timestamp: new Date().getTime()
                                                         };
-                                                        if (launchParams.auditTrailId !== null) {
-                                                            var resultTaskExecution = {
-                                                                actionStatus: "success",
-                                                                status: "success",
-                                                                endedOn: new Date().getTime(),
-                                                                actionLogId:launchParams.actionLogId
-                                                            }
-                                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                                                if (err) {
-                                                                    logger.error("Failed to create or update bots Log: ", err);
-                                                                }
-                                                                var botOldService = require('_pr/services/botOldService');
-                                                                botOldService.updateSavedTimePerBots(launchParams.botId,launchParams.auditType,function(err,data){
-                                                                    if (err) {
-                                                                        logger.error("Failed to update bots saved Time: ", err);
-                                                                    }
-                                                                    logsDao.insertLog({
-                                                                        referenceId:logsReferenceIds,
-                                                                        err: false,
-                                                                        log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
-                                                                        timestamp: new Date().getTime()
-                                                                    });
-                                                                });
-                                                            });
-
-                                                        }
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                         launchParams.infraManager.getNode(instance.chefNodeName, function (err, nodeData) {
                                                             if (err) {
