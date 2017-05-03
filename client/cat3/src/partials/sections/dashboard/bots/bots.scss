@@ -940,6 +940,19 @@ fieldset#editParamPage legend {
   font-weight: 400;
 }
 
+.marginTopRightForHistory {
+  margin-top: -38px;
+  margin-right: 18px;
+}
+
+.margintop28 {
+  margin-top:28px;
+}
+
+.gridHeightBots {
+  height: 370px;
+}
+
 @media (min-width : 1550px){
     .agent-card .image-cell + * {
       width: 375px;
@@ -990,7 +1003,7 @@ fieldset#editParamPage legend {
     .paddingForScreen {
       padding-left: 1.7%;
     }
-    .heightBigCheck {
+    .gridHeightBots {
       height: 650px;
     }
     .dashboard-stats__title {
@@ -999,6 +1012,10 @@ fieldset#editParamPage legend {
       font-size: 42px;
       font-weight: 300;
       color: #fff
+    }
+    .marginTopRightForHistory {
+      margin-top: -38px;
+      margin-right: 43px;
     }
     #botLibraryPage .section-bottom-glyph {
       position: absolute;

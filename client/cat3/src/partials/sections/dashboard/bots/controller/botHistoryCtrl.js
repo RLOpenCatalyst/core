@@ -23,6 +23,12 @@
                 $scope.getSavedTime();
             });
 
+            $scope.refreshHistoryPage = function() {
+                $scope.taskHistoryListView();
+                $scope.getExecutionTime();
+                $scope.getSavedTime();
+            }
+
             if($scope.templateSelected) {
                 items = $scope.templateSelected; 
             } 
@@ -106,7 +112,7 @@
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                                             { name:'Execution Time (Mins)',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} </span>'},
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status == \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
+                                            { name:'Saved Time (Mins)',cellTemplate:'<span class="errorMsg" ng-if="row.entity.status == \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
                                             '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = chefGrid;
@@ -120,7 +126,7 @@
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>',cellTooltip: true},
                                             { name:'Execution Time (Mins)',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} </span>'},
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
+                                            { name:'Saved Time (Mins)',cellTemplate:'<span class="errorMsg" ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
                                             '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = jenkinsGrid;
@@ -134,7 +140,7 @@
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                                             { name:'Execution Time (Mins)',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} </span>'},
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
+                                            { name:'Saved Time (Mins)',cellTemplate:'<span class="errorMsg" ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
                                             '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = blueprintGrid;
@@ -164,7 +170,11 @@
             $scope.getSavedTime = function(endTime, startTime) {
                 var executionTime = $scope.getExecutionTime(endTime, startTime);
                 $scope.savedTime = items.manualExecutionTime - executionTime;
-                return $scope.savedTime;
+                if($scope.savedTime < 0) {
+                    return 'OverRun'
+                } else {
+                    return +(Math.round($scope.savedTime + "e+1") + "e-1");
+                }
             };
 
             

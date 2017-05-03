@@ -396,9 +396,12 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
 }
 
 schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots,callback) {
-    logger.debug("New Bots Scheduler is started for - "+bots.name);
     var currentDate = new Date().getTime();
-    if(currentDate >= bots.scheduler.cronEndOn){
+    if(bots.isScheduled === false && bots.cronJobId){        
+        crontab.cancelJob(bots.cronJobId);        
+         logger.debug("Bots Scheduler has ended for - "+bots.name);
+        callback(null,null);    
+    }else if(currentDate >= bots.scheduler.cronEndOn && bots.isScheduled === true){
         crontab.cancelJob(bots.cronJobId);
         botDao.updateBotsScheduler(bots._id,function(err, updatedData) {
             if (err) {
@@ -406,11 +409,12 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
                 callback(err,null);
                 return;
             }
-            logger.debug("Scheduler is ended on for New Bots. "+bots.name);
+            logger.debug("Scheduler has ended on for New Bots. "+bots.name);
             callback(null,updatedData);
             return;
         });
     }else{
+        logger.debug("New Bots Scheduler has started for - "+bots.name);
         var cronJobId = cronTab.scheduleJob(bots.scheduler.cronPattern, function () {
             botDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
                 if(err){
