@@ -321,7 +321,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					logger.error("Failed to delete Bots ", err);
 				}
 			});
-			auditTrailService.removeAuditTrailById(req.params.taskId,function(err,auditTrailData){
+			auditTrailService.removeAuditTrailById(req.params.blueprintId,function(err,auditTrailData){
 				if(err){
 					logger.error("Failed to delete Audit Trail ", err);
 				}
@@ -335,17 +335,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.delete('/blueprints', function(req, res) {
 		var blueprintIds = req.body.blueprints;
 		logger.debug("Enter /blueprints/delete/%s", req.body.blueprints);
-		if(blueprintIds.length > 0)
-		Blueprints.removeByIds(blueprintIds, function(err, data) {
-			if (err) {
-				logger.error("Failed to delete blueprint ", err);
-				res.send(500, errorResponses.db.error);
-				return;
-			}
-			res.send(200, {
-				message: "deleted"
-			});
-		});
+		if(blueprintIds.length > 0) {
+            Blueprints.removeByIds(blueprintIds, function (err, data) {
+                if (err) {
+                    logger.error("Failed to delete blueprint ", err);
+                    res.send(500, errorResponses.db.error);
+                    return;
+                }
+                res.send(200, {
+                    message: "deleted"
+                });
+            });
+        }else{
+            res.send(400, {
+                message: "There is no Blueprint Ids in request Body"
+            })
+		}
 	});
 
 	app.post('/blueprints/copy',function(req,res){

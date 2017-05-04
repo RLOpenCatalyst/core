@@ -30,6 +30,7 @@ var Chef = require('_pr/lib/chef.js');
 var taskStatusModule = require('_pr/model/taskstatus');
 var settingsService = require('_pr/services/settingsService');
 
+
 module.exports.setRoutes = function(app, verificationFunc) {
 
     app.all('/servicenow*', verificationFunc);
@@ -468,16 +469,34 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
     app.get('/cmdb/list', function(req, res) {
         logger.debug("getting all the CMDB config docs from mongodb");
-        CMDBConfig.getCMDBList(function(err, data) {
-            if (err) {
-                logger.error(err);
+        var loggedUser = req.session.user.cn;
+        settingsService.getOrgUserFilter(loggedUser,function(err,orgIds){
+            if(err){
+                logger.error("Error", err);
                 res.send(err);
                 return;
+            }else if(orgIds.length > 0){
+                CMDBConfig.getCMDBListByOrgIds(orgIds,function(err, data) {
+                    if (err) {
+                        logger.error(err);
+                        res.send(err);
+                        return;
+                    }
+                    logger.debug("Number of CMDB providers:", data.length);
+                    res.send(data);
+                });
+            }else{
+                CMDBConfig.getCMDBList(function(err, data) {
+                    if (err) {
+                        logger.error(err);
+                        res.send(err);
+                        return;
+                    }
+                    logger.debug("Number of CMDB providers:", data.length);
+                    res.send(data);
+                });
             }
-            logger.debug("Number of CMDB providers:", data.length);
-            res.send(data);
         });
-
     });
 
     app.get('/cmdb/servers/:serverId', function(req, res) {

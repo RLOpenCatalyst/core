@@ -94,9 +94,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get("/git-hub", getGitHubList);
 
     function getGitHubList(req, res) {
+        var loggedUser = req.session.user.cn;
         async.waterfall([
             function(next) {
-                gitHubService.getGitHubList(req.query, next);
+                gitHubService.getGitHubList(req.query,loggedUser, next);
             }
         ], function(err, monitors) {
             if (err) {

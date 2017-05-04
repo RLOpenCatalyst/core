@@ -35,6 +35,7 @@ var schedulerService = require('_pr/services/schedulerService.js');
 var noticeService = require('_pr/services/noticeService.js');
 var auditQueue = require('_pr/config/global-data.js');
 var SCP = require('_pr/lib/utils/scp');
+var fs = require('fs');
 
 const errorType = 'chefExecutor';
 var chefExecutor = module.exports = {};
@@ -283,7 +284,7 @@ function executeChefOnRemote(instance, botDetails, actionLogId, auditTrailId, us
             authenticationObj.authType = "pem";
             authenticationObj.auth = {
                 "username": decryptedCredentials.username,
-                "file": decryptedCredentials.pemFileLocation
+                "fileData": fs.readFileSync(decryptedCredentials.pemFileLocation,'Base64')
             }
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Pem_Based_Authentication";
