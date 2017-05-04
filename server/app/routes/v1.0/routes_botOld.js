@@ -24,13 +24,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.get('/botOld',function(req,res){
         var actionStatus = null,serviceNowCheck = false;
+        var loggedUser = req.session.user.cn;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
         }
         if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
             serviceNowCheck = true;
         }
-        botOldService.getBotsList(req.query,actionStatus,serviceNowCheck, function(err,data){
+        botOldService.getBotsList(req.query,actionStatus,serviceNowCheck,loggedUser, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

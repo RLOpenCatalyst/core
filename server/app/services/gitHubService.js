@@ -36,6 +36,7 @@ var mkdirp = require('mkdirp');
 var request = require('request');
 var getDirName = require('path').dirname;
 var gitGubService = module.exports = {};
+var settingService = require('_pr/services/settingsService');
 
 gitGubService.checkIfGitHubExists = function checkIfGitHubExists(gitHubId, callback) {
     gitHubModel.getById(gitHubId, function (err, gitHub) {
@@ -146,7 +147,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
     });
 };
 
-gitGubService.getGitHubList = function getGitHubList(query, callback) {
+gitGubService.getGitHubList = function getGitHubList(query,userName, callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -161,7 +162,16 @@ gitGubService.getGitHubList = function getGitHubList(query, callback) {
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
-            gitHubModel.getGitHubList(queryObj, next);
+            settingService.getOrgUserFilter(userName,function(err,orgIds){
+                if(err){
+                    next(err,null);
+                }else if(orgIds.length > 0){
+                    queryObj.queryObj['orgId'] = {$in:orgIds};
+                    gitHubModel.getGitHubList(queryObj, next);
+                }else{
+                    gitHubModel.getGitHubList(queryObj, next);
+                }
+            });
         },
         function(gitHubList, next) {
             if (gitHubList.docs.length > 0) {

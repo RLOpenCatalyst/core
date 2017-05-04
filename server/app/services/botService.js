@@ -31,7 +31,7 @@ var jenkinsExecutor = require('_pr/engine/bots/jenkinsExecutor.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
-
+var settingService = require('_pr/services/settingsService');
 
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
@@ -172,7 +172,7 @@ botService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
+botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -201,23 +201,65 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                             }
                         }
                         queryObj.queryObj._id = {$in:botsIds};
-                        botDao.getBotsList(queryObj, next);
+                        settingService.getOrgUserFilter(userName,function(err,orgIds){
+                            if(err){
+                                next(err,null);
+                            }else if(orgIds.length > 0){
+                                queryObj.queryObj['orgId'] = {$in:orgIds};
+                                botDao.getBotsList(queryObj, next);
+                            }else{
+                                botDao.getBotsList(queryObj, next);
+                            }
+                        });
                     }else {
                         queryObj.queryObj._id = null;
-                        botDao.getBotsList(queryObj, next);
+                        settingService.getOrgUserFilter(userName,function(err,orgIds){
+                            if(err){
+                                next(err,null);
+                            }else if(orgIds.length > 0){
+                                queryObj.queryObj['orgId'] = {$in:orgIds};
+                                botDao.getBotsList(queryObj, next);
+                            }else{
+                                botDao.getBotsList(queryObj, next);
+                            }
+                        });
                     }
                 });
             }else if(serviceNowCheck === true){
                 delete queryObj.queryObj;
-                queryObj.queryObj = {
-                    auditType: 'BOT',
-                    actionStatus: 'success',
-                    'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
-                    isDeleted:false
-                };
-                auditTrail.getAuditTrailList(queryObj, next);
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        queryObj.queryObj = {
+                            auditType: 'BOT',
+                            actionStatus: 'success',
+                            'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
+                            isDeleted:false,
+                            'masterDetails.ordId': {$in:orgIds}
+                        };
+                        auditTrail.getAuditTrailList(queryObj, next);
+                    }else{
+                        queryObj.queryObj = {
+                            auditType: 'BOT',
+                            actionStatus: 'success',
+                            'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
+                            isDeleted:false
+                        };
+                        auditTrail.getAuditTrailList(queryObj, next);
+                    }
+                });
             }else{
-                botDao.getBotsList(queryObj, next);
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        queryObj.queryObj['orgId'] = {$in:orgIds};
+                        botDao.getBotsList(queryObj, next);
+                    }else{
+                        botDao.getBotsList(queryObj, next);
+                    }
+                });
             }
         },
         function(botList, next) {
@@ -229,7 +271,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                    apiUtil.paginationResponse(filterBotList, reqData, callback);
                },
                botSummary:function(callback){
-                   auditTrailService.getBOTsSummary(botsQuery,'BOT',callback)
+                   auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback)
                }
            },function(err,data){
                if(err){
@@ -611,10 +653,10 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                                     category:result.botCategory?result.botCategory:result.functionality,
                                                     action:result.action,
                                                     execution:result.execution?result.execution:[],
-                                                    manualExecutionTime:result.manualExecutionTime?result.manualExecutionTime:10,
+                                                    manualExecutionTime:result.manualExecutionTime ? result.manualExecutionTime:10,
                                                     type:result.type,
                                                     subType:result.subtype,
-                                                    inputFormFields:result.input !==null ?result.input[0].form:result.input,
+                                                    inputFormFields:result.input && result.input !==null ? result.input[0].form:null,
                                                     outputOptions:result.output,
                                                     ymlDocFileId:ymlDocFileId,
                                                     orgId:gitHubDetails.botSync.orgId,

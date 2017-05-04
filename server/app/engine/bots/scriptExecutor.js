@@ -29,6 +29,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
+var fs = require('fs');
 
 
 const errorType = 'scriptExecutor';
@@ -261,7 +262,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
             authenticationObj.authType = "pem";
             authenticationObj.auth = {
                 "username": decryptedCredentials.username,
-                "file": decryptedCredentials.pemFileLocation
+                "fileData": fs.readFileSync(decryptedCredentials.pemFileLocation,'Base64')
             }
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Pem_Based_Authentication";
