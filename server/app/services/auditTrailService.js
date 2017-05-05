@@ -345,7 +345,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
-                        filterQuery.queryObj['orgId'] = {$in:orgIds};
+                        filterQuery.orgId = {$in:orgIds};
                         botOld.getAllBots(filterQuery, next);
                     }else{
                         botOld.getAllBots(filterQuery, next);
@@ -356,7 +356,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
-                        filterQuery.queryObj['orgId'] = {$in:orgIds};
+                        filterQuery.orgId = {$in:orgIds};
                         botDao.getAllBots(filterQuery, next);
                     }else{
                         botDao.getAllBots(filterQuery, next);

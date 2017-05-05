@@ -25,12 +25,10 @@ var BotSchema = new Schema ({
         type: String,
         trim: true,
         required: true
-
     },
     id: {
         type: String,
         trim: true,
-        unique: true,
         required: true
     },
     gitHubId: {
