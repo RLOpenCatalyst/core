@@ -31,7 +31,7 @@ var appConfig = require('_pr/config');
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
-
+var settingService = require('_pr/services/settingsService');
 const errorType = 'botOldService';
 
 var botOldService = module.exports = {};
@@ -165,7 +165,7 @@ botOldService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,ca
     });
 }
 
-botOldService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
+botOldService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -194,10 +194,28 @@ botOldService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceN
                             }
                         }
                         queryObj.queryObj.botId = {$in:botsIds};
-                        botOld.getBotsList(queryObj, next);
+                        settingService.getOrgUserFilter(userName,function(err,orgIds){
+                            if(err){
+                                next(err,null);
+                            }else if(orgIds.length > 0){
+                                queryObj.queryObj['orgId'] = {$in:orgIds};
+                                botOld.getBotsList(queryObj, next);
+                            }else{
+                                botOld.getBotsList(queryObj, next);
+                            }
+                        });
                     } else {
                         queryObj.queryObj.botId = null;
-                        botOld.getBotsList(queryObj, next);
+                        settingService.getOrgUserFilter(userName,function(err,orgIds){
+                            if(err){
+                                next(err,null);
+                            }else if(orgIds.length > 0){
+                                queryObj.queryObj['orgId'] = {$in:orgIds};
+                                botOld.getBotsList(queryObj, next);
+                            }else{
+                                botOld.getBotsList(queryObj, next);
+                            }
+                        });
                     }
                 });
             }else if(serviceNowCheck === true){
@@ -218,14 +236,41 @@ botOldService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceN
                             }
                         }
                         queryObj.queryObj.botId = {$in:botsIds};
-                        botOld.getBotsList(queryObj, next);
+                        settingService.getOrgUserFilter(userName,function(err,orgIds){
+                            if(err){
+                                next(err,null);
+                            }else if(orgIds.length > 0){
+                                queryObj.queryObj['orgId'] = {$in:orgIds};
+                                botOld.getBotsList(queryObj, next);
+                            }else{
+                                botOld.getBotsList(queryObj, next);
+                            }
+                        });
                     } else {
                         queryObj.queryObj.botId = null;
-                        botOld.getBotsList(queryObj, next);
+                        settingService.getOrgUserFilter(userName,function(err,orgIds){
+                            if(err){
+                                next(err,null);
+                            }else if(orgIds.length > 0){
+                                queryObj.queryObj['orgId'] = {$in:orgIds};
+                                botOld.getBotsList(queryObj, next);
+                            }else{
+                                botOld.getBotsList(queryObj, next);
+                            }
+                        });
                     }
                 });
             } else{
-                botOld.getBotsList(queryObj, next);
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        queryObj.queryObj['orgId'] = {$in:orgIds};
+                        botOld.getBotsList(queryObj, next);
+                    }else{
+                        botOld.getBotsList(queryObj, next);
+                    }
+                });
             }
         },
         function(botList, next) {
@@ -244,7 +289,7 @@ botOldService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceN
                     apiUtil.paginationResponse(filterBotList, reqData, callback);
                 },
                 botSummary:function(callback){
-                   auditTrailService.getBOTsSummary(botsQuery,'BOTOLD',callback)
+                   auditTrailService.getBOTsSummary(botsQuery,'BOTOLD',userName,callback)
                }
             },function(err,data){
                if(err){
