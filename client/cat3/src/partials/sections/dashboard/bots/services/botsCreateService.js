@@ -65,9 +65,9 @@
 				return genericServices.promiseGet(params);
 			};
 
-			botService.getBlueprintList = function (orgId,templateType) {
+			botService.getBlueprintList = function (orgId,templateType,bpName) {
 				var params = {
-					url: '/blueprints/list?filterBy=orgId:'+ orgId + ',templateType:'+templateType,
+					url: '/blueprints/list?filterBy=orgId:'+ orgId + ',templateType:'+templateType + ',name:'+bpName,
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);

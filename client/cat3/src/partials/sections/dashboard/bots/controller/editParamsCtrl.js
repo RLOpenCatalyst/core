@@ -25,7 +25,8 @@
                     buss:$rootScope.organObject[0].businessGroups[0],
                     proj:$rootScope.organObject[0].businessGroups[0].projects[0],
                     env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0],
-                    blueprintType:items.subType
+                    blueprintType:items.subType,
+                    blueprintName:items.execution.name
                 };
             }
 
@@ -35,6 +36,7 @@
             $scope.botType = items.type;
             $scope.subType = items.subType;
             $scope.botInfo = $scope.templateSelected;
+            $scope.executionDetails = items.execution;
             $scope.selectedInstanceList = [];
             $scope.selectedInstanceIds = [];
             $scope.originalInstanceList = [];
@@ -107,14 +109,10 @@
 
             $scope.getBlueprintList = function() {
                 if($scope.IMGNewEnt){
-                    botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType).then(function(response){
+                    botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType,$scope.IMGNewEnt.blueprintName).then(function(response){
                         $scope.originalBlueprintList=[];
                         if(response.blueprints){
-                            angular.forEach(response.blueprints, function(value) {
-                                if($scope.selectedBlueprintIds.indexOf(value._id) === -1) {
-                                    $scope.originalBlueprintList.push(value);
-                                }
-                            });
+                            $scope.originalBlueprintList = response.blueprints;
                         }
                     });
                 }
@@ -298,8 +296,8 @@
                     }
                     $scope.botExecuteMethod(items.id,reqBody);
                 } else if (type === 'blueprints') {
-                    reqBody.blueprintIds = $scope.selectedBlueprintIds;
-                    botsCreateService.getBlueprintDetails($scope.selectedBlueprintIds[0]).then(function(response){
+                    reqBody.blueprintIds = $scope.originalBlueprintList[0]._id;
+                    botsCreateService.getBlueprintDetails($scope.originalBlueprintList[0]._id).then(function(response){
                         $modal.open({
                             animate: true,
                             templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParams.html",
