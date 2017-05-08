@@ -549,7 +549,7 @@
 										</div>
 										<div class="select-nodes">
 											<ul>
-												<li ng-repeat="script in scriptTaskList">
+												<li ng-repeat="script in scriptTaskList.data">
 													<label class="checkbox check-list">
 														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
 														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>

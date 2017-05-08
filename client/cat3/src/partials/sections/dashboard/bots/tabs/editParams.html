@@ -58,6 +58,7 @@
 	                  <td ng-init="botEditParams[value.name] = value.default" style="text-align: left">
 		                	<input ng-if="value.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
 		                	<input ng-if="value.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
+                        <!-- <input ng-if="value.type==='restricted'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/> -->
 		               </td>
 	               </tr>
 	            </tbody>

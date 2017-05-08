@@ -111,16 +111,7 @@
 					}
 				},
 				addJenkinsParams: function () {
-					$modal.open({
-						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addJenkinsParams.html',
-						controller: 'addJenkinsParamsCtrl',
-						backdrop: 'static',
-						keyboard: false
-					}).result.then(function (addJenkinsParams) {
-						$scope.jenkinsParamsList.push(addJenkinsParams);
-					}, function () {
-						console.log('Dismiss time is ' + new Date());
-					});
+					genericServices.addJenkinsParameters();
 				},
 				changeNodeScriptList: function() {
 					if($scope.scriptTypeSelelct !==""){
@@ -148,21 +139,8 @@
 					}
 				},
 				addScriptParams: function (scriptObject) {
-					$modal.open({
-						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addScriptParams.html',
-						controller: 'addScriptParamsCtrl',
-						backdrop: 'static',
-						keyboard: false,
-						resolve: {
-							items: function () {
-								return scriptObject;
-							}
-						}
-					}).result.then(function (addScriptParams) {
-						$scope.scriptParamsObj[scriptObject._id] = $scope.scriptParamsObj[scriptObject._id].concat(addScriptParams);
-					}, function () {
-						console.log('Dismiss time is ' + new Date());
-					});
+					genericServices.addScriptParameters(scriptObject);
+					$scope.scriptObject = scriptObject;
 				},
 				removeJenkinsParams: function (params) {
 					var idx = $scope.jenkinsParamsList.indexOf(params);
@@ -526,6 +504,18 @@
 				if(reqParams) {
 					$scope.chefrunlist = reqParams.list;
 					$scope.cookbookAttributes = reqParams.cbAttributes;
+				}
+            });
+
+            $rootScope.$on('JENKINS_PARAMETER', function(event,reqParams) {
+				if(reqParams) {
+					$scope.jenkinsParamsList.push(reqParams);
+				}
+            });
+
+            $rootScope.$on('SCRIPT_PARAMETER', function(event,reqParams) {
+				if(reqParams) {
+					$scope.scriptParamsObj[$scope.scriptObject._id] = $scope.scriptParamsObj[$scope.scriptObject._id].concat(reqParams);
 				}
             });
 			var compositeSelector,instanceSelector;
