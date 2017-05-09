@@ -1329,7 +1329,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                         var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarded);
                                                         var logsRefernceIds = [instance.id, actionLog._id];
                                                         logsDao.insertLog({
-                                                            referenceId: logsRefernceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
                                                             err: false,
                                                             log: "Bootstrapping instance",
                                                             timestamp: timestampStarded
@@ -1372,7 +1373,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                 logger.error("unable to decrypt credentials", err);
                                                                 var timestampEnded = new Date().getTime();
                                                                 logsDao.insertLog({
-                                                                    referenceId: logsRefernceIds,
+                                                                    instanceId:instance._id,
+                                                                    instanceRefId:actionLog._id,
                                                                     err: true,
                                                                     log: "Unable to decrypt credentials. Bootstrap Failed",
                                                                     timestamp: timestampEnded
@@ -1489,7 +1491,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                         if (err.message) {
                                                                             var timestampEnded = new Date().getTime();
                                                                             logsDao.insertLog({
-                                                                                referenceId: logsRefernceIds,
+                                                                                instanceId:instance._id,
+                                                                                instanceRefId:actionLog._id,
                                                                                 err: true,
                                                                                 log: err.message,
                                                                                 timestamp: timestampEnded
@@ -1510,7 +1513,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                         }
                                                                         var timestampEnded = new Date().getTime();
                                                                         logsDao.insertLog({
-                                                                            referenceId: logsRefernceIds,
+                                                                            instanceId:instance._id,
+                                                                            instanceRefId:actionLog._id,
                                                                             err: true,
                                                                             log: "Bootstrap Failed",
                                                                             timestamp: timestampEnded
@@ -1557,7 +1561,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
 
                                                                             var timestampEnded = new Date().getTime();
                                                                             logsDao.insertLog({
-                                                                                referenceId: logsRefernceIds,
+                                                                                instanceId:instance._id,
+                                                                                instanceRefId:actionLog._id,
                                                                                 err: false,
                                                                                 log: "Instance Bootstrapped Successfully",
                                                                                 timestamp: timestampEnded
@@ -1709,7 +1714,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
 
                                                                             var timestampEnded = new Date().getTime();
                                                                             logsDao.insertLog({
-                                                                                referenceId: logsRefernceIds,
+                                                                                instanceId:instance._id,
+                                                                                instanceRefId:actionLog._id,
                                                                                 err: true,
                                                                                 log: "Bootstrap Failed",
                                                                                 timestamp: timestampEnded
@@ -1734,7 +1740,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                 }, function (stdOutData) {
 
                                                                     logsDao.insertLog({
-                                                                        referenceId: logsRefernceIds,
+                                                                        instanceId:instance._id,
+                                                                        instanceRefId:actionLog._id,
                                                                         err: false,
                                                                         log: stdOutData.toString('ascii'),
                                                                         timestamp: new Date().getTime()
@@ -1753,7 +1760,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                 }, function (stdErrData) {
 
                                                                     logsDao.insertLog({
-                                                                        referenceId: logsRefernceIds,
+                                                                        instanceId:instance._id,
+                                                                        instanceRefId:actionLog._id,
                                                                         err: true,
                                                                         log: stdErrData.toString('ascii'),
                                                                         timestamp: new Date().getTime()

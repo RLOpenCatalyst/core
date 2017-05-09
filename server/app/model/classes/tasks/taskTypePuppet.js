@@ -105,11 +105,11 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 var timestampStarted = new Date().getTime();
                 var actionLog = instancesDao.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
                 instance.tempActionLogId = actionLog._id;
-                var logsReferenceIds = [instance._id, actionLog._id];
                 if (!instance.instanceIP) {
                     var timestampEnded = new Date().getTime();
                     logsDao.insertLog({
-                        referenceId: logsReferenceIds,
+                        instanceId:instance._id,
+                        instanceRefId:actionLog._id,
                         err: true,
                         log: "Instance IP is not defined. Puppet Client run failed",
                         timestamp: timestampEnded
@@ -123,7 +123,8 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 if (!instance.puppet.serverId) {
                     var timestampEnded = new Date().getTime();
                     logsDao.insertLog({
-                        referenceId: logsReferenceIds,
+                        instanceId:instance._id,
+                        instanceRefId:actionLog._id,
                         err: true,
                         log: "puppet server id is not defined. Puppet Client run failed",
                         timestamp: timestampEnded
@@ -139,7 +140,8 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                     if (err) {
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: logsReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: true,
                             log: "Puppet Data Corrupted. Puppet Client run failed",
                             timestamp: timestampEnded
@@ -151,7 +153,8 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                     if (!infraManagerDetails) {
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: logsReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: true,
                             log: "Puppet Data Corrupted. Puppet Client run failed",
                             timestamp: timestampEnded
@@ -167,7 +170,8 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                         if (err) {
                             var timestampEnded = new Date().getTime();
                             logsDao.insertLog({
-                                referenceId: logsReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: "Unable to decrypt pem file. Chef run failed",
                                 timestamp: timestampEnded
@@ -203,7 +207,8 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
 
 
                         logsDao.insertLog({
-                            referenceId: logsReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: false,
                             log: "Executing Task",
                             timestamp: new Date().getTime()
@@ -221,7 +226,8 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             if (err) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: 'Unable to run puppet-agent',
                                     timestamp: timestampEnded
@@ -233,7 +239,8 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             if (retCode == 0) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: false,
                                     log: 'Task execution success',
                                     timestamp: timestampEnded
@@ -244,21 +251,24 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 instanceOnCompleteHandler(null, retCode, instance._id, null, actionLog._id);
                                 if (retCode === -5000) {
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: 'Host Unreachable',
                                         timestamp: new Date().getTime()
                                     });
                                 } else if (retCode === -5001) {
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: 'Invalid credentials',
                                         timestamp: new Date().getTime()
                                     });
                                 } else {
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: 'Unknown error occured. ret code = ' + retCode,
                                         timestamp: new Date().getTime()
@@ -266,7 +276,8 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 }
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: 'Error in running puppet-agent',
                                     timestamp: timestampEnded
@@ -275,14 +286,16 @@ puppetTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             }
                         }, function(stdOutData) {
                             logsDao.insertLog({
-                                referenceId: logsReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: false,
                                 log: stdOutData.toString('ascii'),
                                 timestamp: new Date().getTime()
                             });
                         }, function(stdOutErr) {
                             logsDao.insertLog({
-                                referenceId: logsReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: stdOutErr.toString('ascii'),
                                 timestamp: new Date().getTime()

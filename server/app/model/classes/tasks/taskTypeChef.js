@@ -397,12 +397,11 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             }
                         }
                     }
-
-                    var logsReferenceIds = [instance._id, actionLog._id];
                     if (!instance.instanceIP) {
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: logsReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: true,
                             log: "Instance IP is not defined. Chef Client run failed",
                             timestamp: timestampEnded
@@ -598,7 +597,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 });
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: "Chef Data Corrupted. Chef Client run failed",
                                     timestamp: timestampEnded
@@ -622,7 +622,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 });
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: "Chef Data Corrupted. Chef Client run failed",
                                     timestamp: timestampEnded
@@ -650,7 +651,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                     });
                                     var timestampEnded = new Date().getTime();
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: "Unable to decrypt pem file. Chef run failed",
                                         timestamp: timestampEnded
@@ -679,7 +681,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         });
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: true,
                                             log: "Unable to generate chef run execution id. Chef run failed",
                                             timestamp: timestampEnded
@@ -733,7 +736,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         }
                                     });
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: false,
                                         log: "Executing Task",
                                         timestamp: new Date().getTime()
@@ -763,7 +767,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             });
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: true,
                                                 log: 'Unable to run chef-client',
                                                 timestamp: timestampEnded
@@ -787,7 +792,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             });
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: false,
                                                 log: 'Task execution success',
                                                 timestamp: timestampEnded
@@ -827,7 +833,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     }
                                                 });
                                                 logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: 'Host Unreachable',
                                                     timestamp: new Date().getTime()
@@ -846,7 +853,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     }
                                                 });
                                                 logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: 'Invalid credentials',
                                                     timestamp: new Date().getTime()
@@ -886,7 +894,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     }
                                                 });
                                                 logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: 'Unknown error occured. ret code = ' + retCode,
                                                     timestamp: new Date().getTime()
@@ -894,7 +903,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             }
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: true,
                                                 log: 'Error in running chef-client',
                                                 timestamp: timestampEnded
@@ -915,7 +925,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         }
                                     }, function(stdOutData) {
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: stdOutData.toString('ascii'),
                                             timestamp: new Date().getTime()
@@ -932,7 +943,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         });
                                     }, function(stdOutErr) {
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: true,
                                             log: stdOutErr.toString('ascii'),
                                             timestamp: new Date().getTime()
@@ -959,7 +971,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             if (err) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: "Chef Data Corrupted. Chef Client run failed",
                                     timestamp: timestampEnded
@@ -983,7 +996,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             if (!chefDetails) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: "Chef Data Corrupted. Chef Client run failed",
                                     timestamp: timestampEnded
@@ -1011,7 +1025,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 if (err) {
                                     var timestampEnded = new Date().getTime();
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: "Unable to decrypt pem file. Chef run failed",
                                         timestamp: timestampEnded
@@ -1040,7 +1055,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                     if (err) {
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: true,
                                             log: "Unable to generate chef run execution id. Chef run failed",
                                             timestamp: timestampEnded
@@ -1096,7 +1112,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         chefClientOptions.password = decryptedCredentials.password;
                                     }
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: false,
                                         log: "Executing Task",
                                         timestamp: new Date().getTime()
@@ -1124,7 +1141,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         if (err) {
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: true,
                                                 log: 'Unable to run chef-client',
                                                 timestamp: timestampEnded
@@ -1148,7 +1166,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         if (retCode == 0) {
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: false,
                                                 log: 'Task execution success',
                                                 timestamp: timestampEnded
@@ -1171,7 +1190,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
                                             if (retCode === -5000) {
                                                 logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: 'Host Unreachable',
                                                     timestamp: new Date().getTime()
@@ -1190,7 +1210,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 });
                                             } else if (retCode === -5001) {
                                                 logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: 'Invalid credentials',
                                                     timestamp: new Date().getTime()
@@ -1209,7 +1230,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 });
                                             } else {
                                                 logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: 'Unknown error occured. ret code = ' + retCode,
                                                     timestamp: new Date().getTime()
@@ -1229,7 +1251,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             }
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: true,
                                                 log: 'Error in running chef-client',
                                                 timestamp: timestampEnded
@@ -1250,7 +1273,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         }
                                     }, function(stdOutData) {
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: stdOutData.toString('ascii'),
                                             timestamp: new Date().getTime()
@@ -1267,7 +1291,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         });
                                     }, function(stdOutErr) {
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: true,
                                             log: stdOutErr.toString('ascii'),
                                             timestamp: new Date().getTime()

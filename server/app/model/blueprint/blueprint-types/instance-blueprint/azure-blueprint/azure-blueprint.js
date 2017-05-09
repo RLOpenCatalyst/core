@@ -338,7 +338,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                                             var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
+                                                botId:launchParams.botId,
+                                                botRefId: launchParams.actionLogId,
                                                 err: false,
                                                 log: "Waiting for instance ok state",
                                                 timestamp: timestampStarted
@@ -436,7 +439,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     });
 
                                                     logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
+                                                        instanceId:instance._id,
+                                                        instanceRefId:actionLog._id,
+                                                        botId:launchParams.botId,
+                                                        botRefId: launchParams.actionLogId,
                                                         err: false,
                                                         log: "Instance Ready..about to bootstrap",
                                                         timestamp: timestampStarted
@@ -510,7 +516,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                                                 var timestampEnded = new Date().getTime();
                                                                 logsDao.insertLog({
-                                                                    referenceId: logsReferenceIds,
+                                                                    instanceId:instance._id,
+                                                                    instanceRefId:actionLog._id,
+                                                                    botId:launchParams.botId,
+                                                                    botRefId: launchParams.actionLogId,
                                                                     err: true,
                                                                     log: "Bootstrap failed",
                                                                     timestamp: timestampEnded
@@ -557,7 +566,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 var timestampEnded = new Date().getTime();
 
                                                                 logsDao.insertLog({
-                                                                    referenceId: logsReferenceIds,
+                                                                    instanceId:instance._id,
+                                                                    instanceRefId:actionLog._id,
+                                                                    botId:launchParams.botId,
+                                                                    botRefId: launchParams.actionLogId,
                                                                     err: false,
                                                                     log: "Instance Bootstraped successfully",
                                                                     timestamp: timestampEnded
@@ -640,7 +652,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 });
                                                                 var timestampEnded = new Date().getTime();
                                                                 logsDao.insertLog({
-                                                                    referenceId: logsReferenceIds,
+                                                                    instanceId:instance._id,
+                                                                    instanceRefId:actionLog._id,
+                                                                    botId:launchParams.botId,
+                                                                    botRefId: launchParams.actionLogId,
                                                                     err: false,
                                                                     log: "Bootstrap Failed",
                                                                     timestamp: timestampEnded
@@ -677,7 +692,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         }, function(stdOutData) {
 
                                                             logsDao.insertLog({
-                                                                referenceId: logsReferenceIds,
+                                                                instanceId:instance._id,
+                                                                instanceRefId:actionLog._id,
+                                                                botId:launchParams.botId,
+                                                                botRefId: launchParams.actionLogId,
                                                                 err: false,
                                                                 log: stdOutData.toString('ascii'),
                                                                 timestamp: new Date().getTime()
@@ -700,7 +718,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                                             //retrying 4 times before giving up.
                                                             logsDao.insertLog({
-                                                                referenceId: logsReferenceIds,
+                                                                instanceId:instance._id,
+                                                                instanceRefId:actionLog._id,
+                                                                botId:launchParams.botId,
+                                                                botRefId: launchParams.actionLogId,
                                                                 err: true,
                                                                 log: stdErrData.toString('ascii'),
                                                                 timestamp: new Date().getTime()

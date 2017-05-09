@@ -19,6 +19,7 @@ var providerService = require('_pr/services/providerService');
 var resources = require('_pr/model/resources/resources');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var settingService = require('_pr/services/settingsService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/resources*", sessionVerificationFunc);
@@ -47,6 +48,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             paginationReq['searchColumns'] = ['resourceDetails.dbName','resourceDetails.dbEngine','resourceDetails.dbInstanceClass','resourceDetails.region'];
                         }
                         apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function(filterQuery,next){
+                        settingService.getOrgUserFilter(req.session.user.cn, function (err, orgIds) {
+                            if (err) {
+                                next(err);
+                            }else if(orgIds.length > 0){
+                                filterQuery.queryObj['$and'][0].orgId = { $in : orgIds };
+                                next(null,filterQuery);
+                            }else{
+                                next(null,filterQuery);
+                            }
+                        });
                     },
                     function(queryObj, next) {
                         resourceService.getResources(queryObj, next);
@@ -83,6 +96,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 function (paginationReq, next) {
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
+                },
+                function(filterQuery,next){
+                    settingService.getOrgUserFilter(req.session.user.cn, function (err, orgIds) {
+                        if (err) {
+                            next(err);
+                        }else if(orgIds.length > 0){
+                            filterQuery.queryObj['$and'][0].orgId = { $in : orgIds };
+                            next(null,filterQuery);
+                        }else{
+                            next(null,filterQuery);
+                        }
+                    });
                 },
                 function (queryObj, next) {
                     resourceService.getResources(queryObj, next);

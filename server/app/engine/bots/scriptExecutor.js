@@ -29,17 +29,21 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
-var fs = require('fs');
+var request = require('request');
 
 
 const errorType = 'scriptExecutor';
 
 var scriptExecutor = module.exports = {};
 
-scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
-    if(botsDetails.params && botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
+scriptExecutor.execute = function execute(botDetail,reqBody,auditTrail,userName,executionType,botHostDetails,schedulerCheck,callback) {
+    if(schedulerCheck === true){
+        reqBody = {};
+        reqBody = botDetail.params;
+    }
+    if(reqBody && reqBody.nodeIds && reqBody.nodeIds.length > 0){
         var actionLogId = uuid.v4();
-        for(var i = 0 ;i < botsDetails.params.nodeIds.length; i++) {
+        for(var i = 0 ;i < reqBody.nodeIds.length; i++) {
             (function (nodeId) {
                 instanceModel.getInstanceById(nodeId, function (err, instances) {
                     if (err) {
@@ -48,17 +52,18 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                         return;
                     } else if (instances.length > 0) {
                         logsDao.insertLog({
-                            referenceId: [actionLogId,botsDetails._id],
+                            botId:botDetail._id,
+                            botRefId: actionLogId,
                             err: false,
-                            log: 'BOT execution has started for Script BOTs  ' + botsDetails.id +" on Remote",
+                            log: 'BOT execution has started for Script BOTs  ' + botDetail.id +" on Remote",
                             timestamp: new Date().getTime()
                         });
                         var botAuditTrailObj = {
-                            botId: botsDetails._id,
+                            botId: botDetail._id,
                             actionId: actionLogId
                         }
                         callback(null, botAuditTrailObj);
-                        executeScriptOnRemote(instances[0],botsDetails,actionLogId,auditTrail._id,userName,botHostDetails,function(err,data){
+                        executeScriptOnRemote(instances[0],botDetail,reqBody,actionLogId,auditTrail._id,userName,botHostDetails,schedulerCheck,function(err,data){
                             if(err){
                                 logger.error("Error in Executor", err);
                                 var resultTaskExecution = {
@@ -68,9 +73,10 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                     "actionLogId": actionLogId
                                 };
                                 logsDao.insertLog({
-                                    referenceId: [actionLogId, botsDetails._id],
+                                    botId:botDetail._id,
+                                    botRefId: actionLogId,
                                     err: true,
-                                    log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id + " on Remote",
+                                    log: 'BOTs execution is failed for Script BOTs  ' + botDetail.id + " on Remote",
                                     timestamp: new Date().getTime()
                                 });
                                 auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
@@ -89,10 +95,10 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                         return;
                     }
                 })
-            })(botsDetails.params.nodeIds[i])
+            })(reqBody.nodeIds[i])
         }
     }else{
-        executeScriptOnLocal(botsDetails,auditTrail,userName,botHostDetails,function(err,data){
+        executeScriptOnLocal(botDetail,reqBody,auditTrail,userName,botHostDetails,schedulerCheck,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -106,31 +112,38 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 }
 
 
-function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetails,callback) {
+function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostDetails,schedulerCheck,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
-    var logsReferenceIds = [botsScriptDetails._id, actionId];
+    var logsReferenceIds = [botDetail._id, actionId];
     var replaceTextObj = {};
     logsDao.insertLog({
-        referenceId: logsReferenceIds,
+        botId:botDetail._id,
+        botRefId: actionId,
         err: false,
-        log: 'BOT execution has started for Script BOTs  ' + botsScriptDetails.id + " on Local",
+        log: 'BOT execution has started for Script BOTs  ' + botDetail.id + " on Local",
         timestamp: new Date().getTime()
     });
     var botAuditTrailObj = {
-        botId: botsScriptDetails._id,
+        botId: botDetail._id,
         actionId: actionId
     }
     callback(null, botAuditTrailObj);
-    if (botsScriptDetails.params && botsScriptDetails.params.data) {
-        Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-            var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            replaceTextObj[key] = decryptedText;
+    if (requestBody && requestBody.data && schedulerCheck === true) {
+        botDetail.inputFormFields.forEach(function(formField){
+            if(formField.type === 'password' || formField.type === 'restricted'){
+                var decryptedText = cryptography.decryptText(requestBody.data[formField.name], cryptoConfig.decryptionEncoding,
+                    cryptoConfig.encryptionEncoding);
+                requestBody.data[formField.name] = decryptedText;
+            }
+            replaceTextObj = requestBody.data;
         });
+    } else if(requestBody && requestBody.data && schedulerCheck === false) {
+        replaceTextObj = requestBody.data;
     } else {
-        for (var j = 0; j < botsScriptDetails.inputFormFields.length; j++) {
-            replaceTextObj[botsScriptDetails.inputFormFields[j].name] = botsScriptDetails.inputFormFields[j].default;
+        for (var j = 0; j < botDetail.inputFormFields.length; j++) {
+            replaceTextObj[botDetail.inputFormFields[j].name] = botDetail.inputFormFields[j].default;
         }
     }
     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
@@ -139,7 +152,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     };
     var supertest = require("supertest");
     var server = supertest.agent(serverUrl);
-    var executorUrl = '/bot/' + botsScriptDetails.id + '/exec';
+    var executorUrl = '/bot/' + botDetail.id + '/exec';
     server
         .post(executorUrl)
         .send(reqBody)
@@ -148,8 +161,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             if (!err) {
                 var auditQueueDetails = {
                     userName:userName,
-                    botId:botsScriptDetails.id,
-                    bot_id:botsScriptDetails._id,
+                    botId:botDetail.id,
+                    bot_id:botDetail._id,
                     logRefId:logsReferenceIds,
                     auditId:actionId,
                     instanceLog:'',
@@ -168,7 +181,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 logger.error(err);
                 var timestampEnded = new Date().getTime();
                 logsDao.insertLog({
-                    referenceId: logsReferenceIds,
+                    botId:botDetail._id,
+                    botRefId: actionId,
                     err: true,
                     log: "Error in Script executor",
                     timestamp: timestampEnded
@@ -198,7 +212,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
 };
 
 
-function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,userName,botHostDetails,callback) {
+function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditTrailId,userName,botHostDetails,schedulerCheck,callback) {
     var timestampStarted = new Date().getTime();
     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
     instance.tempActionLogId = actionLog._id;
@@ -228,7 +242,10 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
     if (!instance.instanceIP) {
         var timestampEnded = new Date().getTime();
         logsDao.insertLog({
-            referenceId: logsReferenceIds,
+            instanceId:instance._id,
+            instanceRefId:actionLog._id,
+            botId:botDetail._id,
+            botRefId: actionLogId,
             err: true,
             log: "Instance IP is not defined. Chef Client run failed",
             timestamp: timestampEnded
@@ -249,6 +266,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
         callback({errCode:400,errMsg:"Instance IP is not defined. Chef Client run failed"}, null);
         return;
     }
+    instance.credentials['source'] = 'executor';
     credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
         var authenticationObj = {}, envObj = {};
         var sshOptions = {
@@ -262,7 +280,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
             authenticationObj.authType = "pem";
             authenticationObj.auth = {
                 "username": decryptedCredentials.username,
-                "fileData": fs.readFileSync(decryptedCredentials.pemFileLocation,'Base64')
+                "fileData": decryptedCredentials.fileData
             }
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Pem_Based_Authentication";
@@ -280,89 +298,101 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
         var replaceTextObj = {};
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-        if (botDetails.params.data) {
-            Object.keys(botDetails.params.data).forEach(function (key) {
-                var decryptedText = cryptography.decryptText(botDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                replaceTextObj[key] = decryptedText;
+        if (requestBody && requestBody.data && schedulerCheck === true) {
+            botDetail.inputFormFields.forEach(function(formField){
+                if(formField.type === 'password' || formField.type === 'restricted'){
+                    var decryptedText = cryptography.decryptText(requestBody.data[formField.name], cryptoConfig.decryptionEncoding,
+                        cryptoConfig.encryptionEncoding);
+                    requestBody.data[formField.name] = decryptedText;
+                }
+                replaceTextObj = requestBody.data;
             });
+        } else if(requestBody && requestBody.data && schedulerCheck === false) {
+            replaceTextObj = requestBody.data;
         } else {
-            for (var j = 0; j < botDetails.inputFormFields.length; j++) {
-                replaceTextObj[botDetails.inputFormFields[j].name] = botDetails.inputFormFields[j].default;
+            for (var j = 0; j < botDetail.inputFormFields.length; j++) {
+                replaceTextObj[botDetail.inputFormFields[j].name] = botDetail.inputFormFields[j].default;
             }
         }
-        var supertest = require("supertest");
-        var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-        var server = supertest.agent(serverUrl);
         var reqBody = {
             "data": replaceTextObj,
             "os": instance.hardware.os,
             "authentication": authenticationObj,
             "environment": envObj
         };
-        var executorUrl = '/bot/' + botDetails.id + '/exec';
-        server
-            .post(executorUrl)
-            .send(reqBody)
-            .set({'Content-Type': 'application/json'})
-            .end(function (err, res) {
-                if (err) {
-                    logger.error(err);
-                    var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
-                        referenceId: logsReferenceIds,
-                        err: true,
-                        log: "Error in Script executor: ",
-                        timestamp: timestampEnded
-                    });
-                    instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                    instanceLog.endedOn = new Date().getTime();
-                    instanceLog.actionStatus = "failed";
-                    instanceLog.logs = {
-                        err: false,
-                        log: "Unable to upload script file " + botDetails.id,
-                        timestamp: new Date().getTime()
-                    };
-                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+        var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+        var executorUrl = '/bot/' + botDetail.id + '/exec';
+        var options = {
+            url: serverUrl + executorUrl,
+            headers: {
+                'Content-Type': 'application/json',
+                'charset': 'utf-8'
+            },
+            json: true,
+            body: reqBody
+        };
+        request.post(options, function (err, res, body) {
+            if (res.statusCode === 200) {
+                var auditQueueDetails = {
+                    userName: userName,
+                    botId: botDetail.id,
+                    bot_id: botDetail._id,
+                    logRefId: logsReferenceIds,
+                    auditId: actionLogId,
+                    instanceLog: instanceLog,
+                    instanceIP: instance.instanceIP,
+                    auditTrailId: auditTrailId,
+                    remoteAuditId: res.body.ref,
+                    link: res.body.link,
+                    status: "pending",
+                    serverUrl: serverUrl,
+                    env: "remote",
+                    retryCount: 0
+                }
+                auditQueue.setAudit(auditQueueDetails);
+                callback(null, null);
+                return;
+            } else {
+                logger.error(err);
+                var timestampEnded = new Date().getTime();
+                logsDao.insertLog({
+                    instanceId:instance._id,
+                    instanceRefId:actionLog._id,
+                    botId:botDetail._id,
+                    botRefId: actionLogId,
+                    err: true,
+                    log: "Error in Script executor: ",
+                    timestamp: timestampEnded
+                });
+                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                instanceLog.endedOn = new Date().getTime();
+                instanceLog.actionStatus = "failed";
+                instanceLog.logs = {
+                    err: false,
+                    log: "Unable to upload script file " + botDetail.id,
+                    timestamp: new Date().getTime()
+                };
+                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
+                    }
+                });
+                callback(err, null);
+                if (decryptedCredentials.pemFileLocation) {
+                    apiUtil.removeFile(decryptedCredentials.pemFileLocation);
+                }
+                noticeService.notice(userName,
+                    {
+                        title: "Script BOT Execution",
+                        body: "Error in Script executor"
+                    }, "error", function (err, data) {
                         if (err) {
-                            logger.error("Failed to create or update instanceLog: ", err);
+                            logger.error("Error in Notification Service, ", err);
                         }
                     });
-                    callback(err, null);
-                    if (decryptedCredentials.pemFileLocation){
-                        apiUtil.removeFile(decryptedCredentials.pemFileLocation);
-                    }
-                    noticeService.notice(userName,
-                        {
-                            title: "Script BOT Execution",
-                            body: "Error in Script executor"
-                        }, "error",function(err,data){
-                            if(err){
-                                logger.error("Error in Notification Service, ",err);
-                            }
-                        });
-                    return;
-                } else {
-                    var auditQueueDetails = {
-                        userName:userName,
-                        botId:botDetails.id,
-                        bot_id:botDetails._id,
-                        logRefId:logsReferenceIds,
-                        auditId:actionLogId,
-                        instanceLog:instanceLog,
-                        instanceIP:instance.instanceIP,
-                        auditTrailId:auditTrailId,
-                        remoteAuditId:res.body.ref,
-                        link:res.body.link,
-                        status:"pending",
-                        serverUrl:serverUrl,
-                        env:"remote",
-                        retryCount:0
-                    }
-                    auditQueue.setAudit(auditQueueDetails);
-                    callback(null,null);
-                    return;
-                }
-            })
+                return;
+            }
+        });
     });
 }
 

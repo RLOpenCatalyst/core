@@ -79,7 +79,6 @@ var BotSchema = new Schema ({
             default:0
         }
     },
-    ymlJson:Schema.Types.Mixed,
     execution: Schema.Types.Mixed,
     desc: {
         type: String,

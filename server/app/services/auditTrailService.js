@@ -319,10 +319,15 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
 }
 
 auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(actionId,timeStamp,callback){
-    if (timeStamp) {
-        timeStamp = parseInt(timeStamp);
+    var queryObj = {
+        instanceRefId:actionId
     }
-    logsDao.getLogsByReferenceId(actionId, timeStamp, function(err,actionLogs){
+    if (timeStamp) {
+        queryObj.timestamp = {
+            "$gt": parseInt(timeStamp)
+        };
+    }
+    logsDao.getLogsDetails(queryObj, function(err,actionLogs){
         if (err){
             logger.error(err);
             callback(err,null);

@@ -19,12 +19,9 @@
 var logger = require('_pr/logger')(module);
 var mongoDbConnect = require('_pr/lib/mongodb');
 var appConfig = require('_pr/config');
-var instancesDao = require('_pr/model/classes/instance/instance');
-var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
-var logsDao = require('_pr/model/dao/logsdao.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var Tasks = require('_pr/model/classes/tasks/tasks.js');
-var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
+
 
 var dboptions = {
     host: process.env.DB_HOST || appConfig.db.host,

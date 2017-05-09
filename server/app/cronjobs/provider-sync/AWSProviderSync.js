@@ -20,10 +20,6 @@ var AWSProviderSync = Object.create(CatalystCronJob);
 AWSProviderSync.execute = awsProviderSync;
 
 module.exports = AWSProviderSync;
-
-// AWSProviderSync.execute();
-
-// @TODO Simplify methods
 function awsProviderSync() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
@@ -424,9 +420,9 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
                                            var timestampStarted = new Date().getTime();
                                            var user = instance.catUser ? instance.catUser : 'superadmin';
                                            var actionLog = instancesDao.insertInstanceStatusActionLog(instance._id, user,'terminated', timestampStarted);
-                                           var logReferenceIds = [instance._id, actionLog._id];
                                            logsDao.insertLog({
-                                               referenceId: logReferenceIds,
+                                               instanceId:instance._id,
+                                               instanceRefId:actionLog._id,
                                                err: false,
                                                log: "Instance : terminated",
                                                timestamp: timestampStarted

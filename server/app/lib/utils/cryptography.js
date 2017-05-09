@@ -122,6 +122,22 @@ function Cryptography(algorithm, password) {
         });
     };
 
+    this.decryptFileContentToBase64 = function(inputFilePath, decryptionEncoding,encryptionEncoding, callback) {
+        fs.readFile(inputFilePath, {
+            encoding: 'ascii'
+        }, function(err, fileData) {
+            if (err) {
+                logger.debug(err);
+                callback(err,null);
+                return;
+            }else {
+                var decryptData = decrypt(fileData, decryptionEncoding, encryptionEncoding);
+                var encodedData = Base64.encode(decryptData);
+                callback(null, encodedData);
+            }
+        });
+    };
+
 }
 
 
