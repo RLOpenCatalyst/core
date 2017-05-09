@@ -207,15 +207,15 @@
 				showScriptParams : function(scriptObj){
 					$scope.scriptParamShow = true;
 					$scope.selectedScript = scriptObj;
-					if(!$scope.scriptParamsObj[scriptObj._id]){
-						$scope.scriptParamsObj[scriptObj._id] = [];
+					if(!$scope.scriptParamsObj[scriptObj.scriptId]){
+						$scope.scriptParamsObj[scriptObj.scriptId] = [];
 					}
 				},
 				addRemoveScriptTable : function(scriptObj){
 					$scope.scriptParamShow = false;
 					$scope.checkedScript = scriptObj;
 					if(!$scope.checkedScript._isScriptSelected){
-						$scope.scriptParamsObj[scriptObj._id] = [];
+						$scope.scriptParamsObj[scriptObj.scriptId] = [];
 					}
 				},
 				selectTaskCheckbox: function(){
@@ -380,10 +380,10 @@
 						$scope.taskSaving = false;
 						return false;
 					}
-					
-					for (var k = 0; k < $scope.scriptTaskList.length; k++) {
-						if ($scope.scriptTaskList[k]._isScriptSelected) {
-							var scriptId = $scope.scriptTaskList[k]._id;
+
+					for (var k = 0; k < $scope.scriptTaskList.data.length; k++) {
+						if ($scope.scriptTaskList.data[k]._isScriptSelected) {
+							var scriptId = $scope.scriptTaskList.data[k].scriptId;
 							var obj = {
 								scriptId: scriptId,
 								scriptParameters:[]
@@ -515,7 +515,7 @@
 
             $rootScope.$on('SCRIPT_PARAMETER', function(event,reqParams) {
 				if(reqParams) {
-					$scope.scriptParamsObj[$scope.scriptObject._id] = $scope.scriptParamsObj[$scope.scriptObject._id].concat(reqParams);
+					$scope.scriptParamsObj[$scope.scriptObject.scriptId] = $scope.scriptParamsObj[$scope.scriptObject.scriptId].concat(reqParams);
 				}
             });
 			var compositeSelector,instanceSelector;

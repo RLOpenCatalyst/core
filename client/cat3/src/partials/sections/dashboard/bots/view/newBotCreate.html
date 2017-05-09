@@ -250,14 +250,14 @@
                            </tr>
                         </thead>
                         <tbody>
-                           <tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
+                           <tr ng-repeat="param in scriptParamsObj[selectedScript.scriptId] track by $index">
                               <td ng-if="param.paramType === 'Default' || param.paramType === ''">{{param.paramVal}}</td>
                               <td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">.....</td>
                               <td>{{param.paramDesc}}</td>
                               <td ng-if="param.paramType === 'Default' || param.paramType === ''">Default</td>
                               <td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">{{param.paramType}}</td>
                               <td>
-                                 <button title="Delete" type="button" ng-click="removeScriptParams(selectedScript._id,param);" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10"></button>
+                                 <button title="Delete" type="button" ng-click="removeScriptParams(selectedScript.scriptId,param);" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10"></button>
                               </td>
                            </tr>
                         </tbody>

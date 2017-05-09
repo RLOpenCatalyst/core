@@ -47,8 +47,8 @@
 
             //for obtaining the script parameters 
             $rootScope.$on('SCRIPT_PARAMETER', function(event,reqParams) {
-                if(reqParams) {
-                    $scope.scriptParamsObj[$scope.scriptObject._id] = $scope.scriptParamsObj[$scope.scriptObject._id].concat(reqParams);
+                if(reqParams && $scope.scriptObject) {
+                    $scope.scriptParamsObj[$scope.scriptObject.scriptId] = $scope.scriptParamsObj[$scope.scriptObject.scriptId].concat(reqParams);
                 }
             });
 
@@ -132,11 +132,18 @@
                     genericServices.addScriptParameters(scriptObject);
                     $scope.scriptObject = scriptObject;
                 },
+                addRemoveScriptTable : function(scriptObj){
+                    $scope.scriptParamShow = false;
+                    $scope.checkedScript = scriptObj;
+                    if(!$scope.checkedScript._isScriptSelected){
+                        $scope.scriptParamsObj[scriptObj.scriptId] = [];
+                    }
+                },
                 showScriptParams : function(scriptObj){
                     $scope.scriptParamShow = true;
                     $scope.selectedScript = scriptObj;
-                    if(!$scope.scriptParamsObj[scriptObj._id]){
-                        $scope.scriptParamsObj[scriptObj._id] = [];
+                    if(!$scope.scriptParamsObj[scriptObj.scriptId]){
+                        $scope.scriptParamsObj[scriptObj.scriptId] = [];
                     }
                 },
                 removeScriptParams: function (scriptObject,params) {
@@ -178,7 +185,7 @@
                         botsData.scriptTypeName = $scope.scriptType;
                         for (var k = 0; k < $scope.scriptTaskList.length; k++) {
                             if ($scope.scriptTaskList[k]._isScriptSelected) {
-                                var scriptId = $scope.scriptTaskList[k]._id;
+                                var scriptId = $scope.scriptTaskList[k].scriptId;
                                 var obj = {
                                     scriptId: scriptId,
                                     scriptParameters:[]
@@ -186,7 +193,6 @@
                                 if($scope.scriptParamsObj[scriptId]){
                                     obj.scriptParameters = $scope.scriptParamsObj[scriptId];
                                 }
-                                console.log(obj);
                                 botsData.scriptDetails.push(obj);
                             }
                         }

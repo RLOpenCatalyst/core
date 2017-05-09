@@ -552,7 +552,7 @@
 												<li ng-repeat="script in scriptTaskList.data">
 													<label class="checkbox check-list">
 														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
-														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
+														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected && script.isParametrized ===true" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
 													</label>
 												</li>
 											</ul>
@@ -578,14 +578,14 @@
 												</tr>
 												</thead>
 												<tbody>
-												<tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
+												<tr ng-repeat="param in scriptParamsObj[selectedScript.scriptId] track by $index">
 													<td ng-if="param.paramType === 'Default' || param.paramType === ''">{{param.paramVal}}</td>
 													<td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">.....</td>
 													<td>{{param.paramDesc}}</td>
 													<td ng-if="param.paramType === 'Default' || param.paramType === ''">Default</td>
 													<td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">{{param.paramType}}</td>
 													<td>
-														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button>
+														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript.scriptId,param);"><i class=" fa fa-trash-o"></i></button>
 													</td>
 												</tr>
 												</tbody>
