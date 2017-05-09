@@ -302,5 +302,37 @@
         genericServices.instanceStop=function () {
 
         };
+
+        genericServices.addJenkinsParameters = function() {
+            $modal.open({
+                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addJenkinsParams.html',
+                controller: 'addJenkinsParamsCtrl',
+                backdrop: 'static',
+                keyboard: false
+            }).result.then(function (addJenkinsParams) {
+                $rootScope.$emit('JENKINS_PARAMETER',addJenkinsParams);
+            }, function () {
+                console.log('Dismiss time is ' + new Date());
+            });
+        };
+
+        genericServices.addScriptParameters = function(scriptObject) {
+            $modal.open({
+                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addScriptParams.html',
+                controller: 'addScriptParamsCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function () {
+                        return scriptObject;
+                    }
+                }
+            }).result.then(function (addScriptParams) {
+                $rootScope.$emit('SCRIPT_PARAMETER',addScriptParams);
+                //$scope.scriptParamsObj[scriptObject._id] = $scope.scriptParamsObj[scriptObject._id].concat(addScriptParams);
+            }, function () {
+                console.log('Dismiss time is ' + new Date());
+            });
+        }
     }]);
 })(angular);
