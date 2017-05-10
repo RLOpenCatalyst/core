@@ -3,14 +3,17 @@
    <div class="page-name">
       BOTs Library&nbsp;
       <span class="pull-right">
-      <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
-      <i class="fa fa-refresh white"></i>
-      </button>
-      <button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
-      <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
-      </button>
-      <button type="button" class="btn btn-xs cat-btn-update marginright6" 
-       ui-sref="dashboard.bots.botsCreate">
+        <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
+        <i class="fa fa-refresh white"></i>
+        </button>
+        <button type="button" title="Filter" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
+        <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;
+        </button>
+        <!-- <button type="button" title="Git Sync" class="btn btn-xs cat-btn-update marginright6" ui-sref="dashboard.bots.botsSync">
+          <i class="fa fa-refresh white"></i>
+          Sync
+        </button> -->
+        <button type="button" title="Create New" class="btn btn-xs cat-btn-update marginright6" ui-sref="dashboard.bots.botsCreate">
           <i class="fa fa-plus white"></i>
           New
         </button>
@@ -173,8 +176,8 @@
                       {{botsDetails.lastRunTime}} &nbsp;&nbsp;
                 </ul>
                 <div class="pull-right" style="margin-top:8px;">
-                  <!-- <a ng-if="botsDetails.source ==='GitHub'" class="margin10 cursor" title="BOT Sync"><i ng-class="{'fa fa-refresh' : activeClass !== botsDetails, 'fa fa-refresh fa-spin' : activeClass === botsDetails}" ng-click="botSync(botsDetails)"></i></a> -->
-                  <a class="margin10 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})" title="Execute"><i class="fa fa-play font-size-16"></i></a>
+                  <a ng-if="botsDetails.type ==='blueprints'" class="margin10 cursor" title="Execute"><i class="fa fa-play font-size-16" ng-click="blueprintExecute(botsDetails)"></i></a>
+                  <a ng-if="botsDetails.type !=='blueprints'" class="margin10 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})" title="Execute"><i class="fa fa-play font-size-16"></i></a>
                </div>
             </a>
          </div>
