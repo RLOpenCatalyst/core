@@ -20,6 +20,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var async = require("async");
 var settingWizard = require('_pr/model/setting-wizard');
 var appConfig = require('_pr/config');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 
 const errorType = 'settingsService';
 
@@ -459,6 +460,41 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
     return;
    }
 };
+
+settingsService.getOrgUserFilter =  function getOrgUserFilter(userName,callback){
+    async.waterfall([
+        function(next){
+            d4dModelNew.d4dModelMastersUsers.find({
+                loginname: userName,
+                id:'7'
+            },next)
+        },
+        function(userDetails,next){
+            if(userDetails.length > 0){
+                var orgIds = []
+                userDetails.forEach(function(user){
+                    if(user.orgname_rowid && (typeof user.orgname_rowid[0] !== 'undefined' && user.orgname_rowid[0] !== '')){
+                        if(orgIds.indexOf(user.orgname_rowid[0]) < 0) {
+                            orgIds.push(user.orgname_rowid[0]);
+                        }
+                    }
+                });
+                next(null,orgIds);
+
+            }else{
+                next({code:400,message:"No data is found in DB against user:"+userName},null);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            return callback(err,null);
+        }else{
+            return callback(null,results);
+        }
+
+    })
+}
 
 function changeArrayToString(list,str){
     var resultStr='';

@@ -1654,3 +1654,43 @@ input[type="text"].ui-grid-filter-input{
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     height: 30px;
 }
+
+.lable-align {
+    vertical-align: middle;
+}
+
+.jenkins-auto-sync-radio, .jenkins-job-parameter-text {
+    margin-left: 15px;
+    float: left;
+    padding: 6px 0;
+}
+
+.select-nodes {
+    border: 1px solid #dddddd;
+    list-style: none outside none;
+    height: 150px;
+    overflow-y: auto;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.check-list {
+    margin: 5px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.checkboxall-right {
+    margin-left: 2px !important;
+}
+
+.checkboxStyling {
+    float: right;
+    margin-right: 14px !important;
+    margin-top: 2px !important;
+}
+
+.checkbox-list {
+    margin-top: 3px;
+}

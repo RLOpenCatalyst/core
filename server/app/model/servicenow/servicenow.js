@@ -129,6 +129,21 @@ CMDBConfigSchema.statics.getCMDBList = function(callback) {
     });
 }
 
+CMDBConfigSchema.statics.getCMDBListByOrgIds = function(ordIds,callback) {
+    this.find({
+        id: "90",
+        orgname_rowid:{$in:ordIds}
+    }, function(err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+        return;
+    });
+}
+
 CMDBConfigSchema.statics.saveConfig = function(config, callback) {
     var configObj = config;
     var that = this;

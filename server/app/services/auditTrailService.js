@@ -30,6 +30,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var serviceNow = require('_pr/model/servicenow/servicenow.js');
+var settingService = require('_pr/services/settingsService');
 
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
@@ -332,7 +333,7 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
     });
 }
 
-auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,callback){
+auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,userName,callback){
     async.waterfall([
         function(next){
             apiUtil.queryFilterBy(queryParam,next);
@@ -340,9 +341,27 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
         function(filterQuery,next) {
             filterQuery.isDeleted=false;
             if(BOTSchema === 'BOTOLD') {
-                botOld.getAllBots(filterQuery, next);
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        filterQuery.queryObj['orgId'] = {$in:orgIds};
+                        botOld.getAllBots(filterQuery, next);
+                    }else{
+                        botOld.getAllBots(filterQuery, next);
+                    }
+                });
             }else{
-                botDao.getAllBots(filterQuery, next);
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        filterQuery.queryObj['orgId'] = {$in:orgIds};
+                        botDao.getAllBots(filterQuery, next);
+                    }else{
+                        botDao.getAllBots(filterQuery, next);
+                    }
+                });
             }
         },
         function(botsList,next){
