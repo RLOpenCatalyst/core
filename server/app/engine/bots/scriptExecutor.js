@@ -148,7 +148,7 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
     var reqBody = {
         "data": replaceTextObj
     };
-    var executorUrl = '/bot/' + botsScriptDetails.id + '/exec';
+    var executorUrl = '/bot/' + botDetail.id + '/exec';
     var options = {
         url: serverUrl+executorUrl,
         headers: {

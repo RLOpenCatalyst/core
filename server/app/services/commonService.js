@@ -34,7 +34,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback){
         type:reqBody.type,
         functionality:reqBody.category,
         subType:reqBody.subType?reqBody.subType:null,
-        manualExecutionTime: reqBody.standardTime,
+        manualExecutionTime: parseInt(reqBody.standardTime),
         inputFormFields:[],
         execution:[],
         outputOptions:{
@@ -122,10 +122,11 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback){
             commonJson.execution.push({
                 type : reqBody.type,
                 param : "${jenkinsJobName} ${jenkinsServerId} ${jenkinsJobURL}",
-                entrypoint : reqBody.jobName
+                entrypoint : reqBody.jobName,
+                jenkinsServerName : reqBody.jenkinsServerName
             })
         }
-        commonJson.outputOptions.msgs.text = "${jenkinsJobName} job has successfully built on ${jenkinsServerId}";
+        commonJson.outputOptions.msgs.text = "${jenkinsJobName} job has successfully built on ${jenkinsServerName}";
     }else if(reqBody.type ==='chef'){
         commonJson.inputFormFields.push(
             {
