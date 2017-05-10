@@ -59,15 +59,15 @@
 
 			botService.getScriptList = function (scriptType) {
 				var params = {
-					url: '/scripts?filterBy=scriptType:'+scriptType,
+					url: '/scripts?filterBy=type:'+scriptType,
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);
 			};
 
-			botService.getBlueprintList = function (orgId,templateType) {
+			botService.getBlueprintList = function (orgId,templateType,bpName) {
 				var params = {
-					url: '/blueprints/list?filterBy=orgId:'+ orgId + ',templateType:'+templateType,
+					url: '/blueprints/list?filterBy=orgId:'+ orgId + ',templateType:'+templateType + ',name:'+bpName,
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);
@@ -127,6 +127,14 @@
 					url : '/jenkins/' + jenkinsServerId + '/jobs',
 					inlineLoader: true
 				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getJenkinsJobDetails = function (jenkinsServerId, jobname) {
+				var params ={
+					url : '/jenkins/' + jenkinsServerId + '/jobs/' + jobname,
+					inlineLoader: true	
+				} 
 				return genericServices.promiseGet(params);
 			};
 
