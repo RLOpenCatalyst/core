@@ -30,7 +30,7 @@ var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
 var fs = require('fs');
-
+var request = require('request');
 
 const errorType = 'scriptExecutor';
 
@@ -137,15 +137,48 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     var reqBody = {
         "data": replaceTextObj
     };
-    var supertest = require("supertest");
-    var server = supertest.agent(serverUrl);
     var executorUrl = '/bot/' + botsScriptDetails.id + '/exec';
-    server
-        .post(executorUrl)
-        .send(reqBody)
-        .set({'Content-Type': 'application/json'})
-        .end(function (err, res) {
-            if (!err) {
+    var options = {
+        url: serverUrl+executorUrl,
+        headers: {
+            'Content-Type': 'application/json',
+            'charset': 'utf-8'
+        },
+        json: true,
+        body: reqBody
+    };
+    request.post(options, function (err, res, body) {
+        if (err) {
+            logger.error(err);
+            var timestampEnded = new Date().getTime();
+            logsDao.insertLog({
+                referenceId: logsReferenceIds,
+                err: true,
+                log: "BOT Engine is not responding, Please check "+serverUrl,
+                timestamp: timestampEnded
+            });
+            var resultTaskExecution = {
+                "actionStatus": 'failed',
+                "status": 'failed',
+                "endedOn": new Date().getTime(),
+                "actionLogId": actionId
+            };
+            auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
+                if (err) {
+                    logger.error("Failed to create or update bots Log: ", err);
+                }
+                noticeService.notice(userName, {
+                    title: "Script BOT Execution",
+                    body: "Bot Enginge is not running"
+                }, "error",function(err,data){
+                    if(err){
+                        logger.error("Error in Notification Service, ",err);
+                    }
+                });
+                return;
+            })
+        }else{
+            if (res.statusCode === 200){
                 var auditQueueDetails = {
                     userName:userName,
                     botId:botsScriptDetails.id,
@@ -155,8 +188,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     instanceLog:'',
                     instanceIP:'',
                     auditTrailId:auditTrail._id,
-                    remoteAuditId:res.body.ref,
-                    link:res.body.link,
+                    remoteAuditId:body.ref,
+                    link:body.link,
                     status:"pending",
                     serverUrl:serverUrl,
                     env:"local",
@@ -164,8 +197,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 }
                 auditQueue.setAudit(auditQueueDetails);
                 return;
-            } else {
-                logger.error(err);
+            }
+            else {
                 var timestampEnded = new Date().getTime();
                 logsDao.insertLog({
                     referenceId: logsReferenceIds,
@@ -194,7 +227,9 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     return;
                 })
             }
-        });
+        }
+    });
+   
 };
 
 
@@ -290,9 +325,9 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                 replaceTextObj[botDetails.inputFormFields[j].name] = botDetails.inputFormFields[j].default;
             }
         }
-        var supertest = require("supertest");
+        
         var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-        var server = supertest.agent(serverUrl);
+        
         var reqBody = {
             "data": replaceTextObj,
             "os": instance.hardware.os,
@@ -300,18 +335,80 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
             "environment": envObj
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
-        server
-            .post(executorUrl)
-            .send(reqBody)
-            .set({'Content-Type': 'application/json'})
-            .end(function (err, res) {
-                if (err) {
-                    logger.error(err);
+        var options = {
+            url: serverUrl+executorUrl,
+            headers: {
+                'Content-Type': 'application/json',
+                'charset': 'utf-8'
+            },
+            json: true,
+            body: reqBody
+        };
+        request.post(options, function (err, res, body) {
+            if (err) {
+                logger.error(err);
+                var timestampEnded = new Date().getTime();
+                logsDao.insertLog({
+                    referenceId: logsReferenceIds,
+                    err: true,
+                    log: "BOT Engine is not responding, Please check "+serverUrl,
+                    timestamp: timestampEnded
+                });
+                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                instanceLog.endedOn = new Date().getTime();
+                instanceLog.actionStatus = "failed";
+                instanceLog.logs = {
+                    err: false,
+                    log: "Unable to upload script file " + botDetails.id,
+                    timestamp: new Date().getTime()
+                };
+                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
+                    }
+                });
+                callback(err, null);
+                if (decryptedCredentials.pemFileLocation){
+                    apiUtil.removeFile(decryptedCredentials.pemFileLocation);
+                }
+                noticeService.notice(userName,
+                    {
+                        title: "Script BOT Execution",
+                        body: "Bot Enginge is not running"
+                    }, "error",function(err,data){
+                        if(err){
+                            logger.error("Error in Notification Service, ",err);
+                        }
+                    });
+                return;
+            } else {
+                if(res.statusCode === 200){
+                    var auditQueueDetails = {
+                        userName:userName,
+                        botId:botDetails.id,
+                        bot_id:botDetails._id,
+                        logRefId:logsReferenceIds,
+                        auditId:actionLogId,
+                        instanceLog:instanceLog,
+                        instanceIP:instance.instanceIP,
+                        auditTrailId:auditTrailId,
+                        remoteAuditId:res.body.ref,
+                        link:res.body.link,
+                        status:"pending",
+                        serverUrl:serverUrl,
+                        env:"remote",
+                        retryCount:0
+                    }
+                    auditQueue.setAudit(auditQueueDetails);
+                    callback(null,null);
+                    return;
+                }
+                else{
                     var timestampEnded = new Date().getTime();
                     logsDao.insertLog({
                         referenceId: logsReferenceIds,
                         err: true,
-                        log: "Error in Script executor: ",
+                        log: "Error in Script executor",
                         timestamp: timestampEnded
                     });
                     instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
@@ -341,28 +438,9 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                             }
                         });
                     return;
-                } else {
-                    var auditQueueDetails = {
-                        userName:userName,
-                        botId:botDetails.id,
-                        bot_id:botDetails._id,
-                        logRefId:logsReferenceIds,
-                        auditId:actionLogId,
-                        instanceLog:instanceLog,
-                        instanceIP:instance.instanceIP,
-                        auditTrailId:auditTrailId,
-                        remoteAuditId:res.body.ref,
-                        link:res.body.link,
-                        status:"pending",
-                        serverUrl:serverUrl,
-                        env:"remote",
-                        retryCount:0
-                    }
-                    auditQueue.setAudit(auditQueueDetails);
-                    callback(null,null);
-                    return;
                 }
-            })
+            }
+        })
     });
 }
 

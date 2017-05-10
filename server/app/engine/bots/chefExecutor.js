@@ -154,16 +154,52 @@ function executeChefOnLocal(botsChefDetails, auditTrail, userName, botHostDetail
         var reqBody = {
             "data": reqData
         };
-        var supertest = require("supertest");
         var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-        var server = supertest.agent();
         var executorUrl = '/bot/' + botsChefDetails.id + '/exec';
-        server
-            .post(executorUrl)
-            .send(reqBody)
-            .set({'Content-Type': 'application/json'})
-            .end(function (err, res) {
-                if (!err) {
+        var options = {
+            url: serverUrl+executorUrl,
+            headers: {
+                'Content-Type': 'application/json',
+                'charset': 'utf-8'
+            },
+            json: true,
+            body: reqBody
+        };
+        request.post(options, function (err, res, body) {
+            if (err) {
+                logger.error(err);
+                var timestampEnded = new Date().getTime();
+                logsDao.insertLog({
+                    referenceId: logsReferenceIds,
+                    err: true,
+                    log: "BOT Engine is not responding, Please check "+serverUrl,
+                    timestamp: timestampEnded
+                });
+                var resultTaskExecution = {
+                    "actionStatus": 'failed',
+                    "status": 'failed',
+                    "endedOn": new Date().getTime(),
+                    "actionLogId": actionId
+                };
+                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                    if (err) {
+                        logger.error("Failed to create or update bots Log: ", err);
+                    }
+                    noticeService.notice(userName, {
+                        title: "Chef BOT Execution",
+                        body: "Bot Enginge is not running"
+                    }, "error", function (err, data) {
+                        if (err) {
+                            logger.error("Error in Notification Service, ", err);
+                        }
+                        if(reqData.attributes !== null) {
+                            apiUtil.removeFile(desPath);
+                        }
+                        return;
+                    });
+                });
+            }else{
+                if (res.statusCode === 200) {
                     var auditQueueDetails = {
                         userName: userName,
                         botId: botsChefDetails.id,
@@ -183,7 +219,6 @@ function executeChefOnLocal(botsChefDetails, auditTrail, userName, botHostDetail
                     auditQueue.setAudit(auditQueueDetails);
                     return;
                 } else {
-                    logger.error(err);
                     var timestampEnded = new Date().getTime();
                     logsDao.insertLog({
                         referenceId: logsReferenceIds,
@@ -215,7 +250,8 @@ function executeChefOnLocal(botsChefDetails, auditTrail, userName, botHostDetail
                         })
                     });
                 }
-            });
+            }
+        });
     }
 };
 
@@ -299,9 +335,7 @@ function executeChefOnRemote(instance, botDetails, actionLogId, auditTrailId, us
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Password_Based_Authentication";
         }
-        var supertest = require("supertest");
         var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-        var server = supertest.agent(serverUrl);
         var reqData = {
             runlist: [],
             attributes: null,
@@ -343,13 +377,76 @@ function executeChefOnRemote(instance, botDetails, actionLogId, auditTrailId, us
                 "environment": envObj
             };
             var executorUrl = '/bot/' + botDetails.id + '/exec';
-            server
-                .post(executorUrl)
-                .send(reqBody)
-                .set({'Content-Type': 'application/json'})
-                .end(function (err, res) {
-                    if (err) {
-                        logger.error(err);
+            var options = {
+                url: serverUrl+executorUrl,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'charset': 'utf-8'
+                },
+                json: true,
+                body: reqBody
+            };
+            request.post(options, function (err, res, body) {
+                if (err) {
+                    logger.error(err);
+                    var timestampEnded = new Date().getTime();
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: true,
+                        log: "BOT Engine is not responding, Please check "+serverUrl,
+                        timestamp: timestampEnded
+                    });
+                    instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                    instanceLog.endedOn = new Date().getTime();
+                    instanceLog.actionStatus = "failed";
+                    instanceLog.logs = {
+                        err: false,
+                        log: "Unable to upload Chef file " + botDetails.id,
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+                    noticeService.notice(userName, {
+                        title: "Chef BOT Execution",
+                        body: "Bot Enginge is not running"
+                    }, "error", function (err, data) {
+                        if (err) {
+                            logger.error("Error in Notification Service, ", err);
+                        }
+                    });
+                    callback(err, null);
+                    if(reqData.attributes !== null) {
+                        apiUtil.removeFile(desPath);
+                    }
+                    return;
+                } else {
+                    if(res.statusCode === 200){
+                        var auditQueueDetails = {
+                            userName: userName,
+                            botId: botDetails.id,
+                            bot_id: botDetails._id,
+                            logRefId: logsReferenceIds,
+                            auditId: actionLogId,
+                            instanceLog: instanceLog,
+                            instanceIP: instance.instanceIP,
+                            auditTrailId: auditTrailId,
+                            remoteAuditId: res.body.bot_run_id,
+                            link: res.body.link,
+                            status: "pending",
+                            serverUrl: serverUrl,
+                            env: "remote",
+                            retryCount:0
+                        }
+                        auditQueue.setAudit(auditQueueDetails);
+                        if(reqData.attributes !== null) {
+                            apiUtil.removeFile(desPath);
+                        }
+                        return;
+                    }
+                    else {
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,
@@ -383,30 +480,9 @@ function executeChefOnRemote(instance, botDetails, actionLogId, auditTrailId, us
                             apiUtil.removeFile(desPath);
                         }
                         return;
-                    } else {
-                        var auditQueueDetails = {
-                            userName: userName,
-                            botId: botDetails.id,
-                            bot_id: botDetails._id,
-                            logRefId: logsReferenceIds,
-                            auditId: actionLogId,
-                            instanceLog: instanceLog,
-                            instanceIP: instance.instanceIP,
-                            auditTrailId: auditTrailId,
-                            remoteAuditId: res.body.bot_run_id,
-                            link: res.body.link,
-                            status: "pending",
-                            serverUrl: serverUrl,
-                            env: "remote",
-                            retryCount:0
-                        }
-                        auditQueue.setAudit(auditQueueDetails);
-                        if(reqData.attributes !== null) {
-                            apiUtil.removeFile(desPath);
-                        }
-                        return;
                     }
-                })
+                }
+            })
         }
     });
 }
