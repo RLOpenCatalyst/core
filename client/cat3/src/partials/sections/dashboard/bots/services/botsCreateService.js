@@ -66,8 +66,18 @@
 			};
 
 			botService.getBlueprintList = function (orgId,templateType,bpName) {
+				var url = '/blueprints/list?filterBy=';
+				if(orgId !== null) {
+					url += 'orgId:' + orgId
+				}
+				if(templateType !== null) {
+					url += ',templateType:' + templateType;	
+				}
+				if(bpName !== null) {
+					url += ',name:' + bpName;	
+				}
 				var params = {
-					url: '/blueprints/list?filterBy=orgId:'+ orgId + ',templateType:'+templateType + ',name:'+bpName,
+					url: url,
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);
