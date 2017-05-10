@@ -27,7 +27,6 @@ var schedulerService = require('_pr/services/schedulerService.js');
 var credentialCryptography = require('_pr/lib/credentialcryptography');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
-var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
 var request = require('request');
 

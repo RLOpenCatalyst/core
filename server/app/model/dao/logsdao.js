@@ -26,7 +26,7 @@ var LogSchema = new Schema({
         required:false,
         trim:true
     },
-    instanceLogRefId: {
+    instanceRefId: {
         type:String,
         required:false,
         trim:true

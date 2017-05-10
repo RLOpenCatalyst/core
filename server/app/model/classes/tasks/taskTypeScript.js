@@ -116,7 +116,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 var timestampStarted = new Date().getTime();
                 var actionLog = instancesDao.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
                 instance.tempActionLogId = actionLog._id;
-                var logsReferenceIds = [instance._id, actionLog._id];
                 var instanceLog = {
                     actionId: actionLog._id,
                     instanceId: instance._id,
@@ -189,13 +188,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                     return;
                                 } else {
                                     if (scripts.type === 'Bash') {
-                                        logsDao.insertLog({
-                                            instanceId:instance._id,
-                                            instanceRefId:actionLog._id,
-                                            err: false,
-                                            log: "Task Execution has started",
-                                            timestamp: timestampEnded
-                                        });
                                         var params = script.scriptParameters;
                                         executeScriptOnNode(scripts, sshOptions, instance._id,actionLog._id, params, instanceLog,'bash');
                                     } else if (scripts.type === 'Python') {
@@ -258,6 +250,13 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
         var sshExec = new SSHExec(sshOptions);
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+        logsDao.insertLog({
+            instanceId:instanceId,
+            instanceRefId:actionId,
+            err: false,
+            log: "Script Task Execution has started for Script : "+script.name,
+            timestamp: new Date().getTime()
+        });
         fileIo.writeFile(desPath, script.file, false, function (err) {
             if (err) {
                 logger.error("Unable to write file");
@@ -272,7 +271,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             instanceId:instanceId,
                             instanceRefId:actionId,
                             err: true,
-                            log: "Unable to upload script file " + script.name,
+                            log: "Unable to upload script file : " + script.name,
                             timestamp: timestampEnded
                         });
                         instancesDao.updateActionLog(instanceId, actionId, false, timestampEnded);
@@ -280,7 +279,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                         instanceLog.actionStatus = "failed";
                         instanceLog.logs = {
                             err: false,
-                            log: "Unable to upload script file " + script.name,
+                            log: "Unable to upload script file : " + script.name,
                             timestamp: new Date().getTime()
                         };
                         instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
@@ -310,7 +309,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 instanceId:instanceId,
                                 instanceRefId:actionId,
                                 err: true,
-                                log: 'Unable to run script ' + script.name,
+                                log: 'Unable to run script : ' + script.name,
                                 timestamp: timestampEnded
                             });
                             instancesDao.updateActionLog(instanceId, actionId, false, timestampEnded);
@@ -336,7 +335,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 instanceId:instanceId,
                                 instanceRefId:actionId,
                                 err: false,
-                                log: 'Task execution success for script ' + script.name,
+                                log: 'Task execution success for script : ' + script.name,
                                 timestamp: timestampEnded
                             });
                             instancesDao.updateActionLog(instanceId, actionId, true, timestampEnded);
@@ -344,7 +343,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             instanceLog.actionStatus = "success";
                             instanceLog.logs = {
                                 err: false,
-                                log: 'Task execution success for script ' + script.name,
+                                log: 'Task execution success for script : ' + script.name,
                                 timestamp: new Date().getTime()
                             };
                             instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
@@ -449,7 +448,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             return;
                         }
                     }, function (stdOut) {
-                        console.log(stdOut.toString('ascii'));
                         logsDao.insertLog({
                             instanceId:instanceId,
                             instanceRefId:actionId,
@@ -468,7 +466,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             }
                         });
                     }, function (stdErr) {
-                        console.log(stdErr.toString('ascii'));
                         logsDao.insertLog({
                             instanceId:instanceId,
                             instanceRefId:actionId,

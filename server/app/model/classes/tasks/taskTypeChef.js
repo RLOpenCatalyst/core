@@ -1144,7 +1144,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 instanceId:instance._id,
                                                 instanceRefId:actionLog._id,
                                                 err: true,
-                                                log: 'Unable to run chef-client',
+                                                log: 'Task Execution has failed',
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
@@ -1152,7 +1152,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             instanceLog.actionStatus = "failed";
                                             instanceLog.logs = {
                                                 err: true,
-                                                log: "Unable to run chef-client",
+                                                log: "Task Execution has failed",
                                                 timestamp: new Date().getTime()
                                             };
                                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
@@ -1254,7 +1254,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 instanceId:instance._id,
                                                 instanceRefId:actionLog._id,
                                                 err: true,
-                                                log: 'Error in running chef-client',
+                                                log: 'Task Execution has failed',
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
@@ -1262,7 +1262,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             instanceLog.actionStatus = "failed";
                                             instanceLog.logs = {
                                                 err: true,
-                                                log: "Error in running chef-client",
+                                                log: "Task Execution has failed",
                                                 timestamp: new Date().getTime()
                                             };
                                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {

@@ -32,6 +32,7 @@ var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
+var commonService = require('_pr/services/commonService');
 
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
@@ -42,35 +43,24 @@ const errorType = 'botService';
 var botService = module.exports = {};
 
 botService.createNew = function createNew(reqBody,callback) {
-    var botsObj = {
-        name: reqBody.name,
-        id: reqBody.id,
-        desc: reqBody.desc,
-        category: reqBody.category,
-        action: reqBody.action,
-        execution: reqBody.execution,
-        type: reqBody.type,
-        subType: reqBody.subType,
-        inputFormFields: reqBody.input,
-        isParameterized:reqBody.isParameterized?reqBody.isParameterized:false,
-        outputOptions: reqBody.output,
-        ymlDocFileId: reqBody.fileId,
-        orgId: reqBody.orgId,
-        orgName: reqBody.orgName,
-        manualExecutionTime: reqBody.standardTime,
-        params: reqBody,
-        source: "Catalyst"
-    }
-    botDao.createNew(botsObj, function (err, data) {
+    commonService.convertJson2Yml(reqBody,function(err,ymlData){
         if (err) {
             logger.error(err);
             callback(err, null);
             return;
-        } else {
-            callback(null, data);
-            return;
+        }else {
+            botDao.createNew(ymlData, function (err, data) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                } else {
+                    callback(null, data);
+                    return;
+                }
+            });
         }
-    });
+    })
 }
 
 botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
