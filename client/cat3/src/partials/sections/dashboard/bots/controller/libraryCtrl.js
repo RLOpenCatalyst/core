@@ -201,6 +201,59 @@
             });
         };
 
+        $scope.blueprintExecute = function(botsDetails) {
+            if(botsDetails){
+                botsCreateService.getBlueprintList(botsDetails.orgId,botsDetails.execution.subtype,botsDetails.execution.name).then(function(response){
+                    $scope.originalBlueprintList=[];
+                    if(response.blueprints.length>0){
+                        $scope.originalBlueprintList = response.blueprints;
+                        var reqBody = {};
+                        reqBody.blueprintIds = [$scope.originalBlueprintList[0]._id];
+                        reqBody.type = 'blueprints'
+                        botsCreateService.getBlueprintDetails($scope.originalBlueprintList[0]._id).then(function(response){
+                            $modal.open({
+                                animate: true,
+                                templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParams.html",
+                                controller: "blueprintLaunchParamsCtrl as bPLP",
+                                backdrop : 'static',
+                                keyboard: false,
+                                resolve: {
+                                    items: function() {
+                                        return response;
+                                    }
+                                }
+                            }).result.then(function(blueprintObj) {
+                                reqBody.monitorId = blueprintObj.monitorId;
+                                reqBody.domainName = blueprintObj.domainName;
+                                reqBody.envId = blueprintObj.launchEnv;
+                                reqBody.tagServer = blueprintObj.tagServer;
+                                reqBody.stackName = blueprintObj.stackName;
+                                botsCreateService.botExecute(botsDetails.id,reqBody).then(function (response) {
+                                    genSevs.showLogsForBots(response);
+                                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                                },
+                                function (error) {
+                                    if(error) {
+                                        error = error.responseText || error;
+                                        if (error.message) {
+                                            toastr.error(error.message);
+                                        } else {
+                                            toastr.error(error);
+                                        }
+                                    }
+                                });
+                            }, function() {
+
+                            });
+                        })
+                    } else {
+                        toastr.error('No Matching Blueprint Found in the Database');
+                        return false;
+                    }
+                });
+            }
+        }
+
         $scope.botLibraryGridView = function() {
             $rootScope.onBodyLoading = false;
             $scope.isBotDetailsLoading = true;

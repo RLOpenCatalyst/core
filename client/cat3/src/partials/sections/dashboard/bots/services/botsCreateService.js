@@ -59,15 +59,25 @@
 
 			botService.getScriptList = function (scriptType) {
 				var params = {
-					url: '/scripts?filterBy=scriptType:'+scriptType,
+					url: '/scripts?filterBy=type:'+scriptType,
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);
 			};
 
-			botService.getBlueprintList = function (orgId,templateType) {
+			botService.getBlueprintList = function (orgId,templateType,bpName) {
+				var url = '/blueprints/list?filterBy=';
+				if(orgId !== null) {
+					url += 'orgId:' + orgId
+				}
+				if(templateType !== null) {
+					url += ',templateType:' + templateType;	
+				}
+				if(bpName !== null) {
+					url += ',name:' + bpName;	
+				}
 				var params = {
-					url: '/blueprints/list?filterBy=orgId:'+ orgId + ',templateType:'+templateType,
+					url: url,
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);
@@ -127,6 +137,14 @@
 					url : '/jenkins/' + jenkinsServerId + '/jobs',
 					inlineLoader: true
 				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getJenkinsJobDetails = function (jenkinsServerId, jobname) {
+				var params ={
+					url : '/jenkins/' + jenkinsServerId + '/jobs/' + jobname,
+					inlineLoader: true	
+				} 
 				return genericServices.promiseGet(params);
 			};
 
