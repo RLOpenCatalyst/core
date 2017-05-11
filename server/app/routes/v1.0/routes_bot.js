@@ -99,7 +99,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             executionType = req.query.executionType;
         }
         var reqBody = null;
-        if(req.body.type && req.body.type ==='blueprints') {
+        if(req.body.type && (req.body.type ==='blueprints' || req.body.type ==='blueprint')) {
             if (!req.body.envId) {
                 res.send(400, {
                     "message": "Invalid Environment Id"
@@ -108,7 +108,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
             reqBody = {
                 userName: req.session.user.cn,
-                category: req.body.type,
+                type: 'blueprints',
                 permissionTo: "execute",
                 permissionSet: req.session.user.permissionset,
                 envId: req.body.envId,
@@ -121,7 +121,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         }else{
             reqBody = {
-                category:req.body.type,
+                type:req.body.type,
                 userName: req.session.user.cn,
                 hostProtocol: req.protocol + '://' + req.get('host'),
                 data: req.body.data?req.body.data:null,

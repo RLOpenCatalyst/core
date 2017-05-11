@@ -27,7 +27,7 @@ var blueprintExecutor = module.exports = {};
 blueprintExecutor.execute = function execute(botId,auditTrail,reqBody,userName,callback) {
     async.waterfall([
         function (next) {
-            usersDao.haspermission(userName, reqBody.category, reqBody.permissionTo, null, reqBody.permissionSet,next);
+            usersDao.haspermission(userName, reqBody.type, reqBody.permissionTo, null, reqBody.permissionSet,next);
         },
         function (launchPermission, next) {
             if(launchPermission === true){
@@ -56,8 +56,8 @@ blueprintExecutor.execute = function execute(botId,auditTrail,reqBody,userName,c
                     })(reqBody.blueprintIds[i]);
                 }
             }else{
-                logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category);
-                next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
+                logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.type);
+                next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.type},null);
             }
         }
     ],function (err, results) {

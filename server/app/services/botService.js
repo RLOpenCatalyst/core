@@ -313,11 +313,15 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                                     scriptExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
                                 } else if (botDetails[0].type === 'chef') {
                                     chefExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
-                                } else if (botDetails[0].type === 'blueprints') {
-                                    reqBody = botDetails[0].params;
+                                } else if (botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint') {
+                                    if(schedulerCallCheck === true) {
+                                        reqBody = botDetails[0].params;
+                                    }
                                     blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
-                                    reqBody = botDetails[0].params;
+                                    if(schedulerCallCheck === true) {
+                                        reqBody = botDetails[0].params;
+                                    }
                                     jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
                                 } else {
                                     var err = new Error('Invalid BOT Type');
@@ -337,7 +341,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                         })
                     },
                     bots: function (callback) {
-                        if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints')
+                        if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === true) {
                             var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
@@ -345,7 +349,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                                 lastRunTime: new Date().getTime(),
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
-                        } else if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints')
+                        } else if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === false) {
                             encryptedParam(reqBody,botDetails[0].inputFormFields,function(err,encryptData){
                                 if(err){
@@ -843,7 +847,7 @@ function encryptedParam(paramDetails,inputFormDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
-    if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
+    if (paramDetails.type === 'script' && paramDetails.data && paramDetails.data !== null) {
         inputFormDetails.forEach(function(formField){
             if(formField.type === 'password' || formField.type === 'restricted'){
                 var encryptedText = cryptography.encryptText(paramDetails.data[formField.name], cryptoConfig.encryptionEncoding,

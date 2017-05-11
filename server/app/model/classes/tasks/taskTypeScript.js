@@ -315,11 +315,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             instancesDao.updateActionLog(instanceId, actionId, false, timestampEnded);
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: false,
-                                log: 'Unable to run script ' + script.name,
-                                timestamp: new Date().getTime()
-                            };
                             instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -329,7 +324,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             removeScriptFile(desPath);
                             return;
                         }
-                        if (retCode == 0) {
+                        if (retCode === 0) {
                             var timestampEnded = new Date().getTime();
                             logsDao.insertLog({
                                 instanceId:instanceId,
@@ -341,11 +336,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             instancesDao.updateActionLog(instanceId, actionId, true, timestampEnded);
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "success";
-                            instanceLog.logs = {
-                                err: false,
-                                log: 'Task execution success for script : ' + script.name,
-                                timestamp: new Date().getTime()
-                            };
                             instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -366,11 +356,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 });
                                 instanceLog.endedOn = new Date().getTime();
                                 instanceLog.actionStatus = "failed";
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: 'Host Unreachable',
-                                    timestamp: new Date().getTime()
-                                };
                                 instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
@@ -388,11 +373,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 });
                                 instanceLog.endedOn = new Date().getTime();
                                 instanceLog.actionStatus = "failed";
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: 'Invalid credentials',
-                                    timestamp: new Date().getTime()
-                                };
                                 instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
@@ -410,11 +390,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 });
                                 instanceLog.endedOn = new Date().getTime();
                                 instanceLog.actionStatus = "failed";
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: 'Unknown error occured. ret code = ' + retCode,
-                                    timestamp: new Date().getTime()
-                                };
                                 instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
@@ -423,29 +398,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 removeScriptFile(desPath);
                                 return;
                             }
-                            var timestampEnded = new Date().getTime();
-                            logsDao.insertLog({
-                                instanceId:instanceId,
-                                instanceRefId:actionId,
-                                err: true,
-                                log: 'Error in running script ' + script.name,
-                                timestamp: timestampEnded
-                            });
-                            instancesDao.updateActionLog(instanceId, actionId, false, timestampEnded);
-                            instanceLog.endedOn = new Date().getTime();
-                            instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: false,
-                                log: 'Error in running script ' + script.name,
-                                timestamp: new Date().getTime()
-                            };
-                            instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
-                                if (err) {
-                                    logger.error("Failed to create or update instanceLog: ", err);
-                                }
-                            });
-                            removeScriptFile(desPath);
-                            return;
                         }
                     }, function (stdOut) {
                         logsDao.insertLog({
@@ -485,8 +437,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                         });
                     });
                 })
-            }
-            ;
+            };
         });
     };
 }
