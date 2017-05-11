@@ -47,12 +47,14 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                         callback(err, null);
                         return;
                     } else if (instances.length > 0) {
-                        logsDao.insertLog({
+                        var logData = {
                             referenceId: [actionLogId,botsDetails._id],
                             err: false,
                             log: 'BOT execution has started for Script BOTs  ' + botsDetails.id +" on Remote",
                             timestamp: new Date().getTime()
-                        });
+                        }
+                        logsDao.insertLog(logData);
+                        noticeService.updater(actionLogId,'log',logData);
                         var botAuditTrailObj = {
                             botId: botsDetails._id,
                             actionId: actionLogId
@@ -67,12 +69,14 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                     "endedOn": new Date().getTime(),
                                     "actionLogId": actionLogId
                                 };
-                                logsDao.insertLog({
+                                var logData = {
                                     referenceId: [actionLogId, botsDetails._id],
                                     err: true,
                                     log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id + " on Remote",
                                     timestamp: new Date().getTime()
-                                });
+                                };
+                                logsDao.insertLog(logData);
+                                noticeService.updater(actionLogId,'log',logData);
                                 auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
@@ -112,12 +116,14 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails._id, actionId];
     var replaceTextObj = {};
-    logsDao.insertLog({
+    var logData = {
         referenceId: logsReferenceIds,
         err: false,
         log: 'BOT execution has started for Script BOTs  ' + botsScriptDetails.id + " on Local",
         timestamp: new Date().getTime()
-    });
+    };
+    logsDao.insertLog(logData);
+    noticeService.updater(actionId,'log',logData);
     var botAuditTrailObj = {
         botId: botsScriptDetails._id,
         actionId: actionId
@@ -150,13 +156,11 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     request.post(options, function (err, res, body) {
         if (err) {
             logger.error(err);
-            var timestampEnded = new Date().getTime();
-            logsDao.insertLog({
-                referenceId: logsReferenceIds,
-                err: true,
-                log: "BOT Engine is not responding, Please check "+serverUrl,
-                timestamp: timestampEnded
-            });
+            logData.log = "BOT Engine is not responding, Please check "+serverUrl;
+            logData.timestamp = new Date().getTime();
+            logData.err = true;
+            logsDao.insertLog(logData);
+            noticeService.updater(actionId,'log',logData);
             var resultTaskExecution = {
                 "actionStatus": 'failed',
                 "status": 'failed',
@@ -199,13 +203,12 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 return;
             }
             else {
+                logData.log = res.statusCode === 502?"BOT Engine is not responding, Please check "+serverUrl:"Error in Script executor"
+                logData.timestamp = new Date().getTime();
+                logData.err = true;
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId,'log',logData);
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
-                    referenceId: logsReferenceIds,
-                    err: true,
-                    log: "Error in Script executor",
-                    timestamp: timestampEnded
-                });
                 var resultTaskExecution = {
                     "actionStatus": 'failed',
                     "status": 'failed',
@@ -218,7 +221,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     }
                     noticeService.notice(userName, {
                         title: "Script BOT Execution",
-                        body: "Error in Script executor"
+                        body: res.statusCode === 502?"Bot Enginge is not running":"Error in Script executor"
                     }, "error",function(err,data){
                         if(err){
                             logger.error("Error in Notification Service, ",err);
@@ -262,12 +265,14 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
     };
     if (!instance.instanceIP) {
         var timestampEnded = new Date().getTime();
-        logsDao.insertLog({
+        var logData ={
             referenceId: logsReferenceIds,
             err: true,
             log: "Instance IP is not defined. Chef Client run failed",
             timestamp: timestampEnded
-        });
+        };
+        logsDao.insertLog(logData);
+        noticeService.updater(actionLogId,'log',logData);
         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
         instanceLog.endedOn = new Date().getTime();
         instanceLog.actionStatus = "failed";
@@ -348,12 +353,14 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
             if (err) {
                 logger.error(err);
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
+                var logData ={
                     referenceId: logsReferenceIds,
                     err: true,
-                    log: "BOT Engine is not responding, Please check "+serverUrl,
+                    log:  "BOT Engine is not responding, Please check "+serverUrl,
                     timestamp: timestampEnded
-                });
+                };
+                logsDao.insertLog(logData);
+                noticeService.updater(actionLogId,'log',logData);
                 instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                 instanceLog.endedOn = new Date().getTime();
                 instanceLog.actionStatus = "failed";
@@ -405,12 +412,14 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                 }
                 else{
                     var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
+                    var logData ={
                         referenceId: logsReferenceIds,
                         err: true,
-                        log: "Error in Script executor",
+                        log: res.statusCode === 502?"BOT Engine is not responding, Please check "+serverUrl:"Error in Script executor",
                         timestamp: timestampEnded
-                    });
+                    };
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionLogId,'log',logData);
                     instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
@@ -431,7 +440,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                     noticeService.notice(userName,
                         {
                             title: "Script BOT Execution",
-                            body: "Error in Script executor"
+                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Script executor"
                         }, "error",function(err,data){
                             if(err){
                                 logger.error("Error in Notification Service, ",err);
