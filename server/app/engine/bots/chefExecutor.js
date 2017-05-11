@@ -248,7 +248,7 @@ function executeChefOnLocal(botsChefDetails, auditTrail, userName, botHostDetail
                         }
                         noticeService.notice(userName, {
                             title: "Chef BOT Execution",
-                            body: "Error in Chef executor"
+                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Chef executor"
                         }, "error", function (err, data) {
                             if (err) {
                                 logger.error("Error in Notification Service, ", err);
@@ -425,7 +425,7 @@ function executeChefOnRemote(instance, botDetails, actionLogId, auditTrailId, us
                     });
                     noticeService.notice(userName, {
                         title: "Chef BOT Execution",
-                        body: res.statusCode === 502?"Bot Enginge is not running":"Bot Enginge is not running"
+                        body: "Bot Enginge is not running"
                     }, "error", function (err, data) {
                         if (err) {
                             logger.error("Error in Notification Service, ", err);
