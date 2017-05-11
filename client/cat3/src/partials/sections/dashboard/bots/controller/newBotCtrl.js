@@ -20,7 +20,7 @@
             $scope.jenkinsParamsList = [];
             $scope.botCategory = 'User Management';
             $scope.blueprintType = 'chef';
-            $scope.jenkinsServer = '';
+            $scope.jenkinsServer = {};
             $scope.scriptType = '';
             $scope.scriptParamsObj = {};
             $scope.scriptParamShow = false;
@@ -76,7 +76,7 @@
                 getJenkinsJobList: function () {
                     if ($scope.jenkinsServer) {
                         $scope.isJenkinsJobLoading = true;
-                        botsCreateService.getJenkinsServerJobList($scope.jenkinsServer).then(function (response) {
+                        botsCreateService.getJenkinsServerJobList($scope.jenkinsServer.id).then(function (response) {
                             if (response.data) {
                                 $scope.jenkinServerJobList = response.data;
                             } else {
@@ -87,9 +87,9 @@
                     }
                 },
                 changeJenkinsJob: function () {
-                    if($scope.jenkinsServer && $scope.jenkinsJobSelected){
+                    if($scope.jenkinsServer.id && $scope.jenkinsJobSelected){
                         $scope.isJenkinsJobURLLoading = true;
-                        botsCreateService.getJenkinsJobDetails($scope.jenkinsServer, $scope.jenkinsJobSelected).then(function (response) {
+                        botsCreateService.getJenkinsJobDetails($scope.jenkinsServer.id, $scope.jenkinsJobSelected).then(function (response) {
                             var data;
                             if (response.data) {
                                 data = response.data;
@@ -104,6 +104,8 @@
                 checkForBotType : function() {
                     if($scope.botType === 'jenkins') {
                         $scope.getJenkinsList();
+                    } else if ($scope.botType === 'blueprint') {
+                        $scope.getBlueprintList();
                     }
                 },
                 changeNodeScriptList: function() {
@@ -150,6 +152,14 @@
                     var idx = $scope.scriptParamsObj[scriptObject].indexOf(params);
                     $scope.scriptParamsObj[scriptObject].splice(idx,1);
                 },
+                getBlueprintList: function () {
+                    botsCreateService.getBlueprintList($scope.orgNewEnt.org.orgid,$scope.blueprintType,null).then(function (response) {
+                        if(response.blueprints) {
+                            $scope.blueprintList = response.blueprints;
+                            $scope.blueprintDetails = $scope.blueprintList[0];
+                        }
+                    });
+                },
                 postCreateBots : function() {
                     botsData = {
                         name: $scope.botName,
@@ -172,7 +182,8 @@
                             botsData.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
                         }
                     } else if($scope.botType === 'jenkins') {
-                        botsData.jenkinsServerId = $scope.jenkinsServer;
+                        botsData.jenkinsServerId = $scope.jenkinsServer.id;
+                        botsData.jenkinsServerName = $scope.jenkinsServer.name
                         botsData.jobName = $scope.jenkinsJobSelected;
                         botsData.isParameterized = $scope.isParameterized.flag;
                         botsData.parameterized = $scope.jenkinsParamsList;
@@ -180,6 +191,8 @@
                         botsData.jobURL = $scope.jobURL;
                     } else if($scope.botType === 'blueprint') {
                         botsData.blueprintType = $scope.blueprintType;
+                        botsData.blueprintId = $scope.blueprintDetails._id;
+                        botsData.blueprintName = $scope.blueprintDetails.name;
                     } else if($scope.botType === 'script') {
                         botsData.scriptDetails = [];
                         botsData.scriptTypeName = $scope.scriptType;

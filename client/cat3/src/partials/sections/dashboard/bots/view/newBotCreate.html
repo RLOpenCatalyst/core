@@ -98,6 +98,15 @@
                      <option value="docker">Docker</option>
                   </select>
                </div>
+               <div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="botType==='blueprint'">
+                  <label class="control-label botsLabel">Blueprint List
+                     <span class="control-label red">&nbsp;*</span>
+                     <span ng-show="newBotForm.blueprintDetails.$touched && newBotForm.blueprintDetails.$invalid" class="inputValidationMsg">Required
+                  </span>
+                  </label>
+                  <select name="blueprintDetails" class="width-100 form-control" ng-model="blueprintDetails" ng-options="blueprintObject.name for blueprintObject in blueprintList track by blueprintObject._id" required>
+                  </select>
+               </div>
                <div ng-if="botType==='chef'" class="col-lg-6 col-md-6 col-sm-4 col-xs-12 margintop15">
                   <label class="control-label botsLabel">Select Runlist</label>
                   <span class="cursor pull-right">
@@ -126,9 +135,8 @@
                         <span ng-show="newBotForm.serverName.$touched && newBotForm.serverName.$invalid" class="inputValidationMsg">Required
                         </span>
                      </label>
-                     <select class="form-control" name="serverName" ng-model="$parent.jenkinsServer" ng-change="getJenkinsJobList();" required>
+                     <select class="form-control" name="serverName" ng-model="$parent.jenkinsServer" ng-change="getJenkinsJobList();" ng-options="jenkinsServerDetails as jenkinsServerDetails.name for jenkinsServerDetails in jenkinsServerList track by jenkinsServerDetails.id" required>
                         <option value="">Select</option>
-                        <option value="{{jeninsServer.id}}" ng-repeat="jeninsServer in jenkinsServerList">{{jeninsServer.name}}</option>
                      </select>
                   </div>
                   <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
