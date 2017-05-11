@@ -53,13 +53,15 @@ scriptExecutor.execute = function execute(botDetail,reqBody,auditTrail,userName,
                         callback(err, null);
                         return;
                     } else if (instances.length > 0) {
-                        logsDao.insertLog({
+                        var logData = {
                             botId:botDetail._id,
                             botRefId: actionLogId,
                             err: false,
                             log: 'BOT execution has started for Script BOTs  ' + botDetail.id +" on Remote",
                             timestamp: new Date().getTime()
-                        });
+                        }
+                        logsDao.insertLog(logData);
+                        noticeService.updater(actionLogId,'log',logData);
                         var botAuditTrailObj = {
                             botId: botDetail._id,
                             actionId: actionLogId
@@ -74,13 +76,15 @@ scriptExecutor.execute = function execute(botDetail,reqBody,auditTrail,userName,
                                     "endedOn": new Date().getTime(),
                                     "actionLogId": actionLogId
                                 };
-                                logsDao.insertLog({
+                                var logData = {
                                     botId:botDetail._id,
                                     botRefId: actionLogId,
                                     err: true,
                                     log: 'BOTs execution is failed for Script BOTs  ' + botDetail.id + " on Remote",
                                     timestamp: new Date().getTime()
-                                });
+                                };
+                                logsDao.insertLog(logData);
+                                noticeService.updater(actionLogId,'log',logData);
                                 auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
@@ -120,13 +124,15 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
     var actionId = uuid.v4();
     var logsReferenceIds = [botDetail._id, actionId];
     var replaceTextObj = {};
-    logsDao.insertLog({
+    var logData = {
         botId:botDetail._id,
         botRefId: actionId,
         err: false,
         log: 'BOT execution has started for Script BOTs  ' + botDetail.id + " on Local",
         timestamp: new Date().getTime()
-    });
+    };
+    logsDao.insertLog(logData);
+    noticeService.updater(actionId,'log',logData);
     var botAuditTrailObj = {
         botId: botDetail._id,
         actionId: actionId
@@ -154,13 +160,11 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
             if (err || !fileData.file) {
                 logger.error(err);
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
-                    botId: botDetail._id,
-                    botRefId: actionId,
-                    err: true,
-                    log: "Error in Getting Script for Source Catalyst",
-                    timestamp: timestampEnded
-                });
+                logData.err= true;
+                logData.log= "Error in Getting Script for Source Catalyst";
+                logData.timestamp= timestampEnded;
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId,'log',logData);
                 var resultTaskExecution = {
                     "actionStatus": 'failed',
                     "status": 'failed',
@@ -189,13 +193,11 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
                     if (err) {
                         logger.error("Unable to write file");
                         var timestampEnded = new Date().getTime();
-                        logsDao.insertLog({
-                            botId: botDetail._id,
-                            botRefId: actionId,
-                            err: true,
-                            log: "Error in writing Script for Source Catalyst",
-                            timestamp: timestampEnded
-                        });
+                        logData.err= true;
+                        logData.log= "Error in writing Script for Source Catalyst";
+                        logData.timestamp= timestampEnded;
+                        logsDao.insertLog(logData);
+                        noticeService.updater(actionId,'log',logData);
                         var resultTaskExecution = {
                             "actionStatus": 'failed',
                             "status": 'failed',
@@ -231,13 +233,11 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
                             if(err || result === true){
                                 logger.error(err);
                                 var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
-                                    botId: botDetail._id,
-                                    botRefId: actionId,
-                                    err: true,
-                                    log: "Error in executing Script for Source Catalyst",
-                                    timestamp: timestampEnded
-                                });
+                                logData.err= true;
+                                logData.log= "Error in executing Script for Source Catalyst";
+                                logData.timestamp= timestampEnded;
+                                logsDao.insertLog(logData);
+                                noticeService.updater(actionId,'log',logData);
                                 var resultTaskExecution = {
                                     "actionStatus": 'failed',
                                     "status": 'failed',
@@ -262,13 +262,11 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
                             }else{
                                 logger.debug("Script Execution is Done");
                                 var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
-                                    botId: botDetail._id,
-                                    botRefId: actionId,
-                                    err: false,
-                                    log: 'BOT execution is success on local for BOT : '+botDetail.id,
-                                    timestamp: timestampEnded
-                                });
+                                logData.err= false;
+                                logData.log= 'BOT execution is success on local for BOT : '+botDetail.id;
+                                logData.timestamp= timestampEnded;
+                                logsDao.insertLog(logData);
+                                noticeService.updater(actionId,'log',logData);
                                 var resultTaskExecution = {
                                     "actionStatus": 'success',
                                     "status": 'success',
@@ -333,14 +331,12 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
                 return;
             }
             else {
+                logData.log = res.statusCode === 502?"BOT Engine is not responding, Please check "+serverUrl:"Error in Script executor"
+                logData.timestamp = new Date().getTime();
+                logData.err = true;
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId,'log',logData);
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
-                    botId: botDetail._id,
-                    botRefId: actionId,
-                    err: true,
-                    log: "Error in Script executor",
-                    timestamp: timestampEnded
-                });
                 var resultTaskExecution = {
                     "actionStatus": 'failed',
                     "status": 'failed',
@@ -353,10 +349,10 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
                     }
                     noticeService.notice(userName, {
                         title: "Script BOT Execution",
-                        body: "Error in Script executor"
-                    }, "error", function (err, data) {
-                        if (err) {
-                            logger.error("Error in Notification Service, ", err);
+                        body: res.statusCode === 502?"Bot Enginge is not running":"Error in Script executor"
+                    }, "error",function(err,data){
+                        if(err){
+                            logger.error("Error in Notification Service, ",err);
                         }
                     });
                     return;
@@ -396,7 +392,7 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
     };
     if (!instance.instanceIP) {
         var timestampEnded = new Date().getTime();
-        logsDao.insertLog({
+        var logData ={
             instanceId:instance._id,
             instanceRefId:actionLog._id,
             botId:botDetail._id,
@@ -404,7 +400,9 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
             err: true,
             log: "Instance IP is not defined. Chef Client run failed",
             timestamp: timestampEnded
-        });
+        };
+        logsDao.insertLog(logData);
+        noticeService.updater(actionLogId,'log',logData);
         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
         instanceLog.endedOn = new Date().getTime();
         instanceLog.actionStatus = "failed";
@@ -487,15 +485,11 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
                 if (err || !fileData.file) {
                     logger.error(err);
                     var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
-                        instanceId:instance._id,
-                        instanceRefId:actionLog._id,
-                        botId:botDetail._id,
-                        botRefId: actionLogId,
-                        err: true,
-                        log: "Error in Getting Script for Source Catalyst",
-                        timestamp: timestampEnded
-                    });
+                    logData.err= true;
+                    logData.log=  "Error in Getting Script for Source Catalyst";
+                    logData.timestamp= timestampEnded;
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionId,'log',logData);
                     var resultTaskExecution = {
                         "actionStatus": 'failed',
                         "status": 'failed',
@@ -524,15 +518,11 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
                         if (err) {
                             logger.error("Unable to write file");
                             var timestampEnded = new Date().getTime();
-                            logsDao.insertLog({
-                                instanceId:instance._id,
-                                instanceRefId:actionLog._id,
-                                botId:botDetail._id,
-                                botRefId: actionLogId,
-                                err: true,
-                                log: "Error in writing Script for Source Catalyst",
-                                timestamp: timestampEnded
-                            });
+                            logData.err= true;
+                            logData.log=  "Error in writing Script for Source Catalyst";
+                            logData.timestamp= timestampEnded;
+                            logsDao.insertLog(logData);
+                            noticeService.updater(actionId,'log',logData);
                             var resultTaskExecution = {
                                 "actionStatus": 'failed',
                                 "status": 'failed',
@@ -560,15 +550,11 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
                                 if (err) {
                                     logger.error("Unable to uploading file");
                                     var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        instanceId:instance._id,
-                                        instanceRefId:actionLog._id,
-                                        botId:botDetail._id,
-                                        botRefId: actionLogId,
-                                        err: true,
-                                        log: "Error in uploading Script for Source Catalyst",
-                                        timestamp: timestampEnded
-                                    });
+                                    logData.err= true;
+                                    logData.log=  "Error in uploading Script for Source Catalyst";
+                                    logData.timestamp= timestampEnded;
+                                    logsDao.insertLog(logData);
+                                    noticeService.updater(actionId,'log',logData);
                                     var resultTaskExecution = {
                                         "actionStatus": 'failed',
                                         "status": 'failed',
@@ -608,15 +594,11 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
                                     if (err) {
                                         logger.error(err);
                                         var timestampEnded = new Date().getTime();
-                                        logsDao.insertLog({
-                                            instanceId: instance._id,
-                                            instanceRefId: actionLog._id,
-                                            botId: botDetail._id,
-                                            botRefId: actionLogId,
-                                            err: true,
-                                            log: "Error in executing Script for Source Catalyst",
-                                            timestamp: timestampEnded
-                                        });
+                                        logData.err= true;
+                                        logData.log=  "Error in executing Script for Source Catalyst";
+                                        logData.timestamp= timestampEnded;
+                                        logsDao.insertLog(logData);
+                                        noticeService.updater(actionId,'log',logData);
                                         var resultTaskExecution = {
                                             "actionStatus": 'failed',
                                             "status": 'failed',
@@ -692,15 +674,17 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
                 } else {
                     logger.error(err);
                     var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
+                    var logData ={
                         instanceId: instance._id,
                         instanceRefId: actionLog._id,
                         botId: botDetail._id,
                         botRefId: actionLogId,
                         err: true,
-                        log: "Error in BOT Engine executor: ",
+                        log: res.statusCode === 502?"BOT Engine is not responding, Please check "+serverUrl:"Error in Script executor",
                         timestamp: timestampEnded
-                    });
+                    };
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionLogId,'log',logData);
                     instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
@@ -718,10 +702,10 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
                     noticeService.notice(userName,
                         {
                             title: "Script BOT Execution",
-                            body: "Error in BOT Engine executor"
-                        }, "error", function (err, data) {
-                            if (err) {
-                                logger.error("Error in Notification Service, ", err);
+                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Script executor"
+                        }, "error",function(err,data){
+                            if(err){
+                                logger.error("Error in Notification Service, ",err);
                             }
                         });
                     return;

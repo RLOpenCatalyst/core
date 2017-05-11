@@ -142,10 +142,6 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
 	        });
         });
 
-        socketClient.on('update',function(data){
-       
-        });
-
         $scope.userClick = function() {
         	socketClient.emit('noticeack',$scope.userName);
         };

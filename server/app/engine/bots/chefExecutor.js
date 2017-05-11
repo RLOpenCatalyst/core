@@ -50,13 +50,15 @@ chefExecutor.execute = function execute(botDetail,reqBody, auditTrail, userName,
                         callback(err, null);
                         return;
                     } else if (instances.length > 0) {
-                        logsDao.insertLog({
+                        var logData = {
                             botId:botDetail._id,
                             botRefId: actionLogId,
                             err: false,
                             log: 'BOT execution has started for Chef BOTs ' + botDetail.id + " on Remote",
                             timestamp: new Date().getTime()
-                        });
+                        }
+                        logsDao.insertLog(logData);
+                        noticeService.updater(actionLogId,'log',logData);
                         var botAuditTrailObj = {
                             botId: botDetail._id,
                             actionId: actionLogId
@@ -71,13 +73,15 @@ chefExecutor.execute = function execute(botDetail,reqBody, auditTrail, userName,
                                     "endedOn": new Date().getTime(),
                                     "actionLogId": actionLogId
                                 };
-                                logsDao.insertLog({
+                                var logData = {
                                     botId:botDetail._id,
                                     botRefId: actionLogId,
                                     err: true,
                                     log: 'BOTs execution is failed for Chef BOTs  ' + botDetail.id + " on Remote",
                                     timestamp: new Date().getTime()
-                                });
+                                }
+                                logsDao.insertLog(logData);
+                                noticeService.updater(actionLogId,'log',logData);
                                 auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
@@ -112,14 +116,15 @@ chefExecutor.execute = function execute(botDetail,reqBody, auditTrail, userName,
 
 function executeChefOnLocal(botDetail,reqBody, auditTrail, userName, botHostDetails,schedulerCheck, callback) {
     var actionId = uuid.v4();
-    var logsReferenceIds = [botDetail._id, actionId];
-    logsDao.insertLog({
+    var logData = {
         botId: botDetail._id,
         botRefId: actionId,
         err: false,
         log: 'BOT execution has  started for Chef BOTs ' + botDetail.id + " on Local",
         timestamp: new Date().getTime()
-    });
+    }
+    logsDao.insertLog(logData);
+    noticeService.updater(actionId,'log',logData);
     var botAuditTrailObj = {
         botId: botDetail._id,
         actionId: actionId
@@ -170,13 +175,11 @@ function executeChefOnLocal(botDetail,reqBody, auditTrail, userName, botHostDeta
                 if(err || result === true){
                     logger.error(err);
                     var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
-                        botId: botDetail._id,
-                        botRefId: actionId,
-                        err: true,
-                        log: "Error in executing Script for Source Catalyst",
-                        timestamp: timestampEnded
-                    });
+                    logData.err= true;
+                    logData.log= "Error in executing Script for Source Catalyst";
+                    logData.timestamp= timestampEnded;
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionId,'log',logData);
                     var resultTaskExecution = {
                         "actionStatus": 'failed',
                         "status": 'failed',
@@ -204,13 +207,11 @@ function executeChefOnLocal(botDetail,reqBody, auditTrail, userName, botHostDeta
                 }else{
                     logger.debug("Chef Execution is Done");
                     var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
-                        botId: botDetail._id,
-                        botRefId: actionId,
-                        err: false,
-                        log: 'BOT execution is success on local for BOT : '+botDetail.id,
-                        timestamp: timestampEnded
-                    });
+                    logData.err= false;
+                    logData.log= 'BOT execution is success on local for BOT : '+botDetail.id;
+                    logData.timestamp= timestampEnded;
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionId,'log',logData);
                     var resultTaskExecution = {
                         "actionStatus": 'success',
                         "status": 'success',
@@ -277,14 +278,15 @@ function executeChefOnLocal(botDetail,reqBody, auditTrail, userName, botHostDeta
                     return;
                 } else {
                     logger.error(err);
-                    var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
+                    var logData = {
                         botId: botDetail._id,
                         botRefId: actionId,
                         err: true,
                         log: "Error in BOT Engine executor:",
                         timestamp: new Date().getTime(),
-                    })
+                    }
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionId,'log',logData);
                     var resultTaskExecution = {
                         "actionStatus": 'failed',
                         "status": 'failed',
@@ -297,7 +299,7 @@ function executeChefOnLocal(botDetail,reqBody, auditTrail, userName, botHostDeta
                         }
                         noticeService.notice(userName, {
                             title: "Chef BOT Execution",
-                            body: "Error in BOT Engine executor:"
+                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Chef executor"
                         }, "error", function (err, data) {
                             if (err) {
                                 logger.error("Error in Notification Service, ", err);
@@ -344,7 +346,7 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
     };
     if (!instance.instanceIP) {
         var timestampEnded = new Date().getTime();
-        logsDao.insertLog({
+        var logData = {
             instanceId: instance._id,
             instanceRefId: actionLog._id,
             botId: botDetail._id,
@@ -352,7 +354,9 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
             err: true,
             log: "Instance IP is not defined. Chef Client run failed",
             timestamp: timestampEnded
-        });
+        }
+        logsDao.insertLog(logData);
+        noticeService.updater(actionLogId,'log',logData);
         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
         instanceLog.endedOn = new Date().getTime();
         instanceLog.actionStatus = "failed";
@@ -455,15 +459,11 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
                     if (err) {
                         logger.error(err);
                         var timestampEnded = new Date().getTime();
-                        logsDao.insertLog({
-                            instanceId: instance._id,
-                            instanceRefId: actionLog._id,
-                            botId: botDetail._id,
-                            botRefId: actionLogId,
-                            err: true,
-                            log: "Error in executing Chef Cook-Book for Source Catalyst",
-                            timestamp: timestampEnded
-                        });
+                        logData.err =true;
+                        logData.log = "Error in executing Chef Cook-Book for Source Catalyst";
+                        logData.timestamp= timestampEnded;
+                        logsDao.insertLog(logData);
+                        noticeService.updater(actionLogId,'log',logData);
                         var resultTaskExecution = {
                             "actionStatus": 'failed',
                             "status": 'failed',
@@ -491,7 +491,6 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
                         return;
                     }
                 })
-
             }else {
                 var reqBody = {
                     "data": reqData,
@@ -536,15 +535,17 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
                     } else {
                         logger.error(err);
                         var timestampEnded = new Date().getTime();
-                        logsDao.insertLog({
+                        var logData = {
                             instanceId: instance._id,
                             instanceRefId: actionLog._id,
                             botId: botDetail._id,
                             botRefId: actionLogId,
                             err: true,
-                            log: "Error in BOT Engine executor: ",
+                            log: res.statusCode === 502?"Bot Enginge is not running":"Error in Chef executor",
                             timestamp: timestampEnded
-                        });
+                        }
+                        logsDao.insertLog(logData);
+                        noticeService.updater(actionLogId,'log',logData);
                         instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                         instanceLog.endedOn = new Date().getTime();
                         instanceLog.actionStatus = "failed";
@@ -560,7 +561,7 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
                         });
                         noticeService.notice(userName, {
                             title: "Chef BOT Execution",
-                            body: "Error in BOT Engine executor:"
+                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Chef executor"
                         }, "error", function (err, data) {
                             if (err) {
                                 logger.error("Error in Notification Service, ", err);

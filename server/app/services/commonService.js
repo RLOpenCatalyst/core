@@ -25,6 +25,8 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var SSHExec = require('_pr/lib/utils/sshexec');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var instancesDao = require('_pr/model/classes/instance/instance.js');
+var noticeService = require('_pr/services/noticeService.js');
+
 
 
 const errorType = 'commonService';
@@ -269,24 +271,28 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
             }
             if(stdout){
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
+                var logData ={
                     botId: botId,
                     botRefId: actionLogId,
                     err: false,
                     log: stdout.toString("ascii"),
                     timestamp: timestampEnded
-                });
+                };
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId,'log',logData);
             }
             if(stderr){
                 errorCheck = true;
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
+                var logData ={
                     botId: botId,
                     botRefId: actionLogId,
                     err: true,
                     log: stderr.toString("ascii"),
                     timestamp: timestampEnded
-                });
+                };
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId,'log',logData);
             }
         })
         callback(null,errorCheck);
@@ -296,7 +302,7 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
         sshExec.exec(cmd, function (err, retCode) {
             if (err) {
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
+                var logData ={
                     instanceId:instanceId,
                     instanceRefId:actionId,
                     botId: botId,
@@ -304,7 +310,9 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                     err: true,
                     log: 'Unable to run Bot : '+bot_id,
                     timestamp: timestampEnded
-                });
+                };
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId,'log',logData);
                 instancesDao.updateActionLog(instanceId, actionId, false, timestampEnded);
                 instanceLog.endedOn = new Date().getTime();
                 instanceLog.actionStatus = "failed";
@@ -316,15 +324,17 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
               callback(err,null);
             }else if (retCode === 0) {
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
+                var logData ={
                     instanceId:instanceId,
                     instanceRefId:actionId,
                     botId: botId,
                     botRefId: actionLogId,
                     err: false,
-                    log: 'BOT execution has success for BOT : ' + bot_id,
+                    log:'BOT execution has success for BOT : ' + bot_id,
                     timestamp: timestampEnded
-                });
+                };
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId,'log',logData);
                 instancesDao.updateActionLog(instanceId, actionId, true, timestampEnded);
                 instanceLog.endedOn = new Date().getTime();
                 instanceLog.actionStatus = "success";
@@ -337,7 +347,7 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                 return;
             } else {
                 if (retCode === -5000) {
-                    logsDao.insertLog({
+                    var logData ={
                         instanceId: instanceId,
                         instanceRefId: actionId,
                         botId: botId,
@@ -345,7 +355,9 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                         err: true,
                         log: 'Host Unreachable',
                         timestamp: new Date().getTime()
-                    });
+                    };
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionId,'log',logData);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
                     instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
@@ -356,7 +368,7 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                     callback(null, bot_id);
                     return;
                 } else if (retCode === -5001) {
-                    logsDao.insertLog({
+                    var logData ={
                         instanceId: instanceId,
                         instanceRefId: actionId,
                         botId: botId,
@@ -364,7 +376,9 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                         err: true,
                         log: 'Invalid credentials',
                         timestamp: new Date().getTime()
-                    });
+                    };
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionId,'log',logData);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
                     instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
@@ -375,7 +389,7 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                     callback(null, bot_id);
                     return;
                 } else {
-                    logsDao.insertLog({
+                    var logData ={
                         instanceId: instanceId,
                         instanceRefId: actionId,
                         botId: botId,
@@ -383,7 +397,9 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                         err: true,
                         log: 'Unknown error occured. ret code = ' + retCode,
                         timestamp: new Date().getTime()
-                    });
+                    };
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionId,'log',logData);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
                     instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
@@ -396,7 +412,7 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                 }
             }
         }, function (stdOut) {
-            logsDao.insertLog({
+            var logData = {
                 instanceId:instanceId,
                 instanceRefId:actionId,
                 botId: botId,
@@ -404,9 +420,11 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                 err: false,
                 log: stdOut.toString('ascii'),
                 timestamp: new Date().getTime()
-            });
+            };
+            logsDao.insertLog(logData);
+            noticeService.updater(actionId,'log',logData);
         }, function (stdErr) {
-            logsDao.insertLog({
+            var logData = {
                 instanceId:instanceId,
                 instanceRefId:actionId,
                 botId: botId,
@@ -414,7 +432,9 @@ commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId
                 err: true,
                 log: stdErr.toString('ascii'),
                 timestamp: new Date().getTime()
-            });
+            };
+            logsDao.insertLog(logData);
+            noticeService.updater(actionId,'log',logData);
         });
     }
 }
