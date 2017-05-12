@@ -167,7 +167,7 @@
                                  <loading size="small" name="isInstanceTypeLoading" type="inline"></loading>
                               </label>
                               <select ng-model="bpCreate.newEnt.instanceType" name="instancesize" class="width-100 chooseSelect form-control" required>
-                                 <option value="">Select Instanace Type</option>
+                                 <option value="">Select Instance Type</option>
                                  <option ng-if="providerType === 'AWS'" ng-repeat="instanceType in bpCreate.instanceType[0].hvm" value="{{instanceType}}">{{instanceType}}</option>
                                  <option ng-if="providerType === 'AZURE'" ng-repeat="instanceType in bpCreate.instanceType" value="{{instanceType}}">{{instanceType}}</option>
                               </select>
