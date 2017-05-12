@@ -45,8 +45,7 @@ apiExecutor.execute = function execute(botDetail,reqBody, auditTrail, userName,b
         json: true,
         body: reqBodyObj
     };
-    logger.info(serverUrl+executorUrl);
-
+    
     request.post(options, function (err, res, body) {
       if(res){
         if (res.statusCode === 200) {

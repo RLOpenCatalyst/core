@@ -288,8 +288,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                             },
                             function(auditTrail,next) {
                                 var uuid = require('node-uuid');
-                                auditTrail.actionId = uuid.v4();
-                                logger.info('Valid BOT Type '+botDetails[0].type);
+                                auditTrail.actionId = uuid.v4();                          
                                 if (botDetails[0].type === 'script') {
                                     scriptExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
                                 }else if (botDetails[0].type === 'chef') {
