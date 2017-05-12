@@ -70,11 +70,19 @@ var BotSchema = new Schema ({
         trim: true
     },
     savedTime: {
+        days:{
+            type: Number,
+            default:0
+        },
         hours:{
             type: Number,
             default:0
         },
         minutes:{
+            type: Number,
+            default:0
+        },
+        seconds:{
             type: Number,
             default:0
         }

@@ -404,56 +404,116 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
     var query = {
         auditType: auditType,
         isDeleted: false,
-        auditId: botId
+        auditId: botId,
+        actionStatus: 'success'
     };
     auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
         if (err) {
             logger.error("Error in Fetching Audit Trail.", err);
             callback(err, null);
-        }
-        if (botAuditTrail.length > 0) {
-            var totalTimeInSeconds = 0;
-            for (var m = 0; m < botAuditTrail.length; m++) {
-                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null
-                    && botAuditTrail[m].actionStatus ==='success' ) {
-                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
-                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+        }else if (botAuditTrail.length > 0) {
+            async.parallel({
+                botSavedTime: function(callback){
+                    var totalTimeInSeconds = 0,seconds = 0,minutes = 0,hours = 0, days = 0;
+                    for (var m = 0; m < botAuditTrail.length; m++) {
+                        if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
+                            && botAuditTrail[m].auditTrailConfig.manualExecutionTime
+                            && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null) {
+                            var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
+                            totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                        }
+                    }
+                    if(totalTimeInSeconds >= 60){
+                        minutes = minutes + Math.floor(totalTimeInSeconds / 60);
+                        seconds = totalTimeInSeconds % 60;
+                    }
+                    if(minutes >= 60){
+                        hours = hours + Math.floor(minutes / 60);
+                        minutes = minutes % 60;
+                    }
+                    if(hours >= 24){
+                        days = days + Math.floor(hours / 60);
+                        hours = minutes % 24
+                    }
+                    var result = {
+                        days:days,
+                        hours: hours,
+                        minutes: minutes,
+                        seconds:seconds
+                    }
+                    if(auditType==='BOTOLD') {
+                        botOld.updateBotsDetail(botId, {
+                            savedTime: result,
+                            executionCount: botAuditTrail.length
+                        }, function (err, data) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, data);
+                            return;
+                        })
+                    }else{
+                        botDao.updateBotsDetail(botId, {
+                            savedTime: result,
+                            executionCount: botAuditTrail.length
+                        }, function (err, data) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, data);
+                            return;
+                        })
+                    }
+                },
+                auditTrailSavedTime: function(callback){
+                    var count = 0;
+                    for (var m = 0; m < botAuditTrail.length; m++) {
+                        (function (botAuditTrail) {
+                            if (botAuditTrail.endedOn && botAuditTrail.endedOn !== null && botAuditTrail.auditTrailConfig.manualExecutionTime
+                                && botAuditTrail.auditTrailConfig.manualExecutionTime !== null) {
+                                var seconds = 0, minutes = 0,hours = 0;
+                                var executionTime = getExecutionTime(botAuditTrail.endedOn, botAuditTrail.startedOn);
+                                seconds = ((botAuditTrail.auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                                if(seconds >= 60){
+                                    minutes = minutes + Math.floor(seconds / 60);
+                                    seconds = seconds % 60;
+                                }
+                                if(minutes >= 60){
+                                    hours = hours + Math.floor(minutes / 60);
+                                    minutes = minutes % 60;
+                                }
+                                var result = {
+                                    hours: hours,
+                                    minutes: minutes,
+                                    seconds:seconds
+                                }
+                                auditTrail.updateAuditTrails(botAuditTrail._id,{savedTime:result},function(err,data){
+                                    if(err){
+                                        logger.error(err);
+                                    }
+                                    count++;
+                                    if(count === botAuditTrail.length){
+                                        callback(null,botAuditTrail.length);
+                                        return;
+                                    }
+                                })
+                            }
+                        })(botAuditTrail[m]);
+                    }
                 }
-            }
-            var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
-            var result = {
-                hours: Math.floor(totalTimeInMinutes / 60),
-                minutes: totalTimeInMinutes % 60
-            }
-            if(auditType==='BOTOLD') {
-                botOld.updateBotsDetail(botId, {
-                    savedTime: result,
-                    executionCount: botAuditTrail.length
-                }, function (err, data) {
-                    if (err) {
-                        logger.error(err);
-                        callback(err, null);
-                        return;
-                    }
-                    callback(null, data);
+            },function(err,results){
+                if(err){
+                    callback(err,null);
                     return;
-                })
-            }else{
-                botDao.updateBotsDetail(botId, {
-                    savedTime: result,
-                    executionCount: botAuditTrail.length
-                }, function (err, data) {
-                    if (err) {
-                        logger.error(err);
-                        callback(err, null);
-                        return;
-                    }
-                    callback(null, data);
+                }else{
+                    callback(null,results);
                     return;
-                })
-            }
+                }
+            })
         } else {
             callback(null, botAuditTrail);
             return;

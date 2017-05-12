@@ -439,7 +439,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     });
                 },
                 totalSavedTimeForBots: function(callback){
-                    var days =0,hours = 0, minutes = 0;
+                    var days =0,hours = 0, minutes = 0, seconds = 0;
                     if(botsList.length > 0) {
                         for (var k = 0; k < botsList.length; k++) {
                             if(botsList[k].savedTime && botsList[k].savedTime.hours) {
@@ -448,7 +448,14 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                             if(botsList[k].savedTime && botsList[k].savedTime.minutes){
                                 minutes = minutes + botsList[k].savedTime.minutes;
                             }
+                            if(botsList[k].savedTime && botsList[k].savedTime.seconds){
+                                seconds = minutes + botsList[k].savedTime.seconds;
+                            }
                         }
+                    }
+                    if(seconds >= 60){
+                        minutes = minutes + Math.floor(seconds / 60);
+                        seconds = seconds % 60;
                     }
                     if(minutes >= 60){
                         hours = hours + Math.floor(minutes / 60);
@@ -461,7 +468,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var result = {
                         days:days,
                         hours:hours,
-                        minutes:minutes
+                        minutes:minutes,
+                        seconds:seconds
                     }
                     callback(null,result);
                 },

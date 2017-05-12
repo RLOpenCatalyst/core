@@ -114,7 +114,7 @@ botService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
+botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,savedTimeCheck,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -191,6 +191,28 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                         auditTrail.getAuditTrailList(queryObj, next);
                     }
                 });
+            }else if(savedTimeCheck === true){
+                delete queryObj.queryObj;
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        queryObj.queryObj = {
+                            auditType: 'BOT',
+                            actionStatus: 'success',
+                            isDeleted:false,
+                            'masterDetails.ordId': {$in:orgIds}
+                        };
+                        auditTrail.getAuditTrailList(queryObj, next);
+                    }else{
+                        queryObj.queryObj = {
+                            auditType: 'BOT',
+                            actionStatus: 'success',
+                            isDeleted:false
+                        };
+                        auditTrail.getAuditTrailList(queryObj, next);
+                    }
+                });
             }else{
                 settingService.getOrgUserFilter(userName,function(err,orgIds){
                     if(err){
@@ -205,7 +227,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             }
         },
         function(botList, next) {
-            addYmlFileDetailsForBots(botList,reqData,next);
+            addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
         },
         function(filterBotList, next) {
            async.parallel({
@@ -868,7 +890,7 @@ function encryptedParam(paramDetails,inputFormDetails, callback) {
     }
 }
 
-function addYmlFileDetailsForBots(bots,reqData,callback){
+function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
     if (bots.docs.length === 0) {
         return callback(null,bots);
     }else{
@@ -958,24 +980,26 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                                         scheduler: botDetails[0].scheduler,
                                         createdOn: botDetails[0].createdOn,
                                         lastRunTime: botDetails[0].lastRunTime,
-                                        savedTime: botDetails[0].savedTime,
+                                        savedTime: bot.savedTime,
                                         source: botDetails[0].source,
                                         execution:botDetails[0].execution,
                                         lastExecutionStatus: botDetails[0].lastExecutionStatus,
-                                        srnTicketNo: bot.auditTrailConfig.serviceNowTicketRefObj.ticketNo,
-                                        srnTicketLink: bot.auditTrailConfig.serviceNowTicketRefObj.ticketLink,
-                                        srnTicketShortDesc: bot.auditTrailConfig.serviceNowTicketRefObj.shortDesc,
-                                        srnTicketDesc: bot.auditTrailConfig.serviceNowTicketRefObj.desc,
-                                        srnTicketStatus: bot.auditTrailConfig.serviceNowTicketRefObj.state,
-                                        srnTicketPriority: bot.auditTrailConfig.serviceNowTicketRefObj.priority,
-                                        srnTicketResolvedBy: bot.auditTrailConfig.serviceNowTicketRefObj.resolvedBy,
-                                        srnTicketResolvedAt: bot.auditTrailConfig.serviceNowTicketRefObj.resolvedAt,
-                                        srnTicketCreatedOn: bot.auditTrailConfig.serviceNowTicketRefObj.createdOn,
-                                        srnTicketClosedAt: bot.auditTrailConfig.serviceNowTicketRefObj.closedAt,
-                                        srnTicketOpenedAt: bot.auditTrailConfig.serviceNowTicketRefObj.openedAt,
-                                        srnTicketUpdatedOn: bot.auditTrailConfig.serviceNowTicketRefObj.updatedOn,
-                                        srnTicketCategory: bot.auditTrailConfig.serviceNowTicketRefObj.category,
                                         actionLogId: bot.actionLogId
+                                    }
+                                    if(serviceNowCheck === true){
+                                        botsObj.srnTicketNo = bot.auditTrailConfig.serviceNowTicketRefObj.ticketNo;
+                                        botsObj.srnTicketLink = bot.auditTrailConfig.serviceNowTicketRefObj.ticketLink;
+                                        botsObj.srnTicketShortDesc = bot.auditTrailConfig.serviceNowTicketRefObj.shortDesc;
+                                        botsObj.srnTicketDesc = bot.auditTrailConfig.serviceNowTicketRefObj.desc;
+                                        botsObj.srnTicketStatus = bot.auditTrailConfig.serviceNowTicketRefObj.state;
+                                        botsObj.srnTicketPriority = bot.auditTrailConfig.serviceNowTicketRefObj.priority;
+                                        botsObj.srnTicketResolvedBy = bot.auditTrailConfig.serviceNowTicketRefObj.resolvedBy;
+                                        botsObj.srnTicketResolvedAt = bot.auditTrailConfig.serviceNowTicketRefObj.resolvedAt;
+                                        botsObj.srnTicketCreatedOn = bot.auditTrailConfig.serviceNowTicketRefObj.createdOn;
+                                        botsObj.srnTicketClosedAt = bot.auditTrailConfig.serviceNowTicketRefObj.closedAt;
+                                        botsObj.srnTicketOpenedAt = bot.auditTrailConfig.serviceNowTicketRefObj.openedAt;
+                                        botsObj.srnTicketUpdatedOn = bot.auditTrailConfig.serviceNowTicketRefObj.updatedOn;
+                                        botsObj.srnTicketCategory = bot.auditTrailConfig.serviceNowTicketRefObj.category;
                                     }
                                     if(bot.type === 'jenkins') {
                                         botsObj.isParameterized = bot.isParameterized;
