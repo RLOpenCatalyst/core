@@ -1,0 +1,53 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: ad_query_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Query_AD_User
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to search for an user details
+## Category -> Check, Run, Meta, Predict...
+functionality: User Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+
+input:
+  - form:
+    - name: ldap_server
+      label: Ldap Server
+      type: text
+      default: RLIndia.com
+    - name: username
+      label: Username
+      type: text
+      default: Administrator
+    - name: password
+      label: Password
+      type: text
+      default: W2FtvT3NwjG
+    - name: username
+      label: User Name
+      type: text
+      default: Testuser
+
+
+execution: 
+  - 
+    os: Windows
+    stage: script
+    entrypoint: AD_getUserinfo.py
+    type: python
+
+output:
+   logs:
+    - /var/log/AD_getUserinfo.log
+   
+   msgs:
+        text: "User ${username} query successfully."
+        mail: | 
+              Ldap Server : ${ldap_server}
+              Username : ${username}

@@ -1,0 +1,69 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: ad_create_user_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: AD_Create User
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Create new user in active directory.
+functionality:  Active Directory
+## Action -> Check, Run, Meta, Predict...
+action: Task
+## Type ->  Chef, Script, UI, etc...
+type: chef
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: None
+
+input:
+  - form:
+    - name: first_name 
+      label: First Name  
+      type: text
+      default: Rluser
+    - name: sur_name    
+      label: Sur Name 
+      type: text
+      default: test
+    - name: user_password 
+      label: User Password  
+      type: text
+      default: 
+    - name: domain_name   
+      label: Domain Name    
+      type: text
+      default: RLIndia.com
+    
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    stage: ad_create_user
+    runlist: ["recipe[ad_user_creation]"]
+    param: ${runlist}
+    type: cookbook
+    attributes:
+               ad_user_creation:
+                                name: "Durgesh"
+                                surname: "Sharma"
+                                password: "pass@123"
+                                domain_name: "RLIndia.com"
+    os: ubuntu
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Cookbook RunList ${runlist} is successful for domain ${domain_name}."
+        mail: | 
+              Domain Name   : ${domain_name}
+              First Name : ${first_name}
+              Sur Name : ${sur_name}
+              

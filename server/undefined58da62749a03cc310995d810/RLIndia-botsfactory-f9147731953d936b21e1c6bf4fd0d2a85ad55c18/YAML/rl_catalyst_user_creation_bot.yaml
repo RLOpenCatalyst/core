@@ -1,0 +1,75 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: rl_catalyst_user_creation_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst - User Creation
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute job to create new user in RLCatalyst
+## Category -> Check, Run, Meta, Predict...
+botCategory: Service Management
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+
+input:
+  - form:
+    - name: Catalyst URL
+      label: catalyst_url
+      type: text
+      default: http://neocatalyst.rlcatalyst.com
+    - name: Catalyst Username  
+      label: catalyst_username 
+      type: text
+      default: test
+    - name: Catalyst Password    
+      label: catalyst_password  
+      type: Password
+      default: xxx
+    - name: New LoginName  
+      label: new_login_name  
+      type: text
+      default: test
+    - name: EMail ID  
+      label: email_id  
+      type: text
+      default: test@gmail.com
+    - name: Password  
+      label: password 
+      type: Password
+      default: xxx
+    - name: Role  
+      label: role 
+      type: text
+      default: admin
+
+
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: userCreation.sh     ### {meta_type}_BOTs/{meta_id}/entrypoint
+    param: ${catalyst_url} ${catalyst_username} ${catalyst_password} ${new_login_name} ${email_id} ${password} ${role}
+    type: bash
+output:
+   logs:
+    - /var/log/rl_catalyst_user_creation_bot.log
+
+   msgs:
+        text: "New user ${new_login_name} is created in RLCatalyst."
+        mail: | 
+              New LoginName  : ${new_login_name}
+              EMail ID : ${email_id}
+              Role : ${Role}

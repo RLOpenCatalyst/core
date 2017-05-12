@@ -1,0 +1,53 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: ad_enableuser_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Enable_AD_User 
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to activate a disabled user account in AD server
+
+## Category -> Check, Run, Meta, Predict...
+functionality: User Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+
+input:
+  - form:
+    - name: ldap_server
+      label: Ldap Server
+      type: text
+      default: RLIndia.com
+    - name: username
+      label: Username
+      type: text
+      default: Administrator
+    - name: password
+      label: Password
+      type: text
+      default: W2FtvT3NwjG
+    - name: enableuser
+      label: Enable User
+      type: text
+      default: Testgroup55
+
+execution: 
+  - 
+    os: Windows
+    stage: script
+    entrypoint: AD_enableUser.py
+    type: python
+
+output:
+   logs:
+    - /var/log/AD_enableUser.log
+
+   msgs:
+        text: "User ${username} enabled successfully."
+        mail: | 
+              Ldap Server : ${ldap_server}
+              Username : ${username}

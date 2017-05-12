@@ -1,0 +1,84 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: aws_iam_user_creation_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name:  AWS IAM user creation
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute job to create new IAM user.
+## Category -> Check, Run, Meta, Predict...
+botCategory: User Management
+## action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user.
+
+input:
+  - form:
+    - name: AWS Accesskey
+      label: aws_access_key
+      type: Restricted
+      default: xxx
+    - name: AWS SecretKey
+      label: aws_secret_key
+      type: Restricted
+      default: xxx
+    - name: IAM Username
+      label: iam_user_name
+      type: text
+      default: TestCaseAdithya369
+    - name: IAM UserGroup
+      label: iam_user_group
+      type: text
+      default: Tester
+    - name: IAM User password
+      label: iam_user_password
+      type: Password
+      default: xxx
+    - name: Sender mail id
+      label: Sender_mail_id
+      type: text
+      default: aditya.srikanth@relevancelab.com
+    - name: reciver mail id
+      label: reciver_mail_id
+      type: text
+      default: sanjay.varma@relevancelab.com
+    - name: url to Login
+      label: url_to_login
+      type: text
+      default: https://549974527830.signin.aws.amazon.com/console 
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+
+execution: 
+  - 
+    os: ubuntu
+    stage: script
+    start: AWS IAM User.py
+    type: python
+
+output:
+  - images:
+    - /web/root/images/output1.img
+    - http://s3.amazonaws.com/mybucket/output2.img
+  - logs:
+    - /app/log/{runId}/botsExecution.log
+    - /var/log/tomcat/catlina.log
+  
+  - msgs:
+        text: "New IAM user {iam_user_name} is Created in the group ${iam_user_group}."
+        mail: | 
+              IAM Username : ${iam_user_name}
+              IAM UserGroup : ${iam_user_group}
+              url to Login : ${url_to_login}
+     

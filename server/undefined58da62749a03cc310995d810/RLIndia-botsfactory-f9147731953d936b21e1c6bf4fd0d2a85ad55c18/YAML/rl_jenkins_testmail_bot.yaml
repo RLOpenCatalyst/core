@@ -1,0 +1,63 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: rl_jenkins_testmail_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Jenkins TestMail BOT 
+## Desc - Few line brief about the BOT and its characteristics.
+desc:  RL Jenkins TestMail BOT
+functionality: Service Management
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: jenkins
+## Parameters check for taking parameters at run time.
+isParameterized: true
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+
+input:
+  - form:
+    - name: server_name
+      label: Server Name
+      type: list
+      default: jenkinsServer
+      reference: Catalyst.jenkinServer
+    - name: job_name
+      label: Job Name
+      type: text
+      default: testmail
+      reference: Catalyst.jobName
+    - name: job_url
+      label: Job URL
+      type: text
+      default: http://jenkins.rlcatalyst.com/job/testmail/
+      reference: Catalyst.jobURL
+      
+execution: 
+  - 
+    os: ubuntu
+    stage: jenkins
+    entrypoint: testmail
+    param: ${job_name} ${server_name}
+    type: jenkins
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+
+output:
+   logs:
+    - /var/log/${bot_run_id}/jenkin_operation.log
+
+   msgs:
+        text: "${job_name} job is successfully build on ${server_name}"
+        mail: | 
+              JOB Name  : ${job_name}
+              Server Name : ${server_name}

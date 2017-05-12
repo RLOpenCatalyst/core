@@ -1,0 +1,62 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: catalyst_docker_image_creation_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Catalyst Docker Image Creation
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Creation of catalyst docker image using packer.
+## Category -> Check, Run, Meta, Predict...
+botCategory: Application Deployment
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 15
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+
+input:
+  - form:
+    - name: Release Number
+      label: release_number
+      type: text
+      default: 4.0.0-stage
+    - name: Docker Usename  
+      label: docker_usename 
+      type: text
+      default: relevancelab
+    - name: Docker Password    
+      label: docker_password  
+      type: text
+      default: password
+    - name: Docker Email ID   
+      label: docker_email_id  
+      type: text
+      default: puneet@relevancelab.com
+
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: DockerPackage.sh     ### {meta_type}_BOTs/{meta_id}/entrypoint
+    param: ${release_number} ${docker_usename} ${docker_password} ${docker_email_id}
+    type: bash
+output:
+   logs:
+    - /var/log/catalyst_docker_image_creation_bot.log
+
+   msgs:
+        text: "Catalyst docker image is created for RLCatalyst latest release ${release_number}."
+        mail: | 
+              Release Number  : ${release_number}
+              Docker Usename : ${docker_usename}
+              Docker Email ID : ${docker_email_id}

@@ -1,0 +1,65 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: jira_create_ticket_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: JIRA - Create Ticket
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute job to create new jira ticket.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+input:
+  - form:
+    - name: JIRA Url
+      label: jira_url
+      type: text
+      default: https://adityasrikanth.atlassian.net/rest/api/2/issue  
+    - name: Username
+      label: user_name
+      type: text
+      default: admin  
+    - name: Password
+      label: password
+      type: Password
+      default: xxxx
+    - name: Service Name
+      label: service_name
+      type: text
+      default: nginx
+    - name: Server IP
+      label: server_ip
+      type: text
+      default: "127.0.0.1"
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: JIRA Ticket.py
+    type: python
+
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Jira ticket created successfully for {service_name}."
+        mail: | 
+              JIRA Url : ${jira_url}
+              Service Name  : ${service_name}
+              Server IP : ${server_ip}
+              

@@ -1,0 +1,64 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: pagerduty_create_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Pagerduty Create
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to create pagerduty incident.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+
+input:
+  - form:
+    - name: service_key
+      label: Service Key
+      type: text
+      default: e71da28b29424d3780f482bfb4bf1abb
+    - name: event_type
+      label: Event Type
+      type: text
+      default: trigger
+    - name: description
+      label: Description
+      type: text
+      default: Sample Pager Duty Creation
+    - name: client
+      label: Client
+      type: text
+      default: RLCatalyst Telemetry
+    - name: client_url
+      label: Client Url
+      type: text
+      default: https://telemetry.rlcatalyst.com/
+    - name: details
+      label: Details
+      type: text
+      default: Sample Pager Duty Creation
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: pagerdutyCreate.py
+    param: ${service_key} ${event_type} ${description} ${client} ${client_url} ${details}
+    type: python
+
+output:
+   logs:
+    - stdout
+   filters: 
+        - variable: incident_key
+          filter: \"incident_key\":\"(.*?)\"
+
+   msgs:
+        text: "Incident Key ${incident_key} created in pager duty."
+        mail: | 
+              Incident key : ${incident_key}

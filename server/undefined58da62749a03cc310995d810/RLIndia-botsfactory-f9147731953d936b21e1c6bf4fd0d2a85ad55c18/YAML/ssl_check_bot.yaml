@@ -1,0 +1,41 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: ssl_check_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Ssl Check
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to verify ssl expiry.
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+input:
+  - form:
+    - name: filepath
+      label: File Path
+      type: text
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: sslcheck.py     ### {meta_type}_BOTs/{meta_id}/entrypoint
+    param: ${filepath}
+    type: python
+output:
+   logs:
+    - stdout
+   filters: 
+        - variable: totalNumberOfCertificates
+          filter: \"totalNumberOfCertificates\":\"(.*?)\"
+        - variable: machine
+          filter: \"machine\":\[(.*?)\]
+
+   msgs:
+        text: "Total number of certificates verified is ${totalNumberOfCertificates} for a machine ${machine}."
+        mail: | 
+              Total number of certificates : ${totalNumberOfCertificates}
+              Machine : ${machine}

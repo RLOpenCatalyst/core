@@ -1,0 +1,62 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: service_stop_demo_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Service Stop Demo
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Executes job to stop services.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+## severity - warning, critical, any other value - 99%
+input:
+  - form:
+    - name: catalyst_url
+      label: Catalyst URL
+      type: text
+      default: https://neo.rlcatalyst.com/
+    - name:  catalyst_user_name
+      label: Catalyst UserName
+      type: text
+      default: superadmin
+    - name: catalyst_password
+      label: Catalyst Password
+      type: text
+      default: superadmin@123
+    - name: nginx_host_ip
+      label: Nginx Host IP
+      type: text
+      default: 52.53.112.235
+    - name: service_name
+      label: ServiceName
+      type: text
+      default: nginx
+    - name: action
+      label: Action
+      type: text
+      default: stop
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: stopservice.sh
+    param: ${catalyst_url} ${catalyst_user_name} ${catalyst_password} ${nginx_host_ip} ${service_name} ${action}
+    type: Bash
+
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Service ${service_name} is successfully stopped on the node ${nginx_host_ip}."
+        mail: | 
+              Name of the Service  : ${service_name}
+              Node : ${nginx_host_ip}

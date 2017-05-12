@@ -1,0 +1,87 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: rlcatalyst_create_org_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst - Create Org
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Creates new organization in RLCatalyst Server
+functionality:  Service Management
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: jenkins
+##isParameterized is true when there are parameteres available
+isParameterized: true
+##manualExecutionTime is defined in minutes
+manualExecutionTime: 5
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+
+input:
+  - form:
+    - name: server_name
+      label: Server Name
+      type: list
+      default: BOTJenkins
+      reference: Catalyst.jenkins
+    - name: job_name
+      label: Job Name     
+      type: text
+      default: RLCatalyst - Create Org
+      reference: Catalyst.jobName
+    - name: job_url
+      label: Job URL
+      type: text
+      default: http://52.8.150.108:8080/job/Testing_Catalyst_OrgCreationDeletion/
+      reference: Catalyst.jobURL
+    - name:  runner
+      label: Runner
+      type: text
+      default: "CreateOrgRunner"
+    - name:  catalyst_url
+      label: Catalyst Url
+      type: text
+      default: "http://neocatalyst.rlcatalyst.com/"
+    - name:  catalyst_username
+      label: Catalyst Username
+      type: text
+      default: "superadmin"
+    - name:  catalyst_password
+      label: Catalyst Password
+      type: text
+      default: "superadmin@123"
+    - name:  catalyst_Orgname
+      label: Catalyst Orgname
+      type: text
+      default: "RelevanceLab"
+    - name:  catalyst_OrgDomainName
+      label: Catalyst Org Domain Name
+      type: text
+      default: "www.relevancelab.com"
+
+execution: 
+  - 
+    os: ubuntu
+    stage: jenkins
+    entrypoint: RLCatalyst - Create Org
+    param: ${job_name} ${server_name} ${runner} ${catalyst_url} ${catalyst_username} ${catalyst_password} ${catalyst_Orgname} ${catalyst_OrgDomainName} 
+    type: jenkins
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+
+output:
+   logs:
+    - /var/log/${bot_run_id}/jenkin_operation.log
+   msgs:
+        text: "${job_name} is successfully executed on ${server_name}"
+        mail: | 
+              Job Name  : ${job_name}
+              Server Name : ${server_name}
+              

@@ -1,0 +1,64 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: deploy_catalyst_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Deploy Catalyst
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Installs Catalyst Application
+functionality:  Application Deployment
+## Action -> Check, Run, Meta, Predict...
+action: Task
+## Type ->  Chef, Script, UI, etc...
+type: chef
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: None
+
+input:
+  - form:
+    - name: nexus_repo_url  
+      label: Nexus Repo Url  
+      type: text
+      default: "http://nexus.rlcatalyst.com/nexus/service/local/repositories/catalyst/content/org/catalyst/D4D/3.04.150/D4D-3.04.150.zip"
+    - name: version  
+      label: Version
+      type: text
+      default: "3.04.150"
+    - name: callback_url_for_app_data 
+      label: Callback URL for app data  
+      type: text
+      default: "http://neocatalyst.rlcatalyst.com/app-deploy"
+    - name: application_node_iP  
+      label: Application Node IP   
+      type: text
+      default: "2.3.4.5"
+    
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    stage: service_stop
+    runlist: ["recipe[deploy_catalyst_3]"]
+    param: ${runlist}
+    type: cookbook
+    attributes: null
+    os: ubuntu
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Cookbook RunList ${runlist} is successfully ${action} {name_of_the_service} on Nodes ${nodes}."
+        mail: | 
+              Name of the Service  : ${name_of_the_service}
+              Action : ${action}
+              Nodes : ${nodes}
+              Runlist : ${runlist}

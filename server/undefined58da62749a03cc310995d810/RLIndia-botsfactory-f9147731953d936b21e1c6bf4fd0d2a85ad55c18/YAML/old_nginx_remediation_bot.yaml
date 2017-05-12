@@ -1,0 +1,60 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id:  old_nginx_remediation_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: OLD - Nginx Remediation
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to remediate Nginx failure.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+input:
+  - form:
+    - name: Nginx Host IP
+      label: nginx_host_ip
+      type: text
+      default: "52.52.242.96"
+    - name: Nginx Instance ID
+      label: nginx_instance_id
+      type: text
+      default: "5893a3c6626caede1e9618e8"
+    - name: Service name
+      label: service_name
+      type: text
+      default: "sudo service nginx restart"
+
+execution: 
+  - 
+    os: ubuntu
+    stage: script
+    entrypoint: Remediation2.py
+    type: python
+
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Service ${service_name} with ip ${nginx_host_ip} is restarted successfully."
+        mail: | 
+              Nginx Host IP : ${nginx_host_ip}
+              Nginx Instance ID : {nginx_instance_id}
+              Service name : {service_name}
+
+
+              
+              

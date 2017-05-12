@@ -1,0 +1,56 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: ad_delete_user_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: AD - Delete User
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute job to delete user from Active Directory
+functionality:  Active Directory
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: chef
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: None
+
+input:
+  - form:
+    - name: First Name
+      label: first_name
+      type: text
+      default: Adithya
+    - name: Sur Name 
+      label: sur_name  
+      type: text
+      default: Srikanth
+
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    stage: ad_delete_user
+    runlist: ["recipe[ad_user_deletion]"]
+    param: ${runlist}
+    type: cookbook
+    attributes: ${first_name} ${sur_name} 
+    os: ubuntu
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "AD user ${first_name} is successfully deleted."
+        mail: | 
+              First name : ${first_name}
+              Sur Name : ${sur_name}

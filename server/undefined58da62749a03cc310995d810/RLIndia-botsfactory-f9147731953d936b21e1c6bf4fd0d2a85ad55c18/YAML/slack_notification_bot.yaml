@@ -1,0 +1,64 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: slack_notification_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Slack Notification
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to give slack notification.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+input:
+  - form:
+    - name: endpoint
+      label: Endoint
+      type: text
+      default: https://hooks.slack.com/services/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
+    - name: channelname
+      label: Channel Name
+      type: text
+      default: botsfactory
+    - name: message
+      label: Message
+      type: text
+      default: Testmsg
+    - name: username
+      label: User Name
+      type: text
+      default: Alert-BOT
+    - name: icon 
+      label: Icon 
+      type: text
+      default: ":bell:"
+    - name: color
+      label: Color
+      type: text
+      default: "danger"
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: slackNotification.py
+    param: ${endpoint} ${channelname} ${message} ${username} ${icon} ${color}
+    type: python
+
+output:
+   logs:
+    - stdout
+   filters: 
+        - variable: slack_output
+          filter: \"slackOutput\":\"(.*?)\"
+
+   msgs:
+        text: "Slack Output is ${slack_output}."
+        mail: | 
+              Slack Output : ${slack_output}

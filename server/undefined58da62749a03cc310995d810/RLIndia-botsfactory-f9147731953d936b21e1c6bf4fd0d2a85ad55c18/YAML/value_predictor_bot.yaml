@@ -1,0 +1,60 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: value_predictor_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Value_Predictor_bot 
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to predict value.
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+input:
+  - form:
+    - name: filepath
+      label: File Path
+      type: text
+      default: /tmp/diskUsage.csv
+    - name: threshold
+      label: Threshold
+      type: text
+      default: 100
+    - name: timeUnit
+      label: TimeUnit
+      type: text
+      default: months
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: valuePredictor.py
+    param: ${filepath} ${threshold} ${timeUnit}
+    type: python
+
+output:
+
+   logs:
+    - stdout
+
+   filters: 
+        - variable: growthRate
+          filter: \"growthRate\":(.*?),
+        - variable: threshold
+          filter: \"threshold\":(.*?),
+        - variable: timeUnit
+          filter: \"timeUnit\":\"(.*?)\"
+        - variable: expectedTime
+          filter: \"expectedTime\":([^\s]+)
+    
+   msgs:
+        text: "Growth Rate is ${growthRate}. The expected timeframe to achieve ${threshold} value is ${expectedTime} ${timeUnit}."
+        mail: | 
+              Growth Rate  : ${growthRate}
+              Threshold : ${threshold}
+              Time Unit: ${timeUnit}
+              Expected Time: ${expectedTime}
+       

@@ -1,0 +1,53 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: cft_stack_delete_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: CFT Stack Delete
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to delete CFT stack items.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+
+input:
+  - form:
+    - name: Catalyst URL
+      label: catalyst_url
+      type: text
+      default: http://neocatalyst.rlcatalyst.com  
+    - name: Catalyst Username
+      label: catalyst_username
+      type: text
+      default: Admin2
+    - name: Catalyst Password
+      label: catalyst_password
+      type: text
+      default: pass@123
+    - name: Stack name
+      label: stack_name
+      type: text
+      default: fidelity
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: Delete Stack.py
+    param: ${catalyst_url} ${catalyst_username} ${catalyst_password} ${stack_name}
+    type: python
+
+output:
+   logs:
+    - stdout
+
+   msgs:
+        text: "Deleted Stack item ${stack_name}."
+        mail: | 
+              Stack name : ${stack_name}

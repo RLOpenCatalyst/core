@@ -1,0 +1,222 @@
+[
+  {
+    "line": 2,
+    "elements": [
+      {
+        "line": 4,
+        "name": "As a Admin I login to Jira Account and Create a User",
+        "description": "",
+        "id": "as-a-admin-i-login-to-jira-account-and-create-a-user;as-a-admin-i-login-to-jira-account-and-create-a-user",
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "duration": 89847437647,
+              "status": "passed"
+            },
+            "comments": [
+              {
+                "line": 5,
+                "value": "#Given I login to jira using \"\u003cusername\u003e\" and access credentials \"\u003cpassword\u003e\""
+              }
+            ],
+            "line": 6,
+            "name": "I login to jira using username and access credentials password",
+            "match": {
+              "location": "LoginSteps.iLoginToJiraUsingUsernameAndAccessCredentialsPassword()"
+            },
+            "keyword": "Given "
+          },
+          {
+            "result": {
+              "duration": 13707031554,
+              "status": "passed"
+            },
+            "line": 8,
+            "name": "I click on \"Administration\" option at top right",
+            "match": {
+              "arguments": [
+                {
+                  "val": "Administration",
+                  "offset": 12
+                }
+              ],
+              "location": "JiraSteps.iClickOnOptionAtTopRight(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 5570566195,
+              "status": "passed"
+            },
+            "line": 9,
+            "name": "I Click on \"User management\" option",
+            "match": {
+              "arguments": [
+                {
+                  "val": "User management",
+                  "offset": 12
+                }
+              ],
+              "location": "JiraSteps.iClickOnOption(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 15153177010,
+              "status": "passed"
+            },
+            "line": 10,
+            "name": "I Enter the \"\u003cFullName\u003e\" of the user",
+            "match": {
+              "arguments": [
+                {
+                  "val": "\u003cFullName\u003e",
+                  "offset": 13
+                }
+              ],
+              "location": "JiraSteps.iEnterTheOfTheUser(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 12343618819,
+              "status": "passed"
+            },
+            "line": 11,
+            "name": "I Enter the \"\u003cEmailAddress\u003e\"",
+            "match": {
+              "arguments": [
+                {
+                  "val": "\u003cEmailAddress\u003e",
+                  "offset": 13
+                }
+              ],
+              "location": "JiraSteps.iEnterThe(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 3316213766,
+              "status": "passed"
+            },
+            "line": 12,
+            "name": "I Click on \"Create users\" button",
+            "match": {
+              "arguments": [
+                {
+                  "val": "Create users",
+                  "offset": 12
+                }
+              ],
+              "location": "JiraSteps.iClickOnButton(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 5801099710,
+              "status": "passed"
+            },
+            "line": 13,
+            "name": "I Close the Unwanted Popup",
+            "match": {
+              "location": "JiraSteps.iCloseTheUnwantedPopup()"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 2514679049,
+              "status": "passed"
+            },
+            "line": 14,
+            "name": "I verify the created user \"\u003cFullName\u003e\" in the table",
+            "match": {
+              "arguments": [
+                {
+                  "val": "\u003cFullName\u003e",
+                  "offset": 27
+                }
+              ],
+              "location": "JiraSteps.iVerifyTheCreatedUserInTheTable(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 4149682406,
+              "status": "passed"
+            },
+            "line": 15,
+            "name": "I Click on the created user \"\u003cFullName\u003e\" link",
+            "match": {
+              "arguments": [
+                {
+                  "val": "\u003cFullName\u003e",
+                  "offset": 29
+                }
+              ],
+              "location": "JiraSteps.iClickOnTheCreatedUserLink(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 4092334968,
+              "status": "passed"
+            },
+            "comments": [
+              {
+                "line": 16,
+                "value": "#And I Click on Deactivate dropdown"
+              },
+              {
+                "line": 17,
+                "value": "#And I Select the \"Delete\" option"
+              },
+              {
+                "line": 18,
+                "value": "#And I Confirm the User Deletion by clicking on \"Delete\" button"
+              }
+            ],
+            "line": 19,
+            "name": "I Click on UserProfile Account",
+            "match": {
+              "location": "JiraSteps.iClickOnUserProfileAccount()"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 5878732960,
+              "status": "passed"
+            },
+            "line": 20,
+            "name": "I Sign out of Jira Account",
+            "match": {
+              "location": "LoginSteps.iSignOutOfJiraAccount()"
+            },
+            "keyword": "And "
+          }
+        ]
+      }
+    ],
+    "name": "As a Admin I login to Jira Account and Create a User",
+    "description": "",
+    "id": "as-a-admin-i-login-to-jira-account-and-create-a-user",
+    "keyword": "Feature",
+    "uri": "src/test/resources/catalyst/settings/JiraScenarios/createJiraUser.feature",
+    "tags": [
+      {
+        "line": 1,
+        "name": "@Jira"
+      }
+    ]
+  }
+]

@@ -1,0 +1,81 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: jira_delete_user_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: JIRA - Delete User
+## Desc - Few line brief about the BOT and its characteristics.
+desc:  Deletes existing user from JIRA
+functionality: User Management
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: jenkins
+##isParameterized is true when there are parameteres available
+isParameterized: true
+##manualExecutionTime is defined in minutes
+manualExecutionTime: 5
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+
+input:
+  - form:
+    - name: server_name   
+      label: Server Name
+      type: list
+      default: BOTJenkins
+      reference: Catalyst.jenkins
+    - name: job_name
+      label: Job Name  
+      type: text
+      default: JIRA - Delete User
+      reference: Catalyst.jobName
+    - name: job_url
+      label: Job URL
+      type: text
+      default: http://52.8.150.108:8080/job/Jira_UserDeletion/
+      reference: Catalyst.jobURL
+    - name:  jira_url
+      label: Jira Url
+      type: String
+      default: "https://sanjay.atlassian.net/login"
+    - name:  jira_username
+      label: Jira Username
+      type: String
+      default: "sanjay.varma@relevancelab.com"
+    - name:  jira_password
+      label: Jira Password
+      type: String
+      default: "sanjaykumar"
+    - name:  jira_new_username
+      label: Jira New Username
+      type: String
+      default: "kaushik"
+
+execution: 
+  - 
+    os: ubuntu
+    stage: jenkins
+    entrypoint: JIRA - Delete User
+    param: ${job_name} ${server_name} ${jira_url} ${jira_username} ${jira_password} ${jira_new_username} 
+    type: jenkins
+
+      
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+
+output:
+   logs:
+    - /var/log/${bot_run_id}/jenkin_operation.log
+   msgs:
+        text: "${job_name} is successfully executed on ${server_name}"
+        mail: | 
+              JOB Name  : ${job_name}
+              Server Name : ${server_name}
+              

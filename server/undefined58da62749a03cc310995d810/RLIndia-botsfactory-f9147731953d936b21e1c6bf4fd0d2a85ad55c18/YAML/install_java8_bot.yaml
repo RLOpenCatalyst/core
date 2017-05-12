@@ -1,0 +1,42 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: install_java8_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Install_Java8
+## Desc - Few line brief about the BOT and its characteristics.
+desc:  Launches ubuntu machine and installs Java
+functionality:  Service Management
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: chef
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: None
+
+input:
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    stage: install_java8
+    runlist: ["recipe[java8]"]
+    param: ${runlist}
+    type: cookbook
+    attributes: null
+    os: ubuntu
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Cookbook RunList ${runlist} is successfully executed on the Service ${name_of_the_service}."
+       

@@ -1,0 +1,9 @@
+{
+  "client": {
+    "name": "<%= @sensu_id %>",
+    "address": "<%= @node[:ipaddress] %>",
+    "subscriptions": [
+      "<%= @sensu_id %>","test"
+    ]
+  }
+}
