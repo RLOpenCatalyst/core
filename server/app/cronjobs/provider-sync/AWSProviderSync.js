@@ -13,6 +13,7 @@ var assignedInstancesDao = require('_pr/model/unmanaged-instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var noticeService = require('_pr/services/noticeService.js');
+var resourceMapService = require('_pr/services/resourceMapService.js');
 
 
 
@@ -96,7 +97,19 @@ function awsProviderSyncForProvider(provider,orgName) {
             });
         },
         function(assignedInstances,next){
-            tagMappingSyncForInstances(assignedInstances.assignedInstance,provider,'assigned',next);
+            async.parallel({
+                tagMappingSync: function (callback) {
+                    tagMappingSyncForInstances(assignedInstances.assignedInstance, provider, 'assigned', callback);
+                },
+                resourceMapSync: function (callback) {
+                    resourceMapSync(callback);
+                }
+            },function(err,results){
+                if(err){
+                    next(err,null);
+                }
+                next(null,results);
+            });
         }
     ],function (err, results) {
         if (err) {
@@ -462,18 +475,6 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
                                                    logger.error("Error in Notification Service, ",err);
                                                }
                                            });
-                                           var domainName = instance.domainName?instance.domainName:null;
-                                           if(domainName !== null) {
-                                               var resourceObj = {
-                                                   stackStatus:"DELETED"
-                                               }
-                                               var resourceMapService = require('_pr/services/resourceMapService.js');
-                                               resourceMapService.updateResourceMap(domainName, resourceObj, function (err, resourceMap) {
-                                                   if (err) {
-                                                       logger.error("Error in updating Resource Map.", err);
-                                                   }
-                                               });
-                                           }
                                            if(instanceCount === instances.length){
                                                callback(null,instances);
                                                return;
@@ -570,5 +571,88 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
     }else{
         callback(null,ec2Instances);
     }
+
+}
+
+function resourceMapSync(callback){
+    async.waterfall([
+        function(next){
+            resourceMapService.getResourceMaps(next);
+        },
+        function(resourceMaps,next){
+            if(resourceMaps.length >0){
+                resourceMaps.forEach(function(resourceMap){
+                    if(resourceMap.type === 'SoftwareStack' || resourceMap.type === 'OSImage'){
+                        instancesDao.getInstanceById(resourceMap.resources[0],function(err,instanceData){
+                            if(err){
+                                logger.error(err);
+                            }else if(instanceData.length > 0){
+                                var resourceMapState = null;
+                                if(instanceData[0].instanceState === 'terminated'){
+                                    resourceMapState ='Terminated';
+                                }else if(instanceData[0].instanceState === 'stopped'){
+                                    resourceMapState ='Stopped';
+                                }else if(instanceData[0].instanceState === 'running'){
+                                    resourceMapState ='Running';
+                                }else{
+                                    logger.debug("Invalid state for ResourceMap: "+instanceData[0].instanceState);
+                                }
+                                if(resourceMapState !== null){
+                                    resourceMapService.updateResourceMap(resourceMap.name,{state:resourceMapState},function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                        }
+                                    })
+                                }
+                            }else{
+                                logger.debug("No Records are available in DB against Instance : "+resourceMap.resources[0]);
+                            }
+                        });
+                    }else if(resourceMap.type === 'CloudFormation'){
+                        instancesDao.getInstances(resourceMap.resources,function(err,instances){
+                            if(err){
+                                logger.error(err);
+                            }else if(instances.length > 0){
+                                var resourceMapStateList = [],resourceMapState=null;
+                                instances.forEach(function(instance){
+                                    resourceMapStateList.push(instance.instanceState);
+                                })
+                                if(resourceMapStateList.indexOf('running') >= 0){
+                                    resourceMapState ='Running';
+                                }else if(resourceMapStateList.indexOf('stopped') >= 0){
+                                    resourceMapState ='Stopped';
+                                }else if(resourceMapStateList.indexOf('terminated') >= 0){
+                                    resourceMapState ='Terminated';
+                                }else{
+                                    logger.debug("Invalid state for ResourceMap: "+instanceData[0].instanceState);
+                                }
+                                if(resourceMapState !== null){
+                                    resourceMapService.updateResourceMap(resourceMap.name,{state:resourceMapState},function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                        }
+                                    })
+                                }
+                            }else{
+                                logger.debug("No Records are available in DB against Instance : "+resourceMap.resources[0]);
+                            }
+                        });
+                    }else{
+                        logger.debug("Un-Supported Type : "+resourceMap.type);
+                    }
+                });
+            }else{
+                next(null,resourceMaps);
+            }
+        }
+    ],function(err,data){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,data);
+            return;
+        }
+    })
 
 }

@@ -587,7 +587,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             return;
                         }else if(domainName !== null){
                             var resourceObj = {
-                                stackStatus:"DELETED"
+                                state:"Deleted"
                             }
                             var resourceMapService = require('_pr/services/resourceMapService.js');
                             resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){

@@ -210,13 +210,13 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                     }
                     if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                         var resourceMapObj = {
-                            stackName: domainName,
-                            stackType: "SoftwareStack",
-                            stackStatus: "CREATED",
+                            name: domainName,
+                            type: "SoftwareStack",
+                            state: "Initializing",
                             resources: []
                         }
                         if(launchParams.blueprintData.templateType !== 'chef'){
-                            resourceMapObj.stackType = "OSImage";
+                            resourceMapObj.type = "OSImage";
                         }
                         resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
                             if (err) {
@@ -468,7 +468,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     logger.error("waitForInstanceRunnnigState returned an error  >>", err);
                                     if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                         var resourceObj = {
-                                            stackStatus:"ERROR",
+                                            state:"Error",
                                             resources:[
                                                 {
                                                     id:instance.id,
@@ -583,7 +583,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         logger.error('intance wait failed ==> ', err);
                                         if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                             var resourceObj = {
-                                                stackStatus:"ERROR",
+                                                state:"Error",
                                                 resources:[
                                                     {
                                                         id:instance.id,
@@ -675,7 +675,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                             if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                                 var resourceObj = {
-                                                    stackStatus:"ERROR",
+                                                    state:"Error",
                                                     resources:[
                                                         {
                                                             id:instance.id,
@@ -801,7 +801,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                     awsLogger.error("Bootstrap failed");
                                                     if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                                         var resourceObj = {
-                                                            stackStatus:"ERROR",
+                                                            state:"Error",
                                                             resources:[
                                                                 {
                                                                     id:instance.id,
@@ -896,7 +896,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 logger.debug("Domain name is updated successfully");
                                                             });
                                                             var resourceObj = {
-                                                                stackStatus:"COMPLETED",
+                                                                state:"Running",
                                                                 resources:[
                                                                     {
                                                                         id:instance.id,
@@ -1026,7 +1026,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         }
                                                         if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                                             var resourceObj = {
-                                                                stackStatus:"ERROR",
+                                                                state:"Error",
                                                                 resources:[
                                                                     {
                                                                         id:instance.id,

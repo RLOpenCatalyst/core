@@ -28,7 +28,7 @@ var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
 var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
 var jenkinsExecutor = require('_pr/engine/bots/jenkinsExecutor.js');
-var fileIo = require('_pr/lib/utils/fileio');
+var apiExecutor = require('_pr/engine/bots/apiExecutor.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
@@ -311,19 +311,24 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                                 auditTrail.actionId = uuid.v4();
                                 if (botDetails[0].type === 'script') {
                                     scriptExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
-                                } else if (botDetails[0].type === 'chef') {
+                                }else if (botDetails[0].type === 'chef') {
                                     chefExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
-                                } else if (botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint') {
+                                }else if (botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint') {
                                     if(schedulerCallCheck === true) {
                                         reqBody = botDetails[0].params;
                                     }
                                     blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
-                                } else if (botDetails[0].type === 'jenkins') {
+                                }else if (botDetails[0].type === 'jenkins') {
                                     if(schedulerCallCheck === true) {
                                         reqBody = botDetails[0].params;
                                     }
                                     jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
-                                } else {
+                                }else if (botDetails[0].type === 'api') {
+                                    if(schedulerCallCheck === true) {
+                                        reqBody = botDetails[0].params;
+                                    }
+                                    apiExecutor.execute(botDetails[0],reqBody,auditTrail, userName,botRemoteServerDetails, next);
+                                }else {
                                     var err = new Error('Invalid BOT Type');
                                     err.status = 400;
                                     err.msg = 'Invalid BOT Type';
