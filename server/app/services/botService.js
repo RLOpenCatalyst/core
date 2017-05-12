@@ -28,10 +28,11 @@ var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
 var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
 var jenkinsExecutor = require('_pr/engine/bots/jenkinsExecutor.js');
-var fileIo = require('_pr/lib/utils/fileio');
+var apiExecutor = require('_pr/engine/bots/apiExecutor.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
+
 
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
@@ -41,85 +42,6 @@ const errorType = 'botService';
 
 var botService = module.exports = {};
 
-botService.createNew = function createNew(reqBody,callback) {
-    fileUpload.getReadStreamFileByFileId(reqBody.fileId, function (err, fileDetail) {
-        if (err) {
-            logger.error("Error in reading YAML File.");
-            callback(err, null);
-            return;
-        } else {
-            var fileName = uuid.v4() + '_' + fileDetail.fileName;
-            var desPath = appConfig.scriptDir + fileName;
-            fileIo.writeFile(desPath, fileDetail.fileData, false, function (err) {
-                if (err) {
-                    logger.error("Unable to write file");
-                    callback(err, null);
-                    return;
-                } else {
-                    yamlJs.load(desPath, function (result) {
-                        if (result !== null) {
-                            var paramObj = {};
-                            if (reqBody.type === 'chef') {
-                                paramObj = {
-                                    data: {
-                                        runlist: reqBody.runlist,
-                                        attributes: reqBody.attributes
-                                    }
-                                }
-                            } else if (reqBody.type === 'script') {
-                                paramObj = {
-                                    scriptId: reqBody.scriptId,
-                                    data: reqBody.params
-                                }
-                            } else if (reqBody.type === 'jenkins') {
-                                paramObj = {
-                                    jenkinsServerId: reqBody.jenkinsServerId,
-                                    jenkinsBuildName: reqBody.jenkinsBuildName,
-                                    data: reqBody.params
-                                }
-                            } else {
-                                paramObj = paramObj;
-                            }
-                            var botsObj = {
-                                ymlJson: result,
-                                name: result.name,
-                                id: result.id,
-                                desc: result.desc,
-                                category: reqBody.category,
-                                action: result.action,
-                                execution: result.execution,
-                                type: reqBody.type,
-                                subType: reqBody.subType,
-                                inputFormFields: result.input[0].form,
-                                isParameterized:result.isParameterized?result.isParameterized:false,
-                                outputOptions: result.output,
-                                ymlDocFileId: reqBody.fileId,
-                                orgId: reqBody.orgId,
-                                orgName: reqBody.orgName,
-                                manualExecutionTime: reqBody.standardTime,
-                                params: paramObj,
-                                source: "Catalyst"
-                            }
-                            botDao.createNew(botsObj, function (err, data) {
-                                if (err) {
-                                    logger.error(err);
-                                    callback(err, null);
-                                    removeScriptFile(desPath);
-                                    return;
-                                } else {
-                                    callback(null, data);
-                                    removeScriptFile(desPath);
-                                    return;
-                                }
-                            });
-
-                        }
-                    })
-                }
-            });
-        }
-    });
-}
 
 botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
     if(botObj.scheduler  && botObj.scheduler !== null && Object.keys(botObj.scheduler).length !== 0 && botObj.isScheduled && botObj.isScheduled === true) {
@@ -287,11 +209,11 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             callback(err,null);
             return;
         }
-        var resultObj = {            
-            bots : results.botList.bots,            
-            metaData : results.botList.metaData,            
-            botSummary: results.botSummary        
-        }        
+        var resultObj = {
+            bots : results.botList.bots,
+            metaData : results.botList.metaData,
+            botSummary: results.botSummary
+        }
         callback(null,resultObj);
         return;
     });
@@ -307,7 +229,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
         function(bots,next){
             if(bots.length > 0) {
                 botId = bots[0]._id;
-                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false) {
+                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef' || bots[0].type === 'api') && schedulerCallCheck === false) {
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
@@ -316,7 +238,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                         } else if (botServerDetails !== null) {
                             botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                             botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                            encryptedParam(reqBody, next);
+                            next(null,bots);
                         } else {
                             var error = new Error();
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
@@ -326,7 +248,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                     });
 
                 } else {
-                    next(null, reqBody);
+                    next(null,bots);
                 }
             }else{
                 var error = new Error();
@@ -334,22 +256,6 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                 error.status = 403;
                 next(error, null);
             }
-        },
-        function(paramObj,next) {
-            if(schedulerCallCheck === false) {
-                var botObj = {
-                    params:paramObj
-                }
-                if(reqBody.nodeIds){
-                    botObj.params.nodeIds = reqBody.nodeIds;
-                }
-                botDao.updateBotsDetail(botId,botObj, next);
-            }else{
-                next(null,paramObj);
-            }
-        },
-        function(updateStatus,next) {
-            botDao.getBotsById(botId, next);
         },
         function(botDetails,next) {
             if(botDetails.length > 0){
@@ -382,18 +288,27 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                             },
                             function(auditTrail,next) {
                                 var uuid = require('node-uuid');
-                                auditTrail.actionId = uuid.v4();
+                                auditTrail.actionId = uuid.v4();                          
                                 if (botDetails[0].type === 'script') {
-                                    scriptExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
-                                } else if (botDetails[0].type === 'chef') {
-                                    chefExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
-                                } else if (botDetails[0].type === 'blueprints') {
-                                    reqBody = botDetails[0].params;
+                                    scriptExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
+                                }else if (botDetails[0].type === 'chef') {
+                                    chefExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
+                                }else if (botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint') {
+                                    if(schedulerCallCheck === true) {
+                                        reqBody = botDetails[0].params;
+                                    }
                                     blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
-                                } else if (botDetails[0].type === 'jenkins') {
-                                    reqBody = botDetails[0].params;
+                                }else if (botDetails[0].type === 'jenkins') {
+                                    if(schedulerCallCheck === true) {
+                                        reqBody = botDetails[0].params;
+                                    }
                                     jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
-                                } else {
+                                }else if (botDetails[0].type === 'api') {
+                                    if(schedulerCallCheck === true) {
+                                        reqBody = botDetails[0].params;
+                                    }
+                                    apiExecutor.execute(botDetails[0],reqBody,auditTrail, userName,botRemoteServerDetails, next);
+                                }else {
                                     var err = new Error('Invalid BOT Type');
                                     err.status = 400;
                                     err.msg = 'Invalid BOT Type';
@@ -411,13 +326,35 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                         })
                     },
                     bots: function (callback) {
-                        if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints') {
+                        if((botDetails[0].type === 'api' || botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
+                            && schedulerCallCheck === true) {
                             var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
                                 executionCount: botExecutionCount,
-                                lastRunTime: new Date().getTime()
+                                lastRunTime: new Date().getTime(),
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
+                        } else if((botDetails[0].type === 'api' || botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
+                            && schedulerCallCheck === false) {
+                            encryptedParam(reqBody,botDetails[0].inputFormFields,function(err,encryptData){
+                                if(err){
+                                    var err = new Error('Data encryption is Failed');
+                                    err.status = 400;
+                                    err.message = 'Data encryption is Failed';
+                                    callback(err, null);
+                                }else{
+                                    var botExecutionCount = botDetails[0].executionCount + 1;
+                                    var botUpdateObj = {
+                                        executionCount: botExecutionCount,
+                                        lastRunTime: new Date().getTime(),
+                                        params:encryptData
+                                    }
+                                    if(reqBody.nodeIds){
+                                        botUpdateObj.params.nodeIds = reqBody.nodeIds;
+                                    }
+                                    botDao.updateBotsDetail(botId, botUpdateObj, callback);
+                                }
+                            });
                         }else{
                             var err = new Error('Invalid BOT Type');
                             err.status = 400;
@@ -434,7 +371,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                 });
             }else {
                next(null,botDetails);
-            }  
+            }
         }
     ],function(err,results){
         if(err){
@@ -491,7 +428,6 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                                     next(err, null);
                                 } else {
                                     var botsObj = {
-                                        ymlJson: result,
                                         name: result.name,
                                         id: result.id,
                                         desc: result.desc,
@@ -643,7 +579,6 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                                });
                                            }else{
                                                 var botsObj={
-                                                    ymlJson:result,
                                                     name:result.name,
                                                     gitHubId:gitHubDetails.botSync._id,
                                                     gitHubRepoName:gitHubDetails.botSync.repositoryName,
@@ -841,9 +776,10 @@ botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(b
             if(bots.length > 0) {
                 var logsDao = require('_pr/model/dao/logsdao.js');
                 logsDao.getLogsByReferenceId(historyId, timestamp,next);
-            }else{
+              }else{
                 next({errCode:400, errMsg:"Bots is not exist in DB"},null)
-            }
+              }
+
         }
     ],function(err,results){
         if(err){
@@ -885,20 +821,23 @@ botService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(b
 }
 
 
-function encryptedParam(paramDetails, callback) {
+function encryptedParam(paramDetails,inputFormDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
-    if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
-            Object.keys(paramDetails.data).forEach(function (key) {
-                var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
+    if (paramDetails.type === 'script' && paramDetails.data && paramDetails.data !== null) {
+        inputFormDetails.forEach(function(formField){
+            if(formField.type === 'password' || formField.type === 'restricted'){
+                var encryptedText = cryptography.encryptText(paramDetails.data[formField.name], cryptoConfig.encryptionEncoding,
                     cryptoConfig.decryptionEncoding);
-                encryptedObj[key] = encryptedText;
-            });
-            paramDetails.data = encryptedObj;
-            callback(null, paramDetails);
+                paramDetails.data[formField.name] = encryptedText;
+            }
+        })
+        callback(null, paramDetails);
+        return;
     }else{
         callback(null, paramDetails);
+        return;
     }
 }
 
@@ -1035,16 +974,4 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
             })(bots.docs[i]);
         }
     }
-}
-
-function removeScriptFile(filePath) {
-    fileIo.removeFile(filePath, function(err, result) {
-        if (err) {
-            logger.error(err);
-            return;
-        } else {
-            logger.debug("Successfully Remove file");
-            return
-        }
-    })
 }

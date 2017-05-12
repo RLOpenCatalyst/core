@@ -1,0 +1,64 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: start_instance_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name:  AWS - start instance
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute job to start AWS instance.
+## Category -> Check, Run, Meta, Predict...
+botCategory: Service Management
+## action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user.
+
+input:
+  - form:
+    - access_key:
+      label: Access key
+      type: password
+      default: xxx
+    - secret_key:
+      label: Secret Key
+      type: password
+      default: xxx
+    - region:
+      label: Region
+      type: text
+      default: xxx
+    - instance_id:
+      label: Instance Id
+      type: text
+      default: xxx
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+
+execution: 
+  - 
+    os: ubuntu
+    stage: script
+    start: start_instance.py
+    type: python
+
+output:
+  - images:
+    - /web/root/images/output1.img
+    - http://s3.amazonaws.com/mybucket/output2.img
+  - logs:
+    - /app/log/{runId}/botsExecution.log
+    - /var/log/tomcat/catlina.log
+  
+  - msgs:
+        text: "AWS Instance {instance_id} is started."
+        mail: | 
+              Instance : ${Instance Id}
+     

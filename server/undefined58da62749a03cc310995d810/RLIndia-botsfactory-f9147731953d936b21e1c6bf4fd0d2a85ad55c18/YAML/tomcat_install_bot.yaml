@@ -1,0 +1,52 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: tomcat_install_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Tomcat Install Node
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Install Tomcat in to Node
+functionality: Application Management
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: chef
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: None
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+input:
+  - form:
+    - env:
+      label: Nodes
+      type: multi-select
+      default: null
+
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    stage: install_tomcat
+    runlist: ["recipe[tomcat-all-rl]"]
+    param: ${runlist}
+    type: cookbook
+    attributes: null
+    os: ubuntu
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Cookbook RunList ${runlist} is successfully executed on Node ${node}."
+        mail: | 
+              Run-List  : ${runlist}
+              Node : ${node}

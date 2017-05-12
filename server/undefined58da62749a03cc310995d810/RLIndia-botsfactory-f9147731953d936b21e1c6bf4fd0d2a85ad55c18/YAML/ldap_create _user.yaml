@@ -1,0 +1,79 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: ldap_create_user_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: LDAP - Create User
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Create a new ldap user
+functionality:  OpenDJ LDAP
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: chef
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: None
+
+input:
+  - form:
+    - name: First Name
+      label: first_name
+      type: text
+      default: Adithya
+    - name: Last Name 
+      label: last_name  
+      type: text
+      default: Srikanth
+    - name: Domain Name 
+      label: domain_name    
+      type: text
+      default: RLIndia
+    - name: Group Name   
+      label: group_name   
+      type: text
+      default: people
+    - name: New Passsword 
+      label: new_passsword      
+      type: text
+      default: password
+    - name: Email ID 
+      label: email_id    
+      type: text
+      default: adithya.srikanth@gmail.com
+    - name: Port Number 
+      label: port_number      
+      type: text
+      default: "389"
+    - name: Login Name   
+      label: login_name     
+      type: text
+      default: Directory Manager
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    stage: ldap_create_user
+    runlist: ["recipe[opendj_user_creation]"]
+    param: ${runlist}
+    type: cookbook
+    attributes: ${first_name} ${last_name} ${domain_name} ${group_name} ${new_passsword} ${email_id} ${port_number} ${login_name} 
+    os: ubuntu
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Cookbook RunList ${runlist} is successfully executed on domain ${domain_name} with a new ldap user ${first_name}."
+        mail: | 
+              Domain name  : ${domain_name}
+              First name : ${first_name}

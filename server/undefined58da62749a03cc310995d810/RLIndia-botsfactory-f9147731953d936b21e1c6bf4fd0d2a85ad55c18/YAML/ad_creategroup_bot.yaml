@@ -1,0 +1,64 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: ad_creategroup_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Create_AD_Grp_Obj 
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to create group in AD server.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: User Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+
+input:
+  - form:
+    - name: ldap_server
+      label: Ldap Server
+      type: text
+      default: RLIndia.com
+    - name: username
+      label: Username
+      type: text
+      default: Administrator
+    - name: password
+      label: Password
+      type: text
+      default: W2FtvT3NwjG
+    - name: groupname
+      label: Group Name
+      type: text
+      default: Testgroup55
+    - name: scope
+      label: Scope
+      type: text
+      default: UNIVERSAL
+    - name: description
+      label: Description
+      type: text
+      default: "Test description"
+
+execution: 
+  - 
+    os: Windows
+    stage: script
+    entrypoint: AD_createGroup.py
+    type: python
+
+output:
+   logs:
+    - /var/log/AD_createGroup.log
+   filters: 
+        - variable: groupDetails
+          filter: \("groupDetails")(.)"(<[^>]+>)"\
+        
+   msgs:
+        text: "A Group is created in AD server, group details ${groupDetails}."
+        mail: | 
+              Group details : ${groupDetails}
+              

@@ -1,0 +1,57 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: install_ant_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Install Ant
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Launches Ubuntu Node and installs ant
+functionality: Application Management
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: blueprints
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: chef
+
+input:
+  - form:
+    - name: stackName
+      label: Name
+      type: text
+      default: Catalyst.stackName
+    - name: Install Ant
+      label: Blueprint Name
+      type: label
+      default: Catalyst.Install Ant
+    - name: envId
+      label: Choose Environment
+      type: list
+      reference: Catalyst.Environment
+    - name: tagServer
+      label: Tag Server
+      type: list
+      reference: Catalyst.TagServer
+    - name: monitoring
+      label: Monitoring
+      type: list
+      reference: Catalyst.Monitoring
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+output:
+   logs:
+    - /var/log/{bot_run_id}/install_ant_bot.log
+   msgs:
+        text: "Launched ${Name} on ${envId} and installed ant application."
+        mail: | 
+              Name  : ${Name}
+              envId : ${envId}

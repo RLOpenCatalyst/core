@@ -205,6 +205,11 @@ var BotSchema = new Schema ({
         required: false,
         trim: true
     },
+    flowId: {
+        type: String,
+        required: false,
+        trim: true
+    },
     lastExecutionStatus: {
         type: String,
         required: false,

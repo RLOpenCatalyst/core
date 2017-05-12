@@ -1,0 +1,67 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: ldap_delete_user_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: LDAP - Delete User
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Delete ldap user
+functionality: OpenDJ LDAP
+## Action -> Check, Run, Meta, Predict...
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: chef
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: None
+
+input:
+  - form:
+    - name: Email ID 
+      label: email_id    
+      type: text
+      default: adithya.srikanth@gmail.com
+    - name: Login Name   
+      label: login_name     
+      type: text
+      default: Directory Manager
+    - name: Login Passsword
+      label: login_passsword     
+      type: text
+      default: password
+    - name: Domain Name 
+      label: domain_name    
+      type: text
+      default: dc=RLIndia,dc=com
+    - name: Port Number 
+      label: port_number      
+      type: text
+      default: "389"
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    stage: ldap_delete_user
+    runlist: ["recipe[opendj_user_deletion]"]
+    param: ${runlist}
+    type: cookbook
+    attributes: ${email_id} ${login_name} ${login_passsword} ${domain_name} ${port_number} 
+    os: ubuntu
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Cookbook RunList ${runlist} is successfully executed on domain ${domain_name}."
+        mail: | 
+              Domain name  : ${domain_name}
+              Port Number : ${port_number}

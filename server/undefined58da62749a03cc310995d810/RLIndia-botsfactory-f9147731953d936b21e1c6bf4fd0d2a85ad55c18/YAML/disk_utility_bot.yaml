@@ -1,0 +1,46 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: disk_utility_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Disk Utility
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to increase disc consumption.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+## severity - warning, critical, any other value - 99%
+input:
+  - form:
+    - name: severity
+      label: Severity
+      type: text
+      default: warning
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: diskUtility.py
+    param: ${severity}
+    type: python
+output:
+   logs:
+    - stdout
+   filters: 
+        - variable: preUsedPercentage
+          filter: \"preUsedPercentage\":\"(.*?%)\",
+        - variable: postUsedPercentage
+          filter: \"postUsedPercentage\":\"(.*?%)\",
+   msgs:
+        text: "Disk Usage has increased from ${preUsedPercentage} to ${postUsedPercentage}."
+        mail: | 
+              Pre Used Disk Percentage  : ${preUsedPercentage}
+              Post Used Disk Percentage : ${postUsedPercentage}

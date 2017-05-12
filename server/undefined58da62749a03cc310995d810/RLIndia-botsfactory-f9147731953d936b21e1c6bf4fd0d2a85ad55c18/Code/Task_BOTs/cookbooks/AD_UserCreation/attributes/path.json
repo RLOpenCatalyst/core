@@ -1,0 +1,45 @@
+// {
+// 	"name":"somenode",
+// 	"override_attributes":
+// 	{
+// 		"activeDir":
+// 		{
+// 			"name":"xyz"
+//     	}
+// 	},
+// 	"override_attributes":
+// 	{
+// 		"activeDir":
+// 		{
+// 			"surname":"abc"
+// 		}
+// 	},
+// 	"override_attributes":
+// 	{
+// 		"activeDir":
+// 		{
+// 			"password":"password@123"
+// 		}
+// 	},
+// 	"override_attributes":
+// 	{
+// 		"activeDir":
+// 		{
+// 		"domain_name":"myown.com"
+// 		}
+// 	}
+// }
+// ===========
+
+'{
+	"override_attributes":
+	{
+		"ad_user_creation": {"activeDir":[{"name":"xyz"}, 
+										  {"surname": "abc"}, 
+										  {"password": "password@123"}, 
+										  {"domain_name": "myown.com"}]
+	                        }
+   	},
+   	"run_list":
+   	["recipe[ad_user_creation]"]
+}'

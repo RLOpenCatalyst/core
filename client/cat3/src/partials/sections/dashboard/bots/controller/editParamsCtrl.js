@@ -29,7 +29,7 @@
                     blueprintName:items.execution.name
                 };
             }
-
+            console.log(items);
             $scope.botName = items.name;
             $scope.botParams = items.inputFormFields;
             $scope.botEditParams = {};
@@ -292,6 +292,9 @@
                             }
                             reqBody.choiceParam =  $scope.choiceParam;
                         }
+                    } else if ($scope.botType === 'api') {
+                        reqBody.data = $scope.botEditParams;
+                        reqBody.flowId = items.flowId;
                     }
                     $scope.botExecuteMethod(items.id,reqBody);
                 } else if (type === 'blueprints') {

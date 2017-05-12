@@ -1,0 +1,56 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: nginix_remidiation_workflow
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Nginix Remidiation WorkFlow
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Nginix Remidiation WorkFlow.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+input:
+  - form:
+    - name:  nginx_host_ip
+      label: Nginx Host IP
+      type: text
+      default: 10.0.1.206
+    - name: nginx_instance_id
+      label: Nginx Instance ID
+      type: text
+      default: 58e5fc173a58e26b3a5eb33a
+    - name: service_name
+      label: Service name
+      type: text
+      default: undefined
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: remediation_v2.py
+    param: ${nginx_host_ip} ${nginx_instance_id} ${service_name} 
+    type: python
+output:
+   logs:
+    - stdout
+   
+   filters: 
+        - variable: instanceId
+          filter: \"instanceId\":(.*?),
+        - variable: ticketId
+          filter: \"ticketId\":(.*?),,
+
+
+   msgs:
+        text: "Task execution success for instance $(instanceId), ticket id is $(ticketId)."
+        mail: |
+              InstanceID : ${instanceId}
+              TicketID : ${ticketId}

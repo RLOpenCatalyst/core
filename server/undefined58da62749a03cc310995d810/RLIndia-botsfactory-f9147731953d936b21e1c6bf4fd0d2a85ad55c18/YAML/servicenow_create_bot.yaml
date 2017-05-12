@@ -1,0 +1,84 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: servicenow_create_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Servicenow Create
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to create a servicenow ticket.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+## severity - warning, critical, any other value - 99%
+input:
+  - form:
+    - name: endpoint
+      label: Endpoint
+      type: text
+      default: https://ven01745.service-now.com
+    - name:  username
+      label: Username
+      type: text
+      default: catadmin
+    - name: password
+      label: Password
+      type: text
+      default: Relevance-2017
+    - name: short_description
+      label: Short Description
+      type: text
+      default: Test_description
+    - name: comments
+      label: Comments
+      type: text
+      default: TestComment
+    - name: x_14768_catalyst_first_name
+      label: X 14768 Catalyst First Name
+      type: text
+      default: Test
+    - name: x_14768_catalyst_last_name
+      label: X 14768 Catalyst Last Name
+      type: text
+      default: TestLast
+    - name: category 
+      label: Category 
+      type: text
+      default: BOT
+    - name: x_14768_catalyst_password
+      label: X 14768 Catalyst Password
+      type: text
+      default: pass
+    - name: location
+      label: Location
+      type: text
+      default: d4d
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: servicenowCreate.py
+    param: ${endpoint} ${username} ${password} ${short_description} ${comments} ${x_14768_catalyst_first_name} ${x_14768_catalyst_last_name} ${category} ${x_14768_catalyst_password} ${location}
+    type: python
+output:
+   logs:
+    - stdout
+   filters: 
+        - variable: sysId
+          filter: \"sys_id\":\"(.*?)\",
+        - variable: ticketNumber
+          filter: \"number\":\"(.*?)\",
+        - variable: link
+          filter: (https?:\/\/(?:[^@\n]+@)?(?:www\.)?[^:\/\n]+),
+   msgs:
+        text: "Ticket Number is ${ticketNumber} and ticketIdLink is ${link}/incident.do?sys_id=${sysId}."
+        mail: | 
+              Ticket Number  : ${ticketNumber}
+              Ticket Id Link : ${link}/incident.do?sys_id=${sysId}

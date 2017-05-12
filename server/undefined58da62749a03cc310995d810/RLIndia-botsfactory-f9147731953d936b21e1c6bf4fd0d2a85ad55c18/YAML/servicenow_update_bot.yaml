@@ -1,0 +1,81 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: servicenow_update_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Servicenow Update
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to update a servicenow ticket.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+## severity - warning, critical, any other value - 99%
+input:
+  - form:
+    - name: endpoint
+      label: Endpoint
+      type: text
+      default: https://ven01745.service-now.com
+    - name:  username
+      label: Username
+      type: text
+      default: catadmin
+    - name: password
+      label: Password
+      type: text
+      default: Relevance-2017
+    - name: incidentId
+      label: IncidentId
+      type: text
+      default: 999b99ec4fddb200c5a3c3818110c7e1
+    - name: short_description
+      label: Short Description
+      type: text
+      default: Test_description
+    - name: comments
+      label: Comments
+      type: text
+      default: Test Comment
+    - name: x_14768_catalyst_first_name
+      label: X 14768 Catalyst First Name
+      type: text
+      default: Test Update
+    - name: x_14768_catalyst_last_name
+      label: X 14768 Catalyst Last Name
+      type: text
+      default: TestLast
+    - name: category 
+      label: Category 
+      type: text
+      default: BOT
+    - name: x_14768_catalyst_password
+      label: X 14768 Catalyst Password
+      type: text
+      default: Pass
+    - name: location
+      label: Location
+      type: text
+      default: d4d
+    - name:  status
+      label: status
+      type: text
+      default: 7
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: servicenowUpdate.py
+    param: ${endpoint} ${username} ${password} ${incidentId} ${short_description} ${comments} ${x_14768_catalyst_first_name} ${x_14768_catalyst_last_name} ${category} ${x_14768_catalyst_password} ${location} ${status}
+    type: python
+output:
+   logs:
+    - stdout
+  

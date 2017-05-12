@@ -1,0 +1,38 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: nginx_remediation_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Nginx Remediation
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to start Nginx Service.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+
+
+input:
+  
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: nginxRemediation.py
+    type: python
+output:
+   logs:
+    - stdout
+   filters: 
+        - variable: nginx_status
+          filter: \"statusDescription\":\"(.*?)\"
+   msgs:
+        text: " nginx status is ${nginx_status}."
+        mail: | 
+               Nginx Status : ${nginx_status}
+              

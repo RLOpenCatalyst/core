@@ -1,0 +1,104 @@
+## ID - auto generated or manual alpha numeric, must be unique across RL Catalyst
+id: deploy_petclinic_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: Deploy Petclinic
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Deploys Petclinic Application
+functionality:  Application Deployment
+## Action -> Check, Run, Meta, Predict...
+action: Task
+## Type ->  Chef, Script, UI, etc...
+type: chef
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+subtype: None
+
+input:
+  - form:
+    - name: java_flavour
+      label: Java Flavour
+      type: text
+      default: oracle
+    - name: java_jdk_version  
+      label: Java JDK Version 
+      type: text
+      default: "7"
+    - name: oracle_download_terms
+      label: Oracle Download Terms
+      type: text
+      default: "true"
+    - name: tomcat_user 
+      label: Tomcat User  
+      type: text
+      default: tomcat
+    - name: tomcat_group  
+      label: Tomcat Group 
+      type: text
+      default: tomcat
+    - name: tomcat_version  
+      label: Tomcat Version 
+      type: text
+      default: "7.0.53"
+    - name: tomcat_home 
+      label: Tomcat Home  
+      type: text
+      default: "/opt/tomcat7"
+    - name: set_tomcat_environment  
+      label: Set Tomcat Environment 
+      type: text
+      default: "true"
+    - name: tomcat_shutdown_port  
+      label: Tomcat Shutdown Port 
+      type: text
+      default: "8005"
+    - name: tomcat_running_port 
+      label: Tomcat Running Port  
+      type: text
+      default: "8080"
+    - name: tomcat_max_threads   
+      label: Tomcat Max Threads 
+      type: text
+      default: "100"
+    - name: tomcat_min_spare_threads   
+      label: Tomcat Min Spare Threads 
+      type: text
+      default: "10"
+    - name: tomcat_java_opts     
+      label: Tomcat Java Opts 
+      type: text
+      default: "-d64 -server -Djava.awt.headless=true -XX:PermSize=64m -XX:MaxPermSize=256m"
+    - name: callback_url     
+      label: Callback URL  
+      type: text
+      default: "https://supercatalyst.rlcatalyst.com/app/deploy"
+
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    stage: service_stop
+    runlist: ["recipe[tomcat-all-rl],recipe[deploy_war]"]
+    param: ${runlist}
+    type: cookbook
+    attributes: null
+    os: ubuntu
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Cookbook RunList ${runlist} is successfully ${action} {name_of_the_service} on Nodes ${nodes}."
+        mail: | 
+              Name of the Service  : ${name_of_the_service}
+              Action : ${action}
+              Nodes : ${nodes}
+              Runlist : ${runlist}

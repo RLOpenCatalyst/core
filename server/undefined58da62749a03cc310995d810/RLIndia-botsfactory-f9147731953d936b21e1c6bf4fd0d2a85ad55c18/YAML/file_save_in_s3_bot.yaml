@@ -1,0 +1,65 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: file_save_in_s3_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: FileSaveinS3
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute job to save file in S3
+## Category -> Check, Run, Meta, Predict...
+botCategory: Active Directory
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 3
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+
+input:
+  - form:
+    - name: Access key
+      label: access_key
+      type: text
+      default: xxx
+    - name: Secret Key  
+      label: secret_key 
+      type: text
+      default: xxx
+    - name: File Path    
+      label: file_path  
+      type: text
+      default: /home/azureuser/test
+    - name: File Name    
+      label: file_name  
+      type: text
+      default: naresh.txt 
+    - name: Bucket Name    
+      label: bucket_name  
+      type: text
+      default: avi-bucket2     
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: FileSaveinS3.sh     ### {meta_type}_BOTs/{meta_id}/entrypoint
+    param: ${access_key} ${secret_key} ${file_path} ${file_name} ${bucket_name}
+    type: bash
+output:
+   logs:
+    - /var/log/file_save_in_s3_bot.log
+
+   msgs:
+        text: "A file ${file_name} is saved in S3 successfully."
+        mail: | 
+              File Path  : ${file_path}
+              File Name : ${file_name}
+              Bucket Name  : ${bucket_name}

@@ -1,0 +1,72 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: telemetry_notification_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: telemetry Notification
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to notify telemetry.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 10
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+input:
+  - form:
+    - name: hostname
+      label: Hostname
+      type: text
+      default: http://telemetry-api.rlcatalyst.com/remediation
+    - name: timestamp
+      label: Timestamp
+      type: text
+      default: "1490182140"
+    - name: instanceId
+      label: Instance Id
+      type: text
+      default: 58brevhz7asgh78ag
+    - name: ticket_id
+      label: Ticket Id
+      type: text
+      default: 1NC50087
+    - name: service
+      label: Service
+      type: text
+      default: sample service
+    - name: action
+      label: Action
+      type: text
+      default: start
+    - name: logMessage
+      label: Log Message
+      type: text
+      default: Successful
+
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: telemetryNotification.py
+    type: python
+
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Service ${Service} ${Action} successfully."
+        mail: | 
+              service : ${Service}
+              action  : ${Action}
+              

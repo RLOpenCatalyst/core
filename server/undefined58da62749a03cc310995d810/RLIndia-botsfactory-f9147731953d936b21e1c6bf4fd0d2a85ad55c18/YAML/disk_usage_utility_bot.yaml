@@ -1,0 +1,48 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: disk_usage_utility_bot
+
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: DiskUsageUtility
+
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to Increase disk Usage.
+
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 15
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+#subtype -> software, docker, cft, arm, composite for blueprint,
+# None for others
+input:
+  - form:
+    - name: Disk Usage
+      label: disk_usage
+      type: text
+      default: critical
+
+execution: 
+  - 
+    os: ubuntu
+    stage: script
+    entrypoint: DiskSpaceUtil.py
+    type: python
+
+output:
+   logs:
+    - stdout
+   msgs:
+        text: "Disk Usage for ${disk_usage} is increased successfully."
+        mail: | 
+              Disk Usage : ${disk_usage}
+              
+              

@@ -1,0 +1,13 @@
+dn: uid=<%= @unqiname %>,ou=<%= @group %>,dc=<%= @domain %>,dc=com
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+mail: <%= @emailid %>
+sn: <%= @lastname %>
+cn: <%= @unqiname %>
+givenName: <%= @firstname %>
+uid: <%= @unqiname %>
+userPassword: <%= @password %>
+
+

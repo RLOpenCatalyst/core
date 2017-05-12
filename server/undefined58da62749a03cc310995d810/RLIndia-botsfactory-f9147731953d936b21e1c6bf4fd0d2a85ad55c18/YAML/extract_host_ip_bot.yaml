@@ -1,0 +1,52 @@
+
+## ID - auto generated or manual alpha numeric, must be unique across RLCat
+id: extract_host_ip_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: RLCatalyst:Host IP Address
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to get Host IP Address.
+## Category -> Check, Run, Meta, Predict...
+functionality: Service Management
+action: run
+## Type ->  Chef, Script, UI, etc...
+type: script
+## Manual Execution Time is in Minutes.
+manualExecutionTime: 5
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+
+
+input:
+  - form:
+    - name: hostName
+      label: Host Name
+      type: text
+      default: google.com
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution: 
+  - 
+    os: ubuntu
+    stage: Script
+    entrypoint: extract_host_ip.sh     ### {meta_type}_BOTs/{meta_id}/entrypoint
+    param: ${hostName}
+    type: bash
+output:
+   logs:
+    - /var/log/extract_host_ip_bot.log
+   filters: 
+        - variable: ipAddress
+          filter: address ((?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5]))
+   msgs:
+        text: "IP Address of ${hostName} is ${ipAddress}."
+        mail: | 
+              Host Name  : ${hostName}
+              IP Address : ${ipAddress}

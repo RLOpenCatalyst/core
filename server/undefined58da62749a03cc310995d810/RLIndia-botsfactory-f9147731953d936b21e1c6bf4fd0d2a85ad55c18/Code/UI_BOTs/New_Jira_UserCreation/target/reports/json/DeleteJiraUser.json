@@ -1,0 +1,208 @@
+[
+  {
+    "line": 2,
+    "elements": [
+      {
+        "line": 4,
+        "name": "As a Admin I login to Jira Account and Delete a User",
+        "description": "",
+        "id": "as-a-admin-i-login-to-jira-account-and-delete-a-user;as-a-admin-i-login-to-jira-account-and-delete-a-user",
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "duration": 69036435418,
+              "status": "passed"
+            },
+            "comments": [
+              {
+                "line": 5,
+                "value": "#Given I login to jira using \"\u003cusername\u003e\" and access credentials \"\u003cpassword\u003e\""
+              }
+            ],
+            "line": 6,
+            "name": "I login to jira using username and access credentials password",
+            "match": {
+              "location": "LoginSteps.iLoginToJiraUsingUsernameAndAccessCredentialsPassword()"
+            },
+            "keyword": "Given "
+          },
+          {
+            "result": {
+              "duration": 8577743606,
+              "status": "passed"
+            },
+            "line": 8,
+            "name": "I click on \"Administration\" option at top right",
+            "match": {
+              "arguments": [
+                {
+                  "val": "Administration",
+                  "offset": 12
+                }
+              ],
+              "location": "JiraSteps.iClickOnOptionAtTopRight(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 3171896882,
+              "status": "passed"
+            },
+            "line": 9,
+            "name": "I Click on \"User management\" option",
+            "match": {
+              "arguments": [
+                {
+                  "val": "User management",
+                  "offset": 12
+                }
+              ],
+              "location": "JiraSteps.iClickOnOption(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 5763272010,
+              "status": "passed"
+            },
+            "comments": [
+              {
+                "line": 10,
+                "value": "#And I Enter the \"\u003cFullName\u003e\" of the user"
+              },
+              {
+                "line": 11,
+                "value": "#And I Enter the \"\u003cEmailAddress\u003e\""
+              },
+              {
+                "line": 12,
+                "value": "#And I Click on \"Create users\" button"
+              },
+              {
+                "line": 13,
+                "value": "#And I Close the Unwanted Popup"
+              }
+            ],
+            "line": 14,
+            "name": "I verify the created user \"\u003cFullName\u003e\" in the table",
+            "match": {
+              "arguments": [
+                {
+                  "val": "\u003cFullName\u003e",
+                  "offset": 27
+                }
+              ],
+              "location": "JiraSteps.iVerifyTheCreatedUserInTheTable(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 4181204847,
+              "status": "passed"
+            },
+            "line": 15,
+            "name": "I Click on the created user \"\u003cFullName\u003e\" link",
+            "match": {
+              "arguments": [
+                {
+                  "val": "\u003cFullName\u003e",
+                  "offset": 29
+                }
+              ],
+              "location": "JiraSteps.iClickOnTheCreatedUserLink(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 3219253686,
+              "status": "passed"
+            },
+            "line": 16,
+            "name": "I Click on Deactivate dropdown",
+            "match": {
+              "location": "JiraSteps.iClickOnDeactivateDropdown()"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 3273956431,
+              "status": "passed"
+            },
+            "line": 17,
+            "name": "I Select the \"Delete\" option",
+            "match": {
+              "arguments": [
+                {
+                  "val": "Delete",
+                  "offset": 14
+                }
+              ],
+              "location": "JiraSteps.iSelectTheOption(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 1526009350,
+              "status": "passed"
+            },
+            "line": 18,
+            "name": "I Confirm the User Deletion by clicking on \"Delete\" button",
+            "match": {
+              "arguments": [
+                {
+                  "val": "Delete",
+                  "offset": 44
+                }
+              ],
+              "location": "JiraSteps.iConfirmTheUserDeletionByClickingOnButton(String)"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 4303057886,
+              "status": "passed"
+            },
+            "line": 19,
+            "name": "I Click on UserProfile Account",
+            "match": {
+              "location": "JiraSteps.iClickOnUserProfileAccount()"
+            },
+            "keyword": "And "
+          },
+          {
+            "result": {
+              "duration": 5735921707,
+              "status": "passed"
+            },
+            "line": 20,
+            "name": "I Sign out of Jira Account",
+            "match": {
+              "location": "LoginSteps.iSignOutOfJiraAccount()"
+            },
+            "keyword": "And "
+          }
+        ]
+      }
+    ],
+    "name": "As a Admin I login to Jira Account and Delete a User",
+    "description": "",
+    "id": "as-a-admin-i-login-to-jira-account-and-delete-a-user",
+    "keyword": "Feature",
+    "uri": "src/test/resources/catalyst/settings/JiraScenarios/deleteJiraUser.feature",
+    "tags": [
+      {
+        "line": 1,
+        "name": "@Jira"
+      }
+    ]
+  }
+]

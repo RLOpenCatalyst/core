@@ -1,0 +1,77 @@
+## ID - auto generated or manual alpha numeric, must be unique across RLC
+id: ci_cd_dashboard_restart_bot
+## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)
+name: CI_CD_DASHBOARD_RESTART
+## Desc - Few line brief about the BOT and its characteristics.
+desc: Execute script to restart the CI/CD Dashboard.
+## Category -> Check, Run, Meta, Predict...
+botCategory: Service Management
+action: Run
+## Type ->  Chef, Script, UI, etc...
+type: Script
+## Sample input form
+##    form    - its form based input
+##    name    - variable name
+##    label   - label text
+##    type    - text, password, file, list
+##    default - sample grayed text to help user
+
+input:
+  - form:
+    - catalystAppServerURLwithPort:
+      label: Catalyst App Server URL with Port
+      type: text
+    - catalystUserName:
+      label: CatalystUserName
+      type: text
+    - catalystPassword:
+      label: CatalystPassword
+      type: password
+    - dashboardScriptName:
+      label: DashboardScriptName
+      type: text
+    - dashboardDatabaseHostName:
+      label: DashboardDatabaseHostName
+      type: text
+    - buildFlag:
+      label: buildFlag
+      type: text
+    - dashBoardHostName:
+      label: DashBoardHostName
+      type: text
+    - dashboardDomainName:
+      label: DashboardDomainName
+      type: text
+    - dashbaordServerUserName:
+      label: DashbaordServerUserName
+      type: text  
+    - dashbaordServerPassword:
+      label: DashbaordServerPassword
+      type: password    
+    - dashboardSetUppath:
+      label: DashboardSetUppath
+      type: text
+## Sample output collection
+##    images  - list of images and its locations
+##    logs    - list of text logs
+##    msg     - information to convey back to user
+##    {}      - data list should be as much as {}
+##              fudged in order
+execution:
+  -
+    os: ubuntu
+    stage: Script
+    start: ci_cd_dashboard_restart.py
+    type: python
+output:
+  - images:
+    - /web/root/images/output1.img
+    - http://s3.amazonaws.com/mybucket/output2.img
+  - logs:
+    - /app/log/{runId}/botsExecution.log
+    - /var/log/tomcat/catlina.log
+  - filters:
+        
+  - msgs:
+      - text: "{DashboardScriptName} executed successfully."
+      - data:
