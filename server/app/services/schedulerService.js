@@ -50,7 +50,6 @@ var GCP = require('_pr/lib/gcp.js');
 var crontab = require('node-crontab');
 var botOld = require('_pr/model/bots/1.0/botOld.js');
 var botDao = require('_pr/model/bots/1.1/bot.js');
-var logsDao = require('_pr/model/dao/logsdao.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var botEngineTimeOut = appConfig.botEngineTimeOut || 180;
 
@@ -170,40 +169,31 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                 var auditData = auditQueue.getAuditDetails("remoteAuditId",auditTrailDetail.bot_run_id);
                 if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'terminated' || auditTrailDetail.state === 'failed')) {
                     var timestampEnded = new Date().getTime();
+                    var logData={referenceId: auditData.logRefId,
+                        timestamp: timestampEnded,
+                        err : auditTrailDetail.state === 'terminated' ? false : true};
                     count++;
                     if (auditTrailDetail.log !== '...' || auditTrailDetail.log !== '') {
                         var logList = auditTrailDetail.log.split("\n");
                         logList.forEach(function (log) {
                             if(log !== null && log !== '') {
-                                logsDao.insertLog({
-                                    referenceId: auditData.logRefId,
-                                    err: auditTrailDetail.state === 'terminated' ? false : true,
-                                    log: log,
-                                    timestamp: timestampEnded
-                                });
+                                logData.log = log;
+                                logsDao.insertLog(logData);
+                                noticeService.updater(auditData.auditId,'log',logData);
                             }
                         })
                     }
-                    logsDao.insertLog({
-                        referenceId: auditData.logRefId,
-                        err: auditTrailDetail.state === 'terminated' ? false : true,
-                        log: auditTrailDetail.status.text,
-                        timestamp: timestampEnded
-                    });
+                    logData.log = auditTrailDetail.status.text;
+                    logsDao.insertLog(logData);
+                    noticeService.updater(auditData.auditId,'log',logData);
                     if (auditData.env === 'local') {
-                        logsDao.insertLog({
-                            referenceId: auditData.logRefId,
-                            err: auditTrailDetail.state === 'terminated' ? false : true,
-                            log: auditTrailDetail.state === 'terminated' ? auditData.botId + ' BOT execution is success on ' + auditData.env : auditData.botId + ' BOT execution is failed on ' + auditData.env,
-                            timestamp: timestampEnded
-                        });
+                        logData.log = auditTrailDetail.state === 'terminated' ? auditData.botId + ' BOT execution is success on ' + auditData.env : auditData.botId + ' BOT execution is failed on ' + auditData.env;
+                        logsDao.insertLog(logData);
+                        noticeService.updater(auditData.auditId,'log',logData);
                     } else {
-                        logsDao.insertLog({
-                            referenceId: auditData.logRefId,
-                            err: auditTrailDetail.state === 'terminated' ? false : true,
-                            log: auditTrailDetail.state === 'terminated' ? auditData.botId + ' BOT execution is success on Node ' + auditData.instanceIP : auditData.botId + ' BOT execution is failed on Node ' + auditData.instanceIP,
-                            timestamp: timestampEnded
-                        });
+                        logData.log = auditTrailDetail.state === 'terminated' ? auditData.botId + ' BOT execution is success on Node ' + auditData.instanceIP : auditData.botId + ' BOT execution is failed on Node ' + auditData.instanceIP;
+                        logsDao.insertLog(logData);
+                        noticeService.updater(auditData.auditId,'log',logData);
                     }
                     var resultTaskExecution = {
                         "actionStatus": auditTrailDetail.state === 'terminated' ? 'success' : 'failed',
@@ -235,12 +225,6 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                         auditQueue.popAudit('remoteAuditId', auditData.remoteAuditId);
                         var auditId = auditQueue.getAuditDetails('auditId', auditData.auditId);
                         if (auditId === null || auditId === 'undefined' || typeof auditId === 'undefined') {
-                            logsDao.insertLog({
-                                referenceId: auditData.logRefId,
-                                err: auditTrailDetail.state === 'terminated' ? false : true,
-                                log: auditTrailDetail.state === 'terminated' ? auditData.botId + 'BOT Execution is success on Remote' : 'BOT Execution is failed on Remote',
-                                timestamp: timestampEnded
-                            });
                             auditTrailService.updateAuditTrail('BOT', auditData.auditTrailId, resultTaskExecution, function (err, data) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
@@ -290,12 +274,14 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                     var timestampEnded = new Date().getTime();
                     count++;
                     if (auditData.retryCount === botEngineTimeOut) {
-                        logsDao.insertLog({
+                        var logData ={
                             referenceId: auditData.logRefId,
                             err: auditTrailDetail.state === 'terminated' ? false : true,
                             log: "BOT Execution is failed on local(Time-out)",
                             timestamp: timestampEnded
-                        });
+                        };
+                        logsDao.insertLog(logData);
+                        noticeService.updater(auditData.auditId,'log',logData);
                         var resultTaskExecution = {
                             "actionStatus": 'failed',
                             "status": 'failed',
@@ -326,12 +312,9 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                             auditQueue.popAudit('remoteAuditId', auditData.remoteAuditId);
                             var auditId = auditQueue.getAuditDetails('auditId', auditData.auditId);
                             if (auditId === null || auditId === 'undefined' || typeof auditId === 'undefined') {
-                                logsDao.insertLog({
-                                    referenceId: auditData.logRefId,
-                                    err: true,
-                                    log: 'BOT Execution is failed on Remote(Time-out)',
-                                    timestamp: timestampEnded
-                                });
+                                logData.log = 'BOT Execution is failed on Remote(Time-out)'
+                                logsDao.insertLog(logData);
+                                noticeService.updater(auditData.auditId,'log',logData);
                                 auditTrailService.updateAuditTrail('BOT', auditData.auditTrailId, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
