@@ -452,7 +452,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                                 minutes = minutes + botsList[k].savedTime.minutes;
                             }
                             if(botsList[k].savedTime && botsList[k].savedTime.seconds){
-                                seconds = minutes + botsList[k].savedTime.seconds;
+                                seconds = seconds + botsList[k].savedTime.seconds;
                             }
                         }
                     }

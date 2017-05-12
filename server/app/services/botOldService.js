@@ -425,7 +425,7 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                     minutes: minutes,
                     seconds: seconds
                 }
-                auditTrail.updateAuditTrails(botAuditTrail._id, {savedTime: result}, function (err, data) {
+                auditTrail.updateAuditTrails(auditId, {savedTime: result}, function (err, data) {
                     if (err) {
                         logger.error(err);
                     }
