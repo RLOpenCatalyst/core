@@ -64,6 +64,10 @@ var validator = $('#scriptForm').validate({
         },
         scriptName: {
             maxlength: 30
+        },
+        noOfParams: {
+            maxlength: 2,
+            number: true
         }
     },
     messages: {
@@ -72,6 +76,10 @@ var validator = $('#scriptForm').validate({
         },
         scriptName: {
             maxlength: "Limited to 30 chars"
+        },
+        noOfParams: {
+            maxlength: "Limited to 2 Digit",
+            number: "Only Numbers"
         }
     },
     onkeyup: false,
@@ -103,7 +111,22 @@ function getScriptList() {
                 "scriptFileName" : data.fileName,"scriptFileId" : data.fileId,
                 "isParametrized" : data.isParametrized,"noOfParams":data.noOfParams});
         },
-        "ajax": '/scripts',
+        "ajax": {
+            "url": '/scripts',
+            "data": function (result) {
+                var columnIndex = parseInt(result.order[0].column);
+                var newResult = {
+                    draw: result.draw,
+                    page: result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                    pageSize: result.length,
+                    sortOrder: result.order[0].dir,
+                    sortBy: result.columns[columnIndex].data,
+                    filterBy: result.filterBy,
+                    search: result.search.value
+                }
+                return newResult;
+            }
+        },
         "columns": [
             {"data": "name", "orderable" : true},
             {"data": "orgDetails.name" ,"orderable" : false },
@@ -256,7 +279,7 @@ $('#scriptForm').submit(function(e) {
     var isParametrized = false, noOfParams=0;
     if($("input[name='isParametrized']:checked").val() === 'Yes'){
         isParametrized =true;
-        noOfParams=parseInt($('#noOfParams').find(":selected").val());
+        noOfParams=parseInt($this.find('#noOfParams').val().trim());
     }
     var name = $this.find('#scriptName').val().trim();
     var description = $this.find('#scriptDescription').val().trim();

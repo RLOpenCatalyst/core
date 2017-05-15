@@ -19,13 +19,13 @@
 // This file act as a Util class which contains Settings related all business logics.
 
 var logger = require('_pr/logger')(module);
-var d4dModelNew = require('../../model/d4dmasters/d4dmastersmodelnew.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var ObjectId = require('mongoose').Types.ObjectId;
-var permissionsetDao = require('../../model/dao/permissionsetsdao');
-var d4dModel = require('../../model/d4dmasters/d4dmastersmodel.js');
-var configmgmtDao = require('../../model/d4dmasters/configmgmt.js');
+var permissionsetDao = require('_pr/model/dao/permissionsetsdao');
+var d4dModel = require('_pr/model/d4dmasters/d4dmastersmodel.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
-var Cryptography = require('../utils/cryptography');
+var Cryptography = require('_pr/lib/utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
@@ -450,6 +450,48 @@ var MasterUtil = function () {
         });
     }
 
+
+    this.getFilterTemplateTypes = function (id, callback) {
+        var templateTypeList = [];
+        d4dModelNew.d4dModelMastersDesignTemplateTypes.find({
+            id: id
+        }, function (err, templateTypes) {
+            if (err) {
+                callback(err, null);
+            }else if (templateTypes.length > 0) {
+                templateTypes.forEach(function(templateType){
+                    var templateTypeObj = {
+                        templatetypename: templateType.templatetypename,
+                        designtemplateicon_filename: templateType.designtemplateicon_filename,
+                        rowid: templateType.rowid,
+                        id: templateType.id,
+                        active: templateType.active,
+                        templatetype: templateType.templatetype
+                    }
+                    var findTempCheck =false;
+                    if(templateTypeList.length > 0) {
+                        templateTypeList.forEach(function (template) {
+                            if (template.templatetypename === templateTypeObj.templatetypename) {
+                                findTempCheck = true;
+                            }
+                        })
+                        if(findTempCheck === false){
+                            templateTypeList.push(templateTypeObj);
+                        }
+                    }else{
+                        templateTypeList.push(templateTypeObj);
+                    }
+                })
+                callback(null, templateTypeList);
+                return;
+            } else {
+                callback(null, templateTypeList);
+                return;
+            }
+
+        });
+    }
+
     // Return all ServiceCommands
     this.getServiceCommands = function (orgList, callback) {
         var serviceCommandList = [];
@@ -608,6 +650,37 @@ var MasterUtil = function () {
                         }
                     }
                     callback(null, botRemoteServerList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+        });
+    }
+
+    this.getAnsibleServerDetails = function(orgList, callback) {
+        var ansibleServerList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelMastersAnsibleServer.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, remoteServerList) {
+            if (remoteServerList) {
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < remoteServerList.length; i++) {
+                        if (remoteServerList[i].id === '32') {
+                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist)
+                            remoteServerList[i].orgname = names;
+                            ansibleServerList.push(remoteServerList[i]);
+                        }
+                    }
+                    callback(null, ansibleServerList);
                     return;
                 });
             } else {

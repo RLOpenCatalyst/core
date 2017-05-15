@@ -1,11 +1,12 @@
 var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
-var botsDao = require('_pr/model/bots/1.0/bots.js');
-var newBotsDao = require('_pr/model/bots/1.1/botsDao.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
 var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 var cronTab = require('node-crontab');
+var auditQueue = require('_pr/config/global-data.js');
 var catalystSync = module.exports = {};
 
 catalystSync.executeScheduledInstances = function executeScheduledInstances() {
@@ -139,7 +140,7 @@ catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks(
 }
 
 catalystSync.executeScheduledBots = function executeScheduledBots() {
-    botsDao.getScheduledBots(function(err, bots) {
+    botOld.getScheduledBots(function(err, bots) {
         if (err) {
             logger.error("Failed to fetch bots: ", err);
             return;
@@ -178,7 +179,7 @@ catalystSync.executeScheduledBots = function executeScheduledBots() {
 
 
 catalystSync.executeNewScheduledBots = function executeNewScheduledBots() {
-    newBotsDao.getScheduledBots(function(err, bots) {
+    botDao.getScheduledBots(function(err, bots) {
         if (err) {
             logger.error("Failed to fetch bots: ", err);
             return;
@@ -213,6 +214,38 @@ catalystSync.executeNewScheduledBots = function executeNewScheduledBots() {
             return;
         }
     });
+}
+
+catalystSync.getBotAuditLogData = function getBotAuditLogData(){
+    logger.debug("Get Bot Audit log Data updating.....")
+    setInterval( function () {
+        var logQueue = auditQueue.getAudit();
+        if(logQueue.length > 0){
+            var auditList = [];
+            logQueue.forEach(function(log){
+                if(log.remoteAuditId) {
+                    auditList.push(log.remoteAuditId);
+                }
+            });
+            if(auditList.length > 0 && (logQueue[0].serverUrl !=='undefined' || typeof logQueue[0].serverUrl !=='undefined')) {
+                schedulerService.getExecutorAuditTrailDetails(auditList, logQueue[0].serverUrl, function (err, data) {
+                    if (err) {
+                        logger.error("Error in Getting Audit-Trail Details:", err);
+                        return;
+                    } else {
+                        logger.debug("BOT Audit Trail is Successfully Executed");
+                        return;
+                    }
+                });
+            }else{
+                logger.debug("Audit-Queue is not valid: ",auditList,logQueue[0].serverUrl);
+                return;
+            }
+        }else{
+            logger.debug("There is no Audit Trails Data");
+            return;
+        }
+    },5000)
 }
 
 function cancelOldCronJobs(ids){

@@ -41,12 +41,12 @@
                History
                </a>
             </li>
-            <li ng-class="{active:tab.isSet('Param')}">
+            <!-- <li ng-class="{active:tab.isSet('Param')}">
                <a ng-click="tab.setTab('Param')">
                <i class="fa fa-info black"></i>&nbsp;
                Param
                </a>
-            </li>
+            </li> -->
             <li ng-class="{active:tab.isSet('Schedule')}">
                <a ng-click="tab.setTab('Schedule')">
                <i class="fa fa-calendar black"></i>&nbsp;
@@ -59,6 +59,12 @@
                Settings
                </a>
             </li>
+            <!-- <li ng-class="{active:tab.isSet('Help')}">
+               <a ng-click="tab.setTab('Help')">
+               <i class="fa fa-question black"></i>&nbsp;
+               Help
+               </a>
+            </li> -->
          </ul>
       </div>
    </div>
@@ -68,9 +74,9 @@
    <div class="{{tab.isSet('Execute')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.execute.url"></div>
    </div>
-   <div class="{{tab.isSet('Param')? 'show-grid-tab':'hide-grid'}}">
+   <!-- <div class="{{tab.isSet('Param')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.param.url"></div>
-   </div>
+   </div> -->
    <div class="{{tab.isSet('Report')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.report.url"></div>
    </div>
@@ -80,4 +86,7 @@
    <div class="{{tab.isSet('Settings')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.settings.url"></div>
    </div>
+   <!-- <div class="{{tab.isSet('Help')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.help.url"></div>
+   </div> -->
 </div>

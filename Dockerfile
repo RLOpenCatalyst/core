@@ -1,12 +1,13 @@
-FROM node:4.6.0
+FROM node:6.10.2
 RUN apt-get update -qq && apt-get install -y build-essential libpq-dev libkrb5-dev make g++ ruby libstdc++6
 
 RUN npm install -g kerberos
 
 ##Client
 RUN npm install -g grunt-cli
-RUN npm install -g npm
-RUN npm install forever --global
+##Its not needed as docker taking its role
+##RUN npm install -g npm
+##RUN npm install forever --global
 RUN gem install sass
 RUN curl -L https://www.opscode.com/chef/install.sh |  bash
 RUN /opt/chef/embedded/bin/gem install knife-windows

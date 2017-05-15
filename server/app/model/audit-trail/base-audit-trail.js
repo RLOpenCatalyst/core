@@ -122,6 +122,20 @@ var AuditTrailSchema = function AuditTrail() {
             trim:true,
             required:false
         },
+        savedTime:{
+            hours:{
+                type: Number,
+                default:0
+            },
+            minutes:{
+                type: Number,
+                default:0
+            },
+            seconds:{
+                type: Number,
+                default:0
+            }
+        },
         isDeleted: {
             type: Boolean,
             default:false

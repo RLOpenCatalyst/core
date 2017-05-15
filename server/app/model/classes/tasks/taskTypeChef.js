@@ -19,28 +19,23 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-
-var instancesDao = require('../instance/instance');
-var logsDao = require('../../dao/logsdao.js');
-var credentialCryptography = require('../../../lib/credentialcryptography')
-var fileIo = require('../../../lib/utils/fileio');
-var configmgmtDao = require('../../d4dmasters/configmgmt.js');
-
-var Chef = require('../../../lib/chef');
-
+var instancesDao = require('_pr/model/classes/instance/instance');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var credentialCryptography = require('_pr/lib/credentialcryptography')
+var fileIo = require('_pr/lib/utils/fileio');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
+var Chef = require('_pr/lib/chef');
 var taskTypeSchema = require('./taskTypeSchema');
-
-var ChefClientExecution = require('../instance/chefClientExecution/chefClientExecution.js');
-var utils = require('../utils/utils.js');
+var ChefClientExecution = require('_pr/model/classes/instance/chefClientExecution/chefClientExecution.js');
+var utils = require('_pr/model/classes/utils/utils.js');
 var Blueprints = require('_pr/model/blueprint');
 var AppData = require('_pr/model/app-deploy/app-data');
-var masterUtil = require('../../../lib/utils/masterUtil.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
-
 var Docker = require('_pr/model/docker.js');
 var uuid = require('node-uuid');
-
 var chefTaskSchema = taskTypeSchema.extend({
+    _id: false,
     nodeIds: [String],
     runlist: [String],
     attributes: [{

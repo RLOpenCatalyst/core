@@ -16,17 +16,20 @@
 
 var resourceService = require('_pr/services/resourceService');
 var providerService = require('_pr/services/providerService');
+var resources = require('_pr/model/resources/resources');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/resources*", sessionVerificationFunc);
 
-    app.get('/resources', getAWSResources);
+    app.get('/resources', getAllResources);
 
-    app.get('/resources/resourceList', getAWSResourceList);
+    app.get('/resources/:resourceId', getResourceById);
 
-    function getAWSResources(req, res, next) {
+    app.get('/resources/resourceList', getAllResourceList);
+
+    function getAllResources(req, res, next) {
             var reqObj = {};
             async.waterfall(
                 [
@@ -60,7 +63,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 });
     };
 
-    function getAWSResourceList(req,res,next) {
+    function getResourceById(req,res){
+        resources.getResourceById(req.params.resourceId,function(err,resource){
+            if(err){
+                return res.status(500).send(err);
+            }else{
+                return res.status(200).send(resource);
+            }
+        })
+    };
+
+    function getAllResourceList(req,res,next) {
         var reqData = {};
         async.waterfall(
             [

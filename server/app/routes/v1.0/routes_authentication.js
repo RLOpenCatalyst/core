@@ -427,7 +427,6 @@ module.exports.setRoutes = function(app) {
         if (req && req.session && req.session.user && req.session.user.password)
             delete req.session.user.password;
         if (req && req.session && req.session.user) {
-            logger.debug("Return User from session:>>>> ", JSON.stringify(req.session.user));
             res.send(JSON.stringify(req.session.user));
             return;
         } else {

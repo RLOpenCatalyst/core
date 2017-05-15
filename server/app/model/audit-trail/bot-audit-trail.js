@@ -62,6 +62,7 @@ var BotAuditTrailSchema = new BaseAuditTrail({
             type: Number,
             required: false
         },
+        serviceNowTicketRefObj:Schema.Types.Mixed,
         nodeIdsWithActionLog:[Schema.Types.Mixed]
     }
 });
@@ -78,17 +79,6 @@ BotAuditTrailSchema.statics.createNew = function(auditTrail,callback){
 }
 BotAuditTrailSchema.statics.updateBotAuditTrail = function(auditId,auditTrailObj,callback){
     BotAuditTrail.update({_id:new ObjectId(auditId)},{$set:auditTrailObj},{upsert:false}, function(err, updateAuditTrail) {
-        if (err) {
-            logger.error(err);
-            var error = new Error('Internal server error');
-            error.status = 500;
-            return callback(error);
-        }
-        return callback(null, updateAuditTrail);
-    });
-};
-BotAuditTrailSchema.statics.updateBotAuditTrailByActionLogId = function(actionLogId,auditTrailObj,callback){
-    BotAuditTrail.update({actionLogId:actionLogId},{$set:auditTrailObj},{upsert:false}, function(err, updateAuditTrail) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');

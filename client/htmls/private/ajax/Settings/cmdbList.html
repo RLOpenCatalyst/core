@@ -75,7 +75,7 @@ $.get('/cmdb/list', function(data) {
 //showing the data on the datatable by creating a table function and appending data to the rows.
 function createTableFromJson(data) {
 		var $taskbody = $('#cmdbtable').find('tbody');
-		for (i = 0; i < data.length; i++) {
+		for (var i = 0; i < data.length; i++) {
 
 				if (data[i].servicenowusername) {
 
@@ -86,7 +86,7 @@ function createTableFromJson(data) {
 
 						$tr.append('<td scope="col"><a target="_blank" href="' + data[i].url + '">'+ data[i].url +'</a></td>');
 
-						$tr.append('<td scope="col">' + data[i].orgname[0] + '</td>');
+						$tr.append('<td scope="col">' + data[i].orgname + '</td>');
 
 						var $td = $('<td></td>');
 
@@ -113,8 +113,6 @@ function createTableFromJson(data) {
 
 								var $tr = $(this).parents('tr');
 								var id = $tr.attr('id');
-								console.log(id);
-
 								bootbox.confirm({
 										message: 'Are you sure you want to Delete ?&nbsp;',
 										title: "Warning",
