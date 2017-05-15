@@ -28,6 +28,8 @@ var instancesDao = require('_pr/model/classes/instance/instance.js');
 var noticeService = require('_pr/services/noticeService.js');
 var scriptService = require('_pr/services/scriptService.js');
 var async = require('async');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var targz = require('targz');
 
 const errorType = 'commonService';
 
@@ -255,27 +257,51 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
             commonJson.ymlDocFileId = results;
             callback(null, commonJson);
             if (scriptIds.length > 0) {
-                scriptIds.forEach(function (scriptId) {
-                    var scriptFileName = appConfig.botFactoryDir + 'local/Code/script_BOTs/' + commonJson.id ;
-                    var scriptFolder = path.normalize(scriptFileName);
-                    mkdirp.sync(scriptFolder);
-                    scriptService.getScriptById(scriptId, function (err, fileData) {
-                        if (err) {
-                            logger.error("Error in reading file: ", err);
-                            return;
-                        } else {
-                            scriptFileName = scriptFileName + '/'+ fileData.fileName;
-                            fileIo.writeFile(scriptFileName, fileData.file, null, function (err) {
-                                if (err) {
-                                    logger.error("Error in Writing File:", err);
+                var count = 0;
+                for(var  i = 0; i < scriptIds.length; i++){
+                    (function(scriptId){
+                        var scriptFileName = appConfig.botFactoryDir + 'local/Code/script_BOTs/' + commonJson.id ;
+                        var scriptFolder = path.normalize(scriptFileName);
+                        mkdirp.sync(scriptFolder);
+                        scriptService.getScriptById(scriptId, function (err, fileData) {
+                            if (err) {
+                                logger.error("Error in reading file: ", err);
+                                count++;
+                                if(count === scriptIds.length){
+                                    uploadFilesOnBotEngine(reqBody.orgId,function(err,data){
+                                        if(err){
+                                            logger.error("Error in uploading files at Bot Engine:",err);
+                                        }
+                                        return;
+                                    })
                                 }
-                                return;
-                            });
-                        }
-                    })
-                })
+                            } else {
+                                scriptFileName = scriptFileName + '/'+ fileData.fileName;
+                                fileIo.writeFile(scriptFileName, fileData.file, null, function (err) {
+                                    if (err) {
+                                        logger.error("Error in Writing File:", err);
+                                    }
+                                    count++;
+                                    if(count === scriptIds.length){
+                                        uploadFilesOnBotEngine(reqBody.orgId,function(err,data){
+                                            if(err){
+                                                logger.error("Error in uploading files at Bot Engine:",err);
+                                            }
+                                            return;
+                                        })
+                                    }
+                                });
+                            }
+                        })
+                    })(scriptIds[i]);
+                }
             } else {
-                return;
+                uploadFilesOnBotEngine(reqBody.orgId,function(err,data){
+                    if(err){
+                        logger.error("Error in uploading files at Bot Engine:",err);
+                    }
+                    return;
+                })
             }
         }
     });
@@ -483,6 +509,69 @@ function getBlueprintType(type){
             break
     }
     return blueprintType;
+}
+
+function uploadFilesOnBotEngine(orgId,callback){
+    async.waterfall([
+        function (next) {
+            var botRemoteServerDetails = {}
+            masterUtil.getBotRemoteServerDetailByOrgId(orgId, function (err, botServerDetails) {
+                if (err) {
+                    logger.error("Error while fetching BOTs Server Details");
+                    next(err, null);
+                    return;
+                } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                    botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                    botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                } else {
+                    botRemoteServerDetails.hostIP = "localhost";
+                    botRemoteServerDetails.hostPort = "2687";
+                }
+                next(null, botRemoteServerDetails);
+            });
+        },
+        function (botRemoteServerDetails, next) {
+            var uploadCompress = appConfig.botFactoryDir + 'upload_compress.tar.gz';
+            var upload = appConfig.botFactoryDir+'local';
+            targz.compress({
+                src: upload,
+                dest: uploadCompress
+            }, function (err) {
+                if (err) {
+                    next(err, null);
+                } else {
+                    var options = {
+                        url: "http://" + botRemoteServerDetails.hostIP + ":" + botRemoteServerDetails.hostPort + "/bot/factory/upload",
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        },
+                        formData: {
+                            file: {
+                                value: fs.readFileSync(uploadCompress),
+                                options: {
+                                    filename: uploadCompress,
+                                    contentType: 'application/tar+gzip'
+                                }
+                            }
+                        }
+                    };
+                    request.post(options, function (err, res, data) {
+                        next(err, res)
+                        fs.unlinkSync(uploadCompress);
+                    });
+                }
+            });
+        }
+    ], function (err, res) {
+        if (err) {
+            logger.error("Unable to connect remote server");
+            callback(err,null);
+        }else{
+            callback(null,null);
+            return;
+        }
+    });
+
 }
 
 

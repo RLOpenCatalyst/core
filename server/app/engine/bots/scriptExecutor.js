@@ -154,212 +154,71 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
             replaceTextObj[botDetail.inputFormFields[j].name] = botDetail.inputFormFields[j].default;
         }
     }
-    var cmd = '';
-    if(botDetail.source === 'Catalyst'){
-        scriptService.getScriptById(botDetail.execution[0].entrypoint,function(err,fileData){
-            if (err || !fileData.file) {
-                logger.error(err);
-                var timestampEnded = new Date().getTime();
-                logData.err= true;
-                logData.log= "Error in Getting Script for Source Catalyst";
-                logData.timestamp= timestampEnded;
-                logsDao.insertLog(logData);
-                noticeService.updater(actionId,'log',logData);
-                var resultTaskExecution = {
-                    "actionStatus": 'failed',
-                    "status": 'failed',
-                    "endedOn": new Date().getTime(),
-                    "actionLogId": actionId
-                };
-                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
-                    if (err) {
-                        logger.error("Failed to create or update bots Log: ", err);
-                    }
-                    noticeService.notice(userName, {
-                        title: "Script BOT Execution",
-                        body: "Error in Getting Script for Source Catalyst"
-                    }, "error", function (err, data) {
-                        if (err) {
-                            logger.error("Error in Notification Service, ", err);
-                        }
-                    });
-                })
-                callback(err,null);
-                return;
-            }else{
-                var fileName = uuid.v4() + '_' + fileData.fileName
-                var desPath = appConfig.scriptDir + fileName;
-                fileIo.writeFile(desPath, fileData.file, false, function (err) {
-                    if (err) {
-                        logger.error("Unable to write file");
-                        var timestampEnded = new Date().getTime();
-                        logData.err= true;
-                        logData.log= "Error in writing Script for Source Catalyst";
-                        logData.timestamp= timestampEnded;
-                        logsDao.insertLog(logData);
-                        noticeService.updater(actionId,'log',logData);
-                        var resultTaskExecution = {
-                            "actionStatus": 'failed',
-                            "status": 'failed',
-                            "endedOn": new Date().getTime(),
-                            "actionLogId": actionId
-                        };
-                        auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
-                            if (err) {
-                                logger.error("Failed to create or update bots Log: ", err);
-                            }
-                            noticeService.notice(userName, {
-                                title: "Script BOT Execution",
-                                body: "Error in writing Script for Source Catalyst"
-                            }, "error", function (err, data) {
-                                if (err) {
-                                    logger.error("Error in Notification Service, ", err);
-                                }
-                            });
-                        })
-                        callback(err,null);
-                        return;
-                    } else {
-                         cmd = 'sudo '+ botDetail.execution[0].type + ' ' + desPath;
-                         var params = botDetail.execution[0].param.split(" ");
-                         if(params.length > 0){
-                             var pattern = /([a-zA-Z_])\w+/g;
-                             params.forEach(function(param){
-                                 var key = param.match(pattern);
-                                 cmd = cmd + ' '+replaceTextObj[key];
-                             });
-                         }
-                        commonService.executeCmd(null,null,null,null,actionId,botDetail._id,botDetail.id,cmd,function(err,result){
-                            if(err || result === true){
-                                logger.error(err);
-                                var timestampEnded = new Date().getTime();
-                                logData.err= true;
-                                logData.log= "Error in executing Script for Source Catalyst";
-                                logData.timestamp= timestampEnded;
-                                logsDao.insertLog(logData);
-                                noticeService.updater(actionId,'log',logData);
-                                var resultTaskExecution = {
-                                    "actionStatus": 'failed',
-                                    "status": 'failed',
-                                    "endedOn": new Date().getTime(),
-                                    "actionLogId": actionId
-                                };
-                                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to create or update bots Log: ", err);
-                                    }
-                                    noticeService.notice(userName, {
-                                        title: "Script BOT Execution",
-                                        body: "Error in executing Script for Source Catalyst"
-                                    }, "error", function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in Notification Service, ", err);
-                                        }
-                                    });
-                                })
-                                callback(err,null);
-                                return;
-                            }else{
-                                logger.debug("Script Execution is Done");
-                                var timestampEnded = new Date().getTime();
-                                logData.err= false;
-                                logData.log= 'BOT execution is success on local for BOT : '+botDetail.id;
-                                logData.timestamp= timestampEnded;
-                                logsDao.insertLog(logData);
-                                noticeService.updater(actionId,'log',logData);
-                                var resultTaskExecution = {
-                                    "actionStatus": 'success',
-                                    "status": 'success',
-                                    "endedOn": new Date().getTime(),
-                                    "actionLogId": actionId
-                                };
-                                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to create or update bots Log: ", err);
-                                    }
-                                    noticeService.notice(userName, {
-                                        title: "Script BOT Execution",
-                                        body: 'BOT execution is success on local for BOT : '+botDetail.id
-                                    }, "success", function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in Notification Service, ", err);
-                                        }
-                                    });
-                                })
-                                callback(null,result);
-                                return;
-                            }
-                        })
-                    }
-                })
+
+    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+    var reqBody = {
+        "data": replaceTextObj
+    };
+    var executorUrl = '/bot/' + botDetail.id + '/exec';
+    var options = {
+        url: serverUrl + executorUrl,
+        headers: {
+            'Content-Type': 'application/json',
+            'charset': 'utf-8'
+        },
+        json: true,
+        body: reqBody
+    };
+    request.post(options, function (err, res, body) {
+        if (res.statusCode === 200) {
+            var auditQueueDetails = {
+                userName: userName,
+                botId: botDetail.id,
+                bot_id: botDetail._id,
+                logRefId: logsReferenceIds,
+                auditId: actionId,
+                instanceLog: '',
+                instanceIP: '',
+                auditTrailId: auditTrail._id,
+                remoteAuditId: body.ref,
+                link: body.link,
+                status: "pending",
+                serverUrl: serverUrl,
+                env: "local",
+                retryCount: 0
             }
-        })
-    }else {
-        var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-        var reqBody = {
-            "data": replaceTextObj
-        };
-        var executorUrl = '/bot/' + botDetail.id + '/exec';
-        var options = {
-            url: serverUrl + executorUrl,
-            headers: {
-                'Content-Type': 'application/json',
-                'charset': 'utf-8'
-            },
-            json: true,
-            body: reqBody
-        };
-        request.post(options, function (err, res, body) {
-            if (res.statusCode === 200) {
-                var auditQueueDetails = {
-                    userName: userName,
-                    botId: botDetail.id,
-                    bot_id: botDetail._id,
-                    logRefId: logsReferenceIds,
-                    auditId: actionId,
-                    instanceLog: '',
-                    instanceIP: '',
-                    auditTrailId: auditTrail._id,
-                    remoteAuditId: body.ref,
-                    link: body.link,
-                    status: "pending",
-                    serverUrl: serverUrl,
-                    env: "local",
-                    retryCount: 0
+            auditQueue.setAudit(auditQueueDetails);
+            return;
+        }
+        else {
+            logData.log = res.statusCode === 502 ? "BOT Engine is not responding, Please check " + serverUrl : "Error in Script executor"
+            logData.timestamp = new Date().getTime();
+            logData.err = true;
+            logsDao.insertLog(logData);
+            noticeService.updater(actionId, 'log', logData);
+            var timestampEnded = new Date().getTime();
+            var resultTaskExecution = {
+                "actionStatus": 'failed',
+                "status": 'failed',
+                "endedOn": new Date().getTime(),
+                "actionLogId": actionId
+            };
+            auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
+                if (err) {
+                    logger.error("Failed to create or update bots Log: ", err);
                 }
-                auditQueue.setAudit(auditQueueDetails);
-                return;
-            }
-            else {
-                logData.log = res.statusCode === 502?"BOT Engine is not responding, Please check "+serverUrl:"Error in Script executor"
-                logData.timestamp = new Date().getTime();
-                logData.err = true;
-                logsDao.insertLog(logData);
-                noticeService.updater(actionId,'log',logData);
-                var timestampEnded = new Date().getTime();
-                var resultTaskExecution = {
-                    "actionStatus": 'failed',
-                    "status": 'failed',
-                    "endedOn": new Date().getTime(),
-                    "actionLogId": actionId
-                };
-                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
+                noticeService.notice(userName, {
+                    title: "Script BOT Execution",
+                    body: res.statusCode === 502 ? "Bot Enginge is not running" : "Error in Script executor"
+                }, "error", function (err, data) {
                     if (err) {
-                        logger.error("Failed to create or update bots Log: ", err);
+                        logger.error("Error in Notification Service, ", err);
                     }
-                    noticeService.notice(userName, {
-                        title: "Script BOT Execution",
-                        body: res.statusCode === 502?"Bot Enginge is not running":"Error in Script executor"
-                    }, "error",function(err,data){
-                        if(err){
-                            logger.error("Error in Notification Service, ",err);
-                        }
-                    });
-                    return;
-                })
-            }
-        });
-    }
+                });
+                return;
+            })
+        }
+    });
 };
 
 
@@ -439,7 +298,7 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
             }
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Pem_Based_Authentication";
-        }else if (decryptedCredentials.fileData) {
+        } else if (decryptedCredentials.fileData) {
             sshOptions.privateKey = decryptedCredentials.fileData;
             authenticationObj.id = "Pem_Based_Authentication";
             authenticationObj.authType = "pem";
@@ -449,7 +308,7 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
             }
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Pem_Based_Authentication";
-        }else {
+        } else {
             sshOptions.password = decryptedCredentials.password;
             authenticationObj.id = "Password_Based_Authentication";
             authenticationObj.authType = "password";
@@ -479,240 +338,85 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
                 replaceTextObj[botDetail.inputFormFields[j].name] = botDetail.inputFormFields[j].default;
             }
         }
-        var cmd = '';
-        if(botDetail.source === 'Catalyst'){
-            scriptService.getScriptById(botDetail.execution[0].entrypoint,function(err,fileData){
-                if (err || !fileData.file) {
-                    logger.error(err);
-                    var timestampEnded = new Date().getTime();
-                    logData.err= true;
-                    logData.log=  "Error in Getting Script for Source Catalyst";
-                    logData.timestamp= timestampEnded;
-                    logsDao.insertLog(logData);
-                    noticeService.updater(actionId,'log',logData);
-                    var resultTaskExecution = {
-                        "actionStatus": 'failed',
-                        "status": 'failed',
-                        "endedOn": new Date().getTime(),
-                        "actionLogId": actionLogId
-                    };
-                    auditTrailService.updateAuditTrail('BOT', auditTrailId, resultTaskExecution, function (err, data) {
-                        if (err) {
-                            logger.error("Failed to create or update bots Log: ", err);
-                        }
-                        noticeService.notice(userName, {
-                            title: "Script BOT Execution",
-                            body: "Error in Getting Script for Source Catalyst"
-                        }, "error", function (err, data) {
-                            if (err) {
-                                logger.error("Error in Notification Service, ", err);
-                            }
-                        });
-                    })
-                    callback(err,null);
-                    return;
-                }else{
-                    var fileName = uuid.v4() + '_' + fileData.fileName;
-                    var desPath = appConfig.scriptDir + fileName;
-                    fileIo.writeFile(desPath, fileData.file, false, function (err) {
-                        if (err) {
-                            logger.error("Unable to write file");
-                            var timestampEnded = new Date().getTime();
-                            logData.err= true;
-                            logData.log=  "Error in writing Script for Source Catalyst";
-                            logData.timestamp= timestampEnded;
-                            logsDao.insertLog(logData);
-                            noticeService.updater(actionId,'log',logData);
-                            var resultTaskExecution = {
-                                "actionStatus": 'failed',
-                                "status": 'failed',
-                                "endedOn": new Date().getTime(),
-                                "actionLogId": actionLogId
-                            };
-                            auditTrailService.updateAuditTrail('BOT', auditTrailId, resultTaskExecution, function (err, data) {
-                                if (err) {
-                                    logger.error("Failed to create or update bots Log: ", err);
-                                }
-                                noticeService.notice(userName, {
-                                    title: "Script BOT Execution",
-                                    body: "Error in writing Script for Source Catalyst"
-                                }, "error", function (err, data) {
-                                    if (err) {
-                                        logger.error("Error in Notification Service, ", err);
-                                    }
-                                });
-                            })
-                            callback(err,null);
-                            return;
-                        } else {
-                            var scp = new SCP(sshOptions);
-                            scp.upload(desPath, '/tmp', function (err) {
-                                if (err) {
-                                    logger.error("Unable to uploading file");
-                                    var timestampEnded = new Date().getTime();
-                                    logData.err= true;
-                                    logData.log=  "Error in uploading Script for Source Catalyst";
-                                    logData.timestamp= timestampEnded;
-                                    logsDao.insertLog(logData);
-                                    noticeService.updater(actionId,'log',logData);
-                                    var resultTaskExecution = {
-                                        "actionStatus": 'failed',
-                                        "status": 'failed',
-                                        "endedOn": new Date().getTime(),
-                                        "actionLogId": actionLogId
-                                    };
-                                    auditTrailService.updateAuditTrail('BOT', auditTrailId, resultTaskExecution, function (err, data) {
-                                        if (err) {
-                                            logger.error("Failed to create or update bots Log: ", err);
-                                        }
-                                        noticeService.notice(userName, {
-                                            title: "Script BOT Execution",
-                                            body: "Error in uploading Script for Source Catalyst"
-                                        }, "error", function (err, data) {
-                                            if (err) {
-                                                logger.error("Error in Notification Service, ", err);
-                                            }
-                                        });
-                                    })
-                                    callback(err,null);
-                                    return;
-                                }
-                                if(sshOptions.password) {
-                                    cmd = cmd + 'echo '+sshOptions.password+' | sudo -S ' + botDetail.execution[0].type + ' /tmp/' + fileName;
-                                }else{
-                                    cmd = cmd + 'sudo ' + botDetail.execution[0].type + ' /tmp/' + fileName;
-                                }
-                                var params = botDetail.execution[0].param.split(" ");
-                                if (params.length > 0) {
-                                    var pattern = /([a-zA-Z_])\w+/g;
-                                    params.forEach(function (param) {
-                                        var key = param.match(pattern);
-                                        cmd = cmd + ' ' + replaceTextObj[key];
-                                    });
-                                }
-                                commonService.executeCmd(sshOptions, instanceLog, instance._id, actionLog._id, actionLogId, botDetail._id, botDetail.id, cmd, function (err, result) {
-                                    if (err) {
-                                        logger.error(err);
-                                        var timestampEnded = new Date().getTime();
-                                        logData.err= true;
-                                        logData.log=  "Error in executing Script for Source Catalyst";
-                                        logData.timestamp= timestampEnded;
-                                        logsDao.insertLog(logData);
-                                        noticeService.updater(actionId,'log',logData);
-                                        var resultTaskExecution = {
-                                            "actionStatus": 'failed',
-                                            "status": 'failed',
-                                            "endedOn": new Date().getTime(),
-                                            "actionLogId": actionLogId
-                                        };
-                                        auditTrailService.updateAuditTrail('BOT', auditTrailId, resultTaskExecution, function (err, data) {
-                                            if (err) {
-                                                logger.error("Failed to create or update bots Log: ", err);
-                                            }
-                                            noticeService.notice(userName, {
-                                                title: "Script BOT Execution",
-                                                body: "Error in executing Script for Source Catalyst"
-                                            }, "error", function (err, data) {
-                                                if (err) {
-                                                    logger.error("Error in Notification Service, ", err);
-                                                }
-                                            });
-                                        })
-                                        callback(err, null);
-                                        return;
-                                    } else {
-                                        logger.debug("Script Execution is Done");
-                                        callback(null, null);
-                                        return;
-                                    }
-                                })
-                            })
-                        }
-                    })
+        var reqBody = {
+            "data": replaceTextObj,
+            "os": instance.hardware.os,
+            "authentication": authenticationObj,
+            "environment": envObj
+        };
+        var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+        var executorUrl = '/bot/' + botDetail.id + '/exec';
+        var options = {
+            url: serverUrl + executorUrl,
+            headers: {
+                'Content-Type': 'application/json',
+                'charset': 'utf-8'
+            },
+            json: true,
+            body: reqBody
+        };
+        request.post(options, function (err, res, body) {
+            if (res.statusCode === 200) {
+                var auditQueueDetails = {
+                    userName: userName,
+                    botId: botDetail.id,
+                    bot_id: botDetail._id,
+                    logRefId: logsReferenceIds,
+                    auditId: actionLogId,
+                    instanceLog: instanceLog,
+                    instanceIP: instance.instanceIP,
+                    auditTrailId: auditTrailId,
+                    remoteAuditId: res.body.ref,
+                    link: res.body.link,
+                    status: "pending",
+                    serverUrl: serverUrl,
+                    env: "remote",
+                    retryCount: 0
                 }
-            })
-        }else {
-            var reqBody = {
-                "data": replaceTextObj,
-                "os": instance.hardware.os,
-                "authentication": authenticationObj,
-                "environment": envObj
-            };
-            var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-            var executorUrl = '/bot/' + botDetail.id + '/exec';
-
-            var options = {
-                url: serverUrl + executorUrl,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'charset': 'utf-8'
-                },
-                json: true,
-                body: reqBody
-            };
-            request.post(options, function (err, res, body) {
-                if (res.statusCode === 200) {
-                    var auditQueueDetails = {
-                        userName: userName,
-                        botId: botDetail.id,
-                        bot_id: botDetail._id,
-                        logRefId: logsReferenceIds,
-                        auditId: actionLogId,
-                        instanceLog: instanceLog,
-                        instanceIP: instance.instanceIP,
-                        auditTrailId: auditTrailId,
-                        remoteAuditId: res.body.ref,
-                        link: res.body.link,
-                        status: "pending",
-                        serverUrl: serverUrl,
-                        env: "remote",
-                        retryCount: 0
+                auditQueue.setAudit(auditQueueDetails);
+                callback(null, null);
+                return;
+            } else {
+                logger.error(err);
+                var timestampEnded = new Date().getTime();
+                var logData = {
+                    instanceId: instance._id,
+                    instanceRefId: actionLog._id,
+                    botId: botDetail._id,
+                    botRefId: actionLogId,
+                    err: true,
+                    log: res.statusCode === 502 ? "BOT Engine is not responding, Please check " + serverUrl : "Error in Script executor",
+                    timestamp: timestampEnded
+                };
+                logsDao.insertLog(logData);
+                noticeService.updater(actionLogId, 'log', logData);
+                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                instanceLog.endedOn = new Date().getTime();
+                instanceLog.actionStatus = "failed";
+                instanceLog.logs = {
+                    err: false,
+                    log: "Error in BOT Engine executor: ",
+                    timestamp: new Date().getTime()
+                };
+                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
                     }
-                    auditQueue.setAudit(auditQueueDetails);
-                    callback(null, null);
-                    return;
-                } else {
-                    logger.error(err);
-                    var timestampEnded = new Date().getTime();
-                    var logData ={
-                        instanceId: instance._id,
-                        instanceRefId: actionLog._id,
-                        botId: botDetail._id,
-                        botRefId: actionLogId,
-                        err: true,
-                        log: res.statusCode === 502?"BOT Engine is not responding, Please check "+serverUrl:"Error in Script executor",
-                        timestamp: timestampEnded
-                    };
-                    logsDao.insertLog(logData);
-                    noticeService.updater(actionLogId,'log',logData);
-                    instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                    instanceLog.endedOn = new Date().getTime();
-                    instanceLog.actionStatus = "failed";
-                    instanceLog.logs = {
-                        err: false,
-                        log: "Error in BOT Engine executor: ",
-                        timestamp: new Date().getTime()
-                    };
-                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                });
+                callback(err, null);
+                noticeService.notice(userName,
+                    {
+                        title: "Script BOT Execution",
+                        body: res.statusCode === 502 ? "Bot Enginge is not running" : "Error in Script executor"
+                    }, "error", function (err, data) {
                         if (err) {
-                            logger.error("Failed to create or update instanceLog: ", err);
+                            logger.error("Error in Notification Service, ", err);
                         }
                     });
-                    callback(err, null);
-                    noticeService.notice(userName,
-                        {
-                            title: "Script BOT Execution",
-                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Script executor"
-                        }, "error",function(err,data){
-                            if(err){
-                                logger.error("Error in Notification Service, ",err);
-                            }
-                        });
-                    return;
-                }
-            })
-        }
-    })
+                return;
+            }
+        })
+    });
 }
 
 
