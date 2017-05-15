@@ -22,6 +22,7 @@ var client = new Client();
 var request = require('request');
 var auditQueue = require('_pr/config/global-data.js');
 var noticeService = require('_pr/services/noticeService.js');
+var resourceMapService = require('_pr/services/resourceMapService.js');
 
 
 var schedulerService = module.exports = {};
@@ -50,7 +51,6 @@ var GCP = require('_pr/lib/gcp.js');
 var crontab = require('node-crontab');
 var botOld = require('_pr/model/bots/1.0/botOld.js');
 var botDao = require('_pr/model/bots/1.1/bot.js');
-var logsDao = require('_pr/model/dao/logsdao.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var botEngineTimeOut = appConfig.botEngineTimeOut || 180;
 
@@ -383,7 +383,10 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                             var auditId = auditQueue.getAuditDetails('auditId', auditData.auditId);
                             if (auditId === null || auditId === 'undefined' || typeof auditId === 'undefined') {
                                 logsDao.insertLog({
-                                    referenceId: auditData.logRefId,
+                                    instanceId:auditData.logRefId[0],
+                                    instanceRefId:auditData.logRefId[1],
+                                    botId:auditData.bot_id,
+                                    botRefId: auditData.auditId,
                                     err: true,
                                     log: 'BOT Execution is failed on Remote(Time-out)',
                                     timestamp: timestampEnded
@@ -633,7 +636,7 @@ function createCronJob(cronPattern,instanceId,catUser,action,callback){
 }
 
 function startStopManagedInstance(instance,catUser,action,callback){
-    var actionStartLog = '',actionCompleteLog='',actionFailedLog='',vmWareAction='',instanceState='',actionLog = null;
+    var actionStartLog = '',actionCompleteLog='',actionFailedLog='',vmWareAction='',instanceState='',actionLog = null,resourceState ='';
     var timestampStarted = new Date().getTime();
     if(instanceState !== '' && instanceState === instance.instanceState){
         callback({
@@ -647,6 +650,7 @@ function startStopManagedInstance(instance,catUser,action,callback){
         actionFailedLog='Unable to start instance';
         vmWareAction='poweron';
         instanceState='running';
+        resourceState = 'Running';
         actionLog = instancesDao.insertStartActionLog(instance._id, catUser, timestampStarted);
     }else if(action === 'Stop'){
         actionStartLog = 'Instance Stopping';
@@ -654,10 +658,18 @@ function startStopManagedInstance(instance,catUser,action,callback){
         actionFailedLog='Unable to stop instance';
         vmWareAction='poweroff';
         instanceState='stopped';
+        resourceState = 'Stopped';
         actionLog = instancesDao.insertStopActionLog(instance._id, catUser, timestampStarted);
     }else{
         logger.debug("Action is not matched for corresponding operation. "+action);
         callback(null,null);
+    }
+    if(instance.domainName && instance.domainName !== null){
+       resourceMapService.updateResourceMap(instance.domainName,{state:resourceState},function(err,data){
+           if(err){
+               logger.error("Error in updating ResourceMap State: ",err);
+           }
+       })
     }
     var instanceLog = {
         actionId: "",
@@ -686,17 +698,13 @@ function startStopManagedInstance(instance,catUser,action,callback){
         logReferenceIds.push(actionLog._id);
     }
     logsDao.insertLog({
-        referenceId: logReferenceIds,
+        instanceId:instance._id,
+        instanceRefId:actionLog._id,
         err: false,
         log: actionStartLog,
         timestamp: timestampStarted
     });
     instanceLog.actionId = actionLog._id;
-    instanceLog.logs = {
-        err: false,
-        log: actionStartLog,
-        timestamp: new Date().getTime()
-    };
     instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
         if (err) {
             logger.error("Failed to create or update instanceLog: ", err);
@@ -1064,7 +1072,8 @@ function startStopManagedInstance(instance,catUser,action,callback){
 function checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,callback) {
     var timestampEnded = new Date().getTime();
     logsDao.insertLog({
-        referenceId: logReferenceIds,
+        instanceId:logReferenceIds[0],
+        instanceRefId:logReferenceIds[1],
         err: true,
         log: actionFailedLog,
         timestamp: timestampEnded
@@ -1073,11 +1082,6 @@ function checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,c
     instanceLog.endedOn = new Date().getTime();
     instanceLog.actionId = logReferenceIds[1];
     instanceLog.actionStatus = "failed";
-    instanceLog.logs = {
-        err: true,
-        log: actionFailedLog,
-        timestamp: new Date().getTime()
-    };
     instanceLogModel.createOrUpdate(logReferenceIds[1], logReferenceIds[0], instanceLog, function (err, logData) {
         if (err) {
             logger.error("Failed to create or update instanceLog: ", err);
@@ -1101,7 +1105,8 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
     });
     var timestampEnded = new Date().getTime()
     logsDao.insertLog({
-        referenceId: logReferenceIds,
+        instanceId:logReferenceIds[0],
+        instanceRefId:logReferenceIds[1],
         err: false,
         log: actionCompleteLog,
         timestamp: timestampEnded
@@ -1110,11 +1115,6 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
     instanceLog.endedOn = new Date().getTime();
     instanceLog.status = instanceState;
     instanceLog.actionStatus = "success";
-    instanceLog.logs = {
-        err: false,
-        log: actionCompleteLog,
-        timestamp: new Date().getTime()
-    };
     instanceLogModel.createOrUpdate(logReferenceIds[1], logReferenceIds[0], instanceLog, function (err, logData) {
         if (err) {
             logger.error("Failed to create or update instanceLog: ", err);

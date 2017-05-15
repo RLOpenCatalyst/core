@@ -581,66 +581,99 @@ function resourceMapSync(callback){
         },
         function(resourceMaps,next){
             if(resourceMaps.length >0){
-                resourceMaps.forEach(function(resourceMap){
-                    if(resourceMap.type === 'SoftwareStack' || resourceMap.type === 'OSImage'){
-                        instancesDao.getInstanceById(resourceMap.resources[0],function(err,instanceData){
-                            if(err){
-                                logger.error(err);
-                            }else if(instanceData.length > 0){
-                                var resourceMapState = null;
-                                if(instanceData[0].instanceState === 'terminated'){
-                                    resourceMapState ='Terminated';
-                                }else if(instanceData[0].instanceState === 'stopped'){
-                                    resourceMapState ='Stopped';
-                                }else if(instanceData[0].instanceState === 'running'){
-                                    resourceMapState ='Running';
-                                }else{
-                                    logger.debug("Invalid state for ResourceMap: "+instanceData[0].instanceState);
+                var count = 0;
+                for(var i = 0; i < resourceMaps.length; i++){
+                    (function(resourceMap) {
+                        if (resourceMap.type === 'SoftwareStack' || resourceMap.type === 'OSImage') {
+                            instancesDao.getInstanceById(resourceMap.resources[0].id, function (err, instanceData) {
+                                if (err) {
+                                    logger.error(err);
                                 }
-                                if(resourceMapState !== null){
-                                    resourceMapService.updateResourceMap(resourceMap.name,{state:resourceMapState},function(err,data){
-                                        if(err){
-                                            logger.error(err);
-                                        }
-                                    })
+                                if (instanceData.length > 0) {
+                                    var resourceMapState = null;
+                                    if (instanceData[0].instanceState === 'terminated') {
+                                        resourceMapState = 'Terminated';
+                                    } else if (instanceData[0].instanceState === 'stopped') {
+                                        resourceMapState = 'Stopped';
+                                    } else if (instanceData[0].instanceState === 'running') {
+                                        resourceMapState = 'Running';
+                                    } else {
+                                        logger.debug("Invalid state for ResourceMap: " + instanceData[0].instanceState);
+                                    }
+                                    if (resourceMapState !== null) {
+                                        resourceMapService.updateResourceMap(resourceMap.name, {state: resourceMapState}, function (err, data) {
+                                            if (err) {
+                                                logger.error(err);
+                                            }
+                                            count++;
+                                            if(count === resourceMaps.length){
+                                                callback(null,resourceMaps.length);
+                                                return;
+                                            }
+                                        })
+                                    }
+                                } else {
+                                    count++;
+                                    logger.debug("No Records are available in DB against Instance : " + resourceMap.resources[0]);
+                                    if(count === resourceMaps.length){
+                                        callback(null,resourceMaps.length);
+                                        return;
+                                    }
                                 }
-                            }else{
-                                logger.debug("No Records are available in DB against Instance : "+resourceMap.resources[0]);
+                            });
+                        } else if (resourceMap.type === 'CloudFormation') {
+                            var instanceIds = [];
+                            for (var i = 0; i < resourceMap.resources.length; i++) {
+                                instanceIds.push(resourceMap.resources[i].id);
                             }
-                        });
-                    }else if(resourceMap.type === 'CloudFormation'){
-                        instancesDao.getInstances(resourceMap.resources,function(err,instances){
-                            if(err){
-                                logger.error(err);
-                            }else if(instances.length > 0){
-                                var resourceMapStateList = [],resourceMapState=null;
-                                instances.forEach(function(instance){
-                                    resourceMapStateList.push(instance.instanceState);
-                                })
-                                if(resourceMapStateList.indexOf('running') >= 0){
-                                    resourceMapState ='Running';
-                                }else if(resourceMapStateList.indexOf('stopped') >= 0){
-                                    resourceMapState ='Stopped';
-                                }else if(resourceMapStateList.indexOf('terminated') >= 0){
-                                    resourceMapState ='Terminated';
-                                }else{
-                                    logger.debug("Invalid state for ResourceMap: "+instanceData[0].instanceState);
-                                }
-                                if(resourceMapState !== null){
-                                    resourceMapService.updateResourceMap(resourceMap.name,{state:resourceMapState},function(err,data){
-                                        if(err){
-                                            logger.error(err);
-                                        }
+                            instancesDao.getInstances(instanceIds, function (err, instances) {
+                                if (err) {
+                                    logger.error(err);
+                                } else if (instances.length > 0) {
+                                    var resourceMapStateList = [], resourceMapState = null;
+                                    instances.forEach(function (instance) {
+                                        resourceMapStateList.push(instance.instanceState);
                                     })
+                                    if (resourceMapStateList.indexOf('running') >= 0) {
+                                        resourceMapState = 'Running';
+                                    } else if (resourceMapStateList.indexOf('stopped') >= 0) {
+                                        resourceMapState = 'Stopped';
+                                    } else if (resourceMapStateList.indexOf('terminated') >= 0) {
+                                        resourceMapState = 'Terminated';
+                                    } else {
+                                        logger.debug("Invalid state for ResourceMap: " + instanceData[0].instanceState);
+                                    }
+                                    if (resourceMapState !== null) {
+                                        resourceMapService.updateResourceMap(resourceMap.name, {state: resourceMapState}, function (err, data) {
+                                            if (err) {
+                                                logger.error(err);
+                                            }
+                                            count++;
+                                            if(count === resourceMaps.length){
+                                                callback(null,resourceMaps.length);
+                                                return;
+                                            }
+                                        })
+                                    }
+                                } else {
+                                    count++;
+                                    logger.debug("No Records are available in DB against Instance : " + resourceMap.resources[0]);
+                                    if(count === resourceMaps.length){
+                                        callback(null,resourceMaps.length);
+                                        return;
+                                    }
                                 }
-                            }else{
-                                logger.debug("No Records are available in DB against Instance : "+resourceMap.resources[0]);
+                            });
+                        } else {
+                            count++;
+                            logger.debug("Un-Supported Type : " + resourceMap.type);
+                            if(count === resourceMaps.length){
+                                callback(null,resourceMaps.length);
+                                return;
                             }
-                        });
-                    }else{
-                        logger.debug("Un-Supported Type : "+resourceMap.type);
-                    }
-                });
+                        }
+                    })(resourceMaps[i]);
+                }
             }else{
                 next(null,resourceMaps);
             }
