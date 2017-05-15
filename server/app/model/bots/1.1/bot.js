@@ -133,6 +133,18 @@ var BotSchema = new Schema ({
         type: Number,
         default: 0
     },
+    successExecutionCount: {
+        type: Number,
+        default: 0
+    },
+    failedExecutionCount: {
+        type: Number,
+        default: 0
+    },
+    srnSuccessExecutionCount: {
+        type: Number,
+        default: 0
+    },
     lastRunTime: {
         type: Number
     },
@@ -303,6 +315,7 @@ BotSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
 };
 
 BotSchema.statics.getAllBots = function(queryParam,callback){
+    queryParam.isDeleted = false;
     bot.find(queryParam, function(err, bots) {
         if (err) {
             logger.error(err);

@@ -114,7 +114,7 @@ botService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,savedTimeCheck,callback) {
+botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -126,105 +126,42 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
-            if(actionStatus !== null){
-                var query = {
-                    auditType: 'BOT',
-                    actionStatus: actionStatus,
-                    isDeleted:false
-                };
-                var botsIds = [];
-                auditTrail.getAuditTrails(query, function(err,botsAudits){
-                    if(err){
-                        next(err,null);
-                    }else if (botsAudits.length > 0) {
-                        for (var i = 0; i < botsAudits.length; i++) {
-                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
-                                botsIds.push(botsAudits[i].auditId);
-                            }
+            settingService.getOrgUserFilter(userName, function (err, orgIds) {
+                if (err) {
+                    next(err, null);
+                }
+                if(orgIds.length > 0){
+                    queryObj.queryObj['orgId'] = {$in: orgIds};
+                }
+                if(actionStatus !== null) {
+                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+                }
+                if(serviceNowCheck === true) {
+                    queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
+                    var botIds = [];
+                    botDao.getAllBots(queryObj.queryObj,function(err,botData){
+                        if(err){
+                            next(err,null);
                         }
-                        queryObj.queryObj._id = {$in:botsIds};
-                        settingService.getOrgUserFilter(userName,function(err,orgIds){
-                            if(err){
-                                next(err,null);
-                            }else if(orgIds.length > 0){
-                                queryObj.queryObj['orgId'] = {$in:orgIds};
-                                botDao.getBotsList(queryObj, next);
-                            }else{
-                                botDao.getBotsList(queryObj, next);
+                        if(botData.length > 0){
+                            botData.forEach(function(bot){
+                                botIds.push(bot._id);
+                            })
+                        }
+                        if(botIds.length > 0){
+                            delete queryObj.queryObj;
+                            queryObj.queryObj = {
+                                auditId: {$in:botIds}
                             }
-                        });
-                    }else {
-                        queryObj.queryObj._id = null;
-                        settingService.getOrgUserFilter(userName,function(err,orgIds){
-                            if(err){
-                                next(err,null);
-                            }else if(orgIds.length > 0){
-                                queryObj.queryObj['orgId'] = {$in:orgIds};
-                                botDao.getBotsList(queryObj, next);
-                            }else{
-                                botDao.getBotsList(queryObj, next);
-                            }
-                        });
-                    }
-                });
-            }else if(serviceNowCheck === true){
-                delete queryObj.queryObj;
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
-                    if(err){
-                        next(err,null);
-                    }else if(orgIds.length > 0){
-                        queryObj.queryObj = {
-                            auditType: 'BOT',
-                            actionStatus: 'success',
-                            'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
-                            isDeleted:false,
-                            'masterDetails.ordId': {$in:orgIds}
-                        };
-                        auditTrail.getAuditTrailList(queryObj, next);
-                    }else{
-                        queryObj.queryObj = {
-                            auditType: 'BOT',
-                            actionStatus: 'success',
-                            'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
-                            isDeleted:false
-                        };
-                        auditTrail.getAuditTrailList(queryObj, next);
-                    }
-                });
-            }else if(savedTimeCheck === true){
-                delete queryObj.queryObj;
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
-                    if(err){
-                        next(err,null);
-                    }else if(orgIds.length > 0){
-                        queryObj.queryObj = {
-                            auditType: 'BOT',
-                            actionStatus: 'success',
-                            isDeleted:false,
-                            'masterDetails.ordId': {$in:orgIds}
-                        };
-                        auditTrail.getAuditTrailList(queryObj, next);
-                    }else{
-                        queryObj.queryObj = {
-                            auditType: 'BOT',
-                            actionStatus: 'success',
-                            isDeleted:false
-                        };
-                        auditTrail.getAuditTrailList(queryObj, next);
-                    }
-                });
-            }else{
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
-                    if(err){
-                        next(err,null);
-                    }else if(orgIds.length > 0){
-                        queryObj.queryObj['orgId'] = {$in:orgIds};
-                        botDao.getBotsList(queryObj, next);
-                    }else{
-                        botDao.getBotsList(queryObj, next);
-                    }
-                });
-            }
+                            auditTrail.getAuditTrailList(queryObj,next);
+                        }else{
+                            botDao.getBotsList(queryObj, next);
+                        }
+                    })
+                }else{
+                    botDao.getBotsList(queryObj, next);
+                }
+            });
         },
         function(botList, next) {
             addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
@@ -251,11 +188,11 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             callback(err,null);
             return;
         }
-        var resultObj = {            
-            bots : results.botList.bots,            
-            metaData : results.botList.metaData,            
-            botSummary: results.botSummary        
-        }        
+        var resultObj = {
+            bots : results.botList.bots,
+            metaData : results.botList.metaData,
+            botSummary: results.botSummary
+        }
         callback(null,resultObj);
         return;
     });
@@ -374,6 +311,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                             var botUpdateObj = {
                                 executionCount: botExecutionCount,
                                 lastRunTime: new Date().getTime(),
+                                lastExecutionStatus:"running"
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         } else if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
@@ -389,7 +327,8 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                                     var botUpdateObj = {
                                         executionCount: botExecutionCount,
                                         lastRunTime: new Date().getTime(),
-                                        params:encryptData
+                                        params:encryptData,
+                                        lastExecutionStatus:"running"
                                     }
                                     if(reqBody.nodeIds){
                                         botUpdateObj.params.nodeIds = reqBody.nodeIds;
@@ -413,7 +352,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                 });
             }else {
                next(null,botDetails);
-            }  
+            }
         }
     ],function(err,results){
         if(err){
@@ -898,7 +837,7 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
         var botsObj={};
         for(var i = 0; i <bots.docs.length; i++){
             (function(bot){
-                if(bot.ymlDocFileId && bot.ymlDocFileId !== null) {
+                if(serviceNowCheck ===false) {
                     fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId, function (err, file) {
                         if (err) {
                             logger.error("Error in fetching YAML Documents for : " + bot.name + " " + err);
@@ -923,6 +862,9 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                             isScheduled: bot.isScheduled,
                             manualExecutionTime: bot.manualExecutionTime,
                             executionCount: bot.executionCount,
+                            successExecutionCount: bot.successExecutionCount,
+                            failedExecutionCount: bot.failedExecutionCount,
+                            srnSuccessExecutionCount: bot.srnSuccessExecutionCount,
                             scheduler: bot.scheduler,
                             createdOn: bot.createdOn,
                             lastRunTime: bot.lastRunTime,
