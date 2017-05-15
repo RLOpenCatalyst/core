@@ -68,7 +68,7 @@
                 { name: 'BOT Id',displayName: 'Type',field:'id',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
                 { name: 'BOT Type',displayName: 'BOT Type',field:'type',cellTooltip: true},
-                { name: 'Count',field:'successExecutionCount',cellTooltip: true},
+                { name: 'Execution Count',field:'successExecutionCount',cellTooltip: true},
                 { name: 'Saved Time',displayName: 'Saved Time', 
                     cellTemplate:'<span><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s</span>', cellTooltip: true
                 }
