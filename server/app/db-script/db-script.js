@@ -75,8 +75,13 @@ async.parallel({
                         }else{
                             count++;
                             if(count === logs.length){
-                                callback(null,logs.length);
-                                return;
+                                logsDao.removeLogsDetails({referenceId:{$ne:null}},function(err,data){
+                                    if(err){
+                                        logger.error("Error in removing logs:",err);
+                                    }
+                                    callback(null,logs.length);
+                                    return;
+                                })
                             }
                         }
                     })(logs[i]);
