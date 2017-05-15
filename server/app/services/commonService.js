@@ -32,6 +32,8 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var targz = require('targz');
 var fs = require('fs');
 var request = require('request');
+var path = require('path');
+var mkdirp = require('mkdirp');
 
 
 const errorType = 'commonService';
@@ -39,7 +41,7 @@ const errorType = 'commonService';
 var commonService = module.exports = {};
 
 commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
-    var scriptIds = [];
+    var ymlText = '',scriptFileName = '',count = 0;
     var commonJson = {
         id: reqBody.name.toLowerCase().replace(" ", "_") + '_' + uuid.v4().split("-")[0],
         name: reqBody.name,
@@ -68,27 +70,49 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
         commonJson.outputOptions.logs = reqBody.logs;
     }
     if (reqBody.type === 'script') {
-        reqBody.scriptDetails.forEach(function (scriptDetail) {
-            var params = '';
-            scriptDetail.scriptParameters.forEach(function (param) {
-                commonJson.inputFormFields.push({
-                    default: param.paramVal,
-                    type: param.paramType === "" ? "text" : param.paramType.toLowerCase(),
-                    label: param.paramDesc,
-                    name: param.paramDesc.toLowerCase().replace(" ", "_")
-                })
-                params = params + '${' + param.paramDesc.toLowerCase().replace(" ", "_") + '}'
-            })
-            commonJson.execution.push({
-                type: reqBody.scriptTypeName.toLowerCase(),
-                os: reqBody.scriptTypeName === 'Bash' || reqBody.scriptTypeName === 'Python' ? "ubuntu" : "windows",
-                stage: "Script",
-                param: params,
-                entrypoint: scriptDetail.scriptId
-            })
-            scriptIds.push(scriptDetail.scriptId);
-        })
         commonJson.outputOptions.msgs.text = "Script ${scripName} has executed successfully on Node ${node}";
+        for(var i = 0; i < reqBody.scriptDetails.length; i ++) {
+            (function (scriptDetail) {
+                scriptFileName = appConfig.botFactoryDir + 'local/Code/script_BOTs/' + commonJson.id;
+                var scriptFolder = path.normalize(scriptFileName);
+                mkdirp.sync(scriptFolder);
+                scriptService.getScriptById(scriptDetail.scriptId, function (err, fileData) {
+                    if (err) {
+                        logger.error("Error in reading file: ", err);
+                    } else {
+                        scriptFileName = scriptFileName + '/' + fileData.fileName;
+                        fileIo.writeFile(scriptFileName, fileData.file, null, function (err) {
+                            if (err) {
+                                logger.error("Error in Writing File:", err);
+                            } else {
+                                var params = '';
+                                count++;
+                                scriptDetail.scriptParameters.forEach(function (param) {
+                                    commonJson.inputFormFields.push({
+                                        default: param.paramVal,
+                                        type: param.paramType === "" ? "text" : param.paramType.toLowerCase(),
+                                        label: param.paramDesc,
+                                        name: param.paramDesc.toLowerCase().replace(" ", "_")
+                                    })
+                                    params = params + '${' + param.paramDesc.toLowerCase().replace(" ", "_") + '}'
+                                });
+                                commonJson.execution.push({
+                                    type: reqBody.scriptTypeName.toLowerCase(),
+                                    os: reqBody.scriptTypeName === 'Bash' || reqBody.scriptTypeName === 'Python' ? "ubuntu" : "windows",
+                                    stage: "Script",
+                                    param: params,
+                                    entrypoint: fileData.fileName
+                                });
+                                if(count ===reqBody.scriptDetails.length){
+                                    ymlText = yml.stringify(commonJson);
+                                    createYML()
+                                }
+                            }
+                        });
+                    }
+                })
+            })(reqBody.scriptDetails[i])
+        }
     } else if (reqBody.type === 'jenkins') {
         commonJson.isParameterized = reqBody.isParameterized;
         commonJson.autoSync = reqBody.autoSyncFlag;
@@ -134,6 +158,8 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
             })
         }
         commonJson.outputOptions.msgs.text = "${jenkinsJobName} job has successfully built on ${jenkinsServerName}";
+        ymlText = yml.stringify(commonJson);
+        createYML()
     } else if (reqBody.type === 'chef') {
         if (reqBody.attributes && (reqBody.attributes !== null || reqBody.attributes.length > 0)) {
             var attributeObj = {}, jsonObjKey = '';
@@ -175,6 +201,8 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
             })
         }
         commonJson.outputOptions.msgs.text = "Cookbook RunList ${runlist} has executed successful on Node ${node}";
+        ymlText = yml.stringify(commonJson);
+        createYML()
     } else if (reqBody.type === 'blueprints' || reqBody.type === 'blueprint') {
         if (reqBody.subType === 'aws_cf' || reqBody.subType === 'azure_arm') {
             commonJson.inputFormFields.push(
@@ -226,265 +254,51 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
             category: getBlueprintType(reqBody.blueprintType)
         })
         commonJson.outputOptions.msgs.text = "${blueprintName} has successfully launched on env ${envId}";
+        ymlText = yml.stringify(commonJson);
+        createYML()
     }
-    var ymlText = yml.stringify(commonJson);
-    commonJson.category = reqBody.category;
-    commonJson.orgId = reqBody.orgId;
-    commonJson.orgName = reqBody.orgName;
-    commonJson.source = "Catalyst";
-    var ymlFolderName = appConfig.botFactoryDir + 'local/YAML';
-    var ymlFileName = commonJson.id + '.yaml'
-    var path = require('path');
-    var mkdirp = require('mkdirp');
-    var ymlFolder = path.normalize(ymlFolderName);
-    mkdirp.sync(ymlFolder);
-    async.waterfall([
-        function (next) {
-            fileIo.writeFile(ymlFolder +'/'+ ymlFileName, ymlText,null, next);
-        },
-        function (next) {
-            fileUpload.uploadFile(commonJson.id + '.yaml', ymlFolder +'/'+ ymlFileName, null, next);
-        }
-    ], function (err, results) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            fileIo.removeFile(ymlFolder +'/'+ ymlFileName, function (err, removeCheck) {
-                if (err) {
+    function createYML() {
+        commonJson.category = reqBody.category;
+        commonJson.orgId = reqBody.orgId;
+        commonJson.orgName = reqBody.orgName;
+        commonJson.source = "Catalyst";
+        var ymlFolderName = appConfig.botFactoryDir + 'local/YAML';
+        var ymlFileName = commonJson.id + '.yaml'
+        var ymlFolder = path.normalize(ymlFolderName);
+        mkdirp.sync(ymlFolder);
+        async.waterfall([
+            function (next) {
+                fileIo.writeFile(ymlFolder + '/' + ymlFileName, ymlText, null, next);
+            },
+            function (next) {
+                fileUpload.uploadFile(commonJson.id + '.yaml', ymlFolder + '/' + ymlFileName, null, next);
+            }
+        ], function (err, results) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
+                    if (err) {
+                        logger.error(err);
+                    }
+                    logger.debug("Successfully remove YML file");
+                })
+                fileIo.removeFile(scriptFileName, function (err, removeCheck) {if (err) {
                     logger.error(err);
                 }
-                logger.debug("Successfully remove file");
-            })
-            return;
-        } else {
-            commonJson.ymlDocFileId = results;
-            callback(null, commonJson);
-            if (scriptIds.length > 0) {
-                var count = 0;
-                for(var  i = 0; i < scriptIds.length; i++){
-                    (function(scriptId){
-                        var scriptFileName = appConfig.botFactoryDir + 'local/Code/script_BOTs/' + commonJson.id ;
-                        var scriptFolder = path.normalize(scriptFileName);
-                        mkdirp.sync(scriptFolder);
-                        scriptService.getScriptById(scriptId, function (err, fileData) {
-                            if (err) {
-                                logger.error("Error in reading file: ", err);
-                                count++;
-                                if(count === scriptIds.length){
-                                    uploadFilesOnBotEngine(reqBody.orgId,function(err,data){
-                                        if(err){
-                                            logger.error("Error in uploading files at Bot Engine:",err);
-                                        }
-                                        return;
-                                    })
-                                }
-                            } else {
-                                scriptFileName = scriptFileName + '/'+ fileData.fileName;
-                                fileIo.writeFile(scriptFileName, fileData.file, null, function (err) {
-                                    if (err) {
-                                        logger.error("Error in Writing File:", err);
-                                    }
-                                    count++;
-                                    if(count === scriptIds.length){
-                                        uploadFilesOnBotEngine(reqBody.orgId,function(err,data){
-                                            if(err){
-                                                logger.error("Error in uploading files at Bot Engine:",err);
-                                            }
-                                            return;
-                                        })
-                                    }
-                                });
-                            }
-                        })
-                    })(scriptIds[i]);
-                }
+                    logger.debug("Successfully remove Script file");
+                })
+                return;
             } else {
-                uploadFilesOnBotEngine(reqBody.orgId,function(err,data){
-                    if(err){
-                        logger.error("Error in uploading files at Bot Engine:",err);
+                commonJson.ymlDocFileId = results;
+                callback(null, commonJson);
+                uploadFilesOnBotEngine(reqBody.orgId, function (err, data) {
+                    if (err) {
+                        logger.error("Error in uploading files at Bot Engine:", err);
                     }
                     return;
                 })
             }
-        }
-    });
-}
-
-commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId,actionId,actionLogId,botId,bot_id,cmd,callback){
-    if(sshOptions === null){
-        var errorCheck = false;
-        exec(cmd, function(err, stdout, stderr) {
-            if (err) {
-                logger.error(err);
-                callback(err,null);
-                return;
-            }
-            if(stdout){
-                var timestampEnded = new Date().getTime();
-                var logData ={
-                    botId: botId,
-                    botRefId: actionLogId,
-                    err: false,
-                    log: stdout.toString("ascii"),
-                    timestamp: timestampEnded
-                };
-                logsDao.insertLog(logData);
-                noticeService.updater(actionId,'log',logData);
-            }
-            if(stderr){
-                errorCheck = true;
-                var timestampEnded = new Date().getTime();
-                var logData ={
-                    botId: botId,
-                    botRefId: actionLogId,
-                    err: true,
-                    log: stderr.toString("ascii"),
-                    timestamp: timestampEnded
-                };
-                logsDao.insertLog(logData);
-                noticeService.updater(actionId,'log',logData);
-            }
-        })
-        callback(null,errorCheck);
-        return;
-    }else{
-        var sshExec = new SSHExec(sshOptions);
-        sshExec.exec(cmd, function (err, retCode) {
-            if (err) {
-                var timestampEnded = new Date().getTime();
-                var logData ={
-                    instanceId:instanceId,
-                    instanceRefId:actionId,
-                    botId: botId,
-                    botRefId: actionLogId,
-                    err: true,
-                    log: 'Unable to run Bot : '+bot_id,
-                    timestamp: timestampEnded
-                };
-                logsDao.insertLog(logData);
-                noticeService.updater(actionId,'log',logData);
-                instancesDao.updateActionLog(instanceId, actionId, false, timestampEnded);
-                instanceLog.endedOn = new Date().getTime();
-                instanceLog.actionStatus = "failed";
-                instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
-                    if (err) {
-                        logger.error("Failed to create or update instanceLog: ", err);
-                    }
-                });
-              callback(err,null);
-            }else if (retCode === 0) {
-                var timestampEnded = new Date().getTime();
-                var logData ={
-                    instanceId:instanceId,
-                    instanceRefId:actionId,
-                    botId: botId,
-                    botRefId: actionLogId,
-                    err: false,
-                    log:'BOT execution has success for BOT : ' + bot_id,
-                    timestamp: timestampEnded
-                };
-                logsDao.insertLog(logData);
-                noticeService.updater(actionId,'log',logData);
-                instancesDao.updateActionLog(instanceId, actionId, true, timestampEnded);
-                instanceLog.endedOn = new Date().getTime();
-                instanceLog.actionStatus = "success";
-                instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
-                    if (err) {
-                        logger.error("Failed to create or update instanceLog: ", err);
-                    }
-                });
-                callback(null,bot_id);
-                return;
-            } else {
-                if (retCode === -5000) {
-                    var logData ={
-                        instanceId: instanceId,
-                        instanceRefId: actionId,
-                        botId: botId,
-                        botRefId: actionLogId,
-                        err: true,
-                        log: 'Host Unreachable',
-                        timestamp: new Date().getTime()
-                    };
-                    logsDao.insertLog(logData);
-                    noticeService.updater(actionId,'log',logData);
-                    instanceLog.endedOn = new Date().getTime();
-                    instanceLog.actionStatus = "failed";
-                    instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
-                        if (err) {
-                            logger.error("Failed to create or update instanceLog: ", err);
-                        }
-                    });
-                    callback(null, bot_id);
-                    return;
-                } else if (retCode === -5001) {
-                    var logData ={
-                        instanceId: instanceId,
-                        instanceRefId: actionId,
-                        botId: botId,
-                        botRefId: actionLogId,
-                        err: true,
-                        log: 'Invalid credentials',
-                        timestamp: new Date().getTime()
-                    };
-                    logsDao.insertLog(logData);
-                    noticeService.updater(actionId,'log',logData);
-                    instanceLog.endedOn = new Date().getTime();
-                    instanceLog.actionStatus = "failed";
-                    instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
-                        if (err) {
-                            logger.error("Failed to create or update instanceLog: ", err);
-                        }
-                    });
-                    callback(null, bot_id);
-                    return;
-                } else {
-                    var logData ={
-                        instanceId: instanceId,
-                        instanceRefId: actionId,
-                        botId: botId,
-                        botRefId: actionLogId,
-                        err: true,
-                        log: 'Unknown error occured. ret code = ' + retCode,
-                        timestamp: new Date().getTime()
-                    };
-                    logsDao.insertLog(logData);
-                    noticeService.updater(actionId,'log',logData);
-                    instanceLog.endedOn = new Date().getTime();
-                    instanceLog.actionStatus = "failed";
-                    instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
-                        if (err) {
-                            logger.error("Failed to create or update instanceLog: ", err);
-                        }
-                    });
-                    callback(null, bot_id);
-                    return;
-                }
-            }
-        }, function (stdOut) {
-            var logData = {
-                instanceId:instanceId,
-                instanceRefId:actionId,
-                botId: botId,
-                botRefId: actionLogId,
-                err: false,
-                log: stdOut.toString('ascii'),
-                timestamp: new Date().getTime()
-            };
-            logsDao.insertLog(logData);
-            noticeService.updater(actionId,'log',logData);
-        }, function (stdErr) {
-            var logData = {
-                instanceId:instanceId,
-                instanceRefId:actionId,
-                botId: botId,
-                botRefId: actionLogId,
-                err: true,
-                log: stdErr.toString('ascii'),
-                timestamp: new Date().getTime()
-            };
-            logsDao.insertLog(logData);
-            noticeService.updater(actionId,'log',logData);
         });
     }
 }
