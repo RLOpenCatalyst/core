@@ -82,7 +82,12 @@ var CloudFormationSchema = new Schema({
     autoScaleTopicArn: String,
     autoScaleResourceIds: [String],
     autoScaleUsername: String,
-    autoScaleRunlist: [String]
+    autoScaleRunlist: [String],
+    isDeleted:{
+        type: Boolean,
+        default: false,
+        required:false
+    }
 });
 
 CloudFormationSchema.plugin(mongoosePaginate);
@@ -167,6 +172,7 @@ CloudFormationSchema.statics.createNew = function(cfData, callback) {
 
 
 CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
+    jsonData.queryObj.isDeleted = false;
     if(jsonData.pagination) {
         CloudFormation.paginate(jsonData.queryObj, jsonData.options, function (err, cftData) {
             if (err) {
@@ -183,7 +189,8 @@ CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, cal
             orgId: jsonData.orgId,
             bgId: jsonData.bgId,
             projectId: jsonData.projectId,
-            envId: jsonData.envId
+            envId: jsonData.envId,
+            isDeleted:false
         }
 
         this.find(queryObj, function(err, data) {
@@ -259,6 +266,19 @@ CloudFormationSchema.statics.removeById = function(cfId, callback) {
         }
         callback(null, deleteCount);
 
+    });
+};
+
+CloudFormationSchema.statics.removeCloudFormationById = function(cfId, callback) {
+    this.update({
+        "_id": new ObjectId(cfId)
+    },{$set:{isDeleted:true}}, function(err, softDeleteCount) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, softDeleteCount);
+        return;
     });
 };
 

@@ -19,7 +19,7 @@ var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var validate = require('mongoose-validator');
 var logger = require('_pr/logger')(module);
-var schemaValidator = require('../../dao/schema-validator');
+var schemaValidator = require('_pr/model/dao/schema-validator');
 var mongoosePaginate = require('mongoose-paginate');
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
 
@@ -50,7 +50,6 @@ var taskHistorySchema = new Schema({
         taskId: String,
         historyId: String
     }],
-
     blueprintExecutionResults: Schema.Types.Mixed,
     orgName: String,
     bgName: String,
@@ -94,25 +93,6 @@ taskHistorySchema.statics.createNew = function(historyData, callback) {
 };
 
 taskHistorySchema.statics.getHistoryByTaskId = function(taskId, callback) {
-    // this.find({
-    //  $query: {
-    //      taskId: taskId
-    //  },
-    //  $orderby: {
-    //      "buildNumber": -1
-    //  }
-    // }, function(err, tHistories) {
-    //  if (err) {
-    //      logger.debug('err = >', err);
-    //      callback(err, null);
-    //      return;
-    //  }
-    //  tHistories.sort({
-    //      "buildNumber": -1
-    //  })
-    //  callback(null, tHistories);
-    // });
-
     this.find({
         taskId: taskId
     }).sort({
@@ -126,8 +106,6 @@ taskHistorySchema.statics.getHistoryByTaskId = function(taskId, callback) {
         callback(null, tHistories);
     });
 };
-
-
 
 taskHistorySchema.statics.getHistoryByTaskIdAndHistoryId = function(taskId, historyId, callback) {
     this.find({

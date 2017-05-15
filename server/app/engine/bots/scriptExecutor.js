@@ -20,31 +20,25 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceModel = require('_pr/model/classes/instance/instance.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var uuid = require('node-uuid');
-var exec = require('exec');
-const fileHound= require('filehound');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var schedulerService = require('_pr/services/schedulerService.js');
-
 var credentialCryptography = require('_pr/lib/credentialcryptography');
-var SSHExec = require('_pr/lib/utils/sshexec');
-var SCP = require('_pr/lib/utils/scp');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
-
+var auditQueue = require('_pr/config/global-data.js');
+var fs = require('fs');
+var request = require('request');
 
 const errorType = 'scriptExecutor';
 
-//var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-//var pythonPort =  process.env.FORMAT_PORT || '2687';
 var scriptExecutor = module.exports = {};
 
 scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
     if(botsDetails.params && botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
         var actionLogId = uuid.v4();
-        var parallelScriptExecuteList =[];
         for(var i = 0 ;i < botsDetails.params.nodeIds.length; i++) {
             (function (nodeId) {
                 instanceModel.getInstanceById(nodeId, function (err, instances) {
@@ -53,63 +47,47 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                         callback(err, null);
                         return;
                     } else if (instances.length > 0) {
-                        logsDao.insertLog({
+                        var logData = {
                             referenceId: [actionLogId,botsDetails._id],
                             err: false,
-                            log: 'BOTs execution is started for Script BOTs  ' + botsDetails.id +" on Remote",
+                            log: 'BOT execution has started for Script BOTs  ' + botsDetails.id +" on Remote",
                             timestamp: new Date().getTime()
-                        });
-                        parallelScriptExecuteList.push(function(callback){executeScriptOnRemote(instances[0],botsDetails,actionLogId,userName,botHostDetails,callback);});
-                        if(parallelScriptExecuteList.length === botsDetails.params.nodeIds.length){
-                            var botAuditTrailObj = {
-                                botId: botsDetails._id,
-                                actionId: actionLogId
-                            }
-                            callback(null, botAuditTrailObj);
-                            async.parallel(parallelScriptExecuteList, function (err, results) {
-                                if (err) {
-                                    logger.error("Error in Executor",err);
-                                    var resultTaskExecution = {
-                                        "actionStatus": 'failed',
-                                        "status": 'failed',
-                                        "endedOn": new Date().getTime(),
-                                        "actionLogId": actionLogId
-                                    };
-                                    logsDao.insertLog({
-                                        referenceId: [actionLogId,botsDetails._id],
-                                        err: true,
-                                        log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id +" on Remote",
-                                        timestamp: new Date().getTime()
-                                    });
-                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                        if (err) {
-                                            logger.error("Failed to create or update bots Log: ", err);
-                                        }
-                                        return;
-                                    });
-                                }else {
-                                    logsDao.insertLog({
-                                        referenceId: [actionLogId,botsDetails._id],
-                                        err: false,
-                                        log: 'BOTs execution is success for Script BOTs  ' + botsDetails.id +" on Remote",
-                                        timestamp: new Date().getTime()
-                                    });
-                                    logger.debug(botsDetails.id+" BOTs Execution Done")
-                                    var resultTaskExecution = {
-                                        "actionStatus": 'success',
-                                        "status": 'success',
-                                        "endedOn": new Date().getTime(),
-                                        "actionLogId": actionLogId
-                                    };
-                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                        if (err) {
-                                            logger.error("Failed to create or update bots Log: ", err);
-                                        }
-                                        return;
-                                    });
-                                }
-                            })
                         }
+                        logsDao.insertLog(logData);
+                        noticeService.updater(actionLogId,'log',logData);
+                        var botAuditTrailObj = {
+                            botId: botsDetails._id,
+                            actionId: actionLogId
+                        }
+                        callback(null, botAuditTrailObj);
+                        executeScriptOnRemote(instances[0],botsDetails,actionLogId,auditTrail._id,userName,botHostDetails,function(err,data){
+                            if(err){
+                                logger.error("Error in Executor", err);
+                                var resultTaskExecution = {
+                                    "actionStatus": 'failed',
+                                    "status": 'failed',
+                                    "endedOn": new Date().getTime(),
+                                    "actionLogId": actionLogId
+                                };
+                                var logData = {
+                                    referenceId: [actionLogId, botsDetails._id],
+                                    err: true,
+                                    log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id + " on Remote",
+                                    timestamp: new Date().getTime()
+                                };
+                                logsDao.insertLog(logData);
+                                noticeService.updater(actionLogId,'log',logData);
+                                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
+                                    if (err) {
+                                        logger.error("Failed to create or update bots Log: ", err);
+                                    }
+                                    return;
+                                });
+                            }else{
+                                logger.debug("BOT Execution is going on:::::");
+                                return;
+                            }
+                        });
                     }else{
                         logger.debug("No Instance Detail Available.");
                         return;
@@ -138,12 +116,14 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails._id, actionId];
     var replaceTextObj = {};
-    logsDao.insertLog({
+    var logData = {
         referenceId: logsReferenceIds,
         err: false,
-        log: 'BOTs execution is started for Script BOTs  ' + botsScriptDetails.id + " on Local",
+        log: 'BOT execution has started for Script BOTs  ' + botsScriptDetails.id + " on Local",
         timestamp: new Date().getTime()
-    });
+    };
+    logsDao.insertLog(logData);
+    noticeService.updater(actionId,'log',logData);
     var botAuditTrailObj = {
         botId: botsScriptDetails._id,
         actionId: actionId
@@ -163,161 +143,85 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     var reqBody = {
         "data": replaceTextObj
     };
-    var supertest = require("supertest");
-    var server = supertest.agent("http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort);
     var executorUrl = '/bot/' + botsScriptDetails.id + '/exec';
-    server
-        .post(executorUrl)
-        .send(reqBody)
-        .set({'Content-Type': 'application/json'})
-        .end(function (err, res) {
-            if (!err) {
-                var every = require('every-moment');
-                var wait = require('wait-one-moment');
-                var runningStatus = "pending";
-                var timer = every(5, 'seconds', function () {
-                    schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
-                        if (err) {
-                            runningStatus="failed";
-                            logger.error("In Error for Fetching Executor Audit Trails ", err);
-                            var timestampEnded = new Date().getTime();
-                            logsDao.insertLog({
-                                referenceId: logsReferenceIds,
-                                err: true,
-                                log: "Error in Fetching Audit Trails",
-                                timestamp: timestampEnded
-                            });
-                            var resultTaskExecution = {
-                                "actionStatus": 'failed',
-                                "status": 'failed',
-                                "endedOn": new Date().getTime(),
-                                "actionLogId": actionId
-                            };
-                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                if (err) {
-                                    logger.error("Failed to create or update bots Log: ", err);
-                                }
-                                noticeService.notice(userName,
-                                    {
-                                        title: "BOTs Execution",
-                                        body: "Error in Fetching Audit Trails"
-                                    }, "error", function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in Notification Service, ", err);
-                                        }
-                                    });
-                                timer.stop();
-                                return;
-                            });
-                        } else if (result.state === 'terminated') {
-                            runningStatus="success";
-                            var timestampEnded = new Date().getTime();
-                            logsDao.insertLog({
-                                referenceId: logsReferenceIds,
-                                err: false,
-                                log: result.status.text,
-                                timestamp: timestampEnded
-                            });
-                            logsDao.insertLog({
-                                referenceId: logsReferenceIds,
-                                err: false,
-                                log: botsScriptDetails.id+' BOTs execution success on Local ',
-                                timestamp: timestampEnded
-                            });
-
-                            var resultTaskExecution = {
-                                "actionStatus": 'success',
-                                "status": 'success',
-                                "endedOn": new Date().getTime(),
-                                "actionLogId": actionId
-                            };
-                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                if (err) {
-                                    logger.error("Failed to create or update bots Log: ", err);
-                                }
-                                logger.debug(botsScriptDetails.id+" BOTs Execution Done on Local");
-                                timer.stop();
-                                var botService = require('_pr/services/botsService');
-                                botService.updateSavedTimePerBots(botsScriptDetails._id, 'BOTsNew', function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to update bots saved Time: ", err);
-                                    }
-                                });
-                                noticeService.notice(userName, {
-                                    title: "BOTs Execution",
-                                    body: result.status.text
-                                }, "success", function (err, data) {
-                                    if (err) {
-                                        logger.error("Error in Notification Service, ", err);
-                                    }
-                                });
-                                return;
-                            });
-                        } else {
-                            logger.debug(botsScriptDetails.id+" BOTs Execution is going on Local.");
-                        }
-
-                    })
-                });
-                wait(botsScriptDetails.manualExecutionTime * 60, 'seconds', function() {
-                    if(runningStatus === 'pending') {
-                        logger.debug('Stop the Audit Trail clock!');
-                        timer.stop();
-                        var timestampEnded = new Date().getTime();
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: true,
-                            log: "Error in fetching Audit Trails(Timer is Completed)",
-                            timestamp: timestampEnded
-                        });
-                        var resultTaskExecution = {
-                            "actionStatus": 'failed',
-                            "status": 'failed',
-                            "endedOn": new Date().getTime(),
-                            "actionLogId": actionId
-                        };
-                        timer.stop();
-                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                            if (err) {
-                                logger.error("Failed to create or update bots Log: ", err);
-                            }
-                            noticeService.notice(userName, {
-                                title: "BOTs Execution",
-                                body: "Error in fetching Audit Trails(Timer is Completed)"
-                            }, "error", function (err, data) {
-                                if (err) {
-                                    logger.error("Error in Notification Service, ", err);
-                                }
-                            });
-                            return;
-                        })
-                    }else{
-                        logger.debug("Timer is stopped for Audit Trails.");
-                        timer.stop();
+    var options = {
+        url: serverUrl+executorUrl,
+        headers: {
+            'Content-Type': 'application/json',
+            'charset': 'utf-8'
+        },
+        json: true,
+        body: reqBody
+    };
+    request.post(options, function (err, res, body) {
+        if (err) {
+            logger.error(err);
+            logData.log = "BOT Engine is not responding, Please check "+serverUrl;
+            logData.timestamp = new Date().getTime();
+            logData.err = true;
+            logsDao.insertLog(logData);
+            noticeService.updater(actionId,'log',logData);
+            var resultTaskExecution = {
+                "actionStatus": 'failed',
+                "status": 'failed',
+                "endedOn": new Date().getTime(),
+                "actionLogId": actionId
+            };
+            auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
+                if (err) {
+                    logger.error("Failed to create or update bots Log: ", err);
+                }
+                noticeService.notice(userName, {
+                    title: "Script BOT Execution",
+                    body: "Bot Enginge is not running"
+                }, "error",function(err,data){
+                    if(err){
+                        logger.error("Error in Notification Service, ",err);
                     }
                 });
-            } else {
-                logger.error(err);
+                return;
+            })
+        }else{
+            if (res.statusCode === 200){
+                var auditQueueDetails = {
+                    userName:userName,
+                    botId:botsScriptDetails.id,
+                    bot_id:botsScriptDetails._id,
+                    logRefId:logsReferenceIds,
+                    auditId:actionId,
+                    instanceLog:'',
+                    instanceIP:'',
+                    auditTrailId:auditTrail._id,
+                    remoteAuditId:body.ref,
+                    link:body.link,
+                    status:"pending",
+                    serverUrl:serverUrl,
+                    env:"local",
+                    retryCount:0
+                }
+                auditQueue.setAudit(auditQueueDetails);
+                return;
+            }
+            else {
+                logData.log = res.statusCode === 502?"BOT Engine is not responding, Please check "+serverUrl:"Error in Script executor"
+                logData.timestamp = new Date().getTime();
+                logData.err = true;
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId,'log',logData);
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
-                    referenceId: logsReferenceIds,
-                    err: true,
-                    log: "Error in Script executor",
-                    timestamp: timestampEnded
-                });
                 var resultTaskExecution = {
                     "actionStatus": 'failed',
                     "status": 'failed',
                     "endedOn": new Date().getTime(),
                     "actionLogId": actionId
                 };
-                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                     if (err) {
                         logger.error("Failed to create or update bots Log: ", err);
                     }
                     noticeService.notice(userName, {
-                        title: "BOTs Execution",
-                        body: "Error in Script executor"
+                        title: "Script BOT Execution",
+                        body: res.statusCode === 502?"Bot Enginge is not running":"Error in Script executor"
                     }, "error",function(err,data){
                         if(err){
                             logger.error("Error in Notification Service, ",err);
@@ -326,11 +230,13 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     return;
                 })
             }
-        });
+        }
+    });
+   
 };
 
 
-function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostDetails,callback) {
+function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,userName,botHostDetails,callback) {
     var timestampStarted = new Date().getTime();
     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
     instance.tempActionLogId = actionLog._id;
@@ -359,12 +265,14 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
     };
     if (!instance.instanceIP) {
         var timestampEnded = new Date().getTime();
-        logsDao.insertLog({
+        var logData ={
             referenceId: logsReferenceIds,
             err: true,
             log: "Instance IP is not defined. Chef Client run failed",
             timestamp: timestampEnded
-        });
+        };
+        logsDao.insertLog(logData);
+        noticeService.updater(actionLogId,'log',logData);
         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
         instanceLog.endedOn = new Date().getTime();
         instanceLog.actionStatus = "failed";
@@ -394,7 +302,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
             authenticationObj.authType = "pem";
             authenticationObj.auth = {
                 "username": decryptedCredentials.username,
-                "file": decryptedCredentials.pemFileLocation
+                "fileData": fs.readFileSync(decryptedCredentials.pemFileLocation,'Base64')
             }
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Pem_Based_Authentication";
@@ -422,8 +330,9 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                 replaceTextObj[botDetails.inputFormFields[j].name] = botDetails.inputFormFields[j].default;
             }
         }
-        var supertest = require("supertest");
-        var server = supertest.agent("http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort);
+        
+        var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+        
         var reqBody = {
             "data": replaceTextObj,
             "os": instance.hardware.os,
@@ -431,20 +340,86 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
             "environment": envObj
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
-        server
-            .post(executorUrl)
-            .send(reqBody)
-            .set({'Content-Type': 'application/json'})
-            .end(function (err, res) {
-                if (err) {
-                    logger.error(err);
+        var options = {
+            url: serverUrl+executorUrl,
+            headers: {
+                'Content-Type': 'application/json',
+                'charset': 'utf-8'
+            },
+            json: true,
+            body: reqBody
+        };
+        request.post(options, function (err, res, body) {
+            if (err) {
+                logger.error(err);
+                var timestampEnded = new Date().getTime();
+                var logData ={
+                    referenceId: logsReferenceIds,
+                    err: true,
+                    log:  "BOT Engine is not responding, Please check "+serverUrl,
+                    timestamp: timestampEnded
+                };
+                logsDao.insertLog(logData);
+                noticeService.updater(actionLogId,'log',logData);
+                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                instanceLog.endedOn = new Date().getTime();
+                instanceLog.actionStatus = "failed";
+                instanceLog.logs = {
+                    err: false,
+                    log: "Unable to upload script file " + botDetails.id,
+                    timestamp: new Date().getTime()
+                };
+                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
+                    }
+                });
+                callback(err, null);
+                if (decryptedCredentials.pemFileLocation){
+                    apiUtil.removeFile(decryptedCredentials.pemFileLocation);
+                }
+                noticeService.notice(userName,
+                    {
+                        title: "Script BOT Execution",
+                        body: "Bot Enginge is not running"
+                    }, "error",function(err,data){
+                        if(err){
+                            logger.error("Error in Notification Service, ",err);
+                        }
+                    });
+                return;
+            } else {
+                if(res.statusCode === 200){
+                    var auditQueueDetails = {
+                        userName:userName,
+                        botId:botDetails.id,
+                        bot_id:botDetails._id,
+                        logRefId:logsReferenceIds,
+                        auditId:actionLogId,
+                        instanceLog:instanceLog,
+                        instanceIP:instance.instanceIP,
+                        auditTrailId:auditTrailId,
+                        remoteAuditId:res.body.ref,
+                        link:res.body.link,
+                        status:"pending",
+                        serverUrl:serverUrl,
+                        env:"remote",
+                        retryCount:0
+                    }
+                    auditQueue.setAudit(auditQueueDetails);
+                    callback(null,null);
+                    return;
+                }
+                else{
                     var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
+                    var logData ={
                         referenceId: logsReferenceIds,
                         err: true,
-                        log: "Error in Script executor: ",
+                        log: res.statusCode === 502?"BOT Engine is not responding, Please check "+serverUrl:"Error in Script executor",
                         timestamp: timestampEnded
-                    });
+                    };
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionLogId,'log',logData);
                     instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
@@ -460,151 +435,24 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                     });
                     callback(err, null);
                     if (decryptedCredentials.pemFileLocation){
-                        removeScriptFile(decryptedCredentials.pemFileLocation);
+                        apiUtil.removeFile(decryptedCredentials.pemFileLocation);
                     }
                     noticeService.notice(userName,
                         {
-                            title: "BOTs Execution",
-                            body: "Error in Script executor"
+                            title: "Script BOT Execution",
+                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Script executor"
                         }, "error",function(err,data){
                             if(err){
                                 logger.error("Error in Notification Service, ",err);
                             }
                         });
                     return;
-                } else {
-                    var every = require('every-moment');
-                    var wait = require('wait-one-moment');
-                    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-                    var runningStatus = "pending";
-                    var timer = every(10, 'seconds', function () {
-                        schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
-                            if (err) {
-                                runningStatus="failed";
-                                logger.error("In Error for Fetching Executor Audit Trails ", err);
-                                var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: true,
-                                    log: "Error in Fetching Audit Trails",
-                                    timestamp: timestampEnded
-                                });
-                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                                instanceLog.endedOn = new Date().getTime();
-                                instanceLog.actionStatus = "failed";
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: "Error in Fetching Audit Trails",
-                                    timestamp: new Date().getTime()
-                                };
-                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                    if (err) {
-                                        logger.error("Failed to create or update instanceLog: ", err);
-                                    }
-                                });
-                                timer.stop();
-                                if (decryptedCredentials.pemFileLocation) {
-                                    removeScriptFile(decryptedCredentials.pemFileLocation);
-                                }
-                                callback(err, null);
-                                noticeService.notice(userName,
-                                    {
-                                        title: "BOTs Execution",
-                                        body: "Error in Fetching Audit Trails"
-                                    }, "error", function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in Notification Service, ", err);
-                                        }
-                                    });
-                                return;
-                            } else if (result.state === 'terminated') {
-                                runningStatus="success";
-                                var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: false,
-                                    log: result.status.text,
-                                    timestamp: timestampEnded
-                                });
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: false,
-                                    log:  botDetails.id+' BOTs execution success on Node '+instance.instanceIP,
-                                    timestamp: timestampEnded
-                                });
-                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                                instanceLog.endedOn = new Date().getTime();
-                                instanceLog.actionStatus = "success";
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: botDetails.id+' BOTs execution success on Node '+instance.instanceIP,
-                                    timestamp: new Date().getTime()
-                                };
-                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                    if (err) {
-                                        logger.error("Failed to create or update instanceLog: ", err);
-                                    }
-                                });
-                                timer.stop();
-                                var botService = require('_pr/services/botsService');
-                                botService.updateSavedTimePerBots(botDetails._id, 'BOTsNew', function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to update bots saved Time: ", err);
-                                    }
-                                });
-                                if (decryptedCredentials.pemFileLocation) {
-                                    removeScriptFile(decryptedCredentials.pemFileLocation);
-                                }
-                                callback(null, result);
-                                noticeService.notice(userName, {
-                                    title: "BOTs Execution",
-                                    body: result.status.text
-                                }, "success", function (err, data) {
-                                    if (err) {
-                                        logger.error("Error in Notification Service, ", err);
-                                    }
-                                });
-                                return;
-                            } else {
-                                logger.debug(botDetails.id+" BOTs Execution is going on  Node "+instance.instanceIP);
-                            }
-                        })
-                    });
-                    wait(botDetails.manualExecutionTime * 60, 'seconds', function() {
-                        if(runningStatus === 'pending') {
-                            var timestampEnded = new Date().getTime();
-                            logsDao.insertLog({
-                                referenceId: logsReferenceIds,
-                                err: true,
-                                log: "Error in fetching Audit Trails(Timer is Completed)",
-                                timestamp: timestampEnded
-                            });
-                            timer.stop();
-                            callback(null, res.body);
-                            return;
-                        }else{
-                            logger.debug("Timer is stopped for Audit Trails.");
-                            callback(null, res.body);
-                            timer.stop();
-                            return;
-                        }
-                    });
                 }
-            })
+            }
+        })
     });
 }
 
-function removeScriptFile(filePath) {
-    fileIo.removeFile(filePath, function(err, result) {
-        if (err) {
-            logger.error(err);
-            return;
-        } else {
-            logger.debug("Successfully Remove file");
-            return
-        }
-    })
-}
 
 
 

@@ -69,7 +69,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 res.send(500);
                 return;
             }
-
             if (data.length) {
                 res.send(data[0]);
                 return;
@@ -313,6 +312,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             }
             if (instances.length) {
                 var instance = instances[0];
+                var domainName = instance.domainName?instance.domainName:null;
                 Task.getTasksByNodeIds([req.params.instanceId], function (err, tasks) {
                     if (err) {
                         logger.debug("Failed to fetch tasks by node id ", err);
@@ -432,7 +432,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
-                                                removeInstanceFromDb();
+                                                removeInstanceFromDb(domainName);
                                                 logger.debug("Successfully removed instance from db.");
                                             })
                                         } else {
@@ -463,7 +463,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
-                                                removeInstanceFromDb();
+                                                removeInstanceFromDb(domainName);
                                                 logger.debug("Successfully removed instance from db.");
                                             })
                                         });
@@ -503,7 +503,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
-                                                removeInstanceFromDb();
+                                                removeInstanceFromDb(domainName);
                                                 logger.debug("Successfully removed instance from db.");
                                             })
                                         } else {
@@ -528,7 +528,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
                                             }
-                                            removeInstanceFromDb();
+                                            removeInstanceFromDb(domainName);
                                             logger.debug("Successfully removed instance from db.");
                                         })
                                     }
@@ -555,7 +555,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
-                            removeInstanceFromDb();
+                            removeInstanceFromDb(domainName);
                             logger.debug("Successfully removed instance from db.");
                         })
                     }
@@ -568,7 +568,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             }
         });
 
-        function removeInstanceFromDb() {
+        function removeInstanceFromDb(domainName) {
             containerDao.deleteContainerByInstanceId(req.params.instanceId, function (err, container) {
                 if (err) {
                     logger.error("Container deletion Failed >> ", err);
@@ -580,9 +580,22 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             logger.error("Instance deletion Failed >> ", err);
                             res.status(500).send(errorResponses.db.error);
                             return;
+                        }else if(domainName !== null){
+                            var resourceObj = {
+                                stackStatus:"DELETED"
+                            }
+                            var resourceMapService = require('_pr/services/resourceMapService.js');
+                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                if(err){
+                                    logger.error("Error in updating Resource Map.",err);
+                                }
+                                logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
+                                res.send(200);
+                            });
+                        }else{
+                            logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
+                            res.send(200);
                         }
-                        logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
-                        res.send(200);
                     });
                 }
             });
@@ -1189,8 +1202,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     });
     //Coposite Docker container launch 
     app.post('/instances/dockercompositeimagepull/:instanceid/:dockerreponame', function (req, res) {
-
-
         var generateDockerLaunchParams = function (runparams) {
             logger.debug('rcvd runparams --->', runparams);
             var launchparams = [];
@@ -1198,8 +1209,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             var startparams = '';
             var execparam = '';
             var containername = '';
-
-            //eliminating any exec portion.
             var _execp = runparams.split('-exec');
             if (_execp.length > 0 && typeof _execp != 'undefined') {
                 execparam = _execp[1];
@@ -1213,35 +1222,24 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     runparams = _startparm[0];
                 }
             }
-
             logger.debug('1 runparams: ' + runparams);
-
             var params = runparams.split(' -');
-
-
-
             for (var i = 0; i < params.length; i++) {
                 if (params[i] != '') {
                     var itms = params[i].split(' ');
                     if (itms.length > 0) {
                         logger.debug('itms[0]:' + itms[0] + ';itms[1]:' + itms[1]);
                         preparams += ' -' + params[i];
-
                         if (itms[0] == '-name') {
-
                             containername = itms[1];
                         }
-
                     }
-
                 }
             }
             logger.debug('execparam: ' + execparam);
             logger.debug('runparams: ' + runparams);
             logger.debug('preparams: ' + preparams);
             logger.debug('startparams: ' + startparams);
-
-
             launchparams[0] = preparams;
             launchparams[1] = startparams;
             launchparams[2] = execparam;
@@ -1261,7 +1259,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 res.send(500);
                 return;
             }
-            logger.debug(data.length + ' ' + JSON.stringify(data));
             if (data.length) {
                 var instance = data;
                 var instanceLog = {
@@ -1286,7 +1283,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     action: "Docker-Run",
                     logs: []
                 };
-
                 logger.debug(' Docker dockerEngineStatus : ' + data[0].docker.dockerEngineStatus);
                 if (data[0].docker.dockerEngineStatus) {
                     if (data[0].docker.dockerEngineStatus != "success") {
@@ -1297,16 +1293,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     res.end('No Docker Found');
                     return;
                 }
-
                 //Finding out a catalyst docker entry in compose json 
                 for (var cic = 0; cic < dockercomposejson.length; cic++) {
                     if (dockercomposejson[cic].dockerreponame) {
                         req.params.dockerreponame = dockercomposejson[cic].dockerreponame;
                     }
-
                 }
-
-
                 configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function (err, data) {
                     if (!err) {
                         var dock = null;
@@ -1317,7 +1309,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         } else {
                             logger.debug('No Docker Repo found. Would pull only public repos.')
                         }
-
                         var _docker = new Docker();
                         var stdmessages = '';
                         var imagecount = 0; //to count the no of images started.
@@ -1332,22 +1323,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             runparams = runparams.replace(/!!/g, "/");
                             startparams = startparams.replace(/!!/g, "/");
                             execcommand = execcommand.replace(/!!/g, "/");
-
                             cmd += 'sudo docker pull ' + decodeURIComponent(imagename);
                             logger.debug('Intermediate cmd: ', cmd);
                             if (tagname != null) {
                                 cmd += ':' + tagname;
                             }
-
                             if (runparams != 'null') {
                                 runparams = decodeURIComponent(runparams);
                             }
-
-                            if (startparams != 'null') {
+                            if (startparams != 'null')
                                 startparams = decodeURIComponent(startparams);
-                            } else
+                            else
                                 startparams = ''; //startparams = '/bin/bash';
-
                             cmd += ' && sudo docker run -i -t -d ' + runparams + ' ' + decodeURIComponent(imagename) + ':' + tagname + ' ' + startparams;
                             logger.debug('Docker command to be executed : ', cmd);
                             if (imagecount == 1) {

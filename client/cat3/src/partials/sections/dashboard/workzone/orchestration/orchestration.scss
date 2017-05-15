@@ -190,16 +190,6 @@ $imagePath : "../../../../../../images";
 		font-weight: bold;
 	}
 
-	.select-nodes {
-		border: 1px solid #dddddd;
-		list-style: none outside none;
-		height: 150px;
-		overflow-y: auto;
-		margin-top: 5px;
-		margin-bottom: 10px;
-		padding: 5px;
-	}
-
 	.select-nodeInstance {
 		border: 1px solid #dddddd;
 		list-style: none outside none;
@@ -212,12 +202,6 @@ $imagePath : "../../../../../../images";
 
 	.jobParam {
 		padding-top: 18px;
-	}
-
-	.jenkins-auto-sync-radio, .jenkins-job-parameter-text {
-		margin-left: 15px;
-		float: left;
-		padding: 6px 0;
 	}
 
 	.jobDetailsContent {
@@ -252,26 +236,12 @@ $imagePath : "../../../../../../images";
 		margin-top: -5px;
 	}
 
-	.lable-align {
-		vertical-align: middle;
-	}
-
 	.clear-selection {
 		text-decoration: underline;
 	}
 
-	.check-list {
-		margin: 5px;
-		font-size: 13px;
-		font-weight: normal;
-	}
-
 	.check-list a:hover {
 		text-decoration: none;
-	}
-	
-	.checkbox-list {
-		margin-top: 3px;
 	}
 
 	.radiobutton-list {
@@ -460,16 +430,6 @@ a.marginleft23 {
 
 .cursorPointer {
 	cursor: pointer;
-}
-
-.checkboxall-right {
-	margin-left: 2px !important;
-}
-
-.checkboxStyling {
-	float: right;
-	margin-right: 14px !important;
-	margin-top: 2px !important;
 }
 
 .margintop7 {

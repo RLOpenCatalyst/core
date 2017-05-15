@@ -18,7 +18,7 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-
+var auditTrailService = require('_pr/services/auditTrailService');
 
 var instancesDao = require('_pr/model/classes/instance/instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
@@ -33,8 +33,7 @@ var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudP
 var ARM = require('_pr/lib/azure-arm.js');
 var AzureARM = require('_pr/model/azure-arm');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
-
-
+var resourceMapService = require('_pr/services/resourceMapService.js');
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
 
@@ -47,13 +46,13 @@ var INFRA_MANAGER_TYPE = {
 
 
 var ARMTemplateBlueprintSchema = new Schema({
+    _id:false,
     cloudProviderId: String,
     infraMangerType: String,
     infraManagerId: String,
     templateFile: String,
     parameters: Object,
     instances: Object,
-    //stackName: String,
     resourceGroup: String,
 });
 
@@ -83,11 +82,11 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
         providerdata = JSON.parse(providerdata);
 
         var settings = appConfig;
-        var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
-        var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+        var pemFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.pemFileName;
+        var keyFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.keyFileName;
 
         logger.debug("pemFile path:", pemFile);
-        logger.debug("keyFile path:", pemFile);
+        logger.debug("keyFile path:", keyFile);
 
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -132,27 +131,25 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
             };
 
             var arm = new ARM(options);
-
             function addAndBootstrapInstance(instanceData) {
-
-
                 var credentials = {
                     username: instanceData.username,
                     password: instanceData.password
                 };
-
                 credentialcryptography.encryptCredential(credentials, function(err, encryptedCredentials) {
                     if (err) {
                         logger.error('azure encryptCredential error', err);
                         callback({
                             message: "Unable to encryptCredential"
                         });
+                        resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                            if(err){
+                                logger.error("Error in updating Resource Map.",err);
+                            }
+                        });
                         return;
                     }
                     logger.debug('Credentials encrypted..');
-
-                    //Creating instance in catalyst
-
                     var instance = {
                         name: instanceData.name,
                         orgId: launchParams.orgId,
@@ -213,9 +210,26 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             callback({
                                 message: "Unable to create instance in db"
                             })
+                            resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                                if(err){
+                                    logger.error("Error in updating Resource Map.",err);
+                                }
+                            });
                             return;
                         }
                         instance.id = data._id;
+                        var resourceObj = {
+                            stackStatus:"COMPLETED",
+                            resources :[{
+                                id:instance.id,
+                                type:"instance"
+                            }]
+                        }
+                        resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
+                                if (err) {
+                                    logger.error("Error in updating Resource Map.", err);
+                                }
+                        });
                         var timestampStarted = new Date().getTime();
                         var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                         var logsReferenceIds = [instance.id, actionLog._id];
@@ -245,7 +259,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 timestamp: new Date().getTime()
                             }]
                         };
-
                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -257,8 +270,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             log: "Waiting for instance ok state",
                             timestamp: timestampStarted
                         });
-
-
                         //decrypting pem file
                         var cryptoConfig = appConfig.cryptoSettings;
                         var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
@@ -291,6 +302,25 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
                                 });
+                                if (launchParams.auditTrailId !== null) {
+                                    var resultTaskExecution = {
+                                        "actionLogId": launchParams.actionLogId,
+                                        "auditTrailConfig.nodeIdsWithActionLog": [{nodeId:logsReferenceIds[0],actionLogId:logsReferenceIds[1]}],
+                                        "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                        "masterDetails.orgName": launchParams.orgName,
+                                        "masterDetails.bgName": launchParams.bgName,
+                                        "masterDetails.projectName": launchParams.projectName,
+                                        "masterDetails.envName": launchParams.envName,
+                                        "actionStatus": "failed",
+                                        "status": "failed",
+                                        "endedOn": new Date().getTime()
+                                    }
+                                    auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                        if (err) {
+                                            logger.error("Failed to create or update bots Log: ", err);
+                                        }
+                                    });
+                                }
                                 if (instance.hardware.os != 'windows')
                                     return;
                             }
@@ -346,6 +376,33 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
                                             }
                                         });
+                                        if (launchParams.auditTrailId !== null) {
+                                            var resultTaskExecution = {
+                                                "actionLogId": launchParams.actionLogId,
+                                                "auditTrailConfig.nodeIdsWithActionLog": [{nodeId:logsReferenceIds[0],actionLogId:logsReferenceIds[1]}],
+                                                "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                "masterDetails.orgName": launchParams.orgName,
+                                                "masterDetails.bgName": launchParams.bgName,
+                                                "masterDetails.projectName": launchParams.projectName,
+                                                "masterDetails.envName": launchParams.envName,
+                                                "actionStatus": "failed",
+                                                "status": "failed",
+                                                "endedOn": new Date().getTime()
+                                            }
+                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update bots Log: ", err);
+                                                }
+                                                if(launchParams.bot_id !== null) {
+                                                    logsDao.insertLog({
+                                                        referenceId: logsReferenceIds,
+                                                        err: true,
+                                                        log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
+                                                        timestamp: new Date().getTime()
+                                                    });
+                                                }
+                                            });
+                                        }
 
                                     } else {
                                         if (code == 0) {
@@ -372,6 +429,56 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             };
                                             instanceLog.actionStatus = "success";
                                             instanceLog.endedOn = new Date().getTime();
+                                            if (launchParams.auditTrailId !== null) {
+                                                var resultTaskExecution = {
+                                                    "actionLogId": launchParams.actionLogId,
+                                                    "auditTrailConfig.nodeIdsWithActionLog": [{nodeId:logsReferenceIds[0],actionLogId:logsReferenceIds[1]}],
+                                                    "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                    "masterDetails.orgName": launchParams.orgName,
+                                                    "masterDetails.bgName": launchParams.bgName,
+                                                    "masterDetails.projectName": launchParams.projectName,
+                                                    "masterDetails.envName": launchParams.envName,
+                                                    "actionStatus": "success",
+                                                    "status": "success",
+                                                    "endedOn": new Date().getTime()
+                                                }
+                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                    }
+                                                    if(launchParams.bot_id !== null) {
+                                                        logsDao.insertLog({
+                                                            referenceId: logsReferenceIds,
+                                                            err: false,
+                                                            log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
+                                                            timestamp: new Date().getTime()
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            instancesDao.getInstancesByARMId(instanceData.armId,function(err,armInstanceList){
+                                                if(err){
+                                                    logger.error("Error in getting ARM Instances ",err);
+                                                }else if(armInstanceList.length > 0){
+                                                    var resourceObj = {
+                                                        stackStatus:"COMPLETED",
+                                                        resources :[]
+                                                    }
+                                                    armInstanceList.forEach(function(armData){
+                                                        resourceObj.resources.push({
+                                                            id:armData._id,
+                                                            type:"instance"
+                                                        })
+                                                    });
+                                                    resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
+                                                        if (err) {
+                                                            logger.error("Error in updating Resource Map.", err);
+                                                        }
+                                                    });
+                                                }else{
+                                                    logger.debug("There is no instance attached with armId:",instanceData.armId);
+                                                }
+                                            })
                                             launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                 if (err) {
                                                     logger.error("Failed chef.getNode", err);
@@ -417,20 +524,15 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         if (err) {
                                                             logger.error("Failed _docker.checkDockerStatus", err);
                                                             return;
-
-
                                                         }
                                                         logger.debug('Docker Check Returned:' + retCode);
                                                         if (retCode == '0') {
                                                             instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
                                                                 logger.debug('Instance Docker Status set to Success');
                                                             });
-
                                                         }
                                                     });
-
                                             });
-
                                         } else {
                                             instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
                                                 if (err) {
@@ -459,11 +561,37 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
                                             });
+
+                                            if (launchParams.auditTrailId !== null) {
+                                                var resultTaskExecution = {
+                                                    "actionLogId": launchParams.actionLogId,
+                                                    "auditTrailConfig.nodeIdsWithActionLog": [{nodeId:logsReferenceIds[0],actionLogId:logsReferenceIds[1]}],
+                                                    "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                    "masterDetails.orgName": launchParams.orgName,
+                                                    "masterDetails.bgName": launchParams.bgName,
+                                                    "masterDetails.projectName": launchParams.projectName,
+                                                    "masterDetails.envName": launchParams.envName,
+                                                    "actionStatus": "failed",
+                                                    "status": "failed",
+                                                    "endedOn": new Date().getTime()
+                                                }
+                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                    }
+                                                    if(launchParams.bot_id !== null) {
+                                                        logsDao.insertLog({
+                                                            referenceId: logsReferenceIds,
+                                                            err: true,
+                                                            log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
+                                                            timestamp: new Date().getTime()
+                                                        });
+                                                    }
+                                                });
+                                            }
                                         }
                                     }
-
                                 }, function(stdOutData) {
-
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
                                         err: false,
@@ -482,15 +610,12 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     });
 
                                 }, function(stdErrData) {
-
-                                    //retrying 4 times before giving up.
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
                                         err: true,
                                         log: stdErrData.toString('ascii'),
                                         timestamp: new Date().getTime()
                                     });
-
                                     instanceLog.logs = {
                                         err: true,
                                         log: stdErrData.toString('ascii'),
@@ -501,19 +626,12 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
                                     });
-
-
                                 });
                             });
-
                         });
-
                     });
-
                 });
-
             }
-
             function getVMIPAddress(networksInterfaces, count, callback) {
                 var networkId = networksInterfaces[count].id;
                 arm.getNetworkInterface({
@@ -528,14 +646,13 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                     if (networkResourceData.properties.ipConfigurations) {
                         var ipConfigurations = networkResourceData.properties.ipConfigurations;
                         var ipAddressIdFound = false
-                        for (k = 0; k < ipConfigurations.length; k++) {
+                        for (var k = 0; k < ipConfigurations.length; k++) {
                             if (ipConfigurations[k].properties && ipConfigurations[k].properties.publicIPAddress) {
                                 ipAddressIdFound = true;
                                 var ipAddressId = ipConfigurations[k].properties.publicIPAddress.id;
                                 arm.getPublicIpAddress({
                                     id: ipAddressId
                                 }, function(err, publicIPAddressResource) {
-                                    logger.debug('resource ===>', JSON.stringify(publicIPAddressResource));
                                     if (err) {
                                         logger.error("Unable to fetch azure vm ipaddress");
                                         callback(err, null);
@@ -545,7 +662,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         ip: publicIPAddressResource.properties.ipAddress
                                     });
                                     return;
-
                                 });
                             }
                         }
@@ -555,7 +671,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             } else {
                                 getVMIPAddress(networksInterfaces, count, callback);
                             }
-
                         }
                     } else {
                         if (networksInterfaces.length === count) {
@@ -563,13 +678,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         } else {
                             getVMIPAddress(networksInterfaces, count, callback);
                         }
-
                     }
                 });
-
-
             }
-
             function processVM(vmResource, armId) {
                 var vmName = vmResource.resourceName;
                 var dependsOn = vmResource.dependsOn;
@@ -580,16 +691,22 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                 }, function(err, vmData) {
                     if (err) {
                         logger.error("Unable to fetch azure vm data");
+                        resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                            if(err){
+                                logger.error("Error in updating Resource Map.",err);
+                            }
+                        });
                         return;
                     }
-
-                    logger.debug('vmdata ==>', JSON.stringify(vmData));
-
                     var networkInterfaces = vmData.properties.networkProfile.networkInterfaces;
-
                     getVMIPAddress(networkInterfaces, 0, function(err, ipAddress) {
                         if (err) {
                             logger.error("Unable to fetch azure vm ipaddress");
+                            resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                                if(err){
+                                    logger.error("Error in updating Resource Map.",err);
+                                }
+                            });
                             return;
                         }
                         var osType = 'linux';
@@ -602,7 +719,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 }
                             }
                         }
-
                         var username = vmData.properties.osProfile.adminUsername;
                         var password;
                         var runlist = [];
@@ -612,9 +728,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             password = instances[vmName].password;
                             runlist = instances[vmName].runlist;
                         }
-
-
-
                         addAndBootstrapInstance({
                             name: vmName,
                             username: username,
@@ -624,15 +737,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             os: osType,
                             armId: armId
                         });
-
-
                     });
                 });
-
             }
-
-
-
             arm.deployTemplate({
                 name: launchParams.stackName,
                 parameters: JSON.parse(JSON.stringify(self.parameters)),
@@ -641,27 +748,32 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
             }, function(err, stackData) {
                 if (err) {
                     logger.error("Unable to launch CloudFormation Stack", err);
-                    callback({
-                        message: "Unable to launch ARM Template"
-                    });
+                    callback(err,null);
                     return;
                 }
-
-
+                if(launchParams.actionLogId !== null) {
+                    logsDao.insertLog({
+                        referenceId: [launchParams.actionLogId],
+                        err: false,
+                        log: "BOT Execution is started for Blueprint BOT :"+launchParams.bot_id,
+                        timestamp: new Date().getTime()
+                    });
+                    logsDao.insertLog({
+                        referenceId: [launchParams.actionLogId],
+                        err: false,
+                        log: "ARM Template is created : " + launchParams.stackName,
+                        timestamp: new Date().getTime()
+                    });
+                }
                 arm.getDeployedTemplate({
                     name: launchParams.stackName,
                     resourceGroup: self.resourceGroup
                 }, function(err, deployedTemplateData) {
                     if (err) {
                         logger.error("Unable to get arm deployed template", err);
-                        callback({
-                            message: "Error occured while fetching deployed template status"
-                        });
+                        callback(err,null);
                         return;
                     }
-
-
-
                     AzureARM.createNew({
                         orgId: launchParams.orgId,
                         bgId: launchParams.bgId,
@@ -684,63 +796,56 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             logger.error("Unable to save arm data in DB", err);
                             callback({
                                 message: "unable to save arm in db"
-                            });
+                            },null);
                             return;
                         }
                         callback(null, {
                             armId: azureArmDeployement._id
                         });
-
-                        arm.waitForDeploymentCompleteStatus({
-                            name: launchParams.stackName,
-                            resourceGroup: self.resourceGroup
-                        }, function(err, deployedTemplateData) {
+                        var resourceMapObj = {
+                            stackName: launchParams.stackName,
+                            stackType: "AzureArm",
+                            stackStatus: "CREATED",
+                            resources: []
+                        }
+                        resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
                             if (err) {
-                                logger.error('Unable to wait for deployed template status', err);
-                                if (err.status) {
-                                    azureArmDeployement.status = err.status;
-                                    azureArmDeployement.save();
-                                }
-                                return;
+                                logger.error("resourceMapService.createNewResourceMap is Failed ==>", err);
                             }
-
-                            azureArmDeployement.status = deployedTemplateData.properties.provisioningState;
-                            azureArmDeployement.save();
-
-                            logger.debug('deployed ==>', JSON.stringify(deployedTemplateData));
-
-                            var dependencies = deployedTemplateData.properties.dependencies;
-                            for (var i = 0; i < dependencies.length; i++) {
-                                var resource = dependencies[i];
-                                if (resource.resourceType == 'Microsoft.Compute/virtualMachines') {
-                                    logger.debug('resource name ==>', resource.resourceName);
-                                    processVM(resource, azureArmDeployement.id);
+                            arm.waitForDeploymentCompleteStatus({
+                                name: launchParams.stackName,
+                                resourceGroup: self.resourceGroup
+                            }, function (err, deployedTemplateData) {
+                                if (err) {
+                                    logger.error('Unable to wait for deployed template status', err);
+                                    if (err.status) {
+                                        azureArmDeployement.status = err.status;
+                                        azureArmDeployement.save();
+                                    }
+                                    resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                                        if(err){
+                                            logger.error("Error in updating Resource Map.",err);
+                                        }
+                                    });
+                                    return;
                                 }
-
-                            }
-
-
-
+                                azureArmDeployement.status = deployedTemplateData.properties.provisioningState;
+                                azureArmDeployement.save();
+                                var dependencies = deployedTemplateData.properties.dependencies;
+                                for (var i = 0; i < dependencies.length; i++) {
+                                    var resource = dependencies[i];
+                                    if (resource.resourceType == 'Microsoft.Compute/virtualMachines') {
+                                        logger.debug('resource name ==>', resource.resourceName);
+                                        processVM(resource, azureArmDeployement.id);
+                                    }
+                                }
+                            });
                         });
-
-
                     });
-
-
-
                 });
-
-
-
             });
-
-
-
         });
-
     });
-
-
 };
 
 ARMTemplateBlueprintSchema.methods.update = function(updateData) {

@@ -1,5 +1,10 @@
 @import '../../../theme';
 
+.tableactionbutton {
+  border-radius: 50%;
+  padding: 2px 8px;
+}
+
 .font-size-15{
   font-size: 15px !important;
 }
@@ -60,9 +65,6 @@
   padding-bottom: 10px;
 }
 
-.marginbottom15 {
-  margin-bottom: 15px;
-}
 
 .paddingbottom20 {
   padding-bottom: 20px;
@@ -166,7 +168,7 @@
 
   .section-bottom-glyph {
     position: absolute;
-    top: 117px; /*140*/
+    top: 105px; /*140*/
     left: 125px; /*97*/
     font-size: 22px;
     display: none;
@@ -241,6 +243,10 @@
 
   .bg-blue-glyph {
     color: #2980b9;
+  }
+
+  .yellow-glyph {
+    color: #ffa726;
   }
 
   .font-size-20 {
@@ -683,6 +689,8 @@ body .botDescriptionPage {
 .bot-card-hero ul {
   white-space: nowrap;
   text-overflow: ellipsis;
+  overflow:hidden;
+  width:90%;
 }
 
 .bot-card-hero .image-cell {
@@ -824,61 +832,6 @@ fieldset#editParamPage legend {
 
 }
 
-@media (min-width : 1550px){
-    .agent-card .image-cell + * {
-      width: 375px;
-    }
-
-    .info-box-text {
-      font-size: 16px;
-    }
-
-    .info-box-number {
-      font-size: 26px;
-    }
-
-    .grid-card {
-      background-color: white;
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
-      margin-left: 20px;
-      margin-bottom: 20px;
-      overflow: hidden;
-      position: relative;
-      min-width: 548px;
-      width: 548px;
-      float: left;
-    }
-    #botLibraryPage .section-bottom-glyph {
-      left: 170px;
-      
-    }
-    .agent-card .info-cell, .agent-card .desc-cell {
-      width: 335px;
-    }
-    .agent-card .description {
-      width: 330px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-    #botsPage {
-      height: 1000px;
-      overflow-y: auto!important;
-    }
-    .btnDescription {
-      padding:4px 10px;font-size:13px;margin-right:12px;
-    }
-    .marginright14 {
-        margin-right: 14px;
-    }
-    .paddingForScreen {
-      padding-left: 1.7%;
-    }
-    .heightBigCheck {
-      height: 650px;
-    }
-}
-
 .dashboard-stats__item {
     position: relative;
     overflow: hidden;
@@ -919,7 +872,7 @@ fieldset#editParamPage legend {
 .dashboard-stats__title {
     margin: 0;
     text-align: right;
-    font-size: 45px;
+    font-size: 34px;
     font-weight: 300;
     color: #fff
 }
@@ -949,16 +902,6 @@ fieldset#editParamPage legend {
     border-radius: 14px;
 }
 
-.select-scripts {
-  border: 1px solid #dddddd;
-  list-style: none outside none;
-  height: 150px;
-  overflow-y: auto;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  padding: 5px;
-}
-
 .dropdownSelect{
     font-size: 11px !important;
     height: 28px !important;
@@ -985,4 +928,94 @@ fieldset#editParamPage legend {
 .margintopBottom {
     margin-top: -10px;
     margin-bottom: -23px;
+}
+
+.botsLabel {
+  font-weight: 400;
+}
+
+.marginTopRightForHistory {
+  margin-top: -38px;
+  margin-right: 18px;
+}
+
+.margintop28 {
+  margin-top:28px;
+}
+
+.gridHeightBots {
+  height: 370px;
+}
+
+@media (min-width : 1550px){
+    .agent-card .image-cell + * {
+      width: 375px;
+    }
+
+    .info-box-text {
+      font-size: 16px;
+    }
+
+    .info-box-number {
+      font-size: 26px;
+    }
+
+    .grid-card {
+      background-color: white;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+      margin-left: 20px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      position: relative;
+      min-width: 548px;
+      width: 548px;
+      float: left;
+    }
+    #botLibraryPage .section-bottom-glyph {
+      left: 170px;
+      
+    }
+    .agent-card .info-cell, .agent-card .desc-cell {
+      width: 335px;
+    }
+    .agent-card .description {
+      width: 330px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    #botsPage {
+      height: 900px;
+      overflow-y: auto!important;
+    }
+    .btnDescription {
+      padding:4px 10px;font-size:13px;margin-right:12px;
+    }
+    .marginright14 {
+        margin-right: 14px;
+    }
+    .paddingForScreen {
+      padding-left: 1.7%;
+    }
+    .gridHeightBots {
+      height: 650px;
+    }
+    .dashboard-stats__title {
+      margin: 0;
+      text-align: right;
+      font-size: 42px;
+      font-weight: 300;
+      color: #fff
+    }
+    .marginTopRightForHistory {
+      margin-top: -38px;
+      margin-right: 43px;
+    }
+    #botLibraryPage .section-bottom-glyph {
+      position: absolute;
+      top: 114px; /*140*/
+      left: 178px; /*97*/
+      font-size: 22px;
+      display: none;
+    }
 }

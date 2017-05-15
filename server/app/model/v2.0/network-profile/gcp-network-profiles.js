@@ -96,5 +96,5 @@ GCPNetworkProfileSchema.statics.updateNetworkProfile = function saveNetworkProfi
 };
 
 
-var GCPNetworkProfile = NetworkProfiles.discriminator('NetworkProfiles', GCPNetworkProfileSchema);
+var GCPNetworkProfile = NetworkProfiles.discriminator('GCPNetworkProfiles', GCPNetworkProfileSchema);
 module.exports = GCPNetworkProfile;

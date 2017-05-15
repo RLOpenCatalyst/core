@@ -1,0 +1,41 @@
+<div id="botLibraryPage" ng-controller="botDescriptionCtrl">
+   <div class="container summary-container scheduleBorder">
+	    <table id="booleanTable" class="table tableLength " cellpadding="5px" width="100%">
+			<tbody>
+				<tr>
+					<td class="booleanParam">
+						<label class="control-label">Description</label>
+					</td>
+					<td><ul><li>Used to delete an existing user from RL Catalyst Application. Users need to provide an existing user’s name and email ID to initiate the deletion. BOT will delete the user from the specified catalyst instance.</li></ul>
+				</tr>
+				<tr>
+					<td class="booleanParam"><label class="control-label" for="booleanDescription">Workflow</label></td>
+					<td>
+						<ul>
+							<li>1) BOT Execution invoked either from “Ticketing System – ServiceNow” or from BOT Orchestrator. 
+							</li>
+					
+							<li>2) If a “Ticket ID” is passed as parameter BOT executes as part of the Ticket workflow. If no “Ticket ID” is passed, BOT automatically creates a Ticket for “Catalyst User Deletion request” and stores the Ticket Context.</li>
+							
+		                    <li>3) Parameters passed to BOT
+		                    	<ul>
+									<li>a) Catalyst Instance URL (by Default Current Instance and Access Credentials assumed).</li>
+
+									<li>b) Access Credentials </li>
+
+									<li>c) User ID </li>
+
+									<li>d) Email of the existing user </li>
+
+									<li>e) BOT Type – Drop-down (UI BOT, Agent BOT options) </li>
+								</ul>
+							</li>
+						</ul>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+   </div>
+</div> 
+
+

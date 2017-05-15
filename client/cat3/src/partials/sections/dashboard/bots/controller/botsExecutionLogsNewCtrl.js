@@ -7,6 +7,7 @@
 
 (function (angular) {
     "use strict";
+    var socketClient = io('/notify');
     angular.module('dashboard.bots')
     .service('botPollingSetting', [function() {
         return {
@@ -14,12 +15,10 @@
         };
     }])
     .controller('botsExecutionLogsNewCtrl',['$scope', 'items', '$rootScope', 'botsCreateService', 'botPollingSetting','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, botsCreateService, botPollingSetting, genSevs, toastr, $modalInstance, $timeout) {
-        $scope.isLogsLoading = true;
         angular.extend($scope, {
             logListInitial: [],
             logListDelta: []
         });
- 
         $scope.getCurrentTime = new Date().getTime();
         var timerObject;
         var helper = {
@@ -31,8 +30,24 @@
                 }
             },
             logsPolling: function() {
+                // socketClient.emit('join','client-'+items.logDetails.actionId);
+                // socketClient.on('update',function(data){
+                //     if(data.dataType == 'log'){
+                //         //console.log(data);
+                //         var logData = {
+                //             logs: data.updateData,
+                //             fullLogs: false
+                //         };
+                //         console.log(logData.logs);
+                //         console.log($scope.logListDelta);
+                //         $scope.logListDelta.push.apply($scope.logListDelta, logData.logs);
+                //         $scope.isLogsLoading = false;
+                //         helper.scrollBottom();
+                //     }
+                // })
                 timerObject = $timeout(function() {
                     botsCreateService.getBotLogs(items.logDetails.botId,items.logDetails.actionId, helper.lastTimeStamp).then(function (resp) {
+                        console.log(resp)
                         if (resp.length) {
                             var logData = {
                                 logs: resp,
@@ -54,6 +69,7 @@
                 }, 100);
             },
             stopPolling: function () {
+                //socketClient.emit('leave', 'client-'+items.logDetails.actionId);
                 $timeout.cancel(timerObject);
             }
         };

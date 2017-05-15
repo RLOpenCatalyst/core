@@ -32,6 +32,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 
 var scriptTaskSchema = taskTypeSchema.extend({
+    _id: false,
     nodeIds: [String],
     scriptTypeName: String,
     isSudo: {

@@ -14,21 +14,24 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var botsNewService = require('_pr/services/botsNewService.js');
-var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var botService = require('_pr/services/botService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/botsNew*', sessionVerificationFunc);
+    app.all('/bot*', sessionVerificationFunc);
 
-    app.get('/botsNew',function(req,res){
-        var actionStatus = null,serviceNowCheck =null;
+    app.get('/bot',function(req,res){
+        var actionStatus = null,serviceNowCheck =false,savedTimeCheck = false;
+        var loggedUser =  req.session.user.cn;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
         }
         if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
             serviceNowCheck = true;
         }
-        botsNewService.getBotsList(req.query,actionStatus,serviceNowCheck, function(err,data){
+        if(req.query.savedTimeCheck && req.query.savedTimeCheck !== null && req.query.savedTimeCheck === 'true'){
+            savedTimeCheck = true;
+        }
+        botService.getBotsList(req.query,actionStatus,serviceNowCheck,savedTimeCheck,loggedUser, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -38,8 +41,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 
-    app.delete('/botsNew/:botId',function(req,res){
-        botsNewService.removeBotsById(req.params.botId, function(err,data){
+    app.delete('/bot/:botId',function(req,res){
+        botService.removeBotsById(req.params.botId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -48,8 +51,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/botsNew/:botId/bots-history',function(req,res){
-        botsNewService.getBotsHistory(req.params.botId,req.query, function(err,data){
+    app.get('/bot/:botId/bot-history',function(req,res){
+        botService.getBotsHistory(req.params.botId,req.query, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -58,8 +61,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/botsNew/:botId/bots-history/:historyId',function(req,res){
-        botsNewService.getParticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
+    app.get('/bot/:botId/bot-history/:historyId',function(req,res){
+        botService.getParticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -68,13 +71,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/botsNew/:botId/bots-history/:historyId/logs',function(req,res){
+    app.get('/bot/:botId/bot-history/:historyId/logs',function(req,res){
         var timestamp = null;
         if (req.query.timestamp) {
             timestamp = req.query.timestamp;
             timestamp = parseInt(timestamp);
         }
-        botsNewService.getParticularBotsHistoryLogs(req.params.botId,req.params.historyId,timestamp, function(err,data){
+        botService.getParticularBotsHistoryLogs(req.params.botId,req.params.historyId,timestamp, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -83,8 +86,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.post('/botsNew',function(req,res){
-        botsNewService.createNew(req.body.bots, function(err,data){
+    app.post('/bot',function(req,res){
+        botService.createNew(req.body.bots, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -93,9 +96,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.post('/botsNew/:botId/exec',function(req,res){
+     app.post('/bot/:botId/exec',function(req,res){
         req.body.userName = req.session.user.cn;
-        botsNewService.executeSINTLBOTs(req.params.botId,req.body, function(err,data){
+        botService.executeSINTLBOTs(req.params.botId,req.body, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -104,8 +107,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-
-    app.post('/botsNew/:botId/execute',function(req,res){
+    app.post('/bot/:botId/execute',function(req,res){
         var executionType = null;
         if(req.query.executionType && req.query.executionType !== null){
             executionType = req.query.executionType;
@@ -136,13 +138,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 category:req.body.type,
                 userName: req.session.user.cn,
                 hostProtocol: req.protocol + '://' + req.get('host'),
-                data: req.body.data
+                data: req.body.data?req.body.data:null,
+                attributes: req.body.attributes?req.body.attributes:null,
+                parameterized: req.body.parameterized?req.body.parameterized:null,
+                src: req.body.src?req.body.src:null,
+                ref: req.body.ref?req.body.ref:null
             }
             if(req.body.nodeIds){
                 reqBody.nodeIds =  req.body.nodeIds;
             }
         }
-        botsNewService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
+        botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -151,8 +157,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.put('/botsNew/:botId/scheduler',function(req,res){
-        botsNewService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
+    app.put('/bot/:botId/scheduler',function(req,res){
+        botService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

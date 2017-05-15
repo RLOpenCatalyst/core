@@ -42,6 +42,7 @@ var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
 var appDeployPipelineService = require('_pr/services/appDeployPipelineService');
 var settingsService = require('_pr/services/settingsService');
+var organizationService = require('_pr/services/organizationService');
 var settingWizard = require('_pr/model/setting-wizard');
 var request = require('request');
 
@@ -773,6 +774,12 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '17') {
                         // For Template
                         logger.debug("Id for template: ", req.params.id);
+                        if(req.query.orgId){                            
+                            orgList = [];                            
+                            orgList.push({      
+                                rowid:req.query.orgId                            
+                            })                        
+                        }
                         masterUtil.getTemplates(orgList, function (err, templateList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Template.');
@@ -784,13 +791,23 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '16') {
                         // For Template
                         logger.debug("Id for templateType: ", req.params.id);
-                        masterUtil.getTemplateTypes(orgList, function (err, templateList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch TemplateType.');
-                            }
-                            res.send(JSON.stringify(templateList));
-                            return;
-                        });
+                        if(req.query.source ==='design') {
+                            masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }else{
+                            masterUtil.getTemplateTypes(orgList, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }
                     } else if (req.params.id === '19') {
                         // For ServiceCommand
                         masterUtil.getServiceCommands(orgList, function (err, serviceCommandList) {
@@ -820,8 +837,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         res.send(bitbucketList);
                         return;
                     });
-
-                } else if (req.params.id === '28') {
+                    } else if (req.params.id === '28') {
                     // For Octopus
                     masterUtil.getOctopus(orgList, function(err, octopusList) {
                         if (err) {
@@ -830,8 +846,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         res.send(octopusList);
                         return;
                     });
-
-                } else if (req.params.id === '29') {
+                    } else if (req.params.id === '29') {
                     // For QA Portal
                     masterUtil.getFunctionalTest(orgList, function(err, functionaltestlist) {
                         if (err) {
@@ -840,9 +855,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         res.send(functionaltestlist);
                         return;
                     });
-
-                }
-                else if (req.params.id === '30') {
+                    }else if (req.params.id === '30') {
                     // For QA Portal
                     masterUtil.getCICDDashboard(orgList, function(err, cicdlist) {
                         if (err) {
@@ -851,8 +864,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         res.send(cicdlist);
                         return;
                     });
-
-                }else if (req.params.id === '31') {
+                    }else if (req.params.id === '31') {
                     // For QA Portal
                     masterUtil.getSonarqube(orgList, function(err, sonarqubelist) {
                         if (err) {
@@ -861,8 +873,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         res.send(sonarqubelist);
                         return;
                     });
-
-                }else if (req.params.id === '32') {
+                    } else if (req.params.id === '32') {
                     // For BOTs Remote Server Detail
                     masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
                         if (err) {
@@ -871,8 +882,16 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         res.send(botRemoteServerList);
                         return;
                     });
-
-                }else if (req.params.id === '23') {
+                    } else if (req.params.id === '33') {
+                        // For Ansibleing Server Detail
+                        masterUtil.getAnsibleServerDetails(orgList, function(err, ansibleServerList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Ansible Server Details');
+                            }
+                            res.send(ansibleServerList);
+                            return;
+                        });
+                    } else if (req.params.id === '23') {
                     // For Jira
                     logger.debug("Entering getJira");
                     masterUtil.getJira(orgList, function(err, jiraList) {
@@ -882,8 +901,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         res.send(jiraList);
                         return;
                     });
-
-                } else if (req.params.id === '6') {
+                    } else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function (err, userRoleList) {
                             if (err) {
@@ -892,7 +910,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             res.send(userRoleList);
                             return;
                         });
-
                     } else if (req.params.id === '7') {
                         // For User
                         masterUtil.getUsersForOrgOrAll(orgList, function (err, userList) {
@@ -912,17 +929,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             res.send(teamList);
                             return;
                         });
-                    } else if (req.params.id === '32') {
-                        // For BOTs Remote Server Detail
-                        masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch BOTs Remote Server Details.');
-                            }
-                            res.send(botRemoteServerList);
-                            return;
-                        });
-
-                    } else if (req.params.id === '25') {
+                    }else if (req.params.id === '25') {
                         // For Puppet Server
                         masterUtil.getPuppetServers(orgList, function (err, pList) {
                             if (err) {
@@ -1010,6 +1017,12 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '17') {
                         // For Template
                         logger.debug("Id for template: ", req.params.id);
+                        if(req.query.orgId){                            
+                            orgList = [];                            
+                            orgList.push({      
+                                rowid:req.query.orgId                            
+                            })
+                        }
                         masterUtil.getTemplates(orgList, function (err, templateList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Template.');
@@ -1021,14 +1034,23 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '16') {
                         // For Template
                         logger.debug("Id for templateType: ", req.params.id);
-                        masterUtil.getTemplateTypes(orgList, function (err, templateList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch TemplateType.');
-                            }
-                            res.send(JSON.stringify(templateList));
-                            return;
-                        });
-
+                        if(req.query.source ==='design') {
+                            masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }else{
+                            masterUtil.getTemplateTypes(orgList, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }
                     } else if (req.params.id === '19') {
                         // For ServiceCommand
                         masterUtil.getServiceCommands(orgList, function (err, serviceCommandList) {
@@ -1089,6 +1111,15 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             return;
                         });
 
+                    }else if (req.params.id === '33') {
+                        // For Ansible Server Detail
+                        masterUtil.getAnsibleServerDetails(orgList, function(err, ansibleServerList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Ansible Server Details');
+                            }
+                            res.send(ansibleServerList);
+                            return;
+                        });
                     }else if (req.params.id === '23') {
                         // For Jira
                         masterUtil.getJira(orgList, function(err, jiraList) {
@@ -1146,16 +1177,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             res.send(pList);
                             return;
                         });
-                    }else if (req.params.id === '32') {
-                    // For BOTs Remote Server Detail
-                        masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch BOTs Remote Server Details');
-                            }
-                            res.send(botRemoteServerList);
-                            return;
-                        });
-
                     } else {
                         logger.debug('nothin here');
                         res.send([]);
@@ -2846,6 +2867,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                             return;
                                                         }
                                                         res.send(200);
+                                                        updateOrgTree(req.session.user.cn,function(err,data){
+                                                            if(err){
+                                                                logger.error("Error in updating orgTree:",err);
+                                                            }
+                                                        });
                                                         return;
                                                     })
                                                 });
@@ -2974,6 +3000,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 res.send(500);
                                                 return;
                                             }
+                                            updateOrgTree(req.session.user.cn,function(err,data){
+                                                if(err){
+                                                    logger.error("Error in updating orgTree:",err);
+                                                }
+                                            });
                                             settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                 if (err) {
                                                     logger.error('Hit getting setting wizard error', err);
@@ -3037,6 +3068,18 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                         return;
                                                     }
                                                 });
+                                            }
+                                        });
+                                    }else if (req.params.id === '33') {
+                                        var ansibleServerModel = new d4dModelNew.d4dModelMastersAnsibleServer(bodyJson);
+                                        ansibleServerModel.save(function (err, data) {
+                                            if (err) {
+                                                logger.error('Hit Save error', err);
+                                                res.send(500);
+                                                return;
+                                            }else{
+                                                res.send(200);
+                                                return;
                                             }
                                         });
                                     } else if (req.params.id === '26') {
@@ -3120,6 +3163,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                             logger.debug('New Master Saved');
                                             logger.debug(req.params.fileinputs == 'null');
                                             if (req.params.id === '21') {
+                                                updateOrgTree(req.session.user.cn,function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in updating orgTree:",err);
+                                                    }
+                                                });
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                     if (err) {
                                                         logger.error('Hit getting setting wizard error', err);
@@ -3139,6 +3187,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 })
                                             }
                                             if (req.params.id === '2') {
+                                                updateOrgTree(req.session.user.cn,function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in updating orgTree:",err);
+                                                    }
+                                                });
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                     if (err) {
                                                         logger.error('Hit getting setting wizard error', err);
@@ -3239,6 +3292,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 })
                                             }
                                             if (req.params.id === '3') {
+                                                updateOrgTree(req.session.user.cn,function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in updating orgTree:",err);
+                                                    }
+                                                });
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                     if (err) {
                                                         logger.error('Hit getting setting wizard error', err);
@@ -3297,6 +3355,14 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 } else {
 
                                     // Update settings
+                                    if(req.params.id === '1' || req.params.id === '2' || req.params.id === '3'
+                                        || req.params.id === '4'|| req.params.id === '21' || req.params.id === '7'){
+                                        updateOrgTree(req.session.user.cn,function(err,data){
+                                            if(err){
+                                                logger.error("Error in updating orgTree:",err);
+                                            }
+                                        });
+                                    }
                                     if (req.params.id === '4') {
                                         // bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         delete rowtoedit._id; //fixing the issue of
@@ -4349,3 +4415,22 @@ module.exports.setRoutes = function (app, sessionVerification) {
         });
     });
 };
+
+function updateOrgTree(userName,callback){
+    async.parallel({
+        getTreeNew:function(callback){
+            organizationService.getTreeNew(userName,"d4dmasters",callback);
+        },
+        getTreeForBtv:function(callback){
+            organizationService.getTreeForBtv(userName,"d4dmasters",callback);
+        }
+    },function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}

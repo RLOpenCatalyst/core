@@ -12,7 +12,7 @@
  * All modules/feature will be through
  * */
 
-var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','countTo','angularMoment',
+var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','angularMoment',
 	'global.login',
 	'global.breadcrumb',
 	'authentication',
@@ -140,10 +140,6 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
     		$scope.$apply(function () {
 	            $scope.notificationCount = $scope.notificationCount + 1;
 	        });
-        });
-
-        socketClient.on('update',function(data){
-       
         });
 
         $scope.userClick = function() {
