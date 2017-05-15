@@ -20,18 +20,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/bot*', sessionVerificationFunc);
 
     app.get('/bot',function(req,res){
-        var actionStatus = null,serviceNowCheck =false,savedTimeCheck = false;
+        var actionStatus = null;
         var loggedUser =  req.session.user.cn;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
         }
-        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
-            serviceNowCheck = true;
-        }
-        if(req.query.savedTimeCheck && req.query.savedTimeCheck !== null && req.query.savedTimeCheck === 'true'){
-            savedTimeCheck = true;
-        }
-        botService.getBotsList(req.query,actionStatus,serviceNowCheck,savedTimeCheck,loggedUser, function(err,data){
+        botService.getBotsList(req.query,actionStatus,loggedUser, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

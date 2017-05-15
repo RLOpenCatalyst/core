@@ -67,13 +67,10 @@
                 { name: 'BOT Name',displayName: 'BOT Name',field:'name',cellTooltip: true},
                 { name: 'BOT Id',displayName: 'Type',field:'id',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'type'},
-                { name: 'Start Time',field:'startOn',
-                    cellTemplate:'<span title="{{row.entity.startOn  | timestampToLocaleTime}}">{{row.entity.startOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'End Time',field:'lastRunTime',
-                    cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'type',cellTooltip: true},
+                { name: 'Count',field:'successExecutionCount',cellTooltip: true},
                 { name: 'Saved Time',displayName: 'Saved Time', 
-                    cellTemplate:'<span title="{{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s">{{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s</span>', cellTooltip: true
+                    cellTemplate:'<span><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s</span>', cellTooltip: true
                 }
             ];
             $scope.botTimeSavedLibGridOptions.data=[];
@@ -208,7 +205,7 @@
             lib.gridOptions=[];
             var param={
                 inlineLoader:true,
-                url:'/bot?savedTimeCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bot?actionStatus=success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
@@ -343,7 +340,11 @@
         };
 
         $scope.searchBotNameCategory = function(pageNumber) {
-            $scope.isBotLibraryPageLoading = true;
+            if(!$scope.timeSavedBotsSelected) {
+                $scope.isBotLibraryPageLoading = true;
+            } else {
+                $scope.isBotTimeSavedPageLoading = true;
+            }
             $scope.searchString = $scope.botLibrarySearch;
             $scope.searchText = true;
             $scope.showLoadMore = false;
@@ -351,6 +352,7 @@
             lib.gridOptions=[];
             if(pageNumber) {
                 $scope.botLibGridOptions.data = [];
+                $scope.botTimeSavedLibGridOptions.data = [];
                 pageNumber = 1;
             }
             var param={};
@@ -364,12 +366,7 @@
                     inlineLoader: true,
                     url:'/bot?actionStatus=running&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
-            } else if($scope.timeSavedBotsSelected) {
-                 param={
-                    inlineLoader: true,
-                    url:'/bot?savedTimeCheck=true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
-                };
-            } else if($scope.scheduledBotsSelected) {
+            } else if($scope.timeSavedBotsSelected || $scope.scheduledBotsSelected) {
                  param={
                     inlineLoader: true,
                     url:'/bot?actionStatus=success&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
@@ -381,16 +378,22 @@
                 };
             }
             genSevs.promiseGet(param).then(function (result) {
-                if($scope.isCardViewActive){
-                    $scope.botLibGridOptions.data = result.bots;
-                    for(var i=0;i<result.bots.length;i++){
-                        $scope.imageForCard(result.bots[i]);
+                if(!$scope.timeSavedBotsSelected) {
+                    if($scope.isCardViewActive){
+                        $scope.botLibGridOptions.data = result.bots;
+                        for(var i=0;i<result.bots.length;i++){
+                            $scope.imageForCard(result.bots[i]);
+                        }
+                    } else {
+                        $scope.botLibGridOptions.data = result.bots;
                     }
+                    $scope.botsDetails(result);
+                    $scope.isBotLibraryPageLoading = false;
                 } else {
-                    $scope.botLibGridOptions.data = result.bots;
+                    $scope.botTimeSavedLibGridOptions.data = result.bots;   
+                    $scope.isBotTimeSavedPageLoading = false;
                 }
-                $scope.botsDetails(result);
-                $scope.isBotLibraryPageLoading = false;
+                
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
                 toastr.error(error);
@@ -399,8 +402,13 @@
         };
         $scope.clearBotSearchText = function() {
             $scope.botLibrarySearch = '';
-            $scope.botLibGridOptions.data = [];
-            $scope.isBotLibraryPageLoading = true;
+            if(!$scope.timeSavedBotsSelected) {
+                $scope.botLibGridOptions.data = [];
+                 $scope.isBotLibraryPageLoading = true;
+            } else {
+                $scope.botTimeSavedLibGridOptions.data = [];
+                $scope.isBotTimeSavedPageLoading = true;
+            }
             $scope.searchText = false;
             $scope.showLoadMore = false;
             $scope.showRecords = false;

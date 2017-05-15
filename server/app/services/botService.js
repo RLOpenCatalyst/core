@@ -172,7 +172,7 @@ botService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,savedTimeCheck,userName,callback) {
+botService.getBotsList = function getBotsList(botsQuery,actionStatus,userName,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -184,108 +184,21 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
-            if(actionStatus !== null){
-                var query = {
-                    auditType: 'BOT',
-                    actionStatus: actionStatus,
-                    isDeleted:false
-                };
-                var botsIds = [];
-                auditTrail.getAuditTrails(query, function(err,botsAudits){
-                    if(err){
-                        next(err,null);
-                    }else if (botsAudits.length > 0) {
-                        for (var i = 0; i < botsAudits.length; i++) {
-                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
-                                botsIds.push(botsAudits[i].auditId);
-                            }
-                        }
-                        queryObj.queryObj._id = {$in:botsIds};
-                        settingService.getOrgUserFilter(userName,function(err,orgIds){
-                            if(err){
-                                next(err,null);
-                            }else if(orgIds.length > 0){
-                                queryObj.queryObj['orgId'] = {$in:orgIds};
-                                botDao.getBotsList(queryObj, next);
-                            }else{
-                                botDao.getBotsList(queryObj, next);
-                            }
-                        });
-                    }else {
-                        queryObj.queryObj._id = null;
-                        settingService.getOrgUserFilter(userName,function(err,orgIds){
-                            if(err){
-                                next(err,null);
-                            }else if(orgIds.length > 0){
-                                queryObj.queryObj['orgId'] = {$in:orgIds};
-                                botDao.getBotsList(queryObj, next);
-                            }else{
-                                botDao.getBotsList(queryObj, next);
-                            }
-                        });
-                    }
-                });
-            }else if(serviceNowCheck === true){
-                delete queryObj.queryObj;
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
-                    if(err){
-                        next(err,null);
-                    }else if(orgIds.length > 0){
-                        queryObj.queryObj = {
-                            auditType: 'BOT',
-                            actionStatus: 'success',
-                            'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
-                            isDeleted:false,
-                            'masterDetails.orgId': {$in:orgIds}
-                        };
-                        auditTrail.getAuditTrailList(queryObj, next);
-                    }else{
-                        queryObj.queryObj = {
-                            auditType: 'BOT',
-                            actionStatus: 'success',
-                            'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
-                            isDeleted:false
-                        };
-                        auditTrail.getAuditTrailList(queryObj, next);
-                    }
-                });
-            }else if(savedTimeCheck === true){
-                delete queryObj.queryObj;
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
-                    if(err){
-                        next(err,null);
-                    }else if(orgIds.length > 0){
-                        queryObj.queryObj = {
-                            auditType: 'BOT',
-                            actionStatus: 'success',
-                            isDeleted:false,
-                            'masterDetails.orgId': {$in:orgIds}
-                        };
-                        auditTrail.getAuditTrailList(queryObj, next);
-                    }else{
-                        queryObj.queryObj = {
-                            auditType: 'BOT',
-                            actionStatus: 'success',
-                            isDeleted:false
-                        };
-                        auditTrail.getAuditTrailList(queryObj, next);
-                    }
-                });
-            }else{
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
-                    if(err){
-                        next(err,null);
-                    }else if(orgIds.length > 0){
-                        queryObj.queryObj['orgId'] = {$in:orgIds};
-                        botDao.getBotsList(queryObj, next);
-                    }else{
-                        botDao.getBotsList(queryObj, next);
-                    }
-                });
-            }
+            settingService.getOrgUserFilter(userName, function (err, orgIds) {
+                if (err) {
+                    next(err, null);
+                }
+                if(orgIds.length > 0){
+                    queryObj.queryObj['orgId'] = {$in: orgIds};
+                }
+                if(actionStatus !== null) {
+                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+                }
+                botDao.getBotsList(queryObj, next);
+            });
         },
         function(botList, next) {
-            addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
+            addYmlFileDetailsForBots(botList,reqData,next);
         },
         function(filterBotList, next) {
            async.parallel({
@@ -1039,7 +952,7 @@ function encryptedParam(paramDetails, callback) {
     }
 }
 
-function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
+function addYmlFileDetailsForBots(bots,reqData,callback){
     if (bots.docs.length === 0) {
         return callback(null,bots);
     }else{
@@ -1072,6 +985,8 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                             isScheduled: bot.isScheduled,
                             manualExecutionTime: bot.manualExecutionTime,
                             executionCount: bot.executionCount,
+                            successExecutionCount: bot.successExecutionCount,
+                            failedExecutionCount: bot.failedExecutionCount,
                             scheduler: bot.scheduler,
                             createdOn: bot.createdOn,
                             lastRunTime: bot.lastRunTime,
@@ -1097,82 +1012,6 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                             return callback(null, bots);
                         }
                     })
-                }else{
-                    botDao.getBotsById(bot.auditId, function (err, botDetails) {
-                        if (err) {
-                            logger.error("Error in fetching BOT Details for _id: " + bot.auditId + " " + err);
-                        }else {
-                            fileUpload.getReadStreamFileByFileId(botDetails[0].ymlDocFileId, function (err, file) {
-                                if (err) {
-                                    logger.error("Error in fetching YAML Documents for : " + bot.name + " " + err);
-                                } else {
-                                    botsObj = {
-                                        _id: botDetails[0]._id,
-                                        name: botDetails[0].name,
-                                        gitHubId: botDetails[0].gitHubId,
-                                        id: botDetails[0].id,
-                                        desc: botDetails[0].desc,
-                                        action: botDetails[0].action,
-                                        category: botDetails[0].category,
-                                        type: botDetails[0].type,
-                                        subType: botDetails[0].subType,
-                                        inputFormFields: botDetails[0].inputFormFields,
-                                        outputOptions: botDetails[0].outputOptions,
-                                        ymlDocFileId: botDetails[0].ymlDocFileId,
-                                        orgId: botDetails[0].orgId,
-                                        orgName: botDetails[0].orgName,
-                                        ymlFileName: file !== null ? file.fileName : file,
-                                        ymlFileData: file !== null ? file.fileData : file,
-                                        isScheduled: botDetails[0].isScheduled,
-                                        manualExecutionTime: botDetails[0].manualExecutionTime,
-                                        executionCount: botDetails[0].executionCount,
-                                        scheduler: botDetails[0].scheduler,
-                                        lastRunTime: botDetails[0].lastRunTime,
-                                        savedTime: bot.savedTime,
-                                        source: botDetails[0].source,
-                                        execution:botDetails[0].execution,
-                                        lastExecutionStatus: bot.actionStatus,
-                                        actionLogId: bot.actionLogId,
-                                        startOn: bot.startedOn,
-                                        endedOn: bot.endedOn
-                                    }
-                                    if(bot.type === 'jenkins') {
-                                        botsObj.isParameterized = bot.isParameterized;
-                                    }
-                                    if(serviceNowCheck === true){
-
-                                        botsObj.srnTicketNo= bot.auditTrailConfig.serviceNowTicketRefObj.ticketNo;
-                                        botsObj.srnTicketLink=bot.auditTrailConfig.serviceNowTicketRefObj.ticketLink;
-                                        botsObj.srnTicketShortDesc= bot.auditTrailConfig.serviceNowTicketRefObj.shortDesc;
-                                        botsObj.srnTicketDesc= bot.auditTrailConfig.serviceNowTicketRefObj.desc;
-                                        botsObj.srnTicketStatus= bot.auditTrailConfig.serviceNowTicketRefObj.state;
-                                        botsObj.srnTicketPriority= bot.auditTrailConfig.serviceNowTicketRefObj.priority;
-                                        botsObj.srnTicketResolvedBy= bot.auditTrailConfig.serviceNowTicketRefObj.resolvedBy;
-                                        botsObj.srnTicketResolvedAt= bot.auditTrailConfig.serviceNowTicketRefObj.resolvedAt;
-                                        botsObj.srnTicketCreatedOn= bot.auditTrailConfig.serviceNowTicketRefObj.createdOn;
-                                        botsObj.srnTicketClosedAt= bot.auditTrailConfig.serviceNowTicketRefObj.closedAt;
-                                        botsObj.srnTicketOpenedAt= bot.auditTrailConfig.serviceNowTicketRefObj.openedAt;
-                                        botsObj.srnTicketUpdatedOn= bot.auditTrailConfig.serviceNowTicketRefObj.updatedOn;
-                                        botsObj.srnTicketCategory= bot.auditTrailConfig.serviceNowTicketRefObj.category;
-
-                                    }
-                                    botsList.push(botsObj);
-                                    if (botsList.length === bots.docs.length) {
-                                        var alaSql = require('alasql');
-                                        var sortField = reqData.mirrorSort;
-                                        var sortedField = Object.keys(sortField)[0];
-                                        var sortedOrder = reqData.mirrorSort ? (sortField[Object.keys(sortField)[0]] == 1 ? 'asc' : 'desc') : '';
-                                        if (sortedOrder === 'asc') {
-                                            bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' ASC', [botsList]);
-                                        } else {
-                                            bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' DESC', [botsList]);
-                                        }
-                                        return callback(null, bots);
-                                    }
-                                }
-                            });
-                        }
-                    });
                 }
             })(bots.docs[i]);
         }

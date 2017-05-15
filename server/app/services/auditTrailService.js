@@ -459,10 +459,10 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         hours = hours + Math.floor(minutes / 60);
                         minutes = minutes % 60;
                     }
-                    if(hours >= 24){
+                    /*if(hours >= 24){
                         days = days + Math.floor(hours / 60);
                         hours = minutes % 24
-                    }
+                    }*/
                     var result = {
                         days:days,
                         hours:hours,

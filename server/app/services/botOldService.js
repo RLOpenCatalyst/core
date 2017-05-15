@@ -438,20 +438,23 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
             var query = {
                 auditType: auditType,
                 isDeleted: false,
-                auditId: botId,
-                actionStatus: 'success'
+                auditId: botId
             };
             auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
                 if (err) {
                     logger.error("Error in Fetching Audit Trail.", err);
                     next(err, null);
                 } else if (botAuditTrail.length > 0) {
-                    var seconds = 0, minutes = 0, hours = 0, days = 0;
+                    var seconds = 0, minutes = 0, hours = 0, days = 0,successCount = 0,failedCount = 0;
                     for (var m = 0; m < botAuditTrail.length; m++) {
-                        if (botAuditTrail[m].savedTime) {
+                        if (botAuditTrail[m].savedTime && botAuditTrail[m].actionStatus ==='success') {
+                            successCount = successCount + 1;
                             seconds = seconds + botAuditTrail[m].savedTime.seconds;
                             minutes = minutes + botAuditTrail[m].savedTime.minutes;
                             hours = hours + botAuditTrail[m].savedTime.hours;
+                        }
+                        if(botAuditTrail[m].actionStatus ==='failed'){
+                            failedCount = failedCount + 1;
                         }
                     }
                     if (seconds >= 60) {
@@ -488,6 +491,8 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                     } else {
                         botDao.updateBotsDetail(botId, {
                             savedTime: result,
+                            successExecutionCount: successCount,
+                            failedExecutionCount: failedCount,
                             executionCount: botAuditTrail.length
                         }, function (err, data) {
                             if (err) {

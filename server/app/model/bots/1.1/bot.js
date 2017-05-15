@@ -143,6 +143,14 @@ var BotSchema = new Schema ({
         type: Boolean,
         default: false
     },
+    successExecutionCount: {
+        type: Number,
+        default: 0
+    },
+    failedExecutionCount: {
+        type: Number,
+        default: 0
+    },
     scheduler:{
         cronStartOn: {
             type: String,
