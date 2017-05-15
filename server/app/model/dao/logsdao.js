@@ -75,17 +75,6 @@ var LogsDao = function() {
         });
     };
 
-    this.removeLogsDetails = function(queryObj, callback) {
-        Logs.remove(queryObj, function(err, data) {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            callback(null, data);
-            return;
-        });
-    }
-
     this.getLogsDetails = function(queryObj, callback) {
         Logs.find(queryObj, function(err, data) {
             if (err) {
