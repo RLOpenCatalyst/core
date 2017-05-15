@@ -111,17 +111,21 @@ async.parallel({
                                     return;
                                 }
                             } else if (auditTrails.length > 0) {
-                                auditTrails.forEach(function(audit){
-                                    botOldService.updateSavedTimePerBots(bot._id, audit._id,'BOT', function (err, botsData) {
-                                        if (err) {
-                                            logger.error("Error in updating saved time for BOT - " + err);
-                                        }
-                                    });
-                                });
+                                var auditCount = 0;
                                 count++;
-                                if(count === bots.length){
-                                    callback(null,bots.length);
-                                    return;
+                                for(var j = 0 ; j < auditTrails.length;j++) {
+                                    (function(audit) {
+                                        botOldService.updateSavedTimePerBots(bot._id, audit._id, 'BOT', function (err, botsData) {
+                                            if (err) {
+                                                logger.error("Error in updating saved time for BOT - " + err);
+                                            }
+                                            auditCount++;
+                                            if(count === bots.length && auditCount === auditTrails.length){
+                                                callback(null,bots.length);
+                                                return;
+                                            }
+                                        });
+                                    })(auditTrails[i]);
                                 }
                             } else {
                                 logger.debug("There is no AuditTrails in DB against BOT : "+bot.id);

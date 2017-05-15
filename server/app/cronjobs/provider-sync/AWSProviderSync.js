@@ -611,6 +611,12 @@ function resourceMapSync(callback){
                                                 return;
                                             }
                                         })
+                                    }else{
+                                        count++;
+                                        if(count === resourceMaps.length){
+                                            callback(null,resourceMaps.length);
+                                            return;
+                                        }
                                     }
                                 } else {
                                     count++;
@@ -623,8 +629,8 @@ function resourceMapSync(callback){
                             });
                         } else if (resourceMap.type === 'CloudFormation') {
                             var instanceIds = [];
-                            for (var i = 0; i < resourceMap.resources.length; i++) {
-                                instanceIds.push(resourceMap.resources[i].id);
+                            for (var j = 0; j < resourceMap.resources.length; j++) {
+                                instanceIds.push(resourceMap.resources[j].id);
                             }
                             instancesDao.getInstances(instanceIds, function (err, instances) {
                                 if (err) {
@@ -654,6 +660,12 @@ function resourceMapSync(callback){
                                                 return;
                                             }
                                         })
+                                    }else{
+                                        count++;
+                                        if(count === resourceMaps.length){
+                                            callback(null,resourceMaps.length);
+                                            return;
+                                        }
                                     }
                                 } else {
                                     count++;
