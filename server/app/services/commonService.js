@@ -26,197 +26,199 @@ var SSHExec = require('_pr/lib/utils/sshexec');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var instancesDao = require('_pr/model/classes/instance/instance.js');
 var noticeService = require('_pr/services/noticeService.js');
-
-
+var scriptService = require('_pr/services/scriptService.js');
+var async = require('async');
 
 const errorType = 'commonService';
 
 var commonService = module.exports = {};
 
-commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback){
+commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
+    var scriptIds = [];
     var commonJson = {
-        id:reqBody.name.toLowerCase().replace(" ","_")+'_'+ uuid.v4().split("-")[0],
-        name:reqBody.name,
-        desc:reqBody.desc,
-        action:reqBody.action,
-        type:reqBody.type,
-        functionality:reqBody.category,
-        subType:reqBody.subType ?reqBody.subType:(reqBody.blueprintType?reqBody.blueprintType:null),
+        id: reqBody.name.toLowerCase().replace(" ", "_") + '_' + uuid.v4().split("-")[0],
+        name: reqBody.name,
+        desc: reqBody.desc,
+        action: reqBody.action,
+        type: reqBody.type,
+        functionality: reqBody.category,
+        subType: reqBody.subType ? reqBody.subType : (reqBody.blueprintType ? reqBody.blueprintType : null),
         manualExecutionTime: parseInt(reqBody.standardTime),
-        inputFormFields:[],
-        execution:[],
-        outputOptions:{
-            msgs:{
-                mail:{},
-                text:{}
+        inputFormFields: [],
+        execution: [],
+        outputOptions: {
+            msgs: {
+                mail: {},
+                text: {}
             }
         }
     }
-    if(reqBody.filters){
+    if (reqBody.filters) {
         commonJson.outputOptions.filters = reqBody.filters;
     }
-    if(reqBody.messages){
+    if (reqBody.messages) {
         commonJson.outputOptions.msgs = reqBody.messages;
     }
-    if(reqBody.logs){
+    if (reqBody.logs) {
         commonJson.outputOptions.logs = reqBody.logs;
     }
-    if(reqBody.type ==='script'){
-        reqBody.scriptDetails.forEach(function(scriptDetail){
+    if (reqBody.type === 'script') {
+        reqBody.scriptDetails.forEach(function (scriptDetail) {
             var params = '';
-            scriptDetail.scriptParameters.forEach(function(param){
+            scriptDetail.scriptParameters.forEach(function (param) {
                 commonJson.inputFormFields.push({
-                    default : param.paramVal,
-                    type : param.paramType === ""?"text":param.paramType.toLowerCase(),
-                    label : param.paramDesc,
-                    name : param.paramDesc.toLowerCase().replace(" ","_")
+                    default: param.paramVal,
+                    type: param.paramType === "" ? "text" : param.paramType.toLowerCase(),
+                    label: param.paramDesc,
+                    name: param.paramDesc.toLowerCase().replace(" ", "_")
                 })
-                params = params + '${'+ param.paramDesc.toLowerCase().replace(" ","_") + '}'
+                params = params + '${' + param.paramDesc.toLowerCase().replace(" ", "_") + '}'
             })
             commonJson.execution.push({
-                type:reqBody.scriptTypeName.toLowerCase(),
-                os:reqBody.scriptTypeName === 'Bash' || reqBody.scriptTypeName === 'Python' ?"ubuntu":"windows",
-                stage:"Script",
-                param:params,
-                entrypoint:scriptDetail.scriptId
+                type: reqBody.scriptTypeName.toLowerCase(),
+                os: reqBody.scriptTypeName === 'Bash' || reqBody.scriptTypeName === 'Python' ? "ubuntu" : "windows",
+                stage: "Script",
+                param: params,
+                entrypoint: scriptDetail.scriptId
             })
-            commonJson.outputOptions.msgs.text = "Script ${scripName} has executed successful on Node ${node}";
+            scriptIds.push(scriptDetail.scriptId);
         })
-    }else if(reqBody.type ==='jenkins'){
+        commonJson.outputOptions.msgs.text = "Script ${scripName} has executed successfully on Node ${node}";
+    } else if (reqBody.type === 'jenkins') {
         commonJson.isParameterized = reqBody.isParameterized;
         commonJson.autoSync = reqBody.autoSyncFlag;
         commonJson.inputFormFields.push(
             {
-                default : reqBody.jenkinsServerId,
-                type : 'list',
-                label : 'Jenkins Server Name',
-                name : 'jenkinsServerId'
+                default: reqBody.jenkinsServerId,
+                type: 'list',
+                label: 'Jenkins Server Name',
+                name: 'jenkinsServerId'
             },
             {
-                default : reqBody.jobName,
-                type : 'text',
-                label : 'Jenkins JOB Name',
-                name : 'jenkinsJobName'
+                default: reqBody.jobName,
+                type: 'text',
+                label: 'Jenkins JOB Name',
+                name: 'jenkinsJobName'
             },
             {
-                default : reqBody.jobURL,
-                type : 'text',
-                label : 'Jenkins JOB URL',
-                name : 'jenkinsJobURL'
+                default: reqBody.jobURL,
+                type: 'text',
+                label: 'Jenkins JOB URL',
+                name: 'jenkinsJobURL'
             }
         )
-        if(reqBody.isParameterized === true){
+        if (reqBody.isParameterized === true) {
             commonJson.inputFormFields.push({
-                default : reqBody.parameterized,
-                type : 'list',
-                label : 'Jenkins JOB Parameters',
-                name : 'jenkinsJobParameters'
+                default: reqBody.parameterized,
+                type: 'list',
+                label: 'Jenkins JOB Parameters',
+                name: 'jenkinsJobParameters'
             })
             commonJson.execution.push({
-                type : reqBody.type,
-                param : "${jenkinsJobName} ${jenkinsServerId} ${jenkinsJobURL} ${jenkinsJobParameters}",
-                entrypoint : reqBody.jobName,
+                type: reqBody.type,
+                param: "${jenkinsJobName} ${jenkinsServerId} ${jenkinsJobURL} ${jenkinsJobParameters}",
+                entrypoint: reqBody.jobName,
                 parameterized: reqBody.parameterized
             })
-        }else{
+        } else {
             commonJson.execution.push({
-                type : reqBody.type,
-                param : "${jenkinsJobName} ${jenkinsServerId} ${jenkinsJobURL}",
-                entrypoint : reqBody.jobName,
-                jenkinsServerName : reqBody.jenkinsServerName
+                type: reqBody.type,
+                param: "${jenkinsJobName} ${jenkinsServerId} ${jenkinsJobURL}",
+                entrypoint: reqBody.jobName,
+                jenkinsServerName: reqBody.jenkinsServerName
             })
         }
         commonJson.outputOptions.msgs.text = "${jenkinsJobName} job has successfully built on ${jenkinsServerName}";
-    }else if(reqBody.type ==='chef'){
-        if(reqBody.attributes && (reqBody.attributes !== null || reqBody.attributes.length > 0)){
-            var attributeObj = {},jsonObjKey = '';
-            reqBody.attributes.forEach(function(attribute){
-                if(Object.keys(attributeObj).length === 0){
+    } else if (reqBody.type === 'chef') {
+        if (reqBody.attributes && (reqBody.attributes !== null || reqBody.attributes.length > 0)) {
+            var attributeObj = {}, jsonObjKey = '';
+            reqBody.attributes.forEach(function (attribute) {
+                if (Object.keys(attributeObj).length === 0) {
                     attributeObj = attribute.jsonObj;
                     jsonObjKey = Object.keys(attribute.jsonObj)[0];
                     var attrValObj = attribute.jsonObj[Object.keys(attribute.jsonObj)[0]];
-                    var key  = Object.keys(attrValObj)[0];
-                    attributeObj[jsonObjKey][key] = '${'+key+'}';
-                }else{
+                    var key = Object.keys(attrValObj)[0];
+                    attributeObj[jsonObjKey][key] = '${' + key + '}';
+                } else {
                     var attrValObj = attribute.jsonObj[Object.keys(attribute.jsonObj)[0]];
-                    var key  = Object.keys(attrValObj)[0];
-                    attributeObj[jsonObjKey][key] = '${'+key+'}';
+                    var key = Object.keys(attrValObj)[0];
+                    attributeObj[jsonObjKey][key] = '${' + key + '}';
                 }
                 commonJson.inputFormFields.push({
-                    default : attrValObj[key],
-                    type : 'text',
-                    label : attribute.name,
-                    name : key
+                    default: attrValObj[key],
+                    type: 'text',
+                    label: attribute.name,
+                    name: key
                 })
             });
             commonJson.execution.push({
-                type : 'cookBook',
-                os : reqBody.os?reqBody.os:'ubuntu',
-                attributes:attributeObj,
-                param : "${runlist} ${attributes}",
-                runlist:reqBody.runlist,
-                stage : reqBody.name
+                type: 'cookBook',
+                os: reqBody.os ? reqBody.os : 'ubuntu',
+                attributes: attributeObj,
+                param: "${runlist} ${attributes}",
+                runlist: reqBody.runlist,
+                stage: reqBody.name
             })
-        }else{
+        } else {
             commonJson.execution.push({
-                type : 'cookBook',
-                os : reqBody.os,
-                attributes:null,
-                param : "${runlist}",
-                runlist:reqBody.runlist,
-                stage : reqBody.name
+                type: 'cookBook',
+                os: reqBody.os,
+                attributes: null,
+                param: "${runlist}",
+                runlist: reqBody.runlist,
+                stage: reqBody.name
             })
         }
         commonJson.outputOptions.msgs.text = "Cookbook RunList ${runlist} has executed successful on Node ${node}";
-    }else if(reqBody.type ==='blueprints' || reqBody.type ==='blueprint'){
-        if(reqBody.subType === 'aws_cf' || reqBody.subType === 'azure_arm'){
+    } else if (reqBody.type === 'blueprints' || reqBody.type === 'blueprint') {
+        if (reqBody.subType === 'aws_cf' || reqBody.subType === 'azure_arm') {
             commonJson.inputFormFields.push(
                 {
-                    default : reqBody.stackName?reqBody.stackName:null,
-                    type : 'text',
-                    label : 'Stack Name',
-                    name : 'stackName'
+                    default: reqBody.stackName ? reqBody.stackName : null,
+                    type: 'text',
+                    label: 'Stack Name',
+                    name: 'stackName'
                 })
-        }else{
+        } else {
             commonJson.inputFormFields.push(
                 {
-                    default : reqBody.domainName?reqBody.domainName:null,
-                    type : 'text',
-                    label : 'Domain Name',
-                    name : 'domainName'
+                    default: reqBody.domainName ? reqBody.domainName : null,
+                    type: 'text',
+                    label: 'Domain Name',
+                    name: 'domainName'
                 })
         }
         commonJson.inputFormFields.push(
             {
-                default : reqBody.blueprintIds?reqBody.blueprintIds:[],
-                type : 'list',
-                label : 'Blueprint Name',
-                name : 'blueprintIds'
+                default: reqBody.blueprintIds ? reqBody.blueprintIds : [],
+                type: 'list',
+                label: 'Blueprint Name',
+                name: 'blueprintIds'
             },
             {
-                default : reqBody.envId?reqBody.envId:[],
-                type : 'list',
-                label : 'Environment Name',
-                name : 'envId'
+                default: reqBody.envId ? reqBody.envId : [],
+                type: 'list',
+                label: 'Environment Name',
+                name: 'envId'
             },
             {
-                default : reqBody.monitorId?reqBody.monitorId:[],
-                type : 'list',
-                label : 'Monitor Name',
-                name : 'monitorId'
+                default: reqBody.monitorId ? reqBody.monitorId : [],
+                type: 'list',
+                label: 'Monitor Name',
+                name: 'monitorId'
             },
             {
-                default : reqBody.tagServer?reqBody.tagServer:[],
-                type : 'list',
-                label : 'Tag Server',
-                name : 'tagServer'
+                default: reqBody.tagServer ? reqBody.tagServer : [],
+                type: 'list',
+                label: 'Tag Server',
+                name: 'tagServer'
             }
         )
         commonJson.execution.push({
-            type : reqBody.type,
-            name : reqBody.blueprintName,
-            id : reqBody.blueprintId,
-            category : getBlueprintType(reqBody.blueprintType)
+            type: reqBody.type,
+            name: reqBody.blueprintName,
+            id: reqBody.blueprintId,
+            category: getBlueprintType(reqBody.blueprintType)
         })
         commonJson.outputOptions.msgs.text = "${blueprintName} has successfully launched on env ${envId}";
     }
@@ -225,39 +227,58 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback){
     commonJson.orgId = reqBody.orgId;
     commonJson.orgName = reqBody.orgName;
     commonJson.source = "Catalyst";
-    var fileName = appConfig.tempDir + commonJson.id + '.yaml';
-    fileIo.writeFile(fileName,ymlText,null,function(err){
-        if(err){
+    var ymlFolderName = appConfig.botFactoryDir + 'local/YAML';
+    var ymlFileName = commonJson.id + '.yaml'
+    var path = require('path');
+    var mkdirp = require('mkdirp');
+    var ymlFolder = path.normalize(ymlFolderName);
+    mkdirp.sync(ymlFolder);
+    async.waterfall([
+        function (next) {
+            fileIo.writeFile(ymlFolder +'/'+ ymlFileName, ymlText,null, next);
+        },
+        function (next) {
+            fileUpload.uploadFile(commonJson.id + '.yaml', ymlFolder +'/'+ ymlFileName, null, next);
+        }
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
-            return;
-        }else{
-            logger.debug("Successfully write file");
-            fileUpload.uploadFile(commonJson.id + '.yaml',fileName,null,function(err,data) {
+            callback(err, null);
+            fileIo.removeFile(ymlFolder +'/'+ ymlFileName, function (err, removeCheck) {
                 if (err) {
                     logger.error(err);
-                    callback(err, null);
-                    fileIo.removeFile(fileName,function(err,removeCheck){
-                        if(err){
-                            logger.error(err);
-                        }
-                        logger.debug("Successfully remove file");
-                    })
-                    return;
-                } else {
-                    commonJson.ymlDocFileId = data;
-                    callback(null,commonJson);
-                    fileIo.removeFile(fileName,function(err,removeCheck){
-                        if(err){
-                            logger.error(err);
-                        }
-                        logger.debug("Successfully remove file");
-                    })
-                    return;
                 }
-            });
+                logger.debug("Successfully remove file");
+            })
+            return;
+        } else {
+            commonJson.ymlDocFileId = results;
+            callback(null, commonJson);
+            if (scriptIds.length > 0) {
+                scriptIds.forEach(function (scriptId) {
+                    var scriptFileName = appConfig.botFactoryDir + 'local/Code/script_BOTs/' + commonJson.id ;
+                    var scriptFolder = path.normalize(scriptFileName);
+                    mkdirp.sync(scriptFolder);
+                    scriptService.getScriptById(scriptId, function (err, fileData) {
+                        if (err) {
+                            logger.error("Error in reading file: ", err);
+                            return;
+                        } else {
+                            scriptFileName = scriptFileName + '/'+ fileData.fileName;
+                            fileIo.writeFile(scriptFileName, fileData.file, null, function (err) {
+                                if (err) {
+                                    logger.error("Error in Writing File:", err);
+                                }
+                                return;
+                            });
+                        }
+                    })
+                })
+            } else {
+                return;
+            }
         }
-    })
+    });
 }
 
 commonService.executeCmd = function executeCmd(sshOptions,instanceLog,instanceId,actionId,actionLogId,botId,bot_id,cmd,callback){
