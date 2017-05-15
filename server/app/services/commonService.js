@@ -30,6 +30,9 @@ var scriptService = require('_pr/services/scriptService.js');
 var async = require('async');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var targz = require('targz');
+var fs = require('fs');
+var request = require('request');
+
 
 const errorType = 'commonService';
 
