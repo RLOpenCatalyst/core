@@ -11,9 +11,9 @@ var fileIo = require('_pr/lib/utils/fileio');
 
 var ApiUtil = function() {
 
-    this.messageFormatter=function(formattedMessage,replaceTextObj,callback){
+    this.messageFormatter=function(formattedMessage,replaceTextObj){
         var resultMessage = formatMessage(formattedMessage,replaceTextObj);
-        callback(null,resultMessage);
+        return resultMessage;
     }
     this.errorResponse=function(code,field){
         var errObj={};

@@ -13,6 +13,7 @@ var assignedInstancesDao = require('_pr/model/unmanaged-instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var noticeService = require('_pr/services/noticeService.js');
+var resourceMapService = require('_pr/services/resourceMapService.js');
 
 
 
@@ -20,10 +21,6 @@ var AWSProviderSync = Object.create(CatalystCronJob);
 AWSProviderSync.execute = awsProviderSync;
 
 module.exports = AWSProviderSync;
-
-// AWSProviderSync.execute();
-
-// @TODO Simplify methods
 function awsProviderSync() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
@@ -100,7 +97,19 @@ function awsProviderSyncForProvider(provider,orgName) {
             });
         },
         function(assignedInstances,next){
-            tagMappingSyncForInstances(assignedInstances.assignedInstance,provider,'assigned',next);
+            async.parallel({
+                tagMappingSync: function (callback) {
+                    tagMappingSyncForInstances(assignedInstances.assignedInstance, provider, 'assigned', callback);
+                },
+                resourceMapSync: function (callback) {
+                    resourceMapSync(callback);
+                }
+            },function(err,results){
+                if(err){
+                    next(err,null);
+                }
+                next(null,results);
+            });
         }
     ],function (err, results) {
         if (err) {
@@ -424,9 +433,9 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
                                            var timestampStarted = new Date().getTime();
                                            var user = instance.catUser ? instance.catUser : 'superadmin';
                                            var actionLog = instancesDao.insertInstanceStatusActionLog(instance._id, user,'terminated', timestampStarted);
-                                           var logReferenceIds = [instance._id, actionLog._id];
                                            logsDao.insertLog({
-                                               referenceId: logReferenceIds,
+                                               instanceId:instance._id,
+                                               instanceRefId:actionLog._id,
                                                err: false,
                                                log: "Instance : terminated",
                                                timestamp: timestampStarted
@@ -466,18 +475,6 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
                                                    logger.error("Error in Notification Service, ",err);
                                                }
                                            });
-                                           var domainName = instance.domainName?instance.domainName:null;
-                                           if(domainName !== null) {
-                                               var resourceObj = {
-                                                   stackStatus:"DELETED"
-                                               }
-                                               var resourceMapService = require('_pr/services/resourceMapService.js');
-                                               resourceMapService.updateResourceMap(domainName, resourceObj, function (err, resourceMap) {
-                                                   if (err) {
-                                                       logger.error("Error in updating Resource Map.", err);
-                                                   }
-                                               });
-                                           }
                                            if(instanceCount === instances.length){
                                                callback(null,instances);
                                                return;
@@ -574,5 +571,133 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
     }else{
         callback(null,ec2Instances);
     }
+
+}
+
+function resourceMapSync(callback){
+    async.waterfall([
+        function(next){
+            resourceMapService.getResourceMaps(next);
+        },
+        function(resourceMaps,next){
+            if(resourceMaps.length >0){
+                var count = 0;
+                for(var i = 0; i < resourceMaps.length; i++){
+                    (function(resourceMap) {
+                        if (resourceMap.type === 'SoftwareStack' || resourceMap.type === 'OSImage') {
+                            instancesDao.getInstanceById(resourceMap.resources[0].id, function (err, instanceData) {
+                                if (err) {
+                                    logger.error(err);
+                                }
+                                if (instanceData.length > 0) {
+                                    var resourceMapState = null;
+                                    if (instanceData[0].instanceState === 'terminated') {
+                                        resourceMapState = 'Terminated';
+                                    } else if (instanceData[0].instanceState === 'stopped') {
+                                        resourceMapState = 'Stopped';
+                                    } else if (instanceData[0].instanceState === 'running') {
+                                        resourceMapState = 'Running';
+                                    } else {
+                                        logger.debug("Invalid state for ResourceMap: " + instanceData[0].instanceState);
+                                    }
+                                    if (resourceMapState !== null) {
+                                        resourceMapService.updateResourceMap(resourceMap.name, {state: resourceMapState}, function (err, data) {
+                                            if (err) {
+                                                logger.error(err);
+                                            }
+                                            count++;
+                                            if(count === resourceMaps.length){
+                                                callback(null,resourceMaps.length);
+                                                return;
+                                            }
+                                        })
+                                    }else{
+                                        count++;
+                                        if(count === resourceMaps.length){
+                                            callback(null,resourceMaps.length);
+                                            return;
+                                        }
+                                    }
+                                } else {
+                                    count++;
+                                    logger.debug("No Records are available in DB against Instance : " + resourceMap.resources[0]);
+                                    if(count === resourceMaps.length){
+                                        callback(null,resourceMaps.length);
+                                        return;
+                                    }
+                                }
+                            });
+                        } else if (resourceMap.type === 'CloudFormation') {
+                            var instanceIds = [];
+                            for (var j = 0; j < resourceMap.resources.length; j++) {
+                                instanceIds.push(resourceMap.resources[j].id);
+                            }
+                            instancesDao.getInstances(instanceIds, function (err, instances) {
+                                if (err) {
+                                    logger.error(err);
+                                } else if (instances.length > 0) {
+                                    var resourceMapStateList = [], resourceMapState = null;
+                                    instances.forEach(function (instance) {
+                                        resourceMapStateList.push(instance.instanceState);
+                                    })
+                                    if (resourceMapStateList.indexOf('running') >= 0) {
+                                        resourceMapState = 'Running';
+                                    } else if (resourceMapStateList.indexOf('stopped') >= 0) {
+                                        resourceMapState = 'Stopped';
+                                    } else if (resourceMapStateList.indexOf('terminated') >= 0) {
+                                        resourceMapState = 'Terminated';
+                                    } else {
+                                        logger.debug("Invalid state for ResourceMap: " + instanceData[0].instanceState);
+                                    }
+                                    if (resourceMapState !== null) {
+                                        resourceMapService.updateResourceMap(resourceMap.name, {state: resourceMapState}, function (err, data) {
+                                            if (err) {
+                                                logger.error(err);
+                                            }
+                                            count++;
+                                            if(count === resourceMaps.length){
+                                                callback(null,resourceMaps.length);
+                                                return;
+                                            }
+                                        })
+                                    }else{
+                                        count++;
+                                        if(count === resourceMaps.length){
+                                            callback(null,resourceMaps.length);
+                                            return;
+                                        }
+                                    }
+                                } else {
+                                    count++;
+                                    logger.debug("No Records are available in DB against Instance : " + resourceMap.resources[0]);
+                                    if(count === resourceMaps.length){
+                                        callback(null,resourceMaps.length);
+                                        return;
+                                    }
+                                }
+                            });
+                        } else {
+                            count++;
+                            logger.debug("Un-Supported Type : " + resourceMap.type);
+                            if(count === resourceMaps.length){
+                                callback(null,resourceMaps.length);
+                                return;
+                            }
+                        }
+                    })(resourceMaps[i]);
+                }
+            }else{
+                next(null,resourceMaps);
+            }
+        }
+    ],function(err,data){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,data);
+            return;
+        }
+    })
 
 }

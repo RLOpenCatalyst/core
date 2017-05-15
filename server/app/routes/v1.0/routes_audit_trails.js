@@ -161,14 +161,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get('/audit-trail/instance-action/:actionId/logs', pollInstanceActionLog);
 
     function pollInstanceActionLog(req, res, next) {
-        var timestamp = req.query.timestamp;
-        if (timestamp) {
-            timestamp = parseInt(timestamp);
-        }
         async.waterfall(
             [
                 function(next) {
-                    logsDao.getLogsByReferenceId(req.params.actionId, timestamp, next);
+                    auditTrailService.getAuditTrailActionLogs(req.params.actionId, req.query.timestamp, next);
                 }
             ],
             function(err, results) {
@@ -181,14 +177,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get('/audit-trail/task-action/:actionId/logs', pollTaskActionLog);
 
     function pollTaskActionLog(req, res, next) {
-        var timestamp = req.query.timestamp;
-        if (timestamp) {
-            timestamp = parseInt(timestamp);
-        }
         async.waterfall(
             [
                 function(next) {
-                    logsDao.getLogsByReferenceId(req.params.actionId, timestamp, next);
+                    auditTrailService.getAuditTrailActionLogs(req.params.actionId, req.query.timestamp, next);
                 }
             ],
             function(err, results) {
@@ -232,14 +224,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get('/audit-trail/container-action/:actionId/logs', pollContainerActionLog);
 
     function pollContainerActionLog(req, res, next) {
-        var timestamp = req.query.timestamp;
-        if (timestamp) {
-            timestamp = parseInt(timestamp);
-        }
         async.waterfall(
             [
                 function(next) {
-                    logsDao.getLogsByReferenceId(req.params.actionId, timestamp, next);
+                    auditTrailService.getAuditTrailActionLogs(req.params.actionId, req.query.timestamp, next);
                 }
             ],
             function(err, results) {

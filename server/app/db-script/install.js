@@ -18,14 +18,10 @@ limitations under the License.
 // This file is like a installer which will install global settings into DB.
 
 var logger = require('_pr/logger')(module);
-var GlobalSettings = require('_pr/model/global-settings/global-settings');
 var mongoDbConnect = require('_pr/lib/mongodb');
 var appConfig = require('_pr/config');
-var d4dModel = require('../model/d4dmasters/d4dmastersmodel.js');
-var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
 var permissionsetsdao = require('_pr/model/dao/permissionsetsdao.js');
-var userRole = require('_pr/model/user-roles.js');
-var LDAPUser = require('../model/ldap-user/ldap-user.js');
+var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 
 var dboptions = {
     host: process.env.DB_HOST || appConfig.db.host,

@@ -356,7 +356,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         logReferenceIds.push(actionLog._id);
                     }
                     logsDao.insertLog({
-                        referenceId: logReferenceIds,
+                        instanceId:instance._id,
+                        instanceRefId:actionLog._id,
                         err: false,
                         log: "Instance Deleting",
                         timestamp: timestampStarted
@@ -415,7 +416,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         logger.debug("Failed to delete node ", err);
                                         if (err.chefStatusCode && err.chefStatusCode === 404) {
                                             logsDao.insertLog({
-                                                referenceId: logReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: false,
                                                 log: "Instance Deleted",
                                                 timestamp: new Date().getTime()
@@ -442,11 +444,11 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         chefDao.removeChefNodeByChefName(instance.chef.chefNodeName, function (err, data) {
                                             if (err) {
                                                 logger.error(err, 'occured in removing chef node in mongo');
-                                                callback(err, null);
                                                 return;
                                             }
                                             logsDao.insertLog({
-                                                referenceId: logReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: false,
                                                 log: "Instance Deleted",
                                                 timestamp: new Date().getTime()
@@ -486,7 +488,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         logger.debug("Failed to delete node ", err);
                                         if (typeof err.retCode !== 'undefined' && err.retCode === 24) {
                                             logsDao.insertLog({
-                                                referenceId: logReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: false,
                                                 log: "Instance Deleted",
                                                 timestamp: new Date().getTime()
@@ -511,7 +514,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         }
                                     } else {
                                         logsDao.insertLog({
-                                            referenceId: logReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: "Instance Deleted",
                                             timestamp: new Date().getTime()
@@ -538,7 +542,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         });
                     } else {
                         logsDao.insertLog({
-                            referenceId: logReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: false,
                             log: "Instance Deleted",
                             timestamp: new Date().getTime()
@@ -582,7 +587,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             return;
                         }else if(domainName !== null){
                             var resourceObj = {
-                                stackStatus:"DELETED"
+                                state:"Deleted"
                             }
                             var resourceMapService = require('_pr/services/resourceMapService.js');
                             resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
@@ -801,7 +806,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         _docker.runDockerCommands(cmd, instanceid, function (err, retCode) {
             if (!err) {
                 logsDao.insertLog({
-                    referenceId: instanceid,
+                    instanceId:instanceid,
                     err: false,
                     log: "Container  " + req.params.containerid + " Executed :" + req.params.action,
                     timestamp: new Date().getTime()
@@ -812,7 +817,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             } else {
                 logger.error("Excute Error : ", err);
                 logsDao.insertLog({
-                    referenceId: instanceid,
+                    instanceId:instanceid,
                     err: true,
                     log: "Excute Error : " + err,
                     timestamp: new Date().getTime()
@@ -873,17 +878,19 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 return;
             }
             var actionObj = 'Container-' + containers[0].Names + '-' + action.charAt(0).toUpperCase() + action.slice(1);
-            instancesDao.getInstanceById(req.params.instanceid, function (err, instance) {
+            instancesDao.getInstanceById(req.params.instanceid, function (err, instanceData) {
                 if (err) {
                     logger.error("Instance fetch Failed >> ", err);
                     res.send(500);
                     return;
                 }
+                var instance = instanceData[0];
                 var timestampStarted = new Date().getTime();
                 var actionLog = instancesDao.insertDockerActionLog(req.params.instanceid, req.session.user.cn, actionObj, actionId, timestampStarted);
                 var logReferenceIds = [instance._id, actionLog._id];
                 logsDao.insertLog({
-                    referenceId: logReferenceIds,
+                    instanceId:instance._id,
+                    instanceRefId:actionLog._id,
                     err: false,
                     log: "Docker-Container " + containers[0].Names + ' ' + action.charAt(0).toUpperCase() + action.slice(1) + 'ing',
                     timestamp: timestampStarted
@@ -921,7 +928,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         containerLog.actionStatus = "failed";
                         containerLog.endedOn = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: logReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: true,
                             log: 'Failed to Excute Docker command: ' + err,
                             timestamp: timestampStarted
@@ -940,14 +948,16 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     containerLog.endedOn = new Date().getTime();
                     if (action === 'stop') {
                         logsDao.insertLog({
-                            referenceId: logReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: false,
                             log: "Docker-Container Successfully " + containers[0].Names + ' ' + action.charAt(0).toUpperCase() + action.slice(1) + 'ped',
                             timestamp: timestampStarted
                         });
                     } else {
                         logsDao.insertLog({
-                            referenceId: logReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: false,
                             log: "Docker-Container Successfully " + containers[0].Names + ' ' + action.charAt(0).toUpperCase() + action.slice(1) + 'ed',
                             timestamp: timestampStarted
@@ -1110,7 +1120,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     });
                                     instancesDao.updateActionLog(instance[0]._id, actionLog._id, false, new Date().getTime());
                                     logsDao.insertLog({
-                                        referenceId: instanceid,
+                                        instanceId:instanceid,
                                         err: true,
                                         log: 'Failed to Excute Docker command: . cmd : ' + cmd + '. Error: ' + err,
                                         timestamp: new Date().getTime()
@@ -1159,7 +1169,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         }
                                     });
                                     logsDao.insertLog({
-                                        referenceId: instanceid,
+                                        instanceId:instanceid,
                                         err: false,
                                         log: stdOutData.toString('ascii'),
                                         timestamp: new Date().getTime()
@@ -1180,7 +1190,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     }
                                 });
                                 logsDao.insertLog({
-                                    referenceId: instanceid,
+                                    instanceId:instanceid,
                                     err: true,
                                     log: stdOutErr.toString('ascii'),
                                     timestamp: new Date().getTime()
@@ -1361,7 +1371,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             }
                                         });
                                         logsDao.insertLog({
-                                            referenceId: [instanceid, actionLog._id],
+                                            instanceId:instanceid,
+                                            instanceRefId:actionLog._id,
                                             err: true,
                                             log: 'Failed to Excute Docker command: . cmd : ' + cmd + '. Error: ' + err,
                                             timestamp: new Date().getTime()
@@ -1377,7 +1388,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         if (execcommand != '' && execcommand != 'null') {
                                             logger.debug('In Execute command');
                                             logsDao.insertLog({
-                                                referenceId: [instanceid, actionLog._id],
+                                                instanceId:instanceid,
+                                                instanceRefId:actionLog._id,
                                                 err: false,
                                                 log: 'Starting execute command: . cmd : ' + execcommand + ' on ' + containername,
                                                 timestamp: new Date().getTime()
@@ -1404,7 +1416,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                     instancesDao.updateInstanceDockerStatus(instanceid, "success", '', function (data) {
                                                         logger.debug('Instance Docker Status set to Success');
                                                         logsDao.insertLog({
-                                                            referenceId: [instanceid, actionLog._id],
+                                                            instanceId:instanceid,
+                                                            instanceRefId:actionLog._id,
                                                             err: false,
                                                             log: 'Done execute command: . cmd : ' + cmd + ' on ' + containername,
                                                             timestamp: new Date().getTime()
@@ -1440,7 +1453,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                     });
                                                 } else {
                                                     logsDao.insertLog({
-                                                        referenceId: [instanceid, actionLog._id],
+                                                        instanceId:instanceid,
+                                                        instanceRefId:actionLog._id,
                                                         err: true,
                                                         log: 'Error executing command: . cmd : ' + cmd + ' on ' + containername + ' : Return Code ' + retCode1 + ' -' + err,
                                                         timestamp: new Date().getTime()
@@ -1464,7 +1478,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             instancesDao.updateInstanceDockerStatus(instanceid, "success", '', function (data) {
                                                 logger.debug('Instance Docker Status set to Success');
                                                 logsDao.insertLog({
-                                                    referenceId: [instanceid, actionLog._id],
+                                                    instanceId:instanceid,
+                                                    instanceRefId:actionLog._id,
                                                     err: false,
                                                     log: 'Done image pull and run.',
                                                     timestamp: new Date().getTime()
@@ -1515,7 +1530,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         stdmessages += stdOutData.toString('ascii');
                                     } else {
                                         logsDao.insertLog({
-                                            referenceId: [instanceid, actionLog._id],
+                                            instanceId:instanceid,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: stdOutData.toString('ascii'),
                                             timestamp: new Date().getTime()
@@ -1537,7 +1553,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                 },
                                 function (stdOutErr) {
                                     logsDao.insertLog({
-                                        referenceId: [instanceid, actionLog._id],
+                                        instanceId:instanceid,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: stdOutErr.toString('ascii'),
                                         timestamp: new Date().getTime()
@@ -1659,7 +1676,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                 if (err) {
                                     var timestampEnded = new Date().getTime();
                                     logsDao.insertLog({
-                                        referenceId: logReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: "Unable to get infraManager data. client run failed",
                                         timestamp: timestampEnded
@@ -1686,7 +1704,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                 if (!infraManagerDetails) {
                                     var timestampEnded = new Date().getTime();
                                     logsDao.insertLog({
-                                        referenceId: logReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: "InfraManager information is corrupt. client run failed",
                                         timestamp: timestampEnded
@@ -1717,7 +1736,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     if (err) {
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
-                                            referenceId: logReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: true,
                                             log: "Unable to decrypt pem file. client run failed",
                                             timestamp: timestampEnded
@@ -1747,7 +1767,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         if (err) {
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: true,
                                                 log: "Unable to generate client run execution id. client run failed",
                                                 timestamp: timestampEnded
@@ -1843,7 +1864,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         }
 
                                         logsDao.insertLog({
-                                            referenceId: logReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: 'Running client on the node',
                                             timestamp: new Date().getTime()
@@ -1873,7 +1895,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             if (err) {
                                                 var timestampEnded = new Date().getTime();
                                                 logsDao.insertLog({
-                                                    referenceId: logReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: "Unable to run client",
                                                     timestamp: timestampEnded
@@ -1906,7 +1929,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
                                                         var timestampEnded = new Date().getTime();
                                                         logsDao.insertLog({
-                                                            referenceId: logReferenceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
                                                             err: false,
                                                             log: 'instance runlist updated',
                                                             timestamp: timestampEnded
@@ -1954,7 +1978,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 } else {
                                                     var timestampEnded = new Date().getTime();
                                                     logsDao.insertLog({
-                                                        referenceId: logReferenceIds,
+                                                        instanceId:instance._id,
+                                                        instanceRefId:actionLog._id,
                                                         err: false,
                                                         log: 'puppet client ran successfully',
                                                         timestamp: timestampEnded
@@ -1976,7 +2001,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             } else {
                                                 if (retCode === -5000) {
                                                     logsDao.insertLog({
-                                                        referenceId: logReferenceIds,
+                                                        instanceId:instance._id,
+                                                        instanceRefId:actionLog._id,
                                                         err: true,
                                                         log: 'Host Unreachable',
                                                         timestamp: new Date().getTime()
@@ -1995,7 +2021,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                     });
                                                 } else if (retCode === -5001) {
                                                     logsDao.insertLog({
-                                                        referenceId: logReferenceIds,
+                                                        instanceId:instance._id,
+                                                        instanceRefId:actionLog._id,
                                                         err: true,
                                                         log: 'Invalid credentials',
                                                         timestamp: new Date().getTime()
@@ -2034,7 +2061,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 }
                                                 var timestampEnded = new Date().getTime();
                                                 logsDao.insertLog({
-                                                    referenceId: logReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: 'Unable to run client',
                                                     timestamp: timestampEnded
@@ -2056,7 +2084,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             }
                                         }, function (stdOutData) {
                                             logsDao.insertLog({
-                                                referenceId: logReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: false,
                                                 log: stdOutData.toString('ascii'),
                                                 timestamp: new Date().getTime()
@@ -2074,7 +2103,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
                                         }, function (stdOutErr) {
                                             logsDao.insertLog({
-                                                referenceId: logReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: true,
                                                 log: stdOutErr.toString('ascii'),
                                                 timestamp: new Date().getTime()
@@ -2164,16 +2194,20 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
 
     app.get('/instances/:instanceId/logs', function (req, res) {
-        //logger.debug("Enter get() for /instances/%s/logs", req.params.instanceId);
-        var timestamp = req.query.timestamp;
-        if (timestamp) {
-            timestamp = parseInt(timestamp);
+        var queryObj = {
+            instanceId:req.params.instanceId
         }
-        var timestampEnded = req.query.timestampEnded;
-        if (timestampEnded) {
-            timestampEnded = parseInt(timestampEnded);
+        if (req.query.timestamp) {
+            queryObj.timestamp = {
+                "$gt": parseInt(req.query.timestamp)
+            }
         }
-        logsDao.getLogsByReferenceIdAndTimestamp(req.params.instanceId, timestamp, timestampEnded, function (err, data) {
+        if (req.query.timestampEnded) {
+            queryObj.timestamp = {
+                "$lte": parseInt(req.query.timestampEnded)
+            }
+        }
+        logsDao.getLogsDetails(queryObj, function (err, data) {
             if (err) {
                 logger.error("Found error to fetch Logs: ", err);
                 res.send(500);
@@ -2183,7 +2217,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
         });
     });
-
 
 
     app.post('/instances/:instanceId/services/add', function (req, res) {
@@ -2307,7 +2340,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     if (err) {
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: logReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: true,
                             log: 'Unable to run services',
                             timestamp: timestampEnded
@@ -2332,7 +2366,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     if (retCode == 0) {
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: logReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: false,
                             log: 'Service run success',
                             timestamp: timestampEnded
@@ -2354,7 +2389,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         var timestampEnded = new Date().getTime();
                         if (retCode === -5000) {
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: 'Host Unreachable',
                                 timestamp: timestampEnded
@@ -2373,7 +2409,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             });
                         } else if (retCode === -5001) {
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: 'Invalid credentials',
                                 timestamp: timestampEnded
@@ -2392,7 +2429,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             });
                         } else {
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: 'Unknown error occured. ret code = ' + retCode,
                                 timestamp: timestampEnded
@@ -2412,7 +2450,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         }
                         timestampEnded = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: logReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: true,
                             log: 'Unable to run services',
                             timestamp: timestampEnded
@@ -2436,7 +2475,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
                 function onStdOut(stdOutData) {
                     logsDao.insertLog({
-                        referenceId: logReferenceIds,
+                        instanceId:instance._id,
+                        instanceRefId:actionLog._id,
                         err: false,
                         log: stdOutData.toString('ascii'),
                         timestamp: new Date().getTime()
@@ -2455,7 +2495,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
                 function onStdErr(stdOutErr) {
                     logsDao.insertLog({
-                        referenceId: logReferenceIds,
+                        instanceId:instance._id,
+                        instanceRefId:actionLog._id,
                         err: true,
                         log: stdOutErr.toString('ascii'),
                         timestamp: new Date().getTime()
@@ -2476,7 +2517,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     if (err) {
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: logReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
                             err: true,
                             log: 'Unable to decrypt credentials. Unable to run service',
                             timestamp: timestampEnded
@@ -2505,7 +2547,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             if (err) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: 'Chef Data corrupted. Unable to run service',
                                     timestamp: timestampEnded
@@ -2532,7 +2575,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             if (!chefDetails) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: 'Chef Data corrupted. Unable to run service',
                                     timestamp: timestampEnded
@@ -2703,34 +2747,30 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 logger.error("Failed to fetch Instance: ", err);
                 res.send(500);
                 return;
-            }
-            if (!instances.length) {
+            }else if (!instances.length) {
                 res.send(400);
                 return;
-            }
-            var timestamp = null;
-            if (req.query.timestamp) {
-                timestamp = req.query.timestamp;
-                timestamp = parseInt(timestamp);
-            }
-
-            logsDao.getLogsByReferenceId(req.params.logId, timestamp, function (err, data) {
-                if (err) {
-                    logger.error("Failed to fetch Logs: ", err);
-                    res.send(500);
-                    return;
+            }else{
+                var queryObj = {
+                    instanceId:req.params.instanceId,
+                    instanceRefId:req.params.logId
                 }
-                logger.debug("Exit get() for /instances/%s/actionLogs/%s/logs", req.params.instanceId, req.params.logId);
-                res.send(data);
-            });
+                if (req.query.timestamp) {
+                    queryObj.timestamp = {
+                        "$gt": parseInt(req.query.timestamp)
+                    }
+                }
+                logsDao.getLogsDetails(queryObj, function (err, data) {
+                    if (err) {
+                        logger.error("Found error to fetch Logs: ", err);
+                        res.send(500);
+                        return;
+                    }
+                    res.send(data);
 
+                });
+            }
         });
-
-    });
-
-    app.post('/instances/bootstrap', function (req, res) {
-
-
     });
 
     app.post('/instances/:instanceId/updateName', function (req, res) {
@@ -3021,90 +3061,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     });
 
-    // Now for some reason moving this end point to out of authentication: Gobinda
-
-    /*app.post('/instances/:instanceId/remediation', function(req, res) {
-     logger.debug("Enter get() for /instances/%s/redemption", req.params.instanceId);
-     instancesDao.getInstanceById(req.params.instanceId, function(err, instances) {
-     if (err) {
-     logger.error("Failed to fetch ActionLogs: ", err);
-     res.status(500).send({
-     message: "DB error"
-     });
-     return;
-     }
-     if (!instances.length) {
-     res.send(404, {
-     message: "Instance not found"
-     });
-     return;
-     }
-     var instance = instances[0];
-     credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
-     if (err) {
-     res.status(500).send({
-     message: "error occured while decrypting credentials"
-     });
-     return;
-     }
-     var sshParamObj = {
-     host: instance.instanceIP,
-     port: 22,
-     username: instance.credentials.username,
-     };
-     var sudoCmd;
-     if (decryptedCredentials.pemFileLocation) {
-     sshParamObj.privateKey = decryptedCredentials.pemFileLocation;
-     } else {
-     sshParamObj.password = decryptedCredentials.password;
-     }
-     
-     var serviceCmd = "service " + req.body.service + " " + req.body.action;
-     var sudoCmd = "sudo";
-     if (sshParamObj.password) {
-     sudoCmd = 'echo \"' + sshParamObj.password + '\" | sudo -S';
-     }
-     serviceCmd = sudoCmd + " " + serviceCmd;
-     
-     
-     var sshConnection = new SSH(sshParamObj);
-     
-     sshConnection.exec(serviceCmd, function(err, ret) {
-     if (decryptedCredentials.pemFileLocation) {
-     fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
-     if (err) {
-     logger.error("Unable to delete temp pem file =>", err);
-     } else {
-     logger.error("temp pem file deleted =>", err);
-     }
-     });
-     }
-     if (err) {
-     res.status(500).send({
-     message: "Unable to run service cmd on instance"
-     });
-     return;
-     }
-     if (ret === 0) {
-     res.send(200, {
-     message: "cmd ran successfully"
-     });
-     } else {
-     res.status(500).send({
-     message: "cmd failed. code : " + ret
-     });
-     }
-     
-     }, function(stdout) {
-     logger.debug(stdout.toString());
-     }, function(stderr) {
-     logger.debug(stderr.toString());
-     });
-     
-     });
-     });
-     });*/
-
     app.get('/instances/org/:orgId/bu/:buId/project/:projectId/env/:envId/docker/containers', function (req, res) {
         logger.debug("Enter get() for /instances/dockercontainerdetails/%s", req.params.instanceid);
         var orgId = req.params.orgId;
@@ -3167,21 +3123,26 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     });
 
     app.get('/instances/:ipAddress/project/:projectId/logs', function (req, res) {
-        var timestamp = req.query.timestamp;
-        if (timestamp) {
-            timestamp = parseInt(timestamp);
-        }
-        var timestampEnded = req.query.timestampEnded;
-        if (timestampEnded) {
-            timestampEnded = parseInt(timestampEnded);
-        }
         instancesDao.getInstanceByIPAndProject(req.params.ipAddress, req.params.projectId, function (err, instance) {
             if (err) {
                 res.send("");
                 return;
             }
             if (instance.length) {
-                logsDao.getLogsByReferenceIdAndTimestamp(instance[0].id, timestamp, timestampEnded, function (err, data) {
+                var queryObj = {
+                    instanceId:instance[0]._id
+                }
+                if (req.query.timestamp) {
+                    queryObj.timestamp = {
+                        "$gt": parseInt(req.query.timestamp)
+                    }
+                }
+                if (req.query.timestampEnded) {
+                    queryObj.timestamp = {
+                        "$lte": parseInt(req.query.timestampEnded)
+                    }
+                }
+                logsDao.getLogsDetails(queryObj, function (err, data) {
                     if (err) {
                         logger.error("Found error to fetch Logs: ", err);
                         res.send(500);

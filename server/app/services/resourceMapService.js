@@ -34,20 +34,6 @@ resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(re
         function (queryObj, next) {
             resourceMap.getAllResourceMapByFilter(queryObj, next);
         },
-        function (resourceMapData,next){
-            var resourceMapList = [];
-            resourceMapData.docs.forEach(function(serviceMap){
-                resourceMapList.push({
-                    name:serviceMap.stackName,
-                    status: serviceMap.stackStatus,
-                    type:serviceMap.stackType,
-                    resources:serviceMap.resources,
-                    createdOn:serviceMap.createdOn
-                });
-            });
-            resourceMapData.docs = resourceMapList;
-            next(null,resourceMapData);
-        },
         function(resourceMapData,next){
             apiUtil.paginationResponse(resourceMapData, reqData, next);
         }
@@ -99,18 +85,18 @@ resourceMapService.createNewResourceMap = function createNewResourceMap(resource
     });
 }
 
-resourceMapService.updateResourceMap = function updateResourceMap(resourceStackName,data,callback){
+resourceMapService.updateResourceMap = function updateResourceMap(resourceName,data,callback){
     async.waterfall([
         function(next){
-            resourceMap.getResourceMapByStackName(resourceStackName,next);
+            resourceMap.getResourceMapByName(resourceName,next);
         },
         function(resourceMapData,next){
             if(resourceMapData.length > 0){
-                resourceMap.updatedResourceMap(resourceStackName,data,next);
+                resourceMap.updatedResourceMap(resourceName,data,next);
             }else{
                 var err =  new Error();
                 err.code = 500;
-                err.message = "No Resource Map is available in DB against stackName "+resourceStackName;
+                err.message = "No Resource Map is available in DB against name "+resourceName;
                 next(err,null);
             }
         }
@@ -125,20 +111,36 @@ resourceMapService.updateResourceMap = function updateResourceMap(resourceStackN
     })
 }
 
-resourceMapService.getResourceMapByStackName = function getResourceMapByStackName(stackName,callback){
+resourceMapService.getResourceMapByName = function getResourceMapByName(name,callback){
     async.waterfall([
         function(next){
-            resourceMap.getResourceMapByStackName(stackName,next);
+            resourceMap.getResourceMapByName(name,next);
         },
         function(resourceMapData,next){
             if(resourceMapData.length > 0){
                 var err =  new Error();
                 err.code = 500;
-                err.message = stackName+" is already used by other service. So please enter different and unique name.";
+                err.message = name+" is already used by other service. So please enter different and unique name.";
                 next(err,null);
             }else{
                next(null,resourceMapData);
             }
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+}
+
+resourceMapService.getResourceMaps = function getResourceMaps(callback){
+    async.waterfall([
+        function(next){
+            resourceMap.getResourceMaps(next);
         }
     ],function(err,results){
         if(err){
