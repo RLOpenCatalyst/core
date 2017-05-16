@@ -545,22 +545,59 @@ settingsService.getSettingDetailsById=  function getSettingDetailsById(id,userNa
 
         })
     }else {
-        var dbType = '';
+        var dbType = '',userCheck = true;
         async.waterfall([
             function(next){
                 configDao.getDBModelFromID(id,next);
             },
             function (collectionName,next) {
                 dbType = collectionName
-                settingsService.getOrgUserFilter(userName, next);
+                d4dModelNew.d4dModelMastersUsers.find({
+                    loginname: userName,
+                    id:'7'
+                },next)
             },
-            function (orgIds, next) {
-                if (orgIds.length > 0) {
+            function(userDetails,next){
+                if(userDetails.length > 0 && userDetails[0].orgname_rowid[0] === ""){
+                    userCheck = false;
+                    d4dModelNew.d4dModelMastersOrg.find({
+                        id: "1",
+                        active: true
+                    },next)
+                }else if(userDetails.length > 0 && userDetails[0].orgname_rowid[0] !== ""){
+                    d4dModelNew.d4dModelMastersOrg.find({
+                        id: "1",
+                        active: true,
+                        rowid:{$in:userDetails[0].orgname_rowid}
+                    },next)
+                }else{
+                    next({message:"Invalid User.",code:500},null)
+                }
+            },
+            function (orgDetails, next) {
+                var orgIds = [];
+                orgDetails.forEach(function(org){
+                    orgIds.push(org.rowid);
+                });
+                if (orgIds.length > 0 && userCheck ===false) {
                     if (id === '1') {
+                        next(null,orgDetails);
+                    }else if (id === '6') {
                         eval('d4dModelNew.' + dbType).find({
                             id: id,
-                            active: true,
-                            rowid: {$in: orgIds}
+                            active: true
+                        },next);
+                    }else if(id === '7'){
+                        eval('d4dModelNew.' + dbType).find({
+                            id: id,
+                            $or: [{
+                                orgname_rowid: {
+                                    $in: orgIds
+                                }
+                            }, {
+                                orgname_rowid: [""]
+                            }],
+                            active:true
                         },next);
                     }else if (id === '16' && source ==='design') {
                         masterUtil.getFilterTemplateTypes(id,orgIds,next)
@@ -572,12 +609,21 @@ settingsService.getSettingDetailsById=  function getSettingDetailsById(id,userNa
                     }
                 } else {
                     if (id === '1') {
+                        next(null,orgDetails);
+                    }else if (id === '6') {
                         eval('d4dModelNew.' + dbType).find({
                             id: id,
                             active: true
                         },next);
+                    }else if (id === '7') {
+                        eval('d4dModelNew.' + dbType).find({
+                            orgname_rowid: {
+                                $in: orgIds
+                            },
+                            id: id
+                        },next);
                     }else if (id === '16' && source ==='design') {
-                        masterUtil.getFilterTemplateTypes(id,orgIds,next)
+                        masterUtil.getFilterTemplateTypes(id,orgIds,next);
                     }else{
                         eval('d4dModelNew.' + dbType).find({
                             id: id
@@ -587,7 +633,7 @@ settingsService.getSettingDetailsById=  function getSettingDetailsById(id,userNa
             },
             function(masterDataList,next){
                 masterDataList.forEach(function(masterData){
-                    if(masterData.orgname && masterData.id !== '1'){
+                    if(masterData.id !== '1' && masterData.orgname && masterData.orgname_rowid[0] !== ''){
                         masterUtil.getOrgByRowId(masterData.orgname_rowid[0],function(err,orgData){
                             if(err){
                                 logger.debug("Error in fetching org-details");
