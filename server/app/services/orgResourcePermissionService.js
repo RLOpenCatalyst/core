@@ -138,7 +138,6 @@ function updateOrgResources(orgId, resourceType, data, cb){
 		if (isDelete) {
 			data['delete'].forEach(function(d){
 				d.resourceIds.forEach(function(id){
-					console.log(teamsResourceInfo[d.teamId].resourceIds);
 					if (teamsResourceInfo[d.teamId].resourceIds.length > 0) {
 						isUpdate = true;
 						teamsResourceInfo[d.teamId].resourceIds.splice(teamsResourceInfo[d.teamId].resourceIds.indexOf(id),1);
@@ -159,8 +158,7 @@ function updateOrgResources(orgId, resourceType, data, cb){
 					errors.push(e);
 					return k();
 				}
-				
-				successes.push({orgId: result.orgId, teamId: result.teamId});
+				successes.push({orgId: orgId, teamId: teamResourceInfo});
 				return k();
 			});
 		}, function (){

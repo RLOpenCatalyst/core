@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-
+var async = require('async');
 
 var OrgResourcePermissionSchema = new Schema({
 	orgId : {
@@ -94,11 +94,15 @@ OrgResourcePermissionSchema.statics.findResourceListByOrgTeam = function findRes
 //	});
 //}
 
-OrgResourcePermissionSchema.statics.deleteBot = function deleteBot(id, cb){
+OrgResourcePermissionSchema.statics.deleteResource = function deleteResource(id, resourceType, cb){
 	
 	var query = {
-		resourceIds:id
+		resourceIds:id,
+		resourceType : resourceType
 	};
+	
+	var errors = [];
+	var successes = [];
 	OrgResourcePermission.find( query, function(err, result){
 		if(err){
 			return cb(err, null);
@@ -109,19 +113,27 @@ OrgResourcePermissionSchema.statics.deleteBot = function deleteBot(id, cb){
 				return rId !== id;
 			});
 		});
-		async.forEach(result, function(orgResource, cb) {
+		async.forEach(result, function(orgResource, k) {
 			var updateQuery = {
-					orgId : orgBot.orgId,
-					teamId : orgBot.teamId,
+					orgId : orgResource.orgId,
+					teamId : orgResource.teamId,
 					resourceType : resourceType
 			};
-			orgResourcePermission.update(updateQuery, {$set:{resourceIds: orgResource.resourceIds}}, function(err, result){
+			OrgResourcePermission.update(updateQuery, {$set:{resourceIds: orgResource.resourceIds}}, function(err, result){
 				if(err){
-					return cb(err, null);
+					errors.push(err);
+					return k(err);
 				}
 				
-				return cb(null, result);
+				successes.push(result);
+				return k();
 			});
+		}, function(err){
+			if(err){
+				return cb(errors);
+			}
+			
+			return cb(null,successes);
 		});
 	});
 }

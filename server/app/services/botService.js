@@ -33,6 +33,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
+var orgResourcePermission = require('_pr/model/org-resource-permission/orgResourcePermission.js');
 
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
@@ -101,6 +102,9 @@ botService.removeBotsById = function removeBotsById(botId,callback){
         },
         auditTrails: function(callback){
             auditTrail.removeAuditTrails({auditId:botId},callback);
+        },
+        orgResourcePerm : function(callback){
+        	orgResourcePermission.deleteResource(botId, 'bots', callback);
         }
     },function(err,resutls){
         if(err){
