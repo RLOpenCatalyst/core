@@ -75,7 +75,6 @@ OrgResourcePermissionSchema.statics.findResourceListByOrgTeam = function findRes
 	};
 	
 	query.resourceType = resourceType;
-	console.log(query);
 	OrgResourcePermission.find(query, function(err, result){
 		if(err){
 			return cb(err, null);

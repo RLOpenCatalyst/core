@@ -53,7 +53,6 @@ function getResourcesByOrgTeam(queryParameters, cb){
 				}
 				
 				if (queryParameters.searchq) {
-					console.log(result);
 					result = result.filter(function(bot){
 						return bot.name.toLowerCase().indexOf(queryParameters.searchq.toLowerCase()) > -1;
 					});
