@@ -4,7 +4,7 @@ var validate = require('express-validation');
 var orgResourcePermValidator = require('_pr/validators/orgResourcePermissionValidator.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-//	app.all('/api/org*', sessionVerificationFunc);
+	app.all('/api/org*', sessionVerificationFunc);
 	
 	/*app.post('/api/org/:{orgId}/bots', sessionVerification, upsertOrgBots);
 
