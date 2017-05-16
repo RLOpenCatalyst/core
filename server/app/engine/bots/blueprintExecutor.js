@@ -27,7 +27,7 @@ var blueprintExecutor = module.exports = {};
 blueprintExecutor.execute = function execute(botId,auditTrail,reqBody,userName,callback) {
     async.waterfall([
         function (next) {
-            usersDao.haspermission(userName, reqBody.category, reqBody.permissionTo, null, reqBody.permissionSet,next);
+            usersDao.haspermission(userName, reqBody.type, reqBody.permissionTo, null, reqBody.permissionSet,next);
         },
         function (launchPermission, next) {
             if(launchPermission === true){
@@ -56,8 +56,8 @@ blueprintExecutor.execute = function execute(botId,auditTrail,reqBody,userName,c
                     })(reqBody.blueprintIds[i]);
                 }
             }else{
-                logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category);
-                next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
+                logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.type);
+                next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.type},null);
             }
         }
     ],function (err, results) {
@@ -89,7 +89,7 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                         next({code: 400, message: "Invalid Stack name"}, null);
                         return;
                     } else {
-                        resourceMapService.getResourceMapByStackName(stackName, function (err, data) {
+                        resourceMapService.getResourceMapByName(stackName, function (err, data) {
                             if (err) {
                                 next(err, null);
                                 return;
@@ -106,7 +106,7 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                         next({code: 400, message: "Invalid Domain name"}, null);
                         return;
                     } else {
-                        resourceMapService.getResourceMapByStackName(domainName, function (err, data) {
+                        resourceMapService.getResourceMapByName(domainName, function (err, data) {
                             if (err) {
                                 next(err, null);
                                 return;

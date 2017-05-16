@@ -462,7 +462,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
                 if(resultTaskExecution.actionStatus === 'success'){
                     var botOldService = require('_pr/services/botOldService');
-                    botOldService.updateSavedTimePerBots(taskHistoryData.taskId,'BOTOLD',function(err,data){
+                    botOldService.updateSavedTimePerBots(taskHistoryData.taskId,auditTrailId,'BOTOLD',function(err,data){
                         if (err) {
                             logger.error("Failed to update bots saved Time: ", err);
                         }

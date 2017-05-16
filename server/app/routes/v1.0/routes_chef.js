@@ -385,9 +385,9 @@ module.exports.setRoutes = function (app, verificationFunc) {
 
                                         var timestampStarted = new Date().getTime();
                                         var actionLog = instancesDao.insertBootstrapActionLogForChef(instance.id, [], req.session.user.cn, timestampStarted);
-                                        var logsReferenceIds = [instance.id, actionLog._id];
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: "Node Imported",
                                             timestamp: timestampStarted

@@ -66,7 +66,19 @@ module.exports.decryptCredential = function(credentials, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
 
-    if (credentials.pemFileLocation) {
+    if (credentials.pemFileLocation && credentials.source && credentials.source !== null) {
+        cryptography.decryptFileContentToBase64(credentials.pemFileLocation, cryptoConfig.decryptionEncoding,cryptoConfig.encryptionEncoding, function(err,data) {
+            if (err) {
+                logger.debug(err);
+                callback(err, null);
+                return;
+            }else{
+                decryptedCredentials.fileData = data;
+                callback(null,decryptedCredentials);
+                return
+            }
+        });
+    }else if (credentials.pemFileLocation) {
         var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
         cryptography.decryptFile(credentials.pemFileLocation, cryptoConfig.decryptionEncoding, tempUncryptedPemFileLoc, cryptoConfig.encryptionEncoding, function(err) {
             if (err) {
@@ -86,7 +98,7 @@ module.exports.decryptCredential = function(credentials, callback) {
 
         });
 
-    } else {
+    }else {
         decryptedCredentials.password = cryptography.decryptText(credentials.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
         callback(null, decryptedCredentials);
     }

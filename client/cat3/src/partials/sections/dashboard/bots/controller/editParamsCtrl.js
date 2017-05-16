@@ -26,7 +26,7 @@
                     proj:$rootScope.organObject[0].businessGroups[0].projects[0],
                     env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0],
                     blueprintType:items.subType,
-                    blueprintName:items.execution.name
+                    blueprintName:items.execution[0].name
                 };
             }
 
@@ -58,7 +58,7 @@
                 flag: false
             }
 
-            if($scope.botType === 'blueprints') {
+            if($scope.botType === 'blueprints' || $scope.botType === 'blueprint') {
                 $scope.botCheck = true;
             } else if($scope.botType === 'script' || $scope.botType === 'chef') {
                 $scope.botCheck = false;
@@ -139,7 +139,7 @@
                 });
             };
         
-            if(items.type === 'blueprints') {
+            if(items.type === 'blueprints' || items.type === 'blueprint') {
                 $scope.getBlueprintList();
             } else if(items.type === 'jenkins') {
                 $scope.getJenkinsList();
@@ -178,7 +178,7 @@
                     $scope.selectedInstanceList.push($scope.originalInstanceList[indexArr]);
                     $scope.selectedInstanceIds.push($scope.originalInstanceList[indexArr]._id);
                     $scope.originalInstanceList.splice(indexArr,1);
-                } else if(type === 'blueprints') {
+                } else if(type === 'blueprints' || type === 'blueprint') {
                     $scope.selectedBlueprintList.push($scope.originalBlueprintList[indexArr]);
                     if($scope.selectedBlueprintList.length > 0) {
                         $scope.hideRightButton = false;
@@ -219,7 +219,7 @@
                     $scope.selectedInstanceList.splice(ind,1);
                     $scope.selectedInstanceIds.splice(ind,1);
                     $scope.getInstanceList();
-                } else if(type === 'blueprints') {
+                } else if(type === 'blueprints' || type === 'blueprint') {
                     var indD = $scope.selectedBlueprintIds.indexOf(id);
                     $scope.selectedBlueprintList.splice(indD,1);
                     $scope.selectedBlueprintIds.splice(indD,1);
@@ -294,7 +294,7 @@
                         }
                     }
                     $scope.botExecuteMethod(items.id,reqBody);
-                } else if (type === 'blueprints') {
+                } else if (type === 'blueprints' || type === 'blueprint') {
                     reqBody.blueprintIds = [$scope.originalBlueprintList[0]._id];
                     botsCreateService.getBlueprintDetails($scope.originalBlueprintList[0]._id).then(function(response){
                         $modal.open({

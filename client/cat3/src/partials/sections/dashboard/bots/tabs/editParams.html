@@ -42,7 +42,7 @@
                      </table>
                </div>
          </div>
-         <div ng-if="botType === 'blueprints' && originalBlueprintList.length>0" class="scriptExecution param-table bot-info-wrapper">
+         <div ng-if="(botType === 'blueprints' || botType === 'blueprint') && originalBlueprintList.length>0" class="scriptExecution param-table bot-info-wrapper">
             <table class="table table-bordered">
                <thead>
                   <tr class="paramRow">
@@ -53,16 +53,16 @@
                <tbody>
                   <tr>
                      <td>Blueprint Name</td>
-                     <td>{{executionDetails.name}}</td>
+                     <td>{{executionDetails[0].name}}</td>
                   </tr>
                   <tr>
                      <td>Blueprint Type</td>
-                     <td>{{executionDetails.subtype}}</td>
+                     <td>{{executionDetails[0].category}}</td>
                   </tr>
                </tbody>
             </table>
          </div>
-         <div ng-if="botType === 'blueprints' && originalBlueprintList.length===0" class="alert alert-info padding6 text-center" align="center">
+         <div ng-if="(botType === 'blueprints' || botType === 'blueprint') && originalBlueprintList.length===0" class="alert alert-info padding6 text-center" align="center">
             No Matching Blueprint Found in the Database
          </div>
 			<div ng-if="botType ==='script'" class="scriptExecution param-table bot-info-wrapper">
@@ -167,10 +167,10 @@
 		</fieldset>
    </form>
 	<div id="botEditFooter" class="pager margintop-5">
-		<button type="button" ng-if="botType !== 'UI' && botType !== 'blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='jenkins' && editParamsForm.$invalid || disableJenkinsExecute" ng-click="executeBot('instance')">
+		<button type="button" ng-if="botType !== 'UI' && botType !== 'blueprints' && botType !== 'blueprint'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='jenkins' && editParamsForm.$invalid || disableJenkinsExecute" ng-click="executeBot('instance')">
 			<i class="fa fa-check white"></i> Execute
 		</button>
-      <button type="button" ng-if="botType ==='blueprints' && originalBlueprintList.length>0" class="marginright29 btn cat-btn-update" ng-click="executeBot('blueprints')">
+      <button type="button" ng-if="(botType ==='blueprints' || botType === 'blueprint') && originalBlueprintList.length>0" class="marginright29 btn cat-btn-update" ng-click="executeBot('blueprints')">
          <i class="fa fa-check white"></i> Execute
       </button>
 	</div>

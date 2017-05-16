@@ -142,7 +142,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         callback({
                             message: "Unable to encryptCredential"
                         });
-                        resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                        resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
                             if(err){
                                 logger.error("Error in updating Resource Map.",err);
                             }
@@ -210,7 +210,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             callback({
                                 message: "Unable to create instance in db"
                             })
-                            resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                            resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
                                 if(err){
                                     logger.error("Error in updating Resource Map.",err);
                                 }
@@ -219,7 +219,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         }
                         instance.id = data._id;
                         var resourceObj = {
-                            stackStatus:"COMPLETED",
+                            state:"Running",
                             resources :[{
                                 id:instance.id,
                                 type:"instance"
@@ -265,7 +265,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             }
                         });
                         logsDao.insertLog({
-                            referenceId: logsReferenceIds,
+                            instanceId:instance._id,
+                            instanceRefId:actionLog._id,
+                            botId:launchParams.botId,
+                            botRefId: launchParams.actionLogId,
                             err: false,
                             log: "Waiting for instance ok state",
                             timestamp: timestampStarted
@@ -284,7 +287,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 });
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
+                                    botId:launchParams.botId,
+                                    botRefId: launchParams.actionLogId,
                                     err: true,
                                     log: "Unable to decrpt pem file. Bootstrap failed",
                                     timestamp: timestampEnded
@@ -358,7 +364,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         });
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
+                                            botId:launchParams.botId,
+                                            botRefId: launchParams.actionLogId,
                                             err: true,
                                             log: "Bootstrap failed",
                                             timestamp: timestampEnded
@@ -395,7 +404,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 }
                                                 if(launchParams.bot_id !== null) {
                                                     logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
+                                                        instanceId:instance._id,
+                                                        instanceRefId:actionLog._id,
+                                                        botId:launchParams.botId,
+                                                        botRefId: launchParams.actionLogId,
                                                         err: true,
                                                         log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
                                                         timestamp: new Date().getTime()
@@ -415,7 +427,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             });
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
+                                                botId:launchParams.botId,
+                                                botRefId: launchParams.actionLogId,
                                                 err: false,
                                                 log: "Instance Bootstraped successfully",
                                                 timestamp: timestampEnded
@@ -448,7 +463,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     }
                                                     if(launchParams.bot_id !== null) {
                                                         logsDao.insertLog({
-                                                            referenceId: logsReferenceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
+                                                            botId:launchParams.botId,
+                                                            botRefId: launchParams.actionLogId,
                                                             err: false,
                                                             log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
                                                             timestamp: new Date().getTime()
@@ -461,7 +479,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     logger.error("Error in getting ARM Instances ",err);
                                                 }else if(armInstanceList.length > 0){
                                                     var resourceObj = {
-                                                        stackStatus:"COMPLETED",
+                                                        state:"Running",
                                                         resources :[]
                                                     }
                                                     armInstanceList.forEach(function(armData){
@@ -543,7 +561,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             });
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
+                                                botId:launchParams.botId,
+                                                botRefId: launchParams.actionLogId,
                                                 err: false,
                                                 log: "Bootstrap Failed",
                                                 timestamp: timestampEnded
@@ -581,7 +602,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     }
                                                     if(launchParams.bot_id !== null) {
                                                         logsDao.insertLog({
-                                                            referenceId: logsReferenceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
+                                                            botId:launchParams.botId,
+                                                            botRefId: launchParams.actionLogId,
                                                             err: true,
                                                             log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
                                                             timestamp: new Date().getTime()
@@ -593,7 +617,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     }
                                 }, function(stdOutData) {
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
+                                        botId:launchParams.botId,
+                                        botRefId: launchParams.actionLogId,
                                         err: false,
                                         log: stdOutData.toString('ascii'),
                                         timestamp: new Date().getTime()
@@ -691,7 +718,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                 }, function(err, vmData) {
                     if (err) {
                         logger.error("Unable to fetch azure vm data");
-                        resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                        resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
                             if(err){
                                 logger.error("Error in updating Resource Map.",err);
                             }
@@ -702,7 +729,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                     getVMIPAddress(networkInterfaces, 0, function(err, ipAddress) {
                         if (err) {
                             logger.error("Unable to fetch azure vm ipaddress");
-                            resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                            resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
                                 if(err){
                                     logger.error("Error in updating Resource Map.",err);
                                 }
@@ -753,13 +780,15 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                 }
                 if(launchParams.actionLogId !== null) {
                     logsDao.insertLog({
-                        referenceId: [launchParams.actionLogId],
+                        botId:launchParams.botId,
+                        botRefId: launchParams.actionLogId,
                         err: false,
                         log: "BOT Execution is started for Blueprint BOT :"+launchParams.bot_id,
                         timestamp: new Date().getTime()
                     });
                     logsDao.insertLog({
-                        referenceId: [launchParams.actionLogId],
+                        botId:launchParams.botId,
+                        botRefId: launchParams.actionLogId,
                         err: false,
                         log: "ARM Template is created : " + launchParams.stackName,
                         timestamp: new Date().getTime()
@@ -803,9 +832,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             armId: azureArmDeployement._id
                         });
                         var resourceMapObj = {
-                            stackName: launchParams.stackName,
-                            stackType: "AzureArm",
-                            stackStatus: "CREATED",
+                            name: launchParams.stackName,
+                            type: "AzureArm",
+                            state: "Initializing",
                             resources: []
                         }
                         resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
@@ -822,7 +851,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         azureArmDeployement.status = err.status;
                                         azureArmDeployement.save();
                                     }
-                                    resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                                    resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
                                         if(err){
                                             logger.error("Error in updating Resource Map.",err);
                                         }

@@ -319,10 +319,15 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
 }
 
 auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(actionId,timeStamp,callback){
-    if (timeStamp) {
-        timeStamp = parseInt(timeStamp);
+    var queryObj = {
+        instanceRefId:actionId
     }
-    logsDao.getLogsByReferenceId(actionId, timeStamp, function(err,actionLogs){
+    if (timeStamp) {
+        queryObj.timestamp = {
+            "$gt": parseInt(timeStamp)
+        };
+    }
+    logsDao.getLogsDetails(queryObj, function(err,actionLogs){
         if (err){
             logger.error(err);
             callback(err,null);
@@ -345,7 +350,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
-                        filterQuery.queryObj['orgId'] = {$in:orgIds};
+                        filterQuery.orgId = {$in:orgIds};
                         botOld.getAllBots(filterQuery, next);
                     }else{
                         botOld.getAllBots(filterQuery, next);
@@ -356,7 +361,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
-                        filterQuery.queryObj['orgId'] = {$in:orgIds};
+                        filterQuery.orgId = {$in:orgIds};
                         botDao.getAllBots(filterQuery, next);
                     }else{
                         botDao.getAllBots(filterQuery, next);
@@ -365,85 +370,58 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
             }
         },
         function(botsList,next){
-            var auditIds = [];
-            for(var i = 0; i < botsList.length; i++) {
-                if(BOTSchema === 'BOTOLD') {
-                    auditIds.push(botsList[i].botId);
-                }else{
-                    auditIds.push(botsList[i]._id);
-                }
-            }
             async.parallel({
                 totalNoOfBots: function(callback){
                             callback(null, botsList.length);
                 },
                 totalNoOfSuccessBots: function(callback){
-                    var query = {
-                        auditType: BOTSchema,
-                        actionStatus: 'success',
-                        isDeleted: false,
-                        auditId:{$in:auditIds}
-                    };
-                    var botsIds = [];
-                    auditTrail.getAuditTrails(query, function (err, botsAudits) {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        } else{
-                            callback(null, botsAudits.length);
-                            return;
+                    var successCount = 0;
+                    for(var i = 0; i < botsList.length; i++){
+                        if(botsList[i].successExecutionCount){
+                            successCount = botsList[i].successExecutionCount;
                         }
-                    });
+                    }
+                    callback(null,successCount);
                 },
                 totalNoOfServiceNowTickets: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'success',
-                        isDeleted:false,
-                        'auditTrailConfig.serviceNowTicketRefObj':{$ne:null}
-                    };
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
-                        if(err){
-                            callback(err,null);
-                        }else {
-                            callback(null,botsAudits.length);
+                    var srnCount = 0;
+                    for(var i = 0; i < botsList.length; i++){
+                        if(botsList[i].srnSuccessExecutionCount){
+                            srnCount = botsList[i].srnSuccessExecutionCount;
                         }
-                    });
+                    }
+                    callback(null,srnCount);
                 },
                 totalNoOfRunningBots: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'running',
-                        isDeleted:false,
-                        auditId:{$in:auditIds}
-                    };
-                    var botsIds = [];
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
-                        if(err){
-                            callback(err,null);
-                        }else if (botsAudits.length > 0) {
-                            for (var j = 0; j < botsAudits.length; j++) {
-                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
-                                    botsIds.push(botsAudits[j].auditId);
-                                }
-                            }
-                            callback(null,botsIds.length);
-                        } else {
-                            callback(null,botsIds.length);
+                    var runningCount = 0;
+                    for(var i = 0; i < botsList.length; i++){
+                        if(botsList[i].lastExecutionStatus && botsList[i].lastExecutionStatus === 'failed'){
+                            runningCount = runningCount + 1;
                         }
-                    });
+                    }
+                    callback(null,runningCount);
                 },
                 totalSavedTimeForBots: function(callback){
-                    var days =0,hours = 0, minutes = 0;
+                    var days =0,hours = 0, minutes = 0, seconds = 0;
                     if(botsList.length > 0) {
                         for (var k = 0; k < botsList.length; k++) {
+                            if(botsList[k].savedTime && botsList[k].savedTime.days) {
+                                days = days + botsList[k].savedTime.days;
+                            }
                             if(botsList[k].savedTime && botsList[k].savedTime.hours) {
                                 hours = hours + botsList[k].savedTime.hours;
                             }
                             if(botsList[k].savedTime && botsList[k].savedTime.minutes){
                                 minutes = minutes + botsList[k].savedTime.minutes;
                             }
+                            if(botsList[k].savedTime && botsList[k].savedTime.seconds){
+                                seconds = seconds + botsList[k].savedTime.seconds;
+                            }
                         }
+                    }
+                    if(seconds >= 60){
+                        minutes = minutes + Math.floor(seconds / 60);
+                        seconds = seconds % 60;
                     }
                     if(minutes >= 60){
                         hours = hours + Math.floor(minutes / 60);
@@ -456,32 +434,19 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var result = {
                         days:days,
                         hours:hours,
-                        minutes:minutes
+                        minutes:minutes,
+                        seconds:seconds
                     }
                     callback(null,result);
                 },
                 totalNoOfFailedBots: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'failed',
-                        isDeleted:false,
-                        auditId:{$in:auditIds}
-                    };
-                    var botsIds = [];
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
-                        if(err){
-                            callback(err,null);
-                        }else if (botsAudits.length > 0) {
-                            for (var j = 0; j < botsAudits.length; j++) {
-                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
-                                    botsIds.push(botsAudits[j].auditId);
-                                }
-                            }
-                            callback(null,botsIds.length);
-                        } else {
-                            callback(null,botsIds.length);
+                    var failedCount = 0;
+                    for(var i = 0; i < botsList.length; i++){
+                        if(botsList[i].failedExecutionCount){
+                            failedCount = botsList[i].failedExecutionCount;
                         }
-                    });
+                    }
+                    callback(null,failedCount);
                 }
 
             },function(err,data){
