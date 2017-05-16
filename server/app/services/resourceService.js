@@ -921,22 +921,23 @@ function getRDSInstancesInfo(provider,orgName,callback) {
     })
 };
 
-function getResources(query, next) {
-    async.parallel([
-            function (callback) {
-                resources.getResourcesWithPagination(query, callback);
+function getResources(query,paginationCheck, next) {
+    async.waterfall([
+        function (next) {
+            if(paginationCheck === true) {
+                resources.getResourcesWithPagination(query, next);
+            }else{
+                resources.getResources(query,next);
             }
-        ],
-        function(err, results) {
-            if(err) {
-                var err = new Error('Internal server error');
-                err.status = 500;
-                next(err)
-            } else {
-                next(null, results);
-            }
+        }], function(err, results) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            next(err)
+        } else {
+            next(null, results);
         }
-    );
+    });
 }
 
 function bulkUpdateResourceProviderTags(provider, bulkResources, callback){
