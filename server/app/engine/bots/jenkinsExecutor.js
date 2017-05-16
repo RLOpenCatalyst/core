@@ -276,7 +276,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
                                                             var botOldService = require('_pr/services/botOldService');
-                                                            botOldService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOT', function (err, data) {
+                                                            botOldService.updateSavedTimePerBots(jenkinsBotDetails._id,auditTrail._id, 'BOT', function (err, data) {
                                                                 if (err) {
                                                                     logger.error("Failed to update bots saved Time: ", err);
                                                                 }
@@ -425,7 +425,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
                                                             var botOldService = require('_pr/services/botOldService');
-                                                            botOldService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOT', function (err, data) {
+                                                            botOldService.updateSavedTimePerBots(jenkinsBotDetails._id,auditTrail._id, 'BOT', function (err, data) {
                                                                 if (err) {
                                                                     logger.error("Failed to update bots saved Time: ", err);
                                                                 }

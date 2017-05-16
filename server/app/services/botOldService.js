@@ -400,66 +400,126 @@ botOldService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNo
     });
 }
 
-botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,auditType,callback){
-    var query = {
-        auditType: auditType,
-        isDeleted: false,
-        auditId: botId
-    };
-    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
-        if (err) {
-            logger.error("Error in Fetching Audit Trail.", err);
-            callback(err, null);
-        }
-        if (botAuditTrail.length > 0) {
-            var totalTimeInSeconds = 0;
-            for (var m = 0; m < botAuditTrail.length; m++) {
-                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null
-                    && botAuditTrail[m].actionStatus ==='success' ) {
-                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
-                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,auditId,auditType,callback){
+    async.waterfall([
+        function(next){
+            auditTrail.getAuditTrailsById(auditId,next);
+        },
+        function(auditTrails,next) {
+            if (auditTrails.length > 0 && auditTrails[0].endedOn
+                && auditTrails[0].endedOn !== null && auditTrails[0].auditTrailConfig.manualExecutionTime
+                && auditTrails[0].auditTrailConfig.manualExecutionTime !== null && auditTrails[0].actionStatus === 'success') {
+                var seconds = 0, minutes = 0, hours = 0;
+                var executionTime = getExecutionTime(auditTrails[0].endedOn, auditTrails[0].startedOn);
+                seconds = ((auditTrails[0].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                if (seconds >= 60) {
+                    minutes = minutes + Math.floor(seconds / 60);
+                    seconds = seconds % 60;
                 }
-            }
-            var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
-            var result = {
-                hours: Math.floor(totalTimeInMinutes / 60),
-                minutes: totalTimeInMinutes % 60
-            }
-            console.log(JSON.stringify(result));
-            if(auditType==='BOTOLD') {
-                botOld.updateBotsDetail(botId, {
-                    savedTime: result,
-                    executionCount: botAuditTrail.length
-                }, function (err, data) {
+                if (minutes >= 60) {
+                    hours = hours + Math.floor(minutes / 60);
+                    minutes = minutes % 60;
+                }
+                var result = {
+                    hours: hours,
+                    minutes: minutes,
+                    seconds: seconds
+                }
+                auditTrail.updateAuditTrails(auditId, {savedTime: result}, function (err, data) {
                     if (err) {
                         logger.error(err);
-                        callback(err, null);
-                        return;
                     }
-                    callback(null, data);
-                    return;
+                    next(null, auditTrails);
                 })
-            }else{
-                botDao.updateBotsDetail(botId, {
-                    savedTime: result,
-                    executionCount: botAuditTrail.length
-                }, function (err, data) {
-                    if (err) {
-                        logger.error(err);
-                        callback(err, null);
-                        return;
-                    }
-                    callback(null, data);
-                    return;
-                })
+            } else {
+                next(null, auditTrails);
             }
+        }], function(auditTrails,next) {
+            var query = {
+                auditType: auditType,
+                isDeleted: false,
+                auditId: botId
+            };
+            auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
+                if (err) {
+                    logger.error("Error in Fetching Audit Trail.", err);
+                    next(err, null);
+                } else if (botAuditTrail.length > 0) {
+                    var seconds = 0, minutes = 0, hours = 0, days = 0,successCount = 0,failedCount = 0,srnCount = 0;
+                    for (var m = 0; m < botAuditTrail.length; m++) {
+                        if (botAuditTrail[m].savedTime && botAuditTrail[m].actionStatus ==='success') {
+                            successCount = successCount + 1;
+                            seconds = seconds + botAuditTrail[m].savedTime.seconds;
+                            minutes = minutes + botAuditTrail[m].savedTime.minutes;
+                            hours = hours + botAuditTrail[m].savedTime.hours;
+                        }
+                        if(botAuditTrail[m].actionStatus ==='success' && botAuditTrail[m].auditTrailConfig.serviceNowTicketRefObj
+                            && botAuditTrail[m].auditTrailConfig.serviceNowTicketRefObj !== null){
+                            srnCount = srnCount + 1;
+                        }
+                        if(botAuditTrail[m].actionStatus ==='failed'){
+                            failedCount = failedCount + 1;
+                        }
+                    }
+                    if (seconds >= 60) {
+                        minutes = minutes + Math.floor(seconds / 60);
+                        seconds = seconds % 60;
+                    }
+                    if (minutes >= 60) {
+                        hours = hours + Math.floor(minutes / 60);
+                        minutes = minutes % 60;
+                    }
+                    if (hours >= 24) {
+                        days = days + Math.floor(hours / 60);
+                        hours = minutes % 24
+                    }
+                    var result = {
+                        days: days,
+                        hours: hours,
+                        minutes: minutes,
+                        seconds: seconds
+                    }
+                    if (auditType === 'BOTOLD') {
+                        botOld.updateBotsDetail(botId, {
+                            savedTime: result,
+                            executionCount: botAuditTrail.length
+                        }, function (err, data) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, data);
+                            return;
+                        })
+                    } else {
+                        botDao.updateBotsDetail(botId, {
+                            savedTime: result,
+                            successExecutionCount: successCount,
+                            failedExecutionCount: failedCount,
+                            srnSuccessExecutionCount: srnCount,
+                            executionCount: botAuditTrail.length
+                        }, function (err, data) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, data);
+                            return;
+                        })
+                    }
+                }
+            });
+        },function(err,results) {
+        if (err) {
+            callback(err, null);
+            return;
         } else {
-            callback(null, botAuditTrail);
+            callback(null, results);
             return;
         }
-    });
+    })
 }
 
 botOldService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,historyId,callback){

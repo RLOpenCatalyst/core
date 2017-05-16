@@ -742,7 +742,6 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                         function bootstrap() {
                             var timestampStarted = new Date().getTime();
                             var actionLog = instancesModel.insertBootstrapActionLog(bootstrapData.id, bootstrapData.runlist, "admin", timestampStarted);
-                            var logsReferenceIds = [bootstrapData.id, actionLog._id];
                             chef.bootstrapInstance(bootstrapInstanceParams, function (err, code) {
                                 if (bootstrapInstanceParams.pemFilePath) {
                                     //fs.unlink(bootstrapInstanceParams.pemFilePath);
@@ -754,7 +753,8 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                     instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function (err, updateData) {});
                                     var timestampEnded = new Date().getTime();
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:bootstrapData._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: "Bootstrap failed",
                                         timestamp: timestampEnded
@@ -772,7 +772,8 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                         });
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:bootstrapData._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: "Instance Bootstraped successfully",
                                             timestamp: timestampEnded
@@ -840,7 +841,8 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                         });
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:bootstrapData._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: "Bootstrap Failed",
                                             timestamp: timestampEnded
@@ -856,7 +858,8 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                             }, function (stdOutData) {
 
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:bootstrapData._id,
+                                    instanceRefId:actionLog._id,
                                     err: false,
                                     log: stdOutData.toString('ascii'),
                                     timestamp: new Date().getTime()
@@ -866,7 +869,8 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
 
                                 //retrying 4 times before giving up.
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:bootstrapData._id,
+                                    instanceRefId:actionLog._id,
                                     err: true,
                                     log: stdErrData.toString('ascii'),
                                     timestamp: new Date().getTime()
@@ -1243,7 +1247,10 @@ instanceService.getInstanceAction = function getInstanceAction(actionId, callbac
         }
         if (action && action.length) {
             var instanceAction = JSON.parse(JSON.stringify(action[0].actionLogs[0]));
-            logsDao.getLogsByReferenceId(actionId, null, function (err, data) {
+            var queryObj = {
+                instanceRefId:actionId
+            }
+            logsDao.getLogsDetails(queryObj, function (err, data) {
                 if (err) {
                     logger.error("Failed to fetch Logs: ", err);
                     callback(500, null);
@@ -1356,7 +1363,8 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
                         data.actionStatus = "success";
                         data.endedOn = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: [data.actionId, data.instanceId],
+                            instanceId:data.instanceId,
+                            instanceRefId:data.actionId,
                             err: false,
                             log: "Instance " + instanceData.state,
                             timestamp: timestampStarted
@@ -1436,9 +1444,9 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
 function createOrUpdateInstanceLogs(instance, instanceState, action, user, timestampStarted, routeHostedZoneParamList, next) {
     var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
     var actionStatus = 'success';
-    var logReferenceIds = [instance._id, actionLog._id];
     logsDao.insertLog({
-        referenceId: logReferenceIds,
+        instanceId:instance._id,
+        instanceRefId:actionLog._id,
         err: false,
         log: "Instance " + instanceState,
         timestamp: timestampStarted

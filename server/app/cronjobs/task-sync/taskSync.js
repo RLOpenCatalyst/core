@@ -5,7 +5,7 @@ var async = require('async');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var taskHistory = require('_pr/model/classes/tasks/taskHistory.js');
 var TaskSync = Object.create(CatalystCronJob);
-TaskSync.interval = '*/2 * * * *';
+TaskSync.interval = '*/1 * * * *';
 TaskSync.execute = taskSync;
 
 module.exports = TaskSync;

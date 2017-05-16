@@ -25,7 +25,7 @@ var validate = require('express-validation');
 var instanceValidator = require('_pr/validators/instanceValidator');
 var	providerService = require('_pr/services/providerService');
 var instanceService = require('_pr/services/instanceService');
-var userService = require('_pr/services/userService');
+var settingService = require('_pr/services/settingsService');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
@@ -99,10 +99,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     apiUtil.paginationRequest(reqData,'trackedInstances', next);
                 },
                 function(paginationRequest, next) {
-                    // @TODO Relook at pagination to allow validation of query parameters
-                    // @TODO Whether databaseUtil should be renamed
                     if(category === 'managed') {
-                        paginationRequest['searchColumns'] = ['instanceIP', 'instanceState','platformId','hardware.os','projectName','environmentName'];;
+                        paginationRequest['searchColumns'] = ['instanceIP', 'instanceState','platformId','hardware.os','projectName','environmentName'];
                     }else if(category === 'assigned'){
                         paginationRequest['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     }else{
@@ -115,16 +113,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         if(filterQuery.queryObj['$and'][0].providerId){
                             next(null,filterQuery);
                         }else{
-                            filterQuery.queryObj['$and'][0].providerId ={ '$ne': null };
+                            filterQuery.queryObj['$and'][0].providerId = { $ne : null };
                             next(null,filterQuery);
                         }
                     }else {
-                        // @TODO Modify to work without sessions as well
-                        userService.getUserOrgs(req.session.user, function (err, orgs) {
+                        settingService.getOrgUserFilter(req.session.user.cn, function (err, orgIds) {
                             if (err) {
                                 next(err);
-                            } else {
-                                instanceService.validateListInstancesQuery(orgs, filterQuery, next);
+                            }else if(orgIds.length > 0){
+                                filterQuery.queryObj['$and'][0].orgId = { $in : orgIds };
+                                next(null,filterQuery);
+                            }else{
+                                next(null,filterQuery);
                             }
                         });
                     }
@@ -134,10 +134,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function (instances, next) {
                     apiUtil.changeResponseForJqueryPagination(instances[0], reqObj, next);
-                }/*,
-                function(instances, next) {
-                    instanceService.createTrackedInstancesResponse(instances, next);
-                }*/
+                }
             ],
             function(err, results) {
                 if (err) {
