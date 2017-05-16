@@ -166,153 +166,79 @@ function executeChefOnLocal(botDetail,reqBody, auditTrail, userName, botHostDeta
         executeChefCookBookOnLocal();
     }
     function executeChefCookBookOnLocal() {
-        if(botDetail.source === 'Catalyst'){
-           var cmd = 'sudo chef-client -o ' + reqData.runlist;
-           if(reqData.attributes !== null){
-               cmd = cmd + ' -j ' + desPath;
-           }
-            commonService.executeCmd(null,null,null,null,actionId,botDetail._id,botDetail.id,cmd,function(err,result){
-                if(err || result === true){
-                    logger.error(err);
-                    var timestampEnded = new Date().getTime();
-                    logData.err= true;
-                    logData.log= "Error in executing Script for Source Catalyst";
-                    logData.timestamp= timestampEnded;
-                    logsDao.insertLog(logData);
-                    noticeService.updater(actionId,'log',logData);
-                    var resultTaskExecution = {
-                        "actionStatus": 'failed',
-                        "status": 'failed',
-                        "endedOn": new Date().getTime(),
-                        "actionLogId": actionId
-                    };
-                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
-                        if (err) {
-                            logger.error("Failed to create or update bots Log: ", err);
-                        }
-                        noticeService.notice(userName, {
-                            title: "Chef BOT Execution",
-                            body: "Error in executing Script for Source Catalyst"
-                        }, "error", function (err, data) {
-                            if (err) {
-                                logger.error("Error in Notification Service, ", err);
-                            }
-                        });
-                    })
-                    if (reqData.attributes !== null) {
-                        apiUtil.removeFile(desPath);
-                    }
-                    callback(err,null);
-                    return;
-                }else{
-                    logger.debug("Chef Execution is Done");
-                    var timestampEnded = new Date().getTime();
-                    logData.err= false;
-                    logData.log= 'BOT execution is success on local for BOT : '+botDetail.id;
-                    logData.timestamp= timestampEnded;
-                    logsDao.insertLog(logData);
-                    noticeService.updater(actionId,'log',logData);
-                    var resultTaskExecution = {
-                        "actionStatus": 'success',
-                        "status": 'success',
-                        "endedOn": new Date().getTime(),
-                        "actionLogId": actionId
-                    };
-                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
-                        if (err) {
-                            logger.error("Failed to create or update bots Log: ", err);
-                        }
-                        noticeService.notice(userName, {
-                            title: "Chef BOT Execution",
-                            body: 'BOT execution is success on local for BOT : '+botDetail.id
-                        }, "success", function (err, data) {
-                            if (err) {
-                                logger.error("Error in Notification Service, ", err);
-                            }
-                        });
-                    })
-                    if (reqData.attributes !== null) {
-                        apiUtil.removeFile(desPath);
-                    }
-                    callback(null,result);
-                    return;
+        var reqBodyObj = {
+            "data": reqData
+        };
+        var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+        var executorUrl = '/bot/' + botDetail.id + '/exec';
+        var options = {
+            url: serverUrl + executorUrl,
+            headers: {
+                'Content-Type': 'application/json',
+                'charset': 'utf-8'
+            },
+            json: true,
+            body: reqBodyObj
+        };
+        request.post(options, function (err, res, body) {
+            if (res.statusCode === 200) {
+                var auditQueueDetails = {
+                    userName: userName,
+                    botId: botDetail.id,
+                    bot_id: botDetail._id,
+                    logRefId: logsReferenceIds,
+                    auditId: actionId,
+                    instanceLog: '',
+                    instanceIP: '',
+                    auditTrailId: auditTrail._id,
+                    remoteAuditId: res.body.ref,
+                    link: res.body.link,
+                    status: "pending",
+                    serverUrl: serverUrl,
+                    env: "local",
+                    retryCount: 0
                 }
-            })
-        }else {
-            var reqBodyObj = {
-                "data": reqData
-            };
-            var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-            var executorUrl = '/bot/' + botDetail.id + '/exec';
-            var options = {
-                url: serverUrl + executorUrl,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'charset': 'utf-8'
-                },
-                json: true,
-                body: reqBodyObj
-            };
-            request.post(options, function (err, res, body) {
-                if (res.statusCode === 200) {
-                    var auditQueueDetails = {
-                        userName: userName,
-                        botId: botDetail.id,
-                        bot_id: botDetail._id,
-                        logRefId: logsReferenceIds,
-                        auditId: actionId,
-                        instanceLog: '',
-                        instanceIP: '',
-                        auditTrailId: auditTrail._id,
-                        remoteAuditId: res.body.ref,
-                        link: res.body.link,
-                        status: "pending",
-                        serverUrl: serverUrl,
-                        env: "local",
-                        retryCount: 0
+                auditQueue.setAudit(auditQueueDetails);
+                if (reqData.attributes !== null) {
+                    apiUtil.removeFile(desPath);
+                }
+                return;
+            } else {
+                logger.error(err);
+                var logData = {
+                    botId: botDetail._id,
+                    botRefId: actionId,
+                    err: true,
+                    log: "Error in BOT Engine executor:",
+                    timestamp: new Date().getTime(),
+                }
+                logsDao.insertLog(logData);
+                noticeService.updater(actionId, 'log', logData);
+                var resultTaskExecution = {
+                    "actionStatus": 'failed',
+                    "status": 'failed',
+                    "endedOn": new Date().getTime(),
+                    "actionLogId": actionId
+                };
+                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
+                    if (err) {
+                        logger.error("Failed to create or update bots Log: ", err);
                     }
-                    auditQueue.setAudit(auditQueueDetails);
-                    if (reqData.attributes !== null) {
-                        apiUtil.removeFile(desPath);
-                    }
-                    return;
-                } else {
-                    logger.error(err);
-                    var logData = {
-                        botId: botDetail._id,
-                        botRefId: actionId,
-                        err: true,
-                        log: "Error in BOT Engine executor:",
-                        timestamp: new Date().getTime(),
-                    }
-                    logsDao.insertLog(logData);
-                    noticeService.updater(actionId,'log',logData);
-                    var resultTaskExecution = {
-                        "actionStatus": 'failed',
-                        "status": 'failed',
-                        "endedOn": new Date().getTime(),
-                        "actionLogId": actionId
-                    };
-                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
+                    noticeService.notice(userName, {
+                        title: "Chef BOT Execution",
+                        body: res.statusCode === 502 ? "Bot Enginge is not running" : "Error in Chef executor"
+                    }, "error", function (err, data) {
                         if (err) {
-                            logger.error("Failed to create or update bots Log: ", err);
+                            logger.error("Error in Notification Service, ", err);
                         }
-                        noticeService.notice(userName, {
-                            title: "Chef BOT Execution",
-                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Chef executor"
-                        }, "error", function (err, data) {
-                            if (err) {
-                                logger.error("Error in Notification Service, ", err);
-                            }
-                            if (reqData.attributes !== null) {
-                                apiUtil.removeFile(desPath);
-                            }
-                            return;
-                        });
+                        if (reqData.attributes !== null) {
+                            apiUtil.removeFile(desPath);
+                        }
+                        return;
                     });
-                }
-            })
-        }
+                });
+            }
+        })
     }
 }
 
@@ -445,138 +371,90 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
             executeChefCookBookOnRemote(desPath);
         }
         function executeChefCookBookOnRemote(desPath) {
-            if(botDetail.source === 'Catalyst'){
-                var cmd ='';
-                if(sshOptions.password) {
-                    cmd = cmd + ' echo '+sshOptions.password+' | sudo -S chef-client -o ' + reqData.runlist;
-                }else{
-                    cmd = cmd + ' sudo chef-client -o ' + reqData.runlist;
-                }
-                if(reqData.attributes !== null){
-                    cmd = cmd + ' -j ' + reqData.attributes;
-                }
-                commonService.executeCmd(sshOptions, instanceLog, instance._id, actionLog._id, actionLogId, botDetail._id, botDetail.id, cmd, function (err, result) {
-                    if (err) {
-                        logger.error(err);
-                        var timestampEnded = new Date().getTime();
-                        logData.err =true;
-                        logData.log = "Error in executing Chef Cook-Book for Source Catalyst";
-                        logData.timestamp= timestampEnded;
-                        logsDao.insertLog(logData);
-                        noticeService.updater(actionLogId,'log',logData);
-                        var resultTaskExecution = {
-                            "actionStatus": 'failed',
-                            "status": 'failed',
-                            "endedOn": new Date().getTime(),
-                            "actionLogId": actionLogId
-                        };
-                        auditTrailService.updateAuditTrail('BOT', auditTrailId, resultTaskExecution, function (err, data) {
-                            if (err) {
-                                logger.error("Failed to create or update bots Log: ", err);
-                            }
-                            noticeService.notice(userName, {
-                                title: "Chef BOT Execution",
-                                body: "Error in executing Chef Cook-Book for Source Catalyst"
-                            }, "error", function (err, data) {
-                                if (err) {
-                                    logger.error("Error in Notification Service, ", err);
-                                }
-                            });
-                        })
-                        callback(err, null);
-                        return;
-                    } else {
-                        logger.debug("Chef Execution is Done");
-                        callback(null, null);
-                        return;
+            var reqBody = {
+                "data": reqData,
+                "os": instance.hardware.os,
+                "authentication": authenticationObj,
+                "environment": envObj
+            };
+            var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+            var executorUrl = '/bot/' + botDetail.id + '/exec';
+            var options = {
+                url: serverUrl + executorUrl,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'charset': 'utf-8'
+                },
+                json: true,
+                body: reqBody
+            };
+            request.post(options, function (err, res, body) {
+                if (res.statusCode === 200) {
+                    var auditQueueDetails = {
+                        userName: userName,
+                        botId: botDetail.id,
+                        bot_id: botDetail._id,
+                        logRefId: logsReferenceIds,
+                        auditId: actionLogId,
+                        instanceLog: instanceLog,
+                        instanceIP: instance.instanceIP,
+                        auditTrailId: auditTrailId,
+                        remoteAuditId: res.body.ref,
+                        link: res.body.link,
+                        status: "pending",
+                        serverUrl: serverUrl,
+                        env: "remote",
+                        retryCount: 0
                     }
-                })
-            }else {
-                var reqBody = {
-                    "data": reqData,
-                    "os": instance.hardware.os,
-                    "authentication": authenticationObj,
-                    "environment": envObj
-                };
-                var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-                var executorUrl = '/bot/' + botDetail.id + '/exec';
-                var options = {
-                    url: serverUrl + executorUrl,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'charset': 'utf-8'
-                    },
-                    json: true,
-                    body: reqBody
-                };
-                request.post(options, function (err, res, body) {
-                    if (res.statusCode === 200) {
-                        var auditQueueDetails = {
-                            userName: userName,
-                            botId: botDetail.id,
-                            bot_id: botDetail._id,
-                            logRefId: logsReferenceIds,
-                            auditId: actionLogId,
-                            instanceLog: instanceLog,
-                            instanceIP: instance.instanceIP,
-                            auditTrailId: auditTrailId,
-                            remoteAuditId: res.body.ref,
-                            link: res.body.link,
-                            status: "pending",
-                            serverUrl: serverUrl,
-                            env: "remote",
-                            retryCount: 0
-                        }
-                        auditQueue.setAudit(auditQueueDetails);
-                        if (reqData.attributes !== null) {
-                            apiUtil.removeFile(desPath);
-                        }
-                        return;
-                    } else {
-                        logger.error(err);
-                        var timestampEnded = new Date().getTime();
-                        var logData = {
-                            instanceId: instance._id,
-                            instanceRefId: actionLog._id,
-                            botId: botDetail._id,
-                            botRefId: actionLogId,
-                            err: true,
-                            log: res.statusCode === 502?"Bot Enginge is not running":"Error in Chef executor",
-                            timestamp: timestampEnded
-                        }
-                        logsDao.insertLog(logData);
-                        noticeService.updater(actionLogId,'log',logData);
-                        instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                        instanceLog.endedOn = new Date().getTime();
-                        instanceLog.actionStatus = "failed";
-                        instanceLog.logs = {
-                            err: false,
-                            log: "Error in BOT Engine executor:",
-                            timestamp: new Date().getTime()
-                        };
-                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                            if (err) {
-                                logger.error("Failed to create or update instanceLog: ", err);
-                            }
-                        });
-                        noticeService.notice(userName, {
-                            title: "Chef BOT Execution",
-                            body: res.statusCode === 502?"Bot Enginge is not running":"Error in Chef executor"
-                        }, "error", function (err, data) {
-                            if (err) {
-                                logger.error("Error in Notification Service, ", err);
-                            }
-                        });
-                        callback(err, null);
-                        if (reqData.attributes !== null) {
-                            apiUtil.removeFile(desPath);
-                        }
-                        return;
+                    auditQueue.setAudit(auditQueueDetails);
+                    if (reqData.attributes !== null) {
+                        apiUtil.removeFile(desPath);
                     }
-                })
-            }
+                    return;
+                } else {
+                    logger.error(err);
+                    var timestampEnded = new Date().getTime();
+                    var logData = {
+                        instanceId: instance._id,
+                        instanceRefId: actionLog._id,
+                        botId: botDetail._id,
+                        botRefId: actionLogId,
+                        err: true,
+                        log: res.statusCode === 502 ? "Bot Enginge is not running" : "Error in Chef executor",
+                        timestamp: timestampEnded
+                    }
+                    logsDao.insertLog(logData);
+                    noticeService.updater(actionLogId, 'log', logData);
+                    instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                    instanceLog.endedOn = new Date().getTime();
+                    instanceLog.actionStatus = "failed";
+                    instanceLog.logs = {
+                        err: false,
+                        log: "Error in BOT Engine executor:",
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+                    noticeService.notice(userName, {
+                        title: "Chef BOT Execution",
+                        body: res.statusCode === 502 ? "Bot Enginge is not running" : "Error in Chef executor"
+                    }, "error", function (err, data) {
+                        if (err) {
+                            logger.error("Error in Notification Service, ", err);
+                        }
+                    });
+                    callback(err, null);
+                    if (reqData.attributes !== null) {
+                        apiUtil.removeFile(desPath);
+                    }
+                    return;
+                }
+            })
         }
-    })
+    });
 }
 
 
