@@ -45,7 +45,7 @@ function getResourcesByOrgTeam(queryParameters, cb){
 			resourceIds = resourceIds.concat(r.resourceIds);
 		});
 		if ( resourceType === 'bots') {
-			botDao.find({_id:{$in:resourceIds}}, function(err, result){
+			botDao.find({id:{$in:resourceIds}}, function(err, result){
 				
 				if(err){
 					logger.error('Error failed to find bot information for orgId: ' + orgId + ' teamId: ' + teamId + ' err: ' + err);

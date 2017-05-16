@@ -43,7 +43,6 @@ OrgResourcePermissionSchema.statics.upsertOrgResource = function upsertOrgResour
 		if (result.length == 1) {
 			OrgResourcePermission.update( query, {$set: {resourceIds: data.resourceIds, modifiedDate: Date.now()}}, function(err, result){
 				if (err){
-					console.log(err);
 					return cb(err, result);
 				}
 				
