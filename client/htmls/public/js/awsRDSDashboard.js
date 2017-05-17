@@ -86,35 +86,18 @@ $(document).ready(function() {
                 $('#providerforUnAssignedDBInstId').empty().append(awsSpecificProvName);
               loadUnAssignedDBInstances(providerId);
           });
-
-            $.get('../resources/resourceList?filterBy=providerId:'+ providerId +',resourceType:RDS,category:assigned', function(assignedRDSDBInstances){
-                var rdsAssignedDBInstancesLength = assignedRDSDBInstances.metaData.totalRecords;
+            $.get('../resources/track/report?filterBy=providerDetails.id:'+ providerId +',resourceType:RDS', function(RDSDBInstances){
+                var rdsAssignedDBInstancesLength = RDSDBInstances.totalAssignedResources;
                 $childRDSAssignedDBInstanceTemplate.find('.countAssignedDBInstance').empty().append(rdsAssignedDBInstancesLength);
-
-                var totalAssignedUnAssignedData;
                 updateTotalCount("assigned", providerId, rdsAssignedDBInstancesLength);
-
-
-
-
-                $.get('../resources/resourceList?filterBy=providerId:'+ providerId +',resourceType:RDS,category:unassigned', function(unAssignedDBInstances) {
-                    var rdsUnAssignedDBInstancesLength = unAssignedDBInstances.metaData.totalRecords;
-                    $childRDSUnAssignedDBInstancesTemplate.find('.countUnAssignedDBInstance').empty().append(rdsUnAssignedDBInstancesLength);
-
-
-                    updateTotalCount("unassigned", providerId, rdsUnAssignedDBInstancesLength);
-
-                    totalAssignedUnAssignedData = rdsAssignedDBInstancesLength + rdsUnAssignedDBInstancesLength;
-
-                    updateTotalCount("assignedUnassigned", providerId, totalAssignedUnAssignedData);
-                    awstotalinstancecount = awstotalinstancecount + totalAssignedUnAssignedData;
-
-                    $childTotalInstanceTemplate.find('.countTotalDBInstance').empty().append(totalAssignedUnAssignedData);
-
-                });
+                var rdsUnAssignedDBInstancesLength = RDSDBInstances.totalUnAssignedResources;
+                $childRDSUnAssignedDBInstancesTemplate.find('.countUnAssignedDBInstance').empty().append(rdsUnAssignedDBInstancesLength);
+                updateTotalCount("unassigned", providerId, rdsUnAssignedDBInstancesLength);
+                var totalAssignedUnAssignedData = RDSDBInstances.totalResources;
+                updateTotalCount("assignedUnassigned", providerId, totalAssignedUnAssignedData);
+                awstotalinstancecount = awstotalinstancecount + totalAssignedUnAssignedData;
+                $childTotalInstanceTemplate.find('.countTotalDBInstance').empty().append(totalAssignedUnAssignedData);
             });
-          
-
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childRDSAssignedDBInstanceTemplate);

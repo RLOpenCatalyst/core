@@ -135,8 +135,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                     createdOn: new Date().getTime(),
                     startedOn: new Date().getTime(),
                     providerType: instance.providerType,
-                    action: "Script-Execution",
-                    logs: []
+                    action: "Script-Execution"
                 };
                 if (!instance.instanceIP) {
                     var timestampEnded = new Date().getTime();
@@ -150,11 +149,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                     instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
-                    instanceLog.logs = {
-                        err: true,
-                        log: "Instance IP is not defined. Chef Client run failed",
-                        timestamp: new Date().getTime()
-                    };
                     instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
                         if (err) {
                             logger.error("Failed to create or update instanceLog: ", err);
@@ -277,11 +271,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                         instancesDao.updateActionLog(instanceId, actionId, false, timestampEnded);
                         instanceLog.endedOn = new Date().getTime();
                         instanceLog.actionStatus = "failed";
-                        instanceLog.logs = {
-                            err: false,
-                            log: "Unable to upload script file : " + script.name,
-                            timestamp: new Date().getTime()
-                        };
                         instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -407,16 +396,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             log: stdOut.toString('ascii'),
                             timestamp: new Date().getTime()
                         });
-                        instanceLog.logs = {
-                            err: false,
-                            log: stdOut.toString('ascii'),
-                            timestamp: new Date().getTime()
-                        };
-                        instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
-                            if (err) {
-                                logger.error("Failed to create or update instanceLog: ", err);
-                            }
-                        });
                     }, function (stdErr) {
                         logsDao.insertLog({
                             instanceId:instanceId,
@@ -424,16 +403,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             err: true,
                             log: stdErr.toString('ascii'),
                             timestamp: new Date().getTime()
-                        });
-                        instanceLog.logs = {
-                            err: false,
-                            log: stdErr.toString('ascii'),
-                            timestamp: new Date().getTime()
-                        };
-                        instanceLogModel.createOrUpdate(actionId, instanceId, instanceLog, function (err, logData) {
-                            if (err) {
-                                logger.error("Failed to create or update instanceLog: ", err);
-                            }
                         });
                     });
                 })

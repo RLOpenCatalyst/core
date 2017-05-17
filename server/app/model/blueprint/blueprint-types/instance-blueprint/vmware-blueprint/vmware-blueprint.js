@@ -271,7 +271,10 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                                 var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
+                                    botId:launchParams.botId,
+                                    botRefId: launchParams.actionLogId,
                                     err: false,
                                     log: "Waiting for instance ok state",
                                     timestamp: timestampStarted
@@ -314,12 +317,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     createdOn: new Date().getTime(),
                                     startedOn: new Date().getTime(),
                                     providerType: self.cloudProviderType,
-                                    action: "Bootstrap",
-                                    logs: [{
-                                        err: false,
-                                        log: "Waiting for instance ok state",
-                                        timestamp: new Date().getTime()
-                                    }]
+                                    action: "Bootstrap"
                                 };
 
                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -352,7 +350,10 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                             }
                                         });
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
+                                            botId:launchParams.botId,
+                                            botRefId: launchParams.actionLogId,
                                             err: true,
                                             log: 'Instance not responding. Bootstrap failed',
                                             timestamp: timestampEnded
@@ -360,11 +361,6 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLog.actionStatus = "failed";
-                                        instanceLog.logs = {
-                                            err: true,
-                                            log: "Instance not responding. Bootstrap failed",
-                                            timestamp: new Date().getTime()
-                                        };
                                         if(launchParams.auditTrailId !== null){
                                             var resultTaskExecution={
                                                 actionStatus : "failed",
@@ -406,17 +402,15 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
 
 
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
+                                            botId:launchParams.botId,
+                                            botRefId: launchParams.actionLogId,
                                             err: false,
                                             log: "Instance Ready..about to bootstrap",
                                             timestamp: timestampStarted
                                         });
                                         instanceLog.status = "running";
-                                        instanceLog.logs = {
-                                            err: false,
-                                            log: "Instance Ready..about to bootstrap",
-                                            timestamp: new Date().getTime()
-                                        };
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -464,7 +458,10 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             }
                                                         });
                                                         logsDao.insertLog({
-                                                            referenceId: logsReferenceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
+                                                            botId:launchParams.botId,
+                                                            botRefId: launchParams.actionLogId,
                                                             err: true,
                                                             log: 'Bootstrap failed',
                                                             timestamp: timestampEnded
@@ -485,11 +482,6 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "failed";
-                                                        instanceLog.logs = {
-                                                            err: true,
-                                                            log: "Bootstrap failed",
-                                                            timestamp: new Date().getTime()
-                                                        };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -563,7 +555,10 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
 
                                                         });
                                                         logsDao.insertLog({
-                                                            referenceId: logsReferenceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
+                                                            botId:launchParams.botId,
+                                                            botRefId: launchParams.actionLogId,
                                                             err: false,
                                                             log: 'Instance Bootstraped Successfully.',
                                                             timestamp: timestampEnded
@@ -571,11 +566,6 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "success";
-                                                        instanceLog.logs = {
-                                                            err: false,
-                                                            log: "Instance Bootstraped Successfully.",
-                                                            timestamp: new Date().getTime()
-                                                        };
                                                         if(launchParams.auditTrailId !== null){
                                                             var resultTaskExecution={
                                                                 actionStatus : "success",
@@ -613,7 +603,10 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             }
                                                         });
                                                         logsDao.insertLog({
-                                                            referenceId: logsReferenceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
+                                                            botId:launchParams.botId,
+                                                            botRefId: launchParams.actionLogId,
                                                             err: true,
                                                             log: 'Bootstrap failed',
                                                             timestamp: timestampEnded
@@ -634,11 +627,6 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "failed";
-                                                        instanceLog.logs = {
-                                                            err: true,
-                                                            log: "Bootstrap failed.",
-                                                            timestamp: new Date().getTime()
-                                                        };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -648,45 +636,25 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
 
                                                     }
                                                 }, function(stdOutData) {
-
                                                     logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
+                                                        instanceId:instance._id,
+                                                        instanceRefId:actionLog._id,
+                                                        botId:launchParams.botId,
+                                                        botRefId: launchParams.actionLogId,
                                                         err: false,
                                                         log: stdOutData.toString('ascii'),
                                                         timestamp: new Date().getTime()
                                                     });
-                                                    instanceLog.logs = {
-                                                        err: false,
-                                                        log: stdOutData.toString('ascii'),
-                                                        timestamp: new Date().getTime()
-                                                    };
-                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
-                                                        if (err) {
-                                                            logger.error("Failed to create or update instanceLog: ", err);
-                                                        }
-                                                    });
-
-
                                                 }, function(stdErrData) {
-
-                                                    //retrying 4 times before giving up.
                                                     logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
+                                                        instanceId:instance._id,
+                                                        instanceRefId:actionLog._id,
+                                                        botId:launchParams.botId,
+                                                        botRefId: launchParams.actionLogId,
                                                         err: true,
                                                         log: stdErrData.toString('ascii'),
                                                         timestamp: new Date().getTime()
                                                     });
-                                                    instanceLog.logs = {
-                                                        err: true,
-                                                        log: stdErrData.toString('ascii'),
-                                                        timestamp: new Date().getTime()
-                                                    };
-                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
-                                                        if (err) {
-                                                            logger.error("Failed to create or update instanceLog: ", err);
-                                                        }
-                                                    });
-
                                                 });
                                             });
                                         });

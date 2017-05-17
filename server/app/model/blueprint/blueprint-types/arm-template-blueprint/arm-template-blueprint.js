@@ -252,12 +252,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             startedOn: new Date().getTime(),
                             createdOn: new Date().getTime(),
                             providerType: "azure",
-                            action: "Bootstrap",
-                            logs: [{
-                                err: false,
-                                log: "Waiting for instance ok state",
-                                timestamp: new Date().getTime()
-                            }]
+                            action: "Bootstrap"
                         };
                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                             if (err) {
@@ -296,11 +291,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     timestamp: timestampEnded
                                 });
                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                instanceLog.logs = {
-                                    err: true,
-                                    log: "Unable to decrpt pem file. Bootstrap failed",
-                                    timestamp: new Date().getTime()
-                                };
                                 instanceLog.endedOn = new Date().getTime();
                                 instanceLog.actionStatus = "failed";
                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -373,11 +363,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                        instanceLog.logs = {
-                                            err: true,
-                                            log: "Bootstrap failed",
-                                            timestamp: new Date().getTime()
-                                        };
                                         instanceLog.actionStatus = "failed";
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -436,12 +421,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
-                                            instanceLog.logs = {
-                                                err: false,
-                                                log: "Instance Bootstraped successfully",
-                                                timestamp: new Date().getTime()
-                                            };
                                             instanceLog.actionStatus = "success";
                                             instanceLog.endedOn = new Date().getTime();
                                             if (launchParams.auditTrailId !== null) {
@@ -570,11 +549,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                            instanceLog.logs = {
-                                                err: true,
-                                                log: "Bootstrap Failed",
-                                                timestamp: new Date().getTime()
-                                            };
                                             instanceLog.actionStatus = "failed";
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -625,33 +599,15 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         log: stdOutData.toString('ascii'),
                                         timestamp: new Date().getTime()
                                     });
-                                    instanceLog.logs = {
-                                        err: false,
-                                        log: stdOutData.toString('ascii'),
-                                        timestamp: new Date().getTime()
-                                    };
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-
                                 }, function(stdErrData) {
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
+                                        botId:launchParams.botId,
+                                        botRefId: launchParams.actionLogId,
                                         err: true,
                                         log: stdErrData.toString('ascii'),
                                         timestamp: new Date().getTime()
-                                    });
-                                    instanceLog.logs = {
-                                        err: true,
-                                        log: stdErrData.toString('ascii'),
-                                        timestamp: new Date().getTime()
-                                    };
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
                                     });
                                 });
                             });

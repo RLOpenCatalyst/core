@@ -329,8 +329,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             createdOn: new Date().getTime(),
                                             startedOn: new Date().getTime(),
                                             providerType: instances[i].providerType,
-                                            action: "Deleted",
-                                            logs: []
+                                            action: "Deleted"
                                         };
                                         var timestampStarted = new Date().getTime();
                                         var actionLog = instancesDao.insertDeleteActionLog(instances[i]._id, req.session.user.cn, timestampStarted);
@@ -339,17 +338,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             logReferenceIds.push(actionLog._id);
                                         }
                                         logsDao.insertLog({
-                                            referenceId: logReferenceIds,
+                                            instanceId:instances[i]._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: "Instance Deleted",
                                             timestamp: timestampStarted
                                         });
                                         instanceLog.actionId = actionLog._id;
-                                        instanceLog.logs = {
-                                            err: false,
-                                            log: "Instance Deleted",
-                                            timestamp: new Date().getTime()
-                                        };
                                         instanceLogModel.createOrUpdate(actionLog._id, instances[i]._id, instanceLog, function (err, logData) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);

@@ -427,7 +427,6 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
     var networkProfile = new gcpNetworkProfileModel(blueprint.networkProfile);
     if (networkProfile) {
         var providerId = networkProfile.providerId;
-
         providerService.getProvider(providerId, function(err, provider) {
             if (err) {
                 var error = new Error("Error while fetching Provider.");
@@ -475,7 +474,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
 
                                 var timestampStarted = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: instanceData.id,
+                                    instanceId: instanceData.id,
                                     err: false,
                                     log: "Starting instance",
                                     timestamp: timestampStarted

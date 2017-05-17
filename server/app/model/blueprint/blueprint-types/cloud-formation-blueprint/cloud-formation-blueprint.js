@@ -617,12 +617,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                     startedOn: new Date().getTime(),
                                                                     createdOn: new Date().getTime(),
                                                                     providerType: self.cloudProviderType || 'aws',
-                                                                    action: "CFT Launch",
-                                                                    logs: [{
-                                                                        err: false,
-                                                                        log: "Waiting for instance ok state",
-                                                                        timestamp: new Date().getTime()
-                                                                    }]
+                                                                    action: "CFT Launch"
                                                                 };
 
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -656,11 +651,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                         cftLogger.error("Bootstrap failed");
                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                         instanceLog.actionStatus = "failed";
-                                                                        instanceLog.logs = {
-                                                                            err: true,
-                                                                            log: "Bootstrap failed",
-                                                                            timestamp: new Date().getTime()
-                                                                        };
                                                                         instanceLog.endedOn = new Date().getTime();
                                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                             if (err) {
@@ -733,11 +723,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                             cftLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                             instanceLog.actionStatus = "failed";
-                                                                            instanceLog.logs = {
-                                                                                err: true,
-                                                                                log: "Unable to decrpt pem file. Bootstrap failed",
-                                                                                timestamp: new Date().getTime()
-                                                                            };
                                                                             instanceLog.endedOn = new Date().getTime();
                                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                                 if (err) {
@@ -838,11 +823,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     });
                                                                                     cftLogger.error("Bootstrap failed");
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                                    instanceLog.logs = {
-                                                                                        err: true,
-                                                                                        log: "Bootstrap failed",
-                                                                                        timestamp: new Date().getTime()
-                                                                                    };
                                                                                     noticeService.notice(launchParams.sessionUser, {
                                                                                         title: "Blueprint BOTs Execution",
                                                                                         body: "Bootstrap failed"
@@ -938,11 +918,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         });
                                                                                         cftLogger.debug('http://' + launchParams.stackName + '.rlcatalyst.com');
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-                                                                                        instanceLog.logs = {
-                                                                                            err: false,
-                                                                                            log: "Instance Bootstraped successfully",
-                                                                                            timestamp: new Date().getTime()
-                                                                                        };
                                                                                         instanceLog.actionStatus = "success";
                                                                                         instanceLog.endedOn = new Date().getTime();
                                                                                         if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
@@ -1064,11 +1039,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             }
                                                                                         });
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                                        instanceLog.logs = {
-                                                                                            err: true,
-                                                                                            log: "Bootstrap Failed",
-                                                                                            timestamp: new Date().getTime()
-                                                                                        };
                                                                                         instanceLog.actionStatus = "failed";
                                                                                         instanceLog.endedOn = new Date().getTime();
                                                                                         if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
@@ -1121,17 +1091,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     timestamp: new Date().getTime()
                                                                                 });
                                                                                 cftLogger.debug(stdOutData.toString('ascii'));
-                                                                                instanceLog.logs = {
-                                                                                    err: false,
-                                                                                    log: stdOutData.toString('ascii'),
-                                                                                    timestamp: new Date().getTime()
-                                                                                };
-                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                    if (err) {
-                                                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                                                    }
-                                                                                });
-
                                                                             }, function (stdErrData) {
 
                                                                                 //retrying 4 times before giving up.
@@ -1145,18 +1104,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     timestamp: new Date().getTime()
                                                                                 });
                                                                                 cftLogger.error(stdErrData.toString('ascii'));
-                                                                                instanceLog.logs = {
-                                                                                    err: true,
-                                                                                    log: stdErrData.toString('ascii'),
-                                                                                    timestamp: new Date().getTime()
-                                                                                };
-                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                    if (err) {
-                                                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                                                    }
-                                                                                });
-
-
                                                                             });
                                                                         });
 

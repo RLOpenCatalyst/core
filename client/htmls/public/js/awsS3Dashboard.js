@@ -85,33 +85,18 @@ $(document).ready(function() {
               loadUnAssignedS3Buckets(providerId);
           });
 
-          $.get('../resources/resourceList?filterBy=providerId:'+ providerId +',resourceType:S3,category:assigned', function(assignedS3Buckets){
-            var s3AssignedBucketsLength = assignedS3Buckets.metaData.totalRecords;
-              $childS3ManagedInstanceTemplate.find('.countAssignedBuckets').empty().append(s3AssignedBucketsLength);
-
-            var totalAssignedUnAssignedData;
+          $.get('../resources/track/report?filterBy=providerDetails.id:'+ providerId +',resourceType:S3', function(S3Buckets){
+            var s3AssignedBucketsLength = S3Buckets.totalAssignedResources;
+            $childS3ManagedInstanceTemplate.find('.countAssignedBuckets').empty().append(s3AssignedBucketsLength);
             updateTotalCount("assigned", providerId, s3AssignedBucketsLength);
-
-
-          
-
-            $.get('../resources/resourceList?filterBy=providerId:'+ providerId +',resourceType:S3,category:unassigned', function(unAssignedS3Buckets) {
-              var s3UnAssignedBucketsLength = unAssignedS3Buckets.metaData.totalRecords;
-                $childS3UnmanagedInstanceTemplate.find('.countUnAssignedBuckets').empty().append(s3UnAssignedBucketsLength);
-
-
-              updateTotalCount("unassigned", providerId, s3UnAssignedBucketsLength);
-
-                totalAssignedUnAssignedData = s3AssignedBucketsLength + s3UnAssignedBucketsLength;
-
-              updateTotalCount("assignedUnassigned", providerId, totalAssignedUnAssignedData);
-              awstotalinstancecount = awstotalinstancecount + totalAssignedUnAssignedData;
-
-              $childTotalInstanceTemplate.find('.countTotalBuckets').empty().append(totalAssignedUnAssignedData);
-              
-            });
+            var s3UnAssignedBucketsLength = S3Buckets.totalUnAssignedResources;
+            $childS3UnmanagedInstanceTemplate.find('.countUnAssignedBuckets').empty().append(s3UnAssignedBucketsLength);
+            updateTotalCount("unassigned", providerId, s3UnAssignedBucketsLength);
+            var totalAssignedUnAssignedData = S3Buckets.totalResources;
+            updateTotalCount("assignedUnassigned", providerId, totalAssignedUnAssignedData);
+            awstotalinstancecount = awstotalinstancecount + totalAssignedUnAssignedData;
+            $childTotalInstanceTemplate.find('.countTotalBuckets').empty().append(totalAssignedUnAssignedData);
           });
-
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childS3ManagedInstanceTemplate);
