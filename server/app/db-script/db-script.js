@@ -32,41 +32,43 @@ async.parallel({
             }else if(logs.length > 0){
                 var count = 0;
                 for(var i = 0 ; i < logs.length;i++){
-                    (function(log){
-                        if(log.referenceId && log.referenceId.length === 3){
+                    (function(logDetail){
+                        if(logDetail.referenceId && logDetail.referenceId.length === 3){
                             count++;
                             logsDao.insertLog({
-                                instanceId:log.referenceId[0],
-                                instanceRefId:log.referenceId[1],
-                                botRefId:log.referenceId[2],
-                                log:log.log,
-                                err:log.err,
-                                timestamp:log.timestamp
+                                instanceId:logDetail.referenceId[0],
+                                instanceRefId:logDetail.referenceId[1],
+                                botRefId:logDetail.referenceId[2],
+                                log:logDetail.log,
+                                err:logDetail.err,
+                                timestamp:logDetail.timestamp
                             });
                             if(count === logs.length){
                                 callback(null,logs.length);
                                 return;
                             }
-                        }else if(log.referenceId && log.referenceId.length === 2){
+                        }else if(logDetail.referenceId && logDetail.referenceId.length === 2){
                             count++;
                             logsDao.insertLog({
-                                instanceId:log.referenceId[0],
-                                instanceRefId:log.referenceId[1],
-                                log:log.log,
-                                err:log.err,
-                                timestamp:log.timestamp
+                                instanceId:logDetail.referenceId[0],
+                                instanceRefId:logDetail.referenceId[1],
+                                botId:logDetail.referenceId[0],
+                                botRefId:logDetail.referenceId[1],
+                                log:logDetail.log,
+                                err:logDetail.err,
+                                timestamp:logDetail.timestamp
                             });
                             if(count === logs.length){
                                 callback(null,logs.length);
                                 return;
                             }
-                        }else if(log.referenceId && log.referenceId.length === 1){
+                        }else if(logDetail.referenceId && logDetail.referenceId.length === 1){
                             count++;
                             logsDao.insertLog({
-                                instanceId:log.referenceId[0],
-                                log:log.log,
-                                err:log.err,
-                                timestamp:log.timestamp
+                                instanceId:logDetail.referenceId[0],
+                                log:logDetail.log,
+                                err:logDetail.err,
+                                timestamp:logDetail.timestamp
                             });
                             if(count === logs.length){
                                 callback(null,logs.length);
@@ -110,6 +112,7 @@ async.parallel({
                                 count++;
                                 for(var j = 0 ; j < auditTrails.length;j++) {
                                     (function(audit) {
+                        
                                         botOldService.updateSavedTimePerBots(bot._id, audit._id, 'BOT', function (err, botsData) {
                                             if (err) {
                                                 logger.error("Error in updating saved time for BOT - " + err);
@@ -120,7 +123,7 @@ async.parallel({
                                                 return;
                                             }
                                         });
-                                    })(auditTrails[i]);
+                                    })(auditTrails[j]);
                                 }
                             } else {
                                 logger.debug("There is no AuditTrails in DB against BOT : "+bot.id);
@@ -149,5 +152,4 @@ async.parallel({
         process.exit();
     }
 })
-
 

@@ -34,6 +34,7 @@ var ARM = require('_pr/lib/azure-arm.js');
 var AzureARM = require('_pr/model/azure-arm');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var resourceMapService = require('_pr/services/resourceMapService.js');
+var noticeService = require('_pr/services/noticeService.js');
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
 
@@ -264,7 +265,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
                         });
-                        logsDao.insertLog({
+                        var logData ={
                             instanceId:instance._id,
                             instanceRefId:actionLog._id,
                             botId:launchParams.botId,
@@ -272,7 +273,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             err: false,
                             log: "Waiting for instance ok state",
                             timestamp: timestampStarted
-                        });
+                        };
+                        logsDao.insertLog(logData);
+                        noticeService.updater(launchParams.actionLogId,'log',logData);
                         //decrypting pem file
                         var cryptoConfig = appConfig.cryptoSettings;
                         var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
@@ -286,7 +289,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     }
                                 });
                                 var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
+                                var logData ={
                                     instanceId:instance._id,
                                     instanceRefId:actionLog._id,
                                     botId:launchParams.botId,
@@ -294,7 +297,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     err: true,
                                     log: "Unable to decrpt pem file. Bootstrap failed",
                                     timestamp: timestampEnded
-                                });
+                                };
+                                logsDao.insertLog(logData);
+                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                 instanceLog.logs = {
                                     err: true,
@@ -363,7 +368,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                         });
                                         var timestampEnded = new Date().getTime();
-                                        logsDao.insertLog({
+                                        var logData ={
                                             instanceId:instance._id,
                                             instanceRefId:actionLog._id,
                                             botId:launchParams.botId,
@@ -371,7 +376,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             err: true,
                                             log: "Bootstrap failed",
                                             timestamp: timestampEnded
-                                        });
+                                        };
+                                        logsDao.insertLog(logData);
+                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                         instanceLog.logs = {
                                             err: true,
@@ -403,7 +410,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }
                                                 if(launchParams.bot_id !== null) {
-                                                    logsDao.insertLog({
+                                                    var logData ={
                                                         instanceId:instance._id,
                                                         instanceRefId:actionLog._id,
                                                         botId:launchParams.botId,
@@ -411,7 +418,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         err: true,
                                                         log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
                                                         timestamp: new Date().getTime()
-                                                    });
+                                                    };
+                                                    logsDao.insertLog(logData);
+                                                    noticeService.updater(launchParams.actionLogId,'log',logData);
                                                 }
                                             });
                                         }
@@ -426,7 +435,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 }
                                             });
                                             var timestampEnded = new Date().getTime();
-                                            logsDao.insertLog({
+                                            var logData ={
                                                 instanceId:instance._id,
                                                 instanceRefId:actionLog._id,
                                                 botId:launchParams.botId,
@@ -434,9 +443,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 err: false,
                                                 log: "Instance Bootstraped successfully",
                                                 timestamp: timestampEnded
-                                            });
+                                            };
+                                            logsDao.insertLog(logData);
+                                            noticeService.updater(launchParams.actionLogId,'log',logData);
                                             instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
                                             instanceLog.logs = {
                                                 err: false,
                                                 log: "Instance Bootstraped successfully",
@@ -462,7 +472,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         logger.error("Failed to create or update bots Log: ", err);
                                                     }
                                                     if(launchParams.bot_id !== null) {
-                                                        logsDao.insertLog({
+                                                        var logData ={
                                                             instanceId:instance._id,
                                                             instanceRefId:actionLog._id,
                                                             botId:launchParams.botId,
@@ -470,7 +480,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             err: false,
                                                             log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
                                                             timestamp: new Date().getTime()
-                                                        });
+                                                        };
+                                                        logsDao.insertLog(logData);
+                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                     }
                                                 });
                                             }
@@ -560,7 +572,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 }
                                             });
                                             var timestampEnded = new Date().getTime();
-                                            logsDao.insertLog({
+                                            var logData ={
                                                 instanceId:instance._id,
                                                 instanceRefId:actionLog._id,
                                                 botId:launchParams.botId,
@@ -568,7 +580,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 err: false,
                                                 log: "Bootstrap Failed",
                                                 timestamp: timestampEnded
-                                            });
+                                            };
+                                            logsDao.insertLog(logData);
+                                            noticeService.updater(launchParams.actionLogId,'log',logData);
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                             instanceLog.logs = {
                                                 err: true,
@@ -601,7 +615,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         logger.error("Failed to create or update bots Log: ", err);
                                                     }
                                                     if(launchParams.bot_id !== null) {
-                                                        logsDao.insertLog({
+                                                        var logData ={
                                                             instanceId:instance._id,
                                                             instanceRefId:actionLog._id,
                                                             botId:launchParams.botId,
@@ -609,14 +623,16 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             err: true,
                                                             log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
                                                             timestamp: new Date().getTime()
-                                                        });
+                                                        };
+                                                        logsDao.insertLog(logData);
+                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                     }
                                                 });
                                             }
                                         }
                                     }
                                 }, function(stdOutData) {
-                                    logsDao.insertLog({
+                                    var logData ={
                                         instanceId:instance._id,
                                         instanceRefId:actionLog._id,
                                         botId:launchParams.botId,
@@ -624,7 +640,9 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         err: false,
                                         log: stdOutData.toString('ascii'),
                                         timestamp: new Date().getTime()
-                                    });
+                                    };
+                                    logsDao.insertLog(logData);
+                                    noticeService.updater(launchParams.actionLogId,'log',logData);
                                     instanceLog.logs = {
                                         err: false,
                                         log: stdOutData.toString('ascii'),
@@ -637,12 +655,17 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     });
 
                                 }, function(stdErrData) {
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                    var logData ={
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
+                                        botId:launchParams.botId,
+                                        botRefId: launchParams.actionLogId,
                                         err: true,
                                         log: stdErrData.toString('ascii'),
                                         timestamp: new Date().getTime()
-                                    });
+                                };
+                                logsDao.insertLog(logData);
+                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                     instanceLog.logs = {
                                         err: true,
                                         log: stdErrData.toString('ascii'),
@@ -779,20 +802,19 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                     return;
                 }
                 if(launchParams.actionLogId !== null) {
-                    logsDao.insertLog({
+                    var logData ={
                         botId:launchParams.botId,
                         botRefId: launchParams.actionLogId,
                         err: false,
                         log: "BOT Execution is started for Blueprint BOT :"+launchParams.bot_id,
                         timestamp: new Date().getTime()
-                    });
-                    logsDao.insertLog({
-                        botId:launchParams.botId,
-                        botRefId: launchParams.actionLogId,
-                        err: false,
-                        log: "ARM Template is created : " + launchParams.stackName,
-                        timestamp: new Date().getTime()
-                    });
+                    };
+                    logsDao.insertLog(logData);
+                    noticeService.updater(launchParams.actionLogId,'log',logData);
+                    logData.log = "ARM Template is created : " + launchParams.stackName;
+                    logData.timestamp = new Date().getTime();
+                    logsDao.insertLog(logData);
+                    noticeService.updater(launchParams.actionLogId,'log',logData);
                 }
                 arm.getDeployedTemplate({
                     name: launchParams.stackName,

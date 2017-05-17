@@ -148,5 +148,13 @@
 				return genericServices.promiseGet(params);
 			};
 
+			botService.getGitHubSyncDetails = function () {
+				var params ={
+					url : 'src/partials/sections/dashboard/bots/gitSync.json',
+					inlineLoader: true	
+				} 
+				return genericServices.promiseGet(params);
+			};
+
         }]);
 })(angular);

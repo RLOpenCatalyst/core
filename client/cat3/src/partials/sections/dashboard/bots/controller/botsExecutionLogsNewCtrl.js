@@ -9,83 +9,42 @@
     "use strict";
     var socketClient = io('/notify');
     angular.module('dashboard.bots')
-    .service('botPollingSetting', [function() {
-        return {
-            botLogsPollerInterval: 5000
-        };
-    }])
-    .controller('botsExecutionLogsNewCtrl',['$scope', 'items', '$rootScope', 'botsCreateService', 'botPollingSetting','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, botsCreateService, botPollingSetting, genSevs, toastr, $modalInstance, $timeout) {
+    .controller('botsExecutionLogsNewCtrl',['$scope', 'items', '$rootScope', 'botsCreateService','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, botsCreateService, genSevs, toastr, $modalInstance, $timeout) {
         angular.extend($scope, {
             logListInitial: [],
             logListDelta: []
         });
-        $scope.getCurrentTime = new Date().getTime();
-        var timerObject;
         var helper = {
-            lastTimeStamp: '',
-            getlastTimeStamp: function (logObj) {
-                if (logObj instanceof Array && logObj.length) {
-                    var lastTime = logObj[logObj.length - 1].timestamp;
-                    return lastTime;
-                }
-            },
-            logsPolling: function() {
-                // socketClient.emit('join','client-'+items.logDetails.actionId);
-                // socketClient.on('update',function(data){
-                //     if(data.dataType == 'log'){
-                //         //console.log(data);
-                //         var logData = {
-                //             logs: data.updateData,
-                //             fullLogs: false
-                //         };
-                //         console.log(logData.logs);
-                //         console.log($scope.logListDelta);
-                //         $scope.logListDelta.push.apply($scope.logListDelta, logData.logs);
-                //         $scope.isLogsLoading = false;
-                //         helper.scrollBottom();
-                //     }
-                // })
-                timerObject = $timeout(function() {
-                    botsCreateService.getBotLogs(items.logDetails.botId,items.logDetails.actionId, helper.lastTimeStamp).then(function (resp) {
-                        console.log(resp)
-                        if (resp.length) {
-                            var logData = {
-                                logs: resp,
-                                fullLogs: false
-                            };
-                            helper.lastTimeStamp = helper.getlastTimeStamp(logData.logs);
-                            $scope.logListDelta.push.apply($scope.logListDelta, logData.logs);
-                            $scope.isLogsLoading = false;
-                            helper.scrollBottom();
-                        }
-                        helper.logsPolling();
-                    });
-                }, botPollingSetting.botLogsPollerInterval);
+            logsPolling : function() {
+                socketClient.emit('join','client-'+items.logDetails.actionId);
+                socketClient.on('update',function(data){
+                    if(data.dataType == 'log'){
+                        var logData = {
+                            logs: data.updateData,
+                            fullLogs: false
+                        };
+                        $scope.logListDelta.push(logData.logs);
+                        helper.scrollBottom();
+                    }
+                })
             },
             scrollBottom : function () {
                 $timeout(function () {
                     var elm = angular.element(".logsArea");
                     elm.scrollTop(elm[0].scrollHeight);
                 }, 100);
-            },
-            stopPolling: function () {
-                //socketClient.emit('leave', 'client-'+items.logDetails.actionId);
-                $timeout.cancel(timerObject);
             }
         };
     
-        botsCreateService.getBotLogs(items.logDetails.botId,items.logDetails.actionId, $scope.getCurrentTime).then(function (response) {
-            helper.lastTimeStamp = helper.getlastTimeStamp(response);
-            helper.logsPolling();
+        botsCreateService.getBotLogs(items.logDetails.botId,items.logDetails.actionId).then(function (response) {
+            $scope.isLogsLoading = true;
             var logData = {
                 logs: response,
-                fullLogs: true
+                fullLogs: false
             };
             $scope.logListInitial = logData.logs;
-            if($scope.logListInitial.length === 0) {
-                $scope.isLogsLoading = true;    
-            }
-            helper.scrollBottom();
+            $scope.isLogsLoading = false;
+            helper.logsPolling();
         }, function (error) {
             $scope.isLogsLoading = false;
             console.log(error);
@@ -93,7 +52,7 @@
         });
 
         $scope.cancel = function() {
-            helper.stopPolling();
+            socketClient.emit('leave', 'client-'+items.logDetails.actionId);
             $modalInstance.dismiss('cancel');
         };
     }]);
