@@ -832,7 +832,7 @@ botService.getParticularBotsHistory = function getParticularBotsHistory(botId,hi
     });
 }
 
-botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
+botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,callback){
     async.waterfall([
         function(next){
             botDao.getBotsById(botId,next);
@@ -840,7 +840,7 @@ botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(b
         function(bots,next){
             if(bots.length > 0) {
                 var logsDao = require('_pr/model/dao/logsdao.js');
-                logsDao.getLogsByReferenceId(historyId, timestamp,next);
+                logsDao.getLogsByActionId(historyId,next);
             }else{
                 next({errCode:400, errMsg:"Bots is not exist in DB"},null)
             }

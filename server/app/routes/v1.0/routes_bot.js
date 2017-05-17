@@ -69,12 +69,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/bot/:botId/bot-history/:historyId/logs',function(req,res){
-        var timestamp = null;
-        if (req.query.timestamp) {
-            timestamp = req.query.timestamp;
-            timestamp = parseInt(timestamp);
-        }
-        botService.getParticularBotsHistoryLogs(req.params.botId,req.params.historyId,timestamp, function(err,data){
+        botService.getParticularBotsHistoryLogs(req.params.botId,req.params.historyId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

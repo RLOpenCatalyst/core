@@ -20,32 +20,75 @@
 	        $scope.paginationParams.pageSize = 24;
 	        $scope.paginationParams.sortBy = 'lastRunTime';
 	        $scope.paginationParams.sortOrder = 'desc';
+	        angular.extend(botLibraryUIGridDefaults.gridOption, {enableRowSelection: true,
+                    enableSelectAll: true,
+                    selectionRowHeaderWidth: 35,multiSelect:true,enableRowHeaderSelection: true
+            });
             $scope.initGrids = function(){
-	            $scope.botLibGridOptions={};
-	            $scope.botLibGridOptions.columnDefs= [
-	                { name:'BOT Name', field:'category' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.category==\'Active Directory\'" alt="row.entity.category" title="Active Directory" class="task-type-img" />'+
-	                    '<img src="images/bots/userManagement.png" ng-show="row.entity.category==\'User Management\'" alt="row.entity.category" title="User Management" class="task-type-img" />'+
-	                    '<img src="images/bots/applicationDeployment.png" ng-show="row.entity.category==\'Application Deployment\' || row.entity.category==\'Application Management\'" alt="row.entity.category" title="Application Deployment" class="task-type-img" />'+
-	                    '<img src="images/bots/installation.png" ng-show="row.entity.category==\'Installation\'" alt="row.entity.category" title="Installation" class="task-type-img" />'+
-	                    '<img src="images/bots/monitoring.png" ng-show="row.entity.category==\'Monitoring\'" alt="row.entity.category" title="Monitoring" class="task-type-img" />'+
-	                    '<img src="images/bots/openDJ.png" ng-show="row.entity.category==\'OpenDJ LDAP\'" alt="row.entity.category" title="OpenDJ-LDAP" class="task-type-img" />'+
-	                    '<img src="images/bots/serviceManagement.png" ng-show="row.entity.category==\'Service Management\'" alt="row.entity.category" title="Service Management" class="task-type-img" />'+
-	                    '<img src="images/bots/upgrade.png" ng-show="row.entity.category==\'Upgrade\'" alt="row.entity.category" title="Upgrade" class="task-type-img" />',cellTooltip: true},
-	                { name: 'BOT ID',displayName: 'Name',field:'name',cellTooltip: true},
-	                { name: 'Type',displayName: 'Type',field:'id',cellTooltip: true},
-	                { name: 'Description',field:'desc',cellTooltip: true},
-	             //   { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
-	                { name: 'Category',field:'orgName',cellTooltip: true},
-	                { name: 'Last Run',field:'lastRunTime ',cellTemplate:'<span title="{{row.entity.lastRunTime  | timestampToLocaleTime}}">{{row.entity.lastRunTime  | timestampToLocaleTime}}</span>', cellTooltip: true},
-	                { name: 'Saved Time',field:'savedTime', cellTemplate:'<span title="{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m">{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m</span>', cellTooltip: true},
-	                { name: 'Total Runs',field:'executionCount'},
-	                   { name: 'BOT Action',width:100,displayName: 'Action',cellTemplate:'<a title="Execute"><i class="fa fa-play font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
-	                }
+	            $scope.botSyncGrid={};
+	            $scope.botSyncGrid.columnDefs= [
+	                { name: 'BOT Name',displayName:'BOT Name',field:'name',cellTooltip: true},
+	                { name: 'BOT Id',displayName:'BOT Id',field:'id',cellTooltip: true},
+	                { name: 'BOT Type',displayName:'BOT Type',field:'type',cellTooltip: true},
+	                { name: 'Status',field:'status',cellTemplate:'<span ng-show="row.entity.status==\'new\'" class="materialGreen">New</span>' + '<span ng-show="row.entity.status==\'updated\'" class="materialBlue">Updated</span>' + '<span ng-show="row.entity.status==\'deleted\'" class="materialRed">Deleted</span>', cellTooltip: true},
+	                { name: 'Category',field:'category', cellTooltip: true},
+	                { name: 'Scheduled',field:'scheduled', cellTooltip: true}
 	            ];
-	            $scope.botLibGridOptions.data=[];
-	            angular.extend($scope.botLibGridOptions,botLibraryUIGridDefaults.gridOption);
+	            $scope.botSyncGrid.data=[];
+	            angular.extend($scope.botSyncGrid,botLibraryUIGridDefaults.gridOption);
 	        };
         	$scope.initGrids();
+
+        	/*APIs registered are triggered as ui-grid is configured 
+	        for server side(external) pagination.*/
+	        angular.extend($scope.botSyncGrid,botLibraryUIGridDefaults.gridOption, {
+	            onRegisterApi :function(gridApi) {
+	                $scope.gridApi = gridApi;
+	                $scope.botId = [];
+	                gridApi.selection.on.rowSelectionChanged($scope,function(row){
+                        if(row.isSelected){
+                            $scope.botId.push(row.entity.id);
+                        } else {
+                            $scope.botId.splice(row.entity.id,1);
+                        }
+
+                    });
+                    gridApi.selection.on.rowSelectionChangedBatch($scope,function(rows){
+                        angular.forEach(rows,function(row){
+                            if(row.isSelected){
+                                $scope.botId.push(row.entity.id);
+                            } else {
+                                $scope.botId.splice(row.entity.id,1);
+                            }
+                        });
+                    });
+	                gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+	                    if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
+	                        $scope.paginationParams.sortBy = sortColumns[0].field;
+	                        $scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
+	                        $scope.botServiceNowLibraryGridView();
+	                    }
+	                });
+	                //Pagination for page and pageSize
+	                gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+	                    $scope.paginationParams.page = newPage;
+	                    $scope.paginationParams.pageSize = pageSize;
+	                    $scope.currentCardPage = newPage;
+	                    $scope.botSyncGridView();
+	                });
+	            }
+	        });
+
+			$scope.botSyncGridView = function() {
+				$scope.isBotSyncPageLoading = true;
+	            botsCreateService.getGitHubSyncDetails().then(function (result) {
+                    $scope.botSyncGrid.data =  result.botsData;
+                    $scope.botSyncGrid.totalItems = result.metaData;
+                    $scope.isBotTimeSavedPageLoading = false;
+                    $scope.isBotSyncPageLoading = false;
+	            });
+			}
+			$scope.botSyncGridView();
         }
     ]);
 })(angular);
