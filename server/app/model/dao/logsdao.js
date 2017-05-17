@@ -21,15 +21,48 @@ var logger = require('_pr/logger')(module);
 
 var Schema = mongoose.Schema;
 var LogSchema = new Schema({
-    referenceId: [String],
-    err: Boolean,
-    log: String,
-    timestamp: Number
+    instanceId: {
+        type:String,
+        required:false,
+        trim:true
+    },
+    instanceRefId: {
+        type:String,
+        required:false,
+        trim:true
+    },
+    botId: {
+        type:String,
+        required:false,
+        trim:true
+    },
+    botRefId: {
+        type:String,
+        required:false,
+        trim:true
+    },
+    referenceId:{
+        type:[String],
+        required:false
+    },
+    err: {
+        type:Boolean,
+        default:false,
+        trim:true
+    },
+    log: {
+        type:String,
+        required:true,
+        trim:true
+    },
+    timestamp: {
+        type:Number,
+        required:false,
+        default:Date.now()
+    }
 });
 var Logs = mongoose.model('logs', LogSchema);
-
 var LogsDao = function() {
-
     this.insertLog = function(logData, callback) {
         var log = new Logs(logData);
         log.save(function(err, data) {
@@ -44,77 +77,17 @@ var LogsDao = function() {
                 callback(null, data);
             }
         });
-
     };
 
-    this.getLogsByReferenceId = function(referenceId, timestamp, callback) {
-        logger.debug("Enter getLogsByReferenceId ", referenceId, timestamp);
-        var queryObj = {
-            referenceId: {
-                $in: [referenceId]
-            }
-        }
-
-        if (timestamp) {
-
-            queryObj.timestamp = {
-                "$gt": timestamp
-            };
-        }
-
-        Logs.find(queryObj, function(err, data) {
-            if (err) {
-                logger.debug("Failed to getLogsByReferenceId ", referenceId, timestamp, err);
-                callback(err, null);
-                return;
-            }
-            logger.debug("Exit getLogsByReferenceId ", referenceId, timestamp);
-            callback(null, data);
-        });
-
-    }
-
-    this.getLogsByReferenceIdAndTimestamp = function(referenceId, timestampStarted, timestampEnded, callback) {
-        var queryObj = {
-            referenceId: {
-                $in: [referenceId]
-            }
-        }
-        if (timestampStarted) {
-            queryObj.timestamp = {
-                "$gt": timestampStarted
-            };
-            if (timestampEnded) {
-                queryObj.timestamp.$lte = timestampEnded
-            }
-        }
+    this.getLogsDetails = function(queryObj, callback) {
         Logs.find(queryObj, function(err, data) {
             if (err) {
                 callback(err, null);
                 return;
             }
             callback(null, data);
+            return;
         });
-
-    }
-
-    this.getLogsByActionId = function(referenceId, callback) {
-        logger.debug("Enter getLogsByReferenceId ", referenceId);
-        var queryObj = {
-            referenceId: {
-                $in: [referenceId]
-            }
-        }
-
-        Logs.find(queryObj, function(err, data) {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-
-            callback(null, data);
-        });
-
     }
 }
 

@@ -21,6 +21,8 @@ var async = require("async");
 var settingWizard = require('_pr/model/setting-wizard');
 var appConfig = require('_pr/config');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var configDao = require('_pr/model/d4dmasters/configmgmt.js');
 
 const errorType = 'settingsService';
 
@@ -484,6 +486,31 @@ settingsService.getOrgUserFilter =  function getOrgUserFilter(userName,callback)
             }else{
                 next({code:400,message:"No data is found in DB against user:"+userName},null);
             }
+        },
+        function(orgIds,next){
+            if(orgIds.length > 0){
+                d4dModelNew.d4dModelMastersOrg.find({
+                    id: "1",
+                    active: true,
+                    rowid:{$in:orgIds}
+                },next)
+            }else{
+                d4dModelNew.d4dModelMastersOrg.find({
+                    id: "1",
+                    active: true
+                },next)
+            }
+        },
+        function(orgDetailList,next){
+            var orgIds = [];
+            orgDetailList.forEach(function(org){
+                if(org.rowid && org.rowid !== null){
+                    if(orgIds.indexOf(org.rowid) < 0) {
+                        orgIds.push(org.rowid);
+                    }
+                }
+            });
+            next(null,orgIds);
         }
     ],function(err,results){
         if(err){
@@ -494,6 +521,158 @@ settingsService.getOrgUserFilter =  function getOrgUserFilter(userName,callback)
         }
 
     })
+}
+
+settingsService.getSettingDetailsById=  function getSettingDetailsById(id,userName,source,orgId,callback){
+    if(orgId !== null && id !== '1'){
+        async.waterfall([
+            function(next){
+                configDao.getDBModelFromID(id,next);
+            },
+            function(dbType,next){
+                eval('d4dModelNew.' + dbType).find({
+                    id:id,
+                    orgname_rowid: {$in:[orgId]}
+                },next);
+            }
+        ],function(err,results){
+            if(err){
+                logger.error(err);
+                return callback(err,null);
+            }else{
+                return callback(null,results);
+            }
+
+        })
+    }else {
+        var dbType = '',userCheck = true;
+        async.waterfall([
+            function(next){
+                configDao.getDBModelFromID(id,next);
+            },
+            function (collectionName,next) {
+                dbType = collectionName
+                d4dModelNew.d4dModelMastersUsers.find({
+                    loginname: userName,
+                    id:'7'
+                },next)
+            },
+            function(userDetails,next){
+                if(userDetails.length > 0 && userDetails[0].orgname_rowid[0] === ""){
+                    userCheck = false;
+                    d4dModelNew.d4dModelMastersOrg.find({
+                        id: "1",
+                        active: true
+                    },next)
+                }else if(userDetails.length > 0 && userDetails[0].orgname_rowid[0] !== ""){
+                    d4dModelNew.d4dModelMastersOrg.find({
+                        id: "1",
+                        active: true,
+                        rowid:{$in:userDetails[0].orgname_rowid}
+                    },next)
+                }else{
+                    next({message:"Invalid User.",code:500},null)
+                }
+            },
+            function (orgDetails, next) {
+                var orgIds = [];
+                orgDetails.forEach(function(org){
+                    orgIds.push(org.rowid);
+                });
+                if (orgIds.length > 0 && userCheck ===false) {
+                    if (id === '1') {
+                        next(null,orgDetails);
+                    }else if (id === '6') {
+                        eval('d4dModelNew.' + dbType).find({
+                            id: id,
+                            active: true
+                        },next);
+                    }else if(id === '7'){
+                        eval('d4dModelNew.' + dbType).find({
+                            id: id,
+                            $or: [{
+                                orgname_rowid: {
+                                    $in: orgIds
+                                }
+                            }, {
+                                orgname_rowid: [""]
+                            }],
+                            active:true
+                        },next);
+                    }else if (id === '16' && source ==='design') {
+                        masterUtil.getFilterTemplateTypes(id,orgIds,next)
+                    }else{
+                        eval('d4dModelNew.' + dbType).find({
+                            id: id,
+                            orgname_rowid: {$in:orgIds}
+                        },next);
+                    }
+                } else {
+                    if (id === '1') {
+                        next(null,orgDetails);
+                    }else if (id === '6') {
+                        eval('d4dModelNew.' + dbType).find({
+                            id: id,
+                            active: true
+                        },next);
+                    }else if (id === '7') {
+                        eval('d4dModelNew.' + dbType).find({
+                            orgname_rowid: {
+                                $in: orgIds
+                            },
+                            id: id
+                        },next);
+                    }else if (id === '16' && source ==='design') {
+                        masterUtil.getFilterTemplateTypes(id,orgIds,next);
+                    }else{
+                        eval('d4dModelNew.' + dbType).find({
+                            id: id
+                        },next);
+                    }
+                }
+            },
+            function(masterDataList,next){
+                masterDataList.forEach(function(masterData){
+                    if(masterData.id !== '1' && masterData.orgname && masterData.orgname_rowid[0] !== ''){
+                        masterUtil.getOrgByRowId(masterData.orgname_rowid[0],function(err,orgData){
+                            if(err){
+                                logger.debug("Error in fetching org-details");
+                            }else{
+                                masterData.orgname = [orgData[0].orgname];
+                            }
+                        })
+                    }
+                    if(masterData.productgroupname){
+                        masterUtil.getBusinessGroupName(masterData.productgroupname_rowid,function(err,bgName){
+                            if(err){
+                                logger.debug("Error in fetching bg-details");
+                            }else{
+                                masterData.orgname = bgName;
+                            }
+                        })
+                    }
+                    if(masterData.projectname){
+                        masterUtil.getProjectName(masterData.projectname_rowid,function(err,projectName){
+                            if(err){
+                                logger.debug("Error in fetching project-details");
+                            }else{
+                                masterData.projectname = projectName;
+                            }
+                        })
+                    }
+                });
+                next(null,masterDataList);
+            }
+        ], function (err, results) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, results);
+            }
+
+        })
+    }
 }
 
 function changeArrayToString(list,str){

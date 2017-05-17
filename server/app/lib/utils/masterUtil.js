@@ -451,10 +451,11 @@ var MasterUtil = function () {
     }
 
 
-    this.getFilterTemplateTypes = function (id, callback) {
+    this.getFilterTemplateTypes = function (id,orgIds, callback) {
         var templateTypeList = [];
         d4dModelNew.d4dModelMastersDesignTemplateTypes.find({
-            id: id
+            id: id,
+            orgname_rowid:{$in:orgIds}
         }, function (err, templateTypes) {
             if (err) {
                 callback(err, null);
@@ -1186,7 +1187,7 @@ var MasterUtil = function () {
                 }
                 callback(null, orgList);
             } else {
-                callback(err, null);
+                callback(err, []);
             }
         });
     }
@@ -2210,14 +2211,29 @@ var MasterUtil = function () {
     this.getProjectName = function (projectId, callback) {
         logger.debug("Project rowids: ", projectId);
         d4dModelNew.d4dModelMastersProjects.find({
-            rowid: projectId
+            rowid: projectId,
+            id:'4'
         }, function (err, projects) {
             if (err) {
                 callback(err, null);
-            }
-            if (projects.length) {
-                logger.debug("Got Environment: ", JSON.stringify(projects));
+            }else if (projects.length) {
                 callback(null, projects[0].projectname);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        });
+    }
+    this.getBusinessGroupName = function (bgId, callback) {
+        d4dModelNew.d4dModelMastersProductGroup.find({
+            rowid: bgId,
+            id:'2'
+        }, function (err, bgs) {
+            if (err) {
+                callback(err, null);
+            }else if (bgs.length) {
+                callback(null, bgs[0].productgroupname);
                 return;
             } else {
                 callback(null, null);

@@ -130,7 +130,7 @@
                                             '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = jenkinsGrid;
-                                    } else if (auditType === 'instance_launch' || auditType === 'aws_cf' || auditType === 'docker' || auditType === 'azure_launch' || auditType === 'blueprints') {
+                                    } else if (auditType === 'instance_launch' || auditType === 'aws_cf' || auditType === 'docker' || auditType === 'azure_launch' || auditType === 'blueprints' || auditType === 'blueprint') {
                                         var blueprintGrid = [
                                             { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
                                             { name:'User',field:'user',cellTooltip: true},

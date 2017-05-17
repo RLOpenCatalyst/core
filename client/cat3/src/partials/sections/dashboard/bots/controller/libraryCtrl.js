@@ -269,7 +269,7 @@
 
         $scope.blueprintExecute = function(botsDetails) {
             if(botsDetails){
-                botsCreateService.getBlueprintList(botsDetails.orgId,botsDetails.execution.subtype,botsDetails.execution.name).then(function(response){
+                botsCreateService.getBlueprintList(botsDetails.orgId,botsDetails.subType,botsDetails.execution[0].name).then(function(response){
                     $scope.originalBlueprintList=[];
                     if(response.blueprints.length>0){
                         $scope.originalBlueprintList = response.blueprints;

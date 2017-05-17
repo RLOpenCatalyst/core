@@ -177,8 +177,8 @@
                       {{botsDetails.lastRunTime}} &nbsp;&nbsp;
                 </ul>
                 <div class="pull-right" style="margin-top:8px;">
-                  <a ng-if="botsDetails.type ==='blueprints'" class="margin10 cursor" title="Execute"><i class="fa fa-play font-size-16" ng-click="blueprintExecute(botsDetails)"></i></a>
-                  <a ng-if="botsDetails.type !=='blueprints'" class="margin10 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})" title="Execute"><i class="fa fa-play font-size-16"></i></a>
+                  <a ng-if="botsDetails.type ==='blueprints' || botsDetails.type ==='blueprint'" class="margin10 cursor" title="Execute"><i class="fa fa-play font-size-16" ng-click="blueprintExecute(botsDetails)"></i></a>
+                  <a ng-if="botsDetails.type !=='blueprints' && botsDetails.type !=='blueprint'" class="margin10 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})" title="Execute"><i class="fa fa-play font-size-16"></i></a>
                </div>
             </a>
          </div>

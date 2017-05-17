@@ -196,7 +196,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                     next({code: 400, message: "Invalid Stack name"}, null);
                     return;
                 } else {
-                    resourceMapService.getResourceMapByStackName(stackName, function (err, data) {
+                    resourceMapService.getResourceMapByName(stackName, function (err, data) {
                         if (err) {
                             next(err, null);
                             return;
@@ -213,7 +213,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                     next({code: 400, message: "Invalid Domain name"}, null);
                     return;
                 } else {
-                    resourceMapService.getResourceMapByStackName(domainName, function (err, data) {
+                    resourceMapService.getResourceMapByName(domainName, function (err, data) {
                         if (err) {
                             next(err, null);
                             return;

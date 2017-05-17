@@ -25,12 +25,10 @@ var BotSchema = new Schema ({
         type: String,
         trim: true,
         required: true
-
     },
     id: {
         type: String,
         trim: true,
-        unique: true,
         required: true
     },
     gitHubId: {
@@ -72,6 +70,10 @@ var BotSchema = new Schema ({
         trim: true
     },
     savedTime: {
+        days:{
+            type: Number,
+            default:0
+        },
         hours:{
             type: Number,
             default:0
@@ -79,9 +81,12 @@ var BotSchema = new Schema ({
         minutes:{
             type: Number,
             default:0
+        },
+        seconds:{
+            type: Number,
+            default:0
         }
     },
-    ymlJson:Schema.Types.Mixed,
     execution: Schema.Types.Mixed,
     desc: {
         type: String,
@@ -125,6 +130,18 @@ var BotSchema = new Schema ({
         default: 10
     },
     executionCount: {
+        type: Number,
+        default: 0
+    },
+    successExecutionCount: {
+        type: Number,
+        default: 0
+    },
+    failedExecutionCount: {
+        type: Number,
+        default: 0
+    },
+    srnSuccessExecutionCount: {
         type: Number,
         default: 0
     },
@@ -298,6 +315,7 @@ BotSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
 };
 
 BotSchema.statics.getAllBots = function(queryParam,callback){
+    queryParam.isDeleted = false;
     bot.find(queryParam, function(err, bots) {
         if (err) {
             logger.error(err);

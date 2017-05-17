@@ -1,3 +1,4 @@
+var fileExtension = 'sh';
 function setfilename(val){
     $('#fileNameDisplay').empty();
     var fileName = val.substr(val.lastIndexOf("\\")+1, val.length);
@@ -60,7 +61,7 @@ var validator = $('#scriptForm').validate({
     ignore: [],
     rules: {
         scriptFile: {
-            extension: "sh|py"
+            extension: "sh|py|ps1"
         },
         scriptName: {
             maxlength: 30
@@ -72,7 +73,7 @@ var validator = $('#scriptForm').validate({
     },
     messages: {
         scriptFile: {
-            extension: "Only .sh and .py files can be uploaded"
+            extension: "Only .sh,.py or .ps1 files can be uploaded"
         },
         scriptName: {
             maxlength: "Limited to 30 chars"
