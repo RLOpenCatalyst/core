@@ -23,6 +23,12 @@
                 $scope.getSavedTime();
             });
 
+            $scope.refreshHistoryPage = function() {
+                $scope.taskHistoryListView();
+                $scope.getExecutionTime();
+                $scope.getSavedTime();
+            }
+
             if($scope.templateSelected) {
                 items = $scope.templateSelected; 
             } 
@@ -77,11 +83,11 @@
                 taskHistoryListView : function() {
                     var param = null;
                     var url;
-                    url = '/botsNew/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder;
+                    url = '/bot/' + $scope.botId + '/bot-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder;
                     
                     if($scope.botDetail.serviceNowCheck == true){
                         param = {
-                            url: '/botsNew/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                            url: '/bot/' + $scope.botId + '/bot-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                         };
                     }else{
                         param = {
@@ -104,9 +110,9 @@
                                                 cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
                                             { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                                            { name:'Execution Time (Mins)',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} </span>'},
+                                            
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status == \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
+                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status == \'success\'"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s</span>' +
                                             '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = chefGrid;
@@ -114,13 +120,13 @@
                                         var jenkinsGrid = [
                                             { name:'Job Number',field:'auditTrailConfig.jenkinsBuildNumber',cellTemplate:'<a target="_blank" title="Jenkins" ng-href="{{grid.appScope.botDetail.botConfig.jobURL}}/{{row.entity.auditTrailConfig.jenkinsBuildNumber}}">{{row.entity.auditTrailConfig.jenkinsBuildNumber}}</a>', sort:{ direction: 'desc'}, cellTooltip: true},
                                             { name:'Job Output',cellTemplate:'<span><a target="_blank" title="{{jobResultUrlName}}" class="fa fa-file-text bigger-120 btn cat-btn-update btn-sg tableactionbutton marginbottomright3" ng-repeat="jobResultUrlName in row.entity.auditTrailConfig.jobResultURL" ng-href="{{jobResultUrlName}}"></a></span>',cellTooltip: true},
-                                            { name:'Log Info',width: 90,cellTemplate:'<span title="Jenkins Log" class="fa fa-list bigger-120 btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.historyLogs(row.entity);"></span>',cellTooltip: true},
+                                            { name:'Log Info',width: 90,cellTemplate:'<span title="Jenkins Log" class="fa fa-info-circle cursor" ng-click="grid.appScope.historyLogs(row.entity);"></span>',cellTooltip: true},
                                             { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status.toUpperCase()}}">{{row.entity.status.toUpperCase()}}</div>'},
                                             { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>',cellTooltip: true},
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>',cellTooltip: true},
-                                            { name:'Execution Time (Mins)',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} </span>'},
+                                            
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
+                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status === \'success\'"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s </span>' +
                                             '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = jenkinsGrid;
@@ -132,9 +138,9 @@
                                                 cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
                                             { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                                            { name:'Execution Time (Mins)',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} </span>'},
+                                            
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} </span>' +
+                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status === \'success\'"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s </span>' +
                                             '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = blueprintGrid;
@@ -155,22 +161,8 @@
                     });
                 }
             });
-
-            $scope.getExecutionTime = function(endTime, startTime) {
-                $scope.executionTimeinMS = endTime - startTime;
-                $scope.executionTime = $scope.executionTimeinMS / (60000);
-                return +(Math.round($scope.executionTime + "e+1") + "e-1");
-            };
-            $scope.getSavedTime = function(endTime, startTime) {
-                var executionTime = $scope.getExecutionTime(endTime, startTime);
-                $scope.savedTime = items.manualExecutionTime - executionTime;
-                return $scope.savedTime;
-            };
-
             
             $scope.taskHistoryListView();
-            $scope.getExecutionTime();
-            $scope.getSavedTime();
             
             $scope.historyLogs=function(hist) {
                 if(hist.actionLogId){
@@ -178,25 +170,17 @@
                         actionId : hist.actionLogId,
                         botId: hist.auditId
                     }
-                    $modal.open({
-                        animate: true,
-                        templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
-                        controller: "botsExecutionLogsNewCtrl",
-                        backdrop: 'static',
-                        keyboard: false,
-                        resolve: {
-                            items: function() {
-                                return {
-                                    logDetails : logDetails,
-                                    isBotNew : items.isBotsNew
-                                }
-                            }
-                        }
-                    }).result.then(function() {
-                        console.log('The modal close is not getting invoked currently. Goes to cancel handler');
-                    }, function() {
-                        console.log('Cancel Handler getting invoked');
-                    });
+                    var jenkinsLogDetails = {
+                        jenkinsServerId:hist.actionLogId,
+                        jobName: hist.auditTrailConfig.jenkinsJobName,
+                        buildNumber: hist.auditTrailConfig.jenkinsBuildNumber
+                    }
+                    if(hist.auditCategory === 'jenkins') {
+                        genSevs.showLogsForJenkins(jenkinsLogDetails);    
+                    } else {
+                        genSevs.showLogsForBots(logDetails);
+                    }
+                    
                 } else {
                     toastr.error("Logs are getting generated. Please wait");
                 }

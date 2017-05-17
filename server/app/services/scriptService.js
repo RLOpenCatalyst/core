@@ -20,13 +20,14 @@ var script = require('_pr/model/scripts/scripts');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var fileUpload = require('_pr/model/file-upload/file-upload');
+var settingService = require('_pr/services/settingsService');
 
 
 const errorType = 'scriptService';
 
 var scriptService = module.exports = {};
 
-scriptService.getScriptListWithPagination = function getScriptListWithPagination(reqQuery,callback){
+scriptService.getScriptListWithPagination = function getScriptListWithPagination(reqQuery,userName,callback){
     var reqObj = {};
     async.waterfall(
         [
@@ -41,7 +42,16 @@ scriptService.getScriptListWithPagination = function getScriptListWithPagination
                 apiUtil.databaseUtil(paginationReq, next);
             },
             function (queryObj, next) {
-                script.getScripts(queryObj, next);
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        queryObj.queryObj['orgDetails.id'] = {$in:orgIds};
+                        script.getScriptListWithPagination(queryObj, next);
+                    }else{
+                        script.getScriptListWithPagination(queryObj, next);
+                    }
+                });
             },
             function (scripts, next) {
                 addFileDetailsForScripts(scripts,next);
@@ -52,9 +62,9 @@ scriptService.getScriptListWithPagination = function getScriptListWithPagination
 
         ], function (err, results) {
             if (err){
-                callback(err,null);
+                return callback(err,null);
             }else{
-                callback(null,results);
+                return callback(null,results);
             }
         });
 };
@@ -173,15 +183,21 @@ scriptService.removeScriptById=function removeScriptById(scriptId,callback){
     })
 };
 
-scriptService.getScriptListByType = function getScriptListByType(filterBy,callback){
-    if(filterBy.split(':')[0] === 'scriptType') {
-        var scriptType = filterBy.split(':')[1];
-    }else{
-        var scriptType = 'bash';
-    }
+scriptService.getScriptList = function getScriptList(filterBy,userName,callback){
+    var filterObj = {};
     async.waterfall([
         function(next){
-            script.getScriptByType(scriptType,next);
+            apiUtil.queryFilterBy(filterBy,next);
+        },
+        function(queryObj,next){
+            filterObj = queryObj;
+            settingService.getOrgUserFilter(userName,next);
+        },
+        function(orgIds,next){
+            if(orgIds.length > 0){
+                filterObj['orgDetails.id'] = {$in:orgIds}
+            }
+            script.getScripts(filterObj,next);
         }
     ],function(err,results){
         if (err) {

@@ -59,12 +59,12 @@
                Settings
                </a>
             </li>
-            <li ng-class="{active:tab.isSet('Help')}">
+            <!-- <li ng-class="{active:tab.isSet('Help')}">
                <a ng-click="tab.setTab('Help')">
                <i class="fa fa-question black"></i>&nbsp;
                Help
                </a>
-            </li>
+            </li> -->
          </ul>
       </div>
    </div>
@@ -86,7 +86,7 @@
    <div class="{{tab.isSet('Settings')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.settings.url"></div>
    </div>
-   <div class="{{tab.isSet('Help')? 'show-grid-tab':'hide-grid'}}">
+   <!-- <div class="{{tab.isSet('Help')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.help.url"></div>
-   </div>
+   </div> -->
 </div>

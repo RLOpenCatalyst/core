@@ -163,6 +163,20 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                     });
                     return;
                 }
+                if(launchParams.actionLogId !== null) {
+                    logsDao.insertLog({
+                        referenceId: [launchParams.actionLogId],
+                        err: false,
+                        log: "BOT Execution has started for Blueprint BOT :"+launchParams.bot_id,
+                        timestamp: new Date().getTime()
+                    });
+                    logsDao.insertLog({
+                        referenceId: [launchParams.actionLogId],
+                        err: false,
+                        log: "Stack created name: " + launchParams.stackName +"  id: "+stackData.StackId,
+                        timestamp: new Date().getTime()
+                    });
+                }
                 awsCF.getStack(stackData.StackId, function (err, stack) {
                     if (err) {
                         logger.error("Unable to get stack details", err);
@@ -554,10 +568,10 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 logsDao.insertLog({
                                                                     referenceId: logsReferenceIds,
                                                                     err: false,
-                                                                    log: "Waiting for instance ok state",
+                                                                    log: "Waiting for instance " + instanceName+ " ok state",
                                                                     timestamp: timestampStarted
                                                                 });
-                                                                cftLogger.debug('Waiting for instance ok state');
+                                                                cftLogger.debug('Waiting for instance ' + instanceName+ ' ok state');
                                                                 nodeIdWithActionLogId.push({
                                                                     nodeId: instance.id,
                                                                     actionLogId: actionLog._id
@@ -662,6 +676,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 if (err) {
                                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                                 }
+                                                                                if(launchParams.bot_id !== null) {
+                                                                                    logsDao.insertLog({
+                                                                                        referenceId: logsReferenceIds,
+                                                                                        err: true,
+                                                                                        log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
+                                                                                        timestamp: new Date().getTime()
+                                                                                    });
+                                                                                }
                                                                             });
                                                                         }
                                                                         return;
@@ -724,6 +746,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                                     if (err) {
                                                                                         logger.error("Failed to create or update bots Log: ", err);
+                                                                                    }
+                                                                                    if(launchParams.bot_id !== null) {
+                                                                                        logsDao.insertLog({
+                                                                                            referenceId: logsReferenceIds,
+                                                                                            err: true,
+                                                                                            log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
+                                                                                            timestamp: new Date().getTime()
+                                                                                        });
                                                                                     }
                                                                                 });
                                                                             }
@@ -825,6 +855,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             if (err) {
                                                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                                                             }
+                                                                                            if(launchParams.bot_id !== null) {
+                                                                                                logsDao.insertLog({
+                                                                                                    referenceId: logsReferenceIds,
+                                                                                                    err: true,
+                                                                                                    log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
+                                                                                                    timestamp: new Date().getTime()
+                                                                                                });
+                                                                                            }
                                                                                         });
                                                                                     }
 
@@ -892,10 +930,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                 if (err) {
                                                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                                                 }
-                                                                                                var botService = require('_pr/services/botsService');
-                                                                                                botService.updateSavedTimePerBots(launchParams.botId, launchParams.auditType, function (err, data) {
+                                                                                                var botOldService = require('_pr/services/botOldService');
+                                                                                                botOldService.updateSavedTimePerBots(launchParams.botId,launchParams.auditTrailId, launchParams.auditType, function (err, data) {
                                                                                                     if (err) {
                                                                                                         logger.error("Failed to update bots saved Time: ", err);
+                                                                                                    }
+                                                                                                    if(launchParams.bot_id !== null) {
+                                                                                                        logsDao.insertLog({
+                                                                                                            referenceId: logsReferenceIds,
+                                                                                                            err: false,
+                                                                                                            log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
+                                                                                                            timestamp: new Date().getTime()
+                                                                                                        });
                                                                                                     }
                                                                                                 });
                                                                                             });
@@ -1003,6 +1049,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                                                 if (err) {
                                                                                                     logger.error("Failed to create or update bots Log: ", err);
+                                                                                                }
+                                                                                                if(launchParams.bot_id !== null) {
+                                                                                                    logsDao.insertLog({
+                                                                                                        referenceId: logsReferenceIds,
+                                                                                                        err: true,
+                                                                                                        log: 'BOT Execution is failed for Blueprint BOT:' + launchParams.bot_id,
+                                                                                                        timestamp: new Date().getTime()
+                                                                                                    });
                                                                                                 }
                                                                                             });
                                                                                         }

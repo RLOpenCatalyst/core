@@ -29,7 +29,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var schedulerService = require('_pr/services/schedulerService');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-var botsService = require('_pr/services/botsService.js');
+var botOldService = require('_pr/services/botOldService.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var cronTab = require('node-crontab');
 
@@ -184,7 +184,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     logger.error("Failed to remove history: ", err);
                                 }
                             });
-                            botsService.removeBotsById(req.params.taskId,function(err,botsData){
+                            botOldService.removeBotsById(req.params.taskId,function(err,botsData){
                                 if(err){
                                     logger.error("Failed to delete Bots ", err);
                                 }
@@ -591,7 +591,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (err) {
                                             logger.error(err);
                                         } else {
-                                            botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
+                                            botOldService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
                                                 if (err) {
                                                     logger.error("Error in creating bots entry." + err);
                                                 }
@@ -599,7 +599,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         }
                                     });
                                 }else{
-                                    botsService.removeSoftBotsById(req.params.taskId, function (err, data) {
+                                    botOldService.removeSoftBotsById(req.params.taskId, function (err, data) {
                                         if (err) {
                                             logger.error("Error in updating bots entry." + err);
                                         }
@@ -642,7 +642,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             logger.debug("There is no cron job associated with Task ");
                         }
                         if (task.serviceDeliveryCheck === true) {
-                            botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
+                            botOldService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
                                 if (err) {
                                     logger.error("Error in creating bots entry." + err);
                                 }

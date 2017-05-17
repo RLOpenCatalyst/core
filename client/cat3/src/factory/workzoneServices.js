@@ -320,7 +320,7 @@
 					return $http.post(fullUrl(url), data, Auth.getHeaderObject());
 				},
 				getScriptList: function (scriptType) {
-					var url = '/scripts?filterBy=scriptType:'+scriptType;
+					var url = '/scripts?filterBy=type:'+scriptType;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				updateTask: function (data, id) {

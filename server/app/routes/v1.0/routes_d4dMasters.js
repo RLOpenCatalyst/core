@@ -42,6 +42,7 @@ var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
 var appDeployPipelineService = require('_pr/services/appDeployPipelineService');
 var settingsService = require('_pr/services/settingsService');
+var organizationService = require('_pr/services/organizationService');
 var settingWizard = require('_pr/model/setting-wizard');
 var request = require('request');
 
@@ -790,13 +791,23 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '16') {
                         // For Template
                         logger.debug("Id for templateType: ", req.params.id);
-                        masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch TemplateType.');
-                            }
-                            res.send(JSON.stringify(templateList));
-                            return;
-                        });
+                        if(req.query.source ==='design') {
+                            masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }else{
+                            masterUtil.getTemplateTypes(orgList, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }
                     } else if (req.params.id === '19') {
                         // For ServiceCommand
                         masterUtil.getServiceCommands(orgList, function (err, serviceCommandList) {
@@ -1023,14 +1034,23 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '16') {
                         // For Template
                         logger.debug("Id for templateType: ", req.params.id);
-                        masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch TemplateType.');
-                            }
-                            res.send(JSON.stringify(templateList));
-                            return;
-                        });
-
+                        if(req.query.source ==='design') {
+                            masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }else{
+                            masterUtil.getTemplateTypes(orgList, function (err, templateList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch TemplateType.');
+                                }
+                                res.send(JSON.stringify(templateList));
+                                return;
+                            });
+                        }
                     } else if (req.params.id === '19') {
                         // For ServiceCommand
                         masterUtil.getServiceCommands(orgList, function (err, serviceCommandList) {
@@ -2847,6 +2867,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                             return;
                                                         }
                                                         res.send(200);
+                                                        updateOrgTree(req.session.user.cn,function(err,data){
+                                                            if(err){
+                                                                logger.error("Error in updating orgTree:",err);
+                                                            }
+                                                        });
                                                         return;
                                                     })
                                                 });
@@ -2975,6 +3000,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 res.send(500);
                                                 return;
                                             }
+                                            updateOrgTree(req.session.user.cn,function(err,data){
+                                                if(err){
+                                                    logger.error("Error in updating orgTree:",err);
+                                                }
+                                            });
                                             settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                 if (err) {
                                                     logger.error('Hit getting setting wizard error', err);
@@ -3133,6 +3163,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                             logger.debug('New Master Saved');
                                             logger.debug(req.params.fileinputs == 'null');
                                             if (req.params.id === '21') {
+                                                updateOrgTree(req.session.user.cn,function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in updating orgTree:",err);
+                                                    }
+                                                });
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                     if (err) {
                                                         logger.error('Hit getting setting wizard error', err);
@@ -3152,6 +3187,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 })
                                             }
                                             if (req.params.id === '2') {
+                                                updateOrgTree(req.session.user.cn,function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in updating orgTree:",err);
+                                                    }
+                                                });
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                     if (err) {
                                                         logger.error('Hit getting setting wizard error', err);
@@ -3252,6 +3292,11 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 })
                                             }
                                             if (req.params.id === '3') {
+                                                updateOrgTree(req.session.user.cn,function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in updating orgTree:",err);
+                                                    }
+                                                });
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                     if (err) {
                                                         logger.error('Hit getting setting wizard error', err);
@@ -3310,6 +3355,14 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 } else {
 
                                     // Update settings
+                                    if(req.params.id === '1' || req.params.id === '2' || req.params.id === '3'
+                                        || req.params.id === '4'|| req.params.id === '21' || req.params.id === '7'){
+                                        updateOrgTree(req.session.user.cn,function(err,data){
+                                            if(err){
+                                                logger.error("Error in updating orgTree:",err);
+                                            }
+                                        });
+                                    }
                                     if (req.params.id === '4') {
                                         // bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         delete rowtoedit._id; //fixing the issue of
@@ -4362,3 +4415,22 @@ module.exports.setRoutes = function (app, sessionVerification) {
         });
     });
 };
+
+function updateOrgTree(userName,callback){
+    async.parallel({
+        getTreeNew:function(callback){
+            organizationService.getTreeNew(userName,"d4dmasters",callback);
+        },
+        getTreeForBtv:function(callback){
+            organizationService.getTreeForBtv(userName,"d4dmasters",callback);
+        }
+    },function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}

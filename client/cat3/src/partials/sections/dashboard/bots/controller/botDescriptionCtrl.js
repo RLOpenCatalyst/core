@@ -17,7 +17,6 @@
                 $scope.templateSelected = reqParams;
             });
             //refresh of bots History for current implementation.
-
             if($scope.templateSelected){
                 if($scope.templateSelected.category === 'Active Directory' || $scope.templateSelected.category === 'Database Management') {
                     $scope.botIcon = 'images/bots/activeDirectory.png';
@@ -37,7 +36,6 @@
                     $scope.botIcon = 'images/bots/applicationDeployment.png';
                 }
             }
-
             $scope.launchInstance = function(launch){
                 genSevs.executeTask(launch);
             };
@@ -51,7 +49,7 @@
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
                     var url;
-                    url = '/botsNew/' + bot._id;  
+                    url = '/bot/' + bot._id;
                     var param = {
                         inlineLoader:true,
                         url:url
@@ -67,14 +65,12 @@
                 });
             };
             $scope.botInfo = $scope.templateSelected;
-
             $scope.botSync = function(botsDetails) {
                 $scope.activeClass = botsDetails;
                 botsCreateService.syncIndividualBot(botsDetails.gitHubId,botsDetails.id).then(function(response){
                     $scope.activeClass = {};
                 });
             };
-         
             var botsTab = {
                 tab : "Execute",
                 setTab : function (tabId) {
@@ -107,11 +103,11 @@
                     settings: {
                         "title": "Settings",
                         "url": "src/partials/sections/dashboard/bots/tabs/settings.html"
-                    },
+                    }/*,
                     help: {
                         "title": "Help",
                         "url": "src/partials/sections/dashboard/bots/tabs/help.html"
-                    }
+                    }*/
                 }
             };
             $scope.tab = botsTab;

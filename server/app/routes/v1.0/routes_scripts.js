@@ -31,8 +31,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     app.get('/scripts', function(req, res) {
-        if(req.query.filterBy){
-            scriptService.getScriptListByType(req.query.filterBy,function(err, scripts) {
+        var loggedUser = req.session.user.cn;
+        if(req.query.filterBy && req.query.paginationCheck  && (req.query.paginationCheck === 'false' || req.query.paginationCheck === false)){
+            scriptService.getScriptList(req.query.filterBy,loggedUser,function(err, scripts) {
                 if (err) {
                     res.send(errorResponses.db.error);
                     return;
@@ -42,7 +43,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
             });
         }else {
-            scriptService.getScriptListWithPagination(req.query, function (err, scripts) {
+            scriptService.getScriptListWithPagination(req.query,loggedUser, function (err, scripts) {
                 if (err) {
                     res.send(errorResponses.db.error);
                     return;

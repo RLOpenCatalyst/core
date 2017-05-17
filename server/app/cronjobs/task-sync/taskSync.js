@@ -14,19 +14,11 @@ module.exports = TaskSync;
 function taskSync(){
     logger.debug("Task Sync is started");
     async.parallel({
-        botSync: function (callback) {
-            var query = {
-                auditType: 'BOTs',
-                actionStatus: 'running',
-                isDeleted: false
-            }
-            executeTaskSyncForBotHistory(query, callback);
-        },
-        botNewSync: function (callback) {
-            var query = {
-                auditType: 'BOTsNew',
-                actionStatus: 'running',
-                isDeleted: false
+        botSync  : function(callback){
+            var query={
+                auditType:'BOT',
+                actionStatus:'running',
+                isDeleted:false
             };
             executeTaskSyncForBotHistory(query, callback);
         },

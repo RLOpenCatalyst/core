@@ -30,7 +30,7 @@ var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/1.0/bots.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 
@@ -357,7 +357,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     return;
                 }
                 logger.debug("Task jobResultURL updated");
-                bots.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
+                botOld.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
                     if (err) {
                         logger.error("Unable to update Bots");
                     }
@@ -382,7 +382,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     return;
                 }
                 logger.debug("Chef task updated");
-                bots.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
+                botOld.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
                     if (err) {
                         logger.error("Unable to update Bots");
                     }
@@ -416,7 +416,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             if(taskHistory.id){
                 resultBots.auditHistoryId=taskHistory.id;
             }
-            auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBots,function(err,auditTrail){
+            auditTrailService.updateAuditTrail('BOTOLD',auditTrailId,resultBots,function(err,auditTrail){
                 if (err) {
                 logger.error("Failed to create or update bots Log: ", err);
                 }
@@ -456,13 +456,13 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             resultTaskExecution.auditHistoryId=taskHistory.id;
         }
         if(auditTrailId !== null && resultTaskExecution !== null){
-            auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
+            auditTrailService.updateAuditTrail('BOTOLD',auditTrailId,resultTaskExecution,function(err,auditTrail){
                 if (err) {
                     logger.error("Failed to create or update bots Log: ", err);
                 }
                 if(resultTaskExecution.actionStatus === 'success'){
-                    var botService = require('_pr/services/botsService');
-                    botService.updateSavedTimePerBots(taskHistoryData.taskId,'BOTs',function(err,data){
+                    var botOldService = require('_pr/services/botOldService');
+                    botOldService.updateSavedTimePerBots(taskHistoryData.taskId,auditTrailId,'BOTOLD',function(err,data){
                         if (err) {
                             logger.error("Failed to update bots saved Time: ", err);
                         }

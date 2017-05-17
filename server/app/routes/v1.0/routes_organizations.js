@@ -54,7 +54,9 @@ var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-
 var Cryptography = require('_pr/lib/utils/cryptography');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-var botsService = require('_pr/services/botsService.js');
+var botOldService = require('_pr/services/botOldService.js');
+var organizationService = require('_pr/services/organizationService.js');
+
 
 module.exports.setRoutes = function (app, sessionVerification) {
     /*
@@ -84,340 +86,31 @@ module.exports.setRoutes = function (app, sessionVerification) {
     app.get('/organizations/getTreeNew', function (req, res) {
         logger.debug("Enter get() for /organizations/getTreeNew");
         var loggedInUser = req.session.user.cn;
-        var masterDetailList = [];
-        var orgIds = [];
-        async.waterfall([
-            function (next) {
-                masterUtil.getLoggedInUser(loggedInUser, next);
-            },
-            function (userDetails, next) {
-                if (userDetails.loginname) {
-                    masterUtil.getAllSettingsForUser(loggedInUser, next);
-                } else {
-                    next('Invalid User.', null);
-                }
-            },
-            function (masterDetails, next) {
-                if (masterDetails.length > 0) {
-                    masterDetailList = masterDetails;
-                    d4dModelNew.d4dModelMastersOrg.find({
-                        id: '1',
-                        active: true,
-                        rowid: {
-                            $in: masterDetails[0].orgs
-                        }
-                    }, next)
-                } else {
-                    next('getTeamsOrgBuProjForUser : is null', null);
-                }
-            },
-            function (orgList, next) {
-                if (orgList.length > 0) {
-                    var orgTree = [];
-                    for (var i = 0; i < orgList.length; i++) {
-                        orgIds.push(orgList[i].rowid);
-                        var orgObj = {
-                            name: orgList[i].orgname,
-                            orgid: orgList[i].rowid,
-                            rowid: orgList[i].rowid,
-                            businessGroups: [],
-                            environments: [],
-                        }
-                        orgTree.push(orgObj);
-                        if (orgTree.length === orgList.length) {
-                            next(null, orgTree);
-                        }
-                    }
-                } else {
-                    next(null, orgList);
-                }
-            },
-            function (orgTree, next) {
-                if (orgTree.length > 0) {
-                    var orgCount = 0;
-                    var bgObjList = [];
-                    for (var i = 0; i < orgTree.length; i++) {
-                        (function (org) {
-                            d4dModelNew.d4dModelMastersProductGroup.find({
-                                id: '2',
-                                orgname_rowid: {
-                                    $in: [org.rowid]
-                                },
-                                rowid: {
-                                    $in: masterDetailList[0].bunits
-                                }
-                            }, function (err, bgList) {
-                                if (err) {
-                                    next(err);
-                                } else if (bgList.length > 0) {
-                                    orgCount++;
-                                    for (var j = 0; j < bgList.length; j++) {
-                                        (function (bg) {
-                                            var bgObj = {
-                                                name: bg.productgroupname,
-                                                rowid: bg.rowid,
-                                                projects: []
-                                            }
-                                            syncDesignTreeWithProjectAndEnv(org.rowid, bg.rowid, function (err, data) {
-                                                if (err) {
-                                                    next(err);
-                                                }
-                                                bgObj.projects = data;
-                                                org.businessGroups.push(bgObj);
-                                                bgObjList.push(bgObj);
-                                                if (orgCount === orgTree.length && bgObjList.length === bgList.length) {
-                                                    next(null, orgTree);
-                                                }
-                                            })
-                                        })(bgList[j]);
-                                    }
-                                } else {
-                                    orgCount++;
-                                    if (orgCount === orgTree.length && bgObjList.length === bgList.length) {
-                                        next(null, orgTree);
-                                    }
-                                }
-                            })
-                        })(orgTree[i]);
-                    }
-                } else {
-                    next(null, orgTree);
-                }
-            },
-            function (orgBgProjectTree, next) {
-                if (orgBgProjectTree.length > 0) {
-                    var orgCount = 0;
-                    var envObjList = [];
-                    for (var i = 0; i < orgBgProjectTree.length; i++) {
-                        (function (orgTree) {
-                            orgCount++;
-                            d4dModelNew.d4dModelMastersEnvironments.find({
-                                id: '3',
-                                orgname_rowid: {
-                                    $in: [orgTree.rowid]
-                                }
-                            }, function (err, envList) {
-                                if (err) {
-                                    next(err);
-                                } else if (envList.length > 0) {
-                                    for (var j = 0; j < envList.length; j++) {
-                                        var envObj = {
-                                            name: envList[j].environmentname,
-                                            rowid: envList[j].rowid
-                                        }
-                                        orgTree.environments.push(envObj);
-                                        envObjList.push(envObj);
-                                        if (orgCount === orgBgProjectTree.length && envObjList.length === envList.length) {
-                                            next(null, orgBgProjectTree);
-                                        }
-                                    }
-                                } else {
-                                    orgTree.environments.push('');
-                                    if (orgCount === orgBgProjectTree.length) {
-                                        next(null, orgBgProjectTree);
-                                    }
-                                }
-                            });
-                        })(orgBgProjectTree[i]);
-                    }
-                } else {
-                    next(null, orgBgProjectTree);
-                }
-            }
-        ], function (err, results) {
+        organizationService.getTreeNew(loggedInUser,"organization",function(err,results){
             if (err) {
                 res.status(500).send(err);
+                return;
+            }else {
+                res.status(200).send(results);
+                return;
             }
-            res.status(200).send(results);
-        })
+        });
     });
 
     app.get('/organizations/getTreeForbtv', function (req, res) {
         logger.debug("Enter get() for /organizations/getTreeForbtv");
         var loggedInUser = req.session.user.cn;
-        var masterDetailList = [];
-        var orgIds = [];
-        async.waterfall([
-            function (next) {
-                masterUtil.getLoggedInUser(loggedInUser, next);
-            },
-            function (userDetails, next) {
-                if (userDetails.loginname) {
-                    masterUtil.getAllSettingsForUser(loggedInUser, next);
-                } else {
-                    next('Invalid User.', null);
-                }
-            },
-            function (masterDetails, next) {
-                if (masterDetails.length > 0) {
-                    masterDetailList = masterDetails;
-                    d4dModelNew.d4dModelMastersOrg.find({
-                        id: '1',
-                        active: true,
-                        rowid: {
-                            $in: masterDetails[0].orgs
-                        }
-                    }, next)
-                } else {
-                    next('getTeamsOrgBuProjForUser : is null', null);
-                }
-            },
-            function (orgList, next) {
-                if (orgList.length > 0) {
-                    var orgTree = [];
-                    for (var i = 0; i < orgList.length; i++) {
-                        orgIds.push(orgList[i].rowid);
-                        var orgObj = {
-                            name: orgList[i].orgname,
-                            text: orgList[i].orgname,
-                            rowid: orgList[i].rowid,
-                            href: 'javascript:void(0)',
-                            icon: 'fa fa-building ',
-                            nodes: [],
-                            borderColor: '#000',
-                            businessGroups: [],
-                            selectable: false,
-                            itemtype: 'org',
-                            environments: []
-                        }
-                        orgTree.push(orgObj);
-                        if (orgTree.length === orgList.length) {
-                            next(null, orgTree);
-                        }
-                    }
-                } else {
-                    next(null, orgList);
-                }
-            },
-            function (orgTree, next) {
-                if (orgTree.length > 0) {
-                    var orgCount = 0;
-                    var bgObjList = [];
-                    for (var i = 0; i < orgTree.length; i++) {
-                        (function (org) {
-                            d4dModelNew.d4dModelMastersProductGroup.find({
-                                id: '2',
-                                orgname_rowid: {
-                                    $in: [org.rowid]
-                                },
-                                rowid: {
-                                    $in: masterDetailList[0].bunits
-                                }
-                            },function (err, bgList) {
-                                if (err) {
-                                    next(err);
-                                } else if (bgList.length > 0) {
-                                    orgCount++;
-                                    async.forEach(bgList, function (bg, next0) {
-
-                                        var bgObj = {
-                                            name: bg.productgroupname,
-                                            text: bg.productgroupname,
-                                            rowid: bg.rowid,
-                                            href: 'javascript:void(0)',
-                                            projects: []
-                                        };
-                                        var nodeObj = {
-                                            name: bg.productgroupname,
-                                            text: bg.productgroupname,
-                                            orgname: org.name,
-                                            orgid: org.rowid,
-                                            icon: 'fa fa-fw fa-1x fa-group',
-                                            rowid: bg.rowid,
-                                            borderColor: '#000',
-                                            href: 'javascript:void(0)',
-                                            nodes: [],
-                                            selectable: false,
-                                            itemtype: 'bg',
-                                            projects: []
-                                        };
-                                        org.businessGroups.push(bgObj);
-                                        org.nodes.push(nodeObj);
-                                        bgObjList.push(bgObj);
-                                        syncWorkZoneTreeWithProjectAndEnv(org.rowid, org.name, bg.rowid, bg.productgroupname, function (err, data) {
-                                            if (err) {
-                                                next(err);
-                                            }
-                                            if (data.projectObj) {
-                                                bgObj.projects = data.projectObj;
-                                                nodeObj.projects = data.projectObj;
-                                            }
-                                            if (data.projectNodeObj) {
-                                                nodeObj.nodes = data.projectNodeObj;
-                                            }
-                                            next0();
-                                        });
-                                    }, function (err) {
-                                        if (err) {
-                                            next(err);
-                                        } else {
-                                            next(null, orgTree);
-                                        }
-                                    });
-                                } else {
-                                    orgCount++;
-                                    if (orgCount === orgTree.length && bgObjList.length === bgList.length) {
-                                        next(null, orgTree);
-                                    }
-                                }
-                            });
-                        })(orgTree[i]);
-                    }
-                } else {
-                    next(null, orgTree);
-                }
-            },
-            function (orgBgProjectTree, next) {
-                if (orgBgProjectTree.length > 0) {
-                    var orgCount = 0;
-                    var envObjList = [];
-                    for (var i = 0; i < orgBgProjectTree.length; i++) {
-                        (function (orgTree) {
-                            orgCount++;
-                            d4dModelNew.d4dModelMastersEnvironments.find({
-                                id: '3',
-                                orgname_rowid: {
-                                    $in: [orgTree.rowid]
-                                }
-                            }, function (err, envList) {
-                                if (err) {
-                                    next(err);
-                                } else if (envList.length > 0) {
-                                    for (var j = 0; j < envList.length; j++) {
-                                        var envObj = {
-                                            name: envList[j].environmentname,
-                                            rowid: envList[j].rowid
-                                        };
-                                        orgTree.environments.push(envObj);
-                                        envObjList.push(envObj);
-                                        if (orgCount === orgBgProjectTree.length && envObjList.length === envList.length) {
-                                            next(null, orgBgProjectTree);
-                                        }
-                                    }
-                                } else {
-                                    orgTree.environments.push('');
-                                    if (orgCount === orgBgProjectTree.length) {
-                                        next(null, orgBgProjectTree);
-                                    }
-                                }
-                            })
-                        })(orgBgProjectTree[i]);
-                    }
-                } else {
-                    next(null, orgBgProjectTree);
-                }
-            }
-        ], function (err, results) {
+        organizationService.getTreeForBtv(loggedInUser,"organization",function(err,results){
             if (err) {
                 res.status(500).send(err);
+                return;
+            }else {
+                res.status(200).send(results);
+                return;
             }
-            res.status(200).send(results);
         })
     });
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/blueprints', function (req, res) {
-        logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/blueprints", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-        //getting the list of projects and confirming if user has permission on project
-
         blueprintsDao.getBlueprintsByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, req.query.blueprintType, req.session.user.cn, function (err, data) {
             if (err) {
                 res.send(500);
@@ -425,10 +118,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
             }
             res.send(data);
         });
-
-        logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/blueprints", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
     });
-
 
     app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/blueprints', function (req, res) {
         logger.debug("Enter post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/blueprints", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, req.params.providerId, req.params.imageId);
@@ -686,7 +376,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             bluePrintData.orgName = project[0].orgname;
                             bluePrintData.bgName = project[0].productgroupname;
                             bluePrintData.projectName = project[0].projectname;
-                            botsService.createOrUpdateBots(bluePrintData, 'Blueprint', blueprintType, function (err, botsData) {
+                            botOldService.createOrUpdateBots(bluePrintData, 'Blueprint', blueprintType, function (err, botsData) {
                                 if (err) {
                                     logger.error("Error in creating bots entry. " + err);
                                 } else {
@@ -1046,7 +736,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 }
                                 ;
                                 if (task.serviceDeliveryCheck === true) {
-                                    botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
+                                    botOldService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
                                         if (err) {
                                             logger.error("Error in creating bots entry." + err);
                                         }
@@ -1074,7 +764,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         }
                         ;
                         if (task.serviceDeliveryCheck === true) {
-                            botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
+                            botOldService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
                                 if (err) {
                                     logger.error("Error in creating bots entry." + err);
                                 }
@@ -2324,172 +2014,3 @@ module.exports.setRoutes = function (app, sessionVerification) {
 
 }
 
-
-function syncDesignTreeWithProjectAndEnv(orgId, bgId, callback) {
-    var projectObjList = [];
-    d4dModelNew.d4dModelMastersProjects.find({
-        id: '4',
-        orgname_rowid: {
-            $in: [orgId]
-        },
-        productgroupname_rowid: bgId
-    }, function (err, projectList) {
-        if (err) {
-            callback(err, null);
-            ;
-        } else if (projectList.length > 0) {
-            for (var i = 0; i < projectList.length; i++) {
-                if (projectList[i].environmentname_rowid && projectList[i].environmentname_rowid !== '') {
-                    var envIds = projectList[i].environmentname_rowid.split(',');
-                    var envNames = projectList[i].environmentname.split(',');
-                    var envObjList = [];
-                    for (var j = 0; j < envIds.length; j++) {
-                        envObjList.push({
-                            name: envNames[j],
-                            rowid: envIds[j],
-                        });
-                    }
-                    if (envObjList.length === envIds.length) {
-                        var projectObj = {
-                            name: projectList[i].projectname,
-                            rowId: projectList[i].rowid,
-                            environments: envObjList
-                        }
-                        projectObjList.push(projectObj);
-                        projectObj = {};
-                        if (projectObjList.length === projectList.length) {
-                            callback(null, projectObjList);
-                        }
-                    }
-                } else {
-                    var projectObj = {
-                        name: projectList[i].projectname,
-                        rowId: projectList[i].rowid,
-                        environments: [""]
-                    }
-                    projectObjList.push(projectObj);
-                    projectObj = {};
-                    if (projectObjList.length === projectList.length) {
-                        callback(null, projectObjList);
-                    }
-                }
-
-            }
-        } else {
-            callback(null, projectObjList);
-        }
-    })
-}
-
-function syncWorkZoneTreeWithProjectAndEnv(orgId, orgName, bgId, bgName, callback) {
-    var resultObj = {};
-    var projectObjList = [], projectNodeObjList = [];
-    d4dModelNew.d4dModelMastersProjects.find({
-        id: '4',
-        orgname_rowid: {
-            $in: [orgId]
-        },
-        productgroupname_rowid: bgId
-    }, function (err, projectList) {
-        if (err) {
-            callback(err, null);
-            ;
-        } else if (projectList.length > 0) {
-            for (var i = 0; i < projectList.length; i++) {
-                (function (project) {
-                    if (project.environmentname_rowid && project.environmentname_rowid !== '') {
-                        var envIds = project.environmentname_rowid.split(',');
-                        var envNames = project.environmentname.split(',');
-                        var envNodeList = [], envObjList = [];
-                        for (var j = 0; j < envIds.length; j++) {
-                            envObjList.push({
-                                name: envNames[j],
-                                text: envNames[j],
-                                rowid: envIds[j],
-                            });
-                            envNodeList.push({
-                                text: envNames[j],
-                                href: '#ajax/Dev.html?org=' + orgId + '&bg=' + bgId + '&projid=' + project.rowid + '&envid=' + envIds[j],
-                                orgname: orgName,
-                                orgid: orgId,
-                                rowid: envIds[j],
-                                projname: project.projectname,
-                                bgname: bgName,
-                                itemtype: 'env',
-                                tooltip: envNames[j],
-                                icon: 'fa fa-fw fa-1x fa-desktop'
-                            });
-                        }
-                        if (envNodeList.length === envIds.length && envObjList.length === envIds.length) {
-                            var projectObj = {
-                                name: project.projectname,
-                                text: project.projectname,
-                                rowid: project.rowid,
-                                environments: envObjList
-                            }
-                            var selectable = !!appConfig.features.appcard;
-                            var nodeProjectObj = {
-                                name: project.projectname,
-                                text: project.projectname,
-                                rowid: project.rowid,
-                                orgname: orgName,
-                                orgid: orgId,
-                                bgname: bgName,
-                                icon: 'fa fa-fw fa-1x fa-tasks',
-                                nodes: envNodeList,
-                                borderColor: '#000',
-                                selectable: selectable,
-                                itemtype: 'proj',
-                                href: selectable ? '#ajax/ProjectSummary.html?org=' + orgId + '&bg=' + bgId + '&projid=' + project.rowid : 'javascript:void(0)',
-                                environments: envObjList
-                            }
-                            projectObjList.push(projectObj);
-                            projectNodeObjList.push(nodeProjectObj);
-                            if (projectObjList.length === projectList.length && projectNodeObjList.length === projectList.length) {
-                                resultObj = {
-                                    projectObj: projectObjList,
-                                    projectNodeObj: projectNodeObjList
-                                }
-                                callback(null, resultObj);
-                            }
-                        }
-                    } else {
-                        var projectObj = {
-                            name: project.projectname,
-                            text: project.projectname,
-                            rowid: project.rowid,
-                            environments: [""]
-                        }
-                        var selectable = !!appConfig.features.appcard;
-                        var nodeProjectObj = {
-                            name: project.projectname,
-                            text: project.projectname,
-                            rowid: project.rowid,
-                            orgname: orgName,
-                            orgid: orgId,
-                            bgname: bgName,
-                            icon: 'fa fa-fw fa-1x fa-tasks',
-                            nodes: [],
-                            borderColor: '#000',
-                            selectable: selectable,
-                            itemtype: 'proj',
-                            href: 'javascript:void(0)',
-                            environments: [""]
-                        }
-                        projectObjList.push(projectObj);
-                        projectNodeObjList.push(nodeProjectObj);
-                        if (projectObjList.length === projectList.length && projectNodeObjList.length === projectList.length) {
-                            resultObj = {
-                                projectObj: projectObjList,
-                                projectNodeObj: projectNodeObjList
-                            }
-                            callback(null, resultObj);
-                        }
-                    }
-                })(projectList[i]);
-            }
-        } else {
-            callback(null, resultObj);
-        }
-    })
-}

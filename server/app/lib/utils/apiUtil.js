@@ -48,6 +48,21 @@ var ApiUtil = function() {
             }
         })
     };
+
+    this.writeFile = function(filePath,data,callback){
+        fileIo.writeFile(filePath, JSON.stringify(data), false, function (err) {
+            if (err) {
+                logger.error("Unable to write file");
+                callback(err,null);
+                return;
+            } else {
+                logger.debug("getTreeForNew is Done");
+                callback(null,true);
+                return;
+            }
+        })
+    };
+
     this.createCronJobPattern= function(scheduler){
         scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery);
         var startOn = null,endOn = null;

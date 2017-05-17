@@ -33,8 +33,8 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var usersDao = require('_pr/model/users.js');
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/1.0/bots.js');
-var botsService = require('_pr/services/botsService.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botOldService = require('_pr/services/botOldService.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
@@ -146,7 +146,7 @@ blueprintService.copyBlueprint = function copyBlueprint(blueprintId,masterDetail
                             blueprints.orgName = project[0].orgname;
                             blueprints.bgName = project[0].productgroupname;
                             blueprints.projectName = project[0].projectname;
-                            botsService.createOrUpdateBots(blueprints, 'Blueprint', blueprints.blueprintType,next);
+                            botOldService.createOrUpdateBots(blueprints, 'Blueprint', blueprints.blueprintType,next);
                         } else {
                             logger.debug("Unable to find Project Information from project id:");
                             next(null,blueprints);
@@ -247,7 +247,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                 }
                 if(blueprint.serviceDeliveryCheck === true){
                     var actionObj={
-                        auditType:'BOTs',
+                        auditType:'BOTOLD',
                         auditCategory:'Blueprint',
                         status:'running',
                         action:'BOTs Blueprint Execution',
@@ -264,7 +264,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         nodeIdsWithActionLog:[]
                     };
                     blueprint.envId= reqBody.envId;
-                    bots.getBotsById(blueprint._id,function(err,botData){
+                    botOld.getBotsById(blueprint._id,function(err,botData){
                         if(err){
                             logger.error(err);
                         }else if(botData.length > 0){
@@ -274,7 +274,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                                 lastRunTime:new Date().getTime(),
                                 runTimeParams:reqBody
                             }
-                            bots.updateBotsDetail(blueprint._id,botUpdateObj,function(err,data){
+                            botOld.updateBotsDetail(blueprint._id,botUpdateObj,function(err,data){
                                 if(err){
                                     logger.error("Error while updating Bots Configuration");
                                 }
@@ -337,7 +337,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
 blueprintService.getAllServiceDeliveryBlueprint = function getAllServiceDeliveryBlueprint(queryObj, callback) {
     if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus && queryObj.actionStatus !== null) {
         var query = {
-            auditType: 'BOTs',
+            auditType: 'BOTOLD',
             actionStatus: queryObj.actionStatus,
             auditCategory: 'Blueprint'
         };

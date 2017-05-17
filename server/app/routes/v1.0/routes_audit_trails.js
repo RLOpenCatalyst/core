@@ -48,7 +48,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/audit-trail/bots-summary', function(req,res){
-        auditTrailService.getBOTsSummary(req.query,'BOTs',function(err,botSummary){
+        var loggedUser = req.session.user.cn;
+        auditTrailService.getBOTsSummary(req.query,'BOTOLD',loggedUser,function(err,botSummary){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
@@ -245,6 +246,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 if (err)
                     return res.status(500).send(err);
                 else
+                    return res.status(200).send(results);
+            });
+    }
+
+    app.post('/audit-trail/bot-action/update', updateBOTsAction);
+
+    function updateBOTsAction(req, res, next) {
+        req.body.userName = req.session.user.cn;
+        async.waterfall([
+            function(next) {
+                auditTrailService.updateBOTsAction(req.body, next);
+            }], function(err, results) {
+                if (err) 
+                    return res.status(500).send(err);
+                else 
                     return res.status(200).send(results);
             });
     }

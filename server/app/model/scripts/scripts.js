@@ -74,7 +74,7 @@ var ScriptSchema = new Schema({
 });
 ScriptSchema.plugin(mongoosePaginate);
 
-ScriptSchema.statics.getScripts = function(query,callback) {
+ScriptSchema.statics.getScriptListWithPagination = function(query,callback) {
     this.paginate(query.queryObj, query.options,
         function(err, scripts) {
         if (err) {
@@ -158,10 +158,8 @@ ScriptSchema.statics.removeScriptById = function(scriptId, callback) {
     });
 };
 
-ScriptSchema.statics.getScriptByType = function(scriptType, callback) {
-    this.find({
-        "type": scriptType
-    }, function(err, scripts) {
+ScriptSchema.statics.getScripts = function(queryObj, callback) {
+    this.find(queryObj, function(err, scripts) {
         if (err) {
             callback(err, null);
         }else{

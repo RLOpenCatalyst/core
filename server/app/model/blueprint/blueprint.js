@@ -345,6 +345,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             monitor: monitor,
                             auditTrailId: opts.auditTrailId,
                             botId: opts.botId,
+                            bot_id: opts.bot_id,
                             auditType:opts.auditType,
                             actionLogId:opts.actionLogId
                         };
@@ -796,7 +797,6 @@ BlueprintSchema.statics.removeByIds = function (ids, callback) {
     });
 
 };
-
 var findBlueprintVersionObject = function (blueprints, parentId) {
     var versions = [];
     logger.debug('Entering getBlueprintVersionObject', parentId);

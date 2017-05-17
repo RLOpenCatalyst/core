@@ -19,13 +19,13 @@
 // This file act as a Util class which contains Settings related all business logics.
 
 var logger = require('_pr/logger')(module);
-var d4dModelNew = require('../../model/d4dmasters/d4dmastersmodelnew.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var ObjectId = require('mongoose').Types.ObjectId;
-var permissionsetDao = require('../../model/dao/permissionsetsdao');
-var d4dModel = require('../../model/d4dmasters/d4dmastersmodel.js');
-var configmgmtDao = require('../../model/d4dmasters/configmgmt.js');
+var permissionsetDao = require('_pr/model/dao/permissionsetsdao');
+var d4dModel = require('_pr/model/d4dmasters/d4dmastersmodel.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
-var Cryptography = require('../utils/cryptography');
+var Cryptography = require('_pr/lib/utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');

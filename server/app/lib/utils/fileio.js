@@ -113,7 +113,6 @@ module.exports.writeFile = function(path, data, encoding, callback) {
 
 module.exports.exists = function(path, callback) {
     fs.exists(path, function(exists, err) {
-        logger.debug(exists, err);
         if (exists) {
             callback(exists);
         } else {
