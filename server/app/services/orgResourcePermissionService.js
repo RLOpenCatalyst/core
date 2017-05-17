@@ -2,6 +2,7 @@ var orgResourcePermission = require('_pr/model/org-resource-permission/orgResour
 var logger = require('_pr/logger')(module);
 var async = require('async');
 var botDao = require('_pr/model/bots/1.1/bot.js');
+var botService = require('_pr/services/botService.js');
 
 /*function upsertOrgBots(data, cb){
 	logger.debug('adding/updating org bots permission');
@@ -29,7 +30,7 @@ var botDao = require('_pr/model/bots/1.1/bot.js');
 	});
 }*/
 
-function getResourcesByOrgTeam(queryParameters, cb){
+function getResourcesByOrgTeam(queryParameters, actionStatus, serviceNowCheck,cb){
 	
 	var orgId = queryParameters.orgId
 	var teamIds = queryParameters.teamIds;
@@ -45,18 +46,19 @@ function getResourcesByOrgTeam(queryParameters, cb){
 			resourceIds = resourceIds.concat(r.resourceIds);
 		});
 		if ( resourceType === 'bots') {
-			botDao.find({id:{$in:resourceIds}}, function(err, result){
+			queryParameters.resourceIds = resourceIds;
+			botService.getBotListById(queryParameters,actionStatus,serviceNowCheck,function(err,result){
 				
 				if(err){
 					logger.error('Error failed to find bot information for orgId: ' + orgId + ' teamId: ' + teamId + ' err: ' + err);
 					return cb(err, null);
 				}
 				
-				if (queryParameters.searchq) {
+				/*if (queryParameters.searchq) {
 					result = result.filter(function(bot){
 						return bot.name.toLowerCase().indexOf(queryParameters.searchq.toLowerCase()) > -1;
 					});
-				}
+				}*/
 				
 				return cb(null, result);
 			});

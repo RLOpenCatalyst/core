@@ -40,6 +40,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/api/org/:orgId/:resourceType', validate(orgResourcePermValidator.get),getResourcesByOrgTeam);
 	
 	function getResourcesByOrgTeam(req, res, next){
+		var actionStatus = null,serviceNowCheck =false;
+        var loggedUser =  req.session.user.cn;
+        if(req.query.actionStatus && req.query.actionStatus !== null){
+            actionStatus = req.query.actionStatus;
+        }
+        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
+            serviceNowCheck = true;
+        }
 		
 		var queryParameters = {
 			orgId : req.params.orgId,
@@ -50,7 +58,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		if (req.query.searchq) {
 			queryParameters.searchq = req.query.searchq;
 		}
-		orgResourcePermService.getResourcesByOrgTeam(queryParameters, function(err, result){
+		orgResourcePermService.getResourcesByOrgTeam(queryParameters, actionStatus, serviceNowCheck, function(err, result){
 			if( err ){
 				return res.status(500).send(err);
 			}
