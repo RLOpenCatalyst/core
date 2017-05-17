@@ -888,8 +888,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     createdOn: new Date().getTime(),
                     startedOn: new Date().getTime(),
                     providerType: instance[0].providerType ? instance[0].providerType : null,
-                    action: action.charAt(0).toUpperCase() + action.slice(1),
-                    logs: []
+                    action: action.charAt(0).toUpperCase() + action.slice(1)
                 };
 
                 containerService.executeActionOnContainer(jsonData, function (err, containerResponse) {
