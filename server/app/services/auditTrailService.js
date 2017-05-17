@@ -583,8 +583,8 @@ auditTrailService.updateBOTsAction = function updateBOTsAction(reqBody, callback
                             next(err, null);
                             return;
                         }
-                        var botService = require('_pr/services/botsService');
-                        botService.updateSavedTimePerBots(botDetails[0]._id, botAuditTrails[0]._id,'BOT', function (err, data) {
+                        var botOldService = require('_pr/services/botOldService');
+                        botOldService.updateSavedTimePerBots(botDetails[0]._id, botAuditTrails[0]._id,'BOT', function (err, data) {
                             if (err) {
                                 logger.error("Failed to update bots saved Time: ", err);
                                 next(err, null);
