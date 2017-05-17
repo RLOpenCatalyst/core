@@ -5,7 +5,9 @@ var async = require('async');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var taskHistory = require('_pr/model/classes/tasks/taskHistory.js');
 var TaskSync = Object.create(CatalystCronJob);
-TaskSync.interval = '*/1 * * * *';
+var botDao = require('_pr/model/bots/1.1/bot.js');
+
+TaskSync.interval = '*/2 * * * *';
 TaskSync.execute = taskSync;
 var serviceNow = require('_pr/model/servicenow/servicenow.js');
 
@@ -62,13 +64,17 @@ function executeTaskSyncForBotHistory(query,callback){
                             auditTrail.updateAuditTrails(runningBot._id,queryObj,function(err,updatedData){
                                 if(err){
                                     logger.error(err);
-                                }else if(count === runningAuditTrailList.length){
-                                    next(null,runningAuditTrailList);
-                                }else{
-                                    logger.debug("BOTs Sync is going on");
                                 }
-                            })
-
+                                botDao.updateBotsDetail(runningBot.auditId,{lastExecutionStatus:'failed'},function(err,data){
+                                    if(err){
+                                        logger.error("Error in updating Last Execution Status:",err);
+                                    }
+                                    count++;
+                                    if(count === runningAuditTrailList.length){
+                                        next(null,runningAuditTrailList);
+                                    }
+                                });
+                            });
                         }else{
                             count++;
                             if(count === runningAuditTrailList.length) {
@@ -115,10 +121,10 @@ function executeTaskSyncForTaskHistory(query,callback){
                             taskHistory.updateRunningTaskHistory(runningTask._id,queryObj,function(err,updatedData){
                                 if(err){
                                     logger.error(err);
-                                }else if(count === runningTaskHistoryList.length){
-                                    next(null,runningTaskHistoryList);
-                                }else{
-                                    logger.debug("Task Sync is going on");
+                                }
+                                count++;
+                                if(count === runningTaskHistoryList.length) {
+                                    next(null, runningTaskHistoryList);
                                 }
                             })
 
