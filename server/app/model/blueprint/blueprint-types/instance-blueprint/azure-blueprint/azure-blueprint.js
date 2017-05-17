@@ -337,7 +337,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             var timestampStarted = new Date().getTime();
                                             var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                                             var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
-                                            logsDao.insertLog({
+                                            var logData ={
                                                 instanceId:instance._id,
                                                 instanceRefId:actionLog._id,
                                                 botId:launchParams.botId,
@@ -345,8 +345,9 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 err: false,
                                                 log: "Waiting for instance ok state",
                                                 timestamp: timestampStarted
-                                            });
-
+                                            };
+                                            logsDao.insertLog(logData);
+                                            noticeService.updater(launchParams.actionLogId,'log',logData);
                                             var instanceLog = {
                                                 actionId: actionLog._id,
                                                 instanceId: instance.id,
@@ -437,8 +438,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         }
                                                         logger.debug('Instance state Updated');
                                                     });
-
-                                                    logsDao.insertLog({
+                                                    var logData ={
                                                         instanceId:instance._id,
                                                         instanceRefId:actionLog._id,
                                                         botId:launchParams.botId,
@@ -446,8 +446,9 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         err: false,
                                                         log: "Instance Ready..about to bootstrap",
                                                         timestamp: timestampStarted
-                                                    });
-
+                                                    };
+                                                    logsDao.insertLog(logData);
+                                                    noticeService.updater(launchParams.actionLogId,'log',logData);
                                                     instanceLog.status = "running";
                                                     instanceLog.logs = {
                                                         err: false,
@@ -514,8 +515,8 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     }
                                                                 });
 
-                                                                var timestampEnded = new Date().getTime();
-                                                                logsDao.insertLog({
+                                                                var timestampEnded = new Date().getTime();                                                            
+                                                                var logData ={
                                                                     instanceId:instance._id,
                                                                     instanceRefId:actionLog._id,
                                                                     botId:launchParams.botId,
@@ -523,7 +524,9 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     err: true,
                                                                     log: "Bootstrap failed",
                                                                     timestamp: timestampEnded
-                                                                });
+                                                                };
+                                                                logsDao.insertLog(logData);
+                                                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                 instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.actionStatus = "failed";
@@ -564,8 +567,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 });
 
                                                                 var timestampEnded = new Date().getTime();
-
-                                                                logsDao.insertLog({
+                                                                var logData ={
                                                                     instanceId:instance._id,
                                                                     instanceRefId:actionLog._id,
                                                                     botId:launchParams.botId,
@@ -573,7 +575,9 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     err: false,
                                                                     log: "Instance Bootstraped successfully",
                                                                     timestamp: timestampEnded
-                                                                });
+                                                                };
+                                                                logsDao.insertLog(logData);
+                                                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                 instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.actionStatus = "success";
@@ -650,8 +654,8 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                         logger.debug("Instance bootstrap status set to failed");
                                                                     }
                                                                 });
-                                                                var timestampEnded = new Date().getTime();
-                                                                logsDao.insertLog({
+                                                                var timestampEnded = new Date().getTime();                                                                
+                                                                var logData ={
                                                                     instanceId:instance._id,
                                                                     instanceRefId:actionLog._id,
                                                                     botId:launchParams.botId,
@@ -659,7 +663,9 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     err: false,
                                                                     log: "Bootstrap Failed",
                                                                     timestamp: timestampEnded
-                                                                });
+                                                                };
+                                                                logsDao.insertLog(logData);
+                                                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                 instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.actionStatus = "failed";
@@ -690,8 +696,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                                             }
                                                         }, function(stdOutData) {
-
-                                                            logsDao.insertLog({
+                                                            var logData ={
                                                                 instanceId:instance._id,
                                                                 instanceRefId:actionLog._id,
                                                                 botId:launchParams.botId,
@@ -699,8 +704,9 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 err: false,
                                                                 log: stdOutData.toString('ascii'),
                                                                 timestamp: new Date().getTime()
-                                                            });
-
+                                                            };
+                                                            logsDao.insertLog(logData);
+                                                            noticeService.updater(launchParams.actionLogId,'log',logData);
                                                             instanceLog.logs = {
                                                                 err: false,
                                                                 log: stdOutData.toString('ascii'),
@@ -716,8 +722,8 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                                         }, function(stdErrData) {
 
-                                                            //retrying 4 times before giving up.
-                                                            logsDao.insertLog({
+                                                            //retrying 4 times before giving up.                                                        
+                                                            var logData ={
                                                                 instanceId:instance._id,
                                                                 instanceRefId:actionLog._id,
                                                                 botId:launchParams.botId,
@@ -725,8 +731,9 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 err: true,
                                                                 log: stdErrData.toString('ascii'),
                                                                 timestamp: new Date().getTime()
-                                                            });
-
+                                                            };
+                                                            logsDao.insertLog(logData);
+                                                            noticeService.updater(launchParams.actionLogId,'log',logData);
                                                             instanceLog.logs = {
                                                                 err: false,
                                                                 log: stdErrData.toString('ascii'),

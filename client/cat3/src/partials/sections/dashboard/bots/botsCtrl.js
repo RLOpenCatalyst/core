@@ -82,7 +82,25 @@
 					return deferred.promise;
 				}]
 			}
-		});;
+		}).state('dashboard.bots.botsSync', {
+			url: "/botsSync",
+			templateUrl: "src/partials/sections/dashboard/bots/view/botSync.html",
+			controller: "botSyncCtrl as btsSyncCtrl",
+			parameters:{filterView:{botSync:true}},
+			resolve: {
+				auth: ["$q", function ($q) {
+					var deferred = $q.defer();
+					// instead, go to a different page
+					if (modulePerms.serviceBool()) {
+						// everything is fine, proceed
+						deferred.resolve();
+					} else {
+						deferred.reject({redirectTo: 'dashboard'});
+					}
+					return deferred.promise;
+				}]
+			}
+		});
 	}])
 	.controller('botsCtrl',['$scope', '$rootScope', '$state','genericServices', function ($scope, $rootScope, $state, genericServices) {
 		$state.go('dashboard.bots.library');
