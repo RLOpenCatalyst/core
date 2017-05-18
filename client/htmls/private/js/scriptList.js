@@ -60,7 +60,7 @@ var validator = $('#scriptForm').validate({
     ignore: [],
     rules: {
         scriptFile: {
-            extension: "sh|py"
+            extension: "sh|py|ps1"
         },
         scriptName: {
             maxlength: 30
@@ -72,7 +72,7 @@ var validator = $('#scriptForm').validate({
     },
     messages: {
         scriptFile: {
-            extension: "Only .sh and .py files can be uploaded"
+            extension: "Only .sh , ps1 or .py files can be uploaded"
         },
         scriptName: {
             maxlength: "Limited to 30 chars"
