@@ -111,7 +111,9 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails._id, actionId];
-    var replaceTextObj = {};
+    var replaceTextObj = {
+        node:'local'
+    };
     logsDao.insertLog({
         referenceId: logsReferenceIds,
         err: false,
@@ -129,8 +131,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             replaceTextObj[key] = decryptedText;
         });
     } else {
-        for (var j = 0; j < botsScriptDetails.inputFormFields.length; j++) {
-            replaceTextObj[botsScriptDetails.inputFormFields[j].name] = botsScriptDetails.inputFormFields[j].default;
+        for (var j = 0; j < botsScriptDetails.input.length; j++) {
+            replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
         }
     }
     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
@@ -312,7 +314,9 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Password_Based_Authentication";
         }
-        var replaceTextObj = {};
+        var replaceTextObj = {
+            node:instance.instanceIP
+        };
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
         if (botDetails.params.data) {
@@ -321,8 +325,8 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                 replaceTextObj[key] = decryptedText;
             });
         } else {
-            for (var j = 0; j < botDetails.inputFormFields.length; j++) {
-                replaceTextObj[botDetails.inputFormFields[j].name] = botDetails.inputFormFields[j].default;
+            for (var j = 0; j < botDetails.input.length; j++) {
+                replaceTextObj[botDetails.input[j].name] = botDetails.input[j].default;
             }
         }
         
