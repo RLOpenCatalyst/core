@@ -30,6 +30,7 @@ var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
 var cicdDashboardService = require('_pr/services/cicdDashboardService');
+var request = require('request');
 
 var MasterUtil = function () {
     // Return All Orgs specific to User
@@ -832,8 +833,31 @@ var MasterUtil = function () {
                 callback(err, null);
                 return;
             }else{
-                callback(null,remoteServerDetails);
-                return;
+                var options = {
+                    url: "http://"+remoteServerDetails["hostIP"]+":"+remoteServerDetails["hostPort"],
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                request.get(options,function(err,response,body){
+                    if(err){
+                        logger.error("Unable to connect remote server");
+                        d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                            orgname_rowid: orgId,
+                            id:'32',
+                            active:true
+                        }, {$set:{active:false}}, function (err, data) {
+                            if (err) {
+                                logger.error('Hit Update error', err);
+                            }
+                            callback(null,null);
+                            return;
+                        });
+                    }else{
+                        callback(null,remoteServerDetails);
+                        return;
+                    }
+                });
             }
         });
     }

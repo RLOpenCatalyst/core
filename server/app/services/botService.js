@@ -32,9 +32,9 @@ var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
+var commonService = require('_pr/services/commonService');
 
 const fileHound= require('filehound');
-const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
 
 const errorType = 'botService';
@@ -42,83 +42,24 @@ const errorType = 'botService';
 var botService = module.exports = {};
 
 botService.createNew = function createNew(reqBody,callback) {
-    fileUpload.getReadStreamFileByFileId(reqBody.fileId, function (err, fileDetail) {
+    commonService.convertJson2Yml(reqBody,function(err,ymlData){
         if (err) {
-            logger.error("Error in reading YAML File.");
+            logger.error(err);
             callback(err, null);
             return;
-        } else {
-            var fileName = uuid.v4() + '_' + fileDetail.fileName;
-            var desPath = appConfig.scriptDir + fileName;
-            fileIo.writeFile(desPath, fileDetail.fileData, false, function (err) {
+        }else {
+            botDao.createNew(ymlData, function (err, data) {
                 if (err) {
-                    logger.error("Unable to write file");
+                    logger.error(err);
                     callback(err, null);
                     return;
                 } else {
-                    yamlJs.load(desPath, function (result) {
-                        if (result !== null) {
-                            var paramObj = {};
-                            if (reqBody.type === 'chef') {
-                                paramObj = {
-                                    data: {
-                                        runlist: reqBody.runlist,
-                                        attributes: reqBody.attributes
-                                    }
-                                }
-                            } else if (reqBody.type === 'script') {
-                                paramObj = {
-                                    scriptId: reqBody.scriptId,
-                                    data: reqBody.params
-                                }
-                            } else if (reqBody.type === 'jenkins') {
-                                paramObj = {
-                                    jenkinsServerId: reqBody.jenkinsServerId,
-                                    jenkinsBuildName: reqBody.jenkinsBuildName,
-                                    data: reqBody.params
-                                }
-                            } else {
-                                paramObj = paramObj;
-                            }
-                            var botsObj = {
-                                ymlJson: result,
-                                name: result.name,
-                                id: result.id,
-                                desc: result.desc,
-                                category: reqBody.category,
-                                action: result.action,
-                                execution: result.execution,
-                                type: reqBody.type,
-                                subType: reqBody.subType,
-                                inputFormFields: result.input[0].form,
-                                isParameterized:result.isParameterized?result.isParameterized:false,
-                                outputOptions: result.output,
-                                ymlDocFileId: reqBody.fileId,
-                                orgId: reqBody.orgId,
-                                orgName: reqBody.orgName,
-                                manualExecutionTime: reqBody.standardTime,
-                                params: paramObj,
-                                source: "Catalyst"
-                            }
-                            botDao.createNew(botsObj, function (err, data) {
-                                if (err) {
-                                    logger.error(err);
-                                    callback(err, null);
-                                    removeScriptFile(desPath);
-                                    return;
-                                } else {
-                                    callback(null, data);
-                                    removeScriptFile(desPath);
-                                    return;
-                                }
-                            });
-
-                        }
-                    })
+                    callback(null, data);
+                    return;
                 }
             });
         }
-    });
+    })
 }
 
 botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
