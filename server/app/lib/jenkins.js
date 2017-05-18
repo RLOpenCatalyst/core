@@ -21,8 +21,6 @@ var url = require('url');
 var fs = require('fs');
 var Client = require('node-rest-client').Client;
 
-
-
 var Jenkins = function(options) {
 	var parsedUrl = url.parse(options.url);
 	var jenkinsUrl = parsedUrl.protocol + '//';
@@ -31,7 +29,6 @@ var Jenkins = function(options) {
 		var pass = options.password ? options.password : options.token;
 		jenkinsUrl += ':' + pass + '@';
 	}
-
 	jenkinsUrl += parsedUrl.host + parsedUrl.path;
 	var jenkins = jenkinsApi.init(jenkinsUrl);
 
@@ -70,7 +67,6 @@ var Jenkins = function(options) {
 
 
 	this.buildJobWithParams = function(jobName, params, callback) {
-		
 		jenkins.build(jobName, params, function(err, data) {
 			if (err) {
 				logger.error(err);
@@ -146,7 +142,6 @@ var Jenkins = function(options) {
 	};
 
 	this.updateJob = function(jobName, callback) {
-		//var config = fs.readFileSync("/home/gobinda/Gobinda/config.xml", 'ascii');
 		jenkins.update_job(jobName, function(config) {}, function(err, data) {
 			if (err) {
 				logger.debug("Error while updating job in jenkins: ", err);

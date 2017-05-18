@@ -797,8 +797,6 @@ BlueprintSchema.statics.removeByIds = function (ids, callback) {
     });
 
 };
-
-
 var findBlueprintVersionObject = function (blueprints, parentId) {
     var versions = [];
     logger.debug('Entering getBlueprintVersionObject', parentId);
@@ -810,35 +808,26 @@ var findBlueprintVersionObject = function (blueprints, parentId) {
                 version: blueprints[bpi]["version"],
                 name: blueprints[bpi]["name"]
             });
-            // delete blueprints[bpi];
         }
     }
     for (var bpi = 0; bpi < blueprints.length; bpi++) {
         blueprints[bpi] = JSON.parse(JSON.stringify(blueprints[bpi]));
         if (blueprints[bpi]["_id"] == parentId) {
-            //  versions.push({id:blueprints[bpi]["_id"].toString(),version:"1"});
             blueprints[bpi].versions = versions;
             logger.debug('Found a parentID: for ', parentId, blueprints[bpi].versions);
             break;
         }
     }
     logger.debug('Exiting getBlueprintVersionObject');
-
     return (blueprints);
 }
 
 var consolidateVersionOnBlueprint = function (blueprints) {
-    logger.debug('About to scan: ', blueprints.length);
-    //logger.debug(blueprints);
     for (var bpi = 0; bpi < blueprints.length; bpi++) {
-
         if (blueprints[bpi].parentId) {
             blueprints = findBlueprintVersionObject(blueprints, blueprints[bpi].parentId);
         }
-
     }
-    logger.debug('About to return:');
-    //logger.debug(blueprints);
     for (var bpi = 0; bpi < blueprints.length; bpi++) {
         if (blueprints[bpi].parentId) {
             logger.debug('Found with parent id splising', blueprints[bpi].parentId);
@@ -849,9 +838,7 @@ var consolidateVersionOnBlueprint = function (blueprints) {
     return (blueprints);
 }
 
-
 BlueprintSchema.statics.getBlueprintsByOrgBgProject = function (jsonData, callback) {
-
     var queryObj = {
         orgId: jsonData.orgId,
         bgId: jsonData.bgId,
@@ -860,18 +847,14 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function (jsonData, callba
     if (jsonData.blueprintType) {
         queryObj.templateType = jsonData.blueprintType;
     }
-
     this.find(queryObj, function (err, blueprints) {
         if (err) {
             callback(err, null);
             return;
         }
-        //function will cleanup the blueprint array and inject version object.
         var blueprints1 = consolidateVersionOnBlueprint(blueprints);
         callback(null, blueprints1);
-
     });
-
 };
 
 BlueprintSchema.statics.getBlueprintData= function (jsonData, callback) {
@@ -990,7 +973,6 @@ BlueprintSchema.methods.getCookBookAttributes = function (instance, repoData, ca
                 "applicationNodeIP": instance.instanceIP
             }
         });
-
         nexus.getNexusArtifactVersions(blueprint.nexus.repoId, repoName, groupId, artifactId, function (err, data) {
             if (err) {
                 logger.debug("Failed to fetch Repository from Mongo: ", err);
@@ -1265,34 +1247,26 @@ BlueprintSchema.methods.getCookBookAttributes = function (instance, repoData, ca
                 }
             })
         });
-
         callback(null, attrs);
         return;
     } else {
         var attributeObj = utils.mergeObjects(objectArray);
         callback(null, attributeObj);
         return;
-        /*process.nextTick(function() {
-         callback(null, {});
-         });*/
     }
 };
 
 BlueprintSchema.statics.getBlueprintsByProviderId = function (providerId, callback) {
-    logger.debug("Enter getBlueprintsByProviderId");
     this.find({
         "blueprintConfig.cloudProviderId": providerId
     }, function (err, blueprints) {
         if (err) {
             logger.error(err);
-            logger.debug("Exit getBlueprintsByProviderId with error");
             callback(err, null);
             return;
         } else if (blueprints.length > 0) {
-            logger.debug("Exit getBlueprintsByProviderId with Blueprints present");
             callback(null, blueprints);
         } else {
-            logger.debug("Exit getBlueprintsByProviderId with no Blueprints present");
             callback(null, []);
         }
 
@@ -1329,11 +1303,10 @@ BlueprintSchema.statics.getBlueprintsByProjectIdOrEnvId = function (id, callback
     });
 };
 
-BlueprintSchema.statics.checkBPDependencyByFieldName = function (fieldName, id, callback) {
-    var queryObj = {
-        fieldName: id
-    }
-    Blueprints.find(queryObj, function (err, data) {
+BlueprintSchema.statics.checkBPDependencyByFieldName = function(fieldName,id, callback) {
+    var queryObj = {};
+    queryObj[fieldName] = id;
+    Blueprints.find(queryObj, function(err, data) {
         if (err) {
             callback(err, null);
             return;
@@ -1341,6 +1314,7 @@ BlueprintSchema.statics.checkBPDependencyByFieldName = function (fieldName, id, 
         callback(null, data);
     });
 };
+
 BlueprintSchema.statics.updateBlueprintExecutionCount = function updateBlueprintExecutionCount(blueprintId,count,callback) {
     Blueprints.update({
         "_id": new ObjectId(blueprintId),
@@ -1360,5 +1334,4 @@ BlueprintSchema.statics.updateBlueprintExecutionCount = function updateBlueprint
 };
 
 var Blueprints = mongoose.model('blueprints', BlueprintSchema);
-
 module.exports = Blueprints;

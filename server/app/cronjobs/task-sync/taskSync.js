@@ -5,8 +5,11 @@ var async = require('async');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var taskHistory = require('_pr/model/classes/tasks/taskHistory.js');
 var TaskSync = Object.create(CatalystCronJob);
+var botDao = require('_pr/model/bots/1.1/bot.js');
+
 TaskSync.interval = '*/2 * * * *';
 TaskSync.execute = taskSync;
+var serviceNow = require('_pr/model/servicenow/servicenow.js');
 
 module.exports = TaskSync;
 
@@ -15,36 +18,27 @@ function taskSync(){
     async.parallel({
         botSync  : function(callback){
             var query={
-                auditType:'BOTOLD',
-                actionStatus:'running',
-                isDeleted:false
-            };
-            executeTaskSyncForBotHistory(query,callback);
-        },
-        botNewSync  : function(callback){
-            var query={
                 auditType:'BOT',
                 actionStatus:'running',
                 isDeleted:false
             };
-            executeTaskSyncForBotHistory(query,callback);
+            executeTaskSyncForBotHistory(query, callback);
         },
-        taskSync : function(callback){
-            var query={
-                status:'running'
+        taskSync: function (callback) {
+            var query = {
+                status: 'running'
             };
-            executeTaskSyncForTaskHistory(query,callback);
+            executeTaskSyncForTaskHistory(query, callback);
         }
 
-    },function(err,results){
-        if(err){
-            logger.error("There are some error in Task Sync.",err);
+    },function(err,results) {
+        if (err) {
+            logger.error("There are some error in Task Sync.", err);
             return;
-        }else{
+        } else {
             logger.debug("Task Sync is successfully ended");
             return;
         }
-
     })
 }
 
@@ -70,13 +64,17 @@ function executeTaskSyncForBotHistory(query,callback){
                             auditTrail.updateAuditTrails(runningBot._id,queryObj,function(err,updatedData){
                                 if(err){
                                     logger.error(err);
-                                }else if(count === runningAuditTrailList.length){
-                                        next(null,runningAuditTrailList);
-                                }else{
-                                    logger.debug("BOTs Sync is going on");
                                 }
-                            })
-                            
+                                botDao.updateBotsDetail(runningBot.auditId,{lastExecutionStatus:'failed'},function(err,data){
+                                    if(err){
+                                        logger.error("Error in updating Last Execution Status:",err);
+                                    }
+                                    count++;
+                                    if(count === runningAuditTrailList.length){
+                                        next(null,runningAuditTrailList);
+                                    }
+                                });
+                            });
                         }else{
                             count++;
                             if(count === runningAuditTrailList.length) {
@@ -123,10 +121,10 @@ function executeTaskSyncForTaskHistory(query,callback){
                             taskHistory.updateRunningTaskHistory(runningTask._id,queryObj,function(err,updatedData){
                                 if(err){
                                     logger.error(err);
-                                }else if(count === runningTaskHistoryList.length){
-                                    next(null,runningTaskHistoryList);
-                                }else{
-                                    logger.debug("Task Sync is going on");
+                                }
+                                count++;
+                                if(count === runningTaskHistoryList.length) {
+                                    next(null, runningTaskHistoryList);
                                 }
                             })
 

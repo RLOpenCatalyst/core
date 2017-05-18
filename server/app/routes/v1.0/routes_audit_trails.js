@@ -250,7 +250,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     }
 
-    app.post('/audit-trail/bots-action/update', updateBOTsAction);
+    app.post('/audit-trail/bot-action/update', updateBOTsAction);
 
     function updateBOTsAction(req, res, next) {
         req.body.userName = req.session.user.cn;

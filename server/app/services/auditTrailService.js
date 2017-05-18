@@ -562,7 +562,7 @@ auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,c
 auditTrailService.updateBOTsAction = function updateBOTsAction(reqBody, callback) {
     async.waterfall([
         function(next) {
-            botsDao.getBotsByBotId(reqBody.botId, next);
+            botDao.getBotsByBotId(reqBody.botId, next);
         },
         function(botDetails, next) {
             var resultTaskExecution = {
@@ -571,60 +571,68 @@ auditTrailService.updateBOTsAction = function updateBOTsAction(reqBody, callback
                 "endedOn": new Date().getTime(),
                 "actionLogId": reqBody.actionLogId
             };
-            botAuditTrail.updateBotAuditTrailByActionLogId(reqBody.actionLogId, resultTaskExecution, function(err, data) {
+            auditTrail.getAuditTrails({actionLogId:reqBody.actionLogId},function(err,botAuditTrails) {
                 if (err) {
-                    logger.error("Failed to create or update bots Log: ", err);
-                    next(err, null);
+                    logger.error(err);
+                    callback(err, null);
                     return;
-                }
-                var botService = require('_pr/services/botsService');
-                botService.updateSavedTimePerBots(botDetails[0]._id, 'BOT', function(err, data) {
-                    if (err) {
-                        logger.error("Failed to update bots saved Time: ", err);
-                        next(err, null);
-                        return;
-                    }
-                    var noticeService = require('_pr/services/noticeService.js');
-                    var logsReferenceIds = [botDetails[0]._id, reqBody.actionLogId];
-                    if (reqBody.status === 'failed') {
-                        var logsDao = require('_pr/model/dao/logsdao.js');
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: true,
-                            log: "Error in Executing BOTs " + reqBody.botId,
-                            timestamp: new Date().getTime()
-                        });
-                        noticeService.notice(reqBody.userName, {
-                            title: "BOTs Chef Execution",
-                            body: "Error in Executing BOTs " + reqBody.botId
-                        }, "error", function(err, data) {
+                } else {
+                    botAuditTrail.updateBotAuditTrail(botAuditTrails[0]._id, resultTaskExecution, function (err, data) {
+                        if (err) {
+                            logger.error("Failed to create or update bots Log: ", err);
+                            next(err, null);
+                            return;
+                        }
+                        var botOldService = require('_pr/services/botOldService');
+                        botOldService.updateSavedTimePerBots(botDetails[0]._id, botAuditTrails[0]._id,'BOT', function (err, data) {
                             if (err) {
-                                logger.error("Error in Notification Service, ", err);
+                                logger.error("Failed to update bots saved Time: ", err);
+                                next(err, null);
+                                return;
                             }
-                        });
-                    } else if (reqBody.status === 'success') {
-                        var logsDao = require('_pr/model/dao/logsdao.js');
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: false,
-                            log: reqBody.botId + " is successfully executed on Node",
-                            timestamp: new Date().getTime()
-                        });
-                        noticeService.notice(reqBody.userName, {
-                            title: "BOTs Chef Execution",
-                            body: reqBody.botId + " is successfully executed on Node"
-                        }, "success", function(err, data) {
-                            if (err) {
-                                logger.error("Error in Notification Service, ", err);
+                            var noticeService = require('_pr/services/noticeService.js');
+                            var logsReferenceIds = [botDetails[0]._id, reqBody.actionLogId];
+                            if (reqBody.status === 'failed') {
+                                var logsDao = require('_pr/model/dao/logsdao.js');
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: true,
+                                    log: "Error in Executing BOTs " + reqBody.botId,
+                                    timestamp: new Date().getTime()
+                                });
+                                noticeService.notice(reqBody.userName, {
+                                    title: "BOTs Chef Execution",
+                                    body: "Error in Executing BOTs " + reqBody.botId
+                                }, "error", function (err, data) {
+                                    if (err) {
+                                        logger.error("Error in Notification Service, ", err);
+                                    }
+                                });
+                            } else if (reqBody.status === 'success') {
+                                var logsDao = require('_pr/model/dao/logsdao.js');
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: false,
+                                    log: reqBody.botId + " is successfully executed on Node",
+                                    timestamp: new Date().getTime()
+                                });
+                                noticeService.notice(reqBody.userName, {
+                                    title: "BOTs Chef Execution",
+                                    body: reqBody.botId + " is successfully executed on Node"
+                                }, "success", function (err, data) {
+                                    if (err) {
+                                        logger.error("Error in Notification Service, ", err);
+                                    }
+                                });
                             }
+                            next(null, {
+                                statusCode: 200,
+                                message: reqBody.botId + " is Successfully executed"
+                            });
+                            return;
                         });
-                    }
-                    next(null, {
-                        statusCode: 200,
-                        message: reqBody.botId + " is Successfully executed"
                     });
-                    return;
-                });
+                }
             });
         }
     ], function(err, results) {
