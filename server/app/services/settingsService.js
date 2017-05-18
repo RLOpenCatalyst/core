@@ -484,6 +484,31 @@ settingsService.getOrgUserFilter =  function getOrgUserFilter(userName,callback)
             }else{
                 next({code:400,message:"No data is found in DB against user:"+userName},null);
             }
+        },
+        function(orgIds,next){
+            if(orgIds.length > 0){
+                d4dModelNew.d4dModelMastersOrg.find({
+                    id: "1",
+                    active: true,
+                    rowid:{$in:orgIds}
+                },next)
+            }else{
+                d4dModelNew.d4dModelMastersOrg.find({
+                    id: "1",
+                    active: true
+                },next)
+            }
+        },
+        function(orgDetailList,next){
+            var orgIds = [];
+            orgDetailList.forEach(function(org){
+                if(org.rowid && org.rowid !== null){
+                    if(orgIds.indexOf(org.rowid) < 0) {
+                        orgIds.push(org.rowid);
+                    }
+                }
+            });
+            next(null,orgIds);
         }
     ],function(err,results){
         if(err){
