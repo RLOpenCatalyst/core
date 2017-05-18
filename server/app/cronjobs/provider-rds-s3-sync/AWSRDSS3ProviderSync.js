@@ -6,6 +6,7 @@ var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var async = require('async');
 var resourceService = require('_pr/services/resourceService');
 var s3Model = require('_pr/model/resources/s3-resource');
+var ec2Model = require('_pr/model/resources/instance-resource');
 var rdsModel = require('_pr/model/resources/rds-resource');
 var resourceModel = require('_pr/model/resources/resources');
 var tagsModel = require('_pr/model/tags');
@@ -57,6 +58,9 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
     async.waterfall([
         function (next) {
             async.parallel({
+                ec2: function (callback) {
+                    resourceService.getEC2InstancesInfo(provider,orgName, callback);
+                },
                 s3: function (callback) {
                     resourceService.getBucketsInfo(provider,orgName, callback);
                 },
@@ -73,11 +77,17 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
         },
         function (resources, next) {
             async.parallel({
+                ec2: function (callback) {
+                    saveEC2Data(resources.ec2, callback);
+                },
                 s3: function (callback) {
                     saveS3Data(resources.s3, callback);
                 },
                 rds: function (callback) {
                     saveRDSData(resources.rds, callback);
+                },
+                ec2Delete: function (callback) {
+                    deleteEC2ResourceData(resources.ec2, provider._id, callback);
                 },
                 s3Delete: function (callback) {
                     deleteS3ResourceData(resources.s3, provider._id, callback);
@@ -110,42 +120,50 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
             logger.error(err);
             return;
         } else {
-            logger.info("S3/RDS Data Successfully Added for Provider "+provider.providerName);
+            logger.info("EC2/S3/RDS Data Successfully Added for Provider "+provider.providerName);
             return;
         }
     });
 };
 function saveS3Data(s3Info, callback) {
-    var results = [];
     if(s3Info.length === 0) {
-        return callback(null, results);
+        return callback(null, s3Info);
     }else {
+        var count = 0;
         for (var i = 0; i < s3Info.length; i++) {
             (function (s3) {
-                s3Model.getS3BucketData(s3, function (err, responseBucketData) {
+                var queryObj = {
+                    'masterDetails.orgId':s3.masterDetails.orgId,
+                    'providerDetails.id':s3.providerDetails.id,
+                    'resourceDetails.bucketName':s3.resourceDetails.bucketName
+                }
+                console.log(queryObj);
+                s3Model.getS3BucketData(queryObj, function (err, responseBucketData) {
                     if (err) {
-                        callback(err, null);
+                        logger.error("Error in getting Instance : ",s3.resourceDetails.bucketName);
+                        count++;
+                        if (count === s3Info.length) {
+                            callback(null, s3Info);
+                        }
                     }
-                    if (responseBucketData.length === 0) {
+                    if (responseBucketData.length && responseBucketData.length ===0) {
                         s3Model.createNew(s3, function (err, bucketSavedData) {
                             if (err) {
-                                callback(err, null);
-                            } else {
-                                results.push(bucketSavedData);
+                                logger.error("Error in creating S3 Bucket : ",s3.resourceDetails.bucketName);
                             }
-                            if (results.length === s3Info.length) {
-                                callback(null, results);
+                            count++;
+                            if (count === s3Info.length) {
+                                callback(null, s3Info);
                             }
                         });
                     } else {
-                        s3Model.updateS3BucketData(s3, function (err, bucketUpdatedData) {
+                        s3Model.updateS3BucketData(responseBucketData[0]._id,s3, function (err, bucketUpdatedData) {
                             if (err) {
-                                callback(err, null);
-                            } else {
-                                results.push(bucketUpdatedData);
+                                logger.error("Error in updating S3 Bucket : ",s3.resourceDetails.bucketName);
                             }
-                            if (results.length === s3Info.length) {
-                                callback(null, results);
+                            count++;
+                            if (count === s3Info.length) {
+                                callback(null, s3Info);
                             }
                         });
                     }
@@ -155,41 +173,90 @@ function saveS3Data(s3Info, callback) {
     }
 }
 
-function saveRDSData(rdsInfo, callback) {
-    var results = [];
-    if(rdsInfo.length === 0) {
-        return callback(null, results);
+function saveEC2Data(ec2Info, callback) {
+    if(ec2Info.length === 0) {
+        return callback(null, ec2Info);
     }else {
+        var count = 0;
+        for (var i = 0; i < ec2Info.length; i++) {
+            (function (ec2) {
+                var queryObj = {
+                    'masterDetails.orgId':ec2.masterDetails.orgId,
+                    'providerDetails.id':ec2.providerDetails.id,
+                    'resourceDetails.platformId':ec2.resourceDetails.platformId
+                }
+                ec2Model.getInstanceData(queryObj, function (err, responseInstanceData) {
+                    if (err) {
+                        logger.error("Error in getting Instance : ",ec2.resourceDetails.platformId);
+                        count++;
+                        if (count === ec2Info.length) {
+                            callback(null, ec2Info);
+                        }
+                    }else if (responseInstanceData.length && responseInstanceData.length === 0) {
+                        ec2Model.createNew(ec2, function (err, instanceSavedData) {
+                            if (err) {
+                                logger.error("Error in creating Instance : ",ec2.resourceDetails.platformId);
+                            }
+                            count++;
+                            if (count === ec2Info.length) {
+                                callback(null, ec2Info);
+                            }
+                        });
+                    }else {
+                        ec2Model.updateInstanceData(responseInstanceData._id,ec2, function (err, instanceUpdatedData) {
+                            if (err) {
+                                logger.error("Error in updating Instance : ",ec2.resourceDetails.platformId);
+                            }
+                            count++;
+                            if (count === ec2Info.length) {
+                                callback(null, ec2Info);
+                            }
+                        });
+                    }
+                })
+            })(ec2Info[i]);
+        }
+    }
+}
+
+function saveRDSData(rdsInfo, callback) {
+    if(rdsInfo.length === 0) {
+        return callback(null, rdsInfo);
+    }else {
+        var count = 0;
         for (var i = 0; i < rdsInfo.length; i++) {
             (function (rds) {
-                rdsModel.getRDSData(rds, function (err, responseRDSData) {
+                var queryObj = {
+                    'masterDetails.orgId':rds.masterDetails.orgId,
+                    'providerDetails.id':rds.providerDetails.id,
+                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId
+                }
+                rdsModel.getRDSData(queryObj, function (err, responseRDSData) {
                     if (err) {
-                        callback(err, null);
+                        logger.error("Error in getting RDS DBName : ",rds.resourceDetails.dbiResourceId);
+                        count++;
+                        if (count === rdsInfo.length) {
+                            callback(null, rdsInfo);
+                        }
                     }
-                    if (responseRDSData.length === 0) {
+                    if (responseRDSData.length && responseRDSData.length === 0) {
                         rdsModel.createNew(rds, function (err, rdsSavedData) {
                             if (err) {
-                                callback(err, null);
-                                return;
-                            } else {
-                                results.push(rdsSavedData);
+                                logger.error("Error in creating RDS DBName : ",rds.resourceDetails.dbiResourceId);
                             }
-                            if (results.length === rdsInfo.length) {
-                                callback(null, results);
-                                return;
+                            count++;
+                            if (count === rdsInfo.length) {
+                                callback(null, rdsInfo);
                             }
                         });
                     } else {
-                        rdsModel.updateRDSData(rds, function (err, rdsUpdatedData) {
+                        rdsModel.updateRDSData(responseRDSData[0]._id,rds, function (err, rdsUpdatedData) {
                             if (err) {
-                                callback(err, null);
-                                return;
-                            } else {
-                                results.push(rdsUpdatedData);
+                                logger.error("Error in updating RDS DBName : ",rds.resourceDetails.dbiResourceId);
                             }
-                            if (results.length === rdsInfo.length) {
-                                callback(null, results);
-                                return;
+                            count++;
+                            if (count === rdsInfo.length) {
+                                callback(null, rdsInfo);
                             }
                         });
                     }
@@ -232,12 +299,11 @@ function deleteS3ResourceData(s3Info,providerId, callback) {
                             if (bucketNames.indexOf(s3.resourceDetails.bucketName) === -1) {
                                 resourceModel.deleteResourcesById(s3._id, function (err, data) {
                                     if (err) {
-                                        next(err);
-                                    } else {
-                                        count++;
-                                        if (count === s3Data.length) {
-                                            next(null, data);
-                                        }
+                                        logger.error("Error in deleting S3 Bucket :",s3.resourceDetails.bucketName)
+                                    }
+                                    count++;
+                                    if (count === ec2data.length) {
+                                        next(null, ec2data);
                                     }
                                 })
                             } else {
@@ -250,6 +316,68 @@ function deleteS3ResourceData(s3Info,providerId, callback) {
                     }
                 } else {
                     next(null, bucketNames);
+                }
+            }], function (err, results) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+            return;
+        })
+    }
+}
+
+function deleteEC2ResourceData(ec2Info,providerId, callback) {
+    if(ec2Info.length === 0){
+        resourceModel.deleteResourcesByResourceType('EC2', function (err, data) {
+            if (err) {
+                callback(err,null);
+                return;
+            } else {
+                callback(null,s3Info);
+                return;
+            }
+        });
+    }else {
+        async.waterfall([
+            function (next) {
+                ec2PlatformIdList(ec2Info, next);
+            },
+            function (platformIds, next) {
+                resourceModel.getResourcesByProviderResourceType(providerId, 'EC2', function (err, ec2data) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, ec2data, platformIds);
+                    }
+                });
+            },
+            function (ec2data, platformIds, next) {
+                if (ec2data.length > 0) {
+                    var count = 0;
+                    for (var i = 0; i < ec2data.length; i++) {
+                        (function (ec2) {
+                            if (platformIds.indexOf(ec2.resourceDetails.platformId) === -1) {
+                                resourceModel.deleteResourcesById(ec2._id, function (err, data) {
+                                    if (err) {
+                                       logger.error("Error in deleting EC2 Instance :",ec2.resourceDetails.platformId)
+                                    }
+                                    count++;
+                                    if (count === ec2data.length) {
+                                        next(null, ec2data);
+                                    }
+                                })
+                            } else {
+                                count++;
+                                if (count === ec2data.length) {
+                                    next(null, []);
+                                }
+                            }
+                        })(ec2data[i]);
+                    }
+                } else {
+                    next(null, platformIds);
                 }
             }], function (err, results) {
             if (err) {
@@ -295,12 +423,11 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
                             if (rdsDBResourceIds.indexOf(rds.resourceDetails.dbiResourceId) === -1) {
                                 resourceModel.deleteResourcesById(rds._id, function (err, data) {
                                     if (err) {
-                                        next(err);
-                                    } else {
-                                        count++;
-                                        if (count === rdsData.length) {
-                                            next(null, data);
-                                        }
+                                        logger.error("Error in deleting RDS DBName :",rds.resourceDetails.dbiResourceId)
+                                    }
+                                    count++;
+                                    if (count === ec2data.length) {
+                                        next(null, ec2data);
                                     }
                                 })
                             } else {
@@ -499,18 +626,22 @@ function bucketNameList(s3Info,callback){
     var bucketNames=[];
     for(var i = 0; i < s3Info.length; i++){
         bucketNames.push(s3Info[i].resourceDetails.bucketName);
-        if(bucketNames.length === s3Info.length){
-            callback(null,bucketNames);
-        }
     }
+    callback(null,bucketNames);
 }
 
 function rdsDBResourceIdList(rdsInfo,callback){
     var rdsDBResourceIds=[];
     for(var i = 0; i < rdsInfo.length; i++){
         rdsDBResourceIds.push(rdsInfo[i].resourceDetails.dbiResourceId);
-        if(rdsDBResourceIds.length === rdsInfo.length){
-            callback(null,rdsDBResourceIds);
-        }
     }
+    callback(null,rdsDBResourceIds);
+}
+
+function ec2PlatformIdList(ec2Info,callback){
+    var ec2PlatformIds=[];
+    for(var i = 0; i < ec2Info.length; i++){
+        ec2PlatformIds.push(ec2Info[i].resourceDetails.platformId);
+    }
+    callback(null,ec2PlatformIds);
 }

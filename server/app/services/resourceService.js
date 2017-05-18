@@ -795,22 +795,27 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                         tagInfo[jsonData.Key] = jsonData.Value;
                                     }
                                     var instanceObj = {
-                                        orgId: provider.orgId[0],
-                                        orgName:orgName,
-                                        providerId: provider._id,
-                                        providerType: 'aws',
-                                        providerData: region,
-                                        platformId: instance.InstanceId,
-                                        ip: instance.PublicIpAddress || null,
-                                        hostName:instance.PrivateDnsName,
-                                        os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
-                                        state: instance.State.Name,
-                                        subnetId: instance.SubnetId,
-                                        vpcId: instance.VpcId,
-                                        privateIpAddress: instance.PrivateIpAddress,
+                                        masterDetails: {
+                                            orgId: provider.orgId[0],
+                                            orgName: orgName,
+                                        },
+                                        providerDetails: {
+                                            region:region,
+                                            id:provider._id,
+                                            providerType:'aws'
+                                        },
+                                        resourceDetails:{
+                                            platformId: instance.InstanceId,
+                                            publicIp: instance.PublicIpAddress || null,
+                                            hostName:instance.PrivateDnsName,
+                                            os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
+                                            state: instance.State.Name,
+                                            subnetId: instance.SubnetId,
+                                            vpcId: instance.VpcId,
+                                            privateIp: instance.PrivateIpAddress
+                                        },
                                         tags:tagInfo,
-                                        environmentTag:tagInfo.Environment,
-                                        projectTag:tagInfo.Owner
+                                        resourceType:'EC2'
                                     }
                                     awsInstanceList.push(instanceObj);
                                     instanceObj = {};

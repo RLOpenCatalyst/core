@@ -20,6 +20,7 @@ var mongoose = require('mongoose');
 var BaseResourcesSchema = require('./base-resources');
 var Resources = require('./resources');
 var Schema = mongoose.Schema;
+var ObjectId = require('mongoose').Types.ObjectId;
 
 
 var RDSResourcesSchema = new BaseResourcesSchema({
@@ -127,33 +128,18 @@ RDSResourcesSchema.statics.createNew = function(rdsData,callback){
 };
 
 
-RDSResourcesSchema.statics.updateRDSData = function(rdsData,callback){
-    var queryObj={};
-    queryObj['providerDetails.id'] = rdsData.providerDetails.id;
-    queryObj['resourceType'] = rdsData.resourceType;
-    queryObj['resourceDetails.dbiResourceId'] = rdsData.resourceDetails.dbiResourceId;
-    RDSResources.update(queryObj, {
-        $set: {
-            resourceDetails: rdsData.resourceDetails,
-            tags: rdsData.tags
-        }
-    }, {
-        upsert: false
-    }, function(err, data) {
-        if (err) {
-            logger.error("Failed to updateRDSData", err);
-            callback(err, null);
-        }
-        callback(null, data);
-    });
+RDSResourcesSchema.statics.updateRDSData = function(rdsId,rdsData,callback){
+    RDSResources.update({_id:new ObjectId(rdsId)}, {$set: rdsData}, {upsert: false},
+        function(err, data) {
+            if (err) {
+                logger.error("Failed to updateRDSData", err);
+                callback(err, null);
+            }
+            callback(null, data);
+        });
 };
 
-RDSResourcesSchema.statics.getRDSData = function(rdsData,callback){
-    var queryObj={};
-    queryObj['providerDetails.id'] = rdsData.providerDetails.id;
-    queryObj['resourceType'] = rdsData.resourceType;
-    queryObj['resourceDetails.dbiResourceId'] = rdsData.resourceDetails.dbiResourceId;
-    queryObj['isDeleted']=false;
+RDSResourcesSchema.statics.getRDSData = function(queryObj,callback){
     RDSResources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getRDSData", err);

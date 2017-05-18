@@ -19,9 +19,9 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var BaseResourcesSchema = require('./base-resources');
 var Resources = require('./resources');
+var ObjectId = require('mongoose').Types.ObjectId;
 
-
-var S3ResourcesSchema = new BaseResourcesSchema({
+var InstanceResourcesSchema = new BaseResourcesSchema({
     resourceDetails: {
         platformId: {
             type: String,
@@ -48,17 +48,10 @@ var S3ResourcesSchema = new BaseResourcesSchema({
             required:false,
             trim:true
         },
-        network:{
-            subnet:{
-                type: String,
-                required: false,
-                trim: true
-            },
-            vpc:{
-                type: String,
-                required: false,
-                trim: true
-            }
+        hostName:{
+            type:String,
+            required:false,
+            trim:true
         },
         subnetId: {
             type: String,
@@ -69,31 +62,13 @@ var S3ResourcesSchema = new BaseResourcesSchema({
             type: String,
             required: false,
             trim: true
-        },
-        keyPairId: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        chefNodeName: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        runlist: [{
-            type: String,
-            trim: true
-        }],
-        attributes: [{
-            name: String,
-            jsonObj: {}
-        }],
+        }
     }
 });
 
-S3ResourcesSchema.statics.createNew = function(s3Data,callback){
-    var s3Resource = new S3Resources(s3Data);
-    s3Resource.save(function(err, data) {
+InstanceResourcesSchema.statics.createNew = function(instanceData,callback){
+    var instanceResource = new instanceResources(instanceData);
+    instanceResource.save(function(err, data) {
         if (err) {
             logger.error("createNew Failed", err, data);
             return;
@@ -102,42 +77,28 @@ S3ResourcesSchema.statics.createNew = function(s3Data,callback){
     });
 };
 
-S3ResourcesSchema.statics.updateS3BucketData = function(s3Data,callback){
-    var queryObj={};
-    queryObj['providerDetails.id'] = s3Data.providerDetails.id;
-    queryObj['resourceType'] = s3Data.resourceType;
-    queryObj['resourceDetails.bucketName'] = s3Data.resourceDetails.bucketName;
-    S3Resources.update(queryObj, {
-        $set: {
-            resourceDetails: s3Data.resourceDetails,
-            tags: s3Data.tags
-        }
-    }, {
-        upsert: false
-    }, function(err, data) {
+InstanceResourcesSchema.statics.updateInstanceData = function(instanceId,instanceData,callback){
+    instanceResources.update({_id:new ObjectId(instanceId)}, {$set: instanceData}, {upsert: false},
+        function(err, data) {
         if (err) {
-            logger.error("Failed to updateS3BucketData", err);
+            logger.error("Failed to updateInstanceData", err);
             callback(err, null);
         }
         callback(null, data);
     });
 };
 
-S3ResourcesSchema.statics.getS3BucketData = function(s3Data,callback){
-    var queryObj={};
-    queryObj['providerDetails.id'] = s3Data.providerDetails.id;
-    queryObj['resourceType'] = s3Data.resourceType;
-    queryObj['resourceDetails.bucketName'] = s3Data.resourceDetails.bucketName;
-    queryObj['isDeleted']=false;
-    S3Resources.find(queryObj, function(err, data) {
-        if (err) {
-            logger.error("Failed to getS3BucketData", err);
-            callback(err, null);
-        }
-        callback(null, data);
-    });
+InstanceResourcesSchema.statics.getInstanceData = function(filterBy,callback){
+    instanceResources.find(filterBy,
+        function(err, data) {
+            if (err) {
+                logger.error("Failed to updateInstanceData", err);
+                callback(err, null);
+            }
+            callback(null, data);
+        });
 };
 
 
-var S3Resources = Resources.discriminator('s3Resources', S3ResourcesSchema);
-module.exports = S3Resources;
+var instanceResources = Resources.discriminator('instanceResources', InstanceResourcesSchema);
+module.exports = instanceResources;

@@ -73,7 +73,8 @@ var AWSResourcesSchema = function AWSResources() {
                 type: String,
                 required: false,
                 trim: true
-            }
+            },
+            region: Schema.Types.Mixed
         },
         resourceType:{
             type: String,
@@ -81,11 +82,6 @@ var AWSResourcesSchema = function AWSResources() {
             trim: true
         },
         category:{
-            type: String,
-            required: false,
-            trim: true
-        },
-        subCategory:{
             type: String,
             required: false,
             trim: true
