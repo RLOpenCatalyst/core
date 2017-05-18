@@ -20,9 +20,49 @@ var Schema = mongoose.Schema;
 
 var AWSResourcesSchema = function AWSResources() {
     Schema.apply(this, arguments);
-
     this.add({
-        masterDetails: Schema.Types.Mixed,
+        masterDetails: {
+            orgId: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            orgName: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            bgId: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            bgName: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            projectName: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            projectId: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            envId: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            envName: {
+                type: String,
+                required: false,
+                trim: true
+            }
+        },
         providerDetails: {
             id: {
                 type: String,
@@ -41,6 +81,11 @@ var AWSResourcesSchema = function AWSResources() {
             trim: true
         },
         category:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        subCategory:{
             type: String,
             required: false,
             trim: true
