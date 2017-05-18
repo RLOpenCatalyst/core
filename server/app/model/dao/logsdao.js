@@ -41,6 +41,10 @@ var LogSchema = new Schema({
         required:false,
         trim:true
     },
+    referenceId:{
+        type:[String],
+        required:false
+    },
     err: {
         type:Boolean,
         default:false,

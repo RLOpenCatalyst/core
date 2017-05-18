@@ -163,21 +163,20 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                     });
                     return;
                 }
-                if(launchParams.actionLogId !== null) {
-                    logsDao.insertLog({
+                if(launchParams.actionLogId !== null) {                    
+                    var logData ={
                         botId:launchParams.botId,
                         botRefId: launchParams.actionLogId,
                         err: false,
                         log: "BOT Execution has started for Blueprint BOT :"+launchParams.bot_id,
                         timestamp: new Date().getTime()
-                    });
-                    logsDao.insertLog({
-                        botId:launchParams.botId,
-                        botRefId: launchParams.actionLogId,
-                        err: false,
-                        log: "Stack created name: " + launchParams.stackName +"  id: "+stackData.StackId,
-                        timestamp: new Date().getTime()
-                    });
+                    };
+                    logsDao.insertLog(logData);
+                    noticeService.updater(launchParams.actionLogId,'log',logData);
+                    logData.log = "Stack created name: " + launchParams.stackName +"  id: "+stackData.StackId;
+                    logData.timestamp = new Date().getTime();
+                    logsDao.insertLog(logData);
+                    noticeService.updater(launchParams.actionLogId,'log',logData);
                 }
                 awsCF.getStack(stackData.StackId, function (err, stack) {
                     if (err) {
@@ -566,16 +565,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 instance.id = data._id;
                                                                 var timestampStarted = new Date().getTime();
                                                                 var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
-                                                                var logsReferenceIds = [instance.id, actionLog._id, launchParams.actionLogId];
-                                                                logsDao.insertLog({
+                                                                var logsReferenceIds = [instance.id, actionLog._id, launchParams.actionLogId];                                                                
+                                                                var logData ={
                                                                     instanceId:instance._id,
                                                                     instanceRefId:actionLog._id,
                                                                     botId:launchParams.botId,
                                                                     botRefId: launchParams.actionLogId,
                                                                     err: false,
                                                                     log: "Waiting for instance " + instanceName+ " ok state",
-                                                                    timestamp: timestampStarted
-                                                                });
+                                                                    timestamp: timestampStarted   
+                                                                };
+                                                                logsDao.insertLog(logData);
+                                                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                 cftLogger.debug('Waiting for instance ' + instanceName+ ' ok state');
                                                                 nodeIdWithActionLogId.push({
                                                                     nodeId: instance.id,
@@ -630,16 +631,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                         instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
 
                                                                         });
-                                                                        var timestampEnded = new Date().getTime();
-                                                                        logsDao.insertLog({
+                                                                        var timestampEnded = new Date().getTime();                                                                        
+                                                                        var logData ={
                                                                             instanceId:instance._id,
                                                                             instanceRefId:actionLog._id,
                                                                             botId:launchParams.botId,
                                                                             botRefId: launchParams.actionLogId,
                                                                             err: true,
                                                                             log: "Bootstrap failed",
-                                                                            timestamp: timestampEnded
-                                                                        });
+                                                                            timestamp: timestampEnded                            
+                                                                        };
+                                                                        logsDao.insertLog(logData);
+                                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                         noticeService.notice(launchParams.sessionUser, {
                                                                             title: "Blueprint BOTs Execution",
                                                                             body: "Bootstrap failed"
@@ -674,16 +677,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 if (err) {
                                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                                 }
-                                                                                if(launchParams.bot_id !== null) {
-                                                                                    logsDao.insertLog({
+                                                                                if(launchParams.bot_id !== null) {                                                                                    
+                                                                                    var logData ={
                                                                                         instanceId:instance._id,
                                                                                         instanceRefId:actionLog._id,
                                                                                         botId:launchParams.botId,
                                                                                         botRefId: launchParams.actionLogId,
                                                                                         err: true,
                                                                                         log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
-                                                                                        timestamp: new Date().getTime()
-                                                                                    });
+                                                                                        timestamp: new Date().getTime()                            
+                                                                                    };
+                                                                                    logsDao.insertLog(logData);
+                                                                                    noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                 }
                                                                             });
                                                                         }
@@ -702,16 +707,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     logger.debug("Instance bootstrap status set to failed");
                                                                                 }
                                                                             });
-                                                                            var timestampEnded = new Date().getTime();
-                                                                            logsDao.insertLog({
+                                                                            var timestampEnded = new Date().getTime();                                                                            
+                                                                            var logData ={
                                                                                 instanceId:instance._id,
                                                                                 instanceRefId:actionLog._id,
                                                                                 botId:launchParams.botId,
                                                                                 botRefId: launchParams.actionLogId,
                                                                                 err: true,
                                                                                 log: "Unable to decrpt pem file. Bootstrap failed",
-                                                                                timestamp: timestampEnded
-                                                                            });
+                                                                                timestamp: timestampEnded                           
+                                                                            };
+                                                                            logsDao.insertLog(logData);
+                                                                            noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                             noticeService.notice(launchParams.sessionUser, {
                                                                                 title: "Blueprint BOTs Execution",
                                                                                 body: "Unable to decrpt pem file. Bootstrap failed"
@@ -746,16 +753,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     if (err) {
                                                                                         logger.error("Failed to create or update bots Log: ", err);
                                                                                     }
-                                                                                    if(launchParams.bot_id !== null) {
-                                                                                        logsDao.insertLog({
+                                                                                    if(launchParams.bot_id !== null) {                                                                                
+                                                                                        var logData ={
                                                                                             instanceId:instance._id,
                                                                                             instanceRefId:actionLog._id,
                                                                                             botId:launchParams.botId,
                                                                                             botRefId: launchParams.actionLogId,
                                                                                             err: true,
                                                                                             log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
-                                                                                            timestamp: new Date().getTime()
-                                                                                        });
+                                                                                            timestamp: new Date().getTime()                            
+                                                                                        };
+                                                                                        logsDao.insertLog(logData);
+                                                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                     }
                                                                                 });
                                                                             }
@@ -811,16 +820,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
 
                                                                                     });
-                                                                                    var timestampEnded = new Date().getTime();
-                                                                                    logsDao.insertLog({
+                                                                                    var timestampEnded = new Date().getTime();                                                                                    
+                                                                                    var logData ={
                                                                                         instanceId:instance._id,
                                                                                         instanceRefId:actionLog._id,
                                                                                         botId:launchParams.botId,
                                                                                         botRefId: launchParams.actionLogId,
                                                                                         err: true,
                                                                                         log: "Bootstrap failed",
-                                                                                        timestamp: timestampEnded
-                                                                                    });
+                                                                                        timestamp: timestampEnded                            
+                                                                                    };
+                                                                                    logsDao.insertLog(logData);
+                                                                                    noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                     cftLogger.error("Bootstrap failed");
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                                     noticeService.notice(launchParams.sessionUser, {
@@ -856,7 +867,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                                                             }
                                                                                             if(launchParams.bot_id !== null) {
-                                                                                                logsDao.insertLog({
+                                                                                                var logData ={
                                                                                                     instanceId:instance._id,
                                                                                                     instanceRefId:actionLog._id,
                                                                                                     botId:launchParams.botId,
@@ -864,7 +875,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                     err: true,
                                                                                                     log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
                                                                                                     timestamp: new Date().getTime()
-                                                                                                });
+                                                                                                };
+                                                                                                logsDao.insertLog(logData);
+                                                                                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                             }
                                                                                         });
                                                                                     }
@@ -879,7 +892,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             }
                                                                                         });
                                                                                         var timestampEnded = new Date().getTime();
-                                                                                        logsDao.insertLog({
+                                                                                        var logData ={
                                                                                             instanceId:instance._id,
                                                                                             instanceRefId:actionLog._id,
                                                                                             botId:launchParams.botId,
@@ -887,7 +900,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             err: false,
                                                                                             log: "Instance Bootstraped successfully",
                                                                                             timestamp: timestampEnded
-                                                                                        });
+                                                                                        };
+                                                                                        logsDao.insertLog(logData);
+                                                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                         noticeService.notice(launchParams.sessionUser, {
                                                                                             title: "Blueprint BOTs Execution",
                                                                                             body: "Instance " + instanceData.InstanceId + " is launched  on " + launchParams.envName,
@@ -897,7 +912,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             }
                                                                                         });
                                                                                         cftLogger.debug("Instance Bootstraped successfully");
-                                                                                        logsDao.insertLog({
+                                                                                        var logData ={
                                                                                             instanceId:instance._id,
                                                                                             instanceRefId:actionLog._id,
                                                                                             botId:launchParams.botId,
@@ -905,17 +920,13 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             err: false,
                                                                                             log: "You can access stack using below URL.",
                                                                                             timestamp: timestampEnded
-                                                                                        });
+                                                                                        };
+                                                                                        logsDao.insertLog(logData);
+                                                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                         cftLogger.debug("You can access stack using below URL.");
-                                                                                        logsDao.insertLog({
-                                                                                            instanceId:instance._id,
-                                                                                            instanceRefId:actionLog._id,
-                                                                                            botId:launchParams.botId,
-                                                                                            botRefId: launchParams.actionLogId,
-                                                                                            err: false,
-                                                                                            log: 'http://' + launchParams.stackName + '.rlcatalyst.com',
-                                                                                            timestamp: timestampEnded
-                                                                                        });
+                                                                                        logData.log = 'http://' + launchParams.stackName + '.rlcatalyst.com';
+                                                                                        logsDao.insertLog(logData);
+                                                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                         cftLogger.debug('http://' + launchParams.stackName + '.rlcatalyst.com');
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                                         instanceLog.actionStatus = "success";
@@ -943,7 +954,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                         logger.error("Failed to update bots saved Time: ", err);
                                                                                                     }
                                                                                                     if(launchParams.bot_id !== null) {
-                                                                                                        logsDao.insertLog({
+                                                                                                        var logData ={
                                                                                                             instanceId:instance._id,
                                                                                                             instanceRefId:actionLog._id,
                                                                                                             botId:launchParams.botId,
@@ -951,7 +962,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                             err: false,
                                                                                                             log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
                                                                                                             timestamp: new Date().getTime()
-                                                                                                        });
+                                                                                                        };
+                                                                                                        logsDao.insertLog(logData);
+                                                                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                                     }
                                                                                                 });
                                                                                             });
@@ -1020,7 +1033,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             }
                                                                                         });
                                                                                         var timestampEnded = new Date().getTime();
-                                                                                        logsDao.insertLog({
+                                                                                        var logData ={
                                                                                             instanceId:instance._id,
                                                                                             instanceRefId:actionLog._id,
                                                                                             botId:launchParams.botId,
@@ -1028,7 +1041,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             err: false,
                                                                                             log: "Bootstrap Failed",
                                                                                             timestamp: timestampEnded
-                                                                                        });
+                                                                                        };
+                                                                                        logsDao.insertLog(logData);
+                                                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                         cftLogger.error("Bootstrap Failed");
                                                                                         noticeService.notice(launchParams.sessionUser, {
                                                                                             title: "Blueprint BOTs Execution",
@@ -1059,7 +1074,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                                                 }
                                                                                                  if(launchParams.bot_id !== null && launchParams.bot_id !== 'undefined' && typeof launchParams.bot_id !== 'undefined') {
-                                                                                                    logsDao.insertLog({
+                                                                                                    var logData ={
                                                                                                         instanceId:instance._id,
                                                                                                         instanceRefId:actionLog._id,
                                                                                                         botId:launchParams.botId,
@@ -1067,7 +1082,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                         err: true,
                                                                                                         log: 'BOT Execution is failed for Blueprint BOT:' + launchParams.bot_id,
                                                                                                         timestamp: new Date().getTime()
-                                                                                                    });
+                                                                                                    };
+                                                                                                    logsDao.insertLog(logData);
+                                                                                                    noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                                 }
                                                                                             });
                                                                                         }
@@ -1080,8 +1097,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 }
 
                                                                             }, function (stdOutData) {
-
-                                                                                logsDao.insertLog({
+                                                                                var logData ={
                                                                                     instanceId:instance._id,
                                                                                     instanceRefId:actionLog._id,
                                                                                     botId:launchParams.botId,
@@ -1089,12 +1105,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     err: false,
                                                                                     log: stdOutData.toString('ascii'),
                                                                                     timestamp: new Date().getTime()
-                                                                                });
+                                                                                };
+                                                                                logsDao.insertLog(logData);
+                                                                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                 cftLogger.debug(stdOutData.toString('ascii'));
                                                                             }, function (stdErrData) {
 
                                                                                 //retrying 4 times before giving up.
-                                                                                logsDao.insertLog({
+                                                                                var logData ={
                                                                                     instanceId:instance._id,
                                                                                     instanceRefId:actionLog._id,
                                                                                     botId:launchParams.botId,
@@ -1102,7 +1120,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     err: true,
                                                                                     log: stdErrData.toString('ascii'),
                                                                                     timestamp: new Date().getTime()
-                                                                                });
+                                                                                };
+                                                                                logsDao.insertLog(logData);
+                                                                                noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                 cftLogger.error(stdErrData.toString('ascii'));
                                                                             });
                                                                         });

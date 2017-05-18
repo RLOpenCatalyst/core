@@ -748,7 +748,7 @@ botService.getParticularBotsHistory = function getParticularBotsHistory(botId,hi
     });
 }
 
-botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
+botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,callback){
     async.waterfall([
         function(next){
             botDao.getBotsById(botId,next);
@@ -758,11 +758,6 @@ botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(b
                 var logsDao = require('_pr/model/dao/logsdao.js');
                 var queryObj = {
                     botRefId: historyId
-                }
-                if (timestamp) {
-                    queryObj.timestamp = {
-                        "$gt": timestamp
-                    };
                 }
                 logsDao.getLogsDetails(queryObj,next);
             }else{

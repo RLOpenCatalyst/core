@@ -57,6 +57,9 @@ noticeService.init =function init(io, address) {
                 logger.error(err);  
             })
         })
+        socket.on('leave',function(roomData){
+            socket.leave(roomData);
+        })
         socket.on('disconnect',function(){
             socket.on('leave',function(roomData){
                 socket.leave(roomData);

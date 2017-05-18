@@ -113,7 +113,7 @@
   overflow-y: auto;
 }
 
-#botLibraryPage, #botAuditTrailPage, #botsDescriptionPage, #newBotPage {
+#botLibraryPage, #botAuditTrailPage, #botsDescriptionPage, #newBotPage, #botSyncPage {
   .page-name {
     font-size: 18px;
     margin: 5px 0 5px 36px;
@@ -147,7 +147,7 @@
   }
 }
 
-#botLibraryPage, #botsDescriptionPage, #botAuditTrailPage {
+#botLibraryPage, #botsDescriptionPage, #botAuditTrailPage, #botSyncPage {
   .summary-container {
     width: 96%;
   }
@@ -243,6 +243,10 @@
 
   .bg-blue-glyph {
     color: #2980b9;
+  }
+
+  .yellow-glyph {
+    color: #ffa726;
   }
 
   .font-size-20 {
@@ -626,6 +630,15 @@ body .botDescriptionPage {
   }
 }
 
+.botSync {
+  .badge {
+    margin-right: 2px;  
+    padding: 3px 10px;
+    font-size: 13px;
+    margin-top: 2px;
+  } 
+}
+
 .marginCheck {
   margin-left:34px;
   margin-top:-10px;
@@ -831,7 +844,7 @@ fieldset#editParamPage legend {
 .dashboard-stats__item {
     position: relative;
     overflow: hidden;
-    padding: 30px 20px;
+    padding: 30px 8px;
     margin-bottom: 15px; /*30px*/
     border-radius: 2px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24)
@@ -943,6 +956,14 @@ fieldset#editParamPage legend {
   height: 370px;
 }
 
+.gridHeightSync {
+  height: 505px;
+}
+
+small {
+  color:#fff!important
+}
+
 @media (min-width : 1550px){
     .agent-card .image-cell + * {
       width: 375px;
@@ -996,6 +1017,9 @@ fieldset#editParamPage legend {
     .gridHeightBots {
       height: 650px;
     }
+    .gridHeightSync {
+      height: 800px;
+    }
     .dashboard-stats__title {
       margin: 0;
       text-align: right;
@@ -1014,4 +1038,15 @@ fieldset#editParamPage legend {
       font-size: 22px;
       display: none;
     }
+}
+
+
+#botSyncPage{
+  .ui-grid-row.ng-scope {
+    float: left !important;
+    vertical-align: middle;
+    height: 40px !important;
+    padding: 0px !important;
+    overflow: hidden;
+  }
 }

@@ -26,7 +26,7 @@
                     cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'End Time',field:'endedOn',
                     cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'auditTrailConfig.type'},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'auditTrailConfig.type.toUpperCase()'},
                /* { name:'Task Type',field:'auditTrailConfig.executionType' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.auditTrailConfig.executionType==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
                     '<img src="images/orchestration/jenkins.png" ng-show="row.entity.auditTrailConfig.executionType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
                     '<img src="images/orchestration/script.jpg" ng-show="row.entity.auditTrailConfig.executionType==\'script\'" alt="row.entity.auditTrailConfig.executionType" title="Script" class="task-type-img" />'+
