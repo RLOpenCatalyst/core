@@ -825,14 +825,13 @@ var MasterUtil = function () {
     this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
         d4dModelNew.d4dModelMastersBOTsRemoteServer.findOne({
             orgname_rowid: orgId,
-            id:'32',
-            active:true
+            id:'32'
         }, function(err, remoteServerDetails) {
             if (err){
                 logger.error(err);
                 callback(err, null);
                 return;
-            }else{
+            }else if(remoteServerDetails !== null){
                 var options = {
                     url: "http://"+remoteServerDetails["hostIP"]+":"+remoteServerDetails["hostPort"],
                     headers: {
@@ -844,20 +843,32 @@ var MasterUtil = function () {
                         logger.error("Unable to connect remote server");
                         d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
                             orgname_rowid: orgId,
-                            id:'32',
-                            active:true
+                            id:'32'
                         }, {$set:{active:false}}, function (err, data) {
                             if (err) {
-                                logger.error('Hit Update error', err);
+                                logger.error('Error in Updating State of Bot-Engine', err);
                             }
                             callback(null,null);
                             return;
                         });
                     }else{
                         callback(null,remoteServerDetails);
+                        if(remoteServerDetails.active === false){
+                            d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                                orgname_rowid: orgId,
+                                id:'32'
+                            }, {$set:{active:true}}, function (err, data) {
+                                if (err) {
+                                    logger.error('Error in Updating State of Bot-Engine', err);
+                                }
+                            });
+                        }
                         return;
                     }
                 });
+            }else{
+                callback(null,remoteServerDetails);
+                return;
             }
         });
     }
