@@ -35,6 +35,7 @@ var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
 
 const fileHound= require('filehound');
+const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
 
 const errorType = 'botService';
@@ -443,8 +444,8 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                                         type: result.type,
                                         subType: result.subtype,
                                         isParameterized:result.isParameterized?result.isParameterized:false,
-                                        inputFormFields: result.input[0].form,
-                                        outputOptions: result.output,
+                                        input: result.input && result.input !==null ? result.input[0].form:null,
+                                        output: result.output,
                                         ymlDocFileId: ymlDocFileId,
                                         source: "GitHub"
                                     }
@@ -597,8 +598,8 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                                     manualExecutionTime:result.manualExecutionTime ? result.manualExecutionTime:10,
                                                     type:result.type,
                                                     subType:result.subtype,
-                                                    inputFormFields:result.input && result.input !==null ? result.input[0].form:null,
-                                                    outputOptions:result.output,
+                                                    input:result.input && result.input !==null ? result.input[0].form:null,
+                                                    output:result.output,
                                                     ymlDocFileId:ymlDocFileId,
                                                     orgId:gitHubDetails.botSync.orgId,
                                                     isParameterized:result.isParameterized?result.isParameterized:false,
@@ -866,8 +867,8 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                             category: bot.category,
                             type: bot.type,
                             subType: bot.subType,
-                            inputFormFields: bot.inputFormFields,
-                            outputOptions: bot.outputOptions,
+                            inputFormFields: bot.input,
+                            outputOptions: bot.output,
                             ymlDocFileId: bot.ymlDocFileId,
                             orgId: bot.orgId,
                             orgName: bot.orgName,
@@ -920,8 +921,8 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                                         category: botDetails[0].category,
                                         type: botDetails[0].type,
                                         subType: botDetails[0].subType,
-                                        inputFormFields: botDetails[0].inputFormFields,
-                                        outputOptions: botDetails[0].outputOptions,
+                                        inputFormFields: botDetails[0].input,
+                                        outputOptions: botDetails[0].output,
                                         ymlDocFileId: botDetails[0].ymlDocFileId,
                                         orgId: botDetails[0].orgId,
                                         orgName: botDetails[0].orgName,

@@ -98,8 +98,8 @@ var BotSchema = new Schema ({
         trim: true,
         required: true
     },
-    inputFormFields:Schema.Types.Mixed,
-    outputOptions:Schema.Types.Mixed,
+    input:Schema.Types.Mixed,
+    output:Schema.Types.Mixed,
     params:Schema.Types.Mixed,
     isParameterized:{
         type: Boolean,
