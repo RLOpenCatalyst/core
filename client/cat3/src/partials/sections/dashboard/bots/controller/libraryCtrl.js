@@ -68,7 +68,7 @@
                 { name: 'BOT Id',displayName: 'Type',field:'id',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
                 { name: 'BOT Type',displayName: 'BOT Type',field:'type',cellTooltip: true},
-                { name: 'Execution Count',field:'successExecutionCount',cellTooltip: true},
+                { name: 'Success Execution Count',field:'successExecutionCount',cellTooltip: true},
                 { name: 'Saved Time',displayName: 'Saved Time', 
                     cellTemplate:'<span><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s</span>', cellTooltip: true
                 }
@@ -606,6 +606,7 @@
                 } else {
                     $scope.botLibGridOptions.data = result.bots;
                 }
+                $scope.isBotDetailsLoading = false;
                 $scope.botsDetails(result);
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
             });
@@ -641,6 +642,7 @@
                 } else {
                     $scope.botLibGridOptions.data = result.bots;
                 }
+                $scope.isBotDetailsLoading = false;
                 $scope.botsDetails(result);
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
             });

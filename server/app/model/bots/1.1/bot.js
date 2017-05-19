@@ -151,6 +151,10 @@ var BotSchema = new Schema ({
         type: Number,
         default: 0
     },
+    runningExecutionCount: {
+        type: Number,
+        default: 0
+    },
     scheduler:{
         cronStartOn: {
             type: String,

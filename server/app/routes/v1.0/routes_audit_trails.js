@@ -256,7 +256,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         req.body.userName = req.session.user.cn;
         async.waterfall([
             function(next) {
-                auditTrailService.updateBOTsAction(req.body, next);
+                auditTrailService.updateBOTsAction(req.body,'', next);
             }], function(err, results) {
                 if (err) 
                     return res.status(500).send(err);

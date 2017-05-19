@@ -378,60 +378,22 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                             callback(null, botsList.length);
                 },
                 totalNoOfSuccessBots: function(callback){
-                    var query = {
-                        auditType: BOTSchema,
-                        actionStatus: 'success',
-                        isDeleted: false,
-                        auditId:{$in:auditIds}
-                    };
-                    var botsIds = [];
-                    auditTrail.getAuditTrails(query, function (err, botsAudits) {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        } else{
-                            callback(null, botsAudits.length);
-                            return;
+                    var successCount = 0;
+                    for(var i = 0; i < botsList.length; i++){
+                        if(botsList[i].successExecutionCount){
+                            successCount = botsList[i].successExecutionCount;
                         }
-                    });
-                },
-                totalNoOfServiceNowTickets: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'success',
-                        isDeleted:false,
-                        'auditTrailConfig.serviceNowTicketRefObj':{$ne:null}
-                    };
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
-                        if(err){
-                            callback(err,null);
-                        }else {
-                            callback(null,botsAudits.length);
-                        }
-                    });
+                    }
+                    callback(null,successCount);
                 },
                 totalNoOfRunningBots: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'running',
-                        isDeleted:false,
-                        auditId:{$in:auditIds}
-                    };
-                    var botsIds = [];
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
-                        if(err){
-                            callback(err,null);
-                        }else if (botsAudits.length > 0) {
-                            for (var j = 0; j < botsAudits.length; j++) {
-                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
-                                    botsIds.push(botsAudits[j].auditId);
-                                }
-                            }
-                            callback(null,botsIds.length);
-                        } else {
-                            callback(null,botsIds.length);
+                    var runningCount = 0;
+                    for(var i = 0; i < botsList.length; i++){
+                        if(botsList[i].runningExecutionCount){
+                            runningCount = botsList[i].runningExecutionCount;
                         }
-                    });
+                    }
+                    callback(null,runningCount);
                 },
                 totalSavedTimeForBots: function(callback){
                     var days =0,hours = 0, minutes = 0, seconds = 0;
@@ -459,12 +421,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         hours = hours + Math.floor(minutes / 60);
                         minutes = minutes % 60;
                     }
-                    /*if(hours >= 24){
-                        days = days + Math.floor(hours / 60);
-                        hours = minutes % 24
-                    }*/
                     var result = {
-                        days:days,
                         hours:hours,
                         minutes:minutes,
                         seconds:seconds
@@ -472,27 +429,13 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     callback(null,result);
                 },
                 totalNoOfFailedBots: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'failed',
-                        isDeleted:false,
-                        auditId:{$in:auditIds}
-                    };
-                    var botsIds = [];
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
-                        if(err){
-                            callback(err,null);
-                        }else if (botsAudits.length > 0) {
-                            for (var j = 0; j < botsAudits.length; j++) {
-                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
-                                    botsIds.push(botsAudits[j].auditId);
-                                }
-                            }
-                            callback(null,botsIds.length);
-                        } else {
-                            callback(null,botsIds.length);
+                    var failedCount = 0;
+                    for(var i = 0; i < botsList.length; i++){
+                        if(botsList[i].failedExecutionCount){
+                            failedCount = botsList[i].failedExecutionCount;
                         }
-                    });
+                    }
+                    callback(null,failedCount);
                 }
 
             },function(err,data){
@@ -559,7 +502,7 @@ auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,c
     });
 }
 
-auditTrailService.updateBOTsAction = function updateBOTsAction(reqBody, callback) {
+auditTrailService.updateBOTsAction = function updateBOTsAction(reqBody,message, callback) {
     async.waterfall([
         function(next) {
             botDao.getBotsByBotId(reqBody.botId, next);
@@ -577,7 +520,7 @@ auditTrailService.updateBOTsAction = function updateBOTsAction(reqBody, callback
                     callback(err, null);
                     return;
                 } else {
-                    botAuditTrail.updateBotAuditTrail(botAuditTrails[0]._id, resultTaskExecution, function (err, data) {
+                    auditTrailService.updateAuditTrail('BOT',botAuditTrails[0]._id, resultTaskExecution, function (err, data) {
                         if (err) {
                             logger.error("Failed to create or update bots Log: ", err);
                             next(err, null);
@@ -597,12 +540,12 @@ auditTrailService.updateBOTsAction = function updateBOTsAction(reqBody, callback
                                 logsDao.insertLog({
                                     referenceId: logsReferenceIds,
                                     err: true,
-                                    log: "Error in Executing BOTs " + reqBody.botId,
+                                    log: "Error in Executing BOTs " + reqBody.botId + " "+message,
                                     timestamp: new Date().getTime()
                                 });
                                 noticeService.notice(reqBody.userName, {
                                     title: "BOTs Chef Execution",
-                                    body: "Error in Executing BOTs " + reqBody.botId
+                                    body: "Error in Executing BOTs " + reqBody.botId + " "+message,
                                 }, "error", function (err, data) {
                                     if (err) {
                                         logger.error("Error in Notification Service, ", err);

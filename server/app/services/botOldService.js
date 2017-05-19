@@ -445,7 +445,7 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                     logger.error("Error in Fetching Audit Trail.", err);
                     next(err, null);
                 } else if (botAuditTrail.length > 0) {
-                    var seconds = 0, minutes = 0, hours = 0, days = 0,successCount = 0,failedCount = 0;
+                    var seconds = 0, minutes = 0, hours = 0, days = 0,successCount = 0,failedCount = 0,runningCount = 0;
                     for (var m = 0; m < botAuditTrail.length; m++) {
                         if (botAuditTrail[m].savedTime && botAuditTrail[m].actionStatus ==='success') {
                             successCount = successCount + 1;
@@ -456,6 +456,9 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                         if(botAuditTrail[m].actionStatus ==='failed'){
                             failedCount = failedCount + 1;
                         }
+                        if(botAuditTrail[m].actionStatus ==='running'){
+                            runningCount = runningCount + 1;
+                        }
                     }
                     if (seconds >= 60) {
                         minutes = minutes + Math.floor(seconds / 60);
@@ -465,12 +468,7 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                         hours = hours + Math.floor(minutes / 60);
                         minutes = minutes % 60;
                     }
-                    if (hours >= 24) {
-                        days = days + Math.floor(hours / 60);
-                        hours = minutes % 24
-                    }
                     var result = {
-                        days: days,
                         hours: hours,
                         minutes: minutes,
                         seconds: seconds
@@ -493,6 +491,7 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                             savedTime: result,
                             successExecutionCount: successCount,
                             failedExecutionCount: failedCount,
+                            runningExecutionCount: runningCount,
                             executionCount: botAuditTrail.length
                         }, function (err, data) {
                             if (err) {
