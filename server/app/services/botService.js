@@ -33,6 +33,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
+var orgResourcePermission = require('_pr/model/org-resource-permission/orgResourcePermission.js');
 
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
@@ -101,6 +102,9 @@ botService.removeBotsById = function removeBotsById(botId,callback){
         },
         auditTrails: function(callback){
             auditTrail.removeAuditTrails({auditId:botId},callback);
+        },
+        orgResourcePerm : function(callback){
+        	orgResourcePermission.deleteResource(botId, 'bots', callback);
         }
     },function(err,resutls){
         if(err){
@@ -136,6 +140,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                 if(actionStatus !== null) {
                     queryObj.queryObj['lastExecutionStatus'] = actionStatus;
                 }
+                
                 if(serviceNowCheck === true) {
                     queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
                     var botIds = [];
@@ -173,6 +178,92 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                },
                botSummary:function(callback){
                    auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback)
+               }
+           },function(err,data){
+               if(err){
+                   next(err);
+               }else{
+                   next(null,data);
+               }
+           })
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        var resultObj = {
+            bots : results.botList.bots,
+            metaData : results.botList.metaData,
+            botSummary: results.botSummary
+        }
+        callback(null,resultObj);
+        return;
+    });
+}
+
+botService.getBotListById = function getBotListById(botsQuery,actionStatus,serviceNowCheck,callback) {
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(botsQuery, 'bots', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+                if(actionStatus !== null) {
+                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+                }
+                if (botsQuery.resourceIds) {
+                	queryObj.queryObj['id'] = {$in:botsQuery.resourceIds};
+                }
+                
+                if(serviceNowCheck === true) {
+                    queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
+                    var botIds = [];
+                    botDao.getAllBots(queryObj.queryObj,function(err,botData){
+                        if(err){
+                            next(err,null);
+                        }
+                        if(botData.length > 0){
+                            botData.forEach(function(bot){
+                                botIds.push(bot._id);
+                            })
+                        }
+                        if(botIds.length > 0){
+                            delete queryObj.queryObj;
+                            queryObj.queryObj = {
+                                auditId: {$in:botIds}
+                            }
+                            auditTrail.getAuditTrailList(queryObj,next);
+                        }else{
+                            botDao.getBotsList(queryObj, next);
+                        }
+                    })
+                }else{
+                    botDao.getBotsList(queryObj, function(err, result){
+                    	if(err) {
+                    		return next(err);
+                    	}
+                    	
+                    	return next(null, result);
+                    });
+                }
+        },
+        function(botList, next) {
+            addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
+        },
+        function(filterBotList, next) {
+           async.parallel({
+               botList:function(callback){
+                   apiUtil.paginationResponse(filterBotList, reqData, callback);
+               },
+               botSummary:function(callback){
+                   auditTrailService.getBOTsSummaryById(botsQuery,'BOT',callback)
                }
            },function(err,data){
                if(err){
