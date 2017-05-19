@@ -192,7 +192,15 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,userName,ca
                     queryObj.queryObj['orgId'] = {$in: orgIds};
                 }
                 if(actionStatus !== null) {
-                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+                    if(actionStatus === 'failed'){
+                        queryObj.queryObj['failedExecutionCount'] = {$gt:0};
+                    }else if(actionStatus === 'success'){
+                        queryObj.queryObj['successExecutionCount'] = {$gt:0};
+                    }else if(actionStatus === 'running'){
+                        queryObj.queryObj['runningExecutionCount'] = {$gt:0};
+                    }else{
+                        queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+                    }
                 }
                 botDao.getBotsList(queryObj, next);
             });
@@ -350,7 +358,8 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                             var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
                                 executionCount: botExecutionCount,
-                                lastRunTime: new Date().getTime()
+                                lastRunTime: new Date().getTime(),
+                                lastExecutionStatus: "running"
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         }else{
@@ -851,9 +860,12 @@ botService.executeSINTLBOTs = function executeSINTLBOTs(botId, reqBody, callback
                     },
                     executionCount: function(callback) {
                         var botExecutionCount = botDetails[0].executionCount + 1;
+                        var runningExecutionCount = botDetails[0].runningExecutionCount + 1;
                         var botUpdateObj = {
                             executionCount: botExecutionCount,
-                            lastRunTime: new Date().getTime()
+                            lastRunTime: new Date().getTime(),
+                            lastExecutionStatus: 'running',
+                            runningExecutionCount: runningExecutionCount
                         }
                         botDao.updateBotsDetail(botDetails[0]._id, botUpdateObj, callback);
                     }
@@ -920,7 +932,7 @@ function checkSINTLAuditAction(actionLogId, botDetails, userName, callback) {
                     status: "failed",
                     userName: userName
                 }
-                auditTrailService.updateBOTsAction(reqObj, callback);
+                auditTrailService.updateBOTsAction(reqObj,'Time-Out', callback);
                 timer.stop();
             } else {
                 var error = new Error();
