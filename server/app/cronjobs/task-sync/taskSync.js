@@ -5,7 +5,8 @@ var async = require('async');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var taskHistory = require('_pr/model/classes/tasks/taskHistory.js');
 var TaskSync = Object.create(CatalystCronJob);
-TaskSync.interval = '*/1 * * * *';
+var botDao = require('_pr/model/bots/1.1/bot.js');
+TaskSync.interval = '*/2 * * * *';
 TaskSync.execute = taskSync;
 
 module.exports = TaskSync;
@@ -13,7 +14,7 @@ module.exports = TaskSync;
 function taskSync(){
     logger.debug("Task Sync is started");
     async.parallel({
-        botSync  : function(callback){
+        botOldSync  : function(callback){
             var query={
                 auditType:'BOTOLD',
                 actionStatus:'running',
@@ -21,7 +22,7 @@ function taskSync(){
             };
             executeTaskSyncForBotHistory(query,callback);
         },
-        botNewSync  : function(callback){
+        botSync  : function(callback){
             var query={
                 auditType:'BOT',
                 actionStatus:'running',
@@ -60,7 +61,7 @@ function executeTaskSyncForBotHistory(query,callback){
                     (function(runningBot){
                         var currentDate = new Date();
                         var startBotTime = new Date(runningBot.startedOn);
-                        if(getMinutesDiff(startBotTime,currentDate) > 20){
+                        if(getMinutesDiff(startBotTime,currentDate) > runningBot.auditTrailConfig.manualExecutionTime){
                             count++;
                             var queryObj = {
                                 actionStatus:'failed',
@@ -70,11 +71,16 @@ function executeTaskSyncForBotHistory(query,callback){
                             auditTrail.updateAuditTrails(runningBot._id,queryObj,function(err,updatedData){
                                 if(err){
                                     logger.error(err);
-                                }else if(count === runningAuditTrailList.length){
-                                        next(null,runningAuditTrailList);
-                                }else{
-                                    logger.debug("BOTs Sync is going on");
                                 }
+                                botDao.updateBotsDetail(runningBot.auditId,{lastExecutionStatus:'failed'},function(err,data){
+                                    if(err){
+                                        logger.error("Error in updating Last Execution Status:",err);
+                                    }
+                                    count++;
+                                    if(count === runningAuditTrailList.length){
+                                        next(null,runningAuditTrailList);
+                                    }
+                                });
                             })
                             
                         }else{
@@ -123,10 +129,10 @@ function executeTaskSyncForTaskHistory(query,callback){
                             taskHistory.updateRunningTaskHistory(runningTask._id,queryObj,function(err,updatedData){
                                 if(err){
                                     logger.error(err);
-                                }else if(count === runningTaskHistoryList.length){
-                                    next(null,runningTaskHistoryList);
-                                }else{
-                                    logger.debug("Task Sync is going on");
+                                }
+                                count++;
+                                if(count === runningTaskHistoryList.length) {
+                                    next(null, runningTaskHistoryList);
                                 }
                             })
 

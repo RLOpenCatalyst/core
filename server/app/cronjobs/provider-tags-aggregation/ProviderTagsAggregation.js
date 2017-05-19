@@ -5,7 +5,6 @@ var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var tagsModel = require('_pr/model/tags');
 var async = require('async');
 var resources = require('_pr/model/resources/resources');
-var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 
 var ProviderTagsAggregation = Object.create(CatalystCronJob);
 ProviderTagsAggregation.execute = providerTagAggregation;
@@ -96,25 +95,7 @@ function getResourcesForTagAggregation(provider,next){
     var resourcesList=[];
     async.waterfall([
         function(next){
-            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, next);
-        },
-        function(instances,next){
-            resourcesList = instances;
             resources.getResourcesByProviderId(provider._id, next);
-        },
-        function(resources,next){
-            if(resources.length > 0){
-                var count = 0;
-                for(var i = 0; i < resources.length ; i++){
-                    count++;
-                    resourcesList.push(resources[i]);
-                }
-                if(count === resources.length){
-                    next(null,resourcesList);
-                }
-            }else{
-                next(null,resourcesList);
-            }
         }
     ],function(err,results){
         if(err){

@@ -101,6 +101,11 @@ var AWSResourcesSchema = function AWSResources() {
         isDeleted:{
             type:Boolean,
             default:false
+        },
+        createdOn:{
+            type:Number,
+            default:Date.now(),
+            required:false
         }
     });
 };

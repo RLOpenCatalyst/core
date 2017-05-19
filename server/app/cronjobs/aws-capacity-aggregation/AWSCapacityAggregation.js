@@ -10,26 +10,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-var logger = require('_pr/logger')(module)
-var async = require('async')
-var appConfig = require('_pr/config')
-var analyticsService = require('_pr/services/analyticsService')
-var dateUtil = require('_pr/lib/utils/dateUtil')
-var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob')
-var MasterUtils = require('_pr/lib/utils/masterUtil.js')
+var logger = require('_pr/logger')(module);
+var async = require('async');
+var analyticsService = require('_pr/services/analyticsService');
+var dateUtil = require('_pr/lib/utils/dateUtil');
+var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
+var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 
-var AWSCapacityAggregation = Object.create(CatalystCronJob)
-AWSCapacityAggregation.interval = '0 * * * *'
-AWSCapacityAggregation.execute = aggregateAWSCapacity
+var AWSCapacityAggregation = Object.create(CatalystCronJob);
+AWSCapacityAggregation.interval = '0 * * * *';
+AWSCapacityAggregation.execute = aggregateAWSCapacity;
 
-var date = new Date()
-AWSCapacityAggregation.currentCronRunTime = dateUtil.getDateInUTC(date)
+var date = new Date();
+AWSCapacityAggregation.currentCronRunTime = dateUtil.getDateInUTC(date);
 
 // AWSCapacityAggregation.execute()
 
-module.exports = AWSCapacityAggregation
+module.exports = AWSCapacityAggregation;
 
-AWSCapacityAggregation.aggregateEntityCapacityByOrg = aggregateEntityCapacityByOrg
+AWSCapacityAggregation.aggregateEntityCapacityByOrg = aggregateEntityCapacityByOrg;
 
 function aggregateAWSCapacity() {
     async.waterfall([

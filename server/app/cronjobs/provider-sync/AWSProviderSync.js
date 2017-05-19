@@ -5,23 +5,24 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var async = require('async');
 var resourceService = require('_pr/services/resourceService');
-var instanceService = require('_pr/services/instanceService');
+var s3Model = require('_pr/model/resources/s3-resource');
+var ec2Model = require('_pr/model/resources/instance-resource');
+var rdsModel = require('_pr/model/resources/rds-resource');
+var resourceModel = require('_pr/model/resources/resources');
 var tagsModel = require('_pr/model/tags');
-var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var instancesDao = require('_pr/model/classes/instance/instance');
-var assignedInstancesDao = require('_pr/model/unmanaged-instance');
-var logsDao = require('_pr/model/dao/logsdao.js');
-var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var instanceService = require('_pr/services/instanceService');
 var noticeService = require('_pr/services/noticeService.js');
 var resourceMapService = require('_pr/services/resourceMapService.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
+var AWSRDSS3ProviderSync = Object.create(CatalystCronJob);
+AWSRDSS3ProviderSync.execute = awsRDSS3ProviderSync;
 
+module.exports = AWSRDSS3ProviderSync;
 
-var AWSProviderSync = Object.create(CatalystCronJob);
-AWSProviderSync.execute = awsProviderSync;
-
-module.exports = AWSProviderSync;
-function awsProviderSync() {
+function awsRDSS3ProviderSync() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
             logger.error(err);
@@ -37,179 +38,539 @@ function awsProviderSync() {
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
                                     count++;
-                                    awsProviderSyncForProvider(provider,org.orgname)
+                                    awsRDSS3ProviderSyncForProvider(provider,org.orgname)
                                 })(providers[j]);
                             }
                             if(count ===providers.length){
                                 return;
                             }
                         }else{
-                            logger.info("Please configure Provider in Organization " +org.orgname+" for EC2 Provider Sync");
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for S3/RDS Provider Sync");
                             return;
                         }
                     });
                 })(orgs[i]);
             }
         }else{
-            logger.info("Please configure Organization for EC2 Provider Sync");
+            logger.info("Please configure Organization for S3/RDS Provider Sync");
             return;
         }
     });
 }
 
-function awsProviderSyncForProvider(provider,orgName) {
-    logger.info("EC2 Data Fetching started for Provider "+provider.providerName);
+function awsRDSS3ProviderSyncForProvider(provider,orgName) {
+    logger.info("S3/RDS Data Fetching started for Provider "+provider.providerName);
     async.waterfall([
         function (next) {
-            resourceService.getEC2InstancesInfo(provider,orgName, next);
-        },
-        function (instances, next) {
-            saveEC2Data(instances,provider, next);
-        },
-        function(instances,next){
             async.parallel({
-                instanceSync: function(callback){
-                    instanceSyncWithAWS(instances,provider._id,callback);
+                ec2: function (callback) {
+                    resourceService.getEC2InstancesInfo(provider,orgName, callback);
                 },
-                assignedInstance: function(callback){
-                    async.waterfall([
-                        function(next){
-                            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id,next);
-                        },
-                        function(unassignedInstances,next){
-                            tagMappingSyncForInstances(unassignedInstances,provider,'unassigned',next);
-                        },
-                        function(instances,next){
-                            assignedInstancesDao.getInstanceByProviderId(provider._id,next);
-                        }
-                    ],function(err,results){
-                        if(err){
-                            callback(err,null);
-                        }
-                        callback(null,results);
-                    })
+                s3: function (callback) {
+                    resourceService.getBucketsInfo(provider,orgName, callback);
+                },
+                rds: function (callback) {
+                    resourceService.getRDSInstancesInfo(provider,orgName, callback);
                 }
-            },function(err,results){
-                if(err){
-                    next(err,null);
+            }, function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    next(null, results);
                 }
-                next(null,results);
             });
+        },
+        function (resources, next) {
+            async.parallel({
+                ec2: function (callback) {
+                    saveEC2Data(resources.ec2,provider, callback);
+                },
+                s3: function (callback) {
+                    saveS3Data(resources.s3, callback);
+                },
+                rds: function (callback) {
+                    saveRDSData(resources.rds, callback);
+                },
+                ec2Delete: function (callback) {
+                    deleteEC2ResourceData(resources.ec2, provider._id, callback);
+                },
+                s3Delete: function (callback) {
+                    deleteS3ResourceData(resources.s3, provider._id, callback);
+                },
+                rdsDelete: function (callback) {
+                    deleteRDSResourceData(resources.rds, provider._id, callback);
+                }
+            }, function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            });
+        },
+        function(resourcesDetails,next){
+            resourceModel.getAllResourcesByCategory(provider._id,'unassigned',next);
+        },
+        function(resources,next){
+            tagMappingSyncForResources(resources,provider,'unassigned',next);
+        },
+        function(resources,next){
+            resourceModel.getAllResourcesByCategory(provider._id,'assigned',next);
+        },
+        function(assignedResources,next){
+            tagMappingSyncForResources(assignedResources,provider,'assigned',next);
         },
         function(assignedInstances,next){
-            async.parallel({
-                tagMappingSync: function (callback) {
-                    tagMappingSyncForInstances(assignedInstances.assignedInstance, provider, 'assigned', callback);
-                },
-                resourceMapSync: function (callback) {
-                    resourceMapSync(callback);
-                }
-            },function(err,results){
-                if(err){
-                    next(err,null);
-                }
-                next(null,results);
-            });
+            resourceMapSync(next);
         }
-    ],function (err, results) {
+    ], function (err, results) {
         if (err) {
             logger.error(err);
             return;
         } else {
-            logger.info("EC2 Data Successfully Added for Provider "+provider.providerName);
+            logger.info("EC2/S3/RDS Data Successfully Added for Provider "+provider.providerName);
             return;
         }
     });
 };
+function saveS3Data(s3Info, callback) {
+    if(s3Info.length === 0) {
+        return callback(null, s3Info);
+    }else {
+        var count = 0;
+        for (var i = 0; i < s3Info.length; i++) {
+            (function (s3) {
+                var queryObj = {
+                    'masterDetails.orgId':s3.masterDetails.orgId,
+                    'providerDetails.id':s3.providerDetails.id,
+                    'resourceDetails.bucketName':s3.resourceDetails.bucketName
+                }
+                s3Model.getS3BucketData(queryObj, function (err, responseBucketData) {
+                    if (err) {
+                        logger.error("Error in getting Instance : ",s3.resourceDetails.bucketName);
+                        count++;
+                        if (count === s3Info.length) {
+                            callback(null, s3Info);
+                        }
+                    }else if (responseBucketData.length > 0) {
+                        delete s3.category;
+                        s3Model.updateS3BucketData(responseBucketData[0]._id,s3, function (err, bucketUpdatedData) {
+                            if (err) {
+                                logger.error("Error in updating S3 Bucket : ",s3.resourceDetails.bucketName);
+                            }
+                            count++;
+                            if (count === s3Info.length) {
+                                callback(null, s3Info);
+                            }
+                        });
+                    } else {
+                        s3.createdOn = new Date().getTime();
+                        s3Model.createNew(s3, function (err, bucketSavedData) {
+                            if (err) {
+                                logger.error("Error in creating S3 Bucket : ",s3.resourceDetails.bucketName);
+                            }
+                            count++;
+                            if (count === s3Info.length) {
+                                callback(null, s3Info);
+                            }
+                        });
+                    }
+                })
+            })(s3Info[i]);
+        }
+    }
+}
 
-function saveEC2Data(ec2Info,provider, callback){
-    var count = 0;
+function saveEC2Data(ec2Info,provider, callback) {
     if(ec2Info.length === 0) {
         return callback(null, ec2Info);
-    };
-    for(var i = 0; i < ec2Info.length; i++) {
-        (function(ec2) {
-            instancesDao.getInstancesByProviderIdOrgIdAndPlatformId(ec2.orgId,ec2.providerId,ec2.platformId,function(err,managedInstances) {
-                if (err) {
-                    logger.error(err);
-                    count++;
-                    return;
-                }else if (managedInstances.length > 0) {
-                    instanceService.instanceSyncWithAWS(managedInstances[0]._id,ec2,provider, function(err, updateInstanceData) {
-                        if (err) {
-                            logger.error(err);
-                            count++;
-                            return;
-                        } else {
-                            count++;
-                            if(count === ec2Info.length){
-                                callback(null,ec2Info);
+    }else {
+        var count = 0;
+        for (var i = 0; i < ec2Info.length; i++) {
+            (function (ec2) {
+                instancesDao.getInstancesByProviderIdOrgIdAndPlatformId(ec2.masterDetails.orgId,ec2.providerDetails.id,ec2.resourceDetails.platformId,function(err,managedInstances) {
+                    if (err) {
+                        logger.error(err);
+                    }
+                    if (managedInstances.length > 0) {
+                        instanceService.instanceSyncWithAWS(managedInstances[0]._id, ec2, provider, function (err, updateInstanceData) {
+                            if (err) {
+                                logger.error(err);
                             }
-                        }
-                    });
-                }else {
-                    assignedInstancesDao.getInstancesByProviderIdOrgIdAndPlatformId(ec2.orgId,ec2.providerId,ec2.platformId,function(err,assignedInstances) {
-                        if (err) {
-                            logger.error(err);
                             count++;
-                            return;
-                        }else if (assignedInstances.length > 0) {
-                            assignedInstancesDao.updateInstanceStatus(assignedInstances[0]._id,ec2, function(err, updateInstanceData) {
-                                if (err) {
-                                    logger.error(err);
-                                    count++;
-                                    return;
-                                } else {
-                                    count++;
-                                    if(count === ec2Info.length){
-                                        callback(null,ec2Info);
-                                    }
-                                }
-                            });
-                        }else {
-                            unassignedInstancesModel.getInstancesByProviderIdOrgIdAndPlatformId(ec2.orgId, ec2.providerId, ec2.platformId, function (err, unassignedInstances) {
-                                if (err) {
-                                    logger.error(err);
-                                    count++;
-                                    return;
-                                }else if (unassignedInstances.length === 0) {
-                                    unassignedInstancesModel.createNew(ec2, function (err, saveUnassignedInstance) {
-                                        if (err) {
-                                            logger.error(err);
-                                            count++;
-                                            return;
-                                        } else {
-                                            count++;
-                                            if(count === ec2Info.length){
-                                                callback(null,ec2Info);
-                                            }
-                                        }
-                                    });
-                                }else {
-                                    unassignedInstancesModel.updateInstanceStatus(unassignedInstances[0]._id,ec2, function (err, updateInstanceData) {
-                                        if (err) {
-                                            logger.error(err);
-                                            count++;
-                                            return;
-                                        } else {
-                                            count++;
-                                            if(count === ec2Info.length){
-                                                callback(null,ec2Info);
-                                            }
-                                        }
-                                    });
-                                }
-                            })
+                            if (count === ec2Info.length) {
+                                callback(null, ec2Info);
+                            }
+                        });
+                    }else {
+                        var queryObj = {
+                            'masterDetails.orgId': ec2.masterDetails.orgId,
+                            'providerDetails.id': ec2.providerDetails.id,
+                            'resourceDetails.platformId': ec2.resourceDetails.platformId
                         }
-                    });
+                        ec2Model.getInstanceData(queryObj, function (err, responseInstanceData) {
+                            if (err) {
+                                logger.error("Error in getting Instance : ", ec2.resourceDetails.platformId);
+                                count++;
+                                if (count === ec2Info.length) {
+                                    callback(null, ec2Info);
+                                }
+                            } else if (responseInstanceData.length > 0) {
+                                delete ec2.category;
+                                ec2Model.updateInstanceData(responseInstanceData._id, ec2, function (err, instanceUpdatedData) {
+                                    if (err) {
+                                        logger.error("Error in updating Instance : ", ec2.resourceDetails.platformId);
+                                    }
+                                    count++;
+                                    if (count === ec2Info.length) {
+                                        callback(null, ec2Info);
+                                    }
+                                });
+                            } else {
+                                ec2.createdOn = new Date().getTime();
+                                ec2Model.createNew(ec2, function (err, instanceSavedData) {
+                                    if (err) {
+                                        logger.error("Error in creating Instance : ", ec2.resourceDetails.platformId);
+                                    }
+                                    count++;
+                                    if (count === ec2Info.length) {
+                                        callback(null, ec2Info);
+                                    }
+                                });
+                            }
+                        })
+                    }
+                });
+            })(ec2Info[i]);
+        }
+    }
+}
+
+function saveRDSData(rdsInfo, callback) {
+    if(rdsInfo.length === 0) {
+        return callback(null, rdsInfo);
+    }else {
+        var count = 0;
+        for (var i = 0; i < rdsInfo.length; i++) {
+            (function (rds) {
+                var queryObj = {
+                    'masterDetails.orgId':rds.masterDetails.orgId,
+                    'providerDetails.id':rds.providerDetails.id,
+                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId
                 }
-            });
-        })(ec2Info[i]);
-    };
-};
+                rdsModel.getRDSData(queryObj, function (err, responseRDSData) {
+                    if (err) {
+                        logger.error("Error in getting RDS DBName : ",rds.resourceDetails.dbiResourceId);
+                        count++;
+                        if (count === rdsInfo.length) {
+                            callback(null, rdsInfo);
+                        }
+                    }
+                    if (responseRDSData.length > 0) {
+                        delete rds.category;
+                        rdsModel.updateRDSData(responseRDSData[0]._id,rds, function (err, rdsUpdatedData) {
+                            if (err) {
+                                logger.error("Error in updating RDS DBName : ",rds.resourceDetails.dbiResourceId);
+                            }
+                            count++;
+                            if (count === rdsInfo.length) {
+                                callback(null, rdsInfo);
+                            }
+                        });
+                    } else {
+                        rds.createdOn = new Date().getTime();
+                        rdsModel.createNew(rds, function (err, rdsSavedData) {
+                            if (err) {
+                                logger.error("Error in creating RDS DBName : ",rds.resourceDetails.dbiResourceId);
+                            }
+                            count++;
+                            if (count === rdsInfo.length) {
+                                callback(null, rdsInfo);
+                            }
+                        });
+                    }
+                })
+            })(rdsInfo[i]);
+        }
+    }
+}
 
+function deleteS3ResourceData(s3Info,providerId, callback) {
+    if(s3Info.length === 0){
+        resourceModel.deleteResourcesByResourceType('S3', function (err, data) {
+            if (err) {
+                callback(err,null);
+                return;
+            } else {
+                callback(null,s3Info);
+                return;
+            }
+        });
+    }else {
+        async.waterfall([
+            function (next) {
+                bucketNameList(s3Info, next);
+            },
+            function (bucketNames, next) {
+                resourceModel.getResourcesByProviderResourceType(providerId, 'S3', function (err, s3data) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, s3data, bucketNames);
+                    }
+                });
+            },
+            function (s3Data, bucketNames, next) {
+                if (s3Data.length > 0) {
+                    var count = 0;
+                    for (var i = 0; i < s3Data.length; i++) {
+                        (function (s3) {
+                            if (bucketNames.indexOf(s3.resourceDetails.bucketName) === -1) {
+                                resourceModel.deleteResourcesById(s3._id, function (err, data) {
+                                    if (err) {
+                                        logger.error("Error in deleting S3 Bucket :",s3.resourceDetails.bucketName)
+                                    }
+                                    count++;
+                                    if (count === ec2data.length) {
+                                        next(null, ec2data);
+                                    }
+                                })
+                            } else {
+                                count++;
+                                if (count === s3Data.length) {
+                                    next(null, []);
+                                }
+                            }
+                        })(s3Data[i]);
+                    }
+                } else {
+                    next(null, bucketNames);
+                }
+            }], function (err, results) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+            return;
+        })
+    }
+}
 
-function tagMappingSyncForInstances(instances,provider,category,next){
+function deleteEC2ResourceData(ec2Info,providerId, callback) {
+    if (ec2Info.length === 0) {
+        resourceModel.deleteResourcesByResourceType('EC2', function (err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            } else {
+                callback(null, ec2Info);
+                return;
+            }
+        });
+    } else {
+        async.waterfall([
+            function (next) {
+                ec2PlatformIdList(ec2Info, next);
+            },
+            function (platformIds, next) {
+                async.parallel({
+                    managed: function (callback) {
+                        instancesDao.getInstanceByProviderId(providerId, function (err, instances) {
+                            if (err) {
+                                callback(err, null);
+                            } else if (instances.length > 0) {
+                                var instanceCount = 0;
+                                for (var j = 0; j < instances.length; j++) {
+                                    (function (instance) {
+                                        if (platformIds.indexOf(instance.platformId) !== -1) {
+                                            instanceCount++;
+                                            if (instanceCount === instances.length) {
+                                                callback(null, instances);
+                                                return;
+                                            }
+                                        } else {
+                                            instancesDao.removeTerminatedInstanceById(instance._id, function (err, data) {
+                                                if (err) {
+                                                    instanceCount++;
+                                                    logger.error(err);
+                                                    if (instanceCount === instances.length) {
+                                                        callback(null, instances);
+                                                        return;
+                                                    }
+                                                } else {
+                                                    instanceCount++;
+                                                    var timestampStarted = new Date().getTime();
+                                                    var user = instance.catUser ? instance.catUser : 'superadmin';
+                                                    var actionLog = instancesDao.insertInstanceStatusActionLog(instance._id, user, 'terminated', timestampStarted);
+                                                    logsDao.insertLog({
+                                                        instanceId: instance._id,
+                                                        instanceRefId: actionLog._id,
+                                                        err: false,
+                                                        log: "Instance : terminated",
+                                                        timestamp: timestampStarted
+                                                    });
+                                                    var instanceLog = {
+                                                        actionId: actionLog._id,
+                                                        instanceId: instance._id,
+                                                        orgName: instance.orgName,
+                                                        bgName: instance.bgName,
+                                                        projectName: instance.projectName,
+                                                        envName: instance.environmentName,
+                                                        status: 'terminated',
+                                                        actionStatus: "success",
+                                                        platformId: instance.platformId,
+                                                        blueprintName: instance.blueprintData.blueprintName,
+                                                        data: instance.runlist,
+                                                        platform: instance.hardware.platform,
+                                                        os: instance.hardware.os,
+                                                        size: instance.instanceType,
+                                                        user: user,
+                                                        createdOn: new Date().getTime(),
+                                                        startedOn: new Date().getTime(),
+                                                        providerType: instance.providerType,
+                                                        action: 'Terminated',
+                                                        logs: []
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
+                                                    noticeService.notice("system", {
+                                                        title: "AWS Instance : terminated",
+                                                        body: "AWS Instance " + instance.platformId + " is Terminated."
+                                                    }, "success", function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Error in Notification Service, ", err);
+                                                        }
+                                                    });
+                                                    if (instanceCount === instances.length) {
+                                                        callback(null, instances);
+                                                        return;
+                                                    }
+                                                }
+                                            })
+                                        }
+
+                                    })(instances[j]);
+                                }
+                            } else {
+                                return callback(null, instances);
+                            }
+                        });
+                    },
+                    assignedUnassigned: function (callback) {
+                        resourceModel.getResourcesByProviderResourceType(providerId, 'EC2', function (err, ec2data) {
+                            if (err) {
+                                return callback(err, null);
+                            } else if (ec2data.length > 0) {
+                                var count = 0;
+                                for (var i = 0; i < ec2data.length; i++) {
+                                    (function (ec2) {
+                                        if (platformIds.indexOf(ec2.resourceDetails.platformId) === -1) {
+                                            resourceModel.deleteResourcesById(ec2._id, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in deleting EC2 Instance :", ec2.resourceDetails.platformId)
+                                                }
+                                                count++;
+                                                if (count === ec2data.length) {
+                                                    return callback(null, ec2data);
+                                                }
+                                            })
+                                        } else {
+                                            count++;
+                                            if (count === ec2data.length) {
+                                                return callback(null, []);
+                                            }
+                                        }
+                                    })(ec2data[i]);
+                                }
+                            } else {
+                                return callback(null, platformIds);
+                            }
+                        });
+                    }
+                }, function (err, results) {
+                    if (err) {
+                        next(err, null);
+                    } else {
+                        next(null, results);
+                    }
+                })
+            }], function (err, results) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                return callback(null, results);
+            }
+        })
+    }
+}
+
+function deleteRDSResourceData(rdsInfo,providerId, callback) {
+    if(rdsInfo.length === 0){
+        resourceModel.deleteResourcesByResourceType('RDS', function (err, data) {
+            if (err) {
+                callback(err,null);
+                return;
+            } else {
+                callback(null,rdsInfo);
+                return;
+            }
+        });
+    }else {
+        async.waterfall([
+            function (next) {
+                rdsDBResourceIdList(rdsInfo, next);
+            },
+            function (rdsDBResourceIds, next) {
+                resourceModel.getResourcesByProviderResourceType(providerId, 'RDS', function (err, rdsData) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, rdsData, rdsDBResourceIds);
+                    }
+                });
+            },
+            function (rdsData, rdsDBResourceIds, next) {
+                if (rdsData.length > 0) {
+                    var count = 0;
+                    for (var i = 0; i < rdsData.length; i++) {
+                        (function (rds) {
+                            if (rdsDBResourceIds.indexOf(rds.resourceDetails.dbiResourceId) === -1) {
+                                resourceModel.deleteResourcesById(rds._id, function (err, data) {
+                                    if (err) {
+                                        logger.error("Error in deleting RDS DBName :",rds.resourceDetails.dbiResourceId)
+                                    }
+                                    count++;
+                                    if (count === ec2data.length) {
+                                        next(null, ec2data);
+                                    }
+                                })
+                            } else {
+                                count++;
+                                if (count === rdsData.length) {
+                                    next(null, []);
+                                }
+                            }
+                        })(rdsData[i]);
+                    }
+                } else {
+                    next(null, rdsData);
+                }
+            }], function (err, results) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+            return;
+        })
+    }
+}
+
+function tagMappingSyncForResources(resources,provider,category,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
         if (err) {
             logger.error("Unable to get tags", err);
@@ -218,360 +579,189 @@ function tagMappingSyncForInstances(instances,provider,category,next){
         var projectTag = null;
         var environmentTag = null;
         var bgTag = null;
-        if(tagDetails.length > 0) {
+        if (tagDetails.length > 0) {
             for (var i = 0; i < tagDetails.length; i++) {
                 if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
                     projectTag = tagDetails[i];
-                } else if (('catalystEntityType' in tagDetails[i])
-                    && tagDetails[i].catalystEntityType == 'environment') {
+                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
                     environmentTag = tagDetails[i];
-                } else if (('catalystEntityType' in tagDetails[i])
-                    && tagDetails[i].catalystEntityType == 'businessGroup') {
+                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'businessGroup') {
                     bgTag = tagDetails[i];
                 }
             }
             var count = 0;
-            if (instances.length > 0) {
-                for (var i = 0; i < instances.length; i++) {
-                    (function (instance) {
-                        if (instance.tags) {
+            if (resources.length > 0) {
+                for (var j = 0; j < resources.length; j++) {
+                    (function (resource) {
+                        if (resource.tags) {
                             var catalystProjectId = null;
                             var catalystProjectName = null;
                             var catalystEnvironmentId = null;
                             var catalystEnvironmentName = null;
                             var catalystBgId = null;
                             var catalystBgName = null;
-                            if (bgTag !== null && bgTag.name in instance.tags) {
-                                var bgMappingArray
-                                    = Object.keys(bgTag.catalystEntityMapping).map(
+
+                            if (bgTag !== null && bgTag.name in resource.tags) {
+                                var bgEntityMappings = Object.keys(bgTag.catalystEntityMapping).map(
                                     function (k) {
                                         return bgTag.catalystEntityMapping[k]
                                     });
 
-                                for (var y = 0; y < bgMappingArray.length; y++) {
-                                    if ((instance.tags[bgTag.name] !== '')
-                                        && ('tagValues' in bgMappingArray[y])
-                                        && (bgMappingArray[y].tagValues.indexOf(instance.tags[bgTag.name]) >= 0)) {
-                                        catalystBgId = bgMappingArray[y].catalystEntityId;
-                                        catalystBgName = bgMappingArray[y].catalystEntityName;
+                                for (var y = 0; y < bgEntityMappings.length; y++) {
+                                    if ((resource.tags[bgTag.name] !== '') && ('tagValues' in bgEntityMappings[y])
+                                        && (bgEntityMappings[y].tagValues.indexOf(resource.tags[bgTag.name])
+                                        >= 0)) {
+                                        catalystBgId = bgEntityMappings[y].catalystEntityId;
+                                        catalystBgName = bgEntityMappings[y].catalystEntityName;
                                         break;
                                     }
                                 }
                             }
-                            if (projectTag !== null && projectTag.name in instance.tags) {
-                                var projectMappingArray
-                                    = Object.keys(projectTag.catalystEntityMapping).map(
+                            if (projectTag !== null && projectTag.name in resource.tags) {
+                                var projectEntityMappings = Object.keys(projectTag.catalystEntityMapping).map(
                                     function (k) {
                                         return projectTag.catalystEntityMapping[k]
                                     });
 
-                                for (var y = 0; y < projectMappingArray.length; y++) {
-                                    if ((instance.tags[projectTag.name] !== '')
-                                        && ('tagValues' in projectMappingArray[y])
-                                        && (projectMappingArray[y].tagValues.indexOf(instance.tags[projectTag.name])
+                                for (var y = 0; y < projectEntityMappings.length; y++) {
+                                    if ((resource.tags[projectTag.name] !== '') && ('tagValues' in projectEntityMappings[y])
+                                        && (projectEntityMappings[y].tagValues.indexOf(resource.tags[projectTag.name])
                                         >= 0)) {
-                                        catalystProjectId = projectMappingArray[y].catalystEntityId;
-                                        catalystProjectName = projectMappingArray[y].catalystEntityName;
+                                        catalystProjectId = projectEntityMappings[y].catalystEntityId;
+                                        catalystProjectName = projectEntityMappings[y].catalystEntityName;
                                         break;
                                     }
                                 }
                             }
-                            if (environmentTag !== null && environmentTag.name in instance.tags) {
-                                var environmentMappingArray
-                                    = Object.keys(environmentTag.catalystEntityMapping).map(
+                            
+                            if (environmentTag !== null && environmentTag.name in resource.tags) {
+                                
+                                var environmentEntityMappings = Object.keys(environmentTag.catalystEntityMapping).map(
                                     function (k) {
                                         return environmentTag.catalystEntityMapping[k]
                                     });
-
-                                for (var y = 0; y < environmentMappingArray.length; y++) {
-                                    if ((instance.tags[environmentTag.name] !== '')
-                                        && ('tagValues' in environmentMappingArray[y])
-                                        && (environmentMappingArray[y].tagValues.indexOf(instance.tags[environmentTag.name])
-                                        >= 0)) {
-                                        catalystEnvironmentId = environmentMappingArray[y].catalystEntityId;
-                                        catalystEnvironmentName = environmentMappingArray[y].catalystEntityName;
+                                 for (var y = 0; y < environmentEntityMappings.length; y++) {
+                                    if ((resource.tags[environmentTag.name] !== '')
+                                        && ('tagValues' in environmentEntityMappings[y])
+                                        && (environmentEntityMappings[y].tagValues.indexOf(
+                                            resource.tags[environmentTag.name]) >= 0)) {
+                                        catalystEnvironmentId = environmentEntityMappings[y].catalystEntityId;
+                                        catalystEnvironmentName = environmentEntityMappings[y].catalystEntityName;
                                         break;
                                     }
                                 }
                             }
-
-                            if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category === 'unassigned') {
-                                unassignedInstancesModel.removeInstanceById(instance._id, function (err, data) {
-                                    if (err) {
-                                        logger.error(err);
-                                        count++;
-                                        if (count === instances.length) {
-                                            next(null, instances);
-                                        }
-                                    } else {
-                                        var assignedInstanceObj = {
-                                            orgId: instance.orgId,
-                                            orgName: instance.orgName,
-                                            bgId: catalystBgId,
-                                            bgName: catalystBgName,
-                                            projectId: catalystProjectId,
-                                            projectName: catalystProjectName,
-                                            environmentId: catalystEnvironmentId,
-                                            environmentName: catalystEnvironmentName,
-                                            providerId: instance.providerId,
-                                            providerType: instance.providerType,
-                                            providerData: instance.providerData,
-                                            platformId: instance.platformId,
-                                            ip: instance.ip,
-                                            os: instance.os,
-                                            state: instance.state,
-                                            subnetId: instance.subnetId,
-                                            vpcId: instance.vpcId,
-                                            privateIpAddress: instance.privateIpAddress,
-                                            hostName: instance.hostName,
-                                            tags: instance.tags,
-                                        }
-                                        assignedInstancesDao.createNew(assignedInstanceObj,function(err,data){
-                                            if(err){
-                                                logger.error(err);
-                                            }
-                                            count++;
-                                            if (count === instances.length) {
-                                                next(null, instances);
-                                            }
-                                        })
-                                    }
-                                })
-                            } else if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category === 'assigned') {
+                            if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category ==='unassigned') {
                                 var masterDetails = {
+                                    orgId: resource.masterDetails.orgId,
+                                    orgName: resource.masterDetails.orgName,
                                     bgId: catalystBgId,
                                     bgName: catalystBgName,
                                     projectId: catalystProjectId,
                                     projectName: catalystProjectName,
-                                    environmentId: catalystEnvironmentId,
-                                    environmentName: catalystEnvironmentName
-                                };
-                                assignedInstancesDao.updateInstanceMasterDetails(instance._id, masterDetails, function (err, data) {
+                                    envId: catalystEnvironmentId,
+                                    envName: catalystEnvironmentName
+                                }
+                                resourceModel.updateResourcesForAssigned(resource._id, masterDetails, function (err, data) {
                                     if (err) {
-                                        logger.error("Unable to update master details of assigned Instance", err);
+                                        logger.error(err);
                                     }
                                     count++;
-                                    if (count === instances.length) {
-                                        next(null, instances);
+                                    if (count === resources.length) {
+                                        next(null, resources);
+                                        return;
+                                    }
+                                })
+                            } else if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category ==='assigned') {
+                                var masterDetails= {
+                                    "masterDetails.bgId": catalystBgId,
+                                    "masterDetails.bgName": catalystBgName,
+                                    "masterDetails.projectId": catalystProjectId,
+                                    "masterDetails.projectName": catalystProjectName,
+                                    "masterDetails.envId": catalystEnvironmentId,
+                                    "masterDetails.envName": catalystEnvironmentName
+                                };
+                                resourceModel.updateResourceMasterDetails(resource._id,masterDetails,function(err,data){
+                                    if(err){
+                                        logger.error("Unable to update master details of assigned Resource", err);
+                                    }
+                                    count++;
+                                    if(count === resources.length) {
+                                        next(null, resources);
+                                        return;
                                     }
                                 });
-                            } else if (category === 'assigned') {
-                                assignedInstancesDao.removeInstanceByInstanceId(instance._id, function (err, data) {
-                                    if (err) {
-                                        logger.error("Unable to remove assigned Instance", err);
+                            } else if(category === 'assigned') {
+                                resourceModel.removeResourceById(resource._id,function(err,data){
+                                    if(err){
+                                        logger.error("Unable to remove assigned Resource", err);
                                     }
                                     count++;
-                                    if (count === instances.length) {
-                                        next(null, instances);
+                                    if(count === resources.length) {
+                                        next(null, resources);
+                                        return;
                                     }
                                 });
                             } else {
                                 count++;
-                                if (count === instances.length) {
-                                    next(null, instances);
+                                if (count === resources.length) {
+                                    next(null, resources);
+                                    return;
                                 }
                             }
-                        } else {
+                        }else{
                             count++;
-                            if (count === instances.length) {
-                                next(null, instances);
+                            if (count === resources.length) {
+                                next(null, resources);
+                                return;
                             }
                         }
-                    })(instances[i]);
+                          
+                    })(resources[j]);
                 }
-            } else {
-                logger.info("Please configure Instances for Tag Mapping");
-                next(null, instances);
             }
-        } else if(category ==='assigned'){
-            assignedInstancesDao.removeInstancesByProviderId(provider._id, function (err, data) {
+        } else if (category === 'assigned') {
+            logger.info("There is no Tag Mapping");
+            resourceModel.removeResourcesByProviderId(provider._id, function (err, data) {
                 if (err) {
-                    logger.error("Unable to remove assigned Instances", err);
+                    logger.error("Unable to remove assigned Resource", err);
                     next(err);
+                    return;
                 } else {
-                    next(null,data);
+                    logger.info("Please configure Resources for Tag Mapping");
+                    next(null, data);
                     return;
                 }
             });
-        }else{
-            next(null,tagDetails);
+        } else {
+            logger.info("Please configure Resources for Tag Mapping");
+            next(null, resources);
         }
     });
 }
 
-
-function instanceSyncWithAWS(ec2Instances,providerId,callback){
-    if(ec2Instances.length > 0){
-        var ec2InstanceIds = [];
-        for(var i = 0;i < ec2Instances.length;i++){
-            ec2InstanceIds.push(ec2Instances[i].platformId);
-        }
-        if(ec2InstanceIds.length === ec2Instances.length){
-            async.parallel({
-                instance:function(callback){
-                    instancesDao.getInstanceByProviderId(providerId,function(err,instances){
-                        if(err){
-                            callback(err,null);
-                        }else if(instances.length > 0){
-                            var instanceCount = 0;
-                            for(var j = 0;j < instances.length;j++){
-                                (function(instance){
-                                   if(ec2InstanceIds.indexOf(instance.platformId) !== -1){
-                                       instanceCount++;
-                                       if(instanceCount === instances.length){
-                                           callback(null,instances);
-                                           return;
-                                       }
-                                   }else{
-                                       instancesDao.removeTerminatedInstanceById(instance._id,function(err,data){
-                                           if(err){
-                                               instanceCount++;
-                                               logger.error(err);
-                                               return;
-                                           }
-                                           instanceCount++;
-                                           var timestampStarted = new Date().getTime();
-                                           var user = instance.catUser ? instance.catUser : 'superadmin';
-                                           var actionLog = instancesDao.insertInstanceStatusActionLog(instance._id, user,'terminated', timestampStarted);
-                                           logsDao.insertLog({
-                                               instanceId:instance._id,
-                                               instanceRefId:actionLog._id,
-                                               err: false,
-                                               log: "Instance : terminated",
-                                               timestamp: timestampStarted
-                                           });
-                                           var instanceLog = {
-                                               actionId: actionLog._id,
-                                               instanceId: instance._id,
-                                               orgName: instance.orgName,
-                                               bgName: instance.bgName,
-                                               projectName: instance.projectName,
-                                               envName: instance.environmentName,
-                                               status: 'terminated',
-                                               actionStatus: "success",
-                                               platformId: instance.platformId,
-                                               blueprintName: instance.blueprintData.blueprintName,
-                                               data: instance.runlist,
-                                               platform: instance.hardware.platform,
-                                               os: instance.hardware.os,
-                                               size: instance.instanceType,
-                                               user: user,
-                                               createdOn: new Date().getTime(),
-                                               startedOn: new Date().getTime(),
-                                               providerType: instance.providerType,
-                                               action: 'Terminated',
-                                               logs: []
-                                           };
-                                           instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
-                                               if (err) {
-                                                   logger.error("Failed to create or update instanceLog: ", err);
-                                               }
-                                           });
-                                           noticeService.notice("system", {
-                                               title: "AWS Instance : terminated",
-                                               body: "AWS Instance "+instance.platformId+" is Terminated."
-                                           }, "success",function(err,data){
-                                               if(err){
-                                                   logger.error("Error in Notification Service, ",err);
-                                               }
-                                           });
-                                           if(instanceCount === instances.length){
-                                               callback(null,instances);
-                                               return;
-                                           }
-                                       })
-                                   }
-                                    
-                                })(instances[j]);
-                            }
-                        }else{
-                            callback(null,instances);
-                        }
-                    });
-                },
-                assignedInstance:function(callback){
-                    assignedInstancesDao.getInstanceByProviderId(providerId,function(err,assignedInstances){
-                        if(err){
-                            callback(err,null);
-                        }else if(assignedInstances.length > 0){
-                            var assignedInstanceCount = 0;
-                            for(var k = 0;k < assignedInstances.length;k++){
-                                (function(assignedInstance){
-                                    if(ec2InstanceIds.indexOf(assignedInstance.platformId) !== -1){
-                                        assignedInstanceCount++;
-                                        if(assignedInstanceCount === assignedInstances.length){
-                                            callback(null,assignedInstances);
-                                            return;
-                                        }
-                                    }else{
-                                        assignedInstancesDao.removeInstanceById(assignedInstance._id,function(err,data){
-                                            if(err){
-                                                assignedInstanceCount++;
-                                                logger.error(err);
-                                                return;
-                                            }
-                                            assignedInstanceCount++;
-                                            if(assignedInstanceCount === assignedInstances.length){
-                                                callback(null,assignedInstances);
-                                                return;
-                                            }
-                                        })
-                                    }
-
-                                })(assignedInstances[k]);
-                            }
-                        }else{
-                            callback(null,assignedInstances);
-                        }
-                    });
-                },
-                unassignedInstance:function(callback){
-                    unassignedInstancesModel.getUnAssignedInstancesByProviderId(providerId,function(err,unAssignedInstances){
-                        if(err){
-                            callback(err,null);
-                        }else if(unAssignedInstances.length > 0){
-                            var unAssignedInstanceCount = 0;
-                            for(var l = 0;l < unAssignedInstances.length;l++){
-                                (function(unAssignedInstance){
-                                    if(ec2InstanceIds.indexOf(unAssignedInstance.platformId) !== -1){
-                                        unAssignedInstanceCount++;
-                                        if(unAssignedInstanceCount === unAssignedInstances.length){
-                                            callback(null,unAssignedInstances);
-                                            return;
-                                        }
-                                    }else{
-                                        unassignedInstancesModel.removeTerminatedInstanceById(unAssignedInstance._id,function(err,data){
-                                            if(err){
-                                                unAssignedInstanceCount++;
-                                                logger.error(err);
-                                                return;
-                                            }
-                                            unAssignedInstanceCount++;
-                                            if(unAssignedInstanceCount === unAssignedInstances.length){
-                                                callback(null,unAssignedInstances);
-                                                return;
-                                            }
-                                        })
-                                    }
-
-                                })(unAssignedInstances[l]);
-                            }
-                        }else{
-                            callback(null,unAssignedInstances);
-                        }
-                    });
-                }
-            },function(err,results){
-                if(err){
-                    callback(err,null);
-                }
-                callback(null,results);
-            })
-        }
-    }else{
-        callback(null,ec2Instances);
+function bucketNameList(s3Info,callback){
+    var bucketNames=[];
+    for(var i = 0; i < s3Info.length; i++){
+        bucketNames.push(s3Info[i].resourceDetails.bucketName);
     }
+    callback(null,bucketNames);
+}
 
+function rdsDBResourceIdList(rdsInfo,callback){
+    var rdsDBResourceIds=[];
+    for(var i = 0; i < rdsInfo.length; i++){
+        rdsDBResourceIds.push(rdsInfo[i].resourceDetails.dbiResourceId);
+    }
+    callback(null,rdsDBResourceIds);
+}
+
+function ec2PlatformIdList(ec2Info,callback){
+    var ec2PlatformIds=[];
+    for(var i = 0; i < ec2Info.length; i++){
+        ec2PlatformIds.push(ec2Info[i].resourceDetails.platformId);
+    }
+    callback(null,ec2PlatformIds);
 }
 
 function resourceMapSync(callback){

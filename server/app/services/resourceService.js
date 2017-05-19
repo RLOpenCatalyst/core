@@ -17,8 +17,9 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
-var S3Resource = require('_pr/model/resources/s3-resource')
-var RDSResource = require('_pr/model/resources/rds-resource')
+var S3Resource = require('_pr/model/resources/s3-resource');
+var RDSResource = require('_pr/model/resources/rds-resource');
+var EC2Resource = require('_pr/model/resources/instance-resource')
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
 var EC2 = require('_pr/lib/ec2.js');
@@ -35,7 +36,6 @@ var instancesModel = require('_pr/model/classes/instance/instance');
 var entityCosts = require('_pr/model/entity-costs');
 var mongoDbClient = require('mongodb').MongoClient;
 
-resourceService.getCostForServices = getCostForServices_deprecated;
 resourceService.getEC2InstanceUsageMetrics=getEC2InstanceUsageMetrics;
 resourceService.getS3BucketsMetrics=getS3BucketsMetrics;
 resourceService.getBucketsInfo=getBucketsInfo;
@@ -57,13 +57,6 @@ function getAllResourcesForProvider(provider, next) {
     async.parallel([
             function(callback) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
-            },
-            function(callback) {
-                //@TODO Duplicate function of  getByProviderId, to be cleaned up
-                unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
-            },
-            function(callback) {
-                unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
             },
             function(callback) {
                 resources.getResourcesByProviderId(provider._id, callback);
@@ -88,6 +81,10 @@ function getAllResourcesForProvider(provider, next) {
                             case 'S3':
                                 var tempInstance = new S3Resource(current)
                                 temp[tempInstance.resourceDetails.bucketName] = current;
+                                break;
+                            case 'EC2':
+                                var tempInstance = new EC2Resource(current)
+                                temp[tempInstance.resourceDetails.platformId] = current;
                                 break;
                             default:
                                 break;
@@ -173,7 +170,6 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
                         }
 
                         if (('masterDetails.bgId' in resource) && (resource.masterDetails.bgId != null)) {
-                            console.log("BG: " + resource['bgId'])
                             resourceCostEntry.businessGroupId = resource['bgId']
                         }
 
@@ -263,104 +259,6 @@ function aggregateResourceCostsForPeriod(provider, resources, period, endTime, c
             callback()
         }
     })
-}
-
-function getCostForServices_deprecated(provider,callback) {
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
-        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
-        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var cwConfig = {
-        access_key: decryptedAccessKey,
-        secret_key: decryptedSecretKey,
-        region:"us-east-1"
-    };
-    cw = new CW(cwConfig);
-    var endDate= new Date();
-    var startDate = new Date(endDate.getTime() - (1000*60*60*6));
-    var startDateOne = new Date(endDate.getTime() - (1000*60*60*24));
-    /*This the Dimension that is required to passed for different services*/
-    var ec2Dim = [ { Name: 'ServiceName',Value: 'AmazonEC2'},{ Name: 'Currency', Value: 'USD'} ];
-    var rdsDim = [ { Name: 'ServiceName',Value: 'AmazonRDS'},{ Name: 'Currency', Value: 'USD'} ];
-    /*Getting the cost of EC2 & RDS for the current day*/
-    async.parallel({
-        ec2Cost:function(callback){
-            var ec2Cost = 0;
-            cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentEC2Cost) {
-                if (err) {
-                    callback(err, null);
-                }
-                cw.getTotalCost(startDateOne, endDate, 'Minimum', ec2Dim, function (err, yesterdayEC2Cost) {
-                    if (err) {
-                        callback(err, null);
-                    }else if (typeof presentEC2Cost === "undefined" && typeof yesterdayEC2Cost === "undefined"){
-                        callback(null,ec2Cost);
-                    }else if(presentEC2Cost.Maximum && yesterdayEC2Cost.Minimum) {
-                        ec2Cost = presentEC2Cost['Maximum'] - yesterdayEC2Cost['Minimum'];
-                        callback(null, ec2Cost);
-                    }else {
-                        callback(null, ec2Cost);
-                    }
-                });
-            });
-        },
-        rdsCost:function(callback){
-            var rdsCost = 0;
-            cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRDSCost) {
-                if (err) {
-                    callback(err, null);
-                }
-                cw.getTotalCost(startDateOne, endDate, 'Minimum', rdsDim, function (err, yesterdayRDSCost) {
-                    if (err) {
-                        callback(err, null);
-                    }else if (typeof presentRDSCost === "undefined" && typeof yesterdayRDSCost === "undefined"){
-                        callback(null,rdsCost);
-                    }else if(presentRDSCost.Maximum && yesterdayRDSCost.Minimum) {
-                        rdsCost = presentRDSCost['Maximum'] - yesterdayRDSCost['Minimum'];
-                        callback(null, rdsCost);
-                    }else {
-                        callback(null, rdsCost);
-                    }
-                });
-            });
-        }
-
-    },function(err,results){
-        if(err){
-            callback(err,null);
-            return;
-        }else {
-            var awsResourceCostObject = {
-                organisationId: provider.orgId,
-                providerId: provider._id,
-                providerType: provider.providerType,
-                providerName: provider.providerName,
-                resourceType: "serviceCost",
-                resourceId: "serviceCost",
-                aggregateResourceCost: results.ec2Cost + results.rdsCost,
-                costMetrics: {
-                    ec2Cost: results.ec2Cost,
-                    rdsCost: results.rdsCost,
-                    currency: 'USD',
-                    symbol: "$"
-                },
-                updatedTime: Date.parse(endDate),
-                startTime: Date.parse(endDate),
-                endTime: Date.parse(startDateOne)
-            };
-            resourceCost.saveResourceCost(awsResourceCostObject, function (err, resourceCostData) {
-                if (err) {
-                    callback(err, null);
-                    return;
-                } else {
-                    callback(null, resourceCostData);
-                    return;
-                }
-            })
-        }
-    });
 }
 
 function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, period, callback) {
@@ -815,7 +713,8 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                             privateIp: instance.PrivateIpAddress
                                         },
                                         tags:tagInfo,
-                                        resourceType:'EC2'
+                                        resourceType:'EC2',
+                                        category:"unassigned"
                                     }
                                     awsInstanceList.push(instanceObj);
                                     instanceObj = {};
@@ -1072,6 +971,40 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
                 (function (j) {
                     logger.debug('Updating tags for resource ', resources[j]._id);
                     rds.addRDSDBInstanceTag(resources[j].resourceDetails.dbInstanceIdentifier, resources[j].tags,
+                        function (err, data) {
+                            if (err) {
+                                logger.error(err);
+                                if(err.code === 'AccessDenied'){
+                                    var err = new Error('Update tag failed, Invalid keys or Permission Denied');
+                                    err.status = 500;
+                                    return callback(err);
+                                }else {
+                                    var err = new Error('Internal server error');
+                                    err.status = 500;
+                                    return callback(err);
+                                }
+                            } else if (j == resources.length - 1) {
+                                return callback(null, resources);
+                            }
+                        });
+                })(i);
+            }
+        }else if(resources[0].resourceType === 'EC2') {
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+            var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var ec2Config = {
+                access_key: decryptedAccessKey,
+                secret_key: decryptedSecretKey
+            };
+            var ec2 = new EC2(ec2Config);
+            for (var i = 0; i < resources.length; i++) {
+                (function (j) {
+                    logger.debug('Updating tags for resource ', resources[j]._id);
+                    ec2.createTags(resources[j].resourceDetails.platformId, resources[j].tags,
                         function (err, data) {
                             if (err) {
                                 logger.error(err);

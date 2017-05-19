@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  Copyright [2016] [Relevance Lab]
+=======
+ Copyright [2017] [Relevance Lab]
+>>>>>>> upstream/stage
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,11 +24,6 @@ var uuid = require('node-uuid');
 var appConfig = require('_pr/config');
 var fileIo = require('_pr/lib/utils/fileio');
 var fileUpload = require('_pr/model/file-upload/file-upload');
-const exec = require('child_process').exec;
-var logsDao = require('_pr/model/dao/logsdao.js');
-var SSHExec = require('_pr/lib/utils/sshexec');
-var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
-var instancesDao = require('_pr/model/classes/instance/instance.js');
 var noticeService = require('_pr/services/noticeService.js');
 var scriptService = require('_pr/services/scriptService.js');
 var async = require('async');
@@ -51,26 +50,29 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
         functionality: reqBody.category,
         subType: reqBody.subType ? reqBody.subType : (reqBody.blueprintType ? reqBody.blueprintType : null),
         manualExecutionTime: parseInt(reqBody.standardTime),
-        inputFormFields: [],
+        input: [],
         execution: [],
-        outputOptions: {
+        output: {
+            logs:[],
             msgs: {
-                mail: {},
-                text: {}
+                mail: '',
+                text: ''
             }
         }
     }
     if (reqBody.filters) {
-        commonJson.outputOptions.filters = reqBody.filters;
+        commonJson.output.filters = reqBody.filters;
     }
     if (reqBody.messages) {
-        commonJson.outputOptions.msgs = reqBody.messages;
+        commonJson.output.msgs = reqBody.messages;
     }
     if (reqBody.logs) {
-        commonJson.outputOptions.logs = reqBody.logs;
+        commonJson.output.logs = reqBody.logs;
     }
     if (reqBody.type === 'script') {
-        commonJson.outputOptions.msgs.text = "Script ${scripName} has executed successfully on Node ${node}";
+        commonJson.output.logs.push('stdout');
+        commonJson.output.msgs.text = 'Script BOT has executed successfully on Node ${node}';
+        commonJson.output.msgs.mail = 'Node: ${node}'
         for(var i = 0; i < reqBody.scriptDetails.length; i ++) {
             (function (scriptDetail) {
                 scriptFileName = appConfig.botFactoryDir + 'local/Code/script_BOTs/' + commonJson.id;
@@ -88,7 +90,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                                 var params = '';
                                 count++;
                                 scriptDetail.scriptParameters.forEach(function (param) {
-                                    commonJson.inputFormFields.push({
+                                    commonJson.input.push({
                                         default: param.paramVal,
                                         type: param.paramType === "" ? "text" : param.paramType.toLowerCase(),
                                         label: param.paramDesc,
@@ -116,7 +118,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
     } else if (reqBody.type === 'jenkins') {
         commonJson.isParameterized = reqBody.isParameterized;
         commonJson.autoSync = reqBody.autoSyncFlag;
-        commonJson.inputFormFields.push(
+        commonJson.input.push(
             {
                 default: reqBody.jenkinsServerId,
                 type: 'list',
@@ -137,7 +139,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
             }
         )
         if (reqBody.isParameterized === true) {
-            commonJson.inputFormFields.push({
+            commonJson.input.push({
                 default: reqBody.parameterized,
                 type: 'list',
                 label: 'Jenkins JOB Parameters',
@@ -157,7 +159,8 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                 jenkinsServerName: reqBody.jenkinsServerName
             })
         }
-        commonJson.outputOptions.msgs.text = "${jenkinsJobName} job has successfully built on ${jenkinsServerName}";
+        commonJson.output.msgs.text = '${jenkinsJobName} job has successfully built on ${jenkinsServerName}';
+        commonJson.output.msgs.mail = 'JenkinsJobName: ${jenkinsJobName} JenkinsServerName: ${jenkinsServerName}'
         ymlText = yml.stringify(commonJson);
         createYML()
     } else if (reqBody.type === 'chef') {
@@ -175,7 +178,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                     var key = Object.keys(attrValObj)[0];
                     attributeObj[jsonObjKey][key] = '${' + key + '}';
                 }
-                commonJson.inputFormFields.push({
+                commonJson.input.push({
                     default: attrValObj[key],
                     type: 'text',
                     label: attribute.name,
@@ -200,12 +203,14 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                 stage: reqBody.name
             })
         }
-        commonJson.outputOptions.msgs.text = "Cookbook RunList ${runlist} has executed successful on Node ${node}";
+        commonJson.output.logs.push('stdout');
+        commonJson.output.msgs.text = 'Cookbook RunList ${runlist} has executed successful on Node ${node}';
+        commonJson.output.msgs.mail = 'RunList: ${runlist} Node: ${node}'
         ymlText = yml.stringify(commonJson);
         createYML()
     } else if (reqBody.type === 'blueprints' || reqBody.type === 'blueprint') {
         if (reqBody.subType === 'aws_cf' || reqBody.subType === 'azure_arm') {
-            commonJson.inputFormFields.push(
+            commonJson.input.push(
                 {
                     default: reqBody.stackName ? reqBody.stackName : null,
                     type: 'text',
@@ -213,7 +218,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                     name: 'stackName'
                 })
         } else {
-            commonJson.inputFormFields.push(
+            commonJson.input.push(
                 {
                     default: reqBody.domainName ? reqBody.domainName : null,
                     type: 'text',
@@ -221,7 +226,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                     name: 'domainName'
                 })
         }
-        commonJson.inputFormFields.push(
+        commonJson.input.push(
             {
                 default: reqBody.blueprintIds ? reqBody.blueprintIds : [],
                 type: 'list',
@@ -253,7 +258,9 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
             id: reqBody.blueprintId,
             category: getBlueprintType(reqBody.blueprintType)
         })
-        commonJson.outputOptions.msgs.text = "${blueprintName} has successfully launched on env ${envId}";
+        commonJson.output.logs.push('stdout');
+        commonJson.output.msgs.text = '${blueprintName} has successfully launched on env ${envId}';
+        commonJson.output.msgs.mail = 'BlueprintName: ${blueprintName} EnvName: ${envId}';
         ymlText = yml.stringify(commonJson);
         createYML()
     }
@@ -337,14 +344,16 @@ function uploadFilesOnBotEngine(orgId,callback){
                     logger.error("Error while fetching BOTs Server Details");
                     next(err, null);
                     return;
-                } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                } else if (botServerDetails !== null) {
                     botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                     botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                    next(null, botRemoteServerDetails);
                 } else {
-                    botRemoteServerDetails.hostIP = "localhost";
-                    botRemoteServerDetails.hostPort = "2687";
+                    var error = new Error();
+                    error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                    error.status = 403;
+                    next(error, null);
                 }
-                next(null, botRemoteServerDetails);
             });
         },
         function (botRemoteServerDetails, next) {

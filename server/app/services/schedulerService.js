@@ -328,6 +328,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                 }else if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'active' )) {
                     var timestampEnded = new Date().getTime();
                     count++;
+                    console.log(auditData.retryCount);
                     if (auditData.retryCount === botEngineTimeOut) {
                         if(auditData.env === 'local') {
                             var logData ={

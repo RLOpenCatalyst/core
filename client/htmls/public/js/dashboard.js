@@ -56,28 +56,20 @@ $(document).ready(function () {
         $.get('../providers/' + providerid + '/managedInstances', function (dataManaged) {
             var managedInstancesLength = dataManaged.metaData.totalRecords;
             $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
-
             var totalInstances;
             var managedData = dataManaged.metaData.totalRecords;
             updateTotalCount("managed", providerid, managedData);
-
             $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function () {
                 $('#mainPanelId').hide();
                 $('#managedTableContainer').show();
                 $('#providerforManagedInstId').empty().append(providerName);
                 loadManagedInstances(providerid);
             });
-
             $.get('../providers/' + providerid + '/unmanagedInstances', function (dataUnmanaged) {
                 var unmanagedData = dataUnmanaged.metaData.totalRecords;
                 $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
-
-
                 updateTotalCount("unmanaged", providerid, unmanagedData);
-
-
                 awstotalinstancecount = awstotalinstancecount + totalInstances;
-
                 $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function () {
                     $('#mainPanelId').hide();
                     $('#unmanagedTableContainer').show();

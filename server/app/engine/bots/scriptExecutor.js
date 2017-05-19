@@ -122,8 +122,9 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
-    var logsReferenceIds = [botDetail._id, actionId];
-    var replaceTextObj = {};
+    var replaceTextObj = {
+        node:'local'
+    }
     var logData = {
         botId:botDetail._id,
         botRefId: actionId,
@@ -150,8 +151,8 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
     } else if(requestBody && requestBody.data && schedulerCheck === false) {
         replaceTextObj = requestBody.data;
     } else {
-        for (var j = 0; j < botDetail.inputFormFields.length; j++) {
-            replaceTextObj[botDetail.inputFormFields[j].name] = botDetail.inputFormFields[j].default;
+        for (var j = 0; j < botsScriptDetails.input.length; j++) {
+            replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
         }
     }
 
@@ -313,7 +314,9 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Password_Based_Authentication";
         }
-        var replaceTextObj = {};
+        var replaceTextObj = {
+            node:instance.instanceIP
+        };
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
         if (requestBody && requestBody.data && schedulerCheck === true) {
@@ -328,8 +331,8 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
         } else if (requestBody && requestBody.data && schedulerCheck === false) {
             replaceTextObj = requestBody.data;
         } else {
-            for (var j = 0; j < botDetail.inputFormFields.length; j++) {
-                replaceTextObj[botDetail.inputFormFields[j].name] = botDetail.inputFormFields[j].default;
+            for (var j = 0; j < botDetails.input.length; j++) {
+                replaceTextObj[botDetails.input[j].name] = botDetails.input[j].default;
             }
         }
         var reqBody = {

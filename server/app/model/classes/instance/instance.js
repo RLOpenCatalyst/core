@@ -2221,17 +2221,17 @@ var InstancesDao = function () {
         if (instance.status && instance.status === 'shutting-down') {
             updateObj['instanceState'] = instance.status;
             updateObj['isDeleted'] = true;
-        } else if (instance.state === 'terminated' || instance.state === 'shutting-down') {
-            updateObj['instanceState'] = instance.state;
+        } else if (instance.resourceDetails.state === 'terminated' || instance.resourceDetails.state === 'shutting-down') {
+            updateObj['instanceState'] = instance.resourceDetails.state;
             updateObj['isDeleted'] = true;
         } else {
-            updateObj['instanceState'] = instance.state;
+            updateObj['instanceState'] = instance.resourceDetails.state;
             updateObj['isDeleted'] = false;
-            updateObj['subnetId'] = instance.subnetId;
-            updateObj['instanceIP'] = instance.ip;
-            updateObj['vpcId'] = instance.vpcId;
-            updateObj['hostName'] = instance.hostName;
-            updateObj['privateIpAddress'] = instance.privateIpAddress;
+            updateObj['subnetId'] = instance.resourceDetails.subnetId;
+            updateObj['instanceIP'] = instance.resourceDetails.publicIp;
+            updateObj['vpcId'] = instance.resourceDetails.vpcId;
+            updateObj['hostName'] = instance.resourceDetails.hostName;
+            updateObj['privateIpAddress'] = instance.resourceDetails.privateIp;
             updateObj['tags'] = instance.tags;
         }
         Instances.update({
