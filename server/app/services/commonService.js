@@ -1,10 +1,4 @@
 /*
-<<<<<<< HEAD
- Copyright [2016] [Relevance Lab]
-=======
- Copyright [2017] [Relevance Lab]
->>>>>>> upstream/stage
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -42,7 +36,7 @@ var commonService = module.exports = {};
 commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
     var ymlText = '',scriptFileName = '',count = 0;
     var commonJson = {
-        id: reqBody.name.toLowerCase().replace(" ", "_") + '_' + uuid.v4().split("-")[0],
+        id: reqBody.name.toLowerCase().replace(/ /g,"_") + '_' + uuid.v4().split("-")[0],
         name: reqBody.name,
         desc: reqBody.desc,
         action: reqBody.action,
@@ -94,9 +88,14 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                                         default: param.paramVal,
                                         type: param.paramType === "" ? "text" : param.paramType.toLowerCase(),
                                         label: param.paramDesc,
-                                        name: param.paramDesc.toLowerCase().replace(" ", "_")
+                                        name: param.paramDesc.toLowerCase().replace(/ /g,"_")
                                     })
-                                    params = params + '${' + param.paramDesc.toLowerCase().replace(" ", "_") + '}'
+                                    if(params === ''){
+                                        params = '${' + param.paramDesc.toLowerCase().replace(/ /g,"_") + '}'
+                                    }else{
+                                        params = params + ' ${' + param.paramDesc.toLowerCase().replace(/ /g,"_") + '}'
+                                    }
+
                                 });
                                 commonJson.execution.push({
                                     type: reqBody.scriptTypeName.toLowerCase(),

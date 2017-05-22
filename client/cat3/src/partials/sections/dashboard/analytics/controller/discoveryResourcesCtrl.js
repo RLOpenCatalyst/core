@@ -93,7 +93,6 @@
                                                 }
                                             };
                                             param.data.tags[tagna] = newValue;
-                                            console.log(param);
                                             if (newValue !== oldValue) {
                                                 genSevs.promisePatch(param).then(function () {
                                                     toastr.success('Successfully updated.', 'Update');
@@ -142,6 +141,9 @@
                             }
                         };
                         disResrc.gridOptionInstances.data = [];
+                        var param = {
+                            inlineLoader: true
+                        };
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
                             disResrc.gridOptionInstances.enableRowHeaderSelection= false;
                             $scope.colArray=['platformId','privateIpAddress','instanceState'];
@@ -182,66 +184,67 @@
                                 }
                             ];
                             $scope.instanceType= 'managedInstances';
+                            param.url = '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType;
                         } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
 
-                            $scope.colArray=['platformId','privateIpAddress','os','state'];
+                            $scope.colArray=['resourceDetails.platformId','resourceDetails.privateIp','resourceDetails.os','resourceDetails.state'];
 
                             disResrc.gridOptionInstances.columnDefs=[
-                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
+                                {name: 'InstanceId', field: 'resourceDetails.platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false,enableFiltering: true},
-                                {name: 'os', enableFiltering: true,displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
-                                {name: 'privateIpAddress',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
+                                {name: 'os', enableFiltering: true,displayName: 'OS',field: 'resourceDetails.os', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
+                                {name: 'privateIp',field: 'resourceDetails.privateIp',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
-                                {name: 'state',enableFiltering: true, displayName: 'Status',enableCellEditOnFocus: false,
+                                {name: 'state',enableFiltering: true, field: 'resourceDetails.state',displayName: 'Status',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: 'Region',enableFiltering: true,
                                     displayName: 'Region',
-                                    field: 'providerData.region_name',
+                                    field: 'providerDetails.region.region_name',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
-                                {name: 'orgName', enableFiltering: true,displayName: 'Org Name', field: 'orgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                {name: 'orgName', enableFiltering: true,displayName: 'Org Name', field: 'masterDetails.orgName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: 'bgName',
                                     displayName: 'BG Name',enableFiltering: true,
-                                    field: 'bgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    field: 'masterDetails.bgName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
                                 {
                                     name: 'projectName',enableFiltering: true,
                                     displayName: 'Project Name',
-                                    field: 'projectName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    field: 'masterDetails.projectName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
                                 {
                                     name: 'environmentName',enableFiltering: true,
                                     displayName: 'Env Name',
-                                    field: 'environmentName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    field: 'masterDetails.envName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 }
                             ];
-                            $scope.instanceType= 'unmanagedInstances';
+                            param.url = '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:EC2,category:'+$rootScope.organNewEnt.instanceType.toLowerCase();
                         } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
                             disResrc.gridOptionInstances.enableRowHeaderSelection= false;
-                            $scope.colArray=['platformId','privateIpAddress','os','state'];
+                            $scope.colArray=['resourceDetails.platformId','resourceDetails.privateIp','resourceDetails.os','resourceDetails.state'];
                             disResrc.gridOptionInstances.columnDefs= [
-                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
+                                {name: 'InstanceId', field: 'resourceDetails.platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false},
-                                {name: 'os', displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
-                                {name: 'privateIpAddress', displayName: 'IP Address',enableCellEditOnFocus: false,
+                                {name: 'os', field: 'resourceDetails.os', displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
+                                {name: 'privateIp',field: 'resourceDetails.privateIp', displayName: 'IP Address',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
-                                {name: 'state', displayName: 'Status',enableCellEditOnFocus: false,
+                                {name: 'state',field: 'resourceDetails.state', displayName: 'Status',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: 'Region',
                                     displayName: 'Region',
-                                    field: 'providerData.region_name',
+                                    field: 'providerDetails.region.region_name',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
-                                {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                {name: 'orgName', displayName: 'Org Name', field: 'masterDetails.orgName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: $scope.TagName.bgTag,
@@ -283,20 +286,17 @@
                                     editDropdownValueLabel: 'id'
                                 }
                             ];
-
-                            $scope.instanceType= 'unassigned-instances';
+                            param.url = '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:EC2,category:'+$rootScope.organNewEnt.instanceType.toLowerCase();
                         }
-                            var param = {
+                            /*var param = {
                                 inlineLoader:true,
                                 url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
                                // url:'src/partials/sections/dashboard/analytics/data/ins.json'
-                            };
+                            };*/
                             genSevs.promiseGet(param).then(function (instResult) {
                                 if($rootScope.organNewEnt.instanceType === 'Managed') {
                                     disResrc.gridOptionInstances.data = instResult.managedInstances;
-                                } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                                    disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
-                                } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                                } else{
                                     disResrc.gridOptionInstances.data = instResult.data;
                                 }
                                 disResrc.gridOptionInstances.isRowSelectable = function(row){

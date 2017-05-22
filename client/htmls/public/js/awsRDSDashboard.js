@@ -135,7 +135,7 @@ $(document).ready(function() {
         "serverSide": true,
         "destroy":true,
         "ajax": {
-            "url":  '/resources?filterBy=providerId:'+ providerId +',resourceType:RDS,category:assigned',
+            "url":  '/resources?filterBy=providerDetails.id:'+ providerId +',resourceType:RDS,category:assigned',
             "data": function( result ) {
                 var columnIndex = parseInt(result.order[0].column);
                 var newResult = {
@@ -290,7 +290,7 @@ $(document).ready(function() {
         "serverSide": true,
         "destroy":true,
         "ajax": {
-            "url": '/resources?filterBy=providerId:'+ providerId +',resourceType:RDS,category:unassigned',
+            "url": '/resources?filterBy=providerDetails.id:'+ providerId +',resourceType:RDS,category:unassigned',
             "data": function( result ) {
                 var columnIndex = parseInt(result.order[0].column);
                 var newResult = {

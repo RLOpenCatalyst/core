@@ -113,7 +113,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function (resourceList, next) {
                     if(resourceList.length > 0){
-                        console.log(resourceList.length);
                         var trackReport = {
                             totalResources:resourceList.length,
                             totalAssignedResources:0,

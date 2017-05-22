@@ -395,8 +395,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                 totalNoOfRunningBots: function(callback){
                     var runningCount = 0;
                     for(var i = 0; i < botsList.length; i++){
-                        if(botsList[i].lastExecutionStatus && botsList[i].lastExecutionStatus === 'failed'){
-                            runningCount = runningCount + 1;
+                        if(botsList[i].runningExecutionCount){
+                            runningCount = botsList[i].runningExecutionCount;
                         }
                     }
                     callback(null,runningCount);

@@ -30,8 +30,7 @@ $(document).ready(function() {
     $("#refreshBtn").click(function() {
         clearInstance();
         getManagedInstances();
-        getAssignedInstances();
-        getUnassignedInstances();
+        getAssignedUnassignedInstances();
     });
 
     var orgId, orgProviderId;
@@ -45,8 +44,7 @@ $(document).ready(function() {
             orgId = $("#orgDropdown").val();
             $("#providerDropdown").find("option:gt(0)").remove();
             getManagedInstances();
-            getAssignedInstances();
-            getUnassignedInstances();
+            getAssignedUnassignedInstances();
             awsProviders(orgId);
             $('#instanceActionListLoader').show();
         });
@@ -75,12 +73,10 @@ $(document).ready(function() {
                         clearInstance();
                         if (orgProviderId) {
                             getManagedInstances();
-                            getAssignedInstances();
-                            getUnassignedInstances();
+                            getAssignedUnassignedInstances();
                         } else {
                             getManagedInstances();
-                            getAssignedInstances();
-                            getUnassignedInstances();
+                            getAssignedUnassignedInstances();
                         }
                     });
                     $("#providerDropdown").trigger("change");
@@ -139,47 +135,23 @@ $(document).ready(function() {
         });
     }
 
-    function getAssignedInstances() {
+    function getAssignedUnassignedInstances() {
         $('#instanceActionListLoader').show();
-        var urlManagedNoProvider, urlManagedProvider;
+        var url;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
+            url = '../resources/track/report?filterBy=masterDetails.orgId:'+orgId+',providerDetails.id:'+ orgProviderId +',resourceType:EC2';
         } else {
-            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
+            url = '../resources/track/report?filterBy=masterDetails.orgId:'+orgId+',resourceType:EC2';
         }
         $.ajax({
             type: "get",
             dataType: "json",
             async: false,
-            url: (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
+            url: url,
             success: function(data) {
-                unManagedData = data.recordsTotal;
+                unManagedData = data.totalAssignedResources;
                 updateTotalCount("assigned", unManagedData);
-                $('#instanceActionListLoader').hide();
-            },
-            error: function(){
-                unManagedData = 0;
-                updateTotalCount("assigned", unManagedData);
-                $('#instanceActionListLoader').hide();  
-            }
-        });
-    }
-
-    function getUnassignedInstances() {
-        $('#instanceActionListLoader').show();
-        var urlManagedNoProvider, urlManagedProvider;
-        if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
-        } else {
-            urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId +",providerType:aws";
-        }
-        $.ajax({
-            type: "get",
-            dataType: "json",
-            async: false,
-            url: (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
-            success: function(data) {
-                unAssignedData = data.recordsTotal;
+                unAssignedData = data.totalUnAssignedResources;
                 updateTotalCount("unassigned", unAssignedData);
                 var totalInstances;
                 totalInstances = managedData + unManagedData + unAssignedData;
@@ -187,6 +159,8 @@ $(document).ready(function() {
                 $('#instanceActionListLoader').hide();
             },
             error: function(){
+                unManagedData = 0;
+                updateTotalCount("assigned", unManagedData);
                 unAssignedData = 0;
                 updateTotalCount("unassigned", unAssignedData);
                 var totalInstances;
@@ -300,11 +274,13 @@ $(document).ready(function() {
     }
 
     function loadAllUnManagedInstances() {
-        var urlManagedNoProvider, urlManagedProvider;
+        var url;
         if (orgProviderId) {
-            urlManagedNoProvider = "/tracked-instances?category=assigned&filterBy=orgId:" + orgId +  ",providerId:" + orgProviderId;
+            url=  '/resources?filterBy=masterDetails.orgId:' + orgId + ',providerDetails.id:'+ orgProviderId +',resourceType:EC2,category:assigned';
+          //  url = "/tracked-instances?category=assigned&filterBy=orgId:" + orgId +  ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "/tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
+            url=  '/resources?filterBy=masterDetails.orgId:' + orgId + ',resourceType:EC2,category:assigned';
+           // url = "/tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
         }
         $('.footer').addClass('hidden');
         $('#instanceAssignedTable').DataTable({
@@ -312,7 +288,7 @@ $(document).ready(function() {
             "serverSide": true,
             "destroy": true,
             "ajax": {
-                "url":  urlManagedNoProvider ? urlManagedNoProvider : urlManagedProvider,
+                "url":  url,
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
@@ -328,54 +304,54 @@ $(document).ready(function() {
                 }
             },
             "columns": [{
-                "data": "platformId",
+                "data": "resourceDetails.platformId",
                 "orderable": true
             },  {"data": "" ,"orderable" : true ,
                 "render":function(data, type, full, meta) {
-                    return full.orgName?full.orgName:'-';
+                    return full.masterDetails.orgName?full.masterDetails.orgName:'-';
                 }
             },
                 {"data": "" ,"orderable" : true ,
                     "render":function(data, type, full, meta) {
-                        return full.bgName?full.bgName:'-';
+                        return full.masterDetails.bgName?full.masterDetails.bgName:'-';
                     }
                 },
                 {"data": "" ,"orderable" : true,
                     "render":function(data, type, full, meta) {
-                        return full.projectName?full.projectName:'-';
+                        return full.masterDetails.projectName?full.masterDetails.projectName:'-';
                     }
                 },
                 {"data": "","orderable" : true,
                     "render":function(data, type, full, meta) {
-                        return full.environmentName?full.environmentName:'-';
+                        return full.masterDetails.envName?full.masterDetails.envName:'-';
                     }
                 },
                  {
                 "data": "",
                 "orderable": true,
                 "render": function(data, type, full,meta) {
-                    if(full.ip === null){
-                        if(full.privateIpAddress &&  full.privateIpAddress !== null){
-                            return full.privateIpAddress;
+                    if(full.resourceDetails.publicIp === null){
+                        if(full.resourceDetails.privateIp &&  full.resourceDetails.privateIp !== null){
+                            return full.resourceDetails.privateIp;
                         }else{
                             return '-';
                         }
                     }else{
-                        return full.ip;
+                        return full.resourceDetails.publicIp;
                     }
                 }
             }, {
-                "data": "state",
+                "data": "resourceDetails.state",
                 "orderable": true
             }]
         });
     }
 
     function getUnassignedInstancesWithProjectAndEnv() {
-        var urlManagedNoProvider, urlManagedProvider;
+        var url;
         var envProjectMappingObject = {};
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
+            url=  '/resources?filterBy=masterDetails.orgId:' + orgId + ',providerDetails.id:'+ orgProviderId +',resourceType:EC2,category:unassigned';
             $.get('/providers/'+ orgProviderId +'/tag-mappings', function(tagsListSelected) {
                 if (tagsListSelected) {
                     for (var i = 0; i < tagsListSelected.length; i++) {
@@ -391,7 +367,7 @@ $(document).ready(function() {
                             envProjectMappingObject['bgName'] = objtagName;
                         }
                     }
-                    getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedNoProvider,true);
+                    getUnassignedInstancesWithTagMapping(envProjectMappingObject,url,true);
                 }
             }).fail(function(jxhr) {
                 var msg = "Tag mappings not loaded as behaved unexpectedly.";
@@ -403,8 +379,8 @@ $(document).ready(function() {
                 bootbox.alert(msg);
             });
         } else {
-            urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ",providerType:aws";
-            getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedProvider,false);
+            url=  '/resources?filterBy=masterDetails.orgId:' + orgId + ',resourceType:EC2,category:unassigned';
+            getUnassignedInstancesWithTagMapping(envProjectMappingObject,url,false);
         }
     }
 
@@ -433,31 +409,31 @@ $(document).ready(function() {
             "createdRow": function(row, data) {
                 $(row).attr({
                     "instanceId": data._id,
-                    "urlproviderId": data.providerId
+                    "urlproviderId": data.providerDetails.id
                 })
             },
             "columns": [{
-                "data": "platformId",
+                "data": "resourceDetails.platformId",
                 "orderable": true
             }, {
-                "data": "os",
+                "data": "resourceDetails.os",
                 "orderable": false
             }, {
                 "data": "",
                 "orderable": true,
                 "render":function(data, type, full, meta) {
-                    if(full.ip === null){
-                        if(full.privateIpAddress &&  full.privateIpAddress !== null){
-                            return full.privateIpAddress;
+                    if(full.resourceDetails.publicIp === null){
+                        if(full.resourceDetails.privateIp &&  full.resourceDetails.privateIp !== null){
+                            return full.resourceDetails.privateIp;
                         }else{
                             return '-';
                         }
                     }else{
-                        return full.ip;
+                        return full.resourceDetails.publicIp;
                     }
                 }
             }, {
-                "data": "state",
+                "data": "resourceDetails.state",
                 "orderable": true
             },
                 {"data": "" ,"orderable" : false,"visible" : hideColumn,
@@ -491,10 +467,10 @@ $(document).ready(function() {
                     }
                 },
                 {
-                    "data": "platformId",
+                    "data": "resourceDetails.platformId",
                     "orderable": false,"visible" : hideColumn,
                     "render": function(data, type, full, meta) {
-                        if (full.platformId) {
+                        if (full.resourceDetails.platformId) {
                             return '<input class="nodeCheckBox" type="checkbox" val=""/>';
                         }
                     }

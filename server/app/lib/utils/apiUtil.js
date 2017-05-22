@@ -260,11 +260,7 @@ var ApiUtil = function() {
                 if (c.length > 1) {
                     filterBy[b[0]] = {'$in': c};
                 } else {
-                    if(key === 'resources' && b[0] === 'providerId'){
-                        filterBy['providerDetails.id'] = b[1];
-                    }else {
-                        filterBy[b[0]] = b[1];
-                    }
+                    filterBy[b[0]] = b[1];
                 }
             }
             request['filterBy'] = filterBy;

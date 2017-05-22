@@ -445,7 +445,7 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                     logger.error("Error in Fetching Audit Trail.", err);
                     next(err, null);
                 } else if (botAuditTrail.length > 0) {
-                    var seconds = 0, minutes = 0, hours = 0, days = 0,successCount = 0,failedCount = 0,srnCount = 0;
+                    var seconds = 0, minutes = 0, hours = 0, days = 0,successCount = 0,failedCount = 0,srnCount = 0,runningCount = 0;
                     for (var m = 0; m < botAuditTrail.length; m++) {
                         if (botAuditTrail[m].savedTime && botAuditTrail[m].actionStatus ==='success') {
                             successCount = successCount + 1;
@@ -459,6 +459,9 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                         }
                         if(botAuditTrail[m].actionStatus ==='failed'){
                             failedCount = failedCount + 1;
+                        }
+                        if(botAuditTrail[m].actionStatus ==='running'){
+                            runningCount = runningCount + 1;
                         }
                     }
                     if (seconds >= 60) {
@@ -498,6 +501,7 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                             successExecutionCount: successCount,
                             failedExecutionCount: failedCount,
                             srnSuccessExecutionCount: srnCount,
+                            runningExecutionCount: runningCount,
                             executionCount: botAuditTrail.length
                         }, function (err, data) {
                             if (err) {

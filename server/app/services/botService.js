@@ -163,7 +163,8 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                         queryObj.queryObj['orgId'] = {$in: orgIds};
                     }
                     if (actionStatus !== null) {
-                        queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+                        var key = actionStatus+'ExecutionCount';
+                        queryObj.queryObj[key] = {$gt:0};
                     }
                     if (serviceNowCheck === true) {
                         queryObj.queryObj['srnSuccessExecutionCount'] = {$gt: 0};
@@ -337,11 +338,11 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                     bots: function (callback) {
                         if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === true) {
-                            var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
-                                executionCount: botExecutionCount,
+                                executionCount: botDetails[0].executionCount + 1,
                                 lastRunTime: new Date().getTime(),
-                                lastExecutionStatus:"running"
+                                lastExecutionStatus: "running",
+                                runningExecutionCount: botDetails[0].runningExecutionCount + 1
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         } else if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
@@ -353,12 +354,12 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                                     err.message = 'Data encryption is Failed';
                                     callback(err, null);
                                 }else{
-                                    var botExecutionCount = botDetails[0].executionCount + 1;
                                     var botUpdateObj = {
-                                        executionCount: botExecutionCount,
+                                        executionCount: botDetails[0].executionCount + 1,
                                         lastRunTime: new Date().getTime(),
                                         params:encryptData,
-                                        lastExecutionStatus:"running"
+                                        lastExecutionStatus:"running",
+                                        runningExecutionCount: botDetails[0].runningExecutionCount + 1
                                     }
                                     if(reqBody.nodeIds){
                                         botUpdateObj.params.nodeIds = reqBody.nodeIds;

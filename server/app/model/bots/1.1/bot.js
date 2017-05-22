@@ -110,11 +110,6 @@ var BotSchema = new Schema ({
         type: Boolean,
         default: false
     },
-    lastExecutionStatus:{
-        type: String,
-        trim: true,
-        required: false
-    },
     ymlDocFileId : {
         type: String,
         trim: true,
@@ -138,6 +133,10 @@ var BotSchema = new Schema ({
         default: 0
     },
     failedExecutionCount: {
+        type: Number,
+        default: 0
+    },
+    runningExecutionCount: {
         type: Number,
         default: 0
     },
