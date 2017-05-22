@@ -116,86 +116,115 @@ botService.removeBotsById = function removeBotsById(botId,callback){
 
 botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
     var reqData = {};
-    async.waterfall([
-        function(next) {
-            apiUtil.paginationRequest(botsQuery, 'bots', next);
-        },
-        function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
-            reqData = paginationReq;
-            apiUtil.databaseUtil(paginationReq, next);
-        },
-        function(queryObj, next) {
-            settingService.getOrgUserFilter(userName, function (err, orgIds) {
-                if (err) {
-                    next(err, null);
-                }
-                if(orgIds.length > 0){
-                    queryObj.queryObj['orgId'] = {$in: orgIds};
-                }
-                if(actionStatus !== null) {
-                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
-                }
-                if(serviceNowCheck === true) {
-                    queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
-                    var botIds = [];
-                    botDao.getAllBots(queryObj.queryObj,function(err,botData){
-                        if(err){
-                            next(err,null);
-                        }
-                        if(botData.length > 0){
-                            botData.forEach(function(bot){
-                                botIds.push(bot._id);
-                            })
-                        }
-                        if(botIds.length > 0){
-                            delete queryObj.queryObj;
-                            queryObj.queryObj = {
-                                auditId: {$in:botIds}
-                            }
-                            auditTrail.getAuditTrailList(queryObj,next);
-                        }else{
-                            botDao.getBotsList(queryObj, next);
-                        }
-                    })
-                }else{
+    if(botsQuery.paginationType === 'jquery'){
+        async.waterfall(
+            [
+                function (next) {
+                    apiUtil.changeRequestForJqueryPagination(botsQuery, next);
+                },
+                function (reqData, next) {
+                    reqData = reqData;
+                    apiUtil.paginationRequest(reqData, 'bots', next);
+                },
+                function (paginationReq, next) {
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function (queryObj, next) {
                     botDao.getBotsList(queryObj, next);
+                },
+                function (botList, next) {
+                    apiUtil.changeResponseForJqueryPagination(botList, reqData, next);
+                },
+
+            ], function (err, results) {
+                if (err){
+                    return callback(err,null);
+                }else{
+                    return callback(null,results);
                 }
             });
-        },
-        function(botList, next) {
-            addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
-        },
-        function(filterBotList, next) {
-           async.parallel({
-               botList:function(callback){
-                   apiUtil.paginationResponse(filterBotList, reqData, callback);
-               },
-               botSummary:function(callback){
-                   auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback)
-               }
-           },function(err,data){
-               if(err){
-                   next(err);
-               }else{
-                   next(null,data);
-               }
-           })
-        }
-    ],function(err, results) {
-        if (err){
-            logger.error(err);
-            callback(err,null);
+    }else {
+        async.waterfall([
+            function(next) {
+                apiUtil.paginationRequest(botsQuery, 'bots', next);
+            },
+            function(paginationReq, next) {
+                paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
+                reqData = paginationReq;
+                apiUtil.databaseUtil(paginationReq, next);
+            },
+            function(queryObj, next) {
+                settingService.getOrgUserFilter(userName, function (err, orgIds) {
+                    if (err) {
+                        next(err, null);
+                    }
+                    if(orgIds.length > 0){
+                        queryObj.queryObj['orgId'] = {$in: orgIds};
+                    }
+                    if(actionStatus !== null) {
+                        queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+                    }
+                    if(serviceNowCheck === true) {
+                        queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
+                        var botIds = [];
+                        botDao.getAllBots(queryObj.queryObj,function(err,botData){
+                            if(err){
+                                next(err,null);
+                            }
+                            if(botData.length > 0){
+                                botData.forEach(function(bot){
+                                    botIds.push(bot._id);
+                                })
+                            }
+                            if(botIds.length > 0){
+                                delete queryObj.queryObj;
+                                queryObj.queryObj = {
+                                    auditId: {$in:botIds}
+                                }
+                                auditTrail.getAuditTrailList(queryObj,next);
+                            }else{
+                                botDao.getBotsList(queryObj, next);
+                            }
+                        })
+                    }else{
+                        botDao.getBotsList(queryObj, next);
+                    }
+                });
+            },
+            function(botList, next) {
+                addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
+            },
+            function(filterBotList, next) {
+               async.parallel({
+                   botList:function(callback){
+                       apiUtil.paginationResponse(filterBotList, reqData, callback);
+                   },
+                   botSummary:function(callback){
+                       auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback)
+                   }
+               },function(err,data){
+                   if(err){
+                       next(err);
+                   }else{
+                       next(null,data);
+                   }
+               })
+            }
+        ],function(err, results) {
+            if (err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }
+            var resultObj = {
+                bots : results.botList.bots,
+                metaData : results.botList.metaData,
+                botSummary: results.botSummary
+            }
+            callback(null,resultObj);
             return;
-        }
-        var resultObj = {
-            bots : results.botList.bots,
-            metaData : results.botList.metaData,
-            botSummary: results.botSummary
-        }
-        callback(null,resultObj);
-        return;
-    });
+        });
+    }
 }
 
 botService.executeBots = function executeBots(botsId,reqBody,userName,executionType,schedulerCallCheck,callback){
