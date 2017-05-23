@@ -38,7 +38,7 @@ var commonService = module.exports = {};
 commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
     var ymlText = '',scriptFileName = '',count = 0;
     var commonJson = {
-        id: reqBody.name.toLowerCase().replace(" ", "_") + '_' + uuid.v4().split("-")[0],
+        id: reqBody.name.toLowerCase().replace(/ /g,"_") + '_' + uuid.v4().split("-")[0],
         name: reqBody.name,
         desc: reqBody.desc,
         action: reqBody.action,
@@ -90,9 +90,13 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                                         default: param.paramVal,
                                         type: param.paramType === "" ? "text" : param.paramType.toLowerCase(),
                                         label: param.paramDesc,
-                                        name: param.paramDesc.toLowerCase().replace(" ", "_")
+                                        name: param.paramDesc.toLowerCase().replace(/ /g,"_")
                                     })
-                                    params = params + '${' + param.paramDesc.toLowerCase().replace(" ", "_") + '}'
+                                    if(params === ''){
+                                        params = '${' + param.paramDesc.toLowerCase().replace(/ /g,"_") + '}'
+                                    }else{
+                                        params = params + ' ${' + param.paramDesc.toLowerCase().replace(/ /g,"_") + '}'
+                                    }
                                 });
                                 commonJson.execution.push({
                                     type: reqBody.scriptTypeName.toLowerCase(),
