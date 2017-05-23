@@ -3,6 +3,7 @@ var logger = require('_pr/logger')(module);
 var async = require('async');
 var botDao = require('_pr/model/bots/1.1/bot.js');
 var botService = require('_pr/services/botService.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 
 /*function upsertOrgBots(data, cb){
 	logger.debug('adding/updating org bots permission');
@@ -181,6 +182,57 @@ function updateOrgResources(orgId, resourceType, data, cb){
 	});
 }
 
+function getResourceIdsByOrg(queryParameters, cb) {
+	
+	var query = {
+			orgId : queryParameters.orgId,
+			resourceType : queryParameters.resourceType
+	};
+	
+	orgResourcePermission.find(query, function(err, orgResourceList){
+		if (err) {
+			return cb(err);
+		}
+		
+		var teamIds = orgResourceList.map(function(orgResource){
+			return orgResource.teamId;
+		});
+		
+		d4dModelNew.d4dModelMastersTeams.find({
+			orgname_rowid : queryParameters.orgId, 
+			rowid : {$in:teamIds}, 
+			id :'21'}, function(err, teamList){
+				if (err) {
+					return cb(err);
+				}
+				var botsId = {};
+				
+				orgResourceList.forEach(function(orgResource){
+					orgResource.resourceIds.forEach(function(rId) {
+						teamList.forEach(function(t){
+							if (botsId[rId] === undefined) {
+								botsId[rId] = {
+									teamIds :[{teamId: t.rowid, teamName : t.teamname}]
+								};
+							} else {
+								botsId[rId].teamIds = botsId[rId].teamIds.map(function(tId){
+									if(tId.teamId !== t.rowid) {
+										return {teamId: t.rowid, teamName : t.teamname};
+									}
+									
+									return tId;
+								});
+							}
+						});
+					});
+				});
+
+				return cb(null, botsId);
+		});
+	});
+}
+
 //exports.upsertOrgResources = upsertOrgResources;
 exports.updateOrgResources = updateOrgResources;
 exports.getResourcesByOrgTeam = getResourcesByOrgTeam;
+exports.getResourceIdsByOrg = getResourceIdsByOrg;
