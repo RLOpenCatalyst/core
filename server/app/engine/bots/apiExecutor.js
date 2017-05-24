@@ -72,7 +72,7 @@ apiExecutor.execute = function execute(botDetail,reqBody, auditTrail, userName,b
                 timestamp: new Date().getTime(),
             }
             logsDao.insertLog(logData);
-            noticeService.updater(actionId,'log',logData);
+            noticeService.updater(actionLogId,'log',logData);
             var resultTaskExecution = {
                 "actionStatus": 'failed',
                 "status": 'failed',
