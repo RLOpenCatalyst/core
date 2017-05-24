@@ -95,7 +95,6 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                                     }else{
                                         params = params + ' ${' + param.paramDesc.toLowerCase().replace(/ /g,"_") + '}'
                                     }
-
                                 });
                                 commonJson.execution.push({
                                     type: reqBody.scriptTypeName.toLowerCase(),
