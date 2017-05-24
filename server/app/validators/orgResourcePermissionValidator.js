@@ -26,9 +26,9 @@
  
  function upsertSchema(){
 	 return Joi.array().items(Joi.object().keys({
-			teamId:Joi.string().required(),
+			teamIds:Joi.array().items(Joi.string().required()).required(),
 				resourceIds:Joi.array().items(Joi.string().required()).required()
-			}).optional()).required();
+			}).optional());
  }
  
  exports = orgResourcePermisssionValidator;

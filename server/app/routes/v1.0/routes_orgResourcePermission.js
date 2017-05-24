@@ -6,12 +6,6 @@ var orgResourcePermValidator = require('_pr/validators/orgResourcePermissionVali
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/api/org*', sessionVerificationFunc);
 	
-	/*app.post('/api/org/:{orgId}/bots', sessionVerification, upsertOrgBots);
-
-	function upsertOrgBots(req, res, next){
-//		orgResourcePermService.
-	}*/
-
 	app.post('/api/org/:orgId/:resourceType', validate(orgResourcePermValidator.upsert), updateOrgResources);
 	
 	function updateOrgResources(req, res, next){
@@ -55,10 +49,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			resourceType : req.params.resourceType
 		};
 		
-		if (req.query.searchq) {
-			queryParameters.searchq = req.query.searchq;
+		if (req.query.search) {
+			queryParameters.search = req.query.search;
 		}
 		orgResourcePermService.getResourcesByOrgTeam(queryParameters, actionStatus, serviceNowCheck, function(err, result){
+			if( err ){
+				return res.status(500).send(err);
+			}
+			
+			return res.status(200).send(result);
+		});
+	}
+	
+	app.get('/api/org/:orgId/:resourceType/resourceIds', getResourceIdsByOrg);
+	function getResourceIdsByOrg(req, res, next){
+		
+		var queryParameters = {
+			orgId : req.params.orgId,
+			resourceType : req.params.resourceType
+		};
+		
+		orgResourcePermService.getResourceIdsByOrg(queryParameters, function(err, result){
 			if( err ){
 				return res.status(500).send(err);
 			}
