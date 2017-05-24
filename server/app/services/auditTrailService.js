@@ -381,7 +381,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var successCount = 0;
                     for(var i = 0; i < botsList.length; i++){
                         if(botsList[i].successExecutionCount){
-                            successCount = botsList[i].successExecutionCount;
+                            successCount = successCount+botsList[i].successExecutionCount;
                         }
                     }
                     callback(null,successCount);
@@ -390,7 +390,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var runningCount = 0;
                     for(var i = 0; i < botsList.length; i++){
                         if(botsList[i].runningExecutionCount){
-                            runningCount = botsList[i].runningExecutionCount;
+                            runningCount = runningCount+botsList[i].runningExecutionCount;
                         }
                     }
                     callback(null,runningCount);
@@ -432,7 +432,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var failedCount = 0;
                     for(var i = 0; i < botsList.length; i++){
                         if(botsList[i].failedExecutionCount){
-                            failedCount = botsList[i].failedExecutionCount;
+                            failedCount = failedCount+botsList[i].failedExecutionCount;
                         }
                     }
                     callback(null,failedCount);
