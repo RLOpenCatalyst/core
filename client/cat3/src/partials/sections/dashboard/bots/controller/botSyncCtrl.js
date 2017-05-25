@@ -14,16 +14,20 @@
             $rootScope.$emit('treeNameUpdate', treeNames);
             var botLibraryUIGridDefaults = uiGridOptionsService.options();
 	        $scope.paginationParams = botLibraryUIGridDefaults.pagination;
+	        botLibraryUIGridDefaults.gridOption.paginationPageSize = 25;
+	        botLibraryUIGridDefaults.gridOption.paginationPageSizes = [25,50,75];
 	        $scope.paginationParams=[];
-	        $scope.numofCardPages = 0;
 	        $scope.paginationParams.page = 1;
-	        $scope.paginationParams.pageSize = 24;
-	        $scope.paginationParams.sortBy = 'lastRunTime';
+	        $scope.paginationParams.pageSize = 25;
+	        $scope.paginationParams.sortBy = 'executionCount';
 	        $scope.paginationParams.sortOrder = 'desc';
 	        angular.extend(botLibraryUIGridDefaults.gridOption, {enableRowSelection: true,
                     enableSelectAll: true,
                     selectionRowHeaderWidth: 35,multiSelect:true,enableRowHeaderSelection: true
             });
+
+            $scope.botId = [];
+
             $scope.initGrids = function(){
 	            $scope.botSyncGrid={};
 	            $scope.botSyncGrid.columnDefs= [
@@ -32,7 +36,7 @@
 	                { name: 'BOT Id',displayName:'BOT Id',field:'id',cellTooltip: true},
 	                { name: 'BOT Type',displayName:'BOT Type',field:'type',cellTooltip: true},
 	                { name: 'Category',field:'category', cellTooltip: true},
-	                { name: 'Scheduled',field:'scheduled',cellTemplate:'<span title="Scheduled" ng-show="row.entity.scheduled===true"><i class="fa fa-lg fa-fw fa-clock-o"></i></span>' + '<span ng-show="row.entity.scheduled==false">-</span>'}
+	                { name: 'Scheduled',field:'isScheduled',cellTemplate:'<span title="Scheduled" ng-show="row.entity.isScheduled===true"><i class="fa fa-lg fa-fw fa-clock-o"></i></span>' + '<span ng-show="row.entity.isScheduled==false">-</span>'}
 	            ];
 	            $scope.botSyncGrid.data=[];
 	            angular.extend($scope.botSyncGrid,botLibraryUIGridDefaults.gridOption);
@@ -44,7 +48,7 @@
 	        angular.extend($scope.botSyncGrid,botLibraryUIGridDefaults.gridOption, {
 	            onRegisterApi :function(gridApi) {
 	                $scope.gridApi = gridApi;
-	                $scope.botId = [];
+	                console.log(botLibraryUIGridDefaults.gridOption);
 	                gridApi.selection.on.rowSelectionChanged($scope,function(row){
                         if(row.isSelected){
                             $scope.botId.push(row.entity.id);
@@ -66,29 +70,50 @@
 	                    if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
 	                        $scope.paginationParams.sortBy = sortColumns[0].field;
 	                        $scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
-	                        $scope.botServiceNowLibraryGridView();
+	                        $scope.botSyncGridView();
 	                    }
 	                });
 	                //Pagination for page and pageSize
 	                gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
 	                    $scope.paginationParams.page = newPage;
 	                    $scope.paginationParams.pageSize = pageSize;
-	                    $scope.currentCardPage = newPage;
+	                    console.log($scope.paginationParams.pageSize);
 	                    $scope.botSyncGridView();
 	                });
 	            }
 	        });
 
 			$scope.botSyncGridView = function() {
-				$scope.isBotSyncPageLoading = true;
-	            botsCreateService.getGitHubSyncDetails().then(function (result) {
-                    $scope.botSyncGrid.data =  result.botsData;
-                    $scope.botSyncGrid.totalItems = result.metaData;
-                    $scope.isBotTimeSavedPageLoading = false;
-                    $scope.isBotSyncPageLoading = false;
-	            });
+				if($scope.gitHubId){
+					$scope.isBotSyncPageLoading = true;
+					$scope.isBotSyncDetailsLoading = true;
+	        		//$scope.paginationParams.pageSize = 25;
+		            botsCreateService.getGitHubSyncDetails($scope.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
+	                    $scope.botSyncGrid.data =  result.githubsync;
+	                    $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
+	                    $scope.botSyncGrid.botData = result.metaData;
+	                    $scope.isBotSyncPageLoading = false;
+	                    $scope.isBotSyncDetailsLoading = false;
+		            });
+				}
+			};
+			$scope.getGitHubDetails = function() {
+	        	botsCreateService.getGitHubDetails().then(function(response){
+	        		$scope.gitHubDetails =  response.data;
+	        		$scope.gitHubId = response.data[0]._id;		
+	        		$scope.botSyncGridView();
+	        	});
+	        };
+			$scope.getGitHubDetails();
+
+			$scope.postSyncBots = function() {
+				var reqBody = $scope.botId;
+				console.log(reqBody);
+				botsCreateService.postBotSync($scope.gitHubId,$scope.botId).then(function(response){
+					console.log(response);
+					toastr.success('GitHub Sync Successfull');
+				});
 			}
-			$scope.botSyncGridView();
         }
     ]);
 })(angular);

@@ -28,13 +28,13 @@ globalDataServices.incRetryCount = function incRetryCount(fieldName, fieldValue)
 }
 
 globalDataServices.setGit = function setGit(githubid) {
-    gitSync.push({ gitId: githubid});
+    gitSync.push({ "gitId": githubid});
     return;
 }
 globalDataServices.getGit = function getGit(githubid) {
-    return gitSync.filter(function (value){ return value[gitId] === githubid;})[0]
+    return gitSync.filter(function (value){ return value["gitId"] === githubid;})[0]
 }
 globalDataServices.unSetGit = function unSetGit(githubid) {
-    gitSync.splice(gitSync.indexOf(gitSync.filter(function (value) { return value[gitId] === githubid })[0]), 1);
+    gitSync.splice(gitSync.indexOf(gitSync.filter(function (value) { return value["gitId"] === githubid })[0]), 1);
     return;
 }
