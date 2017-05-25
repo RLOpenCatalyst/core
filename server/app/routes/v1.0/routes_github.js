@@ -287,7 +287,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.gitHubCopy(req.params.gitHubId, req.body.gitHubBody, next);
+                    gitHubService.gitHubCopy(req.params.gitHubId, req.body, req.session.user.cn, next);
                 }
             ],
             function(err, results) {

@@ -220,16 +220,5 @@ GitHubSchema.statics.deleteGitHub = function (gitHubId, callback) {
         }
     );
 };
-GitHubSchema.statics.getSyncedBotsWithPagination = function(filterQuey,callback) {
-    GitHub.paginate(filterQuey.queryObj, filterQuey.options, function(err, botsList) {
-        if (err) {
-            logger.error(err);
-            var error = new Error('Internal server error');
-            error.status = 500;
-            return callback(error);
-        }
-        return callback(null, botsList);
-    });
-}
 var GitHub = mongoose.model('github', GitHubSchema);
 module.exports = GitHub;
