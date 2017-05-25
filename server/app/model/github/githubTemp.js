@@ -76,5 +76,17 @@ GitHubTempFileSchema.statics.gitFilesdelete = function gitFilesdelete(gitHubId,c
             return callback(null);
     });
 }
+GitHubTempFileSchema.statics.getAllBots = function (gitHubId,callback) {
+    githubTemp.find({"gitHubId":gitHubId}, {"_id":0,"id":1,"type":1,"status":1},function(err, botsList) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else{
+            return callback(null, botsList);
+        }
+    });
+};
 var githubTemp = mongoose.model('githubTemp', GitHubTempFileSchema);
 module.exports = githubTemp;

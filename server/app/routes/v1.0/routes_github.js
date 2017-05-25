@@ -238,7 +238,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.get('/git-hub/:gitHubId/sync', getGitHubSync);
     function getGitHubSync(req, res) {
-        //req.query.action = 'sync'
+        req.query.action = 'sync'
         async.waterfall(
             [
                 function(next) {
@@ -287,7 +287,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.gitHubCopy(req.params.gitHubId, req.body.gitHubBody, next);
+                    gitHubService.gitHubCopy(req.params.gitHubId, req.body, req.session.user.cn, next);
                 }
             ],
             function(err, results) {

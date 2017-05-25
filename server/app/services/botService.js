@@ -527,7 +527,7 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
         function(gitHubDetails,next){
             process.setMaxListeners(100);
             if(gitHubDetails.botSync !== null){
-                var botFactoryDirPath = appConfig.botCurrentFactoryDir;
+                var botFactoryDirPath = appConfig.botFactoryDir+'gitHub/';
                 fileHound.create()
                     .paths(botFactoryDirPath)
                     .ext('yaml')
