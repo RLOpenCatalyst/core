@@ -9,9 +9,10 @@
     "use strict";
     angular.module('dashboard.bots')
     .controller('botSyncCtrl',['$scope', '$rootScope', '$state', '$timeout', 'genericServices', 'botsCreateService', 'uiGridOptionsService', 'toastr','$modal',
-        function($scope, $rootScope, $state, $timeout, genericServices, botsCreateService, uiGridOptionsService, toastr,$modal){
-            var treeNames = ['BOTs','BOTs Sync'];
+        function($scope, $rootScope, $state, $timeout, genericServices, botsCreateService, uiGridOptionsService, toastr,$modal){            
+        	var treeNames = ['BOTs','BOTs Sync'];   
             $rootScope.$emit('treeNameUpdate', treeNames);
+            $scope.actionStatus = 'sync';
             var botLibraryUIGridDefaults = uiGridOptionsService.options();
 	        $scope.paginationParams = botLibraryUIGridDefaults.pagination;
 	        botLibraryUIGridDefaults.gridOption.paginationPageSize = 25;
@@ -77,18 +78,30 @@
 	                gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
 	                    $scope.paginationParams.page = newPage;
 	                    $scope.paginationParams.pageSize = pageSize;
-	                    console.log($scope.paginationParams.pageSize);
+	                    $scope.actionStatus = 'list';
 	                    $scope.botSyncGridView();
 	                });
 	            }
 	        });
+
+			$scope.setFirstPageView = function(){
+                $scope.botSyncGrid.paginationCurrentPage = $scope.paginationParams.page = 1;
+            };
+            $scope.setPaginationDefaults = function() {
+                $scope.paginationParams.sortBy = 'executionCount';
+                $scope.paginationParams.sortOrder = 'desc';
+                if($scope.paginationParams.page !== 1){
+                    $scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
+                }
+            };
+            $scope.setPaginationDefaults();
 
 			$scope.botSyncGridView = function() {
 				if($scope.gitHubId){
 					$scope.isBotSyncPageLoading = true;
 					$scope.isBotSyncDetailsLoading = true;
 	        		//$scope.paginationParams.pageSize = 25;
-		            botsCreateService.getGitHubSyncDetails($scope.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
+		            botsCreateService.getGitHubSyncDetails($scope.actionStatus,$scope.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
 	                    $scope.botSyncGrid.data =  result.githubsync;
 	                    $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
 	                    $scope.botSyncGrid.botData = result.metaData;
@@ -103,15 +116,14 @@
 	        		$scope.gitHubId = response.data[0]._id;		
 	        		$scope.botSyncGridView();
 	        	});
-	        };
+	        };    
 			$scope.getGitHubDetails();
-
+		
 			$scope.postSyncBots = function() {
 				var reqBody = $scope.botId;
-				console.log(reqBody);
 				botsCreateService.postBotSync($scope.gitHubId,$scope.botId).then(function(response){
-					console.log(response);
 					toastr.success('GitHub Sync Successfull');
+					$state.go('dashboard.bots.library');
 				});
 			}
         }

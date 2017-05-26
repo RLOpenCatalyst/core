@@ -117,15 +117,15 @@ gitGubService.deleteGitHub = function deleteGitHub(gitHubId, callback) {
 };
 
 gitGubService.getGitHubSync = function getGitHubSync(gitHubId, query, callback) {
-    if (globalData.getGit(gitHubId) && query.action === 'list') {
+    if ( query.action === 'list') {
         getSyncedBots(gitHubId, query, callback)
     }
-    else if (globalData.getGit(gitHubId) && query.action === 'sync') {
-        var err = new Error('Sync is in progess');
-        err.status = 400;
-        return callback(err);
-    }
-    else if (!globalData.getGit(gitHubId) && query.action === 'sync') {
+    // else if (globalData.getGit(gitHubId) && query.action === 'sync') {
+    //     var err = new Error('Sync is in progess');
+    //     err.status = 400;
+    //     return callback(err);
+    // }
+    else if ( query.action === 'sync') {
         gitHubModel.getGitHubById(gitHubId, function (err, gitHub) {
             if (err) {
                 var err = new Error('Internal Server Error');
@@ -269,6 +269,7 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody, userName, call
                         logger.error("Error in getting bot data from database.", err);
                     }
                     else{
+                        console.log(reqBody)
                         for(var index in reqBody){
                             var botdata = botList.filter(function (value) { return value.id == reqBody[index]; })[0]
                             var destPath = dest +botdata.id;
@@ -363,14 +364,16 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody, userName, call
                                     })
                                 })
                             }
+                            console.log(index);
                            if(Number(index)+1 === reqBody.length){
-                               fse.remove(appConfig.botFactoryDir + gitHubId,(err)=>{
-                                    if(err)
-                                        next(err);
-                                    else
-                                        next(null);
-                               })
-                               //next(null);
+                               // fse.remove(appConfig.botFactoryDir + gitHubId,(err)=>{
+                               //      if(err)
+                               //          next(err);
+                               //      else
+                               //          next(null);
+                               // })
+                                
+                               next(null);
                            } 
                         }
                     }
@@ -637,49 +640,49 @@ function gitHubCloning(gitHubDetails, cmd, callback) {
                 }
             })
         },
+        // function (next) {
+        //     fs.exists(destPath, (exists) => {
+        //         if (exists) {
+        //             fse.remove(destPath, (err) => {
+        //                 if (err)
+        //                     next(err);
+        //                 else
+        //                     next(null);
+        //             })
+        //         }
+        //         else {
+        //             next(null);
+        //         }
+        //     })
+        // },
         function (next) {
-            fs.exists(destPath, (exists) => {
-                if (exists) {
-                    fse.remove(destPath, (err) => {
-                        if (err)
-                            next(err);
-                        else
-                            next(null);
-                    })
-                }
-                else {
-                    next(null);
-                }
-            })
-        },
-        function (next) {
-            execCmd(cmd, function (err, out, code) {
-                if (err === null) {
-                    targz.decompress({
-                        src: filePath,
-                        dest: destPath
-                    }, function (err) {
-                        if (err) {
-                            logger.error("Error in Extracting Files ", err);
-                            next(err, null);
-                        } else {
+            //execCmd(cmd, function (err, out, code) {
+                //if (err === null) {
+                    // targz.decompress({
+                    //     src: filePath,
+                    //     dest: destPath
+                    // }, function (err) {
+                    //     if (err) {
+                    //         logger.error("Error in Extracting Files ", err);
+                    //         next(err, null);
+                    //     } else {
                             logger.debug("GIT Repository Clone is Done.");
-                            fs.unlinkSync(filePath);
+                            //fs.unlinkSync(filePath);
                             getDiff(gitHubDetails._id,destPath, botFactoryDirPath, (err, diff) => {
                                 if (err)
                                     next(err, null);
                                 else
                                     next(null, diff);
                             })
-                        }
-                    })
-                } else {
-                    var err = new Error('Invalid Git-Hub Credentials Details');
-                    err.status = 400;
-                    err.msg = 'Invalid Git-Hub Details';
-                    next(err, null);
-                }
-            })
+                       // }
+                    //})
+            //     } else {
+            //         var err = new Error('Invalid Git-Hub Credentials Details');
+            //         err.status = 400;
+            //         err.msg = 'Invalid Git-Hub Details';
+            //         next(err, null);
+            //     }
+            // })
         },
         function (diff, next) {
             gitHubTempModel.gitFilesdelete(gitHubDetails._id);
