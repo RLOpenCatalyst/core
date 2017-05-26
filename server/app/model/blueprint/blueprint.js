@@ -45,6 +45,7 @@ var OpenStackProvider = require('_pr/model/classes/masters/cloudprovider/opensta
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 var uuid = require('node-uuid');
 var AppData = require('_pr/model/app-deploy/app-data');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 var BLUEPRINT_TYPE = {
     DOCKER: 'docker',
@@ -349,6 +350,40 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             auditType:opts.auditType,
                             actionLogId:opts.actionLogId
                         };
+                        if(opts.stackName !== null || opts.domainName !== null) {
+                            var serviceMapObj = {
+                                masterDetails: {
+                                    orgId: self.orgId,
+                                    orgName: project[0].orgname,
+                                    bgId: self.bgId,
+                                    bgName: project[0].productgroupname,
+                                    projectId: self.projectId,
+                                    projectName: project[0].projectname,
+                                    envId: opts.envId,
+                                    envName: envName,
+                                    chefServerId: infraManager.infraManagerId,
+                                    chefServerName: chefDetails.configname,
+                                    monitorId: monitor !== null ? monitor._id : monitor,
+                                    monitorName: monitor !== null ? monitor.name : monitor
+                                },
+                                name: opts.stackName !== null ? opts.stackName : opts.domainName,
+                                type: self.templateType === 'chef' ? 'Software Stack' : self.templateType === 'ami' ? 'OSImage' : self.templateType === 'cft' ? 'CloudFormation' : 'AzureArm',
+                                state: 'Initializing',
+                                desc: self.name,
+                                identifiers:[{
+                                    type:opts.stackName !== null ? 'Stack Name' : 'Domain Name',
+                                    value:opts.stackName !== null ? opts.stackName : opts.domainName
+                                }],
+                                createdOn: new Date.getTime()
+                            }
+                            serviceMapService.createNewService(serviceMapObj,function(err,data){
+                                if(err){
+                                    logger.error("Error in creating Services:",err);
+                                }else{
+                                    logger.debug("Successfully Created Services");
+                                }
+                            });
+                        }
                         if (!env) {
                             chef.createEnvironment(envName, function (err) {
                                 if (err) {

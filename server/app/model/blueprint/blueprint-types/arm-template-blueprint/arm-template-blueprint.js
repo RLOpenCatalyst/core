@@ -33,7 +33,7 @@ var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudP
 var ARM = require('_pr/lib/azure-arm.js');
 var AzureARM = require('_pr/model/azure-arm');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
-var resourceMapService = require('_pr/services/resourceMapService.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 var noticeService = require('_pr/services/noticeService.js');
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -81,6 +81,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
             return;
         }
         providerdata = JSON.parse(providerdata);
+        var resourceObj = {
+            state:null,
+            resources :[]
+        }
 
         var settings = appConfig;
         var pemFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.pemFileName;
@@ -143,7 +147,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         callback({
                             message: "Unable to encryptCredential"
                         });
-                        resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                        serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                             if(err){
                                 logger.error("Error in updating Resource Map.",err);
                             }
@@ -211,7 +215,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             callback({
                                 message: "Unable to create instance in db"
                             })
-                            resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                            serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                 if(err){
                                     logger.error("Error in updating Resource Map.",err);
                                 }
@@ -219,14 +223,13 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             return;
                         }
                         instance.id = data._id;
-                        var resourceObj = {
-                            state:"Running",
-                            resources :[{
-                                id:instance.id,
-                                type:"instance"
-                            }]
-                        }
-                        resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
+                        resourceObj.state = instance.instanceState.charAt(0).toUpperCase() + instance.instanceState.slice(1);
+                        resourceObj.resources.push({
+                            id:data._id,
+                            type:"instance",
+                            state:instance.instanceState
+                        });
+                        serviceMapService.updateService({name:launchParams.stackName}, resourceObj, function (err, resourceMap) {
                                 if (err) {
                                     logger.error("Error in updating Resource Map.", err);
                                 }
@@ -475,20 +478,13 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 if(err){
                                                     logger.error("Error in getting ARM Instances ",err);
                                                 }else if(armInstanceList.length > 0){
-                                                    var resourceObj = {
-                                                        state:"Running",
-                                                        resources :[]
-                                                    }
                                                     armInstanceList.forEach(function(armData){
+                                                        resourceObj.state  = armData.instanceState.charAt(0).toUpperCase() + armData.instanceState.slice(1);
                                                         resourceObj.resources.push({
                                                             id:armData._id,
-                                                            type:"instance"
+                                                            type:"instance",
+                                                            state:armData.instanceState
                                                         })
-                                                    });
-                                                    resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
-                                                        if (err) {
-                                                            logger.error("Error in updating Resource Map.", err);
-                                                        }
                                                     });
                                                 }else{
                                                     logger.debug("There is no instance attached with armId:",instanceData.armId);
@@ -700,7 +696,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                 }, function(err, vmData) {
                     if (err) {
                         logger.error("Unable to fetch azure vm data");
-                        resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                        serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                             if(err){
                                 logger.error("Error in updating Resource Map.",err);
                             }
@@ -711,7 +707,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                     getVMIPAddress(networkInterfaces, 0, function(err, ipAddress) {
                         if (err) {
                             logger.error("Unable to fetch azure vm ipaddress");
-                            resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                            serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                 if(err){
                                     logger.error("Error in updating Resource Map.",err);
                                 }
@@ -812,44 +808,33 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         callback(null, {
                             armId: azureArmDeployement._id
                         });
-                        var resourceMapObj = {
+                        arm.waitForDeploymentCompleteStatus({
                             name: launchParams.stackName,
-                            type: "AzureArm",
-                            state: "Initializing",
-                            resources: []
-                        }
-                        resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
+                            resourceGroup: self.resourceGroup
+                        }, function (err, deployedTemplateData) {
                             if (err) {
-                                logger.error("resourceMapService.createNewResourceMap is Failed ==>", err);
+                                logger.error('Unable to wait for deployed template status', err);
+                                if (err.status) {
+                                    azureArmDeployement.status = err.status;
+                                    azureArmDeployement.save();
+                                }
+                                serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
+                                    if(err){
+                                        logger.error("Error in updating Resource Map.",err);
+                                    }
+                                });
+                                return;
                             }
-                            arm.waitForDeploymentCompleteStatus({
-                                name: launchParams.stackName,
-                                resourceGroup: self.resourceGroup
-                            }, function (err, deployedTemplateData) {
-                                if (err) {
-                                    logger.error('Unable to wait for deployed template status', err);
-                                    if (err.status) {
-                                        azureArmDeployement.status = err.status;
-                                        azureArmDeployement.save();
-                                    }
-                                    resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
-                                        if(err){
-                                            logger.error("Error in updating Resource Map.",err);
-                                        }
-                                    });
-                                    return;
+                            azureArmDeployement.status = deployedTemplateData.properties.provisioningState;
+                            azureArmDeployement.save();
+                            var dependencies = deployedTemplateData.properties.dependencies;
+                            for (var i = 0; i < dependencies.length; i++) {
+                                var resource = dependencies[i];
+                                if (resource.resourceType == 'Microsoft.Compute/virtualMachines') {
+                                    logger.debug('resource name ==>', resource.resourceName);
+                                    processVM(resource, azureArmDeployement.id);
                                 }
-                                azureArmDeployement.status = deployedTemplateData.properties.provisioningState;
-                                azureArmDeployement.save();
-                                var dependencies = deployedTemplateData.properties.dependencies;
-                                for (var i = 0; i < dependencies.length; i++) {
-                                    var resource = dependencies[i];
-                                    if (resource.resourceType == 'Microsoft.Compute/virtualMachines') {
-                                        logger.debug('resource name ==>', resource.resourceName);
-                                        processVM(resource, azureArmDeployement.id);
-                                    }
-                                }
-                            });
+                            }
                         });
                     });
                 });

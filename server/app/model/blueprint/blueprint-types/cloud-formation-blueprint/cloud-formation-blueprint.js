@@ -39,7 +39,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var auditTrailService = require('_pr/services/auditTrailService');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
-var resourceMapService = require('_pr/services/resourceMapService.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -252,27 +252,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                             callback(null, {
                                 stackId: cloudFormation._id,
                             });
-                            var resourceMapObj = {
-                                name: launchParams.stackName,
-                                type: "CloudFormation",
-                                state: "Initializing",
-                                resources: []
-                            }
-                            resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
+                            awsCF.waitForStackCompleteStatus(stackData.StackId, function (err, completeStack) {
                                 if (err) {
-                                    logger.error("resourceMapService.createNewResourceMap is Failed ==>", err);
-                                }
-                                callback(null, {
-                                    stackId: cloudFormation._id,
-                                });
-                                awsCF.waitForStackCompleteStatus(stackData.StackId, function (err, completeStack) {
-                                    if (err) {
                                         logger.error('Unable to wait for stack status', err);
                                         if (err.stackStatus) {
                                             cloudFormation.status = err.stackStatus;
                                             cloudFormation.save();
                                         }
-                                        resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                        serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                             if(err){
                                                 logger.error("Error in updating Resource Map.",err);
                                             }
@@ -285,7 +272,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                     awsCF.listAllStackResources(stackData.StackId, function (err, resources) {
                                         if (err) {
                                             logger.error('Unable to fetch stack resources', err);
-                                            resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                            serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                                 if(err){
                                                     logger.error("Error in updating Resource Map.",err);
                                                 }
@@ -322,7 +309,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                         AwsAutoScaleInstance.findByAutoScaleResourceId(autoScaleResourceId, function (err, autoScaleInstances) {
                                             if (err) {
                                                 logger.error('Unable to fetch autoscale instance resources', err);
-                                                resourceMapService.updateResourceMap(launchParams.stackName,{status:"Error"},function(err,resourceMap){
+                                                serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                                     if(err){
                                                         logger.error("Error in updating Resource Map.",err);
                                                     }
@@ -344,7 +331,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                 ec2.describeInstances(instanceIds, function (err, awsRes) {
                                                     if (err) {
                                                         logger.error("Unable to get instance details from aws", err);
-                                                        resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                                        serviceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
                                                             if(err){
                                                                 logger.error("Error in updating Resource Map.",err);
                                                             }
@@ -385,7 +372,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                     AWSKeyPair.getAWSKeyPairByProviderIdAndKeyPairName(cloudFormation.cloudProviderId, keyPairName, function (err, keyPairs) {
                                                         if (err) {
                                                             logger.error("Unable to get keypairs", err);
-                                                            resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                                            serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                                                 if(err){
                                                                     logger.error("Error in updating Resource Map.",err);
                                                                 }
@@ -544,19 +531,21 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             instancesDao.createInstance(instance, function (err, data) {
                                                                 if (err) {
                                                                     logger.error("Failed to create Instance", err);
-                                                                    resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                                                    serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                                                         if(err){
                                                                             logger.error("Error in updating Resource Map.",err);
                                                                         }
                                                                     });
                                                                     return;
                                                                 }
+                                                                resourceObj.state = instance.instanceState.charAt(0).toUpperCase() + instance.instanceState.slice(1);
                                                                 resourceObj.resources.push({
                                                                     id:data._id,
-                                                                    type:"instance"
+                                                                    type:"instance",
+                                                                    state:instance.instanceState
                                                                 });
                                                                 if(resourceObj.resources.length  === instances.length) {
-                                                                    resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
+                                                                    serviceMapService.updateService({name:launchParams.stackName}, resourceObj, function (err, resourceMap) {
                                                                         if (err) {
                                                                             logger.error("Error in updating Resource Map.", err);
                                                                         }
@@ -1145,7 +1134,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
 
                                 });
 
-                            });
                         });
 
                     } else {

@@ -98,9 +98,6 @@ botService.removeBotsById = function removeBotsById(botId,callback){
     async.parallel({
         bots: function(callback){
             botDao.removeBotsById(botId,callback);
-        },
-        auditTrails: function(callback){
-            auditTrail.removeAuditTrails({auditId:botId},callback);
         }
     },function(err,resutls){
         if(err){

@@ -2228,6 +2228,19 @@ var MasterUtil = function () {
         });
     };
 
+    this.getChefDetailsById = function (id, callback) {
+        d4dModelNew.d4dModelMastersConfigManagement.find({
+            rowid: id,
+            "id": '10'
+        }, function (err, chefDetails) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, chefDetails);
+            }
+        });
+    };
+
     this.getEnvironmentByEnvId = function (envId, callback) {
         logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({

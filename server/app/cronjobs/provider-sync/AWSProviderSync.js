@@ -13,7 +13,7 @@ var tagsModel = require('_pr/model/tags');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var instanceService = require('_pr/services/instanceService');
 var noticeService = require('_pr/services/noticeService.js');
-var resourceMapService = require('_pr/services/resourceMapService.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
@@ -121,7 +121,7 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
             tagMappingSyncForResources(assignedResources,provider,'assigned',next);
         },
         function(assignedInstances,next){
-            resourceMapSync(next);
+            serviceMapSync(next);
         }
     ], function (err, results) {
         if (err) {
@@ -764,120 +764,120 @@ function ec2PlatformIdList(ec2Info,callback){
     callback(null,ec2PlatformIds);
 }
 
-function resourceMapSync(callback){
+function serviceMapSync(callback){
     async.waterfall([
         function(next){
-            resourceMapService.getResourceMaps(next);
+            serviceMapService.getServices(next);
         },
-        function(resourceMaps,next){
-            if(resourceMaps.length >0){
+        function(services,next){
+            if(services.length >0){
                 var count = 0;
-                for(var i = 0; i < resourceMaps.length; i++){
-                    (function(resourceMap) {
-                        if (resourceMap.type === 'SoftwareStack' || resourceMap.type === 'OSImage') {
-                            instancesDao.getInstanceById(resourceMap.resources[0].id, function (err, instanceData) {
+                for(var i = 0; i < services.length; i++){
+                    (function(service) {
+                        if (service.type === 'SoftwareStack' || service.type === 'OSImage') {
+                            instancesDao.getInstanceById(service.resources[0].id, function (err, instanceData) {
                                 if (err) {
                                     logger.error(err);
                                 }
                                 if (instanceData.length > 0) {
-                                    var resourceMapState = null;
+                                    var serviceState = null;
                                     if (instanceData[0].instanceState === 'terminated') {
-                                        resourceMapState = 'Terminated';
+                                        serviceState = 'Terminated';
                                     } else if (instanceData[0].instanceState === 'stopped') {
-                                        resourceMapState = 'Stopped';
+                                        serviceState = 'Stopped';
                                     } else if (instanceData[0].instanceState === 'running') {
-                                        resourceMapState = 'Running';
+                                        serviceState = 'Running';
                                     } else {
-                                        logger.debug("Invalid state for ResourceMap: " + instanceData[0].instanceState);
+                                        logger.debug("Invalid state for service: " + instanceData[0].instanceState);
                                     }
-                                    if (resourceMapState !== null) {
-                                        resourceMapService.updateResourceMap(resourceMap.name, {state: resourceMapState}, function (err, data) {
+                                    if (serviceState !== null) {
+                                        serviceMapService.updateService({'name':service.name,'resouces.id':service.resources[0].id}, {state: serviceState,'resources.$.state':instanceData[0].instanceState}, function (err, data) {
                                             if (err) {
                                                 logger.error(err);
                                             }
                                             count++;
-                                            if(count === resourceMaps.length){
-                                                callback(null,resourceMaps.length);
+                                            if(count === services.length){
+                                                callback(null,services.length);
                                                 return;
                                             }
                                         })
                                     }else{
                                         count++;
-                                        if(count === resourceMaps.length){
-                                            callback(null,resourceMaps.length);
+                                        if(count === services.length){
+                                            callback(null,services.length);
                                             return;
                                         }
                                     }
                                 } else {
                                     count++;
-                                    logger.debug("No Records are available in DB against Instance : " + resourceMap.resources[0]);
-                                    if(count === resourceMaps.length){
-                                        callback(null,resourceMaps.length);
+                                    logger.debug("No Records are available in DB against Instance : " + service.resources[0]);
+                                    if(count === services.length){
+                                        callback(null,services.length);
                                         return;
                                     }
                                 }
                             });
-                        } else if (resourceMap.type === 'CloudFormation') {
+                        } else if (service.type === 'CloudFormation') {
                             var instanceIds = [];
-                            for (var j = 0; j < resourceMap.resources.length; j++) {
-                                instanceIds.push(resourceMap.resources[j].id);
+                            for (var j = 0; j < service.resources.length; j++) {
+                                instanceIds.push(service.resources[j].id);
                             }
                             instancesDao.getInstances(instanceIds, function (err, instances) {
                                 if (err) {
                                     logger.error(err);
                                 } else if (instances.length > 0) {
-                                    var resourceMapStateList = [], resourceMapState = null;
+                                    var serviceStateList = [], serviceState = null;
                                     instances.forEach(function (instance) {
-                                        resourceMapStateList.push(instance.instanceState);
+                                        serviceStateList.push(instance.instanceState);
                                     })
-                                    if (resourceMapStateList.indexOf('running') >= 0) {
-                                        resourceMapState = 'Running';
-                                    } else if (resourceMapStateList.indexOf('stopped') >= 0) {
-                                        resourceMapState = 'Stopped';
-                                    } else if (resourceMapStateList.indexOf('terminated') >= 0) {
-                                        resourceMapState = 'Terminated';
+                                    if (serviceStateList.indexOf('running') >= 0) {
+                                        serviceState = 'Running';
+                                    } else if (serviceStateList.indexOf('stopped') >= 0) {
+                                        serviceState = 'Stopped';
+                                    } else if (serviceStateList.indexOf('terminated') >= 0) {
+                                        serviceState = 'Terminated';
                                     } else {
-                                        logger.debug("Invalid state for ResourceMap: " + instanceData[0].instanceState);
+                                        logger.debug("Invalid state for service: " + instanceData[0].instanceState);
                                     }
-                                    if (resourceMapState !== null) {
-                                        resourceMapService.updateResourceMap(resourceMap.name, {state: resourceMapState}, function (err, data) {
+                                    if (serviceState !== null) {
+                                        serviceMapService.updateService(service.name, {state: serviceState}, function (err, data) {
                                             if (err) {
                                                 logger.error(err);
                                             }
                                             count++;
-                                            if(count === resourceMaps.length){
-                                                callback(null,resourceMaps.length);
+                                            if(count === services.length){
+                                                callback(null,services.length);
                                                 return;
                                             }
                                         })
                                     }else{
                                         count++;
-                                        if(count === resourceMaps.length){
-                                            callback(null,resourceMaps.length);
+                                        if(count === services.length){
+                                            callback(null,services.length);
                                             return;
                                         }
                                     }
                                 } else {
                                     count++;
-                                    logger.debug("No Records are available in DB against Instance : " + resourceMap.resources[0]);
-                                    if(count === resourceMaps.length){
-                                        callback(null,resourceMaps.length);
+                                    logger.debug("No Records are available in DB against Instance : " + service.resources[0]);
+                                    if(count === services.length){
+                                        callback(null,services.length);
                                         return;
                                     }
                                 }
                             });
                         } else {
                             count++;
-                            logger.debug("Un-Supported Type : " + resourceMap.type);
-                            if(count === resourceMaps.length){
-                                callback(null,resourceMaps.length);
+                            logger.debug("Un-Supported Type : " + service.type);
+                            if(count === services.length){
+                                callback(null,services.length);
                                 return;
                             }
                         }
-                    })(resourceMaps[i]);
+                    })(services[i]);
                 }
             }else{
-                next(null,resourceMaps);
+                next(null,services);
             }
         }
     ],function(err,data){

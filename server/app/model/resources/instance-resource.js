@@ -20,6 +20,7 @@ var mongoose = require('mongoose');
 var BaseResourcesSchema = require('./base-resources');
 var Resources = require('./resources');
 var ObjectId = require('mongoose').Types.ObjectId;
+var Schema = mongoose.Schema;
 
 var InstanceResourcesSchema = new BaseResourcesSchema({
     resourceDetails: {
@@ -62,7 +63,8 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             type: String,
             required: false,
             trim: true
-        }
+        },
+        route53HostedParams:[Schema.Types.Mixed]
     }
 });
 

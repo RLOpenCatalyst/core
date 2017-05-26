@@ -22,7 +22,7 @@ var client = new Client();
 var request = require('request');
 var auditQueue = require('_pr/config/global-data.js');
 var noticeService = require('_pr/services/noticeService.js');
-var resourceMapService = require('_pr/services/resourceMapService.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 
 var schedulerService = module.exports = {};
@@ -666,7 +666,7 @@ function startStopManagedInstance(instance,catUser,action,callback){
         callback(null,null);
     }
     if(instance.domainName && instance.domainName !== null){
-       resourceMapService.updateResourceMap(instance.domainName,{state:resourceState},function(err,data){
+       serviceMapService.updateResourceMap(instance.domainName,{state:resourceState},function(err,data){
            if(err){
                logger.error("Error in updating ResourceMap State: ",err);
            }

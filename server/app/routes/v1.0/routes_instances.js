@@ -60,6 +60,7 @@ var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var instanceService = require('_pr/services/instanceService');
 var schedulerService = require('_pr/services/schedulerService');
 var chefDao = require('_pr/model/dao/chefDao.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
@@ -312,7 +313,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             }
             if (instances.length) {
                 var instance = instances[0];
-                var domainName = instance.domainName?instance.domainName:null;
                 Task.getTasksByNodeIds([req.params.instanceId], function (err, tasks) {
                     if (err) {
                         logger.debug("Failed to fetch tasks by node id ", err);
@@ -423,7 +423,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
-                                                removeInstanceFromDb(domainName);
+                                                removeInstanceFromDb();
                                                 logger.debug("Successfully removed instance from db.");
                                             })
                                         } else {
@@ -449,7 +449,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
-                                                removeInstanceFromDb(domainName);
+                                                removeInstanceFromDb();
                                                 logger.debug("Successfully removed instance from db.");
                                             })
                                         });
@@ -485,7 +485,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
-                                                removeInstanceFromDb(domainName);
+                                                removeInstanceFromDb();
                                                 logger.debug("Successfully removed instance from db.");
                                             })
                                         } else {
@@ -506,7 +506,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
                                             }
-                                            removeInstanceFromDb(domainName);
+                                            removeInstanceFromDb();
                                             logger.debug("Successfully removed instance from db.");
                                         })
                                     }
@@ -529,7 +529,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
-                            removeInstanceFromDb(domainName);
+                            removeInstanceFromDb();
                             logger.debug("Successfully removed instance from db.");
                         })
                     }
@@ -542,7 +542,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             }
         });
 
-        function removeInstanceFromDb(domainName) {
+        function removeInstanceFromDb() {
             containerDao.deleteContainerByInstanceId(req.params.instanceId, function (err, container) {
                 if (err) {
                     logger.error("Container deletion Failed >> ", err);
@@ -554,22 +554,17 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             logger.error("Instance deletion Failed >> ", err);
                             res.status(500).send(errorResponses.db.error);
                             return;
-                        }else if(domainName !== null){
-                            var resourceObj = {
-                                state:"Deleted"
-                            }
-                            var resourceMapService = require('_pr/services/resourceMapService.js');
-                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
-                                if(err){
-                                    logger.error("Error in updating Resource Map.",err);
-                                }
-                                logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
-                                res.send(200);
-                            });
-                        }else{
-                            logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
-                            res.send(200);
                         }
+                        var resourceObj = {
+                            'resources.$.state':'deleted'
+                        }
+                        serviceMapService.updateService({resources:{$elemMatch:{id:req.params.instanceId}}},resourceObj,function(err,resourceMap){
+                            if(err){
+                                logger.error("Error in updating Services.",err);
+                            }
+                        });
+                        logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
+                        res.send(200);
                     });
                 }
             });

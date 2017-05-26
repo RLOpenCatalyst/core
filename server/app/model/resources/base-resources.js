@@ -74,7 +74,51 @@ var AWSResourcesSchema = function AWSResources() {
                 required: false,
                 trim: true
             },
-            region: Schema.Types.Mixed
+            region: Schema.Types.Mixed,
+            keyPairId:{
+                type: String,
+                required: false,
+                trim: true
+            }
+        },
+        chefServerDetails: {
+            id: String,
+            nodeName: String,
+            runList: [{
+                type: String,
+                trim: true
+            }],
+            attributes: [{
+                name: String,
+                jsonObj: {}
+            }],
+            bootStrapStatus:{
+                type: String,
+                required: false,
+                trim: true
+            }
+        },
+        blueprintDetails: {
+            id: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            type: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            templateName: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            templateType:{
+                type: String,
+                required: false,
+                trim: true
+            }
         },
         resourceType:{
             type: String,
@@ -106,6 +150,64 @@ var AWSResourcesSchema = function AWSResources() {
             type:Number,
             default:Date.now(),
             required:false
+        },
+        monitor: {
+            type: Schema.Types.Mixed,
+            required: false,
+            default: null
+        },
+        isScheduled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        startScheduler: [{
+            cronPattern: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            cronTime: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            cronDays: {
+                type: [String],
+                required: false
+            }
+        }],
+        stopScheduler: [{
+            cronPattern: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            cronTime: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            cronDays: {
+                type: [String],
+                required: false
+            }
+        }],
+        schedulerStartOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        schedulerEndOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        interval:[Schema.Types.Mixed],
+        cronJobIds: {
+            type: [String],
+            required: false,
+            trim: true
         }
     });
 };

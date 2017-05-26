@@ -67,15 +67,16 @@
                     disResrc.getAllTagNames();
                     $scope.instLoader=true;
                     $timeout(function () {
-                        console.log( $scope.TagName);
+
                         disResrc.gridOptionInstances = {
                             allowCellFocus : false,
                             paginationPageSizes: [25, 50, 100],
                             paginationPageSize:25,
                             columnDefs: [],
                             onRegisterApi: function (gridApi) {
-                                gridApi.grid.registerRowsProcessor( $scope.singleFilter, 200 );
+                                //gridApi.grid.registerRowsProcessor( $scope.singleFilter, 200 );
                                 $scope.gridApi=gridApi;
+                                $scope.selectInstanceRow = [];
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDefa, newValue, oldValue) {
                                     if(newValue !== oldValue) {
                                         confirmbox.showModal({}, {
@@ -104,15 +105,13 @@
                                                 // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                                             };
                                             genSevs.promiseGet(param).then(function (instResult) {
-                                                if ($rootScope.organNewEnt.instanceType === 'Managed') {
+                                                if($rootScope.organNewEnt.instanceType === 'Managed') {
                                                     disResrc.gridOptionInstances.data = instResult.managedInstances;
-                                                } else if ($rootScope.organNewEnt.instanceType === 'Assigned') {
-                                                    disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
-                                                } else if ($rootScope.organNewEnt.instanceType === 'Unassigned') {
+                                                } else{
                                                     disResrc.gridOptionInstances.data = instResult.data;
                                                 }
                                                 disResrc.gridOptionInstances.isRowSelectable = function (row) {
-                                                    if (row.entity.state !== 'running') {
+                                                    if(row.entity.state !== 'running') {
                                                         return false;
                                                     } else {
                                                         return true;
@@ -356,7 +355,7 @@
                 renderableRows.forEach( function( row ) {
                     var match = false;
                     angular.forEach($scope.colArray,function( field ){
-                        if ( row.entity[field] && row.entity[field].match(matcher) ){
+                        if( row.entity[field] && row.entity[field].match(matcher) ){
                             match = true;
                         }
                     });

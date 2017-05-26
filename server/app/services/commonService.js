@@ -35,8 +35,9 @@ var commonService = module.exports = {};
 
 commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
     var ymlText = '',scriptFileName = '',count = 0;
+    var id = uuid.v4();
     var commonJson = {
-        id: reqBody.name.toLowerCase().replace(/ /g,"_") + '_' + uuid.v4().split("-")[0],
+        id: id.split("-")[0]+id.split("-")[1]+id.split("-")[2]+id.split("-")[3],
         name: reqBody.name,
         desc: reqBody.desc,
         action: reqBody.action,
@@ -105,7 +106,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
                                 });
                                 if(count ===reqBody.scriptDetails.length){
                                     ymlText = yml.stringify(commonJson);
-                                    createYML()
+                                    createYML();
                                 }
                             }
                         });
@@ -160,7 +161,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
         commonJson.output.msgs.text = '${jenkinsJobName} job has successfully built on ${jenkinsServerName}';
         commonJson.output.msgs.mail = 'JenkinsJobName: ${jenkinsJobName} JenkinsServerName: ${jenkinsServerName}'
         ymlText = yml.stringify(commonJson);
-        createYML()
+        createYML();
     } else if (reqBody.type === 'chef') {
         if (reqBody.attributes && (reqBody.attributes !== null || reqBody.attributes.length > 0)) {
             var attributeObj = {}, jsonObjKey = '';
@@ -205,7 +206,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
         commonJson.output.msgs.text = 'Cookbook RunList ${runlist} has executed successful on Node ${node}';
         commonJson.output.msgs.mail = 'RunList: ${runlist} Node: ${node}'
         ymlText = yml.stringify(commonJson);
-        createYML()
+        createYML();
     } else if (reqBody.type === 'blueprints' || reqBody.type === 'blueprint') {
         if (reqBody.subType === 'aws_cf' || reqBody.subType === 'azure_arm') {
             commonJson.input.push(
@@ -260,7 +261,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
         commonJson.output.msgs.text = '${blueprintName} has successfully launched on env ${envId}';
         commonJson.output.msgs.mail = 'BlueprintName: ${blueprintName} EnvName: ${envId}';
         ymlText = yml.stringify(commonJson);
-        createYML()
+        createYML();
     }
     function createYML() {
         commonJson.category = reqBody.category;

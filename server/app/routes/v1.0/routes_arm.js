@@ -33,7 +33,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var async = require('async');
-
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -368,12 +368,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 return;
                                             }
                                             var resourceObj = {
-                                                stackStatus: "DELETED",
+                                                'state': 'Deleted',
+                                                'resources.$.state':'deleted'
                                             }
-                                            var resourceMapService = require('_pr/services/resourceMapService.js');
-                                            resourceMapService.updateResourceMap(azureArm.deploymentName, resourceObj, function (err, resourceMap) {
+                                            serviceMapService.updateService({name:azureArm.deploymentName}, resourceObj, function (err, resourceMap) {
                                                 if (err) {
-                                                    logger.error("Error in updating Resource Map.", err);
+                                                    logger.error("Error in updating Services.", err);
                                                 }
                                             });
                                             if(error.code === 409 || error.code === '409'){
