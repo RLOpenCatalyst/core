@@ -238,7 +238,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.get('/git-hub/:gitHubId/sync', getGitHubSync);
     function getGitHubSync(req, res) {
-        req.query.action = 'sync'
+        //req.query.action = 'sync'
         async.waterfall(
             [
                 function(next) {
