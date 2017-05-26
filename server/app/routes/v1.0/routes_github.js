@@ -258,27 +258,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    app.get('/git-hub/:gitHubId/import', getGitHubImport);
-    function getGitHubImport(req, res) {
-        async.waterfall(
-            [
-                function(next) {
-                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
-                },
-                function(gitHub,next) {
-                    gitHubService.getGitHubSync(req.params.gitHubId,'import', next);
-                }
-            ],
-            function(err, results) {
-                if (err) {
-                    res.status(err.status).send(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
     app.post('/git-hub/:gitHubId/copy',gitHubcopy);
     function gitHubcopy(req,res) {
         async.waterfall(
