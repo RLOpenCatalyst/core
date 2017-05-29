@@ -19,14 +19,10 @@
             $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
                 $scope.taskHistoryListView();
-                $scope.getExecutionTime();
-                $scope.getSavedTime();
             });
 
             $scope.refreshHistoryPage = function() {
                 $scope.taskHistoryListView();
-                $scope.getExecutionTime();
-                $scope.getSavedTime();
             }
 
             if($scope.templateSelected) {
@@ -112,8 +108,8 @@
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                                             
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status == \'success\'"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s</span>' +
-                                            '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
+                                            { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\' && row.entity.overRunFlag ===false"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s </span>' +
+                                            '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>' + '<span ng-if="row.entity.status === \'success\' && row.entity.overRunFlag === true" title="OverRun">OverRun</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = chefGrid;
                                     } else if(auditType === 'jenkins') {
@@ -126,8 +122,8 @@
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>',cellTooltip: true},
                                             
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status === \'success\'"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s </span>' +
-                                            '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
+                                            { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\' && row.entity.overRunFlag ===false"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s </span>' +
+                                            '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>' + '<span ng-if="row.entity.status === \'success\' && row.entity.overRunFlag === true" title="OverRun">OverRun</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = jenkinsGrid;
                                     } else if (auditType === 'instance_launch' || auditType === 'aws_cf' || auditType === 'docker' || auditType === 'azure_launch' || auditType === 'blueprints') {
@@ -140,8 +136,8 @@
                                             { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                                             
                                             { name:'Manual Time (Mins)',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} </span>', cellTooltip: true},
-                                            { name:'Saved Time (Mins)',cellTemplate:'<span ng-if="row.entity.status === \'success\'"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s </span>' +
-                                            '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
+                                            { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\' && row.entity.overRunFlag ===false"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s </span>' +
+                                            '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>' + '<span ng-if="row.entity.status === \'success\' && row.entity.overRunFlag === true" title="OverRun">OverRun</span>', cellTooltip: true}
                                         ];
                                         bpcolumnDefs = blueprintGrid;
                                     }

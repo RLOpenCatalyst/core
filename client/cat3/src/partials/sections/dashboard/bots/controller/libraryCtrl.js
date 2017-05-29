@@ -51,12 +51,10 @@
                 { name: 'Name',displayName: 'Name',field:'name',cellTooltip: true},
                 { name: 'Type',displayName: 'Type',field:'id',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
-             //   { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
                 { name: 'Organization',field:'orgName',cellTooltip: true},
                 { name: 'Last Run',field:'lastRunTime ',cellTemplate:'<span title="{{row.entity.lastRunTime  | timestampToLocaleTime}}">{{row.entity.lastRunTime  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'Saved Time',field:'savedTime', cellTemplate:'<span title="{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m"><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s</span>', cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount',cellTooltip: true},
-                   { name: 'BOT Action',width:100,displayName: 'Action',cellTemplate:'<a title="Execute"><i class="fa fa-play font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
+                { name: 'BOT Action',width:100,displayName: 'Action',cellTemplate:'<a title="Execute"><i class="fa fa-play font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
                 }
             ];
             $scope.botLibGridOptions.data=[];
@@ -71,6 +69,8 @@
                 { name: 'Successful Executions',field:'successExecutionCount',cellTooltip: true},
                 { name: 'Saved Time',displayName: 'Saved Time', 
                     cellTemplate:'<span><span ng-if="row.entity.savedTime.hours>0">{{row.entity.savedTime.hours}}h</span> {{row.entity.savedTime.minutes}}m {{row.entity.savedTime.seconds}}s</span>', cellTooltip: true
+                },
+                { name: 'BOT Action',width:100,displayName: 'Action',cellTemplate:'<a title="Execute"><i class="fa fa-play font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
                 }
             ];
             $scope.botTimeSavedLibGridOptions.data=[];
@@ -493,6 +493,9 @@
         };
 
         $scope.botsTableView = function() {
+            $scope.isBotLibraryPageLoading = true;
+            $scope.botLibGridOptions.columnDefs = [];
+            $scope.initGrids();
             $scope.isCardViewActive = false;
             $scope.botsTableViewSelection = "bots-tab-active";
             $scope.botsCardViewSelection = "";
@@ -560,10 +563,12 @@
             $scope.botStatus();
         };
         $scope.showAllBots = function() {
-            $scope.noShowForServiceNow = true;
-             $scope.noShowForTimeSaved = true;
-            $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
+            $scope.botLibGridOptions.columnDefs = [];
+            $scope.initGrids();
+            $scope.noShowForServiceNow = true;
+            $scope.noShowForTimeSaved = true;
+            $scope.clearSearchString();
             $scope.botLibGridOptions.data = [];
             $scope.showLoadRecord();
             $scope.paginationParams.page = 1;
@@ -576,10 +581,12 @@
             $scope.botLibraryGridView();
         };
         $scope.showBotsRunning = function(resetPage) {
-            $scope.noShowForServiceNow = true;
-             $scope.noShowForTimeSaved = true;
-            $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
+            $scope.botLibGridOptions.columnDefs = [];
+            $scope.initGrids();
+            $scope.noShowForServiceNow = true;
+            $scope.noShowForTimeSaved = true;
+            $scope.clearSearchString();
             $scope.showLoadRecord();
             $scope.runningBotsselected = true;
             $scope.totalBotsSelected = false;
@@ -612,10 +619,12 @@
             });
         };
         $scope.showFailedBots = function(resetPage) {
+            $scope.isBotLibraryPageLoading = true;
+            $scope.botLibGridOptions.columnDefs = [];
+            $scope.initGrids();
             $scope.noShowForServiceNow = true;
             $scope.noShowForTimeSaved = true;
             $scope.clearSearchString();
-            $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
             $scope.failedBotsselected = true;
             $scope.runningBotsselected = false;
@@ -629,6 +638,7 @@
                 $scope.paginationParams.page = 1;
                 $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             }
+            $scope.botLibGridOptions.columnDefs.splice(7,0,{name: 'Failed Runs', field: 'failedExecutionCount', cellTooltip: true});
             var param={
                 inlineLoader:true,
                 url:'/bot?actionStatus=failed&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
@@ -648,8 +658,10 @@
             });
         };
         $scope.showScheduledBots = function(resetPage) {
-            $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
+            $scope.botLibGridOptions.columnDefs = [];
+            $scope.initGrids();
+            $scope.clearSearchString();
             $scope.showLoadRecord();
             $scope.failedBotsselected = false;
             $scope.runningBotsselected = false;
@@ -666,6 +678,7 @@
                 $scope.paginationParams.page = 1;
                 $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             }
+            $scope.botLibGridOptions.columnDefs.splice(7,0,{name: 'Successful Executions', field: 'successExecutionCount', cellTooltip: true}); 
             var param={
                 inlineLoader:true,
                 url:'/bot?actionStatus=success&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
