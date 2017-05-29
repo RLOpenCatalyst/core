@@ -28,7 +28,7 @@
 	 return Joi.array().items(Joi.object().keys({
 			teamIds:Joi.array().items(Joi.string().required()).required(),
 				resourceIds:Joi.array().items(Joi.string().required()).required()
-			}).optional()).required();
+			}).optional()).optional();
  }
  
  exports = orgResourcePermisssionValidator;
