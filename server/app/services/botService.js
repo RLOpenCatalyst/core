@@ -355,11 +355,11 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                     },
                     bots: function (callback) {
                         if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints') {
-                            var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
-                                executionCount: botExecutionCount,
+                                executionCount: botDetails[0].executionCount + 1,
                                 lastRunTime: new Date().getTime(),
-                                lastExecutionStatus: "running"
+                                lastExecutionStatus: "running",
+                                runningExecutionCount: botDetails[0].runningExecutionCount + 1
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         }else{

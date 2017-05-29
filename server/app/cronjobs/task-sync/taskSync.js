@@ -54,7 +54,7 @@ function executeTaskSyncForBotHistory(query,callback){
                     (function(runningBot){
                         var currentDate = new Date();
                         var startBotTime = new Date(runningBot.startedOn);
-                        if(getMinutesDiff(startBotTime,currentDate) > 20){
+                        if(getMinutesDiff(startBotTime,currentDate) > runningBot.manualExecutionTime){
                             count++;
                             var queryObj = {
                                 actionStatus:'failed',
@@ -112,7 +112,7 @@ function executeTaskSyncForTaskHistory(query,callback){
                     (function(runningTask){
                         var currentDate = new Date();
                         var startBotTime = new Date(runningTask.timestampStarted);
-                        if(getMinutesDiff(startBotTime,currentDate) > 20){
+                        if(getMinutesDiff(startBotTime,currentDate) > runningTask.manualExecutionTime){
                             count++;
                             var queryObj = {
                                 status:'failed',
