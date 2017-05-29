@@ -33,10 +33,10 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
-
+var globalData = require('_pr/config/global-data.js');
+var copy = require('copy-dir');
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
-const gitHubService = require('_pr/services/gitHubService.js');
 
 const errorType = 'botService';
 
@@ -232,7 +232,19 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
     var botRemoteServerDetails = {}
     async.waterfall([
         function(next) {
-            botDao.getBotsByBotId(botsId, next);
+            botDao.getBotsByBotId(botsId, (err,result) =>{
+                if(err)
+                    next(err,null);
+                else{
+                    if(globalData.getGit(result[0].gitHubId)){
+                        var err = new Error('Sync is in progess');
+                        err.status = 400;
+                        next(err,null);
+                    }else{
+                        next(null,result)
+                    }
+                }
+            });
         },
         function(bots,next){
             if(bots.length > 0) {
@@ -557,10 +569,11 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
             process.setMaxListeners(100);
             if(gitHubDetails.botSync !== null){
                 var botFactoryDirPath = appConfig.botFactoryDir+'gitHub/';
-                fileHound.create()
-                    .paths(botFactoryDirPath)
-                    .ext('yaml')
-                    .find().then(function(files){
+                var  gitHubService = require('_pr/services/gitHubService.js');
+                gitHubService.getYamlList(botFactoryDirPath,(err,files)=>{
+                    console.log(files)
+                    if(err)
+                        next(err);
                     if(files.length > 0){
                         var botObjList = [];
                         for(var i = 0; i < files.length; i++){
@@ -657,8 +670,6 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                     }else{
                         logger.info("There is no YML files in this directory.",botFactoryDirPath);
                     }
-                }).catch(function(err){
-                    next(err,null);
                 });
 
             }else{
