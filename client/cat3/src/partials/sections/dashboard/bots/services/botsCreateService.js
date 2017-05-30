@@ -148,12 +148,28 @@
 				return genericServices.promiseGet(params);
 			};
 
-			botService.getGitHubSyncDetails = function () {
+			botService.getGitHubDetails = function () {
+				var params = {
+					url: '/git-hub',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getGitHubSyncDetails = function (actionStatus, gitHubId, pageNumber, pageSize, sortBy, sortOrder) {
 				var params ={
-					url : 'src/partials/sections/dashboard/bots/gitSync.json',
+					url : '/git-hub/' + gitHubId + '/sync?action=' + actionStatus + '&page=' + pageNumber +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder,
 					inlineLoader: true	
 				} 
 				return genericServices.promiseGet(params);
+			};
+
+			botService.postBotSync = function(gitHubId,reqBody) {
+				var params = {
+					url: '/git-hub/' + gitHubId + '/copy',
+					data: reqBody
+				};
+				return genericServices.promisePost(params);
 			};
 
         }]);

@@ -238,7 +238,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.get('/git-hub/:gitHubId/sync', getGitHubSync);
     function getGitHubSync(req, res) {
-        //req.query.action = 'sync'
         async.waterfall(
             [
                 function(next) {
@@ -287,23 +286,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.gitHubContentSync(req.params.gitHubId, req.params.botId, next);
+                    gitHubService.gitHubContentSync(req.params.gitHubId, req.params.botId,req.session.user.cn, next);
                 }
             ],
-            function(err, results) {
-                if (err) {
-                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' is synced unsuccessful'},"error",function(err,data){
-                    if(err){
-                        return res.sendStatus(500);
-                    }});
-                    res.status(err.status).send(err);
-                } else {
-                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' is synced successful'},"success",function(err,data){
-                    if(err){
-                        return res.sendStatus(500);
-                    }});
+            function(err) {
+                if(err)
+                    return res.sendStatus(500);
+                else
                     return res.sendStatus(200);
-                }
             }
         );
     }
