@@ -265,7 +265,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 	 	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
 	 	            			   
 	 	            			  orgBotsList.forEach(function(orgBot){
-            						   ids.concat[orgBot.resourceIds];
+            						   ids = ids.concat(orgBot.resourceIds);
             					  });
 	 	            			  
 	 	            			  if (ids.length > 0) {
