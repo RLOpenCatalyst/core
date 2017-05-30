@@ -5,32 +5,6 @@ var botDao = require('_pr/model/bots/1.1/bot.js');
 var botService = require('_pr/services/botService.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 
-/*function upsertOrgBots(data, cb){
-	logger.debug('adding/updating org bots permission');
-	var  errors = [];
-	var successes = [];
-	async.forEach(data, function(orgBot, k){
-		orgResourcePermission.upsertOrgBots(orgBot, function(err, result){
-			
-			if (err) {
-				errors.push(err);
-			}
-			
-			successes.push(result);
-			return k();
-		});
-	}, function(){
-		
-		if (errors.length > 0) {
-			logger.error('Failed to insert org bot permission' + JSON.stringify(errors));
-			return cb(errors, null);
-		}
-		
-		logger.debug('adding/updating org bots permission completed');
-		return cb( null, successes );
-	});
-}*/
-
 function getResourcesByOrgTeam(queryParameters, actionStatus, serviceNowCheck,cb){
 	
 	var orgId = queryParameters.orgId
@@ -55,11 +29,6 @@ function getResourcesByOrgTeam(queryParameters, actionStatus, serviceNowCheck,cb
 					return cb(err, null);
 				}
 				
-				/*if (queryParameters.searchq) {
-					result = result.filter(function(bot){
-						return bot.name.toLowerCase().indexOf(queryParameters.searchq.toLowerCase()) > -1;
-					});
-				}*/
 				
 				return cb(null, result);
 			});
@@ -124,20 +93,20 @@ function updateOrgResources(orgId, resourceType, data, cb){
 		});
 	}, function(){
 
-		var isUpdate = false;
+		var isUpdateRequired = false;
 		if(isAdd) {
 			data.add.forEach(function(d){
 				d.resourceIds.forEach(function(rId){
 					d.teamIds.forEach(function(tId) {
 						if(teamsResourceInfo[tId].resourceIds !== undefined && teamsResourceInfo[tId].resourceIds !== null) {
-							isUpdate = true;
 							if(teamsResourceInfo[tId].resourceIds.indexOf(rId) === -1){
+								isUpdateRequired = true;
 								teamsResourceInfo[tId].resourceIds.push(rId);
 							}
 						} else{
 							teamsResourceInfo[tId].orgId = orgId;
 							teamsResourceInfo[tId].resourceIds = [rId];
-							isUpdate = true;
+							isUpdateRequired = true;
 						}
 					});
 				});
@@ -149,7 +118,7 @@ function updateOrgResources(orgId, resourceType, data, cb){
 				d.resourceIds.forEach(function(rId){
 					d.teamIds.forEach(function(tId){
 						if (teamsResourceInfo[tId].resourceIds.length > 0) {
-							isUpdate = true;
+							isUpdateRequired = true;
 							teamsResourceInfo[tId].resourceIds.splice(teamsResourceInfo[tId].resourceIds.indexOf(rId),1);
 						}
 					});
@@ -157,7 +126,7 @@ function updateOrgResources(orgId, resourceType, data, cb){
 			});
 		}
 		
-		if ( isUpdate !== true) {
+		if ( isUpdateRequired !== true) {
 			return cb('No update required', null);
 		}
 		
@@ -182,57 +151,6 @@ function updateOrgResources(orgId, resourceType, data, cb){
 	});
 }
 
-function getResourceIdsByOrg(queryParameters, cb) {
-	
-	var query = {
-			orgId : queryParameters.orgId,
-			resourceType : queryParameters.resourceType
-	};
-	
-	orgResourcePermission.find(query, function(err, orgResourceList){
-		if (err) {
-			return cb(err);
-		}
-		
-		var teamIds = orgResourceList.map(function(orgResource){
-			return orgResource.teamId;
-		});
-		
-		d4dModelNew.d4dModelMastersTeams.find({
-			orgname_rowid : queryParameters.orgId, 
-			rowid : {$in:teamIds}, 
-			id :'21'}, function(err, teamList){
-				if (err) {
-					return cb(err);
-				}
-				var botsId = {};
-				
-				orgResourceList.forEach(function(orgResource){
-					orgResource.resourceIds.forEach(function(rId) {
-						teamList.forEach(function(t){
-							if (botsId[rId] === undefined) {
-								botsId[rId] = {
-									teamIds :[{teamId: t.rowid, teamName : t.teamname}]
-								};
-							} else {
-								botsId[rId].teamIds = botsId[rId].teamIds.map(function(tId){
-									if(tId.teamId !== t.rowid) {
-										return {teamId: t.rowid, teamName : t.teamname};
-									}
-									
-									return tId;
-								});
-							}
-						});
-					});
-				});
-
-				return cb(null, botsId);
-		});
-	});
-}
-
-//exports.upsertOrgResources = upsertOrgResources;
 exports.updateOrgResources = updateOrgResources;
 exports.getResourcesByOrgTeam = getResourcesByOrgTeam;
 exports.getResourceIdsByOrg = getResourceIdsByOrg;
