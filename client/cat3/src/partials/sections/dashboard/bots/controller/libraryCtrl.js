@@ -111,6 +111,7 @@
                 });
                 //Pagination for page and pageSize
                 gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+                    console.log(newPage);
                     $scope.paginationParams.page = newPage;
                     $scope.paginationParams.pageSize = pageSize;
                     $scope.currentCardPage = newPage;
@@ -248,12 +249,12 @@
             lib.gridOptions=[];
             var param={
                 inlineLoader:true,
-                url:'/audit-trail?filterBy=auditType:BOT&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bot?actionStatus=running&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
                     $scope.showLoadRecord();
-                    $scope.botTimeSavedLibGridOptions.data =  result.auditTrails;
+                    $scope.botTimeSavedLibGridOptions.data =  result.bots;
                     $scope.isBotTimeSavedPageLoading = false;
                     $scope.isBotServiceNowPageLoading = false;
                     $scope.isBotDetailsLoading = false;
@@ -380,6 +381,7 @@
             } else {
                 $scope.botLibraryGridView();
             }
+            //$scope.isBotDetailsLoading = false;
         };
 
         $scope.searchBotNameCategory = function(pageNumber) {
@@ -588,7 +590,7 @@
         };
         $scope.showAllBots = function() {
             $scope.noShowForServiceNow = true;
-             $scope.noShowForTimeSaved = true;
+            $scope.noShowForTimeSaved = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.botLibGridOptions.data = [];
@@ -604,7 +606,7 @@
         };
         $scope.showBotsRunning = function(resetPage) {
             $scope.noShowForServiceNow = true;
-             $scope.noShowForTimeSaved = true;
+            $scope.noShowForTimeSaved = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
@@ -635,6 +637,7 @@
                 }
                 $scope.botsDetails(result);
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
+                $scope.isBotDetailsLoading = false;
             });
         };
         $scope.showFailedBots = function(resetPage) {
@@ -670,6 +673,7 @@
                 }
                 $scope.botsDetails(result);
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
+                $scope.isBotDetailsLoading = false;
             });
         };
         $scope.showScheduledBots = function(resetPage) {

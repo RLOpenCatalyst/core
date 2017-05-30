@@ -104,7 +104,6 @@ var getpermissionforcategory = function(category, permissionto, permissionset) {
 var haspermission = function(category, permissionto) {
 	var retVal = '';
 	if (!sessionUser) {
-		console.log('sessionUser not found hitting server');
 		$.ajax({
 			type: "get",
 			dataType: "text",
@@ -127,7 +126,6 @@ var haspermission = function(category, permissionto) {
 			}
 		});
 	} else {
-		console.log('hitting local');
 		retVal = getpermissionforcategory(category, permissionto, sessionUser.permissionset);
 	}
 	return (retVal);
@@ -279,8 +277,6 @@ function readMasterJsontv(id) {
 	//alert(url);
 
 	if ((url.indexOf('List') >= 0 || url.indexOf('Create') >= 0) && url.indexOf('OrgList.html') < 0) {
-		// alert('in 1');
-        console.log('readmasterjsonnew'+url);
 		$.ajax({
 			type: "get",
 			dataType: "text",
@@ -299,8 +295,6 @@ function readMasterJsontv(id) {
 		return (d4ddata);
 	}
 	if (url.indexOf('OrgList.html') > 0) {
-        console.log('readmasterjsonneworglist'+url);
-		//alert('in 1');
 		$.ajax({
 			type: "get",
 			dataType: "text",
@@ -419,7 +413,6 @@ function CreateTableFromJson__(formID, idFieldName, createFileName) {
 							});
 							if (imageTD) {
 								if (imageTD.length > 0) {
-									console.log("Template Icon:" + tv);
 									var imgpath = 'img/blank.png';
 									if (imageTD.html().indexOf('<img') >= 0) {
 										imageTD.html(''); //fix for image tag gettnig embedded. - Vinod
@@ -501,14 +494,9 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 	//force setting the idFieldName to "rowid"
 	idFieldName = "rowid";
 
-	// alert(JSON.stringify(formData));
-	//Reading row to get schema
-	console.log("hiiiii>>>>> " + d4ddata);
 	for (var x = 0; x < d4ddata.length; x++) {
 		if (d4ddata[x].orgname !== "undefined") {
-			// console.log("Value for all",d4ddata[x].orgname[0]);
 			if (d4ddata[x].orgname[0] === "") {
-				console.log("Value for all");
 				d4ddata[x].orgname[0] = "All";
 			}
 			d4ddata[x]["cnfPassword"] = d4ddata[x].password;
@@ -529,7 +517,6 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 
 	var formSchema = null;
 	$.each(d4ddata, function(i, item) {
-		console.log("Top:" + JSON.stringify(item)); //rows
 		var editButton = null;
 		var idFieldValue = null;
 		var imageTD = null;
@@ -550,18 +537,18 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 		$.each(item, function(k, v) { //columns
 			// var inputC = null;
 			if (typeof v != "undefined") {
-				//console.log('v before',v,typeof v);
+				
 				v = JSON.parse(JSON.stringify(v).replace(/(?=[^,]*$)/, ''));
-				//console.log('v after',v);
+				
 			}
 
-			console.log('k:' + k + ' v :' + JSON.stringify(v));
+			
 			if (k == idFieldName) {
 				idFieldValue = v;
 			}
 			inputC = $('.rowtemplate').find("[datafield='" + k + "']");
 			if (inputC) {
-				console.log('Inputc===>' + inputC.attr('datafield'));
+			
 				if (inputC.attr('datafield') == 'active') {
 					if (v.toString() == 'false') {
 						inputC.html('Inactive');
@@ -885,8 +872,6 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 			}
 		}
 
-
-		console.log('-----------');
 		var sRow = $(".rowtemplate").clone();
 		sRow.removeClass("hidden");
 		sRow.removeClass("rowtemplate");
@@ -897,7 +882,7 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 
 	// var templateRow = $(".rowtemplate").clone();
 	// $.each(item,function(k, v) {
-	//     console.log('k:' + k + ',v:' + v);
+	//    
 	// });
 	// var sRow = $(".rowtemplate").clone();
 	// sRow.removeClass("hidden");
@@ -1262,7 +1247,7 @@ function readform(formID) {
 				    _rowid = item['rowid'];
 
 				    $.each(item, function(k, v) { //columns
-				        console.log('1 k:' + k + ' 1 v :' + JSON.stringify(v));
+				        
 				        if (k == curSelect.attr("id")) {
 				            curSelect.append('<option value="' + v + '" rowid = "' + _rowid + '">' + v + '</option>');
 				        }
@@ -1279,7 +1264,7 @@ function readform(formID) {
 								$.each(tempJSON, function(i, item) {
 									_rowid = item['rowid'];
 									$.each(item, function(k, v) { //columns
-										//console.log('1 k:' + k + ' 1 v :' + JSON.stringify(v));
+										
 										if (k == curSelect.attr("id")) {
 											curSelect.append('<option value="' + v + '" rowid = "' + _rowid + '">' + v + '</option>');
 										}
@@ -1290,7 +1275,7 @@ function readform(formID) {
 								$.each(tempJSON, function(i, item) {
 									_rowid = item['rowid'];
 									$.each(item, function(k, v) { //columns
-										//console.log('1 k:' + k + ' 1 v :' + JSON.stringify(v));
+										
 										if (k == curSelect.attr("id")) {
 											curSelect.append('<option value="' + v + '" rowid = "' + _rowid + '">' + v + '</option>');
 										}
@@ -1484,7 +1469,7 @@ function readform(formID) {
 				// _rowid = item['rowid'];
 
 				$.each(item, function(k, v) { //columns
-					console.log('2 k:' + k + ' 2 v :' + JSON.stringify(v));
+					
 					if (k == curInput.attr("id")) {
 						addToCodeList(v, curInput);
 					}
@@ -1559,9 +1544,9 @@ function readform(formID) {
 	//  alert(d4ddata);
 
 	/*for(var x=0;x<d4ddata.length;x++){
-	        console.log("d4ddata[x].orgname[x]>>>>>>> ",d4ddata[x].orgname[0]);
+	        
 	        if(d4ddata[x].orgname[0] === ""){
-	            console.log("Value for all");
+	        
 	            d4ddata[x].orgname[0] = "All";
 	        }
 	    }*/
@@ -1641,7 +1626,6 @@ function readform(formID) {
 
 	$.each(formData, function(k, v) {
 		var inputC = null;
-		console.log('k:' + k + ' v:' + v);
 		//Finding the input control to bind.
 		if (k.indexOf("_filename") > 0) {
 			k = k.replace('_filename', '');
@@ -1727,7 +1711,6 @@ function readform(formID) {
 				ctrl.trigger('change');
 			}
 			if (ctrl.getType() == "div" && typeof ctrl.attr('savedvalue') != 'undefined') {
-				console.log(ctrl.attr('savedvalue'));
 				var divselect = ctrl.attr('savedvalue').split(',');
 				// alert(divselect.length);
 				for (var j = 0; j < divselect.length; j++) {
@@ -1769,7 +1752,6 @@ function readformnew(formID) {
 					_rowid = item['rowid'];
 
 					$.each(item, function(k, v) { //columns
-						console.log('1 k:' + k + ' 1 v :' + JSON.stringify(v));
 						if (k == curSelect.attr("id")) {
 							curSelect.append('<option value="' + v + '" rowid = "' + _rowid + '">' + v + '</option>');
 						}
@@ -1849,7 +1831,6 @@ function readformnew(formID) {
 				// _rowid = item['rowid'];
 
 				$.each(item, function(k, v) { //columns
-					console.log('2 k:' + k + ' 2 v :' + JSON.stringify(v));
 					if (k == curInput.attr("id")) {
 						addToCodeList(v, curInput);
 					}
@@ -1963,7 +1944,6 @@ function readformnew(formID) {
 
 	$.each(formData, function(k, v) {
 		var inputC = null;
-		console.log('k:' + k + ' v:' + v);
 		//Finding the input control to bind.
 		if (k.indexOf("_filename") > 0) {
 			k = k.replace('_filename', '');
@@ -2088,13 +2068,10 @@ function CreateTableFromJsonNew(formID, idFieldName, createFileName) {
 
 	var formSchema = null;
 	$.each(d4ddata, function(i, item) {
-		console.log("Top:" + JSON.stringify(item)); //rows
 		var editButton = null;
 		var idFieldValue = null;
 		var imageTD = null;
 		$.each(item, function(k, v) { //columns
-			// var inputC = null;
-			console.log('k:' + k + ' v :' + JSON.stringify(v));
 			if (k == idFieldName) {
 				idFieldValue = v;
 			}
@@ -2115,7 +2092,6 @@ function CreateTableFromJsonNew(formID, idFieldName, createFileName) {
 		if (idFieldValue) {
 			if (imageTD) {
 				if (imageTD.length > 0) {
-					console.log("Template Icon:" + idFieldValue);
 					var imgpath = 'img/blank.png';
 					if (imageTD.html().indexOf('<img') >= 0) {
 						imageTD.html(''); //fix for image tag gettnig embedded. - Vinod
@@ -2158,8 +2134,6 @@ function CreateTableFromJsonNew(formID, idFieldName, createFileName) {
 			}
 		}
 
-
-		console.log('-----------');
 		var sRow = $(".rowtemplate").clone();
 		sRow.removeClass("hidden");
 		sRow.removeClass("rowtemplate");
@@ -2170,7 +2144,7 @@ function CreateTableFromJsonNew(formID, idFieldName, createFileName) {
 
 	// var templateRow = $(".rowtemplate").clone();
 	// $.each(item,function(k, v) {
-	//     console.log('k:' + k + ',v:' + v);
+	//     
 	// });
 	// var sRow = $(".rowtemplate").clone();
 	// sRow.removeClass("hidden");
@@ -2214,11 +2188,11 @@ function saveform(formID, operationTypes) {
 	var orgName = $('#orgname').val().trim();
 	var orgnamecheck = true;
 	/*var password = $('#password1').val();
-	console.log(password);*/
+	*/
 	// Not allowing team assignment for superadmin
 
 	/*if (orgName === '') {
-	    //console.log("++++++++++::::::::::: "+$('#teamname').val());
+	    
 	    $('#teamname').find("input").each(function() {
 
 	        if ($(this).is(":checked")) {
@@ -2255,7 +2229,7 @@ function saveform(formID, operationTypes) {
 	    for (var j = 0; j < $checkboxInput.length; j++) {
 	        var $inputCkb = $($checkboxInput[j]);
 	        if ($inputCkb.is(":checked")) {
-	            console.log("users:::::::::::::: " + $inputCkb.val());
+	            
 	            for (var i = 0; i < users.length; i++) {
 	                if ($inputCkb.val() === users[i].loginname) {
 	                    if (users[i].orgname_rowid[0] === "") {
@@ -2399,9 +2373,7 @@ function saveform(formID, operationTypes) {
 		data1.append("rowid", button.attr("rowid"));
 	}
 
-	console.log(">>>>>>>>>>>>>>>>>>>>>>>>> orgname: ", orgName);
 	if (orgName === "") {
-		console.log("no orgname>>>>");
 		orgName = "all";
 	}
 
@@ -2417,8 +2389,6 @@ function saveform(formID, operationTypes) {
 		orgName = '%2f';
 	}
 	//alert('This is the data that gets saved:' + JSON.stringify(data1));
-
-	console.log('This is the data that gets saved:' + data1['rowid']);
 
 	/*Adding Extra param for providers */
 	if (formID == 9) {
@@ -2441,8 +2411,6 @@ function saveform(formID, operationTypes) {
 	/*if(formID === "7" && password.length > 0){
 	    data1.append('password', password);
 	}*/
-	console.log(orgName);
-	console.log(data1);
 	// alert(serviceURL + "savemasterjsonrownew/" + formID + "/" + fileNames + "/" + orgName );
 	$.ajax({
 		url: serviceURL + "savemasterjsonrownew/" + formID + "/" + fileNames + "/" + orgName,
@@ -2835,7 +2803,7 @@ function loadreceipesinto(receipectrls, cookbook, chefserverid, finalfunction) {
 					// $servicecookbook.append('<option value="none">None</option>');
 					$.each(data, function(k, v) {
 						var recp = data[k].name.substring(0, data[k].name.length - 3);
-						//   console.log(k + ":" + recp);
+						
 						$servicecookbook.append('<option value="' + cookbook + '::' + recp + '">' + recp + '</option>');
 
 					});
@@ -3733,10 +3701,6 @@ function aggregateTable(tableid, filterColumnNo, filterColumnValue, colsArr) {
 		}
 
 	});
-	console.log(obj);
-
-	//alert('in' + JSON.stringify(obj));
-
 	return obj;
 }
 

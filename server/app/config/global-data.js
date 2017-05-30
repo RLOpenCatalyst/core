@@ -28,7 +28,7 @@ globalDataServices.incRetryCount = function incRetryCount(fieldName, fieldValue)
 }
 
 globalDataServices.setGit = function setGit(githubid) {
-    gitSync.push({ gitId: githubid});
+    gitSync.push({ "gitId": githubid});
     return;
 }
 globalDataServices.getGit = function getGit(githubid) {

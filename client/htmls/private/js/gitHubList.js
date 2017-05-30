@@ -191,17 +191,8 @@ function getGlobalGitServers() {
             {"data": "repositoryBranch" ,"orderable" : false},
             {"data": "","orderable" : true,
                 "render": function (data) {
-                    var $tdAction = '<div class="btn-group">' +
-                        '<button class="btn btn-info pull-left btn-sg tableactionbutton syncGitRepo" data-placement="top" value="Sync" title="Sync">' +
-                        '<i class="ace-icon fa fa-refresh bigger-120"></i>' +
-                        '</button>' +
-                        '</div> &nbsp;' +
+                    var $tdAction = 
                         '<div class="btn-group">' +
-                        '<button class="btn btn-info pull-left btn-sg tableactionbutton importGitRepo" data-placement="top" value="Import" title="Import">' +
-                        '<i class="ace-icon fa fa-download bigger-120"></i>' +
-                        '</button>' +
-                        '</div>' +
-                        '<div style="margin-left:14px;" class="btn-group">' +
                         '<button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit">' +
                         '<i class="ace-icon fa fa-pencil bigger-120"></i>' +
                         '</button>' +
@@ -308,136 +299,6 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
     });
     return false;
 });
-
-
-//import git
-
-
-$('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
-    $('#selectAllCheckbox').removeAttr('checked',false);
-    $('#importBotsList').empty();
-    $('#gitImportTable').hide();
-    $('#noDataAvailable').hide();
-    $('#gitCloneImportSave').hide();
-    $('#modalForGitImport').modal('show');
-    var $this = $(this);
-    var id = $this.parents('tr').attr('githubId');
-    $('#gitImpLoader').show();
-    $('#importBotsList').html();
-    $.ajax({
-        url: '../git-hub/'+id+'/import',
-        method: 'GET',
-        success: function(data) {
-            $('#gitCloneImportSave').show();
-            $('#gitImpLoader').hide();
-            $('#gitImportTable').show();
-            if(data.result && data.result.length > 0) {
-                for(var i=0;i<data.result.length; i++) {
-                    html = $('<tr><td>' + data.result[i].botName + '</td><td>' + data.gitHub.repoName + '</td><td><input value="'+data.result[i].botName+'" type="checkbox" class="selectCheckboxForImport"></td></tr>')
-                    .attr({'botNameTable':data.result[i].botName});
-                    $('#gitEditImportHiddenInputId').val(data.gitHub.Id);
-                    $('#importBotsList').append(html);
-                }
-            } else {
-                $('#gitImportTable').addClass('hidden');
-                $('#gitCloneImportSave').hide();
-                $('#noDataAvailable').show();
-            }
-        },
-        error: function(jxhr) {
-            $('#gitImpLoader').hide();
-            $('#gitImportTable').hide();
-            console.log(jxhr);
-            var msg = "Unable to Fetch GitRepo please try again later";
-            if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                msg = jxhr.responseJSON.message;
-            } else if (jxhr.responseText) {
-                var msgCheck = JSON.parse(jxhr.responseText);
-                msg = msgCheck.msg;
-            }
-            toastr.error(msg);
-            $('#gitHubListLoader').hide();
-        }
-    });
-    return false;
-});
-
-$('#gitCloneImport').submit(function(){
-    var $importBotsList = $('tbody#importBotsList');
-    var $checkbox = $importBotsList.find('input[type="checkbox"]:checked');
-    var $this = $(this);
-    var checkboxValueForImport = [];
-    var importData = {};
-    var gitHubId = $('#gitEditImportHiddenInputId').val();
-    $checkbox.each(function(){
-        checkboxValueForImport.push({
-            'botName':$(this).val(),
-            'status':true
-        });
-    });
-    if (!checkboxValueForImport.length) {
-        bootbox.alert('Please choose a BOT to import');
-        return;
-    }
-    var reqBody = [];
-    
-    reqBody = checkboxValueForImport;
-    $.ajax({
-        method: 'POST',
-        url: '../git-hub/' + gitHubId + '/copy',
-        data: {
-            gitHubBody :reqBody
-        },
-            success: function(data, success) {
-                toastr.success('Import Successful');
-                $('#modalForGitImport').modal('hide');
-                $('#saveItemSpinner').addClass('hidden');
-                $('#gitCloneImport').removeAttr('disabled');
-            },
-            error: function(jxhr) {
-                console.log(jxhr);
-                var msg = "Server Behaved Unexpectedly";
-                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                    msg = jxhr.responseJSON.message;
-                } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
-                }
-                toastr.error(msg);
-
-                $('#saveItemSpinner').addClass('hidden');
-                $('#gitCloneImport').removeAttr('disabled');
-            }
-    });
-    
-    return false;
-});
-
-$('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
-    $('#gitHubListLoader').show();
-    var $this = $(this);
-    $.ajax({
-        url: '../git-hub/' + $this.parents('tr').attr('githubId') + '/sync',
-        method: 'GET',
-        success: function(data) {
-            toastr.success('Successfully cloned.');
-            $('#gitHubListLoader').hide();
-        },
-        error: function(jxhr) {
-            console.log(jxhr);
-            var msg = "Unable to Fetch GitRepo please try again later";
-            if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                msg = jxhr.responseJSON.message;
-            } else if (jxhr.responseText) {
-                var msgCheck = JSON.parse(jxhr.responseText);
-                msg = msgCheck.msg;
-            }
-            toastr.error(msg);
-            $('#gitHubListLoader').hide();
-        }
-    });
-    return false;
-});
-
 
 function saveForm(methodName,url,reqBody) {
     $.ajax({

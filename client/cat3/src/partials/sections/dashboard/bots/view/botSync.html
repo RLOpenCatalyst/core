@@ -1,10 +1,10 @@
-<div id='botSyncPage' class="backColor">
+<div id='botSyncPage' class="backColor width99">
    <div class="page-name">
       BOTs Sync Library&nbsp;
-      <span class="pull-right">
-      <button type="button" title="Filter" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
-      <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;
-      </button>
+      <span class="pull-right marginright8">
+         <button type="button" title="Filter" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
+         <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;
+         </button>
       </span>
    </div>
    <div class="borderTop"></div>
@@ -14,15 +14,19 @@
          <div>
             <div class="repo-job-details-wrapper-inner marginbottom10"></div>
             <div class="col-lg-12 col-md-12 form-group">
-               <label for="">Type:</label>
+               <label for="">Git Account</label>
+               <select class="form-control marginbottom15" ng-model="gitHubId" ng-change="getGitHubDetails();">
+                  <option ng-repeat="gitHub in gitHubDetails" value="{{gitHub._id}}">{{gitHub.repositoryName}}</option>
+               </select>
+               <label for="">Type</label>
                <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botSyncType">
-                  <option selected="selected" value="">Alll</option>
+                  <option selected="selected" value="">All</option>
                   <option value="chef">Chef</option>
                   <option value="script">Script</option>
                   <option value="blueprints">Blueprints</option>
                   <option value="jenkins">Jenkins</option>
                </select>
-               <label for="">Functionality:</label>
+               <label for="">Functionality</label>
                <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botSyncCategory">
                   <option selected="selected" value="">All</option>
                   <option value="User Management">User Management</option>
@@ -30,7 +34,7 @@
                   <option value="Service Management">Service Management</option>
                   <option value="Application Management">Application Management</option>
                </select>
-               <label for="">Status:</label>
+               <label for="">Status</label>
                <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botSyncStatus">
                   <option selected="selected" value="">All</option>
                   <option value="new">New</option>
@@ -46,15 +50,15 @@
       <br>
    </div>
    <!--sidebar filter ends here -->
-   <div class="margintop10">
+   <div class="margintop6">
       <span class="botSync">
-      <span style="margin-left:34px;" class="box-title">
-      <span class="greenBadge badge">New : 40</span>
+         <span style="margin-left:34px;" class="box-title">
+         <span class="greenBadge badge">New - <loading size="small" name="isBotSyncDetailsLoading" type="inline" classes='white' class="ng-scope"></loading><span ng-if="!isBotSyncDetailsLoading">{{botSyncGrid.botData.new}}</span></span>
+         </span>
+         <span class="blueBadge badge">Updated - <loading size="small" name="isBotSyncDetailsLoading" type="inline" classes='white' class="ng-scope"></loading><span ng-if="!isBotSyncDetailsLoading">{{botSyncGrid.botData.modified}}</span></span>
+         <span class="redBadge badge">Deleted - <loading size="small" name="isBotSyncDetailsLoading" type="inline" classes='white' class="ng-scope"></loading><span ng-if="!isBotSyncDetailsLoading">{{botSyncGrid.botData.deleted}}</span></span>
       </span>
-      <span class="blueBadge badge">Updated : 8</span>
-      <span class="redBadge badge">Deleted : 4</span>
-      </span>
-      <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
+      <form class="pull-right firefoxForm marginright8" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
          <span class="bot-library-search">
          <label>&nbsp;
          <input type="text" ng-model="botSyncSearch" class="search-text bot-search" placeholder="Search">
@@ -70,5 +74,10 @@
          </div>
          <div id="grid1" ng-if="botSyncGrid.data.length >0 && !isBotSyncPageLoading" ui-grid-selection ui-grid-pagination ui-grid-auto-resize ui-grid="botSyncGrid" class="grid gridHeightSync"></div>
       </div>
+   </div>
+   <div class="pager">
+      <button type="button" ng-if="botId.length>0" class="marginright29 margintop8 btn cat-btn-update" ng-click="postSyncBots()">
+         <i class="fa fa-check white"></i> BOT Sync
+      </button>
    </div>
 </div>
