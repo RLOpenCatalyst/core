@@ -357,7 +357,7 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody, userName, call
             if(err){
                 noticeService.notice(userName, {
                     title: "GitHub Sync",
-                    body: "Unable Copy Files Please sync again"
+                    body: "Unable to Copy Files. Please sync again"
                 }, "error", function (err, data) {
                     if (err) {
                         logger.error("Error in Notification Service, ", err);
@@ -671,7 +671,7 @@ function gitHubCloning(gitHubDetails, cmd, callback) {
             // })
         },
         function (diff, next) {
-            gitHubTempModel.gitFilesdelete(gitHubId, function (err) {
+            gitHubTempModel.gitFilesdelete(gitHubDetails._id, function (err) {
                 if (err) {
                     next(err)
                     logger.error("Error in clearing GIT-Hub data.", err);
