@@ -261,7 +261,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 	            				   botDao.getBotsList(queryObj, next);
 	            			   });
 		            		}else {
-		            			
+		            		
 	 	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
 	 	            			   
 	 	            			  orgBotsList.forEach(function(orgBot){
@@ -290,7 +290,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 	                   apiUtil.paginationResponse(filterBotList, reqData, callback);
 	               },
 	               botSummary:function(callback){
-	                   auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback)
+	            	   auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback);
 	               }
 	               
 	           },function(err,data){
@@ -329,24 +329,25 @@ function getOrgResourceList(orgId, teamIds, callback){
 		  query.teamId = {$in : teamIds};
 	   }
 	   
-	   orgResourcePermission.find(query, function(err, result){
+	   orgResourcePermission.find(query, function(err, orgResourceList){
 		   if ( err ) {
 			   return callback(err, null);
 		   }
 		   
-		   if (result.length > 0 ) {
+		   if (orgResourceList.length > 0 ) {
 			   var teamIds = [];
-			   result.forEach(function(orgResource){
+			   orgResourceList.forEach(function(orgResource){
 				   teamIds.push(orgResource.teamId);
 			   });
-			   getTeamsInfo(result, orgId, teamIds, function(err, result){
+			   getTeamsInfo(orgResourceList, orgId, teamIds, function(err, result){
 				   if ( err ) {
 					   return callback(err, null);
 				   }
+				   
 				   return callback(null, result);
 			   });
 		   } else {
-			   return callback(null, result);
+			   return callback(null, []);
 		   }
 	   });
 	} else {
@@ -355,7 +356,6 @@ function getOrgResourceList(orgId, teamIds, callback){
 }
 
 function filterBots(filterByOrg, botsList, orgBots){
-	
 	var bots;
 	var botsTeamId = {}
 	botsTeamId = orgBots.reduce(function(acc, cv, ci){
@@ -365,12 +365,7 @@ function filterBots(filterByOrg, botsList, orgBots){
 					teams : [cv.team]
 				};
 			} else {
-				acc[rId].teams = acc[rId].teams.concat(acc[rId].teams.filter(function(team){
-					if (team.teamId !== cv.team.teamId) {
-						return true;
-					}
-					return false;
-				}));
+				acc[rId].teams.push(cv.team);
 			}
 			return acc;
 		});
@@ -418,10 +413,11 @@ function getTeamsInfo(result, orgId, teamIds, cb){
 				   orgResource.team = {
 					   teamId : t.rowid,
 					   teamName : t.teamname
-				   }
+				   };
 			   }
 		   });
 	   });
+	   
 	   return cb(null, result);
    });
 }
