@@ -342,6 +342,7 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
 
 auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,userName,callback){
 	var teamId;
+	var filterByOrg = false;
     async.waterfall([
         function(next){
             apiUtil.queryFilterBy(queryParam,next);
@@ -386,16 +387,20 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
 	                		userDetail.orgname = (typeof userDetail.orgname[0]) !== undefined ? userDetail.orgname[0] : userDetail.orgname;
 	                	}
 	                	
+	                	var teamIds;
 	                	if (teamId) {
          				   filterByOrg = true;
          				   teamIds = [teamId];
          			   	}
 	                	
+	                	var ids = [];
 	                	if ( userDetail.userrolename === 'Admin') {
 	                		
             			   getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
             				   
-            				   var ids = [];
+            				   if ( err ){
+            					   next(err,null);
+            				   }
             				   if (filterByOrg) {
             					   orgBotsList.forEach(function(orgBot){
             						   ids = ids.concat(orgBot.resourceIds);
@@ -405,12 +410,24 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
             				   if (ids.length > 0) {
             					   filterQuery.id = {$in:ids};
             				   }
+            				   
+            				   if (orgId) {
+            					   filterQuery.orgId = orgId;
+            				   }
+            				   
+            				   if (orgId && teamId && orgBotsList.length === 0) {
+            					   return next(null, []);
+            				   }
+            				   
             				   botDao.getAllBots(filterQuery, next);
             			   });
 	            		}else {
 	            		
  	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
  	            			   
+ 	            			  if ( err ){
+ 	            				  next(err,null);
+ 	            			  } 
  	            			  orgBotsList.forEach(function(orgBot){
      						   ids = ids.concat(orgBot.resourceIds);
  	            			  });
@@ -543,11 +560,7 @@ function getOrgResourceList(orgId, teamIds, callback){
 			   return callback(err, null);
 		   }
 		   
-		   if (orgResourceList.length > 0 ) {
-			   return callback(null, orgResourceList);
-		   } else {
-			   return callback(null, []);
-		   }
+		   return callback(null, orgResourceList);
 	   });
 	} else {
 		return callback(null, []);

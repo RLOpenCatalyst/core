@@ -32,11 +32,39 @@
         $scope.showOriginalSpinner = true;
         $scope.noShowForServiceNow = true;
         $scope.noShowForTimeSaved = true;
+
+        $scope.getLoggedInUser = function() {
+            botsCreateService.getLoggedInUser().then(function(response){
+                $scope.getSuperAdmin = response.isSuperAdmin;
+                //for getting the org id and name
+                if($scope.getSuperAdmin === false) {
+                    $scope.orgNewEnt = {
+                        org:$rootScope.organObject[0]
+                    };
+                    $scope.getTeamList();
+                }
+            });
+        }
+
+        $scope.getTeamList = function() {
+            botsCreateService.getTeamList().then(function(response){
+                if(response && response.length > 0) {
+                    $scope.botTeamList = [];
+                    for(var i=0;i<response.length; i++) {
+                        if($scope.orgNewEnt.org.orgid === response[i].orgname_rowid[0]) {
+                            $scope.botTeamList.push(response[i]);
+                        }
+                    }
+                }
+            });
+        }
+
         $scope.showLoadRecord = function() {
             $scope.showLoadMore = false;
             $scope.showRecords = false;
         };
         $scope.showLoadRecord();
+        $scope.getLoggedInUser();
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
             $scope.botLibGridOptions.columnDefs= [
@@ -446,27 +474,36 @@
         };
 
         $rootScope.applyFilter = function() {
-            var param={};
-            if ($scope.botLibAction) {
-                param={
-                    url:'/bot?filterBy=action:'+$scope.botLibAction +'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                };
-            } else if($scope.botLibType) {
-                param={
-                    url:'/bot?filterBy=type:'+$scope.botLibType+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                };
-            } else if($scope.botLibCategory) {
-                param={
-                    url:'/bot?filterBy=category:'+$scope.botLibCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                }; 
-            } else if($scope.botLibCategory && $scope.botLibAction && $scope.botLibType){
-                param={
-                    url:'/bot?filterBy=action:'+$scope.botLibAction +'+type:'+ $scope.botLibType +'+category:'+ $scope.botLibCategory +'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                };
+            var url = '/bot?filterBy=';
+            if($scope.botLibAction !== undefined && $scope.botLibType !== undefined && $scope.botLibCategory !== undefined) {
+                url += 'category:'+ $scope.botLibCategory + ',type:'+$scope.botLibType + ',action:'+$scope.botLibAction 
+            } else if($scope.botLibAction !== undefined && $scope.botLibType !== undefined) {
+                url += 'type:'+$scope.botLibType + ',action:'+$scope.botLibAction 
+            } else if($scope.botLibAction !== undefined && $scope.botLibCategory !== undefined) {
+                url += 'category:'+ $scope.botLibCategory + ',action:'+$scope.botLibAction 
+            } else if($scope.botLibType !== undefined && $scope.botLibCategory !== undefined) {
+                url += 'category:'+ $scope.botLibCategory + ',type:'+$scope.botLibType 
+            } else if ($scope.botLibAction !== undefined) {
+                url += 'action:'+$scope.botLibAction 
+            } else if($scope.botLibType !== undefined) {
+                url += 'type:'+$scope.botLibType 
+            } else if($scope.botLibCategory !== undefined) {
+                url += 'category:'+$scope.botLibCategory 
+            } else if($scope.orgNewEnt !==undefined && $scope.botOrganizationTeam !==undefined) {
+                url += 'orgId:'+$scope.orgNewEnt.org.orgid + ',teamId:' + $scope.botOrganizationTeam 
+            } else if($scope.orgNewEnt !==undefined) {
+                url += 'orgId:'+$scope.orgNewEnt.org.orgid
             } else {
                 $scope.RefreshBotsLibrary();
+                return false;
             }
-            genSevs.promiseGet(param).then(function (result) {
+            url += '&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+            var params = {
+                url:url ,
+                inlineLoader:true
+            }
+            genSevs.promiseGet(params).then(function (result) {
+                $scope.botLibGridOptions.data = [];
                 if($scope.isCardViewActive){
                     $scope.botLibGridOptions.data = result.bots;
                     $scope.botSummary = result.botSummary;
@@ -553,14 +590,22 @@
         $scope.clearFilter = function(name) {
             if(name === $scope.botLibCategory) {
                 $scope.botLibCategory = false;
-                $scope.botLibCategory = '';
+                $scope.botLibCategory = undefined;
             } else if(name === $scope.botLibAction) {
                 $scope.botLibAction = false;
-                $scope.botLibAction = '';
-            } else {
+                $scope.botLibAction = undefined;
+            } else if(name === $scope.botLibType){
                 $scope.botLibType = false;
-                $scope.botLibType = '';
+                $scope.botLibType = undefined;
+            } else {
+                $scope.orgNewEnt.org = undefined;
+                $scope.botOrganizationTeam = undefined;
             }
+            $scope.showLoadRecord();
+            $scope.isBotLibraryPageLoading = true;
+            $scope.botLibGridOptions.data = [];
+            $scope.paginationParams.page = 1;
+            $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             $scope.botStatus();
         };
 
@@ -573,9 +618,11 @@
             $scope.showRecords = false;
             $scope.botLibGridOptions.data = [];
             $scope.showLoadRecord();
-            $scope.botLibAction = '';
-            $scope.botLibCategory = '';
-            $scope.botLibType = '';
+            $scope.botLibAction = undefined;
+            $scope.botLibCategory = undefined;
+            $scope.botLibType = undefined;
+            $scope.orgNewEnt.org = undefined;
+            $scope.botOrganizationTeam = undefined;
             $scope.numofCardPages = 0;
             $scope.paginationParams.page = 1;
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
@@ -583,7 +630,6 @@
             $scope.paginationParams.sortBy = 'lastRunTime';
             $scope.paginationParams.sortOrder = 'desc';
             $scope.botLibrarySearch = '';
-            //lib.summary();
             $scope.botStatus();
         };
         $scope.showAllBots = function() {

@@ -106,7 +106,7 @@ botService.removeBotsById = function removeBotsById(botId,callback){
             auditTrail.removeAuditTrails({auditId:botId},callback);
         },
         orgResourcePerm : function(callback){
-        	orgResourcePermission.deleteResource(botId, 'bots', callback);
+          orgResourcePermission.deleteResource(botId, 'bots', callback);
         }
     },function(err,resutls){
         if(err){
@@ -129,45 +129,44 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
     if(botsQuery.paginationType === 'jquery'){
         async.waterfall(
             [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(botsQuery, next);
-                },
-                function (reqData, next) {
-                    reqData = reqData;
-                    apiUtil.paginationRequest(reqData, 'bots', next);
-                },
-                function (paginationReq, next) {
-                	if(paginationReq.filterBy) {
-                		orgId = paginationReq.filterBy.orgId;
-                	}
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    botDao.getBotsList(queryObj, function(err, result){
-                    	
-                    	if ( err ) {
-                    		return next(err, null);
-                    	}
-                    	getOrgResourceList(orgId, [],function(err, orgList){
-                    		
-                    		if ( err ) {
-                    			return next(err, null);
-                    		}
-                    		
-                    		result.docs = filterBots(false, JSON.parse(JSON.stringify(result.docs)), orgList);
-                    		return next(null, result);
-                    	});
-                    });
-                },
-                function (botList, next) {
-            		apiUtil.changeResponseForJqueryPagination(botList, reqData, next);
-                }
-
+	            function (next) {
+	                apiUtil.changeRequestForJqueryPagination(botsQuery, next);
+	            },
+	            function (reqData, next) {
+	                reqData = reqData;
+	                apiUtil.paginationRequest(reqData, 'bots', next);
+	            },
+	            function (paginationReq, next) {
+	              if(paginationReq.filterBy) {
+	                orgId = paginationReq.filterBy.orgId;
+	              }
+	                apiUtil.databaseUtil(paginationReq, next);
+	            },
+	            function (queryObj, next) {
+	                botDao.getBotsList(queryObj, function(err, result){
+	                  
+	                  if ( err ) {
+	                    return next(err, null);
+	                  }
+	                  getOrgResourceList(orgId, [],function(err, orgList){
+	                    
+	                    if ( err ) {
+	                      return next(err, null);
+	                    }
+	                    
+	                    result.docs = filterBots(false, JSON.parse(JSON.stringify(result.docs)), orgList);
+	                    return next(null, result);
+	                  });
+	                });
+	            },
+	            function (botList, next) {
+	            apiUtil.changeResponseForJqueryPagination(botList, reqData, next);
+	            }
             ], function (err, results) {
                 if (err){
                     return callback(err,null);
                 }else{
-                	return callback(null, results);
+                  return callback(null, results);
                 }
             });
     }else {
@@ -247,7 +246,9 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 	            			   }
 	            			   
 	            			   getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
-	            				   
+	            				   if ( err ){
+	            					   next(err,null);
+	            				   }
 	            				   
 	            				   if (filterByOrg) {
 	            					   orgBotsList.forEach(function(orgBot){
@@ -258,12 +259,23 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 	            				   if (ids.length > 0) {
 	            					   queryObj.queryObj.id = {$in:ids};
 	            				   }
+	            				   
+	            				   if (orgId) {
+	            					  delete queryObj.queryObj.orgId;
+	            				   }
+	            				   
+	            				   if (orgId && teamId && orgBotsList.length === 0) {
+	            					   return next(null, {docs:[]});
+	            				   }
+	            				   
 	            				   botDao.getBotsList(queryObj, next);
 	            			   });
 		            		}else {
 		            		
 	 	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
-	 	            			   
+	 	            			  if ( err ){
+	            					   next(err,null);
+	            				  } 
 	 	            			  orgBotsList.forEach(function(orgBot){
             						   ids = ids.concat(orgBot.resourceIds);
             					  });
@@ -271,7 +283,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 	 	            			  if (ids.length > 0) {
 	 	            				  queryObj.queryObj.id = {$in:ids};
 	 	            			  } else {
-	 	            				  return next(null, []);
+	 	            				  return next(null, {docs:[]});
 	 	            			  }
 	 	            			  
 	 	            			  botDao.getBotsList(queryObj, next);
@@ -319,7 +331,6 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 }
 
 function getOrgResourceList(orgId, teamIds, callback){
-	console.log(orgId);
 	if (orgId){
 	   var query = {
 		   orgId : orgId,
@@ -394,15 +405,15 @@ function filterBots(filterByOrg, botsList, orgBots){
 
 function getTeamsInfo(result, orgId, teamIds, cb){
    
-	var query = {
-		orgname_rowid : orgId,
-		id : '21'
-	};
-	
-	if (teamIds.length > 0 ){
-		query.rowid = {$in:teamIds}; 
-	}
-	
+  var query = {
+    orgname_rowid : orgId,
+    id : '21'
+  };
+  
+  if (teamIds.length > 0 ){
+    query.rowid = {$in:teamIds}; 
+  }
+  
    d4dModelNew.d4dModelMastersTeams.find(query, function(err, teamList){
 	   if (err) {
 		   return cb(err);
