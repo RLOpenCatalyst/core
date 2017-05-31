@@ -32,7 +32,7 @@
             $scope.initGrids = function(){
 	            $scope.botSyncGrid={};
 	            $scope.botSyncGrid.columnDefs= [
-	            	{ name: 'Status',field:'status',cellTemplate:'<span ng-show="row.entity.status==\'new\'" class="materialGreen">New</span>' + '<span ng-show="row.entity.status==\'updated\'" class="materialBlue">Updated</span>' + '<span ng-show="row.entity.status==\'deleted\'" class="materialRed">Deleted</span>', cellTooltip: true},
+	            	{ name: 'Status',field:'status',cellTemplate:'<span ng-show="row.entity.status==\'new\'" class="materialGreen">New</span>' + '<span ng-show="row.entity.status==\'modified\'" class="materialBlue">Updated</span>' + '<span ng-show="row.entity.status==\'deleted\'" class="materialRed">Deleted</span>', cellTooltip: true},
 	                { name: 'BOT Name',displayName:'BOT Name',field:'name',cellTooltip: true},
 	                { name: 'BOT Id',displayName:'BOT Id',field:'id',cellTooltip: true},
 	                { name: 'BOT Type',displayName:'BOT Type',field:'type',cellTooltip: true},
