@@ -9,6 +9,7 @@
         'dashboard.settings',
         'dashboard.design',
         'dashboard.bots',
+        'dashboard.services',
         'apis.workzone', 'dashboard.genericServices'])
         .controller('dashboardCtrl', ['$rootScope', '$scope', '$http', 'uac', '$location', '$state', function ($rootScope, $scope, $http, uac, $location, $state) {
                 $rootScope.isBreadCrumbAvailable = true;
@@ -24,6 +25,8 @@
                 if ($state.current.name === 'dashboard') {
                     if ($rootScope.serviceBool) {
                         $state.go('dashboard.bots');
+                    } else if ($rootScope.servicesBool) {
+                        $state.go('dashboard.services');
                     } else if ($rootScope.workZoneBool) {
                         $state.go('dashboard.workzone');
                     } else if ($rootScope.designBool) {

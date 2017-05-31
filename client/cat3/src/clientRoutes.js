@@ -109,7 +109,7 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 	}).state('dashboard.services', {
 		url: "/services",
 		templateUrl: "src/partials/sections/dashboard/services/services.html",
-		controller: "servicesCtrl",
+		controller: "servicesCtrl as sts",
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();

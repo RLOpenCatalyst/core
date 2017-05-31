@@ -1,0 +1,34 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/workzoneTreeMenu/workzoneTreeMenu.css"/>
+<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/treeComponent/treeDirective.css"/>
+
+<div id='workzoneTreeMenuPage' ng-controller="servicesTreeMenu">
+	<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTree}">
+		<div id='navigPage-inner'>
+			<div id="treeParent"
+				data-angular-treeview="true"
+				data-tree-model="roleList"
+				data-node-id="rowid"
+				data-node-label="text"
+				data-node-children="nodes">
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function() { 
+		function setHeight() {
+			var windowHeight = $(window).innerHeight();
+			var brdcrmbHeight = $('#breadcrumb-block').outerHeight();
+			var headerHeight = $('#header').outerHeight();
+			var setTreeContentHeight = windowHeight - (brdcrmbHeight + headerHeight);
+			$('#navigPage').css('height', (setTreeContentHeight) + 'px');
+			$('#navigPage-inner').css('height', (setTreeContentHeight) + 'px');
+		};
+		setHeight();
+
+		$(window).resize(function() {
+			setHeight();
+		});
+	});
+</script>
