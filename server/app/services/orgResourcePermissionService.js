@@ -153,4 +153,3 @@ function updateOrgResources(orgId, resourceType, data, cb){
 
 exports.updateOrgResources = updateOrgResources;
 exports.getResourcesByOrgTeam = getResourcesByOrgTeam;
-exports.getResourceIdsByOrg = getResourceIdsByOrg;

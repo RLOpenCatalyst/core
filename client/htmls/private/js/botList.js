@@ -74,7 +74,11 @@ function getGlobalBots(orgId) {
     $('#botsTable').DataTable( {
         "processing": true,
         "serverSide": true,
+        "pageLength": 25,
         "destroy":true,
+        "scrollY": 250,
+        "deferRender": true,
+        "scroller": true,
         "createdRow": function( row, data ) {
             $( row ).attr({"botName": data.name,"botId" : data.id,"category":data.category,
                 "type":data.type,"orgName":data.orgName,"orgId":data.orgId
@@ -102,14 +106,69 @@ function getGlobalBots(orgId) {
             {"data": "category" ,"orderable" : false },
             {"data": "type" ,"orderable" : false},
             {"data": "orgName" ,"orderable" : false},
-            {"data": "environmentName", "orderable": true,
+            {"data": "teams", "class":"details-control", "orderable": false,
                 "render": function (data) {
-                    return data ? data : '-';
+                    var $viewDetails
+                    if(data && data.length>0) {
+                        var teamDetails = [];
+                        for(var i=0;i<data.length;i++) {
+                            teamDetails.push(data[i].teamName);
+                            $viewDetails = '<a id="teamPopover" class="teamPopover" style="pointer:" data-trigger="hover" rel="popover" data-content="' + teamDetails + '">View</a>'
+                        }
+                        $(".teamPopover").popover({ placement: 'left',trigger: "hover" });
+                    } else {
+                        $viewDetails = '-';
+                    }
+                    return $viewDetails
                 }
             }
         ]
     });
 };
+
+$('#refreshBtn').click(function(){
+    var selectedOrg = $("#orgName").val();
+    getGlobalBots(selectedOrg);
+})
+
+/* Formatting function for row details - modify as you need */
+/*function setChildDetails (data) {
+    var $tableDetails;
+    var teamDetails = [];
+    for(var i =0;i<data.teams.length;i++) {
+        teamDetails.push(data.teams[i].teamName);
+        $tableDetails =  '<div class="slider">'+
+            '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+                '<tr>'+
+                    '<td>Team Name:</td>'+
+                    '<td>'+teamDetails+'</td>'+
+                '</tr>'+
+            '</table>'+
+        '</div>';
+    }
+    return $tableDetails;
+}*/
+
+// Add event listener for opening and closing details
+/*$('#botsTable tbody').on('click', 'td.details-control', function () {
+    var tr = $(this).closest('tr');
+    var row = $('#botsTable').DataTable().row(tr);
+
+    if ( row.child.isShown() ) {
+        // This row is already open - close it
+        $('div.slider', row.child()).slideUp( function () {
+            row.child.hide();
+            tr.removeClass('shown');
+        } );
+    }
+    else {
+        // Open this row
+        row.child( setChildDetails(row.data()), 'no-padding' ).show();
+        tr.addClass('shown');
+
+        $('div.slider', row.child()).slideDown();
+    }
+});*/
 
 $('.botTeamList').on('change',function(){
     if($('#teamList').val() === null) {
