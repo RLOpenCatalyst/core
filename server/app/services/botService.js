@@ -319,6 +319,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 }
 
 function getOrgResourceList(orgId, teamIds, callback){
+	console.log(orgId);
 	if (orgId){
 	   var query = {
 		   orgId : orgId,

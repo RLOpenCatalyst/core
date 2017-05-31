@@ -31,6 +31,8 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var serviceNow = require('_pr/model/servicenow/servicenow.js');
 var settingService = require('_pr/services/settingsService');
+var orgResourcePermission = require('_pr/model/org-resource-permission/orgResourcePermission.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
@@ -339,11 +341,15 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
 }
 
 auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,userName,callback){
+	var teamId;
     async.waterfall([
         function(next){
             apiUtil.queryFilterBy(queryParam,next);
         },
         function(filterQuery,next) {
+        	orgId = filterQuery.orgId;
+        	teamId = filterQuery.teamId;
+        	delete filterQuery.teamId;
             filterQuery.isDeleted=false;
             if(BOTSchema === 'BOTOLD') {
                 settingService.getOrgUserFilter(userName,function(err,orgIds){
@@ -351,7 +357,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         next(err,null);
                     }else if(orgIds.length > 0){
                         filterQuery.orgId = {$in:orgIds};
-                        botOld.getAllBots(filterQuery, next);
+    	                botOld.getAllBots(filterQuery, next);
                     }else{
                         botOld.getAllBots(filterQuery, next);
                     }
@@ -362,10 +368,63 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         next(err,null);
                     }else if(orgIds.length > 0){
                         filterQuery.orgId = {$in:orgIds};
-                        botDao.getAllBots(filterQuery, next);
-                    }else{
-                        botDao.getAllBots(filterQuery, next);
                     }
+                    
+                    d4dModelNew.d4dModelMastersUsers.find({
+	                    loginname: userName,
+	                    id:'7'
+	                }, function(err, userDetails) {
+	                	
+	                	if ( err ) {
+	                		return next(err, null);
+	                	}
+	                	
+	                	var userDetail = {};
+	                	if (userDetails.length > 0) {
+	                		userDetail = userDetails[0];
+	                		userDetail.orgname_rowid = (typeof userDetail.orgname_rowid[0]) !== undefined ? userDetail.orgname_rowid[0] : userDetail.orgname_rowId;
+	                		userDetail.orgname = (typeof userDetail.orgname[0]) !== undefined ? userDetail.orgname[0] : userDetail.orgname;
+	                	}
+	                	
+	                	if (teamId) {
+         				   filterByOrg = true;
+         				   teamIds = [teamId];
+         			   	}
+	                	
+	                	if ( userDetail.userrolename === 'Admin') {
+	                		
+            			   getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
+            				   
+            				   var ids = [];
+            				   if (filterByOrg) {
+            					   orgBotsList.forEach(function(orgBot){
+            						   ids = ids.concat(orgBot.resourceIds);
+            					   });
+            				   }
+            				   
+            				   if (ids.length > 0) {
+            					   filterQuery.id = {$in:ids};
+            				   }
+            				   botDao.getAllBots(filterQuery, next);
+            			   });
+	            		}else {
+	            		
+ 	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
+ 	            			   
+ 	            			  orgBotsList.forEach(function(orgBot){
+     						   ids = ids.concat(orgBot.resourceIds);
+ 	            			  });
+ 	            			  
+ 	            			  if (ids.length > 0) {
+ 	            				 filterQuery.id = {$in:ids};
+ 	            			  } else {
+ 	            				  return next(null, []);
+ 	            			  }
+ 	            			  
+ 	            			  botDao.getAllBots(filterQuery, next);
+ 	            		   });
+	 	            	}
+	                });
                 });
             }
         },
@@ -468,118 +527,31 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
     })
 }
 
-auditTrailService.getBOTsSummaryById = function getBOTsSummary(queryParam,BOTSchema,callback){
-    async.waterfall([
-        function(next){
-            apiUtil.queryFilterBy(queryParam,next);
-        },
-        function(filterQuery,next) {
-            filterQuery.isDeleted=false;
-            if(BOTSchema === 'BOTOLD') {
-            	filterQuery.id = {$in:queryParam.resourceIds};
-                botOld.getAllBots(filterQuery, next);
-            }else{
-	        	filterQuery.id = {$in:queryParam.resourceIds};
-	            botDao.getAllBots(filterQuery, next);
-            }
-        },
-        function(botsList,next){
-            async.parallel({
-                totalNoOfBots: function(callback){
-                            callback(null, botsList.length);
-                },
-                totalNoOfSuccessBots: function(callback){
-                    var successCount = 0;
-                    for(var i = 0; i < botsList.length; i++){
-                        if(botsList[i].successExecutionCount){
-                            successCount = botsList[i].successExecutionCount;
-                        }
-                    }
-                    callback(null,successCount);
-                },
-                totalNoOfServiceNowTickets: function(callback){
-                    var srnCount = 0;
-                    for(var i = 0; i < botsList.length; i++){
-                        if(botsList[i].srnSuccessExecutionCount){
-                            srnCount = botsList[i].srnSuccessExecutionCount;
-                        }
-                    }
-                    callback(null,srnCount);
-                },
-                totalNoOfRunningBots: function(callback){
-                    var runningCount = 0;
-                    for(var i = 0; i < botsList.length; i++){
-                        if(botsList[i].lastExecutionStatus && botsList[i].lastExecutionStatus === 'failed'){
-                            runningCount = runningCount + 1;
-                        }
-                    }
-                    callback(null,runningCount);
-                },
-                totalSavedTimeForBots: function(callback){
-                    var days =0,hours = 0, minutes = 0, seconds = 0;
-                    if(botsList.length > 0) {
-                        for (var k = 0; k < botsList.length; k++) {
-                            if(botsList[k].savedTime && botsList[k].savedTime.days) {
-                                days = days + botsList[k].savedTime.days;
-                            }
-                            if(botsList[k].savedTime && botsList[k].savedTime.hours) {
-                                hours = hours + botsList[k].savedTime.hours;
-                            }
-                            if(botsList[k].savedTime && botsList[k].savedTime.minutes){
-                                minutes = minutes + botsList[k].savedTime.minutes;
-                            }
-                            if(botsList[k].savedTime && botsList[k].savedTime.seconds){
-                                seconds = seconds + botsList[k].savedTime.seconds;
-                            }
-                        }
-                    }
-                    if(seconds >= 60){
-                        minutes = minutes + Math.floor(seconds / 60);
-                        seconds = seconds % 60;
-                    }
-                    if(minutes >= 60){
-                        hours = hours + Math.floor(minutes / 60);
-                        minutes = minutes % 60;
-                    }
-                    if(hours >= 24){
-                        days = days + Math.floor(hours / 60);
-                        hours = minutes % 24
-                    }
-                    var result = {
-                        days:days,
-                        hours:hours,
-                        minutes:minutes,
-                        seconds:seconds
-                    }
-                    callback(null,result);
-                },
-                totalNoOfFailedBots: function(callback){
-                    var failedCount = 0;
-                    for(var i = 0; i < botsList.length; i++){
-                        if(botsList[i].failedExecutionCount){
-                            failedCount = botsList[i].failedExecutionCount;
-                        }
-                    }
-                    callback(null,failedCount);
-                }
-
-            },function(err,data){
-                if(err){
-                    logger.error(err);
-                    next(err,null);
-                }
-                next(null,data);
-            })
-        }
-    ],function(err,results){
-        if(err){
-            logger.error(err);
-            callback(err,null);
-            return;
-        }
-        callback(null,results);
-        return;
-    })
+function getOrgResourceList(orgId, teamIds, callback){
+	if (orgId){
+	   var query = {
+		   orgId : orgId,
+		   resourceType : 'bots'
+	   };
+	   
+	   if(teamIds.length > 0) {
+		  query.teamId = {$in : teamIds};
+	   }
+	   
+	   orgResourcePermission.find(query, function(err, orgResourceList){
+		   if ( err ) {
+			   return callback(err, null);
+		   }
+		   
+		   if (orgResourceList.length > 0 ) {
+			   return callback(null, orgResourceList);
+		   } else {
+			   return callback(null, []);
+		   }
+	   });
+	} else {
+		return callback(null, []);
+	}
 }
 
 auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){
