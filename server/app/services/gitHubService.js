@@ -437,9 +437,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId, us
                             if (err)
                                 message(botId + ' is sync unsuccessful','error');
                             else {
-                                console.log(curretDir);
                                 compare(curretDir,temp,options,(err,status)=>{
-                                    console.log(status);
                                     if(status==='modified'){
                                         getMaxVersion(botPath,(maxNum)=>{
                                             copy(temp,botPath +'/ver_'+maxNum,(err)=>{
@@ -514,23 +512,24 @@ gitGubService.getYamlList = function getYamlList(srcPath, callback) {
             return callback(err, null);
         if (botList.length > 0) {
             var yamlList = [];
-            var count = 0
-            botList.forEach(function (bot) {
+            async.each(botList,function(bot,callbackChild){
                 var currentPath = srcPath + bot + '/current';
-                count++;
                 fs.readlink(currentPath, (err, link) => {
                     if (err)
-                        return callback(err, null);
+                        callbackChild(err);
                     else {
                         fs.exists(link + '/' + bot + '.yaml', (exists) => {
                             if (exists)
                                 yamlList.push(link + '/' + bot + '.yaml');
-                            if (botList.length === count) {
-                                return callback(null, yamlList);
-                            }
+                            callbackChild(null);
                         })
                     }
                 })
+            },function(err){
+                if(err)
+                    return callback(err,null);
+                else
+                    return callback(null,yamlList)
             })
         }
         else
@@ -950,7 +949,6 @@ function compare(oldPath, newPath, option, callback) {
                     status = 'modified';
             }
             count++;
-            console.log(status);
             if (count === res.diffSet.length) {
                 callback(null, status);
             }
