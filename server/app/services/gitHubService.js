@@ -304,6 +304,8 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody, userName, call
                                                 if (err)
                                                     callback(err);
                                                 else {
+                                                    if (fs.existsSync(destPath + '/current'))
+                                                        fs.unlinkSync(destPath + '/current');
                                                     fs.symlink(destPath + '/ver_' + versionNum, destPath + '/current', function (err) {
                                                         if (err)
                                                             callback('Unable to create symlink to new version folder');
@@ -552,6 +554,30 @@ gitGubService.getSingleYaml = function getSingleYaml(srcPath,botId, callback) {
     })
 }
 
+gitGubService.deleteBot =function deleteBot(botId,callback){
+    var destPath = appConfig.botFactoryDir+'gitHub/'+botId;
+    getMaxVersion(destPath, (versionNum) => {
+        fs.exists(destPath + '/ver_' + versionNum, (isAval) => {
+            if (!isAval) {
+                mkdirp(destPath + '/ver_' + versionNum, (err, made) => {
+                    if (err)
+                        callback(err);
+                    else {
+                        if (fs.existsSync(destPath + '/current'))
+                            fs.unlinkSync(destPath + '/current');
+                        fs.symlink(destPath + '/ver_' + versionNum, destPath + '/current', function (err) {
+                            if (err)
+                                callback('Unable to create symlink to new version folder');
+                            else {
+                                callback(null);
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    })
+}
 function formatGitHubResponse(gitHub, callback) {
     var formatted = {
         _id: gitHub._id,
