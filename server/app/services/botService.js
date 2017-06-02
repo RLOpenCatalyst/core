@@ -34,8 +34,6 @@ var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
 var globalData = require('_pr/config/global-data.js');
-var copy = require('copy-dir');
-const fileHound = require('filehound');
 const yamlJs = require('yamljs');
 
 const errorType = 'botService';
@@ -94,24 +92,44 @@ botService.updateBotsScheduler = function updateBotsScheduler(botId, botObj, cal
     });
 }
 
-botService.removeBotsById = function removeBotsById(botId, callback) {
-    async.parallel({
-        bots: function (callback) {
-            botDao.removeBotsById(botId, callback);
-        },
-        auditTrails: function (callback) {
-            auditTrail.removeAuditTrails({ auditId: botId }, callback);
-        }
-    }, function (err, resutls) {
-        if (err) {
+botService.removeBotsById = function removeBotsById(id, callback) {
+    botDao.getBotsById(id,(err,bots)=>{
+        if(err){
             logger.error(err);
             callback(err, null);
             return;
-        } else {
-            callback(null, resutls);
-            return;
         }
-    });
+        else if(bots !== []){
+            async.parallel({
+                bots: function (callback) {
+                    botDao.removeBotsById(id, callback);
+                },
+                auditTrails: function (callback) {
+                    auditTrail.removeAuditTrails({ auditId: id }, callback);
+                },
+                dir:function(callback){
+                    var gitHubService =require('_pr/services/gitHubService.js');
+                    gitHubService.deleteBot(bots[0].id,(err)=>{
+                        if(err)
+                            callback(err,null);
+                        else
+                            callback(null,true);
+                    })
+                }
+            }, function (err, resutls) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                } else {
+                    callback(null, resutls);
+                    return;
+                }
+            });
+        }
+        else
+            return callback(null,true);
+    })
 }
 
 botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNowCheck, userName, callback) {
