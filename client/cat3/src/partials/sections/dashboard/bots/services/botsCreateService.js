@@ -164,6 +164,14 @@
 				return genericServices.promiseGet(params);
 			};
 
+			botService.getGitHubSyncDetailsSearch = function (actionStatus, gitHubId, pageNumber, pageSize, sortBy, sortOrder,searchString) {
+				var params ={
+					url : '/git-hub/' + gitHubId + '/sync?action=' + actionStatus + '&page=' + pageNumber +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder+'&search=' + searchString,
+					inlineLoader: true	
+				} 
+				return genericServices.promiseGet(params);
+			};
+
 			botService.postBotSync = function(gitHubId,reqBody) {
 				var params = {
 					url: '/git-hub/' + gitHubId + '/copy',

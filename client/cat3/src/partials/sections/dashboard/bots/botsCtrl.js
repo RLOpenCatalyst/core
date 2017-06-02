@@ -86,7 +86,7 @@
 			url: "/botsSync",
 			templateUrl: "src/partials/sections/dashboard/bots/view/botSync.html",
 			controller: "botSyncCtrl as btsSyncCtrl",
-			parameters:{filterView:{botSync:true}},
+			parameters:{filterView:{botsSync:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();

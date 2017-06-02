@@ -49,7 +49,6 @@
 	        angular.extend($scope.botSyncGrid,botLibraryUIGridDefaults.gridOption, {
 	            onRegisterApi :function(gridApi) {
 	                $scope.gridApi = gridApi;
-	                console.log(botLibraryUIGridDefaults.gridOption);
 	                gridApi.selection.on.rowSelectionChanged($scope,function(row){
                         if(row.isSelected){
                             $scope.botId.push(row.entity.id);
@@ -100,7 +99,6 @@
 				if($scope.gitHubId){
 					$scope.isBotSyncPageLoading = true;
 					$scope.isBotSyncDetailsLoading = true;
-	        		//$scope.paginationParams.pageSize = 25;
 		            botsCreateService.getGitHubSyncDetails($scope.actionStatus,$scope.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
 	                    $scope.botSyncGrid.data =  result.githubsync;
 	                    $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
@@ -111,13 +109,52 @@
 				}
 			};
 			$scope.getGitHubDetails = function() {
-	        	botsCreateService.getGitHubDetails().then(function(response){
-	        		$scope.gitHubDetails =  response.data;
-	        		$scope.gitHubId = response.data[0]._id;		
-	        		$scope.botSyncGridView();
-	        	});
+				$rootScope.$on('BOTS_SYNC_PAGE', function(event,reqParams) {
+					if(reqParams === 'new') {
+						botsCreateService.getGitHubDetails().then(function(response){
+			        		$scope.gitHubDetails =  response.data;
+			        		$scope.gitHubId = response.data[0]._id;		
+			        		$scope.botSyncGridView();
+			        	});
+					}
+				});
 	        };    
-			$scope.getGitHubDetails();
+
+	        $scope.init = function () {
+	        	$scope.getGitHubDetails();
+	        }
+
+			$scope.searchBotNameCategory = function(pageNumber) {
+	            $scope.isBotSyncPageLoading = true;
+	            $scope.searchString = $scope.botSyncSearch;
+	            $scope.searchText = true;
+	            if(pageNumber) {
+	                $scope.botSyncGrid.data = [];
+	                pageNumber = 1;
+	            }
+	            $scope.actionStatus = 'list';
+	            botsCreateService.getGitHubSyncDetailsSearch($scope.actionStatus,$scope.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder,$scope.searchString).then(function (result) {
+	                $scope.botSyncGrid.data = result.githubsync;
+	                $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
+	                $scope.botSyncGrid.botData = result.metaData;
+	                $scope.isBotSyncPageLoading = false;
+	            }, function(error) {
+	                $scope.isBotSyncPageLoading = false;
+	                toastr.error(error);
+	                $scope.errorMessage = "No Records found";
+	            });
+	        };
+        	$scope.clearBotSearchText = function() {
+	            $scope.botSyncSearch = '';
+	            $scope.botSyncGrid.data = [];
+	            $scope.isBotSyncPageLoading = true;
+	            $scope.searchText = false;
+	            $scope.paginationParams.page = 1;
+	            $scope.botSyncGrid.paginationCurrentPage = $scope.paginationParams.page;
+	            botLibraryUIGridDefaults.gridOption.paginationPageSize = 25;
+	            $scope.actionStatus = 'list';
+	            $scope.getGitHubDetails();
+	        };
 		
 			$scope.postSyncBots = function() {
 				var reqBody = $scope.botId;
@@ -126,6 +163,7 @@
 					$state.go('dashboard.bots.library');
 				});
 			}
+			$scope.init();
         }
     ]);
 })(angular);

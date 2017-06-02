@@ -708,6 +708,12 @@
             lib.gridOptions.data=[];
             $scope.botTimeSavedLibraryGridView();
         };
+
+        $scope.syncBots = function() {
+            var syncObj = 'new';
+            $rootScope.$emit('BOTS_SYNC_PAGE', syncObj);
+            $state.go('dashboard.bots.botsSync');
+        }
         
         $scope.setCardView();
     }]);
