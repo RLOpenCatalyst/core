@@ -31,9 +31,9 @@
 				return genericServices.promiseGet(params); 
 			};
 
-			serviceCreate.getServices = function() {
+			serviceCreate.getServices = function(page, pageSize, sortBy, sortOrder) {
 				var params = {
-					url: '/services',
+					url: '/services?page=' + page +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder,
 					inlineLoader: true
 				}
 				return genericServices.promiseGet(params); 	

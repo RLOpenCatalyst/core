@@ -16,7 +16,9 @@
         $scope.paginationParams = serviceLibraryUIGridDefaults.pagination;
         $scope.paginationParams=[];
         $scope.paginationParams.page = 1;
-        $scope.paginationParams.pageSize = 25;
+        serviceLibraryUIGridDefaults.gridOption.paginationPageSize = 25;
+	    serviceLibraryUIGridDefaults.gridOption.paginationPageSizes = [25,50,75];
+	    $scope.paginationParams.pageSize = 25;
         $scope.paginationParams.sortBy = 'createdOn';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.initGrids = function(){
@@ -57,9 +59,9 @@
 
 		$scope.serviceGridView = function() {
 			$scope.isServiceLibraryPageLoading = true;
-            servicesCreateService.getServices().then(function (result) {
+            servicesCreateService.getServices($scope.paginationParams.page,$scope.paginationParams.pageSize,$scope.paginationParams.sortBy,$scope.paginationParams.sortOrder).then(function (result) {
                 $scope.serviceGrid.data =  result.services;
-                $scope.serviceGrid.totalItems = result.metaData;
+                $scope.serviceGrid.totalItems = result.metaData.totalRecords;
                 $scope.isServiceLibraryPageLoading = false;
             });
 		}
