@@ -58,6 +58,11 @@ var ApiUtil = function() {
                     'resourceDetails.subnetId': {$in: value}
                 };
                 break;
+            case 'stackName':
+                query = {
+                    'stackName': value
+                };
+                break;
             case 'keyPairName':
                 query = {
                     'providerDetails.keyPairName': {$in: value}
@@ -98,6 +103,9 @@ var ApiUtil = function() {
                             break;
                         case 'roles':
                             query['chefServerDetails.run_list'] = {$in: value};
+                            break;
+                        case 'stackName':
+                            query['stackName'] = value;
                             break;
                         default:
                             query = query;

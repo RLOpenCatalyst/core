@@ -71,16 +71,7 @@ var serviceSchema = new Schema({
             trim: true,
             required: false
         },
-        monitorId:{
-            type: String,
-            trim: true,
-            required: false
-        },
-        monitorName:{
-            type: String,
-            trim: true,
-            required: false
-        }
+        monitor:Schema.Types.Mixed
     },
     name: {
         type: String,
@@ -184,7 +175,6 @@ serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEac
                         resources: { $last: "$resources" },
                         version: { $last: "$version" },
                         masterDetails: { $last: "$masterDetails" },
-                        providerDetails: { $last: "$providerDetails" },
                         identifiers: { $last: "$identifiers" },
                         createdOn: { $last: "$createdOn" }
                     }

@@ -23,6 +23,7 @@ var monitors = require('_pr/model/monitors/monitors');
 var appConfig = require('_pr/config');
 var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 const ymlJs= require('yamljs');
 
 var serviceMapService = module.exports = {};
@@ -114,20 +115,24 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                     } else {
                         ymlJs.load(desPath, function (result) {
                             if(result !== null){
-                                servicesObj.identifiers = results;
+                                servicesObj.identifiers = result;
                                 servicesObj.ymlFileId = servicesObj.fileId;
                                 servicesObj.createdOn = new Date().getTime();
-                                services.createNew(servicesObj, function (err, servicesData) {
-                                    if (err) {
-                                        logger.error("services.createNew is Failed ==>", err);
-                                        callback(err, null);
-                                        apiUtil.removeFile(desPath);
-                                        return;
-                                    } else {
-                                        callback(null, servicesData);
-                                        apiUtil.removeFile(desPath);
-                                        return;
-                                    }
+                                monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
+                                    servicesObj.masterDetails.monitor = monitor;
+                                    servicesObj.state = 'Initializing';
+                                    services.createNew(servicesObj, function (err, servicesData) {
+                                        if (err) {
+                                            logger.error("services.createNew is Failed ==>", err);
+                                            callback(err, null);
+                                            apiUtil.removeFile(desPath);
+                                            return;
+                                        } else {
+                                            callback(null, servicesData);
+                                            apiUtil.removeFile(desPath);
+                                            return;
+                                        }
+                                    });
                                 });
                             }else{
                                 var err = new Error("There is no data present YML.")

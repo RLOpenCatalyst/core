@@ -363,12 +363,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                     envName: envName,
                                     chefServerId: infraManager.infraManagerId,
                                     chefServerName: chefDetails.configname,
-                                    monitorId: monitor !== null ? monitor._id : monitor,
-                                    monitorName: monitor !== null ? monitor.name : monitor
-                                },
-                                providerDetails:{
-                                    id:self.blueprintConfig.cloudProviderId,
-                                    type:self.blueprintConfig.cloudProviderType
+                                    monitor: monitor
                                 },
                                 name: opts.stackName !== null ? opts.stackName : opts.domainName,
                                 type: self.templateType === 'chef' ? 'Software Stack' : self.templateType === 'ami' ? 'OSImage' : self.templateType === 'cft' ? 'CloudFormation' : 'AzureArm',
@@ -376,10 +371,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                 desc: self.name,
                                 identifiers: {
                                     aws: [{
-                                        type: opts.stackName !== null ? 'Stack Name' : 'Domain Name',
-                                        query: {
-                                            stackName: opts.stackName !== null ? opts.stackName : opts.domainName
-                                        },
+                                        type: 'stackName',
                                         value: opts.stackName !== null ? opts.stackName : opts.domainName
                                     }]
                                 },
