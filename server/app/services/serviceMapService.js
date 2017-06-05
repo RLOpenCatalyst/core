@@ -25,6 +25,7 @@ var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 const ymlJs= require('yamljs');
+var uuid = require('node-uuid');
 
 var serviceMapService = module.exports = {};
 
@@ -299,20 +300,22 @@ function changeServiceResponse(services,callback){
             (function(service){
                 var serviceObj = {
                     masterDetails:service.masterDetails,
-                    providerDetails:service.providerDetails,
                     name:service.name,
                     type:service.type,
                     desc:service.desc,
                     state:service.state,
                     identifiers:service.identifiers,
                     resources:service.resources,
-                    createdOn:service.createdOn
+                    createdOn:service.createdOn,
+                    version:service.version
                 }
+                console.log(serviceObj);
                 masterUtil.getOrgByRowId(service.masterDetails.orgId,function(err,orgs){
                     if (err) {
                         logger.error("Error in fetching Org Details for : " + service.masterDetails.orgId + " " + err);
                     }
-                    serviceObj.masterDetails.orgName =  orgs !== null ? orgs[0].name : null;
+                    console.log(orgs);
+                    serviceObj.masterDetails.orgName =  orgs.length > 0 ? orgs[0].orgname : null;
                     masterUtil.getBusinessGroupName(service.masterDetails.bgId,function(err,businessGroupName) {
                         if (err) {
                             logger.error("Error in fetching Bg Name for : " + service.masterDetails.bgId + " " + err);
@@ -328,11 +331,11 @@ function changeServiceResponse(services,callback){
                                     logger.error("Error in fetching Env Name for : " + service.masterDetails.envId + " " + err);
                                 }
                                 serviceObj.masterDetails.envName =  envName;
-                                masterUtil.getChefDetailsById(service.masterDetails.chefServerId,function(err,chefDetails){
+                                masterUtil.getChefDetailsById(service.masterDetails.configId,function(err,chefDetails){
                                     if (err) {
-                                        logger.error("Error in fetching Org Details for : " + service.masterDetails.chefServerId + " " + err);
+                                        logger.error("Error in fetching Org Details for : " + service.masterDetails.configId + " " + err);
                                     }
-                                    serviceObj.masterDetails.chefServerName =  chefDetails !== null ? chefDetails[0].configname : null;
+                                    serviceObj.masterDetails.configName =  chefDetails !== null ? chefDetails[0].configname : null;
                                     if(service.ymlFileId){
                                         fileUpload.getReadStreamFileByFileId(service.ymlFileId,function(err,file){
                                             if (err) {
@@ -340,23 +343,6 @@ function changeServiceResponse(services,callback){
                                             }else{
                                                 serviceObj.ymlFileName =  file !== null ? file.fileName : file;
                                                 serviceObj.ymlFileData = file !== null ? file.fileData : file;
-                                                if(serviceObj.masterDetails.monitorId && serviceObj.masterDetails.monitorId  !== null){
-                                                    monitors.getById(serviceObj.masterDetails.monitorId,function(err,monitorDetails){
-                                                        if (err) {
-                                                            logger.error("Error in fetching Monitor Details for : " + service.masterDetails.monitorId + " " + err);
-                                                        }
-                                                        serviceObj.masterDetails.monitorName = monitorDetails !== null ? monitorDetails.name : null;
-                                                        resultList.push(serviceObj);
-                                                        if(resultList.length === serviceList.length){
-                                                            if(services.docs){
-                                                                services.docs = resultList;
-                                                            }else{
-                                                                services = resultList;
-                                                            }
-                                                            return callback(null,services);
-                                                        }
-                                                    })
-                                                }else{
                                                     resultList.push(serviceObj);
                                                     if(resultList.length === serviceList.length){
                                                         if(services.docs){
@@ -366,25 +352,9 @@ function changeServiceResponse(services,callback){
                                                         }
                                                         return callback(null,services);
                                                     }
-                                                }
+                                                
                                             }
                                         });
-                                    }else if(serviceObj.masterDetails.monitorId && serviceObj.masterDetails.monitorId  !== null) {
-                                        monitors.getById(serviceObj.masterDetails.monitorId, function (err, monitorDetails) {
-                                            if (err) {
-                                                logger.error("Error in fetching Monitor Details for : " + service.masterDetails.monitorId + " " + err);
-                                            }
-                                            serviceObj.masterDetails.monitorName = monitorDetails !== null ? monitorDetails.name : null;
-                                            resultList.push(serviceObj);
-                                            if(resultList.length === serviceList.length){
-                                                if(services.docs){
-                                                    services.docs = resultList;
-                                                }else{
-                                                    services = resultList;
-                                                }
-                                                return callback(null,services);
-                                            }
-                                        })
                                     }else{
                                         resultList.push(serviceObj);
                                         if(resultList.length === serviceList.length){

@@ -32,5 +32,10 @@
 			//return uac.hasPermission('track','read','module');
 			return true;
 		};
+		this.servicesBool = function() {
+			//permission response not available in the api response.
+			//return uac.hasPermission('track','read','module');
+			return true;
+		};
 	}]);
 })(angular);

@@ -16,7 +16,7 @@
             <div class="col-lg-12 col-md-12 form-group">
                <label for="">Type:</label>
                <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botSyncType">
-                  <option selected="selected" value="">Alll</option>
+                  <option selected="selected" value="">All</option>
                   <option value="chef">Chef</option>
                   <option value="script">Script</option>
                   <option value="blueprints">Blueprints</option>
@@ -46,15 +46,15 @@
       <br>
    </div>
    <!--sidebar filter ends here -->
-   <div class="margintop10">
+   <div class="margintop10 width99">
       <span class="botSync">
-      <span style="margin-left:34px;" class="box-title">
-      <span class="greenBadge badge">New : 40</span>
+         <span style="margin-left:34px;" class="box-title">
+         <span class="greenBadge badge">New : 40</span>
+         </span>
+         <span class="blueBadge badge">Updated : 8</span>
+         <span class="redBadge badge">Deleted : 4</span>
       </span>
-      <span class="blueBadge badge">Updated : 8</span>
-      <span class="redBadge badge">Deleted : 4</span>
-      </span>
-      <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
+      <form class="pull-right firefoxForm marginright8" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
          <span class="bot-library-search">
          <label>&nbsp;
          <input type="text" ng-model="botSyncSearch" class="search-text bot-search" placeholder="Search">

@@ -25,10 +25,6 @@
   margin-left: -12px;
 }
 
-.marginleft-18 {
-  margin-left: -18px!important;
-}
-
 .marginleft-8 {
   margin-left: -8px; 
 }
@@ -140,10 +136,6 @@
   .bot-search {
     -webkit-appearance: textfield !important;
     font-size: 16px;
-  }
-
-  .borderTop {
-    border-top: 1px dashed #ddd;
   }
 }
 
@@ -749,14 +741,6 @@ body .botDescriptionPage {
   margin-right:10px;
 }
 
-.scheduleBorder {
-  border: 1px solid #ddd;
-}
-
-.backColor {
-  background: #fff;
-}
-
 .botsExecution {
   margin-left: 12px;
   margin-top: 6px;
@@ -782,10 +766,6 @@ body .botDescriptionPage {
 
 .btnDescription {
   padding:4px 10px;font-size:13px;margin-right:10px;
-}
-
-.paddingForScreen {
-  padding-left: 2.4%;
 }
 
 fieldset#editParamPage{
@@ -957,7 +937,7 @@ fieldset#editParamPage legend {
 }
 
 .gridHeightSync {
-  height: 505px;
+  height: 485px;
 }
 
 small {
@@ -1010,9 +990,6 @@ small {
     }
     .marginright14 {
         margin-right: 14px;
-    }
-    .paddingForScreen {
-      padding-left: 1.7%;
     }
     .gridHeightBots {
       height: 650px;

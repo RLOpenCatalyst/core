@@ -152,6 +152,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                 apiUtil.databaseUtil(paginationReq, next);
             },
             function (queryObj, next) {
+
                 settingService.getOrgUserFilter(userName, function (err, orgIds) {
                     if (err) {
                         next(err, null);
@@ -190,6 +191,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                     }
                 });
             },
+
             function (botList, next) {
                 addYmlFileDetailsForBots(botList, reqData, serviceNowCheck, next);
             },

@@ -61,12 +61,12 @@ var serviceSchema = new Schema({
             trim: true,
             required: false
         },
-        chefServerId:{
+        configId:{
             type: String,
             trim: true,
             required: false
         },
-        chefServerName:{
+        configName:{
             type: String,
             trim: true,
             required: false
