@@ -951,6 +951,16 @@ function serviceMapSync(callback){
 }
 
 function serviceMapVersion(service,resources,instanceStateList){
+    if(resources.length > 0){
+        for(var i = 0; i < resources.length; i++){
+            for(var j = i + 1; j < resources.length; j++){
+                if(resources[i].id === resources[j].id){
+                    resources[i].identifiers.push(resources[j].identifiers);
+                    resources.splice(j,1);
+                }
+            }
+        }
+    }
     var serviceState = getServiceState(instanceStateList);
     if(service.resources.length === resources.length && instanceStateList.indexOf('deleted') === -1){
         serviceMapService.updateService({name:service.name},{state:serviceState,resources:resources},function(err,data){
