@@ -324,14 +324,16 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                                 logger.error("Error while fetching BOTs Server Details");
                                 next(err, null);
                                 return;
-                            } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                            } else if (botServerDetails !== null) {
                                 botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                                 botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                                next(null,botRemoteServerDetails);
                             } else {
-                                botRemoteServerDetails.hostIP = "localhost";
-                                botRemoteServerDetails.hostPort = "2687";
+                                var error = new Error();
+                                error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                                error.status = 403;
+                                next(error, null);
                             }
-                            next(null,botRemoteServerDetails);
                         });
                     },
                     function(botRemoteServerDetails,next){
@@ -447,14 +449,16 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                                         logger.error("Error while fetching BOTs Server Details");
                                         next(err, null);
                                         return;
-                                    } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                                    } else if (botServerDetails !== null) {
                                         botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                                         botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                                        next(null,botRemoteServerDetails);
                                     } else {
-                                        botRemoteServerDetails.hostIP = "localhost";
-                                        botRemoteServerDetails.hostPort = "2687";
+                                        var error = new Error();
+                                        error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                                        error.status = 403;
+                                        next(error, null);
                                     }
-                                    next(null,botRemoteServerDetails);
                                 });
                             },
                             function(botRemoteServerDetails,next){
@@ -615,14 +619,16 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                                     logger.error("Error while fetching BOTs Server Details");
                                                     next(err, null);
                                                     return;
-                                                } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                                                } else if (botServerDetails !== null) {
                                                     botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                                                     botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                                                    next(null,botRemoteServerDetails);
                                                 } else {
-                                                    botRemoteServerDetails.hostIP = "localhost";
-                                                    botRemoteServerDetails.hostPort = "2687";
+                                                    var error = new Error();
+                                                    error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                                                    error.status = 403;
+                                                    next(error, null);
                                                 }
-                                                next(null,botRemoteServerDetails);
                                             });
                                         },
                                         function(botRemoteServerDetails,next){

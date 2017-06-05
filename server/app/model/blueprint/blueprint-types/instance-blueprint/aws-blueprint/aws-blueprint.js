@@ -39,7 +39,7 @@ var Schema = mongoose.Schema;
 var resourceService = require('_pr/services/resourceService');
 var auditTrailService = require('_pr/services/auditTrailService');
 var noticeService = require('_pr/services/noticeService.js');
-var resourceMapService = require('_pr/services/resourceMapService.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 
 var AWSInstanceBlueprintSchema = new Schema({
@@ -208,24 +208,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                         });
                         return;
                     }
-                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
-                        var resourceMapObj = {
-                            name: domainName,
-                            type: "SoftwareStack",
-                            state: "Initializing",
-                            resources: []
-                        }
-                        if(launchParams.blueprintData.templateType !== 'chef'){
-                            resourceMapObj.type = "OSImage";
-                        }
-                        resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
-                            if (err) {
-                                logger.error("resourceMapService.createNewResourceMap is Failed ==>", err);
-                            }
-                        })
-                    }
                     var newinstanceIDs = [];
-
                     function addinstancewrapper(instanceData, instancesLength) {
                         logger.debug('Entered addinstancewrapper ++++++' + instancesLength);
                         var instance = {
@@ -279,6 +262,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                 serverId: launchParams.infraManagerId,
                                 chefNodeName: instanceData.InstanceId
                             },
+                            source:'blueprint',
                             blueprintData: {
                                 blueprintId: launchParams.blueprintData.id,
                                 blueprintName: launchParams.blueprintData.name,
@@ -308,6 +292,23 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             var timestampStarted = new Date().getTime();
                             var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                             var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
+                            if (domainName !== '' || domainName !== null) {
+                                var resourceObj = {
+                                    state:instance.instanceState.charAt(0).toUpperCase() + instance.instanceState.slice(1),
+                                    resources:[
+                                        {
+                                            id:instance.id,
+                                            type:"instance",
+                                            state:instance.instanceState
+                                        }
+                                    ]
+                                }
+                                serviceMapService.updateService({name:domainName},resourceObj,function(err,resourceMap){
+                                    if(err){
+                                        logger.error("Error in updating Service Map.",err);
+                                    }
+                                });
+                            }
 
                             if (launchParams.auditTrailId !== null) {
                                 var resultTaskExecution = {
@@ -353,12 +354,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                 startedOn: new Date().getTime(),
                                 createdOn: new Date().getTime(),
                                 providerType: launchParams.cloudProviderType,
-                                action: "Bootstrap",
-                                logs: [{
-                                        err: false,
-                                        log: "Starting instance",
-                                        timestamp: new Date().getTime()
-                                    }]
+                                action: "Bootstrap"
                             };
 
                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -415,11 +411,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             ec2.waitForInstanceRunnnigState(instance.platformId, function (err, instanceData) {
                                 if (err) {
                                     var timestamp = new Date().getTime();
-                                    instanceLog.logs = {
-                                        err: true,
-                                        log: "Instance ready state wait failed. Unable to bootstrap",
-                                        timestamp: new Date().getTime()
-                                    };
                                     instanceLog.actionStatus = "failed";
                                     instanceLog.endedOn = new Date().getTime();
                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -472,19 +463,20 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     });
                                     awsLogger.error("waitForInstanceRunnnigState returned an error  >>", err);
                                     logger.error("waitForInstanceRunnnigState returned an error  >>", err);
-                                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                    if (domainName !== null) {
                                         var resourceObj = {
                                             state:"Error",
                                             resources:[
                                                 {
                                                     id:instance.id,
-                                                    type:"instance"
+                                                    type:"instance",
+                                                    state:"Error"
                                                 }
                                             ]
                                         }
-                                        resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                        serviceMapService.updateService({name:domainName},resourceObj,function(err,resourceMap){
                                             if(err){
-                                                logger.error("Error in updating Resource Map.",err);
+                                                logger.error("Error in updating Service Map.",err);
                                             }
                                         });
                                     }
@@ -505,13 +497,25 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     }
                                     logger.debug('instance state upadated');
                                 });
+                                if (domainName !== null) {
+                                    var resourceObj = {
+                                        state:instanceData.State.Name.charAt(0).toUpperCase() + instanceData.State.Name.slice(1),
+                                        resources:[
+                                            {
+                                                id:instance.id,
+                                                type:"instance",
+                                                state:instanceData.State.Name
+                                            }
+                                        ]
+                                    }
+                                    serviceMapService.updateService({name:domainName},resourceObj,function(err,resourceMap){
+                                        if(err){
+                                            logger.error("Error in updating Service Map.",err);
+                                        }
+                                    });
+                                }
 
                                 instanceLog.status = instanceData.State.Name;
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: "waiting for instance state to be ok",
-                                    timestamp: new Date().getTime()
-                                };
                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
@@ -534,11 +538,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
 
                                 ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function (err) {
                                     if (err) {
-                                        instanceLog.logs = {
-                                            err: true,
-                                            log: "Instance ok state wait failed. Unable to bootstrap",
-                                            timestamp: new Date().getTime()
-                                        };
                                         instanceLog.actionStatus = "failed";
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -592,19 +591,20 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         });
                                         awsLogger.error("Instance ok state wait failed. Unable to bootstrap");
                                         logger.error('intance wait failed ==> ', err);
-                                        if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                        if (domainName !== null) {
                                             var resourceObj = {
                                                 state:"Error",
                                                 resources:[
                                                     {
                                                         id:instance.id,
-                                                        type:"instance"
+                                                        type:"instance",
+                                                        state:"Error"
                                                     }
                                                 ]
                                             }
-                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                            serviceMapService.updateService({name:domainName},resourceObj,function(err,resourceMap){
                                                 if(err){
-                                                    logger.error("Error in updating Resource Map.",err);
+                                                    logger.error("Error in updating Service Map.",err);
                                                 }
                                             });
                                         }
@@ -630,11 +630,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             });
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLog.actionStatus = "failed";
-                                            instanceLog.logs = {
-                                                err: true,
-                                                log: "Unable to decrpt pem file. Bootstrap failed",
-                                                timestamp: new Date().getTime()
-                                            };
                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -688,19 +683,20 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             });
                                             awsLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                            if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                            if (domainName !== null) {
                                                 var resourceObj = {
                                                     state:"Error",
                                                     resources:[
                                                         {
                                                             id:instance.id,
-                                                            type:"instance"
+                                                            type:"instance",
+                                                            state:"Error"
                                                         }
                                                     ]
                                                 }
-                                                resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                serviceMapService.updateService({name:domainName},resourceObj,function(err,resourceMap){
                                                     if(err){
-                                                        logger.error("Error in updating Resource Map.",err);
+                                                        logger.error("Error in updating Service Map.",err);
                                                     }
                                                 });
                                             }
@@ -759,11 +755,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 if (err) {
                                                     instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.actionStatus = "failed";
-                                                    instanceLog.logs = {
-                                                        err: true,
-                                                        log: "Bootstrap failed",
-                                                        timestamp: new Date().getTime()
-                                                    };
                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                         if (err) {
                                                             logger.error("Failed to create or update instanceLog: ", err);
@@ -818,25 +809,24 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         }
                                                     });
                                                     awsLogger.error("Bootstrap failed");
-                                                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                    if (domainName !== null) {
                                                         var resourceObj = {
                                                             state:"Error",
                                                             resources:[
                                                                 {
                                                                     id:instance.id,
-                                                                    type:"instance"
+                                                                    type:"instance",
+                                                                    state:"Error"
                                                                 }
                                                             ]
                                                         }
-                                                        resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                        serviceMapService.updateService({name:domainName},resourceObj,function(err,resourceMap){
                                                             if(err){
-                                                                logger.error("Error in updating Resource Map.",err);
+                                                                logger.error("Error in updating Service Map.",err);
                                                             }
                                                         });
                                                     }
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
-
                                                 } else {
                                                     if (code === 0) {
                                                         instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
@@ -848,11 +838,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         });
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "success";
-                                                        instanceLog.logs = {
-                                                            err: false,
-                                                            log: "Instance Bootstrapped successfully",
-                                                            timestamp: new Date().getTime()
-                                                        };
                                                         if (launchParams.auditTrailId !== null) {
                                                             var resultTaskExecution = {
                                                                 actionStatus: "success",
@@ -911,35 +896,16 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             }
                                                         });
                                                         awsLogger.debug("Instance Bootstrapped successfully");
-                                                        if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                        if (domainName !== null) {
                                                             resourceService.updateDomainNameForInstance(domainName, instance.instanceIP, instance.id, awsSettings, function (err, updateDomainName) {
                                                                 if (err) {
                                                                     logger.error("resourceService.updateDomainNameForInstance Failed ==>", err);
                                                                 }
                                                                 logger.debug("Domain name is updated successfully");
                                                             });
-                                                            var resourceObj = {
-                                                                state:"Running",
-                                                                resources:[
-                                                                    {
-                                                                        id:instance.id,
-                                                                        type:"instance"
-                                                                    }
-                                                                ]
-                                                            }
-                                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
-                                                                if(err){
-                                                                    logger.error("Error in updating Resource Map.",err);
-                                                                }
-                                                            });
                                                         }
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "success";
-                                                        instanceLog.logs = {
-                                                            err: false,
-                                                            log: "Instance Bootstrapped successfully",
-                                                            timestamp: new Date().getTime()
-                                                        };
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                         launchParams.infraManager.getNode(instance.chefNodeName, function (err, nodeData) {
                                                             if (err) {
@@ -1004,11 +970,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         });
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "failed";
-                                                        instanceLog.logs = {
-                                                            err: false,
-                                                            log: "Bootstrap Failed",
-                                                            timestamp: new Date().getTime()
-                                                        };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -1051,19 +1012,20 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 noticeService.updater(launchParams.actionLogId,'log',logData);
                                                             }
                                                         }
-                                                        if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                        if (domainName !== null) {
                                                             var resourceObj = {
                                                                 state:"Error",
                                                                 resources:[
                                                                     {
                                                                         id:instance.id,
-                                                                        type:"instance"
+                                                                        type:"instance",
+                                                                        state:"Error"
                                                                     }
                                                                 ]
                                                             }
-                                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                            serviceMapService.updateService({name:domainName},resourceObj,function(err,resourceMap){
                                                                 if(err){
-                                                                    logger.error("Error in updating Resource Map.",err);
+                                                                    logger.error("Error in updating Service Map.",err);
                                                                 }
                                                             });
                                                         }
@@ -1092,17 +1054,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                     }
                                                 }
                                             }, function (stdOutData) {
-
-                                                instanceLog.logs = {
-                                                    err: false,
-                                                    log: stdOutData.toString('ascii'),
-                                                    timestamp: new Date().getTime()
-                                                };
-                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                    if (err) {
-                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                    }
-                                                });
                                                 var logData ={
                                                     instanceId:instance._id,
                                                     instanceRefId:actionLog._id,
@@ -1117,18 +1068,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 awsLogger.debug(stdOutData.toString('ascii'));
 
                                             }, function (stdErrData) {
-                                                instanceLog.logs = {
-                                                    err: true,
-                                                    log: stdErrData.toString('ascii'),
-                                                    timestamp: new Date().getTime()
-                                                };
-                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                    if (err) {
-                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                    }
-                                                });
-
-                                                //retrying 4 times before giving up.                                                
                                                 var logData ={
                                                     instanceId:instance._id,
                                                     instanceRefId:actionLog._id,
@@ -1141,8 +1080,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 logsDao.insertLog(logData);
                                                 noticeService.updater(launchParams.actionLogId,'log',logData);
                                                 awsLogger.error(stdErrData.toString('ascii'));
-
-
                                             });
                                         });
                                     });

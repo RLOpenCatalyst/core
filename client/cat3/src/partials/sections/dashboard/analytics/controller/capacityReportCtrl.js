@@ -75,7 +75,7 @@
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance Id', field: 'platformId', cellTooltip: true},
                         {name: 'os', enableFiltering: true, displayName: 'OS', field: 'os', cellTooltip: true},
-                        {name: 'privateIpAddress', displayName: 'IP Address', cellTooltip: true},
+                        {name: 'privateIpAddress', displayName: 'IP Address',field:'privateIpAddress', cellTooltip: true},
                         {name: 'state', displayName: 'Status', cellTooltip: true},
                         {
                             name: 'Region', displayName: 'Region',
@@ -137,48 +137,61 @@
                         $scope.gridApi = gridApi;
                     };
                 if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
+                    var param = {
+                        inlineLoader: true
+                    };
                     if($rootScope.organNewEnt.instanceType === 'Managed') {
                         $scope.colArray.push('bgName','projectName','environmentName');
                         capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
                         capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
-                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true}); $scope.instanceType= 'managedInstances';
+                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true});
                         $scope.instanceType= 'managedInstances';
+                        param.url = '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType;
                     } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
                         $scope.colArray.push('bgName','projectName','environmentName');
                         capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
                         capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
-                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true}); $scope.instanceType= 'managedInstances';
-                        $scope.instanceType= 'unmanagedInstances';
+                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true});
+                        param.url = '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase();
                     } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
-                        $scope.instanceType= 'unassigned-instances';
+                        param.url = '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase();
                     }
-                    var param = {
+                   /* var param = {
                         inlineLoader:true,
                        url: '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType
                         //url:'src/partials/sections/dashboard/analytics/data/ins.json'
-                    };
+                    };*/
                     genSevs.promiseGet(param).then(function (instResult) {
                         capRept.listGrid[value].data=[];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
                             capRept.listGrid[value].data= instResult.managedInstances;
-                        } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                            capRept.listGrid[value].data= instResult.unmanagedInstances;
-                        } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                        } else{
                             capRept.listGrid[value].data = instResult.data;
                         }
                         angular.forEach( capRept.listGrid[value].data,function (rs,k) {
-                            if(rs.hardware && rs.hardware.os){
-                                capRept.listGrid[value].data[k].os=rs.hardware.os;
-                            }
-                            if(rs.providerData && rs.providerData.region){
-                                capRept.listGrid[value].data[k].region=rs.providerData.region;
-                            }
-                            if(rs.instanceState){
-                                capRept.listGrid[value].data[k].state=rs.instanceState;
-                            }
                             if($rootScope.organNewEnt.instanceType === 'Managed'){
                                 capRept.listGrid[value].data[k].showSchedule=true;
+                                if(rs.hardware && rs.hardware.os){
+                                    capRept.listGrid[value].data[k].os=rs.hardware.os;
+                                }
+                                if(rs.providerData && rs.providerData.region){
+                                    capRept.listGrid[value].data[k].region=rs.providerData.region;
+                                }
+                                if(rs.instanceState){
+                                    capRept.listGrid[value].data[k].state=rs.instanceState;
+                                }
+                            }else{
+                                capRept.listGrid[value].data[k].platformId = rs.resourceDetails.platformId;
+                                capRept.listGrid[value].data[k].os = rs.resourceDetails.os;
+                                capRept.listGrid[value].data[k].state = rs.resourceDetails.state;
+                                capRept.listGrid[value].data[k].privateIpAddress=rs.resourceDetails.privateIp;
+                                capRept.listGrid[value].data[k].region = rs.providerDetails.region.region_name;
+                                capRept.listGrid[value].data[k].bgName = rs.masterDetails.bgName;
+                                capRept.listGrid[value].data[k].projectName = rs.masterDetails.projectName;
+                                capRept.listGrid[value].data[k].environmentName = rs.masterDetails.envName;
+                                capRept.listGrid[value].data[k].showSchedule=false;
                             }
+
                         });
                         if(capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0){
                             capRept.listGrid[value].nodataFound =true;

@@ -39,7 +39,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var auditTrailService = require('_pr/services/auditTrailService');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
-var resourceMapService = require('_pr/services/resourceMapService.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -252,27 +252,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                             callback(null, {
                                 stackId: cloudFormation._id,
                             });
-                            var resourceMapObj = {
-                                name: launchParams.stackName,
-                                type: "CloudFormation",
-                                state: "Initializing",
-                                resources: []
-                            }
-                            resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
+                            awsCF.waitForStackCompleteStatus(stackData.StackId, function (err, completeStack) {
                                 if (err) {
-                                    logger.error("resourceMapService.createNewResourceMap is Failed ==>", err);
-                                }
-                                callback(null, {
-                                    stackId: cloudFormation._id,
-                                });
-                                awsCF.waitForStackCompleteStatus(stackData.StackId, function (err, completeStack) {
-                                    if (err) {
                                         logger.error('Unable to wait for stack status', err);
                                         if (err.stackStatus) {
                                             cloudFormation.status = err.stackStatus;
                                             cloudFormation.save();
                                         }
-                                        resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                        serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                             if(err){
                                                 logger.error("Error in updating Resource Map.",err);
                                             }
@@ -285,7 +272,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                     awsCF.listAllStackResources(stackData.StackId, function (err, resources) {
                                         if (err) {
                                             logger.error('Unable to fetch stack resources', err);
-                                            resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                            serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                                 if(err){
                                                     logger.error("Error in updating Resource Map.",err);
                                                 }
@@ -322,7 +309,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                         AwsAutoScaleInstance.findByAutoScaleResourceId(autoScaleResourceId, function (err, autoScaleInstances) {
                                             if (err) {
                                                 logger.error('Unable to fetch autoscale instance resources', err);
-                                                resourceMapService.updateResourceMap(launchParams.stackName,{status:"Error"},function(err,resourceMap){
+                                                serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                                     if(err){
                                                         logger.error("Error in updating Resource Map.",err);
                                                     }
@@ -344,7 +331,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                 ec2.describeInstances(instanceIds, function (err, awsRes) {
                                                     if (err) {
                                                         logger.error("Unable to get instance details from aws", err);
-                                                        resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                                        serviceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
                                                             if(err){
                                                                 logger.error("Error in updating Resource Map.",err);
                                                             }
@@ -385,7 +372,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                     AWSKeyPair.getAWSKeyPairByProviderIdAndKeyPairName(cloudFormation.cloudProviderId, keyPairName, function (err, keyPairs) {
                                                         if (err) {
                                                             logger.error("Unable to get keypairs", err);
-                                                            resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                                            serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                                                 if(err){
                                                                     logger.error("Error in updating Resource Map.",err);
                                                                 }
@@ -497,6 +484,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                     serverId: self.infraManagerId,
                                                                     chefNodeName: instanceData.InstanceId
                                                                 },
+                                                                source:'blueprint',
                                                                 blueprintData: {
                                                                     blueprintId: launchParams.blueprintData._id,
                                                                     blueprintName: launchParams.blueprintData.name,
@@ -544,19 +532,21 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             instancesDao.createInstance(instance, function (err, data) {
                                                                 if (err) {
                                                                     logger.error("Failed to create Instance", err);
-                                                                    resourceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
+                                                                    serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
                                                                         if(err){
                                                                             logger.error("Error in updating Resource Map.",err);
                                                                         }
                                                                     });
                                                                     return;
                                                                 }
+                                                                resourceObj.state = instance.instanceState.charAt(0).toUpperCase() + instance.instanceState.slice(1);
                                                                 resourceObj.resources.push({
                                                                     id:data._id,
-                                                                    type:"instance"
+                                                                    type:"instance",
+                                                                    state:instance.instanceState
                                                                 });
                                                                 if(resourceObj.resources.length  === instances.length) {
-                                                                    resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
+                                                                    serviceMapService.updateService({name:launchParams.stackName}, resourceObj, function (err, resourceMap) {
                                                                         if (err) {
                                                                             logger.error("Error in updating Resource Map.", err);
                                                                         }
@@ -618,12 +608,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                     startedOn: new Date().getTime(),
                                                                     createdOn: new Date().getTime(),
                                                                     providerType: self.cloudProviderType || 'aws',
-                                                                    action: "CFT Launch",
-                                                                    logs: [{
-                                                                        err: false,
-                                                                        log: "Waiting for instance ok state",
-                                                                        timestamp: new Date().getTime()
-                                                                    }]
+                                                                    action: "CFT Launch"
                                                                 };
 
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -659,11 +644,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                         cftLogger.error("Bootstrap failed");
                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                         instanceLog.actionStatus = "failed";
-                                                                        instanceLog.logs = {
-                                                                            err: true,
-                                                                            log: "Bootstrap failed",
-                                                                            timestamp: new Date().getTime()
-                                                                        };
                                                                         instanceLog.endedOn = new Date().getTime();
                                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                             if (err) {
@@ -740,11 +720,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                             cftLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                             instanceLog.actionStatus = "failed";
-                                                                            instanceLog.logs = {
-                                                                                err: true,
-                                                                                log: "Unable to decrpt pem file. Bootstrap failed",
-                                                                                timestamp: new Date().getTime()
-                                                                            };
                                                                             instanceLog.endedOn = new Date().getTime();
                                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                                 if (err) {
@@ -849,11 +824,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                     cftLogger.error("Bootstrap failed");
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                                    instanceLog.logs = {
-                                                                                        err: true,
-                                                                                        log: "Bootstrap failed",
-                                                                                        timestamp: new Date().getTime()
-                                                                                    };
                                                                                     noticeService.notice(launchParams.sessionUser, {
                                                                                         title: "Blueprint BOTs Execution",
                                                                                         body: "Bootstrap failed"
@@ -949,11 +919,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                         cftLogger.debug('http://' + launchParams.stackName + '.rlcatalyst.com');
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-                                                                                        instanceLog.logs = {
-                                                                                            err: false,
-                                                                                            log: "Instance Bootstraped successfully",
-                                                                                            timestamp: new Date().getTime()
-                                                                                        };
                                                                                         instanceLog.actionStatus = "success";
                                                                                         instanceLog.endedOn = new Date().getTime();
                                                                                         if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
@@ -1079,11 +1044,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             }
                                                                                         });
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                                        instanceLog.logs = {
-                                                                                            err: true,
-                                                                                            log: "Bootstrap Failed",
-                                                                                            timestamp: new Date().getTime()
-                                                                                        };
                                                                                         instanceLog.actionStatus = "failed";
                                                                                         instanceLog.endedOn = new Date().getTime();
                                                                                         if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
@@ -1139,17 +1099,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 logsDao.insertLog(logData);
                                                                                 noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                 cftLogger.debug(stdOutData.toString('ascii'));
-                                                                                instanceLog.logs = {
-                                                                                    err: false,
-                                                                                    log: stdOutData.toString('ascii'),
-                                                                                    timestamp: new Date().getTime()
-                                                                                };
-                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                    if (err) {
-                                                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                                                    }
-                                                                                });
-
                                                                             }, function (stdErrData) {
 
                                                                                 //retrying 4 times before giving up.
@@ -1165,18 +1114,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 logsDao.insertLog(logData);
                                                                                 noticeService.updater(launchParams.actionLogId,'log',logData);
                                                                                 cftLogger.error(stdErrData.toString('ascii'));
-                                                                                instanceLog.logs = {
-                                                                                    err: true,
-                                                                                    log: stdErrData.toString('ascii'),
-                                                                                    timestamp: new Date().getTime()
-                                                                                };
-                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                    if (err) {
-                                                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                                                    }
-                                                                                });
-
-
                                                                             });
                                                                         });
 
@@ -1198,7 +1135,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
 
                                 });
 
-                            });
                         });
 
                     } else {

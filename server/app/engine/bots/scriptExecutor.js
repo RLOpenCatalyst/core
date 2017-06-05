@@ -122,8 +122,9 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
-    var logsReferenceIds = [botDetail._id, actionId];
-    var replaceTextObj = {};
+    var replaceTextObj = {
+        node:'local'
+    }
     var logData = {
         botId:botDetail._id,
         botRefId: actionId,
@@ -150,8 +151,8 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
     } else if(requestBody && requestBody.data && schedulerCheck === false) {
         replaceTextObj = requestBody.data;
     } else {
-        for (var j = 0; j < botDetail.inputFormFields.length; j++) {
-            replaceTextObj[botDetail.inputFormFields[j].name] = botDetail.inputFormFields[j].default;
+        for (var j = 0; j < botDetail.input.length; j++) {
+            replaceTextObj[botDetail.input[j].name] = botDetail.input[j].default;
         }
     }
 
@@ -246,8 +247,7 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
         createdOn: new Date().getTime(),
         startedOn: new Date().getTime(),
         providerType: instance.providerType,
-        action: "BOTs Script-Execution",
-        logs: []
+        action: "BOTs Script-Execution"
     };
     if (!instance.instanceIP) {
         var timestampEnded = new Date().getTime();
@@ -265,11 +265,6 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
         instanceLog.endedOn = new Date().getTime();
         instanceLog.actionStatus = "failed";
-        instanceLog.logs = {
-            err: true,
-            log: "Instance IP is not defined. Chef Client run failed",
-            timestamp: new Date().getTime()
-        };
         instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
             if (err) {
                 logger.error("Failed to create or update instanceLog: ", err);
@@ -319,7 +314,9 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Password_Based_Authentication";
         }
-        var replaceTextObj = {};
+        var replaceTextObj = {
+            node:instance.instanceIP
+        };
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
         if (requestBody && requestBody.data && schedulerCheck === true) {
@@ -334,8 +331,8 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
         } else if (requestBody && requestBody.data && schedulerCheck === false) {
             replaceTextObj = requestBody.data;
         } else {
-            for (var j = 0; j < botDetail.inputFormFields.length; j++) {
-                replaceTextObj[botDetail.inputFormFields[j].name] = botDetail.inputFormFields[j].default;
+            for (var j = 0; j < botDetail.input.length; j++) {
+                replaceTextObj[botDetail.input[j].name] = botDetail.input[j].default;
             }
         }
         var reqBody = {
@@ -393,11 +390,6 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
                 instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                 instanceLog.endedOn = new Date().getTime();
                 instanceLog.actionStatus = "failed";
-                instanceLog.logs = {
-                    err: false,
-                    log: "Error in BOT Engine executor: ",
-                    timestamp: new Date().getTime()
-                };
                 instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                     if (err) {
                         logger.error("Failed to create or update instanceLog: ", err);

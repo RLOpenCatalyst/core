@@ -20,8 +20,6 @@ var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
-var instancesDao = require('_pr/model/classes/instance/instance');
-
 var Schema = mongoose.Schema;
 var InstanceLogSchema = new Schema({
     actionId: {
@@ -46,12 +44,7 @@ var InstanceLogSchema = new Schema({
     startedOn: Number,
     endedOn: Number,
     providerType: String,
-    action: String,
-    logs: [{
-        err: Boolean,
-        log: String,
-        timestamp: Number
-    }]
+    action: String
 });
 
 InstanceLogSchema.plugin(mongoosePaginate);
@@ -114,61 +107,6 @@ var InstanceLog = function() {
 
         });
     };
-
-
-
-    this.getLogsByInstanceIdStatus = function(instanceId,instanceStatus, callback) {
-        var queryObj = {
-            instanceId: instanceId,
-            status:instanceStatus
-        };
-
-        InstanceLogs.find(queryObj, function(err, data) {
-            if (err) {
-                logger.debug("Failed to getLogsByInstanceId ", err);
-                callback(err, null);
-                return;
-            }else if (data && data.length) {
-                return callback(null, data[0]);
-            }else {
-                var error = new Error("ActionLog not found.");
-                error.status = 404;
-                return callback(error, null);
-            }
-        });
-    };
-
-    this.getLogsByActionId = function(actionId, callback) {
-        var queryObj = {
-            actionId: actionId
-        };
-
-        InstanceLogs.find(queryObj, function(err, data) {
-            if (err) {
-                logger.debug("Failed to getLogsByActionId ", err);
-                callback(err, null);
-                return;
-            }
-            if (data && data.length) {
-                instancesDao.getInstanceById(data[0].instanceId, function(err, instance) {
-                    if (err) {
-                        logger.error("Failed to fetch instance: ", err);
-                    }
-                    if (instance && instance.length) {
-                        data[0] = JSON.parse(JSON.stringify(data[0]));
-                        data[0].instanceName = instance[0].name;
-                    }
-
-                    return callback(null, data[0]);
-                });
-            } else {
-                var error = new Error("ActionLog not found.");
-                error.status = 404;
-                callback(err, null);
-            }
-        });
-    };
-
     this.getInstanceActionList = function getInstanceActionList(jsonData, callback) {
         if (jsonData && jsonData.pageSize) {
             jsonData['searchColumns'] = ['platformId', 'status', 'action', 'user', 'size', 'actionStatus', 'orgName', 'bgName', 'projectName', 'envName', 'blueprintName'];
@@ -221,30 +159,6 @@ var InstanceLog = function() {
                 return;
             }
             callback(null, data);
-        });
-    };
-
-    this.pollInstanceActionLog = function(actionId, startTime, callback) {
-
-        InstanceLogs.find({
-            actionId: actionId
-        }, function(err, data) {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            var logs = [];
-            if (data && data.length && data[0].logs.length) {
-                for (var i = 0; i < data[0].logs.length; i++) {
-                    if (data[0].logs[i].timestamp > startTime) {
-                        logs.push(data[0].logs[i]);
-                    }
-                }
-                data[0].logs = logs;
-                return callback(null, data[0]);
-            } else {
-                return callback(null, data);
-            }
         });
     };
 };

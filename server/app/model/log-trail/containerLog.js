@@ -47,12 +47,7 @@ var ContainerLogSchema = new Schema({
     startedOn: Number,
     endedOn: Number,
     providerType: String,
-    action: String,
-    logs: [{
-        err: Boolean,
-        log: String,
-        timestamp: Number
-    }]
+    action: String
 });
 
 ContainerLogSchema.plugin(mongoosePaginate);

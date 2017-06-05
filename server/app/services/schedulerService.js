@@ -22,8 +22,6 @@ var client = new Client();
 var request = require('request');
 var auditQueue = require('_pr/config/global-data.js');
 var noticeService = require('_pr/services/noticeService.js');
-var resourceMapService = require('_pr/services/resourceMapService.js');
-
 
 var schedulerService = module.exports = {};
 var cronTab = require('node-crontab');
@@ -328,6 +326,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                 }else if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'active' )) {
                     var timestampEnded = new Date().getTime();
                     count++;
+                    console.log(auditData.retryCount);
                     if (auditData.retryCount === botEngineTimeOut) {
                         if(auditData.env === 'local') {
                             var logData ={
@@ -663,13 +662,6 @@ function startStopManagedInstance(instance,catUser,action,callback){
     }else{
         logger.debug("Action is not matched for corresponding operation. "+action);
         callback(null,null);
-    }
-    if(instance.domainName && instance.domainName !== null){
-       resourceMapService.updateResourceMap(instance.domainName,{state:resourceState},function(err,data){
-           if(err){
-               logger.error("Error in updating ResourceMap State: ",err);
-           }
-       })
     }
     var instanceLog = {
         actionId: "",

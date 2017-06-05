@@ -19,7 +19,7 @@ var scriptValidator = module.exports = {};
 
 scriptValidator.create = {
     body: {
-        "name": Joi.string().min(1).max(15).required(),
+        "name": Joi.string().min(1).max(30).required(),
         "type": Joi.string().min(1).max(40).required()
     }
 };

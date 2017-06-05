@@ -94,24 +94,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     }
 
-    app.get('/audit-trail/instance-action/:actionId', getInstanceAction);
-
-    function getInstanceAction(req, res, next) {
-        async.waterfall(
-            [
-
-                function(next) {
-                    instanceLogModel.getLogsByActionId(req.params.actionId, next);
-                }
-            ],
-            function(err, results) {
-                if (err)
-                    return res.status(500).send(err);
-                else
-                    return res.status(200).send(results);
-            });
-    }
-
     app.get('/audit-trail/task-action', getTaskActionList);
 
     function getTaskActionList(req, res, next) {
@@ -128,25 +110,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(taskActions, next) {
                     apiUtil.paginationResponse(taskActions, reqData, next);
-                }
-
-            ],
-            function(err, results) {
-                if (err)
-                    return res.status(500).send(err);
-                else
-                    return res.status(200).send(results);
-            });
-    }
-
-    app.get('/audit-trail/task-action/:actionId', getTaskAction);
-
-    function getTaskAction(req, res, next) {
-        async.waterfall(
-            [
-
-                function(next) {
-                    instanceLogModel.getLogsByActionId(req.params.actionId, next);
                 }
 
             ],
