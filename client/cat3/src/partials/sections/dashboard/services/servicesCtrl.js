@@ -7,7 +7,7 @@
 
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.services',[]).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
+	angular.module('dashboard.services',['services.paramsServices']).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
 		var modulePerms = modulePermissionProvider.$get();
 		$stateProvider.state('dashboard.services.servicesList', {
 			url: "/servicesList",
@@ -27,7 +27,25 @@
 					return deferred.promise;
 				}]
 			}
-		})
+		}).state('dashboard.services.servicesCreate', {
+            url: "/servicesCreate",
+            templateUrl: "src/partials/sections/dashboard/services/view/servicesCreate.html",
+            controller: "servicesCreateCtrl",
+            parameters:{filterView:{servicesCreate:true}},
+            resolve: {
+                auth: ["$q", function ($q) {
+                    var deferred = $q.defer();
+                    // instead, go to a different page
+                    if (modulePerms.servicesBool()) {
+                        // everything is fine, proceed
+                        deferred.resolve();
+                    } else {
+                        deferred.reject({redirectTo: 'dashboard'});
+                    }
+                    return deferred.promise;
+                }]
+            }
+        })
 	}]).controller('servicesTreeMenu',['$rootScope', '$scope', '$http','workzoneServices', 'workzoneEnvironment','genericServices', 'workzoneNode', '$timeout', 'modulePermission', '$window', function ($rootScope, $scope, $http, workzoneServices, workzoneEnvironment,genSevs, workzoneNode, $timeout, modulePerms, $window){
             //For showing menu icon in menu over breadcrumb without position flickering during load
             $scope.isLoading = true;
@@ -52,9 +70,6 @@
                 } else {
                     if (modulePerms.settingsAccess()) {
                         $window.location.href = "/private/index.html#ajax/Settings/Dashboard.html";
-
-                        //$location.path('/private/index.html#ajax/Settings/Dashboard.html');
-                        //$scope.setWorkZoneMessage('NO_ENV_CONFIGURED_CONFIGURE_SETTINGS');
                     } else {
                         $scope.setWorkZoneMessage('NO_ENV_CONFIGURED_NO_SETTINGS_ACCESS');
                     }
@@ -76,7 +91,6 @@
                 } else {
                     var requestParamNames = getNames(node);
                     workzoneNode.setWorkzoneNode(node);
-                    //$rootScope.$emit('WZ_ENV_CHANGE_START', requestParamNames);
                 }
             };
             $scope.relevancelab.selectNodeHeadCallback = function (node) {

@@ -10,7 +10,7 @@
     angular.module('dashboard.services')
     .controller('servicesListCtrl',['$scope', '$rootScope', 'moment', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', function ($scope, $rootScope, moment, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout) {
 
-        var treeNames = ['Services','Services List'];
+        var treeNames = ['Services','Service List'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         
     }]);

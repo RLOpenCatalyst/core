@@ -1,0 +1,27 @@
+<!--top description, name along with filter and refresh-->
+<div id="serviceLibraryPage">
+   <div class="page-name">
+      Service Library&nbsp;
+      <span class="pull-right">
+        <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshServiceLibrary();">
+        <i class="fa fa-refresh white"></i>
+        </button>
+        </button>
+        <button type="button" title="Create New" class="btn btn-xs cat-btn-update marginright6" ui-sref="dashboard.services.servicesCreate">
+          <i class="fa fa-plus white"></i>
+          New
+        </button>
+      </span>
+   </div>
+   <div class="borderTop"></div>
+   <!--sidebar filter -->
+
+   <!--table section starts here-->
+   <div class="width99 col-lg-12 paddingForScreen margintop10" >
+     <div class="alert alert-info text-center" ng-if="!serviceLibGridOptions.data.length > 0 && !isServiceLibraryPageLoading">
+        No Services Available.
+     </div>
+     <div id="grid1" ng-show="!isCardViewActive" ng-if="serviceLibGridOptions.data.length >0 && !isServiceLibraryPageLoading" ui-grid="serviceLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid gridHeightServices"></div>
+   </div>
+   <!--table section ends here -->
+</div>
