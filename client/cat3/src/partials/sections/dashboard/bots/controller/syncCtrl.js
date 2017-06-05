@@ -8,8 +8,10 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botSyncCtrl',['$scope', '$rootScope', '$state', '$timeout', 'genericServices', 'botsCreateService', 'uiGridOptionsService', 'toastr','$modal',
+    .controller('syncCtrl',['$scope', '$rootScope', '$state', '$timeout', 'genericServices', 'botsCreateService', 'uiGridOptionsService', 'toastr','$modal',
         function($scope, $rootScope, $state, $timeout, genericServices, botsCreateService, uiGridOptionsService, toastr,$modal){            
+        	var botsSyncCtrl = this;
+        	botsSyncCtrl.newEnt = [];
         	var treeNames = ['BOTs','BOTs Sync'];   
             $rootScope.$emit('treeNameUpdate', treeNames);
             $scope.actionStatus = 'sync';
@@ -96,10 +98,10 @@
             $scope.setPaginationDefaults();
 
 			$scope.botSyncGridView = function() {
-				if($scope.gitHubId){
+				if(botsSyncCtrl.newEnt.gitHubId){
 					$scope.isBotSyncPageLoading = true;
 					$scope.isBotSyncDetailsLoading = true;
-		            botsCreateService.getGitHubSyncDetails($scope.actionStatus,$scope.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
+		            botsCreateService.getGitHubSyncDetails($scope.actionStatus,botsSyncCtrl.newEnt.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
 	                    $scope.botSyncGrid.data =  result.githubsync;
 	                    $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
 	                    $scope.botSyncGrid.botData = result.metaData;
@@ -109,19 +111,15 @@
 				}
 			};
 			$scope.getGitHubDetails = function() {
-				$rootScope.$on('BOTS_SYNC_PAGE', function(event,reqParams) {
-					if(reqParams === 'new') {
-						botsCreateService.getGitHubDetails().then(function(response){
-			        		$scope.gitHubDetails =  response.data;
-			        		$scope.gitHubId = response.data[0]._id;		
-			        		$scope.botSyncGridView();
-			        	});
-					}
-				});
+	        	botsCreateService.getGitHubDetails().then(function(response){
+	        		$scope.gitHubDetails =  response.data;
+	        		botsSyncCtrl.newEnt.gitHubId = response.data[0]._id;	
+	        		$scope.botSyncGridView();
+	        	});
 	        };    
 
 	        $scope.init = function () {
-	        	$scope.getGitHubDetails();
+        		$scope.getGitHubDetails();
 	        }
 
 			$scope.searchBotNameCategory = function(pageNumber) {
@@ -133,7 +131,7 @@
 	                pageNumber = 1;
 	            }
 	            $scope.actionStatus = 'list';
-	            botsCreateService.getGitHubSyncDetailsSearch($scope.actionStatus,$scope.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder,$scope.searchString).then(function (result) {
+	            botsCreateService.getGitHubSyncDetailsSearch($scope.actionStatus,botsSyncCtrl.newEnt.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder,$scope.searchString).then(function (result) {
 	                $scope.botSyncGrid.data = result.githubsync;
 	                $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
 	                $scope.botSyncGrid.botData = result.metaData;
@@ -158,7 +156,7 @@
 		
 			$scope.postSyncBots = function() {
 				var reqBody = $scope.botId;
-				botsCreateService.postBotSync($scope.gitHubId,$scope.botId).then(function(response){
+				botsCreateService.postBotSync(botsSyncCtrl.newEnt.gitHubId,$scope.botId).then(function(response){
 					toastr.success('GitHub Sync Successfull');
 					$state.go('dashboard.bots.library');
 				});

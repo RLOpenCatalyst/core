@@ -9,7 +9,7 @@
     "use strict";
     angular.module('dashboard.bots')
     .controller('libraryCtrl',['$scope', '$rootScope', 'moment', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, moment, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
-
+        console.log("library>>>>>>>>",$state);
         var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
@@ -710,9 +710,7 @@
         };
 
         $scope.syncBots = function() {
-            var syncObj = 'new';
-            $rootScope.$emit('BOTS_SYNC_PAGE', syncObj);
-            $state.go('dashboard.bots.botsSync');
+            $state.go('dashboard.bots.sync');
         }
         
         $scope.setCardView();

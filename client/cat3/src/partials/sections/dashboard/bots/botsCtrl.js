@@ -82,11 +82,11 @@
 					return deferred.promise;
 				}]
 			}
-		}).state('dashboard.bots.botsSync', {
+		}).state('dashboard.bots.sync', {
 			url: "/botsSync",
-			templateUrl: "src/partials/sections/dashboard/bots/view/botSync.html",
-			controller: "botSyncCtrl as btsSyncCtrl",
-			parameters:{filterView:{botsSync:true}},
+			templateUrl: "src/partials/sections/dashboard/bots/view/sync.html",
+			controller: "syncCtrl as botsSync",
+			parameters:{filterView:{sync:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();

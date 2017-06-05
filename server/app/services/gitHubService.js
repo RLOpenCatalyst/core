@@ -167,10 +167,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, query, callback) 
         });
     }
     else {
-        globalData.unSetGit(gitHubId);
-        var err = new Error('Invalid Query params');
-        err.status = 400;
-        return callback(err);
+        return callback(null,true);
     }
 };
 

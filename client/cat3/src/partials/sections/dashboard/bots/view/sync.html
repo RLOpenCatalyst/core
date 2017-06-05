@@ -15,7 +15,7 @@
             <div class="repo-job-details-wrapper-inner marginbottom10"></div>
             <div class="col-lg-12 col-md-12 form-group">
                <label for="">Git Account</label>
-               <select class="form-control marginbottom15" ng-model="gitHubId" ng-change="getGitHubDetails();">
+               <select class="form-control marginbottom15" ng-model="botsSync.newEnt.gitHubId" ng-change="getGitHubDetails();">
                   <option ng-repeat="gitHub in gitHubDetails" value="{{gitHub._id}}">{{gitHub.repositoryName}}</option>
                </select>
                <label for="">Type</label>
