@@ -122,6 +122,11 @@ var AuditTrailSchema = function AuditTrail() {
             trim:true,
             required:false
         },
+        overRunFlag: {
+            type: Boolean,
+            default:false,
+            required:false
+        },
         savedTime: {
             hours: {
                 type: Number,

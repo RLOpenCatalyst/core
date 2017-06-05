@@ -17,3 +17,13 @@
 .servicesLabel {
   font-weight: 400;
 }
+
+.gridHeightServices {
+  height: 485px;
+}
+
+@media (min-width : 1550px){
+	.gridHeightServices {
+      height: 800px;
+    }
+}

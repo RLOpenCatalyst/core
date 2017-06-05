@@ -19,6 +19,7 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var BaseResourcesSchema = require('./base-resources');
 var Resources = require('./resources');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 
 var S3ResourcesSchema = new BaseResourcesSchema({
@@ -66,34 +67,19 @@ S3ResourcesSchema.statics.createNew = function(s3Data,callback){
     });
 };
 
-S3ResourcesSchema.statics.updateS3BucketData = function(s3Data,callback){
-    var queryObj={};
-    queryObj['providerDetails.id'] = s3Data.providerDetails.id;
-    queryObj['resourceType'] = s3Data.resourceType;
-    queryObj['resourceDetails.bucketName'] = s3Data.resourceDetails.bucketName;
-    S3Resources.update(queryObj, {
-        $set: {
-            resourceDetails: s3Data.resourceDetails,
-            tags: s3Data.tags
-        }
-    }, {
-        upsert: false
-    }, function(err, data) {
-        if (err) {
-            logger.error("Failed to updateS3BucketData", err);
-            callback(err, null);
-        }
-        callback(null, data);
+S3ResourcesSchema.statics.updateS3BucketData = function(s3Id,s3Data,callback){
+    S3Resources.update({_id:new ObjectId(s3Id)}, {$set: s3Data}, {upsert: false},
+        function(err, data) {
+            if (err) {
+                logger.error("Failed to updateS3BucketData", err);
+                callback(err, null);
+            }
+            callback(null, data);
     });
 };
 
-S3ResourcesSchema.statics.getS3BucketData = function(s3Data,callback){
-    var queryObj={};
-    queryObj['providerDetails.id'] = s3Data.providerDetails.id;
-    queryObj['resourceType'] = s3Data.resourceType;
-    queryObj['resourceDetails.bucketName'] = s3Data.resourceDetails.bucketName;
-    queryObj['isDeleted']=false;
-    S3Resources.find(queryObj, function(err, data) {
+S3ResourcesSchema.statics.getS3BucketData = function(filterBy,callback){
+    S3Resources.find(filterBy, function(err, data) {
         if (err) {
             logger.error("Failed to getS3BucketData", err);
             callback(err, null);

@@ -24,7 +24,6 @@ var usageAggregation = require('_pr/cronjobs/aws-usage-aggregation');
 var providerSync = require('_pr/cronjobs/provider-sync');
 var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');
 var dockerContainerSync = require('_pr/cronjobs/docker-container-sync');
-var awsRDSS3ProviderSync = require('_pr/cronjobs/provider-rds-s3-sync');
 var chefSync = require('_pr/cronjobs/chef-sync');
 var taskSync = require('_pr/cronjobs/task-sync');
 
@@ -52,10 +51,6 @@ module.exports.start = function start() {
 	logger.info('Docker Container Sync started with interval ==> '+ dockerContainerSync.getInterval());
 	var dockerContainerSyncJobId
 		= crontab.scheduleJob(dockerContainerSync.getInterval(), dockerContainerSync.execute);
-
-	 logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
-	var awsRDSS3ProviderSyncJobId
-		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);
 
 	logger.info('Chef Sync started with interval ==> '+ chefSync.getInterval());
 	var chefSyncJobId

@@ -267,8 +267,7 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
         createdOn: new Date().getTime(),
         startedOn: new Date().getTime(),
         providerType: instance.providerType,
-        action: "BOTs Chef-Execution",
-        logs: []
+        action: "BOTs Chef-Execution"
     };
     if (!instance.instanceIP) {
         var timestampEnded = new Date().getTime();
@@ -286,11 +285,6 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
         instanceLog.endedOn = new Date().getTime();
         instanceLog.actionStatus = "failed";
-        instanceLog.logs = {
-            err: true,
-            log: "Instance IP is not defined. Chef Client run failed",
-            timestamp: new Date().getTime()
-        };
         instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
             if (err) {
                 logger.error("Failed to create or update instanceLog: ", err);
@@ -428,11 +422,6 @@ function executeChefOnRemote(instance, botDetail,reqBody,actionLogId, auditTrail
                     instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
-                    instanceLog.logs = {
-                        err: false,
-                        log: "Error in BOT Engine executor:",
-                        timestamp: new Date().getTime()
-                    };
                     instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                         if (err) {
                             logger.error("Failed to create or update instanceLog: ", err);

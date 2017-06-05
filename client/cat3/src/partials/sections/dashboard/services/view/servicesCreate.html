@@ -19,11 +19,7 @@
 
                <div class="col-lg-6 col-md-6 col-sm-4 col-xs-6 margintop15">
                   <label class="control-label servicesLabel">Description
-                  <span class="control-label red">&nbsp;*</span>
-                  <span ng-show="newServiceForm.serviceDescription.$touched && newServiceForm.serviceDescription.$invalid" class="inputValidationMsg">Required
-                  </span>
                   </label>
-                  <br />
                   <input type="text" name="serviceDescription" placeholder="Enter the Service Description" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="serviceDescription" maxlength="50" />
                </div>
 
@@ -96,7 +92,7 @@
          <button type="button" class="btn cat-btn-cancel margintop10" ui-sref="dashboard.bots.library">
          <i class="fa fa-times black"></i> Cancel
          </button>
-         <button  type="submit" class="btn cat-btn-update margintop10 marginleft10" ng-disabled="newServiceForm.$invalid" ng-click="postCreateBots()">
+         <button  type="submit" class="btn cat-btn-update margintop10 marginleft10" ng-disabled="newServiceForm.$invalid" ng-click="postServices()">
          <i class="fa fa-check white"></i> Save
          </button>
       </div>

@@ -293,12 +293,7 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
                                             createdOn: new Date().getTime(),
                                             startedOn: new Date().getTime(),
                                             providerType: instance.providerType ? instance.providerType:null,
-                                            action: action,
-                                            logs: [{
-                                                err: false,
-                                                log: "Started container",
-                                                timestamp: new Date().getTime()
-                                            }]
+                                            action: action
                                         };
                                         containerLogModel.createOrUpdate(containerLogs, function(err, logData){
                                             if (err) {
@@ -398,8 +393,7 @@ function deleteContainerByInstanceId(instanceDetails,next){
                                 createdOn: new Date().getTime(),
                                 startedOn: new Date().getTime(),
                                 providerType: instanceDetails.providerType ? instanceDetails.providerType:null,
-                                action: 'Terminated',
-                                logs: []
+                                action: 'Terminated'
                             };
 
                             containerLogModel.createOrUpdate(containerLog, function(err, logData){

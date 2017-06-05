@@ -65,13 +65,16 @@
         $scope.postServices = function() {
         	reqBody = {
         		name:$scope.serviceName,
-        		description:$scope.serviceDescription,
-        		orgId:$scope.orgNewEnt.org.orgid,
-        		bgId:$scope.orgNewEnt.buss.rowid,
-        		projectId:$scope.IMGNewEnt.proj.rowId,
-        		envId:$scope.IMGNewEnt.env.rowid,
+        		desc:$scope.serviceDescription,
+        		masterDetails:{
+        			orgId:$scope.IMGNewEnt.org.orgid,
+        		    bgId:$scope.IMGNewEnt.buss.rowid,
+        		    projectId:$scope.IMGNewEnt.proj.rowId,
+        		    envId:$scope.IMGNewEnt.env.rowid,
+        		    configId:$scope.IMGNewEnt.serverTypeInd
+        		},
         		monitorId:$scope.monitorId,
-        		configId:$scope.IMGNewEnt.serverTypeInd
+        		type:'Service'
         	}
         	if($scope.yamlfile){//will be true if a file chosen by user 
                 var formData = new FormData();
@@ -80,7 +83,7 @@
                     if(response) {
                         var yamlfileId = response.data.fileId;
                         reqBody.fileId = yamlfileId;
-                        serviceCreateService.postCreateService(reqBody).then(function(response){
+                        servicesCreateService.postCreateService(reqBody).then(function(response){
                             toastr.success('Service created successfully');
                             $state.go('dashboard.services.servicesList');
                         });

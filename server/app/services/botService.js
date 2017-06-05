@@ -98,9 +98,6 @@ botService.removeBotsById = function removeBotsById(botId,callback){
     async.parallel({
         bots: function(callback){
             botDao.removeBotsById(botId,callback);
-        },
-        auditTrails: function(callback){
-            auditTrail.removeAuditTrails({auditId:botId},callback);
         }
     },function(err,resutls){
         if(err){
@@ -143,85 +140,89 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                     return callback(null,results);
                 }
             });
+
     }else {
         async.waterfall([
-            function(next) {
+            function (next) {
                 apiUtil.paginationRequest(botsQuery, 'bots', next);
             },
-            function(paginationReq, next) {
-                paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
+            function (paginationReq, next) {
+                paginationReq['searchColumns'] = ['name', 'type', 'category', 'desc', 'orgName'];
                 reqData = paginationReq;
                 apiUtil.databaseUtil(paginationReq, next);
             },
-            function(queryObj, next) {
+            function (queryObj, next) {
+
                 settingService.getOrgUserFilter(userName, function (err, orgIds) {
                     if (err) {
                         next(err, null);
                     }
-                    if(orgIds.length > 0){
+                    if (orgIds.length > 0) {
                         queryObj.queryObj['orgId'] = {$in: orgIds};
                     }
-                    if(actionStatus !== null) {
-                        queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+                    if (actionStatus !== null) {
+                        var key = actionStatus+'ExecutionCount';
+                        queryObj.queryObj[key] = {$gt:0};
                     }
-                    if(serviceNowCheck === true) {
-                        queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
+                    if (serviceNowCheck === true) {
+                        queryObj.queryObj['srnSuccessExecutionCount'] = {$gt: 0};
                         var botIds = [];
-                        botDao.getAllBots(queryObj.queryObj,function(err,botData){
-                            if(err){
-                                next(err,null);
+                        botDao.getAllBots(queryObj.queryObj, function (err, botData) {
+                            if (err) {
+                                next(err, null);
                             }
-                            if(botData.length > 0){
-                                botData.forEach(function(bot){
+                            if (botData.length > 0) {
+                                botData.forEach(function (bot) {
                                     botIds.push(bot._id);
                                 })
                             }
-                            if(botIds.length > 0){
+                            if (botIds.length > 0) {
                                 delete queryObj.queryObj;
                                 queryObj.queryObj = {
-                                    auditId: {$in:botIds}
+                                    auditId: {$in: botIds}
                                 }
-                                auditTrail.getAuditTrailList(queryObj,next);
-                            }else{
+                                auditTrail.getAuditTrailList(queryObj, next);
+                            } else {
                                 botDao.getBotsList(queryObj, next);
                             }
                         })
-                    }else{
+                    } else {
                         botDao.getBotsList(queryObj, next);
                     }
                 });
             },
-            function(botList, next) {
-                addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
+
+            function (botList, next) {
+                addYmlFileDetailsForBots(botList, reqData, serviceNowCheck, next);
             },
-            function(filterBotList, next) {
-               async.parallel({
-                   botList:function(callback){
-                       apiUtil.paginationResponse(filterBotList, reqData, callback);
-                   },
-                   botSummary:function(callback){
-                       auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback)
-                   }
-               },function(err,data){
-                   if(err){
-                       next(err);
-                   }else{
-                       next(null,data);
-                   }
-               })
+            function (filterBotList, next) {
+                async.parallel({
+                    botList: function (callback) {
+                        apiUtil.paginationResponse(filterBotList, reqData, callback);
+                    },
+                    botSummary: function (callback) {
+                        auditTrailService.getBOTsSummary(botsQuery, 'BOT', userName, callback)
+                    }
+                }, function (err, data) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, data);
+                    }
+                })
             }
-        ],function(err, results) {
-            if (err){
+        ], function (err, results) {
+            if (err) {
                 logger.error(err);
-                callback(err,null);
+                callback(err, null);
                 return;
             }
             var resultObj = {
-                bots : results.botList.bots,
-                metaData : results.botList.metaData,
+                bots: results.botList.bots,
+                metaData: results.botList.metaData,
                 botSummary: results.botSummary
             }
-            callback(null,resultObj);
+            callback(null, resultObj);
             return;
         });
     }
@@ -336,11 +337,11 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                     bots: function (callback) {
                         if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === true) {
-                            var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
-                                executionCount: botExecutionCount,
+                                executionCount: botDetails[0].executionCount + 1,
                                 lastRunTime: new Date().getTime(),
-                                lastExecutionStatus:"running"
+                                lastExecutionStatus: "running",
+                                runningExecutionCount: botDetails[0].runningExecutionCount + 1
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         } else if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
@@ -352,12 +353,12 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                                     err.message = 'Data encryption is Failed';
                                     callback(err, null);
                                 }else{
-                                    var botExecutionCount = botDetails[0].executionCount + 1;
                                     var botUpdateObj = {
-                                        executionCount: botExecutionCount,
+                                        executionCount: botDetails[0].executionCount + 1,
                                         lastRunTime: new Date().getTime(),
                                         params:encryptData,
-                                        lastExecutionStatus:"running"
+                                        lastExecutionStatus:"running",
+                                        runningExecutionCount: botDetails[0].runningExecutionCount + 1
                                     }
                                     if(reqBody.nodeIds){
                                         botUpdateObj.params.nodeIds = reqBody.nodeIds;
@@ -448,12 +449,11 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                                         type: result.type,
                                         subType: result.subtype,
                                         isParameterized:result.isParameterized?result.isParameterized:false,
-                                        inputFormFields: result.input[0].form,
-                                        outputOptions: result.output,
+                                        input: result.input && result.input !==null ? result.input[0].form:null,
+                                        output: result.output,
                                         ymlDocFileId: ymlDocFileId,
                                         source: "GitHub"
                                     }
-
                                     botDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
                                         if (err) {
                                             logger.error(err);
@@ -463,8 +463,7 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                                             callback(null,updateBots);
                                             return;
                                         }
-                                    })
-
+                                    });
                                 }
                             });
                         } else {
@@ -601,8 +600,8 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                                     manualExecutionTime:result.manualExecutionTime ? result.manualExecutionTime:10,
                                                     type:result.type,
                                                     subType:result.subtype,
-                                                    inputFormFields:result.input && result.input !==null ? result.input[0].form:null,
-                                                    outputOptions:result.output,
+                                                    input:result.input && result.input !==null ? result.input[0].form:null,
+                                                    output:result.output,
                                                     ymlDocFileId:ymlDocFileId,
                                                     orgId:gitHubDetails.botSync.orgId,
                                                     isParameterized:result.isParameterized?result.isParameterized:false,
@@ -876,8 +875,8 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                             category: bot.category,
                             type: bot.type,
                             subType: bot.subType,
-                            inputFormFields: bot.inputFormFields,
-                            outputOptions: bot.outputOptions,
+                            inputFormFields: bot.input,
+                            outputOptions: bot.output,
                             ymlDocFileId: bot.ymlDocFileId,
                             orgId: bot.orgId,
                             orgName: bot.orgName,
@@ -933,8 +932,8 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                                         category: botDetails[0].category,
                                         type: botDetails[0].type,
                                         subType: botDetails[0].subType,
-                                        inputFormFields: botDetails[0].inputFormFields,
-                                        outputOptions: botDetails[0].outputOptions,
+                                        inputFormFields: botDetails[0].input,
+                                        outputOptions: botDetails[0].output,
                                         ymlDocFileId: botDetails[0].ymlDocFileId,
                                         orgId: botDetails[0].orgId,
                                         orgName: botDetails[0].orgName,

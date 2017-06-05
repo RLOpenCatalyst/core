@@ -1334,24 +1334,24 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
         function (instances, next) {
             var instance = instances[0];
             var routeHostedZoneParamList = [];
-            if (instance.instanceState !== instanceData.state && instance.bootStrapStatus === 'success') {
+            if (instance.instanceState !== instanceData.resourceDetails.state && instance.bootStrapStatus === 'success') {
                 var timestampStarted = new Date().getTime();
                 var user = instance.catUser ? instance.catUser : 'superadmin';
                 var action = '';
-                if (instanceData.state === 'stopped' || instanceData.state === 'stopping') {
+                if (instanceData.resourceDetails.state === 'stopped' || instanceData.resourceDetails.state === 'stopping') {
                     action = 'Stop';
-                } else if (instanceData.state === 'terminated') {
+                } else if (instanceData.resourceDetails.state === 'terminated') {
                     action = 'Terminated';
                     if (instance.route53HostedParams) {
                         routeHostedZoneParamList = instance.route53HostedParams;
                     }
-                } else if (instanceData.state === 'shutting-down') {
+                } else if (instanceData.resourceDetails.state === 'shutting-down') {
                     action = 'Shutting-Down';
                 } else {
                     action = 'Start';
                 }
                 ;
-                if (instanceData.state === 'terminated' && instance.instanceState === 'shutting-down') {
+                if (instanceData.resourceDetails.state === 'terminated' && instance.instanceState === 'shutting-down') {
                     instanceLogModel.getLogsByInstanceIdStatus(instance._id, instance.instanceState, function (err, data) {
                         if (err) {
                             logger.error("Failed to get Instance Logs: ", err);
@@ -1366,7 +1366,7 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
                             instanceId:data.instanceId,
                             instanceRefId:data.actionId,
                             err: false,
-                            log: "Instance " + instanceData.state,
+                            log: "Instance " + instanceData.resourceDetails.state,
                             timestamp: timestampStarted
                         });
                         instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
@@ -1378,7 +1378,7 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
                         });
                     })
                 } else {
-                    createOrUpdateInstanceLogs(instance, instanceData.state, action, user, timestampStarted, routeHostedZoneParamList, next);
+                    createOrUpdateInstanceLogs(instance, instanceData.resourceDetails.state, action, user, timestampStarted, routeHostedZoneParamList, next);
                 }
             } else {
                 next(null, routeHostedZoneParamList);

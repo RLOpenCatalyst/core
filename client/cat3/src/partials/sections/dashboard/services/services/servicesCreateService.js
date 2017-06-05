@@ -31,5 +31,13 @@
 				return genericServices.promiseGet(params); 
 			};
 
+			serviceCreate.getServices = function() {
+				var params = {
+					url: '/services',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params); 	
+			}
+
         }]);
 })(angular);

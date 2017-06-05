@@ -62,6 +62,25 @@ ResourceSchema.statics.getResourceById = function(resourceId,callback) {
     });
 };
 
+ResourceSchema.statics.getResourceByIds = function(resourceIds,callback) {
+    if(resourceIds.length > 0){
+        var queryObj = {},ids = [];
+        resourceIds.forEach(function(id){
+            ids.push(new ObjectId(id));
+        })
+    }else{
+        callback(null,resourceIds);
+    }
+    Resources.find({_id:{$in:ids}}, function(err, data) {
+        if (err) {
+            logger.error("Failed to getResourceByIds", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 ResourceSchema.statics.getResources = function(queryObj,callback) {
     Resources.find(queryObj, function(err, data) {
         if (err) {
@@ -180,6 +199,19 @@ ResourceSchema.statics.updateResourceTag = function(params, fields, callback) {
         }
     });
 };
+
+ResourceSchema.statics.updateResourceById = function(resourceId, fields, callback) {
+    Resources.update({_id:new ObjectId(resourceId)}, fields, function(err, data) {
+        if (err) {
+            logger.error("Failed to update unassigned resource data", err);
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+
 
 ResourceSchema.statics.getResourcesWithPagination=function(dataBaseQueryObj,callback){
     dataBaseQueryObj.queryObj.isDeleted = false;
