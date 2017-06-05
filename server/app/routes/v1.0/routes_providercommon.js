@@ -19,7 +19,8 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
-var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
+var assignedInstancesDao = require('_pr/model/unmanaged-instance');
+var ec2Model = require('_pr/model/resources/instance-resource');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var waitForPort = require('wait-for-port');
 var uuid = require('node-uuid');
@@ -42,12 +43,11 @@ var Docker = require('_pr/model/docker.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var SSHExec = require('_pr/lib/utils/sshexec');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
-var settingService = require('_pr/services/settingsService');
+var resources = require('_pr/model/resources/resources');
 // @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
-    app.all("/providers/*", sessionVerificationFunc);
-    // @TODO To be refactored
+    app.all("/providers*", sessionVerificationFunc);
     app.get('/providers/:providerId', function (req, res) {
         AWSProvider.getAWSProviderById(req.params.providerId, function (err, provider) {
             if (err) {
@@ -62,7 +62,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 });
                 return;
             }
-
             MasterUtils.getOrgByRowId(provider.orgId[0], function (err, orgs) {
                 if (err) {
                     res.status(500).send({
@@ -76,8 +75,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     });
                     return;
                 }
-
-
                 var tempProvider = JSON.parse(JSON.stringify(provider));
                 tempProvider.org = orgs[0];
                 res.status(200).send(tempProvider)
@@ -91,44 +88,32 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getManagedInstancesList(req, res, next) {
         var reqObj = {};
         async.waterfall(
-                [
-                    function (next) {
-                        apiUtil.changeRequestForJqueryPagination(req.query, next);
-                    },
-                    function (reqData, next) {
-                        reqObj = reqData;
-                        apiUtil.paginationRequest(reqData, 'managedInstances', next);
-                    },
-                    function (paginationReq, next) {
-                        paginationReq['providerId'] = req.params.providerId;
-                        paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
-                        apiUtil.databaseUtil(paginationReq, next);
-                    },
-                    function(filterQuery,next){
-                        settingService.getOrgUserFilter(req.session.user.cn, function (err, orgIds) {
-                            if (err) {
-                                next(err);
-                            }else if(orgIds.length > 0){
-                                filterQuery.queryObj['$and'][0].orgId = { $in : orgIds };
-                                next(null,filterQuery);
-                            }else{
-                                next(null,filterQuery);
-                            }
-                        });
-                    },
-                    function (queryObj, next) {
-                        instancesDao.getByProviderId(queryObj, next);
-                    },
-                    function (managedInstances, next) {
-                        apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
-                    }
-                ],
-                function (err, results) {
-                    if (err)
-                        next(err);
-                    else
-                        return res.status(200).send(results);
-                });
+            [
+                function (next) {
+                    apiUtil.changeRequestForJqueryPagination(req.query, next);
+                },
+                function (reqData, next) {
+                    reqObj = reqData;
+                    apiUtil.paginationRequest(reqData, 'managedInstances', next);
+                },
+                function (paginationReq, next) {
+                    paginationReq['providerId'] = req.params.providerId;
+                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function (queryObj, next) {
+                    instancesDao.getByProviderId(queryObj, next);
+                },
+                function (managedInstances, next) {
+                    apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
+                }
+            ],
+            function (err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
     }
     ;
 
@@ -137,134 +122,32 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getManagedInstances(req, res, next) {
         var reqData = {};
         async.waterfall(
-                [
-                    function (next) {
-                        apiUtil.paginationRequest(req.query, 'managedInstances', next);
-                    },
-                    function (paginationReq, next) {
-                        paginationReq['providerId'] = req.params.providerId;
-                        paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
-                        reqData = paginationReq;
-                        apiUtil.databaseUtil(paginationReq, next);
-                    },
-                    function(filterQuery,next){
-                        settingService.getOrgUserFilter(req.session.user.cn, function (err, orgIds) {
-                            if (err) {
-                                next(err);
-                            }else if(orgIds.length > 0){
-                                filterQuery.queryObj['$and'][0].orgId = { $in : orgIds };
-                                next(null,filterQuery);
-                            }else{
-                                next(null,filterQuery);
-                            }
-                        });
-                    },
-                    function (queryObj, next) {
-                        instancesDao.getByProviderId(queryObj, next);
-                    },
-                    function (managedInstances, next) {
-                        apiUtil.paginationResponse(managedInstances, reqData, next);
-                    }
-                ],
-                function (err, results) {
-                    if (err)
-                        next(err);
-                    else
-                        return res.status(200).send(results);
-                });
+            [
+                function (next) {
+                    apiUtil.paginationRequest(req.query, 'managedInstances', next);
+                },
+                function (paginationReq, next) {
+                    paginationReq['providerId'] = req.params.providerId;
+                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function (queryObj, next) {
+                    instancesDao.getByProviderId(queryObj, next);
+                },
+                function (managedInstances, next) {
+                    apiUtil.paginationResponse(managedInstances, reqData, next);
+                }
+            ],
+            function (err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
     }
 
 
-    app.get('/providers/:providerId/unmanagedInstances', validate(instanceValidator.get), getUnManagedInstances);
-
-    function getUnManagedInstances(req, res, next) {
-        var reqData = {};
-        async.waterfall(
-                [
-                    function (next) {
-                        apiUtil.paginationRequest(req.query, 'unmanagedInstances', next);
-                    },
-                    function (paginationReq, next) {
-                        paginationReq['providerId'] = req.params.providerId;
-                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
-                        reqData = paginationReq;
-                        apiUtil.databaseUtil(paginationReq, next);
-                    },
-                    function(filterQuery,next){
-                        settingService.getOrgUserFilter(req.session.user.cn, function (err, orgIds) {
-                            if (err) {
-                                next(err);
-                            }else if(orgIds.length > 0){
-                                filterQuery.queryObj['$and'][0].orgId = { $in : orgIds };
-                                next(null,filterQuery);
-                            }else{
-                                next(null,filterQuery);
-                            }
-                        });
-                    },
-                    function (queryObj, next) {
-                        unManagedInstancesDao.getByProviderId(queryObj, next);
-                    },
-                    function (unmanagedInstances, next) {
-                        apiUtil.paginationResponse(unmanagedInstances, reqData, next);
-                    }
-
-                ],
-                function (err, results) {
-                    if (err)
-                        next(err);
-                    else
-                        return res.status(200).send(results);
-                });
-    }
-    ;
-
-    app.get('/providers/:providerId/unmanagedInstanceList', validate(instanceValidator.get), getUnManagedInstancesList);
-
-    function getUnManagedInstancesList(req, res, next) {
-        var reqObj = {};
-        async.waterfall(
-                [
-                    function (next) {
-                        apiUtil.changeRequestForJqueryPagination(req.query, next);
-                    },
-                    function (reqData, next) {
-                        reqObj = reqData;
-                        apiUtil.paginationRequest(reqData, 'unmanagedInstances', next);
-                    },
-                    function (paginationReq, next) {
-                        paginationReq['providerId'] = req.params.providerId;
-                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
-                        apiUtil.databaseUtil(paginationReq, next);
-                    },
-                    function(filterQuery,next){
-                        settingService.getOrgUserFilter(req.session.user.cn, function (err, orgIds) {
-                            if (err) {
-                                next(err);
-                            }else if(orgIds.length > 0){
-                                filterQuery.queryObj['$and'][0].orgId = { $in : orgIds };
-                                next(null,filterQuery);
-                            }else{
-                                next(null,filterQuery);
-                            }
-                        });
-                    },
-                    function (queryObj, next) {
-                        unManagedInstancesDao.getByProviderId(queryObj, next);
-                    },
-                    function (unmanagedInstances, next) {
-                        apiUtil.changeResponseForJqueryPagination(unmanagedInstances, reqObj, next);
-                    }
-
-                ],
-                function (err, results) {
-                    if (err)
-                        next(err);
-                    else
-                        return res.status(200).send(results);
-                });
-    }
-    ;
     // @TODO To be refactored and API end point to be changed
     app.post('/providers/:providerId/sync', function (req, res) {
         AWSProvider.getAWSProviderById(req.params.providerId, function (err, provider) {
@@ -377,12 +260,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
                             var ids = req.body.instanceIds;
 
-                            unManagedInstancesDao.getByIds(ids, function (err, unmanagedInstances) {
+                            resources.getResourceByIds(ids, function (err, assignedInstances) {
                                 if (err) {
-                                    res.status(500).send(unmanagedInstances);
+                                    res.status(500).send(assignedInstances);
                                     return;
                                 }
-                                if (!unmanagedInstances.length) {
+                                if (!assignedInstances.length) {
                                     res.status(404).send({
                                         message: "Unmanaged instances not found"
                                     });
@@ -415,7 +298,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
                                         logger.debug('taskstatus updated');
 
-                                        if (count == unmanagedInstances.length) {
+                                        if (count == assignedInstances.length) {
                                             logger.debug('setting complete');
                                             taskstatus.endTaskStatus(true, status);
                                         } else {
@@ -423,8 +306,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             taskstatus.updateTaskStatus(status);
                                         }
 
-                                    }
-                                    ;
+                                    };
 
                                     taskStatusModule.getTaskStatus(null, function (err, obj) {
                                         if (err) {
@@ -433,26 +315,25 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         }
                                         taskstatus = obj;
 
-                                        for (var i = 0; i < unmanagedInstances.length; i++) {
-                                            (function (unmanagedInstance) {
+                                        for (var i = 0; i < assignedInstances.length; i++) {
+                                            (function (assignedInstance) {
                                                 var openport = 22;
-                                                if (unmanagedInstance.os === 'windows') {
+                                                if (assignedInstance.resourceDetails.os === 'windows') {
                                                     openport = 5985;
                                                 }
-                                                waitForPort(unmanagedInstance.ip, openport, function (err) {
+                                                waitForPort(assignedInstance.resourceDetails.publicIp, openport, function (err) {
                                                     if (err) {
                                                         logger.debug(err);
-                                                        updateTaskStatusNode(unmanagedInstance.platformId, "Unable to ssh/winrm into instance " + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
+                                                        updateTaskStatusNode(assignedInstance.resourceDetails.platformId, "Unable to ssh/winrm into instance " + assignedInstance.resourceDetails.platformId + ". Cannot sync this node.", true, count);
                                                         return;
                                                     }
                                                     var nodeDetails = {
-                                                        nodeIp: unmanagedInstance.ip !== null?unmanagedInstance.ip:unmanagedInstance.privateIpAddress,
-                                                        nodeOs: unmanagedInstance.os,
-                                                        nodeName: unmanagedInstance.platformId,
+                                                        nodeIp: assignedInstance.resourceDetails.publicIp !== null?assignedInstance.resourceDetails.publicIp:assignedInstance.resourceDetails.privateIp,
+                                                        nodeOs: assignedInstance.resourceDetails.os,
+                                                        nodeName: assignedInstance.resourceDetails.platformId,
                                                         nodeEnv: req.body.environmentName
                                                     }
                                                     checkNodeCredentials(credentials, nodeDetails, function (err, credentialStatus) {
-
                                                         if (err) {
                                                             logger.error(err);
                                                             res.status(400).send({
@@ -462,7 +343,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                         } else if (credentialStatus) {
                                                             monitorsModel.getById(req.body.monitorId, function (err, monitor) {
                                                                 var instance = {
-                                                                    name: unmanagedInstance.platformId,
+                                                                    name: assignedInstance.resourceDetails.platformId,
                                                                     orgId: req.body.orgId,
                                                                     orgName: req.body.orgName,
                                                                     bgName: req.body.bgName,
@@ -475,18 +356,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                     providerId: provider._id,
                                                                     providerType: 'aws',
                                                                     providerData: {
-                                                                        region: unmanagedInstance.providerData.region
+                                                                        region: assignedInstance.providerDetails.region.region
                                                                     },
-                                                                    chefNodeName: unmanagedInstance.platformId,
+                                                                    chefNodeName: assignedInstance.resourceDetails.platformId,
                                                                     runlist: [],
-                                                                    platformId: unmanagedInstance.platformId,
+                                                                    platformId: assignedInstance.resourceDetails.platformId,
                                                                     appUrls: appUrls,
-                                                                    instanceIP: unmanagedInstance.ip,
-                                                                    instanceState: unmanagedInstance.state,
-                                                                    network: unmanagedInstance.network,
-                                                                    vpcId: unmanagedInstance.vpcId,
-                                                                    privateIpAddress: unmanagedInstance.privateIpAddress,
-                                                                    hostName: unmanagedInstance.hostName,
+                                                                    instanceIP: assignedInstance.resourceDetails.publicIp,
+                                                                    instanceState: assignedInstance.resourceDetails.state,
+                                                                    network: assignedInstance.resourceDetails.network,
+                                                                    vpcId: assignedInstance.resourceDetails.vpcId,
+                                                                    privateIpAddress: assignedInstance.resourceDetails.privateIp,
+                                                                    hostName: assignedInstance.resourceDetails.hostName,
                                                                     monitor: monitor,
                                                                     bootStrapStatus: 'waiting',
                                                                     hardware: {
@@ -497,11 +378,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                             total: 'unknown',
                                                                             free: 'unknown',
                                                                         },
-                                                                        os: unmanagedInstance.os
+                                                                        os: assignedInstance.resourceDetails.os
                                                                     },
                                                                     credentials: encryptedCredentials,
+                                                                    source:'cloud',
                                                                     blueprintData: {
-                                                                        blueprintName: unmanagedInstance.platformId,
+                                                                        blueprintName: assignedInstance.resourceDetails.platformId,
                                                                         templateId: "chef_import",
                                                                         iconPath: "../private/img/templateicons/chef_import.png"
                                                                     }
@@ -510,7 +392,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                 if (infraManagerDetails.configType === 'chef') {
                                                                     instance.chef = {
                                                                         serverId: infraManagerDetails.rowid,
-                                                                        chefNodeName: unmanagedInstance.platformId
+                                                                        chefNodeName: assignedInstance.resourceDetails.platformId
                                                                     }
                                                                 } else {
                                                                     instance.puppet = {
@@ -518,18 +400,21 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
                                                                     }
                                                                 }
-
                                                                 instancesDao.createInstance(instance, function (err, data) {
                                                                     if (err) {
                                                                         logger.error('Unable to create Instance ', err);
-                                                                        updateTaskStatusNode(unmanagedInstance.platformId, "server beahved unexpectedly while importing instance :" + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
+                                                                        updateTaskStatusNode(assignedInstance.resourceDetails.platformId, "server behaved unexpectedly while importing instance :" + assignedInstance.resourceDetails.platformId + ". Cannot sync this node.", true, count);
                                                                         return;
                                                                     }
+                                                                    resources.removeResourceById(assignedInstance._id,function(err,data){
+                                                                        if(err){
+                                                                            logger.error("Error in deleting Resource:",assignedInstance._id,err);
+                                                                        }
+                                                                    })
                                                                     instance.id = data._id;
                                                                     instance._id = data._id;
                                                                     var timestampStarded = new Date().getTime();
                                                                     var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarded);
-                                                                    var logsRefernceIds = [instance.id, actionLog._id];
                                                                     logsDao.insertLog({
                                                                         instanceId:instance._id,
                                                                         instanceRefId:actionLog._id,
@@ -537,7 +422,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                         log: "Bootstrapping instance",
                                                                         timestamp: timestampStarded
                                                                     });
-
                                                                     var instanceLog = {
                                                                         actionId: actionLog._id,
                                                                         instanceId: instance.id,
@@ -545,13 +429,13 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                         bgName: req.body.bgName,
                                                                         projectName: req.body.projectName,
                                                                         envName: req.body.environmentName,
-                                                                        status: unmanagedInstance.state,
+                                                                        status: assignedInstance.resourceDetails.state,
                                                                         actionStatus: "waiting",
-                                                                        platformId: unmanagedInstance.platformId,
-                                                                        blueprintName: unmanagedInstance.platformId,
+                                                                        platformId: assignedInstance.resourceDetails.platformId,
+                                                                        blueprintName: assignedInstance.resourceDetails.platformId,
                                                                         data: [],
                                                                         platform: "unknown",
-                                                                        os: unmanagedInstance.os,
+                                                                        os: assignedInstance.resourceDetails.os,
                                                                         size: "",
                                                                         user: req.session.user.cn,
                                                                         startedOn: new Date().getTime(),
@@ -578,7 +462,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                 timestamp: timestampEnded
                                                                             });
                                                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                            updateTaskStatusNode(unmanagedInstance.platformId, "server beahved unexpectedly while importing instance :" + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
+                                                                            updateTaskStatusNode(assignedInstance.resourceDetails.platformId, "server beahved unexpectedly while importing instance :" + assignedInstance.resourceDetails.platformId + ". Cannot sync this node.", true, count);
                                                                             instanceLog.endedOn = new Date().getTime();
                                                                             instanceLog.actionStatus = "failed";
                                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -615,12 +499,9 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                 var sensuCookBooks = MasterUtils.getSensuCookbooks();
                                                                                 var runlist = sensuCookBooks;
                                                                                 var jsonAttributes = {};
-                                                                                jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
-                                                                                ;
-
+                                                                                jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);;
                                                                                 bootstarpOption['runlist'] = runlist;
                                                                                 bootstarpOption['jsonAttributes'] = jsonAttributes;
-
                                                                             }
                                                                             deleteOptions = {
                                                                                 privateKey: decryptedCredentials.pemFileLocation,
@@ -741,8 +622,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                         } else {
                                                                                             nodeName = instance.chef.chefNodeName;
                                                                                         }
-
-
                                                                                         var timestampEnded = new Date().getTime();
                                                                                         logsDao.insertLog({
                                                                                             instanceId:instance._id,
@@ -930,20 +809,20 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                             });
                                                                         }); //end of chefcleanup
 
-                                                                        updateTaskStatusNode(unmanagedInstance.platformId, "Instance Imported : " + unmanagedInstance.platformId, false, count);
-                                                                        unmanagedInstance.remove({});
+                                                                        updateTaskStatusNode(assignedInstance.resourceDetails.platformId, "Instance Imported : " + assignedInstance.resourceDetails.platformId, false, count);
+                                                                        assignedInstance.remove({});
 
                                                                     });
                                                                 });
                                                             });
                                                         } else {
-                                                            updateTaskStatusNode(unmanagedInstance.platformId, "The username or password/pemfile you entered is incorrect " + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
+                                                            updateTaskStatusNode(assignedInstance.resourceDetails.platformId, "The username or password/pemfile you entered is incorrect " + assignedInstance.resourceDetails.platformId + ". Cannot sync this node.", true, count);
                                                             return;
                                                         }
                                                     });
                                                 });
 
-                                            })(unmanagedInstances[i])
+                                            })(assignedInstances[i])
                                         }
                                         res.status(200).send({
                                             taskId: taskstatus.getTaskId()
@@ -992,9 +871,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         }
     });
 
-    /*app.param('providerId', providerService.providerExists);
-     app.param('catalystEntityType', providerService.isValidCatalystEntityType);
-     app.param('catalystEntity', providerService.catalystEntityExists);*/
 
     /**
      * @api {get} /providers/:providerId/tags   Get tags list
@@ -1090,9 +966,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *          "values": ["value1", "value2"]
      *      }
      */
-    // app.post('/providers/:providerId/tags', validate(tagsValidator.create), createTags);
-
-    /**
+     /**
      * @api {put} /providers/:providerId/tags/:tagName  Update tag
      * @apiName updateTag
      * @apiGroup tags
@@ -1396,167 +1270,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             deleteTagMapping);
 
 
-    /**
-     * @api {get} /providers/:providerId/unassigned-instances       Get unassigned instances
-     * @apiName getAssignedInstances
-     * @apiGroup unassigned instances
-     *
-     * @apiParam {Number} providerId    Provider ID
-     *
-     * @apiSuccess {Object[]} instances                         Unasssigned instances
-     * @apiSuccess {String} instances.orgId                     Organization id
-     * @apiSuccess {Object} instances.provider                  Provider
-     * @apiSuccess {String} instances.provider.id               Provider Id
-     * @apiSuccess {String} instances.provider.type             Provider type
-     * @apiSuccess {Object} instances.provider.data             Provider data
-     * @apiSuccess {String} instances.platformId                Platform id
-     * @apiSuccess {String} instances.ip                        IP address
-     * @apiSuccess {String} instances.os                        OS
-     * @apiSuccess {String} instances.state                     Instance state
-     * @apiSuccess {Object} instances.tags                      Instance tags
-     * @apiSuccess {pageIndex} pageIndex                        Page index
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "instances": [
-     *              {
-     *                  "orgId": "organziationID",
-     *                  "provider": {
-     *                          "id": "providerID",
-     *                          "type": "AWS",
-     *                          "data": {
-     *                          },
-     *                  },
-     *                  "platformId": "platorm-id",
-     *                  "ip": "192.168.1.0",
-     *                  "os": "Ubuntu",
-     *                  "state": "running",
-     *                  "tags": {
-     *                      "environment": "dev",
-     *                      "application": "proj1"
-     *                  }
-     *              }
-     *           ],
-     *          "count": 2,
-     *          "pageSize": 10,
-     *          "pageIndex": 1
-     *      }
-     */
-    // @TODO Pagination, search and sorting to be implemented
-    app.get('/providers/:providerId/unassigned-instances', validate(instanceValidator.get), getUnassignedInstancesList);
-
-    /**
-     * @api {patch} /providers/:providerId/unassigned-instances/:instanceId     Update unassigned instance tags
-     * @apiName updateTags
-     * @apiGroup unassigned instances
-     *
-     * @apiParam {Number} providerId    Provider ID
-     * @apiParam {Number} instanceId    Instance ID
-     * @apiSuccessExample {json} Request-example:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "tags": {
-     *              "environment": "dev",
-     *              "application": "proj1"
-     *           }
-     *      }
-     *
-     * @apiSuccess {Object[]} instance                      Unasssigned instance
-     * @apiSuccess {String} instance.orgId                  Organization id
-     * @apiSuccess {Object} instance.provider               Provider
-     * @apiSuccess {String} instance.provider.id            Provider Id
-     * @apiSuccess {String} instance.platformId             Platform id
-     * @apiSuccess {String} instance.ip                     IP address
-     * @apiSuccess {String} instance.os                     OS
-     * @apiSuccess {String} instance.state                  Instance state
-     * @apiSuccess {Object} instance.tags                   Instance tags
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "orgId": "organziationID",
-     *          "provider": {
-     *              "id": "providerID",
-     *              "type": "AWS",
-     *              "data": {
-     *                      },
-     *          },
-     *          "platformId": "platorm-id",
-     *          "ip": "192.168.1.0",
-     *          "os": "Ubuntu",
-     *          "state": "running",
-     *          "tags": {
-     *              "environment": "dev",
-     *              "application": "proj1"
-     *          }
-     *      }
-     */
-    app.patch('/providers/:providerId/unassigned-instances/:instanceId',
-            validate(instanceValidator.update), updateUnassignedInstanceTags);
-
-    /**
-     * @api {patch} /providers/:providerId/unassigned-instances     Update unassigned instance
-     * @apiName bulkUpdateInstances
-     * @apiGroup unassigned instances
-     *
-     * @apiParam {Number} providerId    Provider ID
-     * @apiParam {Number} instanceId    Instance ID
-     * @apiSuccessExample {json} Request-example:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "instances": [
-     *              {
-     *                  "id": "<MongoID>",
-     *                  "tags": {
-     *                      "environment": "dev",
-     *                      "application": "proj1"
-     *                  }
-     *              },
-     *              {
-     *                  "id": "<MongoID>",
-     *                  "tags": {
-     *                      "environment": "dev",
-     *                      "application": "proj1"
-     *                  }
-     *              }
-     *          ]
-     *      }
-     *
-     * @apiSuccess {Object[]} instance                      Unasssigned instance
-     * @apiSuccess {String} instance.orgId                  Organization id
-     * @apiSuccess {Object} instance.provider               Provider
-     * @apiSuccess {String} instance.provider.id            Provider Id
-     * @apiSuccess {String} instance.provider.type          Provider type
-     * @apiSuccess {Object} instance.provider.data          Provider data
-     * @apiSuccess {String} instance.platformId             Platform id
-     * @apiSuccess {String} instance.ip                     IP address
-     * @apiSuccess {String} instance.os                     OS
-     * @apiSuccess {String} instance.state                  Instance state
-     * @apiSuccess {Object} instance.tags                   Instance tags
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "orgId": "organziationID",
-     *          "provider": {
-     *              "id": "providerID",
-     *              "type": "AWS",
-     *              "data": {
-     *                      },
-     *          },
-     *          "platformId": "platorm-id",
-     *          "ip": "192.168.1.0",
-     *          "os": "Ubuntu",
-     *          "state": "running",
-     *          "tags": {
-     *              "environment": "dev",
-     *              "application": "proj1"
-     *          }
-     *      }
-     */
-    app.patch('/providers/:providerId/unassigned-instances',
-            validate(instanceValidator.get), bulkUpdateUnassignedInstances);
 
     function getTagsList(req, res, callback) {
         async.waterfall(
@@ -1576,38 +1289,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     }
                 }
         );
-    }
-
-    function getUnassignedInstancesList(req, res, callback) {
-        var reqData = {};
-        async.waterfall(
-                [
-                    function (next) {
-                        apiUtil.changeRequestForJqueryPagination(req.query, next);
-                    },
-                    function (reqData, next) {
-                        apiUtil.paginationRequest(reqData, 'unassignedInstances', next);
-                    },
-                    function (paginationReq, next) {
-                        paginationReq['providerId'] = req.params.providerId;
-                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'providerData.region'];
-                        reqData = paginationReq;
-                        apiUtil.databaseUtil(paginationReq, next);
-                    },
-                    function (queryObj, next) {
-                        instanceService.getUnassignedInstancesByProvider(queryObj, next);
-                    },
-                    function (unAssignedInstances, next) {
-                        apiUtil.changeResponseForJqueryPagination(unAssignedInstances, reqData, next);
-                    }
-
-                ],
-                function (err, results) {
-                    if (err)
-                        callback(err);
-                    else
-                        return res.status(200).send(results);
-                });
     }
 
     function getTag(req, res, callback) {
@@ -1632,8 +1313,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    // @TODO to be implemented
-    function createTags(req, res, next) {}
 
     function updateTag(req, res, callback) {
         async.waterfall(
@@ -1797,92 +1476,4 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getCatalystEntityMapping(req, res, callback) {
-        async.waterfall(
-                [
-
-                    function (next) {
-                        providerService.checkIfProviderExists(req.params.providerId, next);
-                    },
-                    function (provider, next) {
-                        providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
-                                req.params.catalystEntityType, next);
-                    },
-                    function (tag, next) {
-                        providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
-                    }
-                ],
-                function (err, results) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        return res.status(200).send(results);
-                    }
-                }
-        );
-    }
-
-    function updateUnassignedInstanceTags(req, res, callback) {
-        async.waterfall(
-                [
-                    function (next) {
-                        providerService.checkIfProviderExists(req.params.providerId, next);
-                    },
-                    function (provider, next) {
-                        instanceService.updateUnassignedInstanceProviderTags(provider, req.params.instanceId,
-                                req.body.tags, next);
-                    },
-                    function (instance, next) {
-                        // @TODO Nested callback with anonymous function to be avoided.
-                        providerService.getTagMappingsByProviderId(instance.providerId,
-                                function (err, tagMappingsList) {
-                                    if (err) {
-                                        next(err);
-                                    } else {
-                                        instanceService.updateUnassignedInstanceTags(instance,
-                                                req.body.tags, tagMappingsList, next);
-                                    }
-                                }
-                        );
-                    },
-                    instanceService.createUnassignedInstanceObject
-                ],
-                function (err, results) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        return res.status(200).send(results);
-                    }
-                }
-        );
-    }
-
-    function bulkUpdateUnassignedInstances(req, res, callback) {
-        async.waterfall(
-                [
-                    function (next) {
-                        providerService.checkIfProviderExists(req.params.providerId, next);
-                    },
-                    function (provider, next) {
-                        if ('instances' in req.body) {
-                            instanceService.bulkUpdateInstanceProviderTags(provider, req.body.instances, next);
-                        } else {
-                            var err = new Error("Malformed request");
-                            err.status = 400;
-                            next(err);
-                        }
-                    },
-                    function (instances, next) {
-                        instanceService.bulkUpdateUnassignedInstanceTags(instances, next);
-                    }
-                ],
-                function (err, results) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        return res.status(200).send(results);
-                    }
-                }
-        );
-    }
 };

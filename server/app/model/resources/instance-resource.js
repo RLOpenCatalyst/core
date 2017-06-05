@@ -44,6 +44,16 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             required:false,
             trim:true
         },
+        type:{
+            type:String,
+            required:false,
+            trim:true
+        },
+        launchTime:{
+            type:String,
+            required:false,
+            trim:true
+        },
         state:{
             type:String,
             required:false,
@@ -59,12 +69,24 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             required: false,
             trim: true
         },
+        amiId: {
+            type: String,
+            required: false,
+            trim: true
+        },
         vpcId: {
             type: String,
             required: false,
             trim: true
         },
-        route53HostedParams:[Schema.Types.Mixed]
+        bootStrapStatus:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        credentials:Schema.Types.Mixed,
+        route53HostedParams:[Schema.Types.Mixed],
+        hardware:Schema.Types.Mixed
     }
 });
 

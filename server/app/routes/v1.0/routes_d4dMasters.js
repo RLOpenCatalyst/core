@@ -53,8 +53,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
 
     // New implementation for docker authentication: Relevance Lab
     app.post('/d4dmasters/docker/validate_old', function (req, res) {
-        logger.debug("Docker credentials: ", JSON.stringify(req.body));
-
         // dockerHubAPI.login(req.body.userName, req.body.password,function(info){
         //     logger.debug('Info:',info);
         //     res.send('200');
@@ -121,7 +119,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
     });
 
     app.post('/d4dmasters/docker/validate', function (req, res) {
-        logger.debug("Docker crudentials: ", JSON.stringify(req.body));
         var userName = req.body.userName;
         var password = req.body.password;
 
@@ -133,8 +130,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
         var dockerUrl = 'https://index.docker.io/v1/users';
         client.registerMethod("jsonMethod", dockerUrl, "GET");
         var reqSubmit = client.methods.jsonMethod(function (data, response) {
-            logger.debug("response: ", response);
-            logger.debug("data: ", JSON.stringify(data));
             res.send('200');
             return;
         });
@@ -174,7 +169,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 var options_auth = null;
                 if (data != '') {
                     dockerRepo = JSON.parse(data);
-                    logger.debug("Docker Repo ->%s", JSON.stringify(dockerRepo));
                     var userName = dockerRepo.dockeruserid;
                     var password = dockerRepo.dockerpassword;
                     options_auth = {
@@ -252,7 +246,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
     });
 
     app.get('/d4dMasters/getuser', function (req, res) {
-        logger.debug("Enter get() for /d4dMasters/getuser : " + JSON.stringify(req.session.user));
         res.send({
             "user": [{
                 username: req.session.user
@@ -260,7 +253,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 role: '[' + req.session.user.roleId + ']'
             }]
         });
-        logger.debug("Exit get() for /d4dMasters/getuser");
     });
 
     // Get the current loggedin user details with permissionset and authorized files
@@ -594,7 +586,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     'Content-Type': 'application/json'
                 });
                 res.end(JSON.stringify(d4dMasterJson));
-                logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
             } else {
                 res.status(400).send({
                     "error": err
@@ -649,7 +640,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 }
                             }
                             res.end(JSON.stringify(d4dMasterJson));
-                            logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                             logger.debug("Exit get() for /d4dMasters/readmasterjsonrecord/%s/%s", req.params.id, req.params.rowid);
                         } else {
                             res.end(JSON.stringify([]));
@@ -677,7 +667,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     'Content-Type': 'application/json'
                 });
                 res.end(JSON.stringify(d4dMasterJson));
-                logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                 logger.debug("Exit get() for /d4dMasters/readmasterjsonnew__/%s", req.params.id);
             } else {
                 res.status(400).send({
@@ -743,7 +732,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 var _keys = Object.keys(d4dMasterJson);
                                 logger.debug("Master Length:" + _keys.length);
                                 if (_keys.length <= 0) {
-                                    logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                                     res.end(JSON.stringify(d4dMasterJson));
                                 }
                                 var counter = 0;
@@ -792,7 +780,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         collection.push(d4dMasterJson[i]);
                                     }
                                 }
-                                logger.debug("sent response 686 %s", JSON.stringify(collection));
                                 res.end(JSON.stringify(collection));
                                 logger.debug("Exit get() for /d4dMasters/readmasterjsonneworglist/%s", req.params.id);
                             });
@@ -803,7 +790,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 // For non-catalystadmin
                 masterUtil.getOrgs(loggedInUser, function (err, orgList) {
                     if (orgList) {
-                        logger.debug("Returned Org List: ", JSON.stringify(orgList));
                         res.send(orgList);
                     }
                 });
@@ -849,7 +835,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         logger.debug("key: %s val: %s", k1, jobj[k1]);
                                     }
                                 });
-                                logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                                 res.end(JSON.stringify(d4dMasterJson));
                                 logger.debug("Exit get() for /d4dMasters/readmasterjsonnewk_/%s", req.params.id);
                             });
@@ -947,7 +932,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             res.writeHead(200, {
                                 'Content-Type': 'application/json'
                             });
-                            logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                             logger.debug(d4dMasterJson.length);
                             var i = 0;
                             for (var i = 0; i < d4dMasterJson.length; i++) {
@@ -974,7 +958,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 var loggedInUser = req.session.user.cn;
                 var callCount = 0;
                 masterUtil.getActiveOrgs(loggedInUser, function (err, orgs) {
-                    logger.debug("got org list ==>", JSON.stringify(orgs));
                     if (err) {
                         res.status(500).send("Failed to fetch Org.");
                     }
@@ -1128,7 +1111,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         configmgmt += ",\"" + itm.field[k]["name"] + "\":\"" + itm.field[k]["values"].value + "\"";
                                 }
                                 configmgmt = "{" + configmgmt + "}";
-                                logger.debug(JSON.stringify(configmgmt));
                             }
                         }
                     }
@@ -1236,7 +1218,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
     app.post('/d4dMasters/getListFiltered/:masterid', function (req, res) {
         logger.debug("Enter post() for  /d4dMasters/getListFiltered/%s", req.params.masterid);
         if (req.params.masterid === "10" && typeof req.body.orgname != "undefined") {
-            logger.debug("Request body   : ", JSON.stringify(req.body));
             var orgName = req.body.orgname;
             d4dModelNew.d4dModelMastersOrg.find({
                 orgname: orgName,
@@ -1256,11 +1237,9 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             logger.error("Hit and error:", err);
                         }
                         if (d4dMasterJson.length > 0) {
-                            logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                             res.send("Found");
                             logger.debug("Exit post() for  /d4dMasters/getListFiltered/%s", req.params.masterid);
                         } else {
-                            logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                             res.send("Not Found");
                         }
                     });
@@ -1278,9 +1257,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 if (dbtype) {
                     var query = {};
                     query['id'] = req.params.masterid;
-                    logger.debug("Req.body for glf %s", JSON.stringify(req.body));
                     var bodyJson = JSON.parse(JSON.stringify(req.body));
-                    logger.debug("Query Build in getListFiltered: %s", JSON.stringify(bodyJson));
                     var _keys = Object.keys(bodyJson);
                     _keys.forEach(function (k, v) {
                         logger.debug(k, bodyJson[k]);
@@ -1292,11 +1269,9 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         }
                         logger.debug("getListFiltered %s", d4dMasterJson.length);
                         if (d4dMasterJson.length > 0) {
-                            logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                             res.send("Found");
                             logger.debug("Exit post() for  /d4dMasters/getListFiltered/%s", req.params.masterid);
                         } else {
-                            logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                             res.send("Not Found");
                         }
                     });
@@ -1374,7 +1349,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         }
                                     }
                                     configmgmt = "{" + configmgmt + "}";
-                                    logger.debug(JSON.stringify(configmgmt));
                                     logger.debug("Exit get() for  /d4dMasters/configmgmt/%s", req.params.rowid);
                                 }
                             }
@@ -1394,7 +1368,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
             'Content-Type': 'application/json'
         });
         res.end(JSON.stringify(uuid1));
-        logger.debug("sent response %s", JSON.stringify('{"uuid":"' + uuid1 + '"}'));
         logger.debug("Exit get() for  /d4dMasters/getuuid");
     });
 
@@ -1820,7 +1793,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         logger.error("Hit and error:", err);
                     }
                     res.end(JSON.stringify(d4dMasterJson));
-                    logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                     logger.debug("Exit post() for  /d4dmasters/getrows/%s", req.params.masterid);
                 });
             } else {
@@ -1912,7 +1884,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 }
                 var frmkeys = Object.keys(bodyJson);
                 var rowFLD = [];
-                logger.debug(JSON.stringify(bodyJson));
                 frmkeys.forEach(function (itm) {
                     if (!editMode) {
                         var thisVal = bodyJson[itm];
@@ -1965,8 +1936,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     }
                 } else
                     bodyJson["rowid"] = uuid1;
-                if (rowtoedit) //testing if the rowtoedit has a value
-                    logger.debug("Edited Row: %s", JSON.stringify(rowtoedit));
                 var frmkeys = Object.keys(bodyJson);
                 var rowFLD = [];
                 var folderpath = ''; //will hold the folderpath field to create the path in the system
@@ -2106,7 +2075,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 if (err) {
                     res.status(500).send("Failed to fetch User.");
                 }
-                logger.debug("LoggedIn User: ", JSON.stringify(anUser));
                 if (anUser) {
                     logger.debug("All condition: data", data, " rowid: ", anUser.orgname_rowid[0], " role: ", anUser.userrolename);
                     logger.debug('EditMode: %s', editMode);
@@ -2131,7 +2099,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     if (req.params.id === "17" && bodyJson.templatesicon_filename) {
                         bodyJson["templatesicon_filePath"] = bodyJson["rowid"] + '__templatesicon__' + bodyJson["templatesicon_filename"];
                     }
-                    logger.debug("Full bodyJson:::: ", JSON.stringify(bodyJson));
                     if (req.params.id === "25") {
                         bodyJson["configType"] = "puppet";
                         if (bodyJson["puppetpassword"]) {
@@ -2348,7 +2315,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                         if (err) {
                                                                             logger.debug("Failed to save Team.");
                                                                         }
-                                                                        logger.debug("Auto created Team: ", JSON.stringify(aTeam));
                                                                         if (x === 3) {
                                                                             callback(null, aTeam);
                                                                             return;
@@ -2886,7 +2852,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         // bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         delete rowtoedit._id; //fixing the issue of
                                         //  rowtoedit["repositories"] = bodyJson['repositories'];
-                                        logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                         eval('d4dModelNew.' + dbtype).update({
                                             rowid: bodyJson["rowid"],
                                             "id": "4"
@@ -2909,7 +2874,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         bodyJson['groupid'] = JSON.parse(bodyJson['groupid']);
                                         delete rowtoedit._id; //fixing the issue of
                                         rowtoedit["groupid"] = bodyJson['groupid'];
-                                        logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                         eval('d4dModelNew.' + dbtype).update({
                                             rowid: bodyJson["rowid"],
                                             "id": "26"
@@ -3013,7 +2977,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 res.status(500).send("Error to fetch User.");
                                                 return;
                                             }
-                                            logger.debug("Fetched User: ", JSON.stringify(anUser));
                                             if (anUser.length) {
                                                 if (bodyJson["password"] === '') {
 
@@ -3024,7 +2987,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                         rowtoedit["orgname_rowid"] = [""];
                                                     }
                                                     rowtoedit["password"] = anUser[0].password;
-                                                    logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                                     eval('d4dModelNew.' + dbtype).update({
                                                         rowid: bodyJson["rowid"],
                                                         "id": "7"
@@ -3056,7 +3018,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                             rowtoedit["orgname_rowid"] = [""];
                                                         }
                                                         rowtoedit["password"] = hashedPassword;
-                                                        logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                                         eval('d4dModelNew.' + dbtype).update({
                                                             rowid: bodyJson["rowid"],
                                                             "id": "7"
@@ -3080,7 +3041,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                         rowtoedit["orgname"] = [""];
                                                         rowtoedit["orgname_rowid"] = [""];
                                                     }
-                                                    logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                                     eval('d4dModelNew.' + dbtype).update({
                                                         rowid: bodyJson["rowid"],
                                                         "id": "7"
@@ -3119,7 +3079,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                     logger.debug("Rowid: %s", bodyJson["rowid"]);
                                     var currowid = bodyJson["rowid"];
                                     delete rowtoedit._id; //fixing the issue of
-                                    logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                     eval('d4dModelNew.' + dbtype).update({
                                         rowid: bodyJson["rowid"]
                                     }, {
@@ -3175,7 +3134,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 if (err) {
                                                     logger.debug("Error on update Org.".err);
                                                 }
-                                                logger.debug("Return body: ", JSON.stringify(aBody));
                                             });
                                         }
 
@@ -3235,7 +3193,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 if (err) {
                     logger.error("Failed to save Team: ", err);
                 }
-                logger.debug("Auto created Team: ", JSON.stringify(aTeam));
             });
 
         }
@@ -3324,7 +3281,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
         logger.debug("Enter get() for /createbg/%s/%s", req.params.orgname, req.params.bgname);
         var bgfield = "{\"field\":[{\"values\":{\"value\":\"" + req.params.bgname + "\"},\"name\":\"productgroupname\"},{\"values\":{\"value\":\"" + req.params.orgname + "\"},\"name\":\"orgname\"},{\"name\":\"costcode\"}] }";
         db.on('error', console.error.bind(console, 'connection error:'));
-        logger.debug(JSON.stringify(bgfield));
         db.once('open', function callback() {
             logger.debug('in once');
         });
@@ -3385,7 +3341,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
         logger.debug("Enter get() for /createproj/%s/%s/%s/%s", req.params.orgname, req.params.envname, req.params.prodgroup, req.params.projname);
         var projField = "{\"field\":[{\"values\":{\"value\":\"" + req.params.projname + "\"},\"name\":\"projectname\"},{\"values\":{\"value\":\"" + req.params.orgname + "\"},\"name\":\"orgname\"},{\"values\":{\"value\":\"" + req.params.prodgroup + "\"},\"name\":\"productgroupname\"},{\"values\":{\"value\":\"" + req.params.envname + "\"},\"name\":\"environmentname\"},{\"values\":{\"value\":[\"Code 1\",\"Code 2\"]},\"name\":\"costcode\"}] }";
         db.on('error', console.error.bind(console, 'connection error:'));
-        logger.debug(JSON.stringify(projField));
         db.once('open', function callback() {
             logger.debug('in once');
         });
@@ -3449,7 +3404,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
         logger.debug("Enter get() for /createenv/%s/%s", req.params.orgname, req.params.envname);
         var envField = "{\"field\":[{\"name\":\"environmentname\",\"values\":{\"value\":\"" + req.params.envname + "\"}},{\"name\":\"orgname\",\"values\":{\"value\":\"" + req.params.orgname + "\"}}]}";
         db.on('error', console.error.bind(console, 'connection error:'));
-        logger.debug(JSON.stringify(envField));
         db.once('open', function callback() {
 
         });
@@ -3700,7 +3654,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
     });
     app.get('/d4dMasters/configmanagement', function (req, res) {
         masterUtil.getAllActiveOrg(function (err, orgList) {
-            logger.debug("got org list ==>", JSON.stringify(orgList));
             if (err) {
                 res.status(500).send('Not able to fetch Orgs.');
                 return;
@@ -3898,7 +3851,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
             if (err) {
                 logger.debug("Failed to fetch  Docker", err);
             }
-            logger.debug("docker: ", JSON.stringify(docker));
             if (docker && docker.length) {
                 var options_auth = {
                     user: docker[0].dockeruserid,

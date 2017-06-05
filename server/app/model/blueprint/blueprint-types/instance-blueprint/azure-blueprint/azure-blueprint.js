@@ -312,6 +312,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 serverId: self.infraManagerId,
                                                 chefNodeName: launchparamsazure.VMName
                                             },
+                                            source:'blueprint',
                                             blueprintData: {
                                                 blueprintId: launchParams.blueprintData._id,
                                                 blueprintName: launchParams.blueprintData.name,

@@ -484,6 +484,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                     serverId: self.infraManagerId,
                                                                     chefNodeName: instanceData.InstanceId
                                                                 },
+                                                                source:'blueprint',
                                                                 blueprintData: {
                                                                     blueprintId: launchParams.blueprintData._id,
                                                                     blueprintName: launchParams.blueprintData.name,

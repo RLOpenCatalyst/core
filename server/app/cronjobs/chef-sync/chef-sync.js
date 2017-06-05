@@ -6,11 +6,8 @@ var async = require('async');
 var Chef = require('_pr/lib/chef');
 var chefDao = require('_pr/model/dao/chefDao.js');
 var appConfig = require('_pr/config');
-
-var instancesDao = require('_pr/model/classes/instance/instance');
-var assignedDao = require('_pr/model/unmanaged-instance');
-var unassignedDao = require('_pr/model/unassigned-instances');
-
+var resources = require('_pr/model/resources/resources.js');
+var instanceModel = require('_pr/model/resources/instance-resource');
 var ChefSync = Object.create(CatalystCronJob);
 ChefSync.interval = '*/5 * * * *';
 ChefSync.execute = chefSync;
@@ -57,51 +54,21 @@ function aggregateChefSync(chefDetail){
         chefUserPemFile: chefRepoLocation + chefDetail.folderpath + chefDetail.userpemfile_filename,
         chefValidationPemFile: chefRepoLocation + chefDetail.folderpath + chefDetail.validatorpemfile_filename,
         hostedChefUrl: chefDetail.url
-    }
+    };
     var chef = new Chef(chefObj);
     async.waterfall([
         function(next){
             chef.getNodesList(next);
         },
-        function(nodeList,next){
-            async.parallel({
-                chefSyncWithNewNode: function(callback){
-                    async.waterfall([
-                        function(next){
-                            getNodeListFilterWithChefNodes(chefDetail.rowid,nodeList,next);
-                        },
-                        function(filterNodeList,next){
-                            if(filterNodeList.length > 0) {
-                                getChefNodeDetails(filterNodeList,chefObj,chefDetail.rowid,next);
-                            }else{
-                                next(null,filterNodeList);
-                            }
-                        },
-                        function(nodeDetailsList,next){
-                            saveChefNodeDetails(nodeDetailsList,next);
-                        }
-                    ], function (err, results) {
-                        if (err) {
-                            callback(err,null);
-                            return;
-                        } else {
-                            callback(null,results);
-                            return;
-                        }
-                    });
-                },
-                chefSyncWithTerminatedNode: function(callback){
-                    chefSyncWithTerminatedInstance(chefObj,chefDetail.orgname_rowid,nodeList,callback);
-                },
-
-            },function(err,results){
-                if (err) {
-                    next(err,null);
-                } else {
-                    next(null,results);
-                }
-            })
+        function(nodeList,next) {
+            getChefNodeDetails(nodeList,chefObj,chefDetail.rowid,chefDetail.orgname_rowid[0],next);
         },
+        function(nodeDetailList,next) {
+            chefSyncWithChefNodes(nodeDetailList,next);
+        },
+        function(nodeDetailList,next){
+            chefSyncWithTerminatedNodes(chefObj,chefDetail.orgname_rowid[0],next);
+        }
     ],function(err,results){
         if (err) {
             logger.error("Error in chef Sync "+err);
@@ -113,293 +80,268 @@ function aggregateChefSync(chefDetail){
     })
 };
 
-function getNodeListFilterWithChefNodes(serverId,nodeList,next){
-    var chefNodeList = [];
-    async.waterfall([
-        function(next){
-            chefDao.getChefNodesByServerId(serverId,next);
-        },
-        function(nodes,next){
-            if (nodes.length > 0) {
-                var count = 0;
-                for (var i = 0; i < nodes.length; i++) {
-                    (function(node){
-                        count++;
-                        if(nodeList.indexOf(node.chefNodeName) >= 0){
-                            nodeList.splice(nodeList.indexOf(node.chefNodeName),1);
-                            return;
-                        }else{
-                            chefNodeList.push(node.chefNodeName);
-                            return;
-                        }
-                    })(nodes[i]);
-                }
-                if(count === nodes.length){
-                    next(null,nodeList);
-                }
-            } else {
-                next(null,nodeList);
-            }
-        },
-        function(filterNodesList,next){
-            if(chefNodeList.length > 0){
-                var count = 0;
-                for (var i = 0; i < chefNodeList.length; i++) {
-                    (function(nodeName){
-                        chefDao.removeChefNodeByChefName(nodeName,function(err,data) {
-                            if (err) {
-                                return next(err, null);
-                            }else{
-                                count++;
-                                if(count === chefNodeList.length){
-                                    return next(null,filterNodesList);
+function chefSyncWithChefNodes(nodeDetailList,callback){
+    logger.debug("Syncing Chef-Node Details is started");
+    if(nodeDetailList.length > 0){
+        var count = 0;
+        nodeDetailList.forEach(function(nodeDetail){
+            async.parallel({
+                chefSync: function(callback){
+                    chefDao.getChefNodes({serverId:nodeDetail.serverId,isDeleted:false,name:nodeDetail.name},function(err,chefNodes){
+                        if(err){
+                            logger.error("Error in fetching Chef Node Details:");
+                            callback(err,null);
+                        }else if(chefNodes.length > 0){
+                            nodeDetail.updatedOn  = new Date().getTime();
+                            chefDao.updateChefNodeDetailById(chefNodes[0]._id,nodeDetail,function (err, data) {
+                                if (err) {
+                                    logger.error("Error in updating Chef Node in DB:",err);
+                                    callback(err,null);
                                 }else{
-                                    return;
+                                    callback(null, nodeDetailList);
                                 }
-                            }
-                        });
-                    })(chefNodeList[i]);
+                            });
+                        }else{
+                            nodeDetail.createdOn  = new Date().getTime();
+                            chefDao.createNew(nodeDetail, function (err, data) {
+                                if (err) {
+                                    logger.error("Error in creating Chef Node in DB:",err);
+                                    callback(err,null);
+                                }else{
+                                    callback(null, nodeDetailList);
+                                }
+                            });
+                        }
+                    })
+                },
+                resourceSync: function(callback){
+                    instanceModel.getInstanceData({'chefServerDetails.id':nodeDetail.serverId,'chefServerDetails.nodeName':nodeDetail.name,serverDeletedCheck:false},function(err,instances){
+                        if(err){
+                            logger.error("Error in fetching Resource Details in DB:",err);
+                            callback(err,null);
+                        }else if(instances.length > 0){
+                            instanceModel.updateInstanceData(instances[0]._id,{'chefServerDetails.run_list':nodeDetail.run_list,'chefServerDetails.override':nodeDetail.override},function(err,data){
+                                if (err) {
+                                    logger.error("Error in updating Resource Details in DB:",err);
+                                    callback(err,null);
+                                }else{
+                                    callback(null, data);
+                                }
+                            })
+                        }else{
+                            callback(null,instances);
+                        }
+                    })
                 }
-            }else{
-                next(null,filterNodesList);
-            }
-        }
-    ],function(err,results){
-        if(err){
-            next(err,null);
-        }else{
-            next(null,results);
-        }
-    });
+            },function(err,results){
+                if(err){
+                    logger.error("Error in Chef-Node Syncing : ",err);
+                }
+                count++;
+                if (count === nodeDetailList.length) {
+                    logger.debug("Syncing Chef-Node Details is Done");
+                    return callback(null, nodeDetailList);
+                }
+            })
+        })
+    }else{
+        logger.debug("There is no Node present in Chef Server for Chef Sync:")
+        return callback(null, nodeDetailList);
+    }
 };
 
 function getAllTerminatedNodes(orgId,callback){
-    async.parallel({
-        managedNodes: function (callback) {
-            instancesDao.getAllTerminatedInstances(orgId,function(err,instances){
-                if(err){
-                    callback(err,null);
-                }else{
-                    var nodeNameList=[];
-                    for(var i = 0; i < instances.length;i++){
-                        (function(instance){
-                            nodeNameList.push(instance.chef.chefNodeName);
-                        })(instances[i]);
-                    }
-                    if(nodeNameList.length === instances.length)
-                    {
-                        callback(null,nodeNameList);
-                    }
-                }
-            })
+    async.waterfall([
+        function(next){
+           resources.getResources({'resourceDetails.state':'terminated','masterDetails.orgId':orgId,serverDeletedCheck:false},next);
         },
-        assignedNodes: function (callback) {
-            assignedDao.getAllTerminatedInstances(orgId,function(err,instances){
-                if(err){
-                    callback(err,null);
-                }else{
-                    var nodeNameList=[];
-                    for(var i = 0; i < instances.length;i++){
-                        (function(instance){
-                            nodeNameList.push(instance.platformId);
-                        })(instances[i]);
-                    }
-                    if(nodeNameList.length === instances.length)
-                    {
-                        callback(null,nodeNameList);
-                    }
-                }
-            })
-        },
-        unassignedNodes: function (callback) {
-            unassignedDao.getAllTerminatedInstances(orgId,function(err,instances){
-                if(err){
-                    callback(err,null);
-                }else{
-                    var nodeNameList=[];
-                    for(var i = 0; i < instances.length;i++){
-                        (function(instance){
-                            nodeNameList.push(instance.platformId);
-                        })(instances[i]);
-                    }
-                    if(nodeNameList.length === instances.length)
-                    {
-                        callback(null,nodeNameList);
+        function(terminatedResources,next){
+            if(terminatedResources.length > 0){
+                var nodeNameList = [];
+                for(var i = 0; i < terminatedResources.length; i++){
+                    if(terminatedResources[i].category ==='managed'){
+                        nodeNameList.push({
+                            id: terminatedResources[i]._id,
+                            nodeName: terminatedResources[i].chefServerDetails.nodeName
+                        });
+                    }else{
+                        nodeNameList.push({
+                            id: terminatedResources[i]._id,
+                            nodeName: terminatedResources[i].platformId
+                        });
                     }
                 }
-            })
+                next(null,nodeNameList);
+            }else{
+                logger.debug("Terminated Resources are not present in DB");
+                next(null,terminatedResources);
+            }
         }
-    }, function (err, results) {
+    ], function (err, results) {
         if (err) {
-            callback(err,null);
-            return;
+            return callback(err,null);
         } else {
-            var resultList = [];
-            if(results.managedNodes.length > 0){
-                resultList = resultList.concat(results.managedNodes);
-            }
-            if(results.assignedNodes.length > 0){
-                resultList = resultList.concat(results.assignedNodes);
-            }
-            if(results.unassignedNodes.length > 0){
-                resultList = resultList.concat(results.unassignedNodes);
-            }
-            callback(null,resultList);
-            return;
+            return callback(null,results);
         }
     });
 }
 
-
-function chefSyncWithTerminatedInstance(chefObj,orgId,nodeNameList,callback){
+function chefSyncWithTerminatedNodes(chefObj,orgId,callback){
+    logger.debug("Syncing Terminated Chef-Node Details is started");
     var chef = new Chef(chefObj);
     async.waterfall([
         function(next){
             getAllTerminatedNodes(orgId,next);
         },
-        function(terminatedNode,next){
-            if(terminatedNode.length > 0){
-                var nodeList = [];
+        function(terminatedNodeList,next){
+            if (terminatedNodeList.length > 0) {
                 var count = 0;
-                for(var i = 0; i < terminatedNode.length;i++){
-                    (function(node){
-                        if(nodeNameList.indexOf(node) !== -1){
-                            count++;
-                            nodeList.push(node);
-                            return;
-                        }else{
-                            count++;
-                            return;
-                        }
-
-                    })(terminatedNode[i]);
-                }
-                if(count === terminatedNode.length){
-                    next(null,nodeList);
-                }
-            }else{
-                next(null,terminatedNode)
-            }
-        },
-        function(nodeNameList,next) {
-            if (nodeNameList.length > 0) {
-                async.parallel({
-                        deleteTerminatedNodeFromDB: function (callback) {
-                            chefDao.removeChefNodeByChefName(nodeNameList, callback);
-                        },
-                        deleteTerminatedNodeFromChefServer: function (callback) {
-                            var count = 0;
-                            for (var i = 0; i < nodeNameList.length; i++) {
-                                (function (nodeName) {
-                                    chef.deleteNode(nodeName, function (err, data) {
-                                        count++;
-                                        if (count === nodeNameList.length) {
-                                            return callback(null, data);
-                                        } else {
-                                            return;
+                for (var i = 0; i < terminatedNodeList.length; i++) {
+                    (function (terminateNode) {
+                        async.parallel({
+                                deleteTerminatedNodeFromDB: function (callback) {
+                                    chefDao.removeTerminatedChefNodes({name: terminateNode.nodeName}, callback);
+                                },
+                                deleteTerminatedNodeFromChefServer: function (callback) {
+                                    chef.deleteNode(terminateNode.nodeName, function (err, data) {
+                                        if (err && err.chefStatusCode !== 404) {
+                                            logger.error("Error in deleting Node from Chef Server: ", err);
                                         }
+                                        callback(null,data);
                                     })
-                                })(nodeNameList[i]);
-                            }
-                        }
-                    },
-                    function (err, results) {
-                        if (err) {
-                            next(err, null);
-                        } else {
-                            next(null, results);
-                        }
-                    })
+                                },
+                                updateServerDeletedCheck: function (callback) {
+                                    instanceModel.updateInstanceData(terminateNode.id,{serverDeletedCheck:true}, function (err, data) {
+                                        if (err) {
+                                            logger.error("Error in updating Server Delete check for Resource: ", err);
+                                        }
+                                        callback(null, data);
+                                    })
+                                }
+                            },
+                            function (err, results) {
+                                if (err) {
+                                    logger.error("Error in updating and deleting Terminated Resources for Chef Server:",err);
+                                }
+                                count++;
+                                if(count === terminatedNodeList.length){
+                                    next(null,results);
+                                }
+                            })
+                    })(terminatedNodeList[i]);
+                }
             } else{
-                next(null,nodeNameList);
+                logger.debug("There is no Terminated Resources for Syncing Chef");
+                next(null,terminatedNodeList);
             }
         }], function (err, results) {
         if (err) {
             callback(err,null);
             return;
         } else {
+            logger.debug("Syncing Terminated Chef-Node Details is Done");
             callback(null,results);
             return;
         }
     });
 }
-
-function getChefNodeDetails(filterNodeList,chefObj,chefServerId,callback){
+function getChefNodeDetails(nodeList,chefObj,chefServerId,orgId,callback){
+    logger.debug("Fetching Chef-Node Details is started");
     var chef = new Chef(chefObj);
-    var nodeDetailList=[];
-    for (var i = 0; i < filterNodeList.length; i++) {
-        (function (filterNode) {
-            chef.getNode(filterNode, function (err, nodeChefBody) {
-                if (err) {
-                    nodeDetailList.push({error: err});
-                    if (nodeDetailList.length === filterNodeList.length) {
+    var nodeDetailList=[],count = 0;
+    if(nodeList.length > 0) {
+        nodeList.forEach(function(node) {
+            chef.getNode(node, function (err, nodeDetail) {
+                if (err || nodeDetail.err) {
+                    logger.error("Error in getting Node Details from Chef : ", err || nodeDetail.err);
+                    count++;
+                    if (count === nodeList.length) {
                         return callback(null, nodeDetailList);
-                    } else {
-                        return;
-                    }
-                } else if (nodeChefBody.err) {
-                    nodeDetailList.push({error: nodeChefBody.err});
-                    if (nodeDetailList.length === filterNodeList.length) {
-                        return callback(null, nodeDetailList);
-                    } else {
-                        return;
                     }
                 } else {
                     var chefNodeObj = {
-                        chefServerId: chefServerId,
-                        chefNodeName: nodeChefBody.name,
-                        chefNodeEnv: nodeChefBody.chef_environment,
-                        chefJsonClass: nodeChefBody.json_class,
-                        chefType: nodeChefBody.chef_type,
-                        chefNodeIp: nodeChefBody.automatic.ipaddress,
-                        chefNodeFqdn: nodeChefBody.automatic.fqdn,
-                        chefNodePlatform: nodeChefBody.automatic.platform,
-                        chefNodeUpTime: nodeChefBody.automatic.uptime
+                        serverId: chefServerId,
+                        orgId: orgId,
+                        name: nodeDetail.name,
+                        envName: nodeDetail.chef_environment,
+                        jsonClass: nodeDetail.json_class,
+                        type: nodeDetail.chef_type,
+                        fqdn: nodeDetail.automatic.fqdn,
+                        upTime: nodeDetail.automatic.uptime,
+                        idleTime: nodeDetail.automatic.idletime,
+                        roles: nodeDetail.automatic.roles,
+                        state:"running"
                     };
+                    if (!nodeDetail.automatic) {
+                        nodeDetail.automatic = {};
+                    }
+                    var nodeIp = null,platformId = null;
+                    if (nodeDetail.automatic.ipaddress) {
+                        nodeIp = nodeDetail.automatic.ipaddress;
+                    }
+                    if (nodeDetail.automatic.cloud) {
+                        if (nodeDetail.automatic.cloud.public_ipv4 && nodeDetail.automatic.cloud.public_ipv4 !== 'null') {
+                            nodeIp = nodeDetail.automatic.cloud.public_ipv4;
+                        }
+                        if (nodeDetail.automatic.cloud.provider === 'ec2') {
+                            if (nodeDetail.automatic.ec2) {
+                                platformId = nodeDetail.automatic.ec2.instance_id;
+                            }
+                        }
+                    }
+                    chefNodeObj.ip = nodeIp;
+                    chefNodeObj.platformId = platformId;
+                    var hardwareData = {
+                        platform: 'unknown',
+                        platformVersion: 'unknown',
+                        platformFamily: 'unknown',
+                        architecture: 'unknown',
+                        memory: {
+                            total: 'unknown',
+                            free: 'unknown'
+                        },
+                        os: 'linux'
+                    };
+                    if (nodeDetail.automatic.os) {
+                        hardwareData.os = nodeDetail.automatic.os;
+                    }
+                    if (nodeDetail.automatic.kernel && nodeDetail.automatic.kernel.machine) {
+                        hardwareData.architecture = nodeDetail.automatic.kernel.machine;
+                    }
+                    if (nodeDetail.automatic.platform) {
+                        hardwareData.platform = nodeDetail.automatic.platform;
+                    }
+                    if (node.automatic.platform_version) {
+                        hardwareData.platformVersion = nodeDetail.automatic.platform_version;
+                    }
+                    if (node.automatic.platform_family) {
+                        hardwareData.platformFamily = nodeDetail.automatic.platform_family;
+                    }
+                    if (nodeDetail.automatic.memory) {
+                        hardwareData.memory.total = nodeDetail.automatic.memory.total;
+                        hardwareData.memory.free = nodeDetail.automatic.memory.free;
+                    }
+                    var run_list = nodeDetail.run_list;
+                    if (!run_list) {
+                        run_list = [];
+                    }
+                    if (hardwareData.platform === 'windows') {
+                        hardwareData.os = "windows";
+                    }
+                    chefNodeObj.hardware = hardwareData;
+                    chefNodeObj.run_list = run_list;
                     nodeDetailList.push(chefNodeObj);
-                    chefNodeObj = {};
-                    if (nodeDetailList.length === filterNodeList.length) {
+                    count++;
+                    if (count === nodeList.length) {
+                        logger.debug("Fetching Chef-Node Details is Done");
                         return callback(null, nodeDetailList);
-                    } else {
-                        return;
                     }
                 }
             });
-        })(filterNodeList[i]);
-    }
-}
-
-function saveChefNodeDetails(nodeDetailList,callback){
-    var count = 0;
-    if(nodeDetailList.length > 0) {
-        for (var i = 0; i < nodeDetailList.length; i++) {
-            (function (nodeDetails) {
-                if (nodeDetails.error) {
-                    count++;
-                    if (count === nodeDetailList.length) {
-                        callback(nodeDetails.error, null);
-                    } else {
-                        return;
-                    }
-                } else {
-                    chefDao.createChefNode(nodeDetails, function (err, data) {
-                        if (err) {
-                            logger.error(err);
-                            callback(err, null);
-                        } else {
-                            count++;
-                            if (count === nodeDetailList.length) {
-                                callback(null, data);
-                            } else {
-                                return;
-                            }
-                        }
-                    });
-                }
-            })(nodeDetailList[i]);
-        }
+        });
     }else{
-        callback(null,null);
+        logger.debug("There is no Node present in Chef Server:")
+        return callback(null, nodeList);
     }
 }
 

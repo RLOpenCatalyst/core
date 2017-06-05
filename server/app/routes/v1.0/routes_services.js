@@ -57,6 +57,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
+    app.post('/services/:serviceId/resource/:resourceId/authentication', function(req, res) {
+        serviceMapService.resourceAuthentication(req.params.serviceId,req.params.resourceId,req.body,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(200,result)
+                return
+            }
+        });
+    });
+
     app.patch('/services/:serviceId', function(req, res) {
         serviceMapService.updateServiceById(req.params.serviceId,req.body,function(err,result){
             if(err){

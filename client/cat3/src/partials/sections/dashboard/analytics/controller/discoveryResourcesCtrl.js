@@ -88,7 +88,7 @@
                                         }).then(function () {
                                             var tagna = colDefa.name.substring(0, colDefa.name.length - 3);
                                             var param = {
-                                                url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
+                                                url: '/resources/' +rowEntity._id + '/provider/' + fltrObj.provider.id + '/tags',
                                                 data: {
                                                     tags: {}
                                                 }
@@ -101,7 +101,7 @@
                                             }
                                         }, function () {
                                             var param = {
-                                                url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
+                                                url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:EC2,category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
                                                 // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                                             };
                                             genSevs.promiseGet(param).then(function (instResult) {

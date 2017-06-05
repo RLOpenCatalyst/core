@@ -1299,7 +1299,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                             os: req.body.os
                                                         },
                                                         credentials: encryptedCredentials,
-
+                                                        source:'workZone',
                                                         blueprintData: {
                                                             blueprintName: req.body.fqdn,
                                                             templateId: "chef_import",

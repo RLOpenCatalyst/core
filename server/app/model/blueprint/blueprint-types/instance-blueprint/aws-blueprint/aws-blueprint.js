@@ -262,6 +262,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                 serverId: launchParams.infraManagerId,
                                 chefNodeName: instanceData.InstanceId
                             },
+                            source:'blueprint',
                             blueprintData: {
                                 blueprintId: launchParams.blueprintData.id,
                                 blueprintName: launchParams.blueprintData.name,

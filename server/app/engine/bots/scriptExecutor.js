@@ -151,8 +151,8 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
     } else if(requestBody && requestBody.data && schedulerCheck === false) {
         replaceTextObj = requestBody.data;
     } else {
-        for (var j = 0; j < botsScriptDetails.input.length; j++) {
-            replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
+        for (var j = 0; j < botDetail.input.length; j++) {
+            replaceTextObj[botDetail.input[j].name] = botDetail.input[j].default;
         }
     }
 
@@ -331,8 +331,8 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
         } else if (requestBody && requestBody.data && schedulerCheck === false) {
             replaceTextObj = requestBody.data;
         } else {
-            for (var j = 0; j < botDetails.input.length; j++) {
-                replaceTextObj[botDetails.input[j].name] = botDetails.input[j].default;
+            for (var j = 0; j < botDetail.input.length; j++) {
+                replaceTextObj[botDetail.input[j].name] = botDetail.input[j].default;
             }
         }
         var reqBody = {

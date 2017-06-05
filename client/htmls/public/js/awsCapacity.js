@@ -531,9 +531,9 @@ $(document).ready(function() {
                             updateUniqueInstanceTagsObj["tags"][bgTagsMapName] = bgTagName;
                         }
                         updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
-                        updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
+                        updateInstanceTagsObj["resources"] = updateInstanceTagsArr;
                         $.ajax({
-                            url: '/providers/' + providerId + '/unassigned-instances',
+                            url: '/resources?providerId=' + urlproviderId,
                             data: JSON.stringify(updateInstanceTagsObj),
                             type: 'PATCH',
                             contentType: "application/json",

@@ -126,6 +126,7 @@
                             <th class="text-center">FQDN</th>
                             <th class="text-center">Platform</th>
                             <th class="text-center">Uptime</th>
+                            <th class="text-center">Idletime</th>
                             <th class="text-center">Environment</th>
                             <th class="text-center">Actions</th>
                         </tr>
@@ -332,7 +333,7 @@
                 "serverSide": true,
                 "destroy": true,
                 "ajax": {
-                    "url": '/chef/nodeList?filterBy=chefServerId:' + urlParams.chefId,
+                    "url": '/chef/nodeList?filterBy=serverId:' + urlParams.chefId,
                     "data": function( result ) {
                         var columnIndex = parseInt(result.order[0].column);
                         var newResult = {
@@ -348,38 +349,48 @@
                     }
                 },
                 "createdRow": function (row, data) {
-                    $(row).attr({"nodeName": data.chefNodeName})
+                    $(row).attr(
+                        {
+                            "nodeName": data.name,
+                            "nodeId": data._id
+                        })
                 },
                 "columns": [
-                    {"data": "chefNodeName", "orderable": true},
+                    {"data": "name", "orderable": true},
                     {
                         "data": "", "orderable": false,
                         "render": function (data, type, full, meta) {
-                            return full.chefNodeIp ? full.chefNodeIp : '-';
+                            return full.ip ? full.ip : '-';
                         }
                     },
                     {
-                        "data": "chefNodeFqdn", "orderable": false,
+                        "data": "fqdn", "orderable": false,
                         "render": function (data, type, full, meta) {
-                            return full.chefNodeFqdn ? full.chefNodeFqdn : '-';
-                        }
-                    },
-                    {
-                        "data": "", "orderable": false,
-                        "render": function (data, type, full, meta) {
-                            return full.chefNodePlatform ? full.chefNodePlatform : '-';
+                            return full.fqdn ? full.fqdn : '-';
                         }
                     },
                     {
                         "data": "", "orderable": false,
                         "render": function (data, type, full, meta) {
-                            return full.chefNodeUpTime ? full.chefNodeUpTime : '-';
+                            return full.hardware.platform ? full.hardware.platform  : '-';
                         }
                     },
                     {
                         "data": "", "orderable": false,
                         "render": function (data, type, full, meta) {
-                            if (full.chefNodeEnv) {
+                            return full.upTime ? full.upTime : '-';
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.idleTime ? full.idleTime : '-';
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            if (full.envName) {
                                 return $envSelect;
                             }
                         }
@@ -387,7 +398,7 @@
                     {
                         "data": "", "orderable": false,
                         "render": function (data, type, full, meta) {
-                            return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full.chefNodeName).html() + '">';
+                            return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full.name).html() + '">';
                         }
                     },
                 ]});
@@ -428,11 +439,13 @@
 
         function chefEnvironmentControl(){
             var nodeName = $(this).parents('tr').attr('nodeName');
+            var nodeId = $(this).parents('tr').attr('nodeId');
             var newEnvName = $(this).val();
             bootbox.confirm("Are you sure you would want to change the environment?<br/>Note:<br/>Change will done on the chef server.", function(result) {
                 if (result) {
-                    $.post('/chef/servers/'+urlParams.chefId+'/nodes/'+nodeName+'/updateEnv',{
-                        envName:newEnvName
+                    $.post('/chef/servers/'+urlParams.chefId+'/nodes/'+nodeId+'/updateEnv',{
+                        envName:newEnvName,
+                        nodeName:nodeName
                     },function(res){
                         $(this).attr('currentEnv', newEnvName);
                     }).fail(function(){
@@ -463,7 +476,7 @@
             } else {
                 var $checkBoxes = $('.nodeCheckBox:checked');
                 if (!$checkBoxes.length) {
-                    bootbox.alert('Please Choose corresponding checkbox for nodes impoert');
+                    bootbox.alert('Please Choose corresponding checkbox for nodes import');
                     return;
                 }
                 getMonitorValues();

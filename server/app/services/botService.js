@@ -452,7 +452,6 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                                         ymlDocFileId: ymlDocFileId,
                                         source: "GitHub"
                                     }
-
                                     botDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
                                         if (err) {
                                             logger.error(err);
@@ -462,8 +461,7 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                                             callback(null,updateBots);
                                             return;
                                         }
-                                    })
-
+                                    });
                                 }
                             });
                         } else {

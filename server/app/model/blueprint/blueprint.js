@@ -366,15 +366,24 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                     monitorId: monitor !== null ? monitor._id : monitor,
                                     monitorName: monitor !== null ? monitor.name : monitor
                                 },
+                                providerDetails:{
+                                    id:self.blueprintConfig.cloudProviderId,
+                                    type:self.blueprintConfig.cloudProviderType
+                                },
                                 name: opts.stackName !== null ? opts.stackName : opts.domainName,
                                 type: self.templateType === 'chef' ? 'Software Stack' : self.templateType === 'ami' ? 'OSImage' : self.templateType === 'cft' ? 'CloudFormation' : 'AzureArm',
                                 state: 'Initializing',
                                 desc: self.name,
-                                identifiers:[{
-                                    type:opts.stackName !== null ? 'Stack Name' : 'Domain Name',
-                                    value:opts.stackName !== null ? opts.stackName : opts.domainName
-                                }],
-                                createdOn: new Date.getTime()
+                                identifiers: {
+                                    aws: [{
+                                        type: opts.stackName !== null ? 'Stack Name' : 'Domain Name',
+                                        query: {
+                                            stackName: opts.stackName !== null ? opts.stackName : opts.domainName
+                                        },
+                                        value: opts.stackName !== null ? opts.stackName : opts.domainName
+                                    }]
+                                },
+                                createdOn: new Date().getTime()
                             }
                             serviceMapService.createNewService(serviceMapObj,function(err,data){
                                 if(err){

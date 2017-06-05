@@ -37,6 +37,78 @@ var ApiUtil = function() {
         }
         return errObj;
     };
+    this.getQueryByKey = function(key,value){
+        var query = {};
+        switch(key) {
+            case 'ami':
+                query = {
+                    'resourceDetails.amiId': {$in: value}
+                };
+                break;
+            case 'ip':
+                query = {
+                    $or: [
+                        {'resourceDetails.privateIp': {$in: value}},
+                        {'resourceDetails.publicIp': {$in: value}}
+                    ]
+                };
+                break;
+            case 'subnet':
+                query = {
+                    'resourceDetails.subnetId': {$in: value}
+                };
+                break;
+            case 'keyPairName':
+                query = {
+                    'providerDetails.keyPairName': {$in: value}
+                };
+                break;
+            case 'roles':
+                query = {
+                    'chefServerDetails.run_list': {$in: value}
+                };
+                break;
+            case 'tags':
+                Object.keys(value).forEach(function (tagKey) {
+                    query['resourceDetails.tags'][tagKey] = value[tagKey];
+                });
+                break;
+            case 'groups':
+                Object.keys(value).forEach(function (groupObjKey) {
+                    switch(groupObjKey) {
+                        case 'ami':
+                            query['resourceDetails.amiId'] = {$in: value[groupObjKey]};
+                            break;
+                        case 'ip':
+                            query["$or"] = [
+                                    {'resourceDetails.privateIp': {$in: value[groupObjKey]}},
+                                    {'resourceDetails.publicIp': {$in: value[groupObjKey]}}
+                                ];
+                            break;
+                        case 'subnet':
+                            query['resourceDetails.subnetId'] = {$in: value[groupObjKey]};
+                            break;
+                        case 'keyPairName':
+                            query['providerDetails.keyPairName'] = {$in: value[groupObjKey]};
+                            break;
+                        case 'tags':
+                            Object.keys(value[groupObjKey]).forEach(function (tagKey) {
+                                query['resourceDetails.tags'][tagKey] = value[groupObjKey][tagKey];
+                            });
+                            break;
+                        case 'roles':
+                            query['chefServerDetails.run_list'] = {$in: value};
+                            break;
+                        default:
+                            query = query;
+                    }
+                });
+                break;
+            default:
+                query= query;
+        }
+        return query;
+    }
     this.removeFile = function(filePath){
         fileIo.removeFile(filePath, function(err, result) {
             if (err) {

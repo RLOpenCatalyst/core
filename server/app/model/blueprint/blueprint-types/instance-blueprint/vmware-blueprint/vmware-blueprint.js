@@ -244,6 +244,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     serverId: self.infraManagerId,
                                     chefNodeName: createserverdata["vm_name"]
                                 },
+                                source:'blueprint',
                                 blueprintData: {
                                     blueprintId: launchParams.blueprintData._id,
                                     blueprintName: launchParams.blueprintData.name,
