@@ -116,6 +116,7 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                         ymlJs.load(desPath, function (result) {
                             if(result !== null){
                                 servicesObj.identifiers = result;
+                                servicesObj.type = 'Service';
                                 servicesObj.ymlFileId = servicesObj.fileId;
                                 servicesObj.createdOn = new Date().getTime();
                                 monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
@@ -299,20 +300,21 @@ function changeServiceResponse(services,callback){
             (function(service){
                 var serviceObj = {
                     masterDetails:service.masterDetails,
-                    providerDetails:service.providerDetails,
                     name:service.name,
                     type:service.type,
                     desc:service.desc,
                     state:service.state,
                     identifiers:service.identifiers,
                     resources:service.resources,
-                    createdOn:service.createdOn
+                    createdOn:service.createdOn,
+                    updatedOn:service.updatedOn,
+                    version:service.version
                 }
                 masterUtil.getOrgByRowId(service.masterDetails.orgId,function(err,orgs){
                     if (err) {
                         logger.error("Error in fetching Org Details for : " + service.masterDetails.orgId + " " + err);
                     }
-                    serviceObj.masterDetails.orgName =  orgs !== null ? orgs[0].name : null;
+                    serviceObj.masterDetails.orgName =  orgs.length > 0 ? orgs[0].orgname : null;
                     masterUtil.getBusinessGroupName(service.masterDetails.bgId,function(err,businessGroupName) {
                         if (err) {
                             logger.error("Error in fetching Bg Name for : " + service.masterDetails.bgId + " " + err);
@@ -337,54 +339,20 @@ function changeServiceResponse(services,callback){
                                         fileUpload.getReadStreamFileByFileId(service.ymlFileId,function(err,file){
                                             if (err) {
                                                 logger.error("Error in fetching YAML Documents for : " + service.name + " " + err);
-                                            }else{
-                                                serviceObj.ymlFileName =  file !== null ? file.fileName : file;
+                                            }else {
+                                                serviceObj.ymlFileName = file !== null ? file.fileName : file;
                                                 serviceObj.ymlFileData = file !== null ? file.fileData : file;
-                                                if(serviceObj.masterDetails.monitorId && serviceObj.masterDetails.monitorId  !== null){
-                                                    monitors.getById(serviceObj.masterDetails.monitorId,function(err,monitorDetails){
-                                                        if (err) {
-                                                            logger.error("Error in fetching Monitor Details for : " + service.masterDetails.monitorId + " " + err);
-                                                        }
-                                                        serviceObj.masterDetails.monitorName = monitorDetails !== null ? monitorDetails.name : null;
-                                                        resultList.push(serviceObj);
-                                                        if(resultList.length === serviceList.length){
-                                                            if(services.docs){
-                                                                services.docs = resultList;
-                                                            }else{
-                                                                services = resultList;
-                                                            }
-                                                            return callback(null,services);
-                                                        }
-                                                    })
-                                                }else{
-                                                    resultList.push(serviceObj);
-                                                    if(resultList.length === serviceList.length){
-                                                        if(services.docs){
-                                                            services.docs = resultList;
-                                                        }else{
-                                                            services = resultList;
-                                                        }
-                                                        return callback(null,services);
+                                                resultList.push(serviceObj);
+                                                if (resultList.length === serviceList.length) {
+                                                    if (services.docs) {
+                                                        services.docs = resultList;
+                                                    } else {
+                                                        services = resultList;
                                                     }
+                                                    return callback(null, services);
                                                 }
                                             }
                                         });
-                                    }else if(serviceObj.masterDetails.monitorId && serviceObj.masterDetails.monitorId  !== null) {
-                                        monitors.getById(serviceObj.masterDetails.monitorId, function (err, monitorDetails) {
-                                            if (err) {
-                                                logger.error("Error in fetching Monitor Details for : " + service.masterDetails.monitorId + " " + err);
-                                            }
-                                            serviceObj.masterDetails.monitorName = monitorDetails !== null ? monitorDetails.name : null;
-                                            resultList.push(serviceObj);
-                                            if(resultList.length === serviceList.length){
-                                                if(services.docs){
-                                                    services.docs = resultList;
-                                                }else{
-                                                    services = resultList;
-                                                }
-                                                return callback(null,services);
-                                            }
-                                        })
                                     }else{
                                         resultList.push(serviceObj);
                                         if(resultList.length === serviceList.length){
@@ -408,151 +376,4 @@ function changeServiceResponse(services,callback){
         return callback(null,serviceList);
     }
 }
-
-function keyMappingForYmlIdentifiers(identifierList,callback){
-    var queryObj = {},awsIdentifiers = [],chefIdentifiers = [],resultObj = {};
-    if(identifierList.length > 0){
-        identifierList.forEach(function(identifier){
-            Object.keys(identifier).forEach(function (key) {
-                if (key === 'aws') {
-                    Object.keys(identifier[key]).forEach(function (awsIdentifierKey) {
-                        if (awsIdentifierKey === 'ami') {
-                            queryObj = {
-                                type: awsIdentifierKey,
-                                query: {
-                                    'resourceDetails.amiId': {$in: identifier[key][awsIdentifierKey]}
-                                },
-                                value: identifier[key][awsIdentifierKey]
-                            }
-                            awsIdentifiers.push(queryObj);
-                        } else if (awsIdentifierKey === 'ip') {
-                            queryObj = {
-                                type: awsIdentifierKey,
-                                query: {
-                                    $or: [
-                                        {'resourceDetails.privateIp': {$in: identifier[key][awsIdentifierKey]}},
-                                        {'resourceDetails.publicIp': {$in: identifier[key][awsIdentifierKey]}}
-                                    ]
-                                },
-                                value: identifier[key][awsIdentifierKey]
-                            }
-                            awsIdentifiers.push(queryObj);
-                        } else if (awsIdentifierKey === 'subnet') {
-                            queryObj = {
-                                type: awsIdentifierKey,
-                                query: {
-                                    'resourceDetails.subnetId': {$in: identifier[key][awsIdentifierKey]}
-                                },
-                                value: identifier[key][awsIdentifierKey]
-                            }
-                            awsIdentifiers.push(queryObj);
-                        } else if (awsIdentifierKey === 'keyPairName') {
-                            queryObj = {
-                                type: awsIdentifierKey,
-                                query: {
-                                    'providerDetails.keyPairName': {$in: identifier[key][awsIdentifierKey]}
-                                },
-                                value: identifier[key][awsIdentifierKey]
-                            }
-                            awsIdentifiers.push(queryObj);
-                        } else if (awsIdentifierKey === 'groups') {
-                            var query = {};
-                            Object.keys(identifier[key][awsIdentifierKey]).forEach(function (groupObjKey) {
-                                if (groupObjKey === 'ami') {
-                                    query = {
-                                        'resourceDetails.amiId': {$in: identifier[key][awsIdentifierKey][groupObjKey]}
-                                    }
-                                } else if (groupObjKey === 'ip') {
-                                    query = {
-                                        $or: [
-                                            {'resourceDetails.privateIp': {$in: identifier[key][awsIdentifierKey][groupObjKey]}},
-                                            {'resourceDetails.publicIp': {$in: identifier[key][awsIdentifierKey][groupObjKey]}}
-                                        ]
-                                    }
-                                } else if (key === 'keyPairName') {
-                                    query = {
-                                        'providerDetails.keyPairName': {$in: identifier[key][awsIdentifierKey][groupObjKey]}
-                                    }
-                                } else if (groupObjKey === 'subnet') {
-                                    query = {
-                                        'resourceDetails.subnetId': {$in: identifier[key][awsIdentifierKey][groupObjKey]}
-                                    }
-                                } else if (groupObjKey === 'tags') {
-                                    query = {
-                                        'resourceDetails.tags': {$in: identifier[key][awsIdentifierKey][groupObjKey]}
-                                    }
-                                } else {
-                                    logger.debug("In-valid identifiers in groups:");
-                                }
-                            });
-                            queryObj = {
-                                type: awsIdentifierKey,
-                                query: query,
-                                value: identifier[key][awsIdentifierKey]
-                            }
-                            awsIdentifiers.push(queryObj);
-                        } else if (awsIdentifierKey === 'tags') {
-                            var query = {};
-                            Object.keys(identifier[key][awsIdentifierKey]).forEach(function (tagKey) {
-                                query['resourceDetails.tags'][tagKey] = identifier[key][awsIdentifierKey][tagKey];
-                            });
-                            queryObj = {
-                                type: awsIdentifierKey,
-                                query: query,
-                                value: identifier[key][awsIdentifierKey]
-                            }
-                            awsIdentifiers.push(queryObj);
-                        } else {
-                            logger.debug("In-valid identifiers:");
-                        }
-                    });
-                    resultObj = {
-                        aws:awsIdentifiers
-                    }
-                }else if(key ==='chef'){
-                    Object.keys(identifier[key]).forEach(function (chefIdentifierKey) {
-                        if (chefIdentifierKey === 'roles') {
-                            queryObj = {
-                                type: chefIdentifierKey,
-                                query: {
-                                    'chefServerDetails.run_list': {$in: identifier[key][chefIdentifierKey]}
-                                },
-                                value: identifier[key][chefIdentifierKey]
-                            }
-                            chefIdentifiers.push(queryObj);
-                        } else if (chefIdentifierKey === 'groups') {
-                            var query = {};
-                            Object.keys(identifier[key][chefIdentifierKey]).forEach(function (groupObjKey) {
-                                if (groupObjKey === 'roles') {
-                                    query = {
-                                        'chefServerDetails.run_list': {$in: identifier[key][chefIdentifierKey][groupObjKey]}
-                                    }
-                                } else {
-                                    logger.debug("In-valid identifiers in groups:");
-                                }
-                            });
-                            queryObj = {
-                                type: chefIdentifierKey,
-                                query: query,
-                                value: identifier[key][chefIdentifierKey]
-                            }
-                            chefIdentifiers.push(queryObj);
-                        } else {
-                            logger.debug("In-valid identifiers:");
-                        }
-                    })
-                    resultObj = {
-                        chef:chefIdentifiers
-                    }
-                }
-            })
-
-        });
-        return callback(null,resultObj);
-    }else{
-        return callback(null,resultObj);
-    }
-}
-
-
 

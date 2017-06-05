@@ -269,7 +269,6 @@ function getChefNodeDetails(nodeList,chefObj,chefServerId,orgId,callback){
                         fqdn: nodeDetail.automatic.fqdn,
                         upTime: nodeDetail.automatic.uptime,
                         idleTime: nodeDetail.automatic.idletime,
-                        roles: nodeDetail.automatic.roles,
                         state:"running"
                     };
                     if (!nodeDetail.automatic) {
@@ -311,10 +310,10 @@ function getChefNodeDetails(nodeList,chefObj,chefServerId,orgId,callback){
                     if (nodeDetail.automatic.platform) {
                         hardwareData.platform = nodeDetail.automatic.platform;
                     }
-                    if (node.automatic.platform_version) {
+                    if (nodeDetail.automatic.platform_version) {
                         hardwareData.platformVersion = nodeDetail.automatic.platform_version;
                     }
-                    if (node.automatic.platform_family) {
+                    if (nodeDetail.automatic.platform_family) {
                         hardwareData.platformFamily = nodeDetail.automatic.platform_family;
                     }
                     if (nodeDetail.automatic.memory) {

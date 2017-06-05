@@ -39,7 +39,6 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var auditTrailService = require('_pr/services/auditTrailService');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
-var serviceMapService = require('_pr/services/serviceMapService.js');
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -259,11 +258,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                             cloudFormation.status = err.stackStatus;
                                             cloudFormation.save();
                                         }
-                                        serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
-                                            if(err){
-                                                logger.error("Error in updating Resource Map.",err);
-                                            }
-                                        });
                                         return;
                                     }
                                     cloudFormation.status = completeStack.StackStatus;
@@ -272,11 +266,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                     awsCF.listAllStackResources(stackData.StackId, function (err, resources) {
                                         if (err) {
                                             logger.error('Unable to fetch stack resources', err);
-                                            serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
-                                                if(err){
-                                                    logger.error("Error in updating Resource Map.",err);
-                                                }
-                                            });
                                             return;
                                         }
                                         var keyPairName;
@@ -309,11 +298,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                         AwsAutoScaleInstance.findByAutoScaleResourceId(autoScaleResourceId, function (err, autoScaleInstances) {
                                             if (err) {
                                                 logger.error('Unable to fetch autoscale instance resources', err);
-                                                serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
-                                                    if(err){
-                                                        logger.error("Error in updating Resource Map.",err);
-                                                    }
-                                                });
                                                 return;
                                             }
                                             for (var i = 0; i < autoScaleInstances.length; i++) {
@@ -324,18 +308,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
 
                                             if (instanceIds.length) {
                                                 var instances = [];
-                                                var resourceObj = {
-                                                    state:"Running",
-                                                    resources:[]
-                                                }
                                                 ec2.describeInstances(instanceIds, function (err, awsRes) {
                                                     if (err) {
                                                         logger.error("Unable to get instance details from aws", err);
-                                                        serviceMapService.updateResourceMap(launchParams.stackName,{state:"Error"},function(err,resourceMap){
-                                                            if(err){
-                                                                logger.error("Error in updating Resource Map.",err);
-                                                            }
-                                                        });
                                                         return;
                                                     }
                                                     if (!(awsRes.Reservations && awsRes.Reservations.length)) {
@@ -372,11 +347,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                     AWSKeyPair.getAWSKeyPairByProviderIdAndKeyPairName(cloudFormation.cloudProviderId, keyPairName, function (err, keyPairs) {
                                                         if (err) {
                                                             logger.error("Unable to get keypairs", err);
-                                                            serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
-                                                                if(err){
-                                                                    logger.error("Error in updating Resource Map.",err);
-                                                                }
-                                                            });
                                                             return;
                                                         }
                                                         if (keyPairs && keyPairs.length) {
@@ -532,25 +502,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             instancesDao.createInstance(instance, function (err, data) {
                                                                 if (err) {
                                                                     logger.error("Failed to create Instance", err);
-                                                                    serviceMapService.updateService({name:launchParams.stackName},{state:"Error"},function(err,resourceMap){
-                                                                        if(err){
-                                                                            logger.error("Error in updating Resource Map.",err);
-                                                                        }
-                                                                    });
                                                                     return;
-                                                                }
-                                                                resourceObj.state = instance.instanceState.charAt(0).toUpperCase() + instance.instanceState.slice(1);
-                                                                resourceObj.resources.push({
-                                                                    id:data._id,
-                                                                    type:"instance",
-                                                                    state:instance.instanceState
-                                                                });
-                                                                if(resourceObj.resources.length  === instances.length) {
-                                                                    serviceMapService.updateService({name:launchParams.stackName}, resourceObj, function (err, resourceMap) {
-                                                                        if (err) {
-                                                                            logger.error("Error in updating Resource Map.", err);
-                                                                        }
-                                                                    });
                                                                 }
                                                                 instance.id = data._id;
                                                                 var timestampStarted = new Date().getTime();

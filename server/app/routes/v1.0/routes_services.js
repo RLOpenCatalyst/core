@@ -46,6 +46,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.post('/services', function(req, res) {
+        req.body.userName = req.session.user.cn;
         serviceMapService.createNewService(req.body,function(err,result){
             if(err){
                 res.send(500,err);

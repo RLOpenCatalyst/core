@@ -97,10 +97,6 @@ var chefNodeSchema = new Schema({
         type:[String],
         required:false
     },
-    roles:{
-        type:[String],
-        required:false
-    },
     updatedOn:{
         type:Number,
         required:false,
