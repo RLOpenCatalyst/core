@@ -93,6 +93,9 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                             if (err) {
                                 next(err, null);
                                 return;
+                            } else if(data.length > 0) {
+                                next({code: 400, message: "Stack Name is already associated with other Services.Please enter unique Stack Name."}, null);
+                                return;
                             } else {
                                 next(null, blueprint);
                                 return;
@@ -109,6 +112,9 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                         serviceMapService.getServices({name:domainName}, function (err, data) {
                             if (err) {
                                 next(err, null);
+                                return;
+                            } else if(data.length > 0) {
+                                next({code: 400, message: "Domain Name is already associated with other Services.Please enter unique Domain Name."}, null);
                                 return;
                             } else {
                                 next(null, blueprint);

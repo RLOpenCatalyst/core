@@ -21,6 +21,11 @@ var Schema = mongoose.Schema;
 var AWSResourcesSchema = function AWSResources() {
     Schema.apply(this, arguments);
     this.add({
+        name:{
+            type: String,
+            required: false,
+            trim: true
+        },
         masterDetails: {
             orgId: {
                 type: String,
@@ -86,7 +91,7 @@ var AWSResourcesSchema = function AWSResources() {
                 trim: true
             }
         },
-        chefServerDetails: {
+        configDetails: {
             id: String,
             nodeName: String,
             run_list: [{

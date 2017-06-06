@@ -969,7 +969,7 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
                     hardware:chefNodeDetails.hardware,
                     hostName:chefNodeDetails.fqdn
                 },
-                chefServerDetails:{
+                configDetails:{
                     id:chefNodeDetails.serverId,
                     nodeName:chefNodeDetails.name,
                     run_list:chefNodeDetails.run_list

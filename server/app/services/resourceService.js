@@ -43,6 +43,7 @@ var Chef = require('_pr/lib/chef');
 
 
 resourceService.getEC2InstanceUsageMetrics=getEC2InstanceUsageMetrics;
+resourceService.getEC2ResourceUsageMetrics=getEC2ResourceUsageMetrics;
 resourceService.getS3BucketsMetrics=getS3BucketsMetrics;
 resourceService.getBucketsInfo=getBucketsInfo;
 resourceService.getResources=getResources;
@@ -268,6 +269,108 @@ function aggregateResourceCostsForPeriod(provider, resources, period, endTime, c
         }
     })
 }
+
+function getEC2ResourceUsageMetrics(provider, instances, startTime, endTime, period, callback) {
+    var metricsUnits = appConfig.aws.cwMetricsUnits;
+    var instanceUsageMetrics = [];
+    var instnacesWithMetrics = instances.length;
+
+    if(instances.length == 0)
+        callback(null, instanceUsageMetrics);
+
+    // @TODO Create promise for creating cw client
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var amazonConfig;
+
+    if (provider.isDefault) {
+        amazonConfig = {
+            "isDefault": true
+        };
+    } else {
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm,
+            cryptoConfig.password);
+
+        var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+        var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+        amazonConfig = {
+            "access_key": decryptedAccessKey,
+            "secret_key": decryptedSecretKey
+        };
+    }
+
+    /*var endTime = new Date();
+     var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
+    for(var i = 0; i < instances.length; i++) {
+        (function(j) {
+            if(instances[j].providerDetails && instances[j].providerDetails.region && instances[j].providerDetails.region !== null) {
+                amazonConfig.region = instances[j].providerDetails.region.region;
+                var cw = new CW(amazonConfig);
+                async.parallel({
+                        CPUUtilization: function (callback) {
+                            cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].resourceDetails.platformId}], startTime, endTime, period, callback);
+                        },
+                        NetworkOut: function (callback) {
+                            cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].resourceDetails.platformId}], startTime, endTime, period, callback);
+                        },
+                        NetworkIn: function (callback) {
+                            cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].resourceDetails.platformId}], startTime, endTime, period, callback);
+                        },
+                        DiskReadBytes: function (callback) {
+                            cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].resourceDetails.platformId}], startTime, endTime, period, callback);
+                        },
+                        DiskWriteBytes: function (callback) {
+                            cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].resourceDetails.platformId}], startTime, endTime, period, callback);
+                        }
+                    },
+                    function (err, results) {
+                        if(err) {
+                            logger.error(err)
+                        } else {
+                            /* TODO: To split up into different entries.*/
+                            /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                            /* Currently modifying the start time and end time with the period.
+                             * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                             * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                             * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                             * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                             */
+                            var dbEndTime = startTime;
+                            var dbStartTime = getStartTime(dbEndTime, period);
+
+                            instanceUsageMetrics.push({
+                                providerId: provider._id,
+                                providerType: provider.providerType,
+                                orgId: provider.orgId[0],
+                                projectId: instances[j].masterDetails.projectId,
+                                resourceId: instances[j]._id,
+                                platform: 'AWS',
+                                platformId: instances[j].resourceDetails.platformId,
+                                resourceType: 'EC2',
+                                startTime: dbStartTime,
+                                endTime: dbEndTime,
+                                interval: period,
+                                metrics: results
+                            });
+                        }
+
+                        if(instanceUsageMetrics.length == instnacesWithMetrics) {
+                            callback(null, instanceUsageMetrics);
+                        }
+                    });
+            } else {
+                instnacesWithMetrics -= 1;
+                if(instanceUsageMetrics.length == instnacesWithMetrics)
+                    callback(null, instanceUsageMetrics);
+            }
+        })(i);
+    }
+};
 
 function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, period, callback) {
     var metricsUnits = appConfig.aws.cwMetricsUnits;
@@ -616,6 +719,7 @@ function getBucketsInfo(provider,orgName,callback) {
                 for(var i = 0; i < data.Buckets.length; i++){
                     (function(bucket) {
                         var bucketObj = {
+                            name:bucket.Name,
                             masterDetails:{
                                 orgId:provider.orgId[0],
                                 orgName:orgName
@@ -701,6 +805,7 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                         tagInfo[jsonData.Key] = jsonData.Value;
                                     }
                                     var instanceObj = {
+                                        name:instance.InstanceId,
                                         masterDetails: {
                                             orgId: provider.orgId[0],
                                             orgName: orgName,
@@ -708,12 +813,12 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                         providerDetails: {
                                             region:region,
                                             id:provider._id,
-                                            providerType:'aws',
+                                            type:'aws',
                                             keyPairName:instance.KeyName
                                         },
                                         resourceDetails:{
                                             platformId: instance.InstanceId,
-                                            amiId:instance.imageId,
+                                            amiId:instance.ImageId,
                                             publicIp: instance.PublicIpAddress || null,
                                             hostName:instance.PrivateDnsName,
                                             os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
@@ -722,7 +827,7 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                             vpcId: instance.VpcId,
                                             privateIp: instance.PrivateIpAddress,
                                             type: instance.InstanceType,
-                                            launchTime:instance.LaunchTime
+                                            launchTime:Date.parse(instance.LaunchTime)
                                         },
                                         tags:tagInfo,
                                         resourceType:'EC2',
@@ -773,6 +878,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                 for(var i = 0; i < dbInstances.length; i++){
                     (function(dbInstance) {
                         var rdsDbInstanceObj = {
+                            name:dbInstance.DBInstanceIdentifier,
                             masterDetails:{
                                 orgId:provider.orgId[0],
                                 orgName:orgName
