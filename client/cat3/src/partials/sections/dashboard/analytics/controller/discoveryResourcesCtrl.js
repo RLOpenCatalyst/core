@@ -6,7 +6,6 @@
             $scope.gridApi=null;
             disResrc.filterValue='';
             $scope.colArray=[];
-            $scope.instanceType=null;
             $scope.selectInstanceRow=[];
             $scope.TagName={
                 environment:[],
@@ -102,14 +101,9 @@
                                         }, function () {
                                             var param = {
                                                 url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:EC2,category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
-                                                // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                                             };
                                             genSevs.promiseGet(param).then(function (instResult) {
-                                                if($rootScope.organNewEnt.instanceType === 'Managed') {
-                                                    disResrc.gridOptionInstances.data = instResult.managedInstances;
-                                                } else{
-                                                    disResrc.gridOptionInstances.data = instResult.data;
-                                                }
+                                                disResrc.gridOptionInstances.data = instResult.data;
                                                 disResrc.gridOptionInstances.isRowSelectable = function (row) {
                                                     if(row.entity.state !== 'running') {
                                                         return false;
@@ -145,45 +139,44 @@
                         };
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
                             disResrc.gridOptionInstances.enableRowHeaderSelection= false;
-                            $scope.colArray=['platformId','privateIpAddress','instanceState'];
+                            $scope.colArray=['resourceDetails.platformId','resourceDetails.privateIp','resourceDetails.state'];
                             disResrc.gridOptionInstances.columnDefs=[
-                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
+                                {name: 'InstanceId', field: 'resourceDetails.platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false,enableFiltering: true},
-                                {name: 'os', enableFiltering: true,displayName: 'os', field:'hardware.os',enableCellEdit: false,enableCellEditOnFocus: false},
-                                {name: 'privateIpAddress',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
+                                {name: 'os', enableFiltering: true,displayName: 'os', field:'resourceDetails.hardware.os',enableCellEdit: false,enableCellEditOnFocus: false},
+                                {name: 'privateIp',field: 'resourceDetails.privateIp',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
-                                {name: 'instanceState',enableFiltering: true, displayName: 'Status',enableCellEditOnFocus: false,
+                                {name: 'state',field: 'resourceDetails.state',enableFiltering: true, displayName: 'State',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: 'Region',enableFiltering: true,
                                     displayName: 'Region',
-                                    field: 'providerData.region',
+                                    field: 'providerDetails.region.region',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
-                                {name: 'orgName', enableFiltering: true,displayName: 'Org Name', field: 'orgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                {name: 'orgName', enableFiltering: true,displayName: 'Org Name', field: 'masterDetails.orgName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: 'bgName',
                                     displayName: 'BG Name',enableFiltering: true,
-                                    field: 'bgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    field: 'masterDetails.bgName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
                                 {
                                     name: 'projectName',enableFiltering: true,
                                     displayName: 'Project Name',
-                                    field: 'projectName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    field: 'masterDetails.projectName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
                                 {
-                                    name: 'environmentName',enableFiltering: true,
+                                    name: 'envName',enableFiltering: true,
                                     displayName: 'Env Name',
-                                    field: 'environmentName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    field: 'masterDetails.envName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 }
                             ];
-                            $scope.instanceType= 'managedInstances';
-                            param.url = '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType;
+                            param.url = '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:EC2,category:'+$rootScope.organNewEnt.instanceType.toLowerCase();
                         } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
 
                             $scope.colArray=['resourceDetails.platformId','resourceDetails.privateIp','resourceDetails.os','resourceDetails.state'];
@@ -194,12 +187,12 @@
                                 {name: 'os', enableFiltering: true,displayName: 'OS',field: 'resourceDetails.os', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
                                 {name: 'privateIp',field: 'resourceDetails.privateIp',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
-                                {name: 'state',enableFiltering: true, field: 'resourceDetails.state',displayName: 'Status',enableCellEditOnFocus: false,
+                                {name: 'state',enableFiltering: true, field: 'resourceDetails.state',displayName: 'State',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: 'Region',enableFiltering: true,
                                     displayName: 'Region',
-                                    field: 'providerDetails.region.region_name',
+                                    field: 'providerDetails.region.region',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
@@ -234,12 +227,12 @@
                                 {name: 'os', field: 'resourceDetails.os', displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
                                 {name: 'privateIp',field: 'resourceDetails.privateIp', displayName: 'IP Address',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
-                                {name: 'state',field: 'resourceDetails.state', displayName: 'Status',enableCellEditOnFocus: false,
+                                {name: 'state',field: 'resourceDetails.state', displayName: 'State',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: 'Region',
                                     displayName: 'Region',
-                                    field: 'providerDetails.region.region_name',
+                                    field: 'providerDetails.region.region',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
@@ -287,17 +280,8 @@
                             ];
                             param.url = '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:EC2,category:'+$rootScope.organNewEnt.instanceType.toLowerCase();
                         }
-                            /*var param = {
-                                inlineLoader:true,
-                                url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
-                               // url:'src/partials/sections/dashboard/analytics/data/ins.json'
-                            };*/
                             genSevs.promiseGet(param).then(function (instResult) {
-                                if($rootScope.organNewEnt.instanceType === 'Managed') {
-                                    disResrc.gridOptionInstances.data = instResult.managedInstances;
-                                } else{
-                                    disResrc.gridOptionInstances.data = instResult.data;
-                                }
+                                disResrc.gridOptionInstances.data = instResult.data;
                                 disResrc.gridOptionInstances.isRowSelectable = function(row){
                                     if(row.entity.state !== 'running'){
                                         return false;
@@ -332,13 +316,6 @@
             $rootScope.stateItems = $state.params;
             $rootScope.organNewEnt.provider='0';
             $rootScope.organNewEnt.instanceType='Unassigned';
-            if($rootScope.organNewEnt.instanceType === 'Managed') {
-                $scope.instanceType= 'unmanagedInstances';
-            } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                $scope.instanceType= 'unmanagedInstances';
-            } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
-                $scope.instanceType= 'unassigned-instances';
-            }
             analyticsServices.applyFilter(true,null);
             var treeNames = ['Cloud Management','Discovery','Resources'];
             $rootScope.$emit('treeNameUpdate', treeNames);

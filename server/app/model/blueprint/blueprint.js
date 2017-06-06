@@ -361,8 +361,8 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                     projectName: project[0].projectname,
                                     envId: opts.envId,
                                     envName: envName,
-                                    chefServerId: infraManager.infraManagerId,
-                                    chefServerName: chefDetails.configname,
+                                    configId: infraManager.infraManagerId,
+                                    configName: chefDetails.configname,
                                     monitor: monitor
                                 },
                                 name: opts.stackName !== null ? opts.stackName : opts.domainName,
@@ -370,10 +370,10 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                 state: 'Initializing',
                                 desc: self.name,
                                 identifiers: {
-                                    aws: [{
+                                    aws: {
                                         type: 'stackName',
                                         value: opts.stackName !== null ? opts.stackName : opts.domainName
-                                    }]
+                                    }
                                 },
                                 createdOn: new Date().getTime()
                             }

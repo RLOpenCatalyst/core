@@ -50,9 +50,8 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             trim:true
         },
         launchTime:{
-            type:String,
-            required:false,
-            trim:true
+            type:Number,
+            required:false
         },
         state:{
             type:String,

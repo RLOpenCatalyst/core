@@ -115,12 +115,12 @@ function chefSyncWithChefNodes(nodeDetailList,callback){
                     })
                 },
                 resourceSync: function(callback){
-                    instanceModel.getInstanceData({'chefServerDetails.id':nodeDetail.serverId,'chefServerDetails.nodeName':nodeDetail.name,serverDeletedCheck:false},function(err,instances){
+                    instanceModel.getInstanceData({'configDetails.id':nodeDetail.serverId,'configDetails.nodeName':nodeDetail.name,serverDeletedCheck:false},function(err,instances){
                         if(err){
                             logger.error("Error in fetching Resource Details in DB:",err);
                             callback(err,null);
                         }else if(instances.length > 0){
-                            instanceModel.updateInstanceData(instances[0]._id,{'chefServerDetails.run_list':nodeDetail.run_list,'chefServerDetails.override':nodeDetail.override},function(err,data){
+                            instanceModel.updateInstanceData(instances[0]._id,{'configDetails.run_list':nodeDetail.run_list,'configDetails.override':nodeDetail.override},function(err,data){
                                 if (err) {
                                     logger.error("Error in updating Resource Details in DB:",err);
                                     callback(err,null);
@@ -162,7 +162,7 @@ function getAllTerminatedNodes(orgId,callback){
                     if(terminatedResources[i].category ==='managed'){
                         nodeNameList.push({
                             id: terminatedResources[i]._id,
-                            nodeName: terminatedResources[i].chefServerDetails.nodeName
+                            nodeName: terminatedResources[i].configDetails.nodeName
                         });
                     }else{
                         nodeNameList.push({
@@ -269,7 +269,6 @@ function getChefNodeDetails(nodeList,chefObj,chefServerId,orgId,callback){
                         fqdn: nodeDetail.automatic.fqdn,
                         upTime: nodeDetail.automatic.uptime,
                         idleTime: nodeDetail.automatic.idletime,
-                        roles: nodeDetail.automatic.roles,
                         state:"running"
                     };
                     if (!nodeDetail.automatic) {
@@ -311,10 +310,10 @@ function getChefNodeDetails(nodeList,chefObj,chefServerId,orgId,callback){
                     if (nodeDetail.automatic.platform) {
                         hardwareData.platform = nodeDetail.automatic.platform;
                     }
-                    if (node.automatic.platform_version) {
+                    if (nodeDetail.automatic.platform_version) {
                         hardwareData.platformVersion = nodeDetail.automatic.platform_version;
                     }
-                    if (node.automatic.platform_family) {
+                    if (nodeDetail.automatic.platform_family) {
                         hardwareData.platformFamily = nodeDetail.automatic.platform_family;
                     }
                     if (nodeDetail.automatic.memory) {

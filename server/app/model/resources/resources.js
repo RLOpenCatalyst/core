@@ -82,6 +82,7 @@ ResourceSchema.statics.getResourceByIds = function(resourceIds,callback) {
 };
 
 ResourceSchema.statics.getResources = function(queryObj,callback) {
+    queryObj.isDeleted = false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getResources", err);

@@ -21,13 +21,11 @@ var entityCostsModel = require('_pr/model/entity-costs')
 var entityCapacityModel = require('_pr/model/entity-capacity')
 const dateUtil = require('_pr/lib/utils/dateUtil')
 var appConfig = require('_pr/config');
-var async = require('async')
-var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js')
-var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js')
-var instancesModel = require('_pr/model/classes/instance/instance')
-var assignedInstancesModel = require('_pr/model/unmanaged-instance')
-var unassignedInstancesModel = require('_pr/model/unassigned-instances')
-var resourcesModel = require('_pr/model/resources/resources')
+var async = require('async');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var instancesModel = require('_pr/model/classes/instance/instance');
+var resourcesModel = require('_pr/model/resources/resources');
 
 var analyticsService = module.exports = {}
 
@@ -628,30 +626,17 @@ analyticsService.aggregateEntityCapacity
                         {$match: query},
                         countParams], next0)
                 },
-                'assigned': function (next0) {
-                    if (childEntity == 'environment') {
-                        assignedInstancesModel.aggregate([
-                            {$match: query},
-                            {
-                                $group: {
-                                    _id: "$" + catalystEntityHierarchy[childEntity].key,
-                                    count: {$sum: 1}
-                                }
-                            }], next0)
-                    } else {
-                        assignedInstancesModel.aggregate([
-                            {$match: query},
-                            countParams], next0)
-                    }
-                },
-                'unassigned': function (next0) {
-                    unassignedInstancesModel.aggregate([
-                        {$match: query},
-                        countParams], next0)
+                'EC2': function (next0) {
+                    var s3Query = resourceQuery
+                    s3Query.resourceType = 'EC2'
+
+                    resourcesModel.aggregate([
+                        {$match: s3Query},
+                        resourceCountParams], next0)
                 },
                 'S3': function (next0) {
                     var s3Query = resourceQuery
-                    s3Query.resourceType = 's3'
+                    s3Query.resourceType = 'S3'
 
                     resourcesModel.aggregate([
                         {$match: s3Query},
@@ -659,7 +644,7 @@ analyticsService.aggregateEntityCapacity
                 },
                 'RDS': function (next0) {
                     var rdsQuery = resourceQuery
-                    rdsQuery.resourceType = 'rds'
+                    rdsQuery.resourceType = 'RDS'
 
                     resourcesModel.aggregate([
                         {$match: rdsQuery},
