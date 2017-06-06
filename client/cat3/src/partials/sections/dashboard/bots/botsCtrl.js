@@ -103,7 +103,7 @@
 		});
 	}])
 	.controller('botsCtrl',['$scope', '$rootScope', '$state','genericServices', function ($scope, $rootScope, $state, genericServices) {
-		$state.go('dashboard.bots.library');
+		//$state.go('dashboard.bots.library');
 		$scope.$watch(function() {
 			$rootScope.stateItems = $state.current.name;
 		});

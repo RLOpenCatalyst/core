@@ -9,7 +9,13 @@
     "use strict";
     angular.module('dashboard.bots')
     .controller('libraryCtrl',['$scope', '$rootScope', 'moment', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, moment, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
-        console.log("library>>>>>>>>",$state);
+        genSevs.getTreeNew().then(function (orgs) {
+            $rootScope.organObject=orgs;
+            $rootScope.organNewEnt=[];
+            $rootScope.organNewEnt.org = orgs[0];
+            $rootScope.organNewEnt.buss = orgs[0].businessGroups[0];
+            $rootScope.organNewEnt.proj = orgs[0].businessGroups[0].projects[0];
+        });
         var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;

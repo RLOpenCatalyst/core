@@ -10,6 +10,13 @@
     angular.module('dashboard.bots')
     .controller('syncCtrl',['$scope', '$rootScope', '$state', '$timeout', 'genericServices', 'botsCreateService', 'uiGridOptionsService', 'toastr','$modal',
         function($scope, $rootScope, $state, $timeout, genericServices, botsCreateService, uiGridOptionsService, toastr,$modal){            
+        	genericServices.getTreeNew().then(function (orgs) {
+				$rootScope.organObject=orgs;
+				$rootScope.organNewEnt=[];
+				$rootScope.organNewEnt.org = orgs[0];
+				$rootScope.organNewEnt.buss = orgs[0].businessGroups[0];
+				$rootScope.organNewEnt.proj = orgs[0].businessGroups[0].projects[0];
+			});
         	var botsSyncCtrl = this;
         	botsSyncCtrl.newEnt = [];
         	var treeNames = ['BOTs','BOTs Sync'];   
