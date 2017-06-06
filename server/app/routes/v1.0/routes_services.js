@@ -70,6 +70,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
+    app.get('/services/:serviceId/resources', function(req, res) {
+        serviceMapService.getServiceResources(req.params.serviceId,req.query,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(200,result)
+                return
+            }
+        });
+    });
+
     app.patch('/services/:serviceId', function(req, res) {
         serviceMapService.updateServiceById(req.params.serviceId,req.body,function(err,result){
             if(err){

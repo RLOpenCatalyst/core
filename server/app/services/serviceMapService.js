@@ -99,49 +99,58 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
             }
         });
     }else{
-        fileUpload.getReadStreamFileByFileId(servicesObj.fileId, function (err, fileDetail) {
+        services.getServices({name:servicesObj.name},function(err,data) {
             if (err) {
-                logger.error("Error in reading YML File.");
-                callback(err, null);
-                return;
+                logger.error("Error in getting Services against Service Name: ", servicesObj.name, err);
+                return callback(err, null);
+            } else if (data.length > 0) {
+                return callback({code: 400, message: "Service Name is already associated with other Services.Please enter unique Service Name."}, null);
             } else {
-                var fileName = uuid.v4() + '_' + fileDetail.fileName;
-                var desPath = appConfig.tempDir + fileName;
-                fileIo.writeFile(desPath, fileDetail.fileData, false, function (err) {
+                fileUpload.getReadStreamFileByFileId(servicesObj.fileId, function (err, fileDetail) {
                     if (err) {
-                        logger.error("Unable to write file");
+                        logger.error("Error in reading YML File.");
                         callback(err, null);
                         return;
                     } else {
-                        ymlJs.load(desPath, function (result) {
-                            if(result !== null){
-                                servicesObj.identifiers = result;
-                                servicesObj.type = 'Service';
-                                servicesObj.ymlFileId = servicesObj.fileId;
-                                servicesObj.createdOn = new Date().getTime();
-                                monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
-                                    servicesObj.masterDetails.monitor = monitor;
-                                    servicesObj.state = 'Initializing';
-                                    services.createNew(servicesObj, function (err, servicesData) {
-                                        if (err) {
-                                            logger.error("services.createNew is Failed ==>", err);
-                                            callback(err, null);
-                                            apiUtil.removeFile(desPath);
-                                            return;
-                                        } else {
-                                            callback(null, servicesData);
-                                            apiUtil.removeFile(desPath);
-                                            return;
-                                        }
-                                    });
-                                });
-                            }else{
-                                var err = new Error("There is no data present YML.")
-                                err.code = 403;
+                        var fileName = uuid.v4() + '_' + fileDetail.fileName;
+                        var desPath = appConfig.tempDir + fileName;
+                        fileIo.writeFile(desPath, fileDetail.fileData, false, function (err) {
+                            if (err) {
+                                logger.error("Unable to write file");
                                 callback(err, null);
-                                apiUtil.removeFile(desPath);
+                                return;
+                            } else {
+                                ymlJs.load(desPath, function (result) {
+                                    if (result !== null) {
+                                        servicesObj.identifiers = result;
+                                        servicesObj.type = 'Service';
+                                        servicesObj.ymlFileId = servicesObj.fileId;
+                                        servicesObj.createdOn = new Date().getTime();
+                                        monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
+                                            servicesObj.masterDetails.monitor = monitor;
+                                            servicesObj.state = 'Initializing';
+                                            services.createNew(servicesObj, function (err, servicesData) {
+                                                if (err) {
+                                                    logger.error("services.createNew is Failed ==>", err);
+                                                    callback(err, null);
+                                                    apiUtil.removeFile(desPath);
+                                                    return;
+                                                } else {
+                                                    callback(null, servicesData);
+                                                    apiUtil.removeFile(desPath);
+                                                    return;
+                                                }
+                                            });
+                                        });
+                                    } else {
+                                        var err = new Error("There is no data present YML.")
+                                        err.code = 403;
+                                        callback(err, null);
+                                        apiUtil.removeFile(desPath);
+                                    }
+                                })
                             }
-                        })
+                        });
                     }
                 });
             }
@@ -255,6 +264,29 @@ serviceMapService.getServices = function getServices(filterQuery,callback){
     async.waterfall([
         function(next){
             services.getServices(filterQuery,next);
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+}
+
+serviceMapService.getServiceResources = function getServiceResources(serviceId,filterQuery,callback){
+    async.waterfall([
+        function(next){
+            services.getServiceById(serviceId,next);
+        },
+        function(services,next){
+            if(services.length > 0){
+
+            }else{
+                next(null,services);
+            }
         }
     ],function(err,results){
         if(err){
