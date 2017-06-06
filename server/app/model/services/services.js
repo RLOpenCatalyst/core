@@ -163,8 +163,12 @@ serviceSchema.statics.updatedService = function updatedService(filterQuery,servi
     });
 };
 
-serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEachService(callback){
+serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEachService(filterBy,callback){
+    filterBy.isDeleted = false;
     services.aggregate([
+            {
+                $match:filterBy
+            },
             {
                 $sort:
                     {
@@ -193,7 +197,7 @@ serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEac
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
-                return callback(err);
+                return callback(err,null);
             }else {
                 return callback(null, serviceList);
             }
@@ -216,14 +220,48 @@ serviceSchema.statics.getServices = function getServices(filterBy,callback) {
 
 serviceSchema.statics.getAllServicesByFilter = function getAllServicesByFilter(filterQueryObj, callback) {
     filterQueryObj.queryObj.isDeleted = false;
-    this.paginate(filterQueryObj.queryObj, filterQueryObj.options,function (err, servicesList) {
-        if (err) {
-            logger.error(err);
-            return callback(err, null);
-        } else {
-            return callback(null, servicesList);
-        }
-    });
+    services.aggregate([
+            {
+                $match:filterQueryObj.queryObj
+            },
+            {
+                $sort: {
+                    version :1
+                }
+            },
+            {
+                $skip: (filterQueryObj.options.page - 1) * filterQueryObj.options.limit
+            },
+            {
+                $limit: filterQueryObj.options.limit
+            },
+            {
+                $group:
+                    {
+                        _id:"$name",
+                        id: { $last: "$_id" },
+                        name: { $last: "$name" },
+                        type: { $last: "$type" },
+                        state: { $last: "$state" },
+                        ymlFileId: { $last: "$ymlFileId" },
+                        desc: { $last: "$desc" },
+                        resources: { $last: "$resources" },
+                        version: { $last: "$version" },
+                        masterDetails: { $last: "$masterDetails" },
+                        identifiers: { $last: "$identifiers" },
+                        createdOn: { $last: "$createdOn" },
+                        updatedOn: { $last: "$updatedOn" }
+                    }
+            }],
+        function(err, serviceList) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }else {
+                return callback(null, serviceList);
+            }
+        });
 };
 
 serviceSchema.statics.getServiceById = function getServiceById(serviceId, callback) {

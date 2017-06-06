@@ -26,6 +26,10 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 const ymlJs= require('yamljs');
 var uuid = require('node-uuid');
+var Cryptography = require('_pr/lib/utils/cryptography');
+var resourceModel = require('_pr/model/resources/resources');
+var instancesDao = require('_pr/model/classes/instance/instance');
+var commonService = require('_pr/services/commonService');
 
 var serviceMapService = module.exports = {};
 
@@ -40,7 +44,35 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.databaseUtil(paginationReq, next);
         },
         function (queryObj, next) {
-            services.getAllServicesByFilter(queryObj, next);
+            service.getLastVersionOfEachService(queryObj.queryObj,function(err,data){
+                if(err){
+                    next(err,null);
+                }else if(data.length > 0){
+                    services.getAllServicesByFilter(queryObj, function(err,filterData){
+                        if(err){
+                            next(err,null);
+                        }else{
+                            var response = {
+                                docs:filterData,
+                                total:data.length,
+                                limit:queryObj.options.limit,
+                                page:queryObj.options.page,
+                                pages:Math.ceil(data.length / queryObj.options.limit)
+                            };
+                            next(null,response);
+                        }
+                    });
+                }else{
+                    var response = {
+                        docs:data,
+                        total:data.length,
+                        limit:queryObj.options.limit,
+                        page:queryObj.options.page,
+                        pages:Math.ceil(data.length / queryObj.options.limit)
+                    };
+                    next(null,response);
+                }
+            })
         },
         function(services,next){
             changeServiceResponse(services,next);
@@ -74,6 +106,22 @@ serviceMapService.deleteServiceById = function deleteServiceById(serviceId,callb
                 err.message = "No Service is available in DB against Id "+serviceId;
                 next(err,null);
             }
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+}
+
+serviceMapService.getAllServiceVersionByName = function getAllServiceVersionByName(serviceName,callback){
+    async.waterfall([
+        function(next){
+            services.getServices({name:serviceName},next);
         }
     ],function(err,results){
         if(err){
@@ -184,10 +232,10 @@ serviceMapService.updateServiceById = function updateServiceById(serviceId,data,
     })
 }
 
-serviceMapService.getLastVersionOfEachService = function getLastVersionOfEachService(callback){
+serviceMapService.getLastVersionOfEachService = function getLastVersionOfEachService(filterBy,callback){
     async.waterfall([
         function(next){
-            services.getLastVersionOfEachService(next);
+            services.getLastVersionOfEachService(filterBy,next);
         },
         function(servicesData,next){
             if(servicesData.length > 0){
@@ -240,7 +288,132 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
             services.getServiceById(serviceId,next);
         },
         function(servicesData,next){
-            if(servicesData !== null){
+            if(servicesData.length >0){
+                resourceModel.getResourceById(resourceId,function(err,resourceDetail){
+                    if(err){
+                        var error =  new Error();
+                        error.code = 500;
+                        error.message = "Error in getting Resource Details By Id: "+resourceId +' : '+ err;
+                        next(error,null);
+                    }
+                    var nodeDetail = {
+                        nodeIp:resourceDetail.resourceDetails.publicIp && resourceDetail.resourceDetails.publicIp !== null ? resourceDetail.resourceDetails.publicIp:resourceDetail.resourceDetails.privateIp,
+                        nodeOs:resourceDetail.resourceDetails.hardware.os
+                    }
+                    if(credentials.type ==='password') {
+                        commonService.checkNodeCredentials(credentials,nodeDetail,function(err,credentialFlag){
+                            if(err || credentialFlag === false){
+                                var error =  new Error();
+                                error.code = 500;
+                                error.message = "Invalid Resource Credentials";
+                                next(error,null);
+                            }else{
+                                var cryptoConfig = appConfig.cryptoSettings;
+                                var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                                var encryptedText = cryptography.encryptText(credentials.password, cryptoConfig.encryptionEncoding,
+                                    cryptoConfig.decryptionEncoding);
+                                credentials.password = encryptedText;
+                                resourceModel.updateResourceById(resourceId,{'resourceDetails.credentials':credentials,'resourceDetails.state':'running'},function(err,data){
+                                    if(err){
+                                        var error =  new Error();
+                                        error.code = 500;
+                                        error.message = "Error in updating Resource Model : " + err;
+                                        next(error,null);
+                                    }else{
+                                        instancesDao.updateInstanceByFilter({platformId:resourceDetail.resourceDetails.platformId,orgId:resourceDetail.masterDetails.orgId},{credentials:credentials,instanceState:'running'},function(err,data){
+                                            if(err){
+                                                logger.error("Error in updating Instance Data for Authentication");
+                                            }
+                                            next(null,data);
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                    }else if(credentials.type ==='pemFile') {
+                        fileUpload.getReadStreamFileByFileId(credentials.fileId,function(err,file){
+                            if (err) {
+                                logger.error("Error in fetching YML Documents for : " + credentials.fileId + " " + err);
+                                return callback(err,null);
+                            }else {
+                                var resourceCredentials = {
+                                    username:credentials.username,
+                                    pemFileData:file.fileData,
+                                    pemFileLocation:file.fileName
+                                }
+                                commonService.checkNodeCredentials(resourceCredentials,nodeDetail,function(err,credentialFlag){
+                                    if(err || credentialFlag === false){
+                                        var error =  new Error();
+                                        error.code = 500;
+                                        error.message = "Invalid Resource Credentials";
+                                        next(error,null);
+                                    }else{
+                                        var cryptoConfig = appConfig.cryptoSettings;
+                                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                                        var encryptedText = cryptography.encryptText(file.fileData, cryptoConfig.encryptionEncoding,
+                                            cryptoConfig.decryptionEncoding);
+                                        var queryObj = {
+                                            'resourceDetails.credentials':{
+                                                username:credentials.username,
+                                                pemFileId:credentials.fileId
+                                            },
+                                            'resourceDetails.state':'running'
+                                        }
+                                        resourceModel.updateResourceById(resourceId,queryObj,function(err,data){
+                                            if(err){
+                                                var error =  new Error();
+                                                error.code = 500;
+                                                error.message = "Error in updating Resource Authentication : " + err;
+                                                next(error,null);
+                                            }else{
+                                                instancesDao.getInstancesByFilter({platformId:resourceDetail.resourceDetails.platformId,orgId:resourceDetail.masterDetails.orgId},function(err,instances){
+                                                    if(err){
+                                                        logger.error("Error in getting Instance Details:",err);
+                                                        return callback(err,null);
+                                                    }else if(instances.length > 0){
+                                                        var outputFilePath = appConfig.instancePemFilesDir + instances[0]._id;
+                                                        fs.writeFile(outputFilePath, encryptedText, {
+                                                        }, function(err) {
+                                                            if (err) {
+                                                                logger.debug(err);
+                                                                callback(err, null);
+                                                                return;
+                                                            }else {
+                                                                var queryObj = {
+                                                                    credentials: {
+                                                                        username: credentials.username,
+                                                                        pemFileLocation: outputFilePath
+                                                                    },
+                                                                    instanceState:'running'
+                                                                }
+                                                                instancesDao.updateInstanceByFilter({
+                                                                    platformId: resourceDetail.resourceDetails.platformId,
+                                                                    orgId: resourceDetail.masterDetails.orgId
+                                                                },queryObj, function (err, data) {
+                                                                    if (err) {
+                                                                        logger.error("Error in updating Instance Data for Authentication");
+                                                                    }
+                                                                    next(null, data);
+                                                                })
+                                                            }
+                                                        });
+                                                    }else{
+                                                        next(null,data);
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        });
+                    }else{
+                        var error =  new Error();
+                        error.code = 500;
+                        error.message = "Invalid Credential Type";
+                        next(error,null);
+                    }
+                })
 
             }else{
                 var err =  new Error();
@@ -282,10 +455,46 @@ serviceMapService.getServiceResources = function getServiceResources(serviceId,f
             services.getServiceById(serviceId,next);
         },
         function(services,next){
-            if(services.length > 0){
-
+            if(services.length > 0 && services.resources.length > 0){
+                var resourceObj = {},filterResourceList = [];
+                if(filterQuery.ami && filterQuery.ami !== null){
+                    resourceObj['ami'] = filterQuery.ami;
+                }
+                if(filterQuery.ip && filterQuery.ip !== null){
+                    resourceObj['ip'] = filterQuery.ip;
+                }
+                if(filterQuery.vpc && filterQuery.vpc !== null){
+                    resourceObj['vpc'] = filterQuery.vpc;
+                }
+                if(filterQuery.subnet && filterQuery.subnet !== null){
+                    resourceObj['subnet'] = filterQuery.subnet;
+                }
+                if(filterQuery.tags && filterQuery.tags !== null){
+                    resourceObj['tags'] = filterQuery.tags;
+                }
+                if(filterQuery.keyPairName && filterQuery.keyPairName !== null){
+                    resourceObj['keyPairName'] = filterQuery.keyPairName;
+                }
+                if(filterQuery.group && filterQuery.group !== null){
+                    resourceObj['group'] = filterQuery.group;
+                }
+                if(filterQuery.roles && filterQuery.roles !== null){
+                    resourceObj['roles'] = filterQuery.roles;
+                }
+                services.resources.forEach(function(resource){
+                    var filterObj = {}
+                    Object.keys(resource).forEach(function(key){
+                        if(key !== 'id' || key !== 'state' ||  key !== 'type' ||  key !== 'name' || key !== 'platformId'){
+                            filterObj[key] = resource[key];
+                        }
+                    })
+                    if(JSON.stringify(resourceObj) === JSON.stringify(filterObj)){
+                        filterResourceList.push(resource);
+                    }
+                })
+                next(null,filterResourceList);
             }else{
-                next(null,services);
+                next(null,services.resources);
             }
         }
     ],function(err,results){
