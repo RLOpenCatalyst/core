@@ -44,7 +44,7 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.databaseUtil(paginationReq, next);
         },
         function (queryObj, next) {
-            service.getLastVersionOfEachService(queryObj.queryObj,function(err,data){
+            services.getLastVersionOfEachService(queryObj.queryObj,function(err,data){
                 if(err){
                     next(err,null);
                 }else if(data.length > 0){
