@@ -179,7 +179,7 @@ function generateEC2UsageMetricsForProvider(provider, instances, startTime, endT
                 resources.getResourcesByProviderResourceType(provider._id, 'EC2', next);
             },
             function (ec2Instance,next) {
-                resourceService.getEC2InstanceUsageMetrics(provider, ec2Instance, startTime, endTime, period, next);
+                resourceService.getEC2ResourceUsageMetrics(provider, ec2Instance, startTime, endTime, period, next);
             },
             function (ec2UsageMetrics, next) {
                 saveResourceUsageMetrics(ec2UsageMetrics, next);

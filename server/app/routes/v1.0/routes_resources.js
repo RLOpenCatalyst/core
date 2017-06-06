@@ -117,10 +117,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         var trackReport = {
                             totalResources:resourceList.length,
                             totalAssignedResources:0,
+                            totalManagedResources:0,
                             totalUnAssignedResources:0,
                         }
                         resourceList.forEach(function(service){
-                            if(service.category === 'assigned'){
+                            if(service.category === 'managed'){
+                                trackReport.totalManagedResources = trackReport.totalManagedResources + 1;
+                            }else if(service.category === 'assigned'){
                                 trackReport.totalAssignedResources = trackReport.totalAssignedResources + 1;
                             }else if(service.category === 'unassigned'){
                                 trackReport.totalUnAssignedResources = trackReport.totalUnAssignedResources + 1;

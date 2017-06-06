@@ -70,7 +70,7 @@ var ApiUtil = function() {
                 break;
             case 'roles':
                 query = {
-                    'chefServerDetails.run_list': {$in: value}
+                    'configDetails.run_list': {$in: value}
                 };
                 break;
             case 'tags':
@@ -102,7 +102,7 @@ var ApiUtil = function() {
                             });
                             break;
                         case 'roles':
-                            query['chefServerDetails.run_list'] = {$in: value};
+                            query['configDetails.run_list'] = {$in: value};
                             break;
                         case 'stackName':
                             query['stackName'] = value;
@@ -143,7 +143,7 @@ var ApiUtil = function() {
             case 'roles':
                 var run_list = [];
                 for(var  i = 0; i < value.length; i++){
-                    if(resource.chefServerDetails.run_list.indexOf(value[i]) !== -1){
+                    if(resource.configDetails.run_list.indexOf(value[i]) !== -1){
                         run_list.push(value[i]);
                     }
                 }
@@ -181,7 +181,7 @@ var ApiUtil = function() {
                         case 'roles':
                             var run_list = [];
                             for(var  i = 0; i < value.length; i++){
-                                if(resource.chefServerDetails.run_list.indexOf(value[i]) !== -1){
+                                if(resource.configDetails.run_list.indexOf(value[i]) !== -1){
                                     run_list.push(value[i]);
                                 }
                             }

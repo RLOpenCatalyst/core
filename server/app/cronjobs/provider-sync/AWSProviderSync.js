@@ -860,7 +860,7 @@ function serviceMapSync(callback){
                                                 identifierCount++;
                                                 chefNodes.forEach(function(chefNode){
                                                     var query ={
-                                                        'chefServerDetails.nodeName':chefNode.name,
+                                                        'configDetails.nodeName':chefNode.name,
                                                         $or:[{
                                                             'resourceDetails.publicIp':chefNode.ip},
                                                             {
@@ -944,25 +944,57 @@ function serviceMapVersion(service,resources,instanceStateList){
         function(next){
             if(resources.length > 0){
                 resources.forEach(function(node){
-                    var resourceObj = {
-                        id: node.result._id,
-                        type: node.result.resourceType,
-                        state: node.result.resourceDetails.state
-                    }
-                    resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                    var findCheck = false;
-                    for(var i = 0; i < filterResourceList.length; i++){
-                        if(JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)){
-                            var filterObj = filterResourceList[i];
-                            filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                            filterResourceList.splice(i,1);
-                            filterResourceList.push(filterObj);
-                            findCheck = true;
+                    if(node.result.category !== 'managed') {
+                        var resourceObj = {
+                            id: node.result._id,
+                            type: node.result.resourceType,
+                            state: node.result.resourceDetails.state,
+                            category: node.result.category,
+                            name: node.result.name
                         }
+                        resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        var findCheck = false;
+                        for (var i = 0; i < filterResourceList.length; i++) {
+                            if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
+                                var filterObj = filterResourceList[i];
+                                filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                filterResourceList.splice(i, 1);
+                                filterResourceList.push(filterObj);
+                                findCheck = true;
+                            }
+                        }
+                        if (findCheck === false) {
+                            filterResourceList.push(resourceObj);
+                        }
+                    }else if(service.masterDetails.bgId === node.result.masterDetails.bgId
+                            && service.masterDetails.projectId === node.result.masterDetails.projectId
+                            && service.masterDetails.envId === node.result.masterDetails.envId
+                            && service.masterDetails.configId === node.result.configDetails.id) {
+                        var resourceObj = {
+                            id: node.result._id,
+                            type: node.result.resourceType,
+                            state: node.result.resourceDetails.state,
+                            category: node.result.category,
+                            name: node.result.name
+                        }
+                        resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        var findCheck = false;
+                        for (var i = 0; i < filterResourceList.length; i++) {
+                            if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
+                                var filterObj = filterResourceList[i];
+                                filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                filterResourceList.splice(i, 1);
+                                filterResourceList.push(filterObj);
+                                findCheck = true;
+                            }
+                        }
+                        if (findCheck === false) {
+                            filterResourceList.push(resourceObj);
+                        }
+                    }else{
+                        logger.debug("Un-Matched Record");
                     }
-                    if(findCheck === false) {
-                        filterResourceList.push(resourceObj);
-                    }
+
                 });
                 next(null, filterResourceList);
             }else{
@@ -973,7 +1005,7 @@ function serviceMapVersion(service,resources,instanceStateList){
             var serviceState = getServiceState(instanceStateList);
             if(service.resources.length === filterObj.length && instanceStateList.indexOf('deleted') === -1){
                 service.updatedOn = new Date().getTime();
-                serviceMapService.updateService({name:service.name},{state:serviceState,resources:filterObj},function(err,data){
+                serviceMapService.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
                     if(err){
                         logger.error("Error in updating Service:",err);
                         next(err,null);
@@ -1115,7 +1147,7 @@ function createOrUpdateResource(instance,callback){
             route53HostedParams:instance.route53HostedParams,
             hardware:instance.hardware
         },
-        chefServerDetails:{
+        configDetails:{
             id:instance.chef.serverId,
             nodeName:instance.chef.chefNodeName,
             run_list:instance.runlist,

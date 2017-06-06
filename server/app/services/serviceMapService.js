@@ -25,6 +25,7 @@ var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 const ymlJs= require('yamljs');
+var uuid = require('node-uuid');
 
 var serviceMapService = module.exports = {};
 
@@ -59,8 +60,7 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
     })
 
 };
-
-serviceMapService.deleteService = function deleteService(serviceId,callback){
+serviceMapService.deleteServiceById = function deleteServiceById(serviceId,callback){
     async.waterfall([
         function(next){
             services.getServiceById(serviceId,next);
@@ -87,7 +87,7 @@ serviceMapService.deleteService = function deleteService(serviceId,callback){
 }
 
 serviceMapService.createNewService = function createNewService(servicesObj,callback){
-    if(servicesObj.type !== 'Service') {
+    if(servicesObj.ymlFileId && servicesObj.ymlFileId !== null) {
         services.createNew(servicesObj, function (err, servicesData) {
             if (err) {
                 logger.error("services.createNew is Failed ==>", err);
@@ -101,7 +101,7 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
     }else{
         fileUpload.getReadStreamFileByFileId(servicesObj.fileId, function (err, fileDetail) {
             if (err) {
-                logger.error("Error in reading YAML File.");
+                logger.error("Error in reading YML File.");
                 callback(err, null);
                 return;
             } else {
@@ -160,7 +160,7 @@ serviceMapService.updateServiceById = function updateServiceById(serviceId,data,
             }else{
                 var err =  new Error();
                 err.code = 500;
-                err.message = "No Service is available in DB against name "+resourceName;
+                err.message = "No Service is available in DB against serviceId "+serviceId;
                 next(err,null);
             }
         }
@@ -184,7 +184,7 @@ serviceMapService.getLastVersionOfEachService = function getLastVersionOfEachSer
             if(servicesData.length > 0){
                 next(null,servicesData);
             }else{
-                logger.debug("No Service is available in DB against filterBy: "+JSON.stringify(filterBy));
+                logger.debug("No Service is available in DB: ");
                 next(null,servicesData);
             }
         }
@@ -206,7 +206,7 @@ serviceMapService.updateService = function updateService(filterQuery,data,callba
         },
         function(servicesData,next){
             if(servicesData.length > 0){
-                services.updatedService(filterQuery,data,next);
+                services.updateService(filterQuery,data,next);
             }else{
                 var err =  new Error();
                 err.code = 500;
@@ -296,84 +296,95 @@ function changeServiceResponse(services,callback){
         serviceList = services;
     }
     if(serviceList.length > 0){
+        var count = 0;
         for(var  i = 0 ; i < serviceList.length; i++){
             (function(service){
-                var serviceObj = {
-                    masterDetails:service.masterDetails,
-                    name:service.name,
-                    type:service.type,
-                    desc:service.desc,
-                    state:service.state,
-                    identifiers:service.identifiers,
-                    resources:service.resources,
-                    createdOn:service.createdOn,
-                    updatedOn:service.updatedOn,
-                    version:service.version
-                }
-                masterUtil.getOrgByRowId(service.masterDetails.orgId,function(err,orgs){
-                    if (err) {
-                        logger.error("Error in fetching Org Details for : " + service.masterDetails.orgId + " " + err);
+                formattedServiceResponse(service,function(err,data){
+                    if(err){
+                        logger.error("Error in formatted Service Response:");
                     }
-                    serviceObj.masterDetails.orgName =  orgs.length > 0 ? orgs[0].orgname : null;
-                    masterUtil.getBusinessGroupName(service.masterDetails.bgId,function(err,businessGroupName) {
-                        if (err) {
-                            logger.error("Error in fetching Bg Name for : " + service.masterDetails.bgId + " " + err);
+                    count++;
+                    if(data !== null) {
+                        resultList.push(data);
+                    }
+                    if(count === serviceList.length){
+                        if(services.docs && services.docs.length > 0){
+                            services.docs = resultList;
+                        }else{
+                            services = resultList;
                         }
-                        serviceObj.masterDetails.bgName = businessGroupName;
-                        masterUtil.getProjectName(service.masterDetails.projectId,function(err,projectName){
-                            if (err) {
-                                logger.error("Error in fetching Project Name for : " + service.masterDetails.projectId + " " + err);
-                            }
-                            serviceObj.masterDetails.projectName =  projectName;
-                            masterUtil.getEnvironmentName(service.masterDetails.envId,function(err,envName){
-                                if (err) {
-                                    logger.error("Error in fetching Env Name for : " + service.masterDetails.envId + " " + err);
-                                }
-                                serviceObj.masterDetails.envName =  envName;
-                                masterUtil.getChefDetailsById(service.masterDetails.chefServerId,function(err,chefDetails){
-                                    if (err) {
-                                        logger.error("Error in fetching Org Details for : " + service.masterDetails.chefServerId + " " + err);
-                                    }
-                                    serviceObj.masterDetails.chefServerName =  chefDetails !== null ? chefDetails[0].configname : null;
-                                    if(service.ymlFileId){
-                                        fileUpload.getReadStreamFileByFileId(service.ymlFileId,function(err,file){
-                                            if (err) {
-                                                logger.error("Error in fetching YAML Documents for : " + service.name + " " + err);
-                                            }else {
-                                                serviceObj.ymlFileName = file !== null ? file.fileName : file;
-                                                serviceObj.ymlFileData = file !== null ? file.fileData : file;
-                                                resultList.push(serviceObj);
-                                                if (resultList.length === serviceList.length) {
-                                                    if (services.docs) {
-                                                        services.docs = resultList;
-                                                    } else {
-                                                        services = resultList;
-                                                    }
-                                                    return callback(null, services);
-                                                }
-                                            }
-                                        });
-                                    }else{
-                                        resultList.push(serviceObj);
-                                        if(resultList.length === serviceList.length){
-                                            if(services.docs){
-                                                services.docs = resultList;
-                                            }else{
-                                                services = resultList;
-                                            }
-                                            return callback(null,services);
-                                        }
-                                    }
-                                });
-                            });
-                        });
-                    });
-                });
-
+                        return callback(null,services);
+                    }
+                })
             })(serviceList[i]);
         }
     }else{
         return callback(null,serviceList);
     }
+}
+
+function formattedServiceResponse(service,callback){
+    var serviceObj = {
+        id:service._id,
+        masterDetails:service.masterDetails,
+        name:service.name,
+        type:service.type,
+        desc:service.desc,
+        state:service.state,
+        identifiers:service.identifiers,
+        resources:service.resources,
+        createdOn:service.createdOn,
+        updatedOn:service.updatedOn,
+        version:service.version.toFixed(1)
+    }
+    masterUtil.getOrgByRowId(service.masterDetails.orgId,function(err,orgs){
+        if (err) {
+            logger.error("Error in fetching Org Details for : " + service.masterDetails.orgId + " " + err);
+            return callback(err,null);
+        }
+        serviceObj.masterDetails.orgName =  orgs.length > 0 ? orgs[0].orgname : null;
+        masterUtil.getBusinessGroupName(service.masterDetails.bgId,function(err,businessGroupName) {
+            if (err) {
+                logger.error("Error in fetching Bg Name for : " + service.masterDetails.bgId + " " + err);
+                return callback(err,null);
+            }
+            serviceObj.masterDetails.bgName = businessGroupName;
+            masterUtil.getProjectName(service.masterDetails.projectId,function(err,projectName){
+                if (err) {
+                    logger.error("Error in fetching Project Name for : " + service.masterDetails.projectId + " " + err);
+                    return callback(err,null);
+                }
+                serviceObj.masterDetails.projectName =  projectName;
+                masterUtil.getEnvironmentName(service.masterDetails.envId,function(err,envName){
+                    if (err) {
+                        logger.error("Error in fetching Env Name for : " + service.masterDetails.envId + " " + err);
+                        return callback(err,null);
+                    }
+                    serviceObj.masterDetails.envName =  envName;
+                    masterUtil.getChefDetailsById(service.masterDetails.configId,function(err,chefDetails){
+                        if (err) {
+                            logger.error("Error in fetching Org Details for : " + service.masterDetails.configId + " " + err);
+                            return callback(err,null);
+                        }
+                        serviceObj.masterDetails.configName =  chefDetails !== null ? chefDetails[0].configname : null;
+                        if(service.ymlFileId){
+                            fileUpload.getReadStreamFileByFileId(service.ymlFileId,function(err,file){
+                                if (err) {
+                                    logger.error("Error in fetching YAML Documents for : " + service.name + " " + err);
+                                    return callback(err,null);
+                                }else {
+                                    serviceObj.ymlFileName = file !== null ? file.fileName : file;
+                                    serviceObj.ymlFileData = file !== null ? file.fileData : file;
+                                    return callback(null, serviceObj);
+                                }
+                            });
+                        }else{
+                            return callback(null, serviceObj);
+                        }
+                    });
+                });
+            });
+        });
+    });
 }
 

@@ -380,6 +380,7 @@
             } else {
                 $scope.botLibraryGridView();
             }
+            //$scope.isBotDetailsLoading = false;
         };
 
         $scope.searchBotNameCategory = function(pageNumber) {
@@ -635,6 +636,7 @@
                 }
                 $scope.botsDetails(result);
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
+                $scope.isBotDetailsLoading = false;
             });
         };
         $scope.showFailedBots = function(resetPage) {
@@ -670,6 +672,7 @@
                 }
                 $scope.botsDetails(result);
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
+                $scope.isBotDetailsLoading = false;
             });
         };
         $scope.showScheduledBots = function(resetPage) {

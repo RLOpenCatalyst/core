@@ -141,7 +141,7 @@ serviceSchema.statics.createNew = function createNew(servicesObj, callback) {
 };
 
 
-serviceSchema.statics.updatedServiceById = function updatedServiceById(serviceId,servicesObj,callback) {
+serviceSchema.statics.updateServiceById = function updateServiceById(serviceId,servicesObj,callback) {
     services.update({_id:ObjectId(serviceId)},{$set:servicesObj},{multi:true},function (err, data) {
         if (err) {
             logger.error(err);
@@ -179,12 +179,14 @@ serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEac
                         name: { $last: "$name" },
                         type: { $last: "$type" },
                         state: { $last: "$state" },
+                        ymlFileId: { $last: "$ymlFileId" },
                         desc: { $last: "$desc" },
                         resources: { $last: "$resources" },
                         version: { $last: "$version" },
                         masterDetails: { $last: "$masterDetails" },
                         identifiers: { $last: "$identifiers" },
-                        createdOn: { $last: "$createdOn" }
+                        createdOn: { $last: "$createdOn" },
+                        updatedOn: { $last: "$updatedOn" }
                     }
             }],
         function(err, serviceList) {

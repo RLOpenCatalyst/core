@@ -27,12 +27,12 @@
             $scope.initGrids = function(){
 	            $scope.botSyncGrid={};
 	            $scope.botSyncGrid.columnDefs= [
+	            	{ name: 'Status',field:'status',cellTemplate:'<span ng-show="row.entity.status==\'new\'" class="materialGreen">New</span>' + '<span ng-show="row.entity.status==\'updated\'" class="materialBlue">Updated</span>' + '<span ng-show="row.entity.status==\'deleted\'" class="materialRed">Deleted</span>', cellTooltip: true},
 	                { name: 'BOT Name',displayName:'BOT Name',field:'name',cellTooltip: true},
 	                { name: 'BOT Id',displayName:'BOT Id',field:'id',cellTooltip: true},
 	                { name: 'BOT Type',displayName:'BOT Type',field:'type',cellTooltip: true},
-	                { name: 'Status',field:'status',cellTemplate:'<span ng-show="row.entity.status==\'new\'" class="materialGreen">New</span>' + '<span ng-show="row.entity.status==\'updated\'" class="materialBlue">Updated</span>' + '<span ng-show="row.entity.status==\'deleted\'" class="materialRed">Deleted</span>', cellTooltip: true},
 	                { name: 'Category',field:'category', cellTooltip: true},
-	                { name: 'Scheduled',field:'scheduled', cellTooltip: true}
+	                { name: 'Scheduled',field:'scheduled',cellTemplate:'<span title="Scheduled" ng-show="row.entity.scheduled===true"><i class="fa fa-lg fa-fw fa-clock-o"></i></span>' + '<span ng-show="row.entity.scheduled==false">-</span>'}
 	            ];
 	            $scope.botSyncGrid.data=[];
 	            angular.extend($scope.botSyncGrid,botLibraryUIGridDefaults.gridOption);

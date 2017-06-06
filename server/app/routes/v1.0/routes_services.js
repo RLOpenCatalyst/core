@@ -83,7 +83,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.delete('/services/:serviceId', function(req, res) {
-        serviceMapService.deleteService(req.params.serviceId,function(err,result){
+        serviceMapService.deleteServiceById(req.params.serviceId,function(err,result){
             if(err){
                 res.send(500,err);
                 return;

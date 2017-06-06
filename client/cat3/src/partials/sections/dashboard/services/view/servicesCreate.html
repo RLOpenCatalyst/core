@@ -1,0 +1,100 @@
+<div id='newServicePage' class="container scheduleBorder margintop15 backColor">
+   <form name="newServiceForm" novalidate ng-submit="newServiceForm.$valid && ok()">
+      <div class="page-name">
+         <span class="marginleft-18">Create New Service</span>
+      </div>
+      <div class="borderTop"></div>
+      <loading name="isNewServicePageLoading" size="large" type="block" align="center"></loading>
+      <div class="row new-task-wrapper" ng-show="!isNewServicePageLoading">
+         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding">
+            <div class="jobDetailsContent">
+               <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+                  <label class="control-label servicesLabel">Name
+                  <span class="control-label red">&nbsp;*</span>
+                  <span ng-show="newServiceForm.serviceName.$touched && newServiceForm.serviceName.$invalid" class="inputValidationMsg">Required
+                  </span>
+                  </label>
+                  <input type="text" name="serviceName" placeholder="Enter the Service Name" class="form-control" required autofocus ng-model="serviceName" maxlength="50" />
+               </div>
+
+               <div class="col-lg-6 col-md-6 col-sm-4 col-xs-6 margintop15">
+                  <label class="control-label servicesLabel">Description
+                  </label>
+                  <input type="text" name="serviceDescription" placeholder="Enter the Service Description" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="serviceDescription" maxlength="50" />
+               </div>
+
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Organization:<span class="red">*</span></label>
+                  <div class="input-groups">
+                      <select name="org" ng-model="IMGNewEnt.org" ng-options="org.name group by org.a for org in organObject" class="chooseProjectExisting width-100 form-control" ng-change="getMonitorConfig(IMGNewEnt.org)"  required>
+                          <option value="">Select</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Business Groups:<span class="red">*</span></label>
+                  <div class="input-groups">
+                      <select name="buss" id="bgListInputExisting" class="chooseBGExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups"  ng-model="IMGNewEnt.buss"  required>
+                          <option value="">Select</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Project:<span class="red">*</span></label>
+                  <div class="input-groups">
+                      <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups[organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups.indexOf(IMGNewEnt.buss)].projects" ng-model="IMGNewEnt.proj" required>
+                          <option value="">Select</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Environment:<span class="red">*</span></label>
+                  <div class="input-groups">
+                      <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="env.name group by env.a for env in IMGNewEnt.proj.environments" ng-model="IMGNewEnt.env" required>
+                          <option value="">Select</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Config Management :<span class="red">*</span>
+                   <loading size="medium" name="isConfigMonitorLoading" type="inline" classes='white' class="ng-scope"></loading>
+                  </label>
+                  <div class="input-groups">
+                      <select ng-model="IMGNewEnt.serverTypeInd" class="form-control ng-pristine ng-untouched ng-invalid ng-invalid-required"  required="">
+                          <option value="">Choose Server</option>
+                          <option ng-repeat="serverOption in configList" value="{{serverOption.rowid}}" class="ng-binding ng-scope">{{serverOption.configname}}</option>
+                      </select>
+                  </div>
+              </div>
+
+               <div class="col-lg-6 col-md-6 projectRepo margintop15">
+                  <label for="" class="servicesLabel">Monitoring:<loading size="medium" name="isConfigMonitorLoading" type="inline" classes='white' class="ng-scope"></loading></label>
+                  <select name="monitorId" ng-model="monitorId" class="form-control width-100">
+                     <option value="null">None</option>
+                     <option ng-repeat="monitor in monitorList" value="{{monitor._id}}">{{monitor.name}}</option>
+                  </select>
+               </div>
+                <div class="col-lg-6 col-md-6 authPemFile margintop15">
+                  <label for="autenticationYAMLfile" class="servicesLabel">YAML File
+                  <span class="control-label red">&nbsp;*</span>
+                  <span ng-show="newServiceForm.autenticationYAMLfile.$touched && newServiceForm.autenticationYAMLfile.$error.required" class="inputValidationMsg">Required
+                  </span>
+                  </label>
+                  <div class="input-groups">
+                     <input type="file" name="autenticationYAMLfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required="" onchange="angular.element(this).scope().setFile(this)">
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!--second column script-->
+      </div>
+      <div class="pager">
+         <button type="button" class="btn cat-btn-cancel margintop10" ui-sref="dashboard.bots.library">
+         <i class="fa fa-times black"></i> Cancel
+         </button>
+         <button  type="submit" class="btn cat-btn-update margintop10 marginleft10" ng-disabled="newServiceForm.$invalid" ng-click="postServices()">
+         <i class="fa fa-check white"></i> Save
+         </button>
+      </div>
+   </form>
+</div>
