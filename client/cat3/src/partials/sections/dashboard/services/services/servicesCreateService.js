@@ -37,7 +37,15 @@
 					inlineLoader: true
 				}
 				return genericServices.promiseGet(params); 	
-			}
+			};
+
+			serviceCreate.deleteService = function(serviceId) {
+				var params = {
+					url: '/services/' + serviceId,
+					inlineLoader: true
+				}
+				return genericServices.promiseDelete(params); 	
+			};
 
         }]);
 })(angular);
