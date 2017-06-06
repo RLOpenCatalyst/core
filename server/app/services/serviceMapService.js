@@ -99,7 +99,7 @@ serviceMapService.deleteServiceById = function deleteServiceById(serviceId,callb
         },
         function(servicesData,next){
             if(servicesData.length > 0){
-                services.deleteServiceById(serviceId,next);
+                services.updatedService({name:servicesData[0].name},{isDeleted:true},next);
             }else{
                 var err =  new Error();
                 err.code = 500;

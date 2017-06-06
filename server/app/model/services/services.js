@@ -276,17 +276,6 @@ serviceSchema.statics.getServiceById = function getServiceById(serviceId, callba
 };
 
 
-serviceSchema.statics.deleteServiceById = function deleteServiceById(serviceId, callback) {
-    services.remove({_id:ObjectId(serviceId)},function (err, servicesObj) {
-        if (err) {
-            logger.error(err);
-            return callback(err, null);
-        } else {
-            return callback(null, servicesObj);
-        }
-    });
-};
-
 
 
 var services = mongoose.model('services', serviceSchema);
