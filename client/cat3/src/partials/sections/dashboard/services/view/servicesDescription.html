@@ -1,8 +1,8 @@
 <div id="servicesDescriptionPage">
    <div class="page-name">
       Service Info - {{serviceSelected.name}}&nbsp;
-      <span class="pull-right">
-        <button type="button" title="Services List" class="btn btn-xs cat-btn-update btnDescription marginright6" ui-sref="dashboard.services.servicesList">
+      <span class="pull-right marginright20">
+        <button type="button" title="Services List" class="btn btn-xs cat-btn-update btnDescription" ui-sref="dashboard.services.servicesList">
                <i class="fa fa-chevron-left" style="color: #fff"></i><span class="marginleft5">Back</span>
          </button>
       </span>
@@ -13,7 +13,7 @@
          <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
             <li ng-class="{active:tab.isSet('Resources')}">
                <a ng-click="tab.setTab('Resources')">
-               <i class="fa fa-play black"></i>&nbsp;
+               <i class="fa fa-tachometer black"></i>&nbsp;
                Resources
                </a>
             </li>
@@ -26,7 +26,7 @@
             <li ng-class="{active:tab.isSet('Service Info')}">
                <a ng-click="tab.setTab('Service Info')">
                <i class="fa fa-info black"></i>&nbsp;
-               More Info
+               Info
                </a>
             </li>
          </ul>

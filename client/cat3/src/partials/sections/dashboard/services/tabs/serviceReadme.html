@@ -1,0 +1,8 @@
+<div id="serviceReadmePage">
+	<div class="container summary-container">
+		<section>
+			<pre ng-if="serviceSelected.ymlFileData">{{serviceSelected.ymlFileData}}</pre>
+			<div class="alert alert-info text-center" ng-if="!serviceSelected.ymlFileData" align="center">No YAML Data Found</div>
+		</section>
+	</div>
+</div>
