@@ -91,7 +91,21 @@
                 });
 
                 $scope.changeAuthenticationType = function(serviceObject) {
-
+                    $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/services/popups/serviceAuthentication.html',
+                        controller: 'servicesAuthenticationCtrl',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    serviceSelected: $scope.serviceSelected,
+                                    resourceObj: serviceObject
+                                }
+                            }
+                        }
+                    });
                 }
 
                 var serviceTab = {

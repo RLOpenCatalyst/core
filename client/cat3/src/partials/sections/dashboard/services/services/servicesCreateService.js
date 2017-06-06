@@ -11,6 +11,14 @@
 				return genericServices.promisePost(params);
 			};
 
+			serviceCreate.postAuthenticateResource = function (serviceId, resourceId) {
+				var params = {
+					url: '/services/' + serviceId + '/resource/' + resourceId + '/authentication',
+					data: services
+				};
+				return genericServices.promisePost(params);
+			};
+
 			serviceCreate.getMonitorList = function (orgId) {
 				var url = '/monitors';
 				if(orgId){
