@@ -878,6 +878,18 @@ var InstancesDao = function () {
             }
         );
     };
+
+    this.getInstancesByFilter = function getInstancesByFilter(filterBy,callback) {
+        Instances.find(filterBy,
+            function (err, instances) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    return callback(null, instances);
+                }
+            }
+        );
+    };
     this.findByProviderId = function (providerId, callback) {
         var queryObj = {
             providerId: providerId
@@ -2181,6 +2193,20 @@ var InstancesDao = function () {
         Instances.update({
             _id: new ObjectId(instanceId)
         }, {
+            $set: instanceData
+        }, {
+            upsert: false
+        }, function (err, instance) {
+            if (err) {
+                logger.debug("Got error while updating Instance: ", err);
+                return callback(err, null);
+            }
+            return callback(null, instance);
+        });
+    }
+
+    this.updateInstanceByFilter = function updateInstanceByFilter(filterBy, instanceData, callback) {
+        Instances.update(filterBy, {
             $set: instanceData
         }, {
             upsert: false
