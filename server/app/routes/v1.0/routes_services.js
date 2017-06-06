@@ -45,6 +45,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
+    app.get('/services/:serviceName/versions', function(req, res) {
+        serviceMapService.getAllServiceVersionByName(req.params.serviceName,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(200,result)
+                return
+            }
+        });
+    });
+
     app.post('/services', function(req, res) {
         req.body.userName = req.session.user.cn;
         serviceMapService.createNewService(req.body,function(err,result){

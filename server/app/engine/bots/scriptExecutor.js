@@ -31,8 +31,7 @@ var auditQueue = require('_pr/config/global-data.js');
 var request = require('request');
 var scriptService = require('_pr/services/scriptService.js');
 var commonService = require('_pr/services/commonService.js');
-var fileIo = require('_pr/lib/utils/fileio');
-var SCP = require('_pr/lib/utils/scp');
+
 
 const errorType = 'scriptExecutor';
 

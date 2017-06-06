@@ -797,7 +797,7 @@ function serviceMapSync(callback){
     logger.debug("ServiceMap is Started");
     async.waterfall([
         function(next){
-            serviceMapService.getLastVersionOfEachService(next);
+            serviceMapService.getLastVersionOfEachService({},next);
         },
         function(services,next){
             if(services.length >0){
