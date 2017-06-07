@@ -45,6 +45,25 @@
                     return deferred.promise;
                 }]
             }
+        }).state('dashboard.services.servicesDescription', {
+            url: "/serviceDescription",
+            templateUrl: "src/partials/sections/dashboard/services/view/servicesDescription.html",
+            controller: "servicesDescriptionCtrl",
+            parameters:{filterView:{serviceDescription:true}},
+            params:{serviceDetail:[],listType:0},
+            resolve: {
+                auth: ["$q", function ($q) {
+                    var deferred = $q.defer();
+                    // instead, go to a different page
+                    if (modulePerms.servicesBool()) {
+                        // everything is fine, proceed
+                        deferred.resolve();
+                    } else {
+                        deferred.reject({redirectTo: 'dashboard'});
+                    }
+                    return deferred.promise;
+                }]
+            }
         })
 	}]).controller('servicesTreeMenu',['$rootScope', '$scope', '$http','workzoneServices', 'workzoneEnvironment','genericServices', 'workzoneNode', '$timeout', 'modulePermission', '$window', function ($rootScope, $scope, $http, workzoneServices, workzoneEnvironment,genSevs, workzoneNode, $timeout, modulePerms, $window){
             //For showing menu icon in menu over breadcrumb without position flickering during load
