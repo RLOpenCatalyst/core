@@ -85,6 +85,7 @@
 	                gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
 	                    $scope.paginationParams.page = newPage;
 	                    $scope.paginationParams.pageSize = pageSize;
+	                    $scope.botId = [];
 	                    $scope.actionStatus = 'list';
 	                    $scope.botSyncGridView();
 	                });
