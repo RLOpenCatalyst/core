@@ -167,7 +167,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, query, callback) 
         });
     }
     else {
-        callback(null,true);
+        return callback(null,true);
     }
 };
 
