@@ -125,7 +125,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, query, callback) 
         err.status = 400;
         return callback(err);
     }
-    else if(!globalData.getGit(gitHubId) && query.action === 'cancel'){
+    else if(globalData.getGit(gitHubId) && query.action === 'cancel'){
         globalData.unSetGit(gitHubId);
         callback(null,true);
     }
@@ -167,10 +167,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, query, callback) 
         });
     }
     else {
-        globalData.unSetGit(gitHubId);
-        var err = new Error('Invalid Query params');
-        err.status = 400;
-        return callback(err);
+        callback(null,true);
     }
 };
 

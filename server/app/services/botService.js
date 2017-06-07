@@ -238,7 +238,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
         function (bots, next) {
             if (bots.length > 0) {
                 botId = bots[0]._id;
-                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false) {
+                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'meta' || bots[0].type === 'chef') && schedulerCallCheck === false) {
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
@@ -298,7 +298,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             function (auditTrail, next) {
                                 var uuid = require('node-uuid');
                                 auditTrail.actionId = uuid.v4();
-                                if (botDetails[0].type === 'script') {
+                                if (botDetails[0].type === 'script' || botDetails[0].type === 'meta') {
                                     scriptExecutor.execute(botDetails[0], reqBody, auditTrail, userName, executionType, botRemoteServerDetails, schedulerCallCheck, next);
                                 } else if (botDetails[0].type === 'chef') {
                                     chefExecutor.execute(botDetails[0], reqBody, auditTrail, userName, executionType, botRemoteServerDetails, schedulerCallCheck, next);
@@ -335,7 +335,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                         })
                     },
                     bots: function (callback) {
-                        if ((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
+                        if ((botDetails[0].type === 'script' || botDetails[0].type === 'meta' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === true) {
                             var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
@@ -344,7 +344,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                 lastExecutionStatus: "running"
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
-                        } else if ((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
+                        } else if ((botDetails[0].type === 'script' || botDetails[0].type === 'meta' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === false) {
                             encryptedParam(reqBody, botDetails[0].inputFormFields, function (err, encryptData) {
                                 if (err) {
