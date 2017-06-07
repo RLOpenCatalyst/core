@@ -997,7 +997,8 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
                 blueprintData: {
                     blueprintName: chefNodeDetails.name,
                     templateName: "chef_import",
-                }
+                },
+                authentication:'failed'
             }
             resourceObj.createdOn = new Date().getTime();
             instanceModel.createNew(resourceObj,function(err,data){
