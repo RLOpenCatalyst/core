@@ -85,7 +85,12 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
         },
         credentials:Schema.Types.Mixed,
         route53HostedParams:[Schema.Types.Mixed],
-        hardware:Schema.Types.Mixed
+        hardware:Schema.Types.Mixed,
+        dockerEngineState: {
+            type: String,
+            required: false,
+            trim: true
+        }
     }
 });
 

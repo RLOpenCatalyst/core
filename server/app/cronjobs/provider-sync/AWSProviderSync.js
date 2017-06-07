@@ -1126,10 +1126,8 @@ function getServiceState(serviceStateList){
         return 'Pending';
     }else if(serviceStateList.indexOf('deleted') !== -1){
         return 'Deleted';
-    }else if(serviceStateList.indexOf('initializing') !== -1){
-        return 'Initializing';
     }else{
-        return 'Undefined';
+        return 'Initializing';
     }
 }
 
@@ -1184,7 +1182,13 @@ function saeSync(callback){
 }
 
 function createOrUpdateResource(instance,callback){
-    if(instance.source !== 'cloud' || instance.source !== 'service' || (instance.source !== 'blueprint' && instance.providerType && instance.providerType !== 'aws')) {
+    if(instance.source === 'service'){
+        return callback(null,null);
+    }else if(instance.source === 'cloud'){
+        return callback(null,null);
+    }else if(instance.source === 'blueprint' && instance.providerType && instance.providerType !== 'aws'){
+        return callback(null,null);
+    }else {
         var resourceObj = {
             name: instance.name,
             category: 'managed',
@@ -1209,7 +1213,8 @@ function createOrUpdateResource(instance,callback){
                 bootStrapState: instance.bootStrapStatus,
                 credentials: instance.credentials,
                 route53HostedParams: instance.route53HostedParams,
-                hardware: instance.hardware
+                hardware: instance.hardware,
+                dockerEngineState: instance.docker.dockerEngineStatus
             },
             configDetails: {
                 id: instance.chef.serverId,
@@ -1285,8 +1290,6 @@ function createOrUpdateResource(instance,callback){
                 })
             }
         })
-    }else{
-        return callback(null, null);
     }
 }
 

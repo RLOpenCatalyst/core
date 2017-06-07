@@ -804,7 +804,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                                 instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
                                                                                                     logger.debug('Instance Docker Status set to Success');
                                                                                                 });
-
+                                                                                                var queryObj = {
+                                                                                                    'resourceDetails.dockerEngineState':'success'
+                                                                                                }
+                                                                                                instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                                                                    if (err) {
+                                                                                                        logger.error("Error in updating Resource Authentication : " + err)
+                                                                                                    }
+                                                                                                });
                                                                                             }
                                                                                         });
 

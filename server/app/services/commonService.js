@@ -484,6 +484,14 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                                             logger.debug("Instance hardware details set successessfully");
                                                         }
                                                     });
+                                                    var queryObj = {
+                                                        'resourceDetails.hardware':hardwareData
+                                                    }
+                                                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Error in updating Resource Authentication : " + err)
+                                                        }
+                                                    });
                                                 });
                                             }, 30000);
                                         });
@@ -519,6 +527,14 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                                     logger.debug("Instance hardware details set successessfully");
                                                 }
                                             });
+                                            var queryObj = {
+                                                'resourceDetails.hardware':hardwareData
+                                            }
+                                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in updating Resource Authentication : " + err)
+                                                }
+                                            });
                                             if (decryptedCredentials.pemFilePath) {
                                                 fileIo.removeFile(decryptedCredentials.pemFilePath, function (err) {
                                                     if (err) {
@@ -538,10 +554,18 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                         }
                                         logger.debug('Docker Check Returned:' + retCode);
                                         if (retCode == '0') {
+                                            dockerEngineState
                                             instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
                                                 logger.debug('Instance Docker Status set to Success');
                                             });
-
+                                            var queryObj = {
+                                                'resourceDetails.dockerEngineState':'success'
+                                            }
+                                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in updating Resource Authentication : " + err)
+                                                }
+                                            });
                                         }
                                     });
 

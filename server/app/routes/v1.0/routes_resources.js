@@ -134,9 +134,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         next(null,trackReport);
                     }else{
                         var trackReport = {
-                            totalResources:resources.length,
-                            totalAssignedResources:resources.length,
-                            totalUnAssignedResources:resources.length,
+                            totalResources:resourceList.length,
+                            totalAssignedResources:resourceList.length,
+                            totalManagedResources:resourceList.length,
+                            totalUnAssignedResources:resourceList.length,
                         }
                         next(null,trackReport);
                     }
