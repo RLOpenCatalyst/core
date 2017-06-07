@@ -206,7 +206,7 @@
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);
-			}
+			};
 
 			botService.getLoggedInUser = function () {
 				var params = {
