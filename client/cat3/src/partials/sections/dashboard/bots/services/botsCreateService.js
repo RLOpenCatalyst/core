@@ -188,7 +188,7 @@
 					url += 'type:'+ type + ',category:'+category
 				} else if(type !==undefined && status !==undefined) {
 					url += 'type:'+ type + ',status:'+status
-				} else if(type !==undefined && status !==undefined) {
+				} else if(status !==undefined && category !==undefined) {
 
 				}
 				else if(type !== undefined) {
