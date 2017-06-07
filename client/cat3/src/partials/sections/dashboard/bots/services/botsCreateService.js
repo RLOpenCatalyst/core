@@ -148,13 +148,65 @@
 				return genericServices.promiseGet(params);
 			};
 
-			botService.getGitHubSyncDetails = function () {
+			botService.getGitHubDetails = function () {
+				var params = {
+					url: '/git-hub',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getGitHubSyncDetails = function (actionStatus, gitHubId, pageNumber, pageSize, sortBy, sortOrder) {
 				var params ={
-					url : 'src/partials/sections/dashboard/bots/gitSync.json',
+					url : '/git-hub/' + gitHubId + '/sync?action=' + actionStatus + '&page=' + pageNumber +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder,
 					inlineLoader: true	
 				} 
 				return genericServices.promiseGet(params);
 			};
+
+			botService.getGitHubSyncDetailsSearch = function (actionStatus, gitHubId, pageNumber, pageSize, sortBy, sortOrder,searchString) {
+				var params ={
+					url : '/git-hub/' + gitHubId + '/sync?action=' + actionStatus + '&page=' + pageNumber +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder+'&search=' + searchString,
+					inlineLoader: true	
+				} 
+				return genericServices.promiseGet(params);
+			};
+
+			botService.postBotSync = function(gitHubId,reqBody) {
+				var params = {
+					url: '/git-hub/' + gitHubId + '/copy',
+					data: reqBody
+				};
+				return genericServices.promisePost(params);
+			};
+
+			botService.applyFilter = function(actionStatus, gitHubId, type, category, status, page, pageSize, sortBy, sortOrder) {
+				var url = '/git-hub/' + gitHubId + '/sync?action=' + actionStatus + '&filterBy=';
+				if(type !==undefined && category !==undefined && status !==undefined) {
+					url += 'type:'+ type + ',category:'+category + ',status:'+ status 
+				}else if(type !==undefined && category !==undefined) {
+					url += 'type:'+ type + ',category:'+category
+				} else if(type !==undefined && status !==undefined) {
+					url += 'type:'+ type + ',status:'+status
+				} else if(status !==undefined && category !==undefined) {
+					url += 'status:'+ status + ',category:'+category
+				} else if(type !== undefined) {
+					url += 'type:' + type
+				} else if(category !== undefined) {
+					url += 'category:' + category;	
+				} else if(status !== undefined) {
+					url += 'status:' + status;	
+				} else {
+					url = '/git-hub/' + gitHubId + '/sync?action=' + actionStatus + '&page=' + page +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder
+					return false;
+				}
+				url += '&page=' + page +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder
+				var params = {
+					url: url,
+					inlineLoader: true	
+				};
+				return genericServices.promiseGet(params);
+			}
 
         }]);
 })(angular);

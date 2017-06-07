@@ -73,7 +73,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
         commonJson.outputOptions.msgs.text = "Script ${scripName} has executed successfully on Node ${node}";
         for(var i = 0; i < reqBody.scriptDetails.length; i ++) {
             (function (scriptDetail) {
-                scriptFileName = appConfig.botFactoryDir + 'local/Code/script_BOTs/' + commonJson.id;
+                scriptFileName = appConfig.botFactoryDir + 'local/' + commonJson.id;
                 var scriptFolder = path.normalize(scriptFileName);
                 mkdirp.sync(scriptFolder);
                 scriptService.getScriptById(scriptDetail.scriptId, function (err, fileData) {
@@ -262,7 +262,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
         commonJson.orgId = reqBody.orgId;
         commonJson.orgName = reqBody.orgName;
         commonJson.source = "Catalyst";
-        var ymlFolderName = appConfig.botFactoryDir + 'local/YAML';
+        var ymlFolderName = appConfig.botFactoryDir + 'local/'+commonJson.id;
         var ymlFileName = commonJson.id + '.yaml'
         var ymlFolder = path.normalize(ymlFolderName);
         mkdirp.sync(ymlFolder);

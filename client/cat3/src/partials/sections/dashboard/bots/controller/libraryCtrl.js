@@ -9,7 +9,13 @@
     "use strict";
     angular.module('dashboard.bots')
     .controller('libraryCtrl',['$scope', '$rootScope', 'moment', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, moment, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
-
+        genSevs.getTreeNew().then(function (orgs) {
+            $rootScope.organObject=orgs;
+            $rootScope.organNewEnt=[];
+            $rootScope.organNewEnt.org = orgs[0];
+            $rootScope.organNewEnt.buss = orgs[0].businessGroups[0];
+            $rootScope.organNewEnt.proj = orgs[0].businessGroups[0].projects[0];
+        });
         var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
@@ -49,7 +55,7 @@
                     '<img src="images/bots/serviceManagement.png" ng-show="row.entity.category==\'Service Management\'" alt="row.entity.category" title="Service Management" class="task-type-img" />'+
                     '<img src="images/bots/upgrade.png" ng-show="row.entity.category==\'Upgrade\'" alt="row.entity.category" title="Upgrade" class="task-type-img" />',cellTooltip: true},
                 { name: 'Name',displayName: 'Name',field:'name',cellTooltip: true},
-                { name: 'Type',displayName: 'Type',field:'id',cellTooltip: true},
+                { name: 'BOT Id',displayName: 'BOT Id',field:'id',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
              //   { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
                 { name: 'Organization',field:'orgName',cellTooltip: true},
@@ -111,6 +117,7 @@
                 });
                 //Pagination for page and pageSize
                 gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+                    console.log(newPage);
                     $scope.paginationParams.page = newPage;
                     $scope.paginationParams.pageSize = pageSize;
                     $scope.currentCardPage = newPage;
@@ -248,12 +255,12 @@
             lib.gridOptions=[];
             var param={
                 inlineLoader:true,
-                url:'/audit-trail?filterBy=auditType:BOT&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bot?actionStatus=running&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
                     $scope.showLoadRecord();
-                    $scope.botTimeSavedLibGridOptions.data =  result.auditTrails;
+                    $scope.botTimeSavedLibGridOptions.data =  result.bots;
                     $scope.isBotTimeSavedPageLoading = false;
                     $scope.isBotServiceNowPageLoading = false;
                     $scope.isBotDetailsLoading = false;
@@ -589,7 +596,7 @@
         };
         $scope.showAllBots = function() {
             $scope.noShowForServiceNow = true;
-             $scope.noShowForTimeSaved = true;
+            $scope.noShowForTimeSaved = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.botLibGridOptions.data = [];
@@ -605,7 +612,7 @@
         };
         $scope.showBotsRunning = function(resetPage) {
             $scope.noShowForServiceNow = true;
-             $scope.noShowForTimeSaved = true;
+            $scope.noShowForTimeSaved = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
@@ -707,6 +714,10 @@
             lib.gridOptions.data=[];
             $scope.botTimeSavedLibraryGridView();
         };
+
+        $scope.syncBots = function() {
+            $state.go('dashboard.bots.sync');
+        }
         
         $scope.setCardView();
     }]);
