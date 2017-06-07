@@ -180,5 +180,33 @@
 				return genericServices.promisePost(params);
 			};
 
+			/*botService.applyFilter = function(type, category, status, page, pageSize, sortBy, sortOrder) {
+				var url = '/git-hub/' + gitHubId + '/sync?action=';
+				if(type !==undefined && category !==undefined && status !==undefined) {
+					url += 'type:'+ type + ',category:'+category + ',status:'+ status 
+				}else if(type !==undefined && category !==undefined) {
+					url += 'type:'+ type + ',category:'+category
+				} else if(type !==undefined && status !==undefined) {
+					url += 'type:'+ type + ',status:'+status
+				} else if(type !==undefined && status !==undefined) {
+
+				}
+				else if(type !== undefined) {
+					url += 'type:' + type
+				}
+				else if(category !== undefined) {
+					url += 'category:' + category;	
+				}
+				else if(status !== undefined) {
+					url += 'status:' + status;	
+				}
+				url += '&page=' + page +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder
+				var params = {
+					url: url,
+					inlineLoader: true	
+				};
+				return genericServices.promiseGet(params);
+			}*/
+
         }]);
 })(angular);

@@ -21,7 +21,6 @@
         	botsSyncCtrl.newEnt = [];
         	var treeNames = ['BOTs','BOTs Sync'];   
             $rootScope.$emit('treeNameUpdate', treeNames);
-            $scope.actionStatus = 'sync';
             var botLibraryUIGridDefaults = uiGridOptionsService.options();
 	        $scope.paginationParams = botLibraryUIGridDefaults.pagination;
 	        botLibraryUIGridDefaults.gridOption.paginationPageSize = 25;
@@ -115,12 +114,19 @@
 	                    $scope.isBotSyncPageLoading = false;
 	                    $scope.isBotSyncDetailsLoading = false;
 		            });
+				} else {
+					$scope.botSyncGrid.data = [];
 				}
 			};
 			$scope.getGitHubDetails = function() {
 	        	botsCreateService.getGitHubDetails().then(function(response){
 	        		$scope.gitHubDetails =  response.data;
 	        		botsSyncCtrl.newEnt.gitHubId = response.data[0]._id;	
+	        		$scope.actionStatus = 'cancel';
+					botsCreateService.getGitHubSyncDetails($scope.actionStatus,botsSyncCtrl.newEnt.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
+						console.log(result);
+					});
+					$scope.actionStatus = 'sync';
 	        		$scope.botSyncGridView();
 	        	});
 	        };    
@@ -168,6 +174,11 @@
 					$state.go('dashboard.bots.library');
 				});
 			}
+
+			$scope.backToLibrary = function() {
+				$state.go('dashboard.bots.library');
+			}
+
 			$scope.init();
         }
     ]);
