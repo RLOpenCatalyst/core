@@ -78,7 +78,7 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             required: false,
             trim: true
         },
-        bootStrapStatus:{
+        bootStrapState:{
             type: String,
             required: false,
             trim: true
@@ -94,9 +94,10 @@ InstanceResourcesSchema.statics.createNew = function(instanceData,callback){
     instanceResource.save(function(err, data) {
         if (err) {
             logger.error("createNew Failed", err, data);
-            return;
+            return callback(err,null);
+        }else{
+            return callback(null,data);
         }
-        callback(null,data);
     });
 };
 

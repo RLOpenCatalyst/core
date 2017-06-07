@@ -152,7 +152,7 @@ serviceSchema.statics.updateServiceById = function updateServiceById(serviceId,s
     });
 };
 
-serviceSchema.statics.updatedService = function updatedService(filterQuery,servicesObj,callback) {
+serviceSchema.statics.updateService = function updateService(filterQuery,servicesObj,callback) {
     services.update(filterQuery,{$set:servicesObj},{multi:true},function (err, data) {
         if (err) {
             logger.error(err);

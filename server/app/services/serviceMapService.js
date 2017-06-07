@@ -28,7 +28,6 @@ const ymlJs= require('yamljs');
 var uuid = require('node-uuid');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var resourceModel = require('_pr/model/resources/resources');
-var instancesDao = require('_pr/model/classes/instance/instance');
 var commonService = require('_pr/services/commonService');
 
 var serviceMapService = module.exports = {};
@@ -99,7 +98,7 @@ serviceMapService.deleteServiceById = function deleteServiceById(serviceId,callb
         },
         function(servicesData,next){
             if(servicesData.length > 0){
-                services.updatedService({name:servicesData[0].name},{isDeleted:true},next);
+                services.updateService({name:servicesData[0].name},{isDeleted:true},next);
             }else{
                 var err =  new Error();
                 err.code = 500;
@@ -174,21 +173,30 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                                         servicesObj.type = 'Service';
                                         servicesObj.ymlFileId = servicesObj.fileId;
                                         servicesObj.createdOn = new Date().getTime();
-                                        monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
-                                            servicesObj.masterDetails.monitor = monitor;
-                                            servicesObj.state = 'Initializing';
-                                            services.createNew(servicesObj, function (err, servicesData) {
-                                                if (err) {
-                                                    logger.error("services.createNew is Failed ==>", err);
-                                                    callback(err, null);
-                                                    apiUtil.removeFile(desPath);
-                                                    return;
-                                                } else {
-                                                    callback(null, servicesData);
-                                                    apiUtil.removeFile(desPath);
-                                                    return;
-                                                }
-                                            });
+                                        getMasterDetails(servicesObj.masterDetails,function(err,result) {
+                                            if (err) {
+                                                logger.error("Unable to Master Details");
+                                                callback(err, null);
+                                                return;
+                                            } else {
+                                                monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
+                                                    servicesObj.masterDetails = result;
+                                                    servicesObj.masterDetails.monitor = monitor;
+                                                    servicesObj.state = 'Initializing';
+                                                    services.createNew(servicesObj, function (err, servicesData) {
+                                                        if (err) {
+                                                            logger.error("services.createNew is Failed ==>", err);
+                                                            callback(err, null);
+                                                            apiUtil.removeFile(desPath);
+                                                            return;
+                                                        } else {
+                                                            callback(null, servicesData);
+                                                            apiUtil.removeFile(desPath);
+                                                            return;
+                                                        }
+                                                    });
+                                                });
+                                            }
                                         });
                                     } else {
                                         var err = new Error("There is no data present YML.")
@@ -296,129 +304,90 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                         error.message = "Error in getting Resource Details By Id: "+resourceId +' : '+ err;
                         next(error,null);
                     }
-                    var nodeDetail = {
-                        nodeIp:resourceDetail.resourceDetails.publicIp && resourceDetail.resourceDetails.publicIp !== null ? resourceDetail.resourceDetails.publicIp:resourceDetail.resourceDetails.privateIp,
-                        nodeOs:resourceDetail.resourceDetails.hardware.os
-                    }
-                    if(credentials.type ==='password') {
-                        commonService.checkNodeCredentials(credentials,nodeDetail,function(err,credentialFlag){
-                            if(err || credentialFlag === false){
-                                var error =  new Error();
-                                error.code = 500;
-                                error.message = "Invalid Resource Credentials";
-                                next(error,null);
-                            }else{
-                                var cryptoConfig = appConfig.cryptoSettings;
-                                var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                var encryptedText = cryptography.encryptText(credentials.password, cryptoConfig.encryptionEncoding,
-                                    cryptoConfig.decryptionEncoding);
-                                credentials.password = encryptedText;
-                                resourceModel.updateResourceById(resourceId,{'resourceDetails.credentials':credentials,'resourceDetails.state':'running'},function(err,data){
-                                    if(err){
-                                        var error =  new Error();
-                                        error.code = 500;
-                                        error.message = "Error in updating Resource Model : " + err;
-                                        next(error,null);
-                                    }else{
-                                        instancesDao.updateInstanceByFilter({platformId:resourceDetail.resourceDetails.platformId,orgId:resourceDetail.masterDetails.orgId},{credentials:credentials,instanceState:'running'},function(err,data){
-                                            if(err){
-                                                logger.error("Error in updating Instance Data for Authentication");
-                                            }
-                                            next(null,data);
-                                        })
-                                    }
-                                })
-                            }
-                        })
-                    }else if(credentials.type ==='pemFile') {
-                        fileUpload.getReadStreamFileByFileId(credentials.fileId,function(err,file){
-                            if (err) {
-                                logger.error("Error in fetching YML Documents for : " + credentials.fileId + " " + err);
-                                return callback(err,null);
-                            }else {
-                                var resourceCredentials = {
-                                    username:credentials.username,
-                                    pemFileData:file.fileData,
-                                    pemFileLocation:file.fileName
-                                }
-                                commonService.checkNodeCredentials(resourceCredentials,nodeDetail,function(err,credentialFlag){
-                                    if(err || credentialFlag === false){
-                                        var error =  new Error();
-                                        error.code = 500;
-                                        error.message = "Invalid Resource Credentials";
-                                        next(error,null);
-                                    }else{
-                                        var cryptoConfig = appConfig.cryptoSettings;
-                                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                        var encryptedText = cryptography.encryptText(file.fileData, cryptoConfig.encryptionEncoding,
-                                            cryptoConfig.decryptionEncoding);
-                                        var queryObj = {
-                                            'resourceDetails.credentials':{
-                                                username:credentials.username,
-                                                pemFileId:credentials.fileId
-                                            },
-                                            'resourceDetails.state':'running'
+                    if(resourceDetail !== null) {
+                        var nodeDetail = {
+                            nodeIp: resourceDetail.resourceDetails.publicIp && resourceDetail.resourceDetails.publicIp !== null ? resourceDetail.resourceDetails.publicIp : resourceDetail.resourceDetails.privateIp,
+                            nodeOs: resourceDetail.resourceDetails.os
+                        }
+                        if (credentials.type && credentials.type === 'password') {
+                            commonService.checkNodeCredentials(credentials, nodeDetail, function (err, credentialFlag) {
+                                if (err || credentialFlag === false) {
+                                    var error = new Error();
+                                    error.code = 500;
+                                    error.message = "Invalid Resource Credentials";
+                                    next(error, null);
+                                } else {
+                                    next(null, {message: "Authentication is Done for Resource"});
+                                    services.updateService({
+                                        name: servicesData[0].name,
+                                        'resources': {$elemMatch: {id: resourceId}}
+                                    }, {
+                                        'resources.$.bootStrapState': 'bootStrapping',
+                                        state: 'Initializing'
+                                    }, function (err, result) {
+                                        if (err) {
+                                            logger.error("Error in updating Service State:", err);
                                         }
-                                        resourceModel.updateResourceById(resourceId,queryObj,function(err,data){
-                                            if(err){
-                                                var error =  new Error();
-                                                error.code = 500;
-                                                error.message = "Error in updating Resource Authentication : " + err;
-                                                next(error,null);
-                                            }else{
-                                                instancesDao.getInstancesByFilter({platformId:resourceDetail.resourceDetails.platformId,orgId:resourceDetail.masterDetails.orgId},function(err,instances){
-                                                    if(err){
-                                                        logger.error("Error in getting Instance Details:",err);
-                                                        return callback(err,null);
-                                                    }else if(instances.length > 0){
-                                                        var outputFilePath = appConfig.instancePemFilesDir + instances[0]._id;
-                                                        fs.writeFile(outputFilePath, encryptedText, {
-                                                        }, function(err) {
-                                                            if (err) {
-                                                                logger.debug(err);
-                                                                callback(err, null);
-                                                                return;
-                                                            }else {
-                                                                var queryObj = {
-                                                                    credentials: {
-                                                                        username: credentials.username,
-                                                                        pemFileLocation: outputFilePath
-                                                                    },
-                                                                    instanceState:'running'
-                                                                }
-                                                                instancesDao.updateInstanceByFilter({
-                                                                    platformId: resourceDetail.resourceDetails.platformId,
-                                                                    orgId: resourceDetail.masterDetails.orgId
-                                                                },queryObj, function (err, data) {
-                                                                    if (err) {
-                                                                        logger.error("Error in updating Instance Data for Authentication");
-                                                                    }
-                                                                    next(null, data);
-                                                                })
-                                                            }
-                                                        });
-                                                    }else{
-                                                        next(null,data);
-                                                    }
-                                                })
+                                        resourceModel.updateResourceById(resourceId, {
+                                            authentication: 'success',
+                                            'resourceDetails.bootStrapState': 'bootStrapping'
+                                        }, function (err, data) {
+                                            if (err) {
+                                                logger.error("Error in updating BootStrap State:", err);
                                             }
-                                        })
-                                    }
-                                })
-                            }
-                        });
+                                            commonService.bootstrapInstance(resourceDetail, credentials, servicesData[0], function (err, res) {
+                                                if (err) {
+                                                    var error = new Error();
+                                                    error.code = 500;
+                                                    error.message = "Error in Bootstraping Resource : " + err;
+                                                    next(error, null);
+                                                } else {
+                                                    next(null, res);
+                                                }
+                                            });
+                                        });
+                                    });
+                                }
+                            })
+                        } else if (credentials.type && credentials.type === 'pemFile') {
+                            commonService.checkNodeCredentials(nodeDetail, credentials, function (err, credentialFlag) {
+                                if (err || credentialFlag === false) {
+                                    var error = new Error();
+                                    error.code = 500;
+                                    error.message = "Invalid Resource Credentials";
+                                    next(error, null);
+                                } else {
+                                    next(null, {message: "Authentication is Done for Resource"});
+                                    commonService.bootstrapInstance(resourceDetail, credentials, servicesData[0], function (err, res) {
+                                        if (err) {
+                                            var error = new Error();
+                                            error.code = 500;
+                                            error.message = "Error in Bootstraping Resource : " + err;
+                                            next(error, null);
+                                        } else {
+                                            next(null, res);
+                                        }
+                                    })
+                                }
+                            });
+                        } else {
+                            var error = new Error();
+                            error.code = 500;
+                            error.message = "Invalid Credential Type";
+                            next(error, null);
+                        }
                     }else{
-                        var error =  new Error();
-                        error.code = 500;
-                        error.message = "Invalid Credential Type";
-                        next(error,null);
+                        var err =  new Error();
+                        err.code = 500;
+                        err.message = "No Resource is available in DB against resourceId: "+resourceId;
+                        next(err,null);
                     }
                 })
 
             }else{
                 var err =  new Error();
                 err.code = 500;
-                err.message = "No Service is available in DB against serviceId "+serviceId;
+                err.message = "No Service is available in DB against serviceId: "+serviceId;
                 next(err,null);
             }
         }
@@ -454,47 +423,62 @@ serviceMapService.getServiceResources = function getServiceResources(serviceId,f
         function(next){
             services.getServiceById(serviceId,next);
         },
-        function(services,next){
-            if(services.length > 0 && services.resources.length > 0){
+        function(serviceList,next){
+            var keyList = [];
+            if(serviceList.length > 0 && serviceList[0].resources.length > 0){
                 var resourceObj = {},filterResourceList = [];
                 if(filterQuery.ami && filterQuery.ami !== null){
                     resourceObj['ami'] = filterQuery.ami;
+                    keyList.push('ami');
                 }
                 if(filterQuery.ip && filterQuery.ip !== null){
                     resourceObj['ip'] = filterQuery.ip;
+                    keyList.push('ip');
                 }
                 if(filterQuery.vpc && filterQuery.vpc !== null){
                     resourceObj['vpc'] = filterQuery.vpc;
+                    keyList.push('vpc');
                 }
                 if(filterQuery.subnet && filterQuery.subnet !== null){
                     resourceObj['subnet'] = filterQuery.subnet;
+                    keyList.push('subnet');
                 }
                 if(filterQuery.tags && filterQuery.tags !== null){
                     resourceObj['tags'] = filterQuery.tags;
+                    keyList.push('tags');
                 }
                 if(filterQuery.keyPairName && filterQuery.keyPairName !== null){
                     resourceObj['keyPairName'] = filterQuery.keyPairName;
+                    keyList.push('keyPairName');
                 }
                 if(filterQuery.group && filterQuery.group !== null){
                     resourceObj['group'] = filterQuery.group;
+                    keyList.push('group');
                 }
                 if(filterQuery.roles && filterQuery.roles !== null){
                     resourceObj['roles'] = filterQuery.roles;
+                    keyList.push('roles');
                 }
-                services.resources.forEach(function(resource){
-                    var filterObj = {}
+                serviceList[0].resources.forEach(function(resource){
+                    var filterObj = {};
                     Object.keys(resource).forEach(function(key){
-                        if(key !== 'id' || key !== 'state' ||  key !== 'type' ||  key !== 'name' || key !== 'platformId'){
+                        if(keyList.indexOf(key) !== -1){
                             filterObj[key] = resource[key];
                         }
-                    })
+                    });
                     if(JSON.stringify(resourceObj) === JSON.stringify(filterObj)){
-                        filterResourceList.push(resource);
+                        resourceObj['id'] = resource.id;
+                        resourceObj['type'] =resource.type;
+                        resourceObj['category'] =resource.category;
+                        resourceObj['platformId']= resource.platformId;
+                        resourceObj['name'] = resource.name;
+                        resourceObj['state'] = resource.state;
+                        filterResourceList.push(resourceObj);
                     }
-                })
+                });
                 next(null,filterResourceList);
             }else{
-                next(null,services.resources);
+                next(null,serviceList[0].resources);
             }
         }
     ],function(err,results){
@@ -515,8 +499,8 @@ serviceMapService.getServiceById = function getServiceById(serviceId,callback){
         function(next){
             services.getServiceById(serviceId,next);
         },
-        function(services,next){
-            changeServiceResponse(services,next);
+        function(serviceList,next){
+            changeServiceResponse(serviceList,next);
         }
     ],function(err,results){
         if(err){
@@ -566,8 +550,7 @@ function changeServiceResponse(services,callback){
 
 function formattedServiceResponse(service,callback){
     var serviceObj = {
-        id:service._id,
-        masterDetails:service.masterDetails,
+        id:service.id,
         name:service.name,
         type:service.type,
         desc:service.desc,
@@ -578,50 +561,67 @@ function formattedServiceResponse(service,callback){
         updatedOn:service.updatedOn,
         version:service.version.toFixed(1)
     }
-    masterUtil.getOrgByRowId(service.masterDetails.orgId,function(err,orgs){
-        if (err) {
-            logger.error("Error in fetching Org Details for : " + service.masterDetails.orgId + " " + err);
-            return callback(err,null);
-        }
-        serviceObj.masterDetails.orgName =  orgs.length > 0 ? orgs[0].orgname : null;
-        masterUtil.getBusinessGroupName(service.masterDetails.bgId,function(err,businessGroupName) {
-            if (err) {
-                logger.error("Error in fetching Bg Name for : " + service.masterDetails.bgId + " " + err);
+    getMasterDetails(service.masterDetails,function(err,data){
+            if(err){
                 return callback(err,null);
             }
-            serviceObj.masterDetails.bgName = businessGroupName;
-            masterUtil.getProjectName(service.masterDetails.projectId,function(err,projectName){
-                if (err) {
-                    logger.error("Error in fetching Project Name for : " + service.masterDetails.projectId + " " + err);
-                    return callback(err,null);
-                }
-                serviceObj.masterDetails.projectName =  projectName;
-                masterUtil.getEnvironmentName(service.masterDetails.envId,function(err,envName){
+            serviceObj.masterDetails = data;
+            serviceObj.masterDetails.monitor = service.masterDetails.monitor;
+            if(service.ymlFileId){
+                fileUpload.getReadStreamFileByFileId(service.ymlFileId,function(err,file){
                     if (err) {
-                        logger.error("Error in fetching Env Name for : " + service.masterDetails.envId + " " + err);
+                        logger.error("Error in fetching YAML Documents for : " + service.name + " " + err);
                         return callback(err,null);
+                    }else {
+                        serviceObj.ymlFileName = file !== null ? file.fileName : file;
+                        serviceObj.ymlFileData = file !== null ? file.fileData : file;
+                        return callback(null, serviceObj);
                     }
-                    serviceObj.masterDetails.envName =  envName;
-                    masterUtil.getChefDetailsById(service.masterDetails.configId,function(err,chefDetails){
+                });
+            }else{
+                return callback(null, serviceObj);
+            }
+    });
+}
+
+function getMasterDetails(masterDetail,callback){
+    var settingDetail = {};
+    masterUtil.getOrgByRowId(masterDetail.orgId,function(err,orgs) {
+        if (err) {
+            logger.error("Error in fetching Org Details for : " + masterDetail.orgId + " " + err);
+            return callback(err, null);
+        }
+        settingDetail.orgId = masterDetail.orgId;
+        settingDetail.orgName = orgs.length > 0 ? orgs[0].orgname : null;
+        masterUtil.getBusinessGroupName(masterDetail.bgId, function (err, businessGroupName) {
+            if (err) {
+                logger.error("Error in fetching Bg Name for : " + masterDetail.bgId + " " + err);
+                return callback(err, null);
+            }
+            settingDetail.bgId = masterDetail.bgId;
+            settingDetail.bgName = businessGroupName;
+            masterUtil.getProjectName(masterDetail.projectId, function (err, projectName) {
+                if (err) {
+                    logger.error("Error in fetching Project Name for : " + masterDetail.projectId + " " + err);
+                    return callback(err, null);
+                }
+                settingDetail.projectId = masterDetail.projectId;
+                settingDetail.projectName = projectName;
+                masterUtil.getEnvironmentName(masterDetail.envId, function (err, envName) {
+                    if (err) {
+                        logger.error("Error in fetching Env Name for : " + masterDetail.envId + " " + err);
+                        return callback(err, null);
+                    }
+                    settingDetail.envId = masterDetail.envId;
+                    settingDetail.envName = envName;
+                    masterUtil.getChefDetailsById(masterDetail.configId, function (err, chefDetails) {
                         if (err) {
-                            logger.error("Error in fetching Org Details for : " + service.masterDetails.configId + " " + err);
-                            return callback(err,null);
+                            logger.error("Error in fetching Org Details for : " + masterDetail.configId + " " + err);
+                            return callback(err, null);
                         }
-                        serviceObj.masterDetails.configName =  chefDetails !== null ? chefDetails[0].configname : null;
-                        if(service.ymlFileId){
-                            fileUpload.getReadStreamFileByFileId(service.ymlFileId,function(err,file){
-                                if (err) {
-                                    logger.error("Error in fetching YAML Documents for : " + service.name + " " + err);
-                                    return callback(err,null);
-                                }else {
-                                    serviceObj.ymlFileName = file !== null ? file.fileName : file;
-                                    serviceObj.ymlFileData = file !== null ? file.fileData : file;
-                                    return callback(null, serviceObj);
-                                }
-                            });
-                        }else{
-                            return callback(null, serviceObj);
-                        }
+                        settingDetail.configId = masterDetail.configId;
+                        settingDetail.configName = chefDetails !== null ? chefDetails[0].configname : null;
+                        callback(null,settingDetail);
                     });
                 });
             });

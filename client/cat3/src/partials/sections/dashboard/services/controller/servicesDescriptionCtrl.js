@@ -7,7 +7,7 @@
 (function(angular) {
         "use strict";
         angular.module('dashboard.services')
-            .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService', '$state', function($scope, $rootScope, uiGridOptionsService, $state) {
+            .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', function($scope, $rootScope, uiGridOptionsService,$modal, $state) {
                 var treeNames = ['Services', 'Service Description'];
                 $rootScope.$emit('treeNameUpdate', treeNames);
                 $scope.serviceSelected = $state.params.serviceDetail;
@@ -54,14 +54,8 @@
                                 cellTooltip: true
                             },
                             {
-                                name: 'Name',
-                                field: 'name',
-                                cellTooltip: true
-                            },
-                            {
-                                name: 'Ip Address',
-                                displayName: 'IP Address',
-                                field: 'ip',
+                                name: 'Instance Id',
+                                field: 'platformId',
                                 cellTooltip: true
                             },
                             {
@@ -76,7 +70,13 @@
                             },
                             {
                                 name: 'Authentication',
-                                cellTemplate:'<span ng-show="row.entity.state!==\'authentication_error\'">-</span>' + '<span ng-show="row.entity.state === \'authentication_error\'"><a ng-click="grid.appScope.changeAuthenticationType(row.entity)" style="cursor:pointer;">Authenticate</a></span>'
+                                cellTooltip: true,
+                                cellTemplate:'<span ng-show="row.entity.authentication === \'failed\'"><a ng-click="grid.appScope.changeAuthenticationType(row.entity)" style="cursor:pointer;">failed</a></span>' + '<span ng-show="row.entity.authentication === \'success\'">success</span>'
+                            },
+                            {
+                                name: 'Boot-Strap',
+                                cellTooltip: true,
+                                field: 'bootStrapState',
                             }
                         ];
                         bpcolumnDefs = resourceGrid;                                

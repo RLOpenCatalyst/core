@@ -797,53 +797,56 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                         if (reservations[j].Instances && reservations[j].Instances.length) {
                             var awsInstances = reservations[j].Instances;
                             for (var k = 0; k < awsInstances.length; k++) {
-                                (function (instance) {
-                                    var tags = instance.Tags;
-                                    var tagInfo = {};
-                                    for (var l = 0; l < tags.length; l++) {
-                                        var jsonData = tags[l];
-                                        tagInfo[jsonData.Key] = jsonData.Value;
-                                    }
-                                    var instanceObj = {
-                                        name:instance.InstanceId,
-                                        masterDetails: {
-                                            orgId: provider.orgId[0],
-                                            orgName: orgName,
-                                        },
-                                        providerDetails: {
-                                            region:region,
-                                            id:provider._id,
-                                            type:'aws',
-                                            keyPairName:instance.KeyName
-                                        },
-                                        resourceDetails:{
-                                            platformId: instance.InstanceId,
-                                            amiId:instance.ImageId,
-                                            publicIp: instance.PublicIpAddress || null,
-                                            hostName:instance.PrivateDnsName,
-                                            os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
-                                            state: instance.State.Name,
-                                            subnetId: instance.SubnetId,
-                                            vpcId: instance.VpcId,
-                                            privateIp: instance.PrivateIpAddress,
-                                            type: instance.InstanceType,
-                                            launchTime:Date.parse(instance.LaunchTime)
-                                        },
-                                        tags:tagInfo,
-                                        resourceType:'EC2',
-                                        category:"unassigned"
-                                    }
-                                    awsInstanceList.push(instanceObj);
-                                    instanceObj = {};
-                                })(awsInstances[k]);
+                                var instance = awsInstances[k];
+                                var tags = instance.Tags;
+                                var tagInfo = {};
+                                for (var l = 0; l < tags.length; l++) {
+                                    var jsonData = tags[l];
+                                    tagInfo[jsonData.Key] = jsonData.Value;
+                                }
+                                var instanceObj = {
+                                    name: instance.InstanceId,
+                                    masterDetails: {
+                                        orgId: provider.orgId[0],
+                                        orgName: orgName,
+                                    },
+                                    providerDetails: {
+                                        region: region,
+                                        id: provider._id,
+                                        type: 'aws',
+                                        keyPairName: instance.KeyName
+                                    },
+                                    resourceDetails: {
+                                        platformId: instance.InstanceId,
+                                        amiId: instance.ImageId,
+                                        publicIp: instance.PublicIpAddress || null,
+                                        hostName: instance.PrivateDnsName,
+                                        os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
+                                        state: instance.State.Name,
+                                        subnetId: instance.SubnetId,
+                                        vpcId: instance.VpcId,
+                                        privateIp: instance.PrivateIpAddress,
+                                        type: instance.InstanceType,
+                                        launchTime: Date.parse(instance.LaunchTime),
+                                        bootStrapState: 'failed'
+                                    },
+                                    tags: tagInfo,
+                                    resourceType: 'EC2',
+                                    category: "unassigned",
+                                    authentication: 'failed'
+                                }
+                                awsInstanceList.push(instanceObj);
+                                if (regionCount === regions.length) {
+                                    callback(null, awsInstanceList);
+                                }
                             }
                         }
                     }
                 }else{
                     regionCount++;
-                }
-                if (regionCount === regions.length) {
-                    callback(null, awsInstanceList);
+                    if (regionCount === regions.length) {
+                        callback(null, awsInstanceList);
+                    }
                 }
             });
         })(regions[i]);
