@@ -11,7 +11,7 @@
 				return genericServices.promisePost(params);
 			};
 
-			serviceCreate.postAuthenticateResource = function (serviceId, resourceId) {
+			serviceCreate.postAuthenticateResource = function (serviceId, resourceId,services) {
 				var params = {
 					url: '/services/' + serviceId + '/resource/' + resourceId + '/authentication',
 					data: services

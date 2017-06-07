@@ -275,6 +275,6 @@ ResourceSchema.statics.getAllResourcesByCategory=function(providerId,category,ca
     });
 };
 
-var Resources = mongoose.model('resources', ResourceSchema);
+var Resources = mongoose.model('resource', ResourceSchema);
 module.exports = Resources;
 

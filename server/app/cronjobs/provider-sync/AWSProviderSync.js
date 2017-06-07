@@ -939,33 +939,69 @@ function serviceMapSync(callback){
 }
 
 function serviceMapVersion(service,resources,instanceStateList){
-    var filterResourceList = [],count = 0;
+    var filterResourceList = [];
     async.waterfall([
         function(next){
             if(resources.length > 0){
                 resources.forEach(function(node){
+                    var count = 0;
                     if(node.result.category !== 'managed') {
-                        var resourceObj = {
-                            id: node.result._id,
-                            type: node.result.resourceType,
-                            state: node.result.resourceDetails.state,
-                            category: node.result.category,
-                            platformId: node.result.resourceDetails.platformId
+                        var queryObj = {
+                            'masterDetails.orgId':service.masterDetails.orgId,
+                            'masterDetails.orgName':service.masterDetails.orgName,
+                            'masterDetails.bgId':service.masterDetails.bgId,
+                            'masterDetails.bgName':service.masterDetails.bgName,
+                            'masterDetails.projectId':service.masterDetails.projectId,
+                            'masterDetails.projectName':service.masterDetails.projectName,
+                            'masterDetails.envId':service.masterDetails.envId,
+                            'masterDetails.envName':service.masterDetails.envName,
+                            'resourceDetails.bootStrapState':'failed',
+                            'authentication':'failed',
+                            'configDetails.id': service.masterDetails.configId,
+                            'configDetails.name': service.masterDetails.configName
                         }
-                        resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                        var findCheck = false;
-                        for (var i = 0; i < filterResourceList.length; i++) {
-                            if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
-                                var filterObj = filterResourceList[i];
-                                filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                                filterResourceList.splice(i, 1);
-                                filterResourceList.push(filterObj);
-                                findCheck = true;
+                        instanceStateList.push('authentication_error');
+                        ec2Model.updateInstanceData(node.result._id,queryObj,function(err,data){
+                            if(err){
+                                logger.error("Error in updating Resource Details:",err);
+                                count++;
+                                if(count === resources.length){
+                                    next(null,filterResourceList);
+                                }
+                            }else{
+                                var resourceObj = {
+                                    id: node.result._id,
+                                    type: node.result.resourceType,
+                                    state: node.result.resourceDetails.state,
+                                    category: node.result.category,
+                                    platformId: node.result.resourceDetails.platformId,
+                                    authentication:node.result.authentication,
+                                    bootStrapState:node.result.resourceDetails.bootStrapState
+                                }
+                                if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
+                                    instanceStateList.push('bootStrapping');
+                                }
+                                resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                var findCheck = false;
+                                for (var i = 0; i < filterResourceList.length; i++) {
+                                    if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
+                                        var filterObj = filterResourceList[i];
+                                        filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                        filterResourceList.splice(i, 1);
+                                        filterResourceList.push(filterObj);
+                                        findCheck = true;
+                                    }
+                                }
+                                count++;
+                                if (findCheck === false) {
+                                    filterResourceList.push(resourceObj);
+                                }
+                                if(count === resources.length){
+                                    next(null,filterResourceList);
+                                }
                             }
-                        }
-                        if (findCheck === false) {
-                            filterResourceList.push(resourceObj);
-                        }
+                        })
+
                     }else if(service.masterDetails.bgId === node.result.masterDetails.bgId
                             && service.masterDetails.projectId === node.result.masterDetails.projectId
                             && service.masterDetails.envId === node.result.masterDetails.envId
@@ -976,7 +1012,12 @@ function serviceMapVersion(service,resources,instanceStateList){
                             state: node.result.resourceDetails.state,
                             category: node.result.category,
                             name: node.result.name,
-                            platformId: node.result.resourceDetails.platformId
+                            platformId: node.result.resourceDetails.platformId,
+                            authentication: node.result.authentication,
+                            bootStrapState: node.result.resourceDetails.bootStrapState
+                        }
+                        if(node.result.resourceDetails.bootStrapState === 'failed'){
+                            instanceStateList.push('bootStrap_failed');
                         }
                         resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
                         var findCheck = false;
@@ -992,17 +1033,27 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if (findCheck === false) {
                             filterResourceList.push(resourceObj);
                         }
+                        count++;
+                        if(count === resources.length){
+                            next(null,filterResourceList);
+                        }
                     }else{
                         logger.debug("Un-Matched Record");
+                        count++;
+                        if(count === resources.length){
+                            next(null,filterResourceList);
+                        }
                     }
 
                 });
-                next(null, filterResourceList);
             }else{
                 next(null,resources);
             }
         },
         function(filterObj,next){
+            if(service.resources.length === 0){
+                instanceStateList.push('initializing');
+            }
             var serviceState = getServiceState(instanceStateList);
             if(service.resources.length === filterObj.length && instanceStateList.indexOf('deleted') === -1){
                 service.updatedOn = new Date().getTime();
@@ -1053,6 +1104,10 @@ function serviceMapVersion(service,resources,instanceStateList){
 function getServiceState(serviceStateList){
     if(serviceStateList.indexOf('authentication_error') !== -1){
         return 'Authentication_Error';
+    }else if(serviceStateList.indexOf('bootStrap_failed') !== -1){
+        return 'BootStrap_Failed';
+    }else if(serviceStateList.indexOf('bootStrapping') !== -1){
+        return 'Initializing';
     }else if(serviceStateList.indexOf('running') !== -1){
         return 'Running';
     }else if(serviceStateList.indexOf('stopped') !== -1){
@@ -1143,7 +1198,7 @@ function createOrUpdateResource(instance,callback){
             hostName:instance.hostName?instance.hostName:null,
             publicIp:instance.instanceIP,
             state:instance.instanceState,
-            bootStrapStatus:instance.bootStrapStatus,
+            bootStrapState:instance.bootStrapStatus,
             credentials:instance.credentials,
             route53HostedParams:instance.route53HostedParams,
             hardware:instance.hardware

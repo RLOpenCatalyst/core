@@ -224,6 +224,11 @@ var AWSResourcesSchema = function AWSResources() {
             type:Boolean,
             default:false
         },
+        authentication:{
+            type: String,
+            required: false,
+            trim: true
+        },
         serverDeletedCheck:{
             type:Boolean,
             default:false

@@ -78,7 +78,7 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             required: false,
             trim: true
         },
-        bootStrapStatus:{
+        bootStrapState:{
             type: String,
             required: false,
             trim: true
