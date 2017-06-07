@@ -461,6 +461,16 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                 log: "Unable to decrypt credentials. Bootstrap Failed",
                                                                                 timestamp: timestampEnded
                                                                             });
+                                                                            var queryObj = {
+                                                                                'resourceDetails.bootStrapState':'failed',
+                                                                                'resourceDetails.credentials':encryptedCredentials,
+                                                                                'category':'managed'
+                                                                            }
+                                                                            resources.updateResourceById(assignedInstance._id, queryObj, function (err, data) {
+                                                                                if (err) {
+                                                                                    logger.error("Error in updating Resource Authentication : " + err)
+                                                                                }
+                                                                            });
                                                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                             updateTaskStatusNode(assignedInstance.resourceDetails.platformId, "server beahved unexpectedly while importing instance :" + assignedInstance.resourceDetails.platformId + ". Cannot sync this node.", true, count);
                                                                             instanceLog.endedOn = new Date().getTime();
@@ -590,6 +600,16 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                         log: "Bootstrap Failed",
                                                                                         timestamp: timestampEnded
                                                                                     });
+                                                                                    var queryObj = {
+                                                                                        'resourceDetails.bootStrapState':'failed',
+                                                                                        'resourceDetails.credentials':encryptedCredentials,
+                                                                                        'category':'managed'
+                                                                                    }
+                                                                                    resources.updateResourceById(assignedInstance._id, queryObj, function (err, data) {
+                                                                                        if (err) {
+                                                                                            logger.error("Error in updating Resource Authentication : " + err)
+                                                                                        }
+                                                                                    });
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                                     instanceLog.actionStatus = "failed";
                                                                                     instanceLog.endedOn = new Date().getTime();
@@ -629,6 +649,16 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                             err: false,
                                                                                             log: "Instance Bootstrapped Successfully",
                                                                                             timestamp: timestampEnded
+                                                                                        });
+                                                                                        var queryObj = {
+                                                                                            'resourceDetails.bootStrapState':'success',
+                                                                                            'resourceDetails.credentials':encryptedCredentials,
+                                                                                            'category':'managed'
+                                                                                        }
+                                                                                        resources.updateResourceById(assignedInstance._id, queryObj, function (err, data) {
+                                                                                            if (err) {
+                                                                                                logger.error("Error in updating Resource Authentication : " + err)
+                                                                                            }
                                                                                         });
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                                         instanceLog.actionStatus = "success";
@@ -697,6 +727,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                                                 logger.debug("Instance hardware details set successessfully");
                                                                                                             }
                                                                                                         });
+                                                                                                        var queryObj = {
+                                                                                                            'resourceDetails.hardware':hardwareData
+                                                                                                        }
+                                                                                                        resources.updateResourceById(assignedInstance._id, queryObj, function (err, data) {
+                                                                                                            if (err) {
+                                                                                                                logger.error("Error in updating Resource Authentication : " + err)
+                                                                                                            }
+                                                                                                        });
                                                                                                     });
                                                                                                 }, 30000);
                                                                                             });
@@ -730,6 +768,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                                         logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
                                                                                                     } else {
                                                                                                         logger.debug("Instance hardware details set successessfully");
+                                                                                                    }
+                                                                                                });
+                                                                                                var queryObj = {
+                                                                                                    'resourceDetails.hardware':hardwareData
+                                                                                                }
+                                                                                                resources.updateResourceById(assignedInstance._id, queryObj, function (err, data) {
+                                                                                                    if (err) {
+                                                                                                        logger.error("Error in updating Resource Authentication : " + err)
                                                                                                     }
                                                                                                 });
                                                                                                 if (decryptedCredentials.pemFilePath) {
@@ -778,6 +824,16 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                             err: true,
                                                                                             log: "Bootstrap Failed",
                                                                                             timestamp: timestampEnded
+                                                                                        });
+                                                                                        var queryObj = {
+                                                                                            'resourceDetails.bootStrapState':'failed',
+                                                                                            'resourceDetails.credentials':encryptedCredentials,
+                                                                                            'category':'managed'
+                                                                                        }
+                                                                                        resources.updateResourceById(assignedInstance._id, queryObj, function (err, data) {
+                                                                                            if (err) {
+                                                                                                logger.error("Error in updating Resource Authentication : " + err)
+                                                                                            }
                                                                                         });
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                                         instanceLog.actionStatus = "failed";

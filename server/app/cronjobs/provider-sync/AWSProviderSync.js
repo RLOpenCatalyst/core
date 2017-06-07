@@ -1184,106 +1184,110 @@ function saeSync(callback){
 }
 
 function createOrUpdateResource(instance,callback){
-    var resourceObj = {
-        name:instance.name,
-        category:'managed',
-        masterDetails: {
-            orgId: instance.orgId,
-            orgName: instance.orgName,
-            bgId: instance.bgId,
-            bgName: instance.bgName,
-            projectId: instance.projectId,
-            projectName: instance.projectName,
-            envId: instance.envId,
-            envName: instance.environmentName
-        },
-        resourceDetails:{
-            platformId:instance.platformId,
-            vpcId:instance.vpcId?instance.vpcId:null,
-            subnetId:instance.subnetId?instance.subnetId:null,
-            hostName:instance.hostName?instance.hostName:null,
-            publicIp:instance.instanceIP,
-            privateIp:instance.privateIpAddress,
-            state:instance.instanceState,
-            bootStrapState:instance.bootStrapStatus,
-            credentials:instance.credentials,
-            route53HostedParams:instance.route53HostedParams,
-            hardware:instance.hardware
-        },
-        configDetails:{
-            id:instance.chef.serverId,
-            nodeName:instance.chef.chefNodeName,
-            run_list:instance.runlist,
-            attributes:instance.attributes
-        },
-        blueprintDetails:{
-            id:instance.blueprintData.blueprintId ? instance.blueprintData.blueprintId:null,
-            name:instance.blueprintData.blueprintName ? instance.blueprintData.blueprintName:null,
-            templateName:instance.blueprintData.templateId?instance.blueprintData.templateId:null,
-            templateType:instance.blueprintData.templateType?instance.blueprintData.templateType:null
-        },
-        user:instance.catUser,
-        isScheduled:instance.isScheduled,
-        cronJobIds:instance.cronJobIds,
-        startScheduler:instance.instanceStartScheduler,
-        stopScheduler:instance.instanceStopScheduler,
-        interval:instance.interval,
-        stackName:instance.domainName && instance.domainName!==null?instance.domainName:instance.stackName,
-        tagServer:instance.tagServer,
-        monitor:instance.monitor,
-        isDeleted:instance.isDeleted
-    }
-    if(instance.schedulerStartOn){
-        resourceObj.schedulerStartOn = instance.schedulerStartOn;
-    }
-    if(instance.schedulerStopOn){
-        resourceObj.schedulerStopOn = instance.schedulerStopOn;
-    }
-    if(instance.providerType && instance.providerType !== null){
-        resourceObj.providerDetails = {
-            id:instance.providerId,
-            type:instance.providerType,
-            region: {
-                region:instance.region && instance.region !== null ? instance.region : instance.providerData.region
+    if(instance.source !== 'cloud' || instance.source !== 'service' || (instance.source !== 'blueprint' && instance.providerType && instance.providerType !== 'aws')) {
+        var resourceObj = {
+            name: instance.name,
+            category: 'managed',
+            masterDetails: {
+                orgId: instance.orgId,
+                orgName: instance.orgName,
+                bgId: instance.bgId,
+                bgName: instance.bgName,
+                projectId: instance.projectId,
+                projectName: instance.projectName,
+                envId: instance.envId,
+                envName: instance.environmentName
             },
-            keyPairId:instance.keyPairId
-        };
-        resourceObj.cost = instance.cost;
-        resourceObj.usage = instance.usage;
-        resourceObj.tags = instance.tags;
-        resourceObj.resourceType='EC2'
-    }else {
-        resourceObj.resourceType='instance'
-    }
-    var filterBy={
-        'resourceDetails.platformId':instance.platformId,
-        'category':'managed'
-    }
-    ec2Model.getInstanceData(filterBy,function(err,data){
-        if(err){
-            logger.error("Error in fetching Resources>>>>:",err);
-            return callback(err,null);
-        }else if(data.length > 0){
-            ec2Model.updateInstanceData(data[0]._id,resourceObj,function(err,data){
-                if(err){
-                    logger.error("Error in updating Resources>>>>:",err);
-                    return callback(err,null);
-                }else{
-                    return callback(null,data);
-                }
-            })
-        }else{
-            resourceObj.createdOn = new Date().getTime();
-            ec2Model.createNew(resourceObj,function(err,data){
-                if(err){
-                    logger.error("Error in creating Resources>>>>:",err);
-                    return callback(err,null);
-                }else{
-                    return callback(null,data);
-                }
-            })
+            resourceDetails: {
+                platformId: instance.platformId,
+                vpcId: instance.vpcId ? instance.vpcId : null,
+                subnetId: instance.subnetId ? instance.subnetId : null,
+                hostName: instance.hostName ? instance.hostName : null,
+                publicIp: instance.instanceIP,
+                privateIp: instance.privateIpAddress,
+                state: instance.instanceState,
+                bootStrapState: instance.bootStrapStatus,
+                credentials: instance.credentials,
+                route53HostedParams: instance.route53HostedParams,
+                hardware: instance.hardware
+            },
+            configDetails: {
+                id: instance.chef.serverId,
+                nodeName: instance.chef.chefNodeName,
+                run_list: instance.runlist,
+                attributes: instance.attributes
+            },
+            blueprintDetails: {
+                id: instance.blueprintData.blueprintId ? instance.blueprintData.blueprintId : null,
+                name: instance.blueprintData.blueprintName ? instance.blueprintData.blueprintName : null,
+                templateName: instance.blueprintData.templateId ? instance.blueprintData.templateId : null,
+                templateType: instance.blueprintData.templateType ? instance.blueprintData.templateType : null
+            },
+            user: instance.catUser,
+            isScheduled: instance.isScheduled,
+            cronJobIds: instance.cronJobIds,
+            startScheduler: instance.instanceStartScheduler,
+            stopScheduler: instance.instanceStopScheduler,
+            interval: instance.interval,
+            stackName: instance.domainName && instance.domainName !== null ? instance.domainName : instance.stackName,
+            tagServer: instance.tagServer,
+            monitor: instance.monitor,
+            isDeleted: instance.isDeleted
         }
-    })
+        if (instance.schedulerStartOn) {
+            resourceObj.schedulerStartOn = instance.schedulerStartOn;
+        }
+        if (instance.schedulerStopOn) {
+            resourceObj.schedulerStopOn = instance.schedulerStopOn;
+        }
+        if (instance.providerType && instance.providerType !== null) {
+            resourceObj.providerDetails = {
+                id: instance.providerId,
+                type: instance.providerType,
+                region: {
+                    region: instance.region && instance.region !== null ? instance.region : instance.providerData.region
+                },
+                keyPairId: instance.keyPairId
+            };
+            resourceObj.cost = instance.cost;
+            resourceObj.usage = instance.usage;
+            resourceObj.tags = instance.tags;
+            resourceObj.resourceType = 'EC2'
+        } else {
+            resourceObj.resourceType = 'instance'
+        }
+        var filterBy = {
+            'resourceDetails.platformId': instance.platformId,
+            'category': 'managed'
+        }
+        ec2Model.getInstanceData(filterBy, function (err, data) {
+            if (err) {
+                logger.error("Error in fetching Resources>>>>:", err);
+                return callback(err, null);
+            } else if (data.length > 0) {
+                ec2Model.updateInstanceData(data[0]._id, resourceObj, function (err, data) {
+                    if (err) {
+                        logger.error("Error in updating Resources>>>>:", err);
+                        return callback(err, null);
+                    } else {
+                        return callback(null, data);
+                    }
+                })
+            } else {
+                resourceObj.createdOn = new Date().getTime();
+                ec2Model.createNew(resourceObj, function (err, data) {
+                    if (err) {
+                        logger.error("Error in creating Resources>>>>:", err);
+                        return callback(err, null);
+                    } else {
+                        return callback(null, data);
+                    }
+                })
+            }
+        })
+    }else{
+        return callback(null, null);
+    }
 }
 
 function instanceSync(instances,callback){
