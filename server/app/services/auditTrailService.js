@@ -31,6 +31,8 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var serviceNow = require('_pr/model/servicenow/servicenow.js');
 var settingService = require('_pr/services/settingsService');
+var orgResourcePermission = require('_pr/model/org-resource-permission/orgResourcePermission.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
@@ -339,11 +341,16 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
 }
 
 auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,userName,callback){
+	var teamId;
+	var filterByOrg = false;
     async.waterfall([
         function(next){
             apiUtil.queryFilterBy(queryParam,next);
         },
         function(filterQuery,next) {
+        	orgId = filterQuery.orgId;
+        	teamId = filterQuery.teamId;
+        	delete filterQuery.teamId;
             filterQuery.isDeleted=false;
             if(BOTSchema === 'BOTOLD') {
                 settingService.getOrgUserFilter(userName,function(err,orgIds){
@@ -351,7 +358,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         next(err,null);
                     }else if(orgIds.length > 0){
                         filterQuery.orgId = {$in:orgIds};
-                        botOld.getAllBots(filterQuery, next);
+    	                botOld.getAllBots(filterQuery, next);
                     }else{
                         botOld.getAllBots(filterQuery, next);
                     }
@@ -362,10 +369,79 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         next(err,null);
                     }else if(orgIds.length > 0){
                         filterQuery.orgId = {$in:orgIds};
-                        botDao.getAllBots(filterQuery, next);
-                    }else{
-                        botDao.getAllBots(filterQuery, next);
                     }
+                    
+                    d4dModelNew.d4dModelMastersUsers.find({
+	                    loginname: userName,
+	                    id:'7'
+	                }, function(err, userDetails) {
+	                	
+	                	if ( err ) {
+	                		return next(err, null);
+	                	}
+	                	
+	                	var userDetail = {};
+	                	if (userDetails.length > 0) {
+	                		userDetail = userDetails[0];
+	                		userDetail.orgname_rowid = (typeof userDetail.orgname_rowid[0]) !== undefined ? userDetail.orgname_rowid[0] : userDetail.orgname_rowId;
+	                		userDetail.orgname = (typeof userDetail.orgname[0]) !== undefined ? userDetail.orgname[0] : userDetail.orgname;
+	                	}
+	                	
+	                	var teamIds;
+	                	if (teamId) {
+         				   filterByOrg = true;
+         				   teamIds = [teamId];
+         			   	}
+	                	
+	                	var ids = [];
+	                	if ( userDetail.userrolename === 'Admin') {
+	                		
+            			   getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
+            				   
+            				   if ( err ){
+            					   next(err,null);
+            				   }
+            				   if (filterByOrg) {
+            					   orgBotsList.forEach(function(orgBot){
+            						   ids = ids.concat(orgBot.resourceIds);
+            					   });
+            				   }
+            				   
+            				   if (ids.length > 0) {
+            					   filterQuery.id = {$in:ids};
+            				   }
+            				   
+            				   if (orgId) {
+            					   filterQuery.orgId = orgId;
+            				   }
+            				   
+            				   if (orgId && teamId && orgBotsList.length === 0) {
+            					   return next(null, []);
+            				   }
+            				   
+            				   botDao.getAllBots(filterQuery, next);
+            			   });
+	            		}else {
+	            		
+ 	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
+ 	            			   
+ 	            			  if ( err ){
+ 	            				  next(err,null);
+ 	            			  } 
+ 	            			  orgBotsList.forEach(function(orgBot){
+     						   ids = ids.concat(orgBot.resourceIds);
+ 	            			  });
+ 	            			  
+ 	            			  if (ids.length > 0) {
+ 	            				 filterQuery.id = {$in:ids};
+ 	            			  } else {
+ 	            				  return next(null, []);
+ 	            			  }
+ 	            			  
+ 	            			  botDao.getAllBots(filterQuery, next);
+ 	            		   });
+	 	            	}
+	                });
                 });
             }
         },
@@ -466,6 +542,29 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
         callback(null,results);
         return;
     })
+}
+
+function getOrgResourceList(orgId, teamIds, callback){
+	if (orgId){
+	   var query = {
+		   orgId : orgId,
+		   resourceType : 'bots'
+	   };
+	   
+	   if(teamIds.length > 0) {
+		  query.teamId = {$in : teamIds};
+	   }
+	   
+	   orgResourcePermission.find(query, function(err, orgResourceList){
+		   if ( err ) {
+			   return callback(err, null);
+		   }
+		   
+		   return callback(null, orgResourceList);
+	   });
+	} else {
+		return callback(null, []);
+	}
 }
 
 auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){

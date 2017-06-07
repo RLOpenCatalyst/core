@@ -1,0 +1,93 @@
+<style>
+.table-striped>tbody>tr:nth-child(odd).active>td, .table-striped>tbody>tr:nth-child(even).active>td {
+    background-color: #B0BED9!important;
+}
+
+.widget-header {
+    min-height: 42px!important
+}
+
+.select2-container-multi .select2-choices {
+    margin: 5px;
+    border: 1px solid #ccc;
+    overflow-y: auto;!important; 
+    height: 42px!important;
+    min-height: 0px!important
+}
+
+.select2-container-multi .select2-choices .select2-search-field input {
+    margin: -6px 0!important;
+}
+
+.select2-container-multi .select2-choices .select2-search-choice {
+    margin: 7px 0 3px 5px!important;
+}
+
+.widget-header > .widget-title {
+    line-height: 42px!important;
+}
+
+.dataTables_scrollBody {
+    height: 100%!important;
+    overflow: auto;
+}
+
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title widgetColor">
+                    <strong>List of BOTs</strong>
+                </h5>
+                
+                <div class="widget-toolbar no-border">
+                    <div style="width:1000px;margin-top:-5px;">
+                        Organization: 
+                        <select id="orgName" class="form-controlSelect width-100" onchange="filterColumn();" style="width:20%;margin-right:5px">
+                        </select>                                              
+                        <span style="">
+                            Team List:
+                            <select id="teamList" multiple="multiple" class="botTeamList" style="width:60%">
+                            </select>
+                        </span>
+                        <button id="refreshBtn" type="button" title="Refresh" class="btn btn-xs btn-primary refresh-btn">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main widgetHeight">
+                    <div class="col-md-12 table-responsive tablePadding">
+                        <table id="botsTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+                            <thead>
+                            <tr class="rowCustomStyle">
+                                <td>BOT Name</td>
+                                <td>BOT Id</td>
+                                <td>BOT Category</td>
+                                <td>BOT Type</td>
+                                <td>Organization</td>
+                                <td>Team List</td>
+                            </tr>
+                            </thead>
+                            <tbody id="botListInput">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!--widget main ends here-->
+            </div>
+            <!--widget body ends here-->
+            <div class="widget-toolbox clearfix text-align-center">
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-mini" id="botTeamSync"><i class="ace-icon fa fa-check bigger-110"></i>Save</button>
+                </div>
+            </div>
+        </div>
+        <!--widget box ends here-->
+    </div>
+    <!-- col-lg-12 ends here-->
+</div>
+<!--row ends here-->
+<script src="js/botList.js"></script>
