@@ -33,8 +33,12 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
+
 var globalData = require('_pr/config/global-data.js');
-const yamlJs = require('yamljs');
+const yamlJs= require('yamljs');
+const gitHubService = require('_pr/services/gitHubService.js');
+var orgResourcePermission = require('_pr/model/org-resource-permission/orgResourcePermission.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 
 const errorType = 'botService';
 
@@ -107,6 +111,9 @@ botService.removeBotsById = function removeBotsById(id, callback) {
                 auditTrails: function (callback) {
                     auditTrail.removeAuditTrails({ auditId: id }, callback);
                 },
+                orgResourcePerm : function(callback){
+                  orgResourcePermission.deleteResource(botId, 'bots', callback);
+                },
                 dir:function(callback){
                     var gitHubService =require('_pr/services/gitHubService.js');
                     gitHubService.deleteBot(bots[0].id,(err)=>{
@@ -134,86 +141,316 @@ botService.removeBotsById = function removeBotsById(id, callback) {
 
 botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNowCheck, userName, callback) {
     var reqData = {};
-    async.waterfall([
-        function (next) {
-            apiUtil.paginationRequest(botsQuery, 'bots', next);
-        },
-        function (paginationReq, next) {
-            paginationReq['searchColumns'] = ['name', 'type', 'category', 'desc', 'orgName'];
-            reqData = paginationReq;
-            apiUtil.databaseUtil(paginationReq, next);
-        },
-        function (queryObj, next) {
-            settingService.getOrgUserFilter(userName, function (err, orgIds) {
-                if (err) {
-                    next(err, null);
-                }
-                if (orgIds.length > 0) {
-                    queryObj.queryObj['orgId'] = { $in: orgIds };
-                }
-                if (actionStatus !== null) {
-                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
-                }
-                if (serviceNowCheck === true) {
-                    queryObj.queryObj['srnSuccessExecutionCount'] = { $gt: 0 };
-                    var botIds = [];
-                    botDao.getAllBots(queryObj.queryObj, function (err, botData) {
-                        if (err) {
-                            next(err, null);
-                        }
-                        if (botData.length > 0) {
-                            botData.forEach(function (bot) {
-                                botIds.push(bot._id);
-                            })
-                        }
-                        if (botIds.length > 0) {
-                            delete queryObj.queryObj;
-                            queryObj.queryObj = {
-                                auditId: { $in: botIds }
-                            }
-                            auditTrail.getAuditTrailList(queryObj, next);
-                        } else {
-                            botDao.getBotsList(queryObj, next);
-                        }
-                    })
-                } else {
-                    botDao.getBotsList(queryObj, next);
+    var filterByOrg = false;
+    var orgId;
+    var teamId;
+    var userDetail = {};
+    if(botsQuery.paginationType === 'jquery'){
+        async.waterfall(
+            [
+	            function (next) {
+	                apiUtil.changeRequestForJqueryPagination(botsQuery, next);
+	            },
+	            function (reqData, next) {
+	                reqData = reqData;
+	                apiUtil.paginationRequest(reqData, 'bots', next);
+	            },
+	            function (paginationReq, next) {
+	              if(paginationReq.filterBy) {
+	                orgId = paginationReq.filterBy.orgId;
+	              }
+	                apiUtil.databaseUtil(paginationReq, next);
+	            },
+	            function (queryObj, next) {
+	                botDao.getBotsList(queryObj, function(err, result){
+	                  
+	                  if ( err ) {
+	                    return next(err, null);
+	                  }
+	                  getOrgResourceList(orgId, [],function(err, orgList){
+	                    
+	                    if ( err ) {
+	                      return next(err, null);
+	                    }
+	                    
+	                    result.docs = filterBots(false, JSON.parse(JSON.stringify(result.docs)), orgList);
+	                    return next(null, result);
+	                  });
+	                });
+	            },
+	            function (botList, next) {
+	            apiUtil.changeResponseForJqueryPagination(botList, reqData, next);
+	            }
+            ], function (err, results) {
+                if (err){
+                    return callback(err,null);
+                }else{
+                  return callback(null, results);
                 }
             });
-        },
-        function (botList, next) {
-            addYmlFileDetailsForBots(botList, reqData, serviceNowCheck, next);
-        },
-        function (filterBotList, next) {
-            async.parallel({
-                botList: function (callback) {
-                    apiUtil.paginationResponse(filterBotList, reqData, callback);
-                },
-                botSummary: function (callback) {
-                    auditTrailService.getBOTsSummary(botsQuery, 'BOT', userName, callback)
-                }
-            }, function (err, data) {
-                if (err) {
-                    next(err);
-                } else {
-                    next(null, data);
-                }
-            })
-        }
-    ], function (err, results) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
-        }
-        var resultObj = {
-            bots: results.botList.bots,
-            metaData: results.botList.metaData,
-            botSummary: results.botSummary
-        }
-        callback(null, resultObj);
-        return;
-    });
+    }else {
+	    async.waterfall([
+	        function(next) {
+	            apiUtil.paginationRequest(botsQuery, 'bots', next);
+	        },
+	        function(paginationReq, next) {
+	            paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
+	            if(paginationReq.filterBy) {
+	            	orgId = paginationReq.filterBy.orgId;
+	            	teamId = paginationReq.filterBy.teamId;
+	            	delete paginationReq.filterBy.teamId;
+	            }
+	            
+	            reqData = paginationReq;
+	            apiUtil.databaseUtil(paginationReq, next);
+	        },
+	        function(queryObj, next) {
+	            settingService.getOrgUserFilter(userName, function (err, orgIds) {
+	                if (err) {
+	                    next(err, null);
+	                }
+	                if(orgIds.length > 0){
+	                    queryObj.queryObj['orgId'] = {$in: orgIds};
+	                }
+	                if(actionStatus !== null) {
+	                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+	                }
+	                d4dModelNew.d4dModelMastersUsers.find({
+	                    loginname: userName,
+	                    id:'7'
+	                }, function(err, userDetails) {
+	                	
+	                	if ( err ) {
+	                		return next(err, null);
+	                	}
+	                	
+	                	if (userDetails.length > 0) {
+	                		userDetail = userDetails[0];
+	                		userDetail.orgname_rowid = (typeof userDetail.orgname_rowid[0]) !== undefined ? userDetail.orgname_rowid[0] : userDetail.orgname_rowId;
+	                		userDetail.orgname = (typeof userDetail.orgname[0]) !== undefined ? userDetail.orgname[0] : userDetail.orgname;
+	                	}
+	                	
+	                	if(serviceNowCheck === true) {
+	                		queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
+	                		var botIds = [];
+	                		botDao.getAllBots(queryObj.queryObj,function(err,botData){
+	                			if(err){
+	                				next(err,null);
+	                			}
+	                			if(botData.length > 0){
+	                				botData.forEach(function(bot){
+	                					botIds.push(bot._id);
+	                				})
+	                			}
+	                			if(botIds.length > 0){
+	                				delete queryObj.queryObj;
+	                				queryObj.queryObj = {
+	                						auditId: {$in:botIds}
+	                				}
+	                				auditTrail.getAuditTrailList(queryObj,next);
+	                			}else{
+	                				botDao.getBotsList(queryObj, function(err, result){
+	                					return next(err,result);
+	                				});
+	                			}
+	                		});
+	                	}else{
+	                		var ids = [];
+	                		if ( userDetail.userrolename === 'Admin') {
+	                		
+	                		   var teamIds;
+	            			   if (teamId) {
+	            				   filterByOrg = true;
+	            				   teamIds = [teamId];
+	            			   }
+	            			   
+	            			   getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
+	            				   if ( err ){
+	            					   next(err,null);
+	            				   }
+	            				   
+	            				   if (filterByOrg) {
+	            					   orgBotsList.forEach(function(orgBot){
+	            						   ids = ids.concat(orgBot.resourceIds);
+	            					   });
+	            				   }
+	            				   
+	            				   if (ids.length > 0) {
+	            					   queryObj.queryObj.id = {$in:ids};
+	            				   }
+	            				   
+	            				   if (orgId) {
+	            					  delete queryObj.queryObj.orgId;
+	            				   }
+	            				   
+	            				   if (orgId && teamId && orgBotsList.length === 0) {
+	            					   return next(null, {docs:[]});
+	            				   }
+	            				   
+	            				   botDao.getBotsList(queryObj, next);
+	            			   });
+		            		}else {
+		            		
+	 	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
+	 	            			  if ( err ){
+	            					   next(err,null);
+	            				  } 
+	 	            			  orgBotsList.forEach(function(orgBot){
+            						   ids = ids.concat(orgBot.resourceIds);
+            					  });
+	 	            			  
+	 	            			  if (ids.length > 0) {
+	 	            				  queryObj.queryObj.id = {$in:ids};
+	 	            			  } else {
+	 	            				  return next(null, {docs:[]});
+	 	            			  }
+	 	            			  
+	 	            			  botDao.getBotsList(queryObj, next);
+	 	            		   });
+		 	            	}
+	                	}
+	                })
+	            });
+	        },
+	        function(botList, next) {
+	            addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
+	        },
+	        function(filterBotList, next) {
+	           async.parallel({
+	               botList:function(callback){
+	                   apiUtil.paginationResponse(filterBotList, reqData, callback);
+	               },
+	               botSummary:function(callback){
+	            	   auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback);
+	               }
+	               
+	           },function(err,data){
+	               if(err){
+	                   next(err);
+	               }else{
+	                   next(null,data);
+	               }
+	           })
+	        }
+	    ],function(err, results) {
+	        if (err){
+	            logger.error(err);
+	            callback(err,null);
+	            return;
+	        }
+	        
+	        var resultObj = {
+	            bots : results.botList.bots,
+	            metaData : results.botList.metaData,
+	            botSummary: results.botSummary
+	        };
+	        return callback(null,resultObj);
+	    });
+    }
+}
+
+function getOrgResourceList(orgId, teamIds, callback){
+	if (orgId){
+	   var query = {
+		   orgId : orgId,
+		   resourceType : 'bots'
+	   }
+	   
+	   if(teamIds.length > 0) {
+		  query.teamId = {$in : teamIds};
+	   }
+	   
+	   orgResourcePermission.find(query, function(err, orgResourceList){
+		   if ( err ) {
+			   return callback(err, null);
+		   }
+		   
+		   if (orgResourceList.length > 0 ) {
+			   var teamIds = [];
+			   orgResourceList.forEach(function(orgResource){
+				   teamIds.push(orgResource.teamId);
+			   });
+			   getTeamsInfo(orgResourceList, orgId, teamIds, function(err, result){
+				   if ( err ) {
+					   return callback(err, null);
+				   }
+				   
+				   return callback(null, result);
+			   });
+		   } else {
+			   return callback(null, []);
+		   }
+	   });
+	} else {
+		return callback(null, []);
+	}
+}
+
+function filterBots(filterByOrg, botsList, orgBots){
+	var bots;
+	var botsTeamId = {}
+	botsTeamId = orgBots.reduce(function(acc, cv, ci){
+		cv.resourceIds.forEach(function(rId){
+			if(acc[rId] === undefined){
+				acc[rId] = {
+					teams : [cv.team]
+				};
+			} else {
+				acc[rId].teams.push(cv.team);
+			}
+			return acc;
+		});
+		return acc;
+	},{});
+	
+	bots = botsList.filter(function(bot){
+		if (botsTeamId[bot.id]){
+			bot.teams = botsTeamId[bot.id].teams;
+		}
+		
+		if (filterByOrg) {
+			if (botsTeamId[bot.id] !== undefined){
+				return true;
+			}
+			
+			return false;
+		}
+		
+		return true;
+	});
+	
+	return bots;
+}
+
+function getTeamsInfo(result, orgId, teamIds, cb){
+   
+  var query = {
+    orgname_rowid : orgId,
+    id : '21'
+  };
+  
+  if (teamIds.length > 0 ){
+    query.rowid = {$in:teamIds}; 
+  }
+  
+   d4dModelNew.d4dModelMastersTeams.find(query, function(err, teamList){
+	   if (err) {
+		   return cb(err);
+	   }
+	   
+	   result.forEach(function(orgResource){
+		   teamList.forEach(function(t){
+			   if(orgResource.teamId === t.rowid){
+				   orgResource.team = {
+					   teamId : t.rowid,
+					   teamName : t.teamname
+				   };
+			   }
+		   });
+	   });
+	   
+	   return cb(null, result);
+   });
 }
 
 botService.executeBots = function executeBots(botsId, reqBody, userName, executionType, schedulerCallCheck, callback) {

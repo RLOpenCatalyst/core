@@ -84,6 +84,7 @@ var routesCICDDashboardService = require('./routes_cicddashboardserver');
 var notice = require('./routes_notice');
 var clientAppAccess = require('./routes_clientAppAccess');
 var routesResourceMap = require('./routes_resourceMap');
+var orgResourcePermission = require('./routes_orgResourcePermission');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -213,6 +214,7 @@ module.exports.setRoutes = function(app) {
 
     notice.setRoutes(app,sessionVerificationFunc);
     clientAppAccess.setRoutes(app,sessionVerificationFunc);
+    orgResourcePermission.setRoutes(app,sessionVerificationFunc);
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');
