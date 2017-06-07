@@ -102,7 +102,7 @@
                                 var bpcolumnDefs = [];
                                 angular.forEach($scope.taskHistoryData.data, function(val){
                                     var auditType = val.auditTrailConfig.executionType;
-                                    if(auditType === 'chef' || auditType === 'script') {
+                                    if(auditType === 'chef' || auditType === 'script'|| auditType === 'meta') {
                                         var chefGrid = [
                                             { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
                                             { name:'User',field:'user',cellTooltip: true},

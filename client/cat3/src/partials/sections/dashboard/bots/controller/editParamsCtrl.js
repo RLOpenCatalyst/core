@@ -60,7 +60,7 @@
 
             if($scope.botType === 'blueprints' || $scope.botType === 'blueprint') {
                 $scope.botCheck = true;
-            } else if($scope.botType === 'script' || $scope.botType === 'chef') {
+            } else if($scope.botType === 'script' || $scope.botType === 'chef' || $scope.botType === 'meta') {
                 $scope.botCheck = false;
             }
 
@@ -263,7 +263,7 @@
                 var reqBody = {};
                 reqBody.type = $scope.botType;
                 if(type === 'instance') {
-                    if($scope.botType === 'script') {
+                    if($scope.botType === 'script' || $scope.botType === 'meta') {
                         reqBody.data = $scope.botEditParams;
                         if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
                             reqBody.nodeIds = $scope.selectedInstanceIds;
