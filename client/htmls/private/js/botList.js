@@ -76,9 +76,6 @@ function getGlobalBots(orgId) {
         "serverSide": true,
         "pageLength": 25,
         "destroy":true,
-        "scrollY": 250,
-        "deferRender": true,
-        "scroller": true,
         "createdRow": function( row, data ) {
             $( row ).attr({"botName": data.name,"botId" : data.id,"category":data.category,
                 "type":data.type,"orgName":data.orgName,"orgId":data.orgId
@@ -178,16 +175,10 @@ $('.botTeamList').on('change',function(){
 
 $('#botsTable tbody').on( 'click', 'tr', function () {
     $(this).toggleClass('active');
-    if($('#teamList').val() && $('#teamList').val().length>0) {
-        if($(this).hasClass('active')) {
-            $('#botTeamSync').show();
-        } else {
-            $('#botTeamSync').hide();    
-        }
+    if($(this).hasClass('active')) {
+        $('#botTeamSync').show();
     } else {
-        if($(this).hasClass('active')) {
-            $('#botTeamSync').hide();
-        }
+        $('#botTeamSync').hide();
     }
 }); 
 
@@ -195,6 +186,10 @@ $('#botTeamSync').click(function(){
     var data = $('#botsTable').DataTable().rows('.active').data();
     var selectedOrg = $("#orgName").val();
     var teamId = $('#teamList').val();
+    if($('#teamList').val() === null) {
+        bootbox.alert('Please select a Team To continue');
+        return false;
+    }
     var reqBody = {};
     var resourceIds = [];
     $.each(data,function(key,val) {
@@ -205,7 +200,6 @@ $('#botTeamSync').click(function(){
         }];
     });
     reqBody.delete = [];
-    console.log(reqBody);
     var resourceType = 'bots';
     $.ajax({
         method: 'POST',
