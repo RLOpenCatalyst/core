@@ -19,7 +19,69 @@
 }
 
 .gridHeightServices {
-  height: 485px;
+  height: 545px;
+}
+
+.tableactionbutton {
+  border-radius: 50%;
+  padding: 2px 8px;
+}
+
+.nav-tabs {
+  border-bottom: 0px;
+  margin-bottom: 15px;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  border-width: 0;
+}
+
+.nav-tabs > li > a {
+  border: none;
+  color: #666;
+  cursor: pointer;
+}
+
+.nav-tabs > li.active > a {
+  border: none;
+  color: #4285F4 !important;
+  background: transparent;
+  i {
+      color: #40baf1;
+  }
+}
+
+.nav-tabs > li > a::after {
+  content: "";
+  background: #4285F4;
+  height: 2px;
+  position: absolute;
+  width: 100%;
+  left: 0px;
+  bottom: -1px;
+  transition: all 250ms ease 0s;
+  transform: scale(0);
+  i {
+      color: #40baf1;
+  }
+}
+
+.nav-tabs > li.active > a::after {
+  transform: scale(1);
+}
+
+.summary-container {
+   width: 96%;
+}
+
+.gridResourceHeight {
+	height: 496px;
+}
+
+.marginright20 {
+	margin-right: 20px;
 }
 
 @media (min-width : 1550px){

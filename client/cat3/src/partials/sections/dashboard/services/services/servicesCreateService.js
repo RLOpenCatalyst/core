@@ -11,6 +11,14 @@
 				return genericServices.promisePost(params);
 			};
 
+			serviceCreate.postAuthenticateResource = function (serviceId, resourceId) {
+				var params = {
+					url: '/services/' + serviceId + '/resource/' + resourceId + '/authentication',
+					data: services
+				};
+				return genericServices.promisePost(params);
+			};
+
 			serviceCreate.getMonitorList = function (orgId) {
 				var url = '/monitors';
 				if(orgId){
@@ -37,7 +45,15 @@
 					inlineLoader: true
 				}
 				return genericServices.promiseGet(params); 	
-			}
+			};
+
+			serviceCreate.deleteService = function(serviceId) {
+				var params = {
+					url: '/services/' + serviceId,
+					inlineLoader: true
+				}
+				return genericServices.promiseDelete(params); 	
+			};
 
         }]);
 })(angular);

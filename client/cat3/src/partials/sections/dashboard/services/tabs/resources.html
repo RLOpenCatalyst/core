@@ -1,0 +1,11 @@
+<div id="resourcesPage">
+	<div class="container summary-container marginleft35 margintop60">
+      <section>
+         <!--This table will get use when bot job type will be chef -->
+         <loading size="large" name="isResourceListLoading" type="block" align="center"></loading>
+            <div id="grid1" ng-if="serviceResourceData.totalItems > 0" ui-grid="serviceResourceData" ui-grid-pagination ui-grid-auto-resize class="grid gridResourceHeight"></div>
+         <!--This table will get use when bot job type will be jenkins -->
+         <div class="alert alert-info text-center" ng-if="serviceResourceData.totalItems <= 0" align="center">No Resources Found</div>
+      </section>
+   </div>
+</div>

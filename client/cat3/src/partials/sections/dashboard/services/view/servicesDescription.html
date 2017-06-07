@@ -1,0 +1,44 @@
+<div id="servicesDescriptionPage">
+   <div class="page-name">
+      Service Info - {{serviceSelected.name}}&nbsp;
+      <span class="pull-right marginright20">
+        <button type="button" title="Services List" class="btn btn-xs cat-btn-update btnDescription" ui-sref="dashboard.services.servicesList">
+               <i class="fa fa-chevron-left" style="color: #fff"></i><span class="marginleft5">Back</span>
+         </button>
+      </span>
+   </div>
+   <div class="borderTop"></div>
+   <div class="width99 col-lg-12 paddingForScreen margintop10">
+      <div class="col-lg-12 col-md-12 col-sm-12" style="margin-left:-14px;">
+         <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+            <li ng-class="{active:tab.isSet('Resources')}">
+               <a ng-click="tab.setTab('Resources')">
+               <i class="fa fa-tachometer black"></i>&nbsp;
+               Resources
+               </a>
+            </li>
+            <li ng-class="{active:tab.isSet('ReadMe')}">
+               <a ng-click="tab.setTab('ReadMe')">
+               <i class="fa fa-codepen black"></i>&nbsp;
+               Definition
+               </a>
+            </li>
+            <li ng-class="{active:tab.isSet('Service Info')}">
+               <a ng-click="tab.setTab('Service Info')">
+               <i class="fa fa-info black"></i>&nbsp;
+               Info
+               </a>
+            </li>
+         </ul>
+      </div>
+   </div>
+   <div class="{{tab.isSet('Resources')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.resources.url"></div>
+   </div>
+   <div class="{{tab.isSet('ReadMe')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.readme.url"></div>
+   </div>
+   <div class="{{tab.isSet('Service Info')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.info.url"></div>
+   </div>
+</div>
