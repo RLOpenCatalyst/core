@@ -939,12 +939,13 @@ function serviceMapSync(callback){
 }
 
 function serviceMapVersion(service,resources,instanceStateList){
+    logger.debug(" Server Map Version is Started ");
     var filterResourceList = [];
     async.waterfall([
         function(next){
             if(resources.length > 0){
+                var count = 0;
                 resources.forEach(function(node){
-                    var count = 0;
                     if(node.result.category !== 'managed') {
                         var queryObj = {
                             'masterDetails.orgId':service.masterDetails.orgId,
@@ -955,8 +956,6 @@ function serviceMapVersion(service,resources,instanceStateList){
                             'masterDetails.projectName':service.masterDetails.projectName,
                             'masterDetails.envId':service.masterDetails.envId,
                             'masterDetails.envName':service.masterDetails.envName,
-                            'resourceDetails.bootStrapState':'failed',
-                            'authentication':'failed',
                             'configDetails.id': service.masterDetails.configId,
                             'configDetails.name': service.masterDetails.configName
                         }
@@ -970,7 +969,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                                 }
                             }else{
                                 var resourceObj = {
-                                    id: node.result._id,
+                                    id: node.result._id+'',
                                     type: node.result.resourceType,
                                     state: node.result.resourceDetails.state,
                                     category: node.result.category,
@@ -981,12 +980,14 @@ function serviceMapVersion(service,resources,instanceStateList){
                                 if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
                                     instanceStateList.push('bootStrapping');
                                 }
-                                resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                resourceObj[node.type] = obj[node.type];
                                 var findCheck = false;
                                 for (var i = 0; i < filterResourceList.length; i++) {
                                     if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
                                         var filterObj = filterResourceList[i];
-                                        filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                        var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                        filterObj[node.type] = resourceVal[node.type];
                                         filterResourceList.splice(i, 1);
                                         filterResourceList.push(filterObj);
                                         findCheck = true;
@@ -1007,7 +1008,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                             && service.masterDetails.envId === node.result.masterDetails.envId
                             && service.masterDetails.configId === node.result.configDetails.id) {
                         var resourceObj = {
-                            id: node.result._id,
+                            id: node.result._id+'',
                             type: node.result.resourceType,
                             state: node.result.resourceDetails.state,
                             category: node.result.category,
@@ -1019,12 +1020,17 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if(node.result.resourceDetails.bootStrapState === 'failed'){
                             instanceStateList.push('bootStrap_failed');
                         }
-                        resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
+                            instanceStateList.push('bootStrapping');
+                        }
+                        var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        resourceObj[node.type] = obj[node.type];
                         var findCheck = false;
                         for (var i = 0; i < filterResourceList.length; i++) {
                             if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
                                 var filterObj = filterResourceList[i];
-                                filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                filterObj[node.type] = resourceVal[node.type];
                                 filterResourceList.splice(i, 1);
                                 filterResourceList.push(filterObj);
                                 findCheck = true;
@@ -1094,7 +1100,7 @@ function serviceMapVersion(service,resources,instanceStateList){
             logger.error("Error in Server Map Version : ",err);
             return;
         }else{
-            logger.debug(" Server Map Version is Done ",err);
+            logger.debug(" Server Map Version is Done ");
             return;
         }
     })
@@ -1197,6 +1203,7 @@ function createOrUpdateResource(instance,callback){
             subnetId:instance.subnetId?instance.subnetId:null,
             hostName:instance.hostName?instance.hostName:null,
             publicIp:instance.instanceIP,
+            privateIp:instance.privateIpAddress,
             state:instance.instanceState,
             bootStrapState:instance.bootStrapStatus,
             credentials:instance.credentials,
@@ -1224,9 +1231,6 @@ function createOrUpdateResource(instance,callback){
         stackName:instance.domainName && instance.domainName!==null?instance.domainName:instance.stackName,
         tagServer:instance.tagServer,
         monitor:instance.monitor,
-        cost:instance.cost,
-        usage:instance.usage,
-        tags:instance.tags,
         isDeleted:instance.isDeleted
     }
     if(instance.schedulerStartOn){
@@ -1235,7 +1239,7 @@ function createOrUpdateResource(instance,callback){
     if(instance.schedulerStopOn){
         resourceObj.schedulerStopOn = instance.schedulerStopOn;
     }
-    if(instance.source === 'cloud' || instance.source === 'blueprint'){
+    if(instance.providerType && instance.providerType !== null){
         resourceObj.providerDetails = {
             id:instance.providerId,
             type:instance.providerType,
@@ -1253,8 +1257,7 @@ function createOrUpdateResource(instance,callback){
     }
     var filterBy={
         'resourceDetails.platformId':instance.platformId,
-        'category':'managed',
-        'isDeleted':false
+        'category':'managed'
     }
     ec2Model.getInstanceData(filterBy,function(err,data){
         if(err){

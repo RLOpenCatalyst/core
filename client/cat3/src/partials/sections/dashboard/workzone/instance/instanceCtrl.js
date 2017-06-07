@@ -66,11 +66,13 @@
                         $scope.instanceList = result;
                         for (var i = 0; i < $scope.instanceList.length; i++) {
                             var appItem = $scope.instanceList[i].appUrls;
-                            for (var j = 0; j < appItem.length; j++) {
-                                var url = appItem[j].url;
-                                if (url) {
-                                    url = url.replace('$host', $scope.instanceList[i].instanceIP);
-                                    $scope.instanceList[i].appUrls[j].url = url;
+                            if(appItem && appItem.length >0 ) {
+                                for (var j = 0; j < appItem.length; j++) {
+                                    var url = appItem[j].url;
+                                    if (url) {
+                                        url = url.replace('$host', $scope.instanceList[i].instanceIP);
+                                        $scope.instanceList[i].appUrls[j].url = url;
+                                    }
                                 }
                             }
                         }

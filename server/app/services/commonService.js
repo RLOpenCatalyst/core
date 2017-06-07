@@ -164,6 +164,10 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                     os: resource.resourceDetails.os
                 },
                 credentials: encryptedCredentials,
+                cost:resource.cost,
+                usage:resource.usage,
+                tags:resource.tags,
+                source:'service',
                 blueprintData: {
                     blueprintName: resource.resourceDetails.platformId
                 }
