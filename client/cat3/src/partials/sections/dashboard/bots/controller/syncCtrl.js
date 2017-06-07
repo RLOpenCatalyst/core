@@ -124,7 +124,6 @@
 	        		botsSyncCtrl.newEnt.gitHubId = response.data[0]._id;	
 	        		$scope.actionStatus = 'cancel';
 					botsCreateService.getGitHubSyncDetails($scope.actionStatus,botsSyncCtrl.newEnt.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
-						console.log(result);
 					});
 					$scope.actionStatus = 'sync';
 	        		$scope.botSyncGridView();
@@ -164,7 +163,7 @@
 	            $scope.botSyncGrid.paginationCurrentPage = $scope.paginationParams.page;
 	            botLibraryUIGridDefaults.gridOption.paginationPageSize = 25;
 	            $scope.actionStatus = 'list';
-	            $scope.getGitHubDetails();
+	            $scope.botSyncGridView();
 	        };
 		
 			$scope.postSyncBots = function() {
@@ -172,6 +171,17 @@
 				botsCreateService.postBotSync(botsSyncCtrl.newEnt.gitHubId,$scope.botId).then(function(response){
 					toastr.success('GitHub Sync Successfull');
 					$state.go('dashboard.bots.library');
+				});
+			}
+
+			$rootScope.applyFilter = function() {
+				$scope.isBotSyncPageLoading = true;
+				$scope.actionStatus = 'list';
+				botsCreateService.applyFilter($scope.actionStatus, botsSyncCtrl.newEnt.gitHubId, $scope.botSyncType, $scope.botSyncCategory, $scope.botSyncStatus, $scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder,$scope.searchString).then(function(result){
+					$scope.botSyncGrid.data = result.githubsync;
+	                $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
+	                $scope.botSyncGrid.botData = result.metaData;
+	                $scope.isBotSyncPageLoading = false;
 				});
 			}
 

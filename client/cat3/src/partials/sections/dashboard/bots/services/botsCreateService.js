@@ -180,8 +180,8 @@
 				return genericServices.promisePost(params);
 			};
 
-			/*botService.applyFilter = function(type, category, status, page, pageSize, sortBy, sortOrder) {
-				var url = '/git-hub/' + gitHubId + '/sync?action=';
+			botService.applyFilter = function(actionStatus, gitHubId, type, category, status, page, pageSize, sortBy, sortOrder) {
+				var url = '/git-hub/' + gitHubId + '/sync?action=' + actionStatus + '&filterBy=';
 				if(type !==undefined && category !==undefined && status !==undefined) {
 					url += 'type:'+ type + ',category:'+category + ',status:'+ status 
 				}else if(type !==undefined && category !==undefined) {
@@ -189,16 +189,16 @@
 				} else if(type !==undefined && status !==undefined) {
 					url += 'type:'+ type + ',status:'+status
 				} else if(status !==undefined && category !==undefined) {
-
-				}
-				else if(type !== undefined) {
+					url += 'status:'+ status + ',category:'+category
+				} else if(type !== undefined) {
 					url += 'type:' + type
-				}
-				else if(category !== undefined) {
+				} else if(category !== undefined) {
 					url += 'category:' + category;	
-				}
-				else if(status !== undefined) {
+				} else if(status !== undefined) {
 					url += 'status:' + status;	
+				} else {
+					url = '/git-hub/' + gitHubId + '/sync?action=' + actionStatus + '&page=' + page +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder
+					return false;
 				}
 				url += '&page=' + page +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder
 				var params = {
@@ -206,7 +206,7 @@
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);
-			}*/
+			}
 
         }]);
 })(angular);
