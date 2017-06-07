@@ -244,28 +244,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.getGitHubSync(req.params.gitHubId,'sync', next);
-                }
-            ],
-            function(err, results) {
-                if (err) {
-                    res.status(err.status).send(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    app.get('/git-hub/:gitHubId/import', getGitHubImport);
-    function getGitHubImport(req, res) {
-        async.waterfall(
-            [
-                function(next) {
-                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
-                },
-                function(gitHub,next) {
-                    gitHubService.getGitHubSync(req.params.gitHubId,'import', next);
+                    gitHubService.getGitHubSync(req.params.gitHubId,req.query, next);
                 }
             ],
             function(err, results) {
@@ -286,7 +265,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.gitHubCopy(req.params.gitHubId, req.body.gitHubBody, next);
+                    gitHubService.gitHubCopy(req.params.gitHubId, req.body, req.session.user.cn, next);
                 }
             ],
             function(err, results) {
@@ -307,23 +286,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.gitHubContentSync(req.params.gitHubId, req.params.botId, next);
+                    gitHubService.gitHubContentSync(req.params.gitHubId, req.params.botId,req.session.user.cn, next);
                 }
             ],
-            function(err, results) {
-                if (err) {
-                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' is synced unsuccessful'},"error",function(err,data){
-                    if(err){
-                        return res.sendStatus(500);
-                    }});
-                    res.status(err.status).send(err);
-                } else {
-                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' is synced successful'},"success",function(err,data){
-                    if(err){
-                        return res.sendStatus(500);
-                    }});
+            function(err) {
+                if(err)
+                    return res.sendStatus(500);
+                else
                     return res.sendStatus(200);
-                }
             }
         );
     }

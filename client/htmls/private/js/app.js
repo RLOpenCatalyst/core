@@ -1350,8 +1350,6 @@ if ($.navAsAjax) {
 	// DO on hash change
 	$(window).on('hashchange', function() {
 		//	debugger;
-		console.log(location.href);
-		console.log('success111111111111111111111111111');
 		checkURL();
 	});
 }
