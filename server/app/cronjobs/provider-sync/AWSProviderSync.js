@@ -950,7 +950,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                             type: node.result.resourceType,
                             state: node.result.resourceDetails.state,
                             category: node.result.category,
-                            name: node.result.name
+                            platformId: node.result.resourceDetails.platformId
                         }
                         resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
                         var findCheck = false;
@@ -975,7 +975,8 @@ function serviceMapVersion(service,resources,instanceStateList){
                             type: node.result.resourceType,
                             state: node.result.resourceDetails.state,
                             category: node.result.category,
-                            name: node.result.name
+                            name: node.result.name,
+                            platformId: node.result.resourceDetails.platformId
                         }
                         resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
                         var findCheck = false;

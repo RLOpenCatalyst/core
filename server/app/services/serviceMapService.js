@@ -454,47 +454,62 @@ serviceMapService.getServiceResources = function getServiceResources(serviceId,f
         function(next){
             services.getServiceById(serviceId,next);
         },
-        function(services,next){
-            if(services.length > 0 && services.resources.length > 0){
+        function(serviceList,next){
+            var keyList = [];
+            if(serviceList.length > 0 && serviceList[0].resources.length > 0){
                 var resourceObj = {},filterResourceList = [];
                 if(filterQuery.ami && filterQuery.ami !== null){
                     resourceObj['ami'] = filterQuery.ami;
+                    keyList.push('ami');
                 }
                 if(filterQuery.ip && filterQuery.ip !== null){
                     resourceObj['ip'] = filterQuery.ip;
+                    keyList.push('ip');
                 }
                 if(filterQuery.vpc && filterQuery.vpc !== null){
                     resourceObj['vpc'] = filterQuery.vpc;
+                    keyList.push('vpc');
                 }
                 if(filterQuery.subnet && filterQuery.subnet !== null){
                     resourceObj['subnet'] = filterQuery.subnet;
+                    keyList.push('subnet');
                 }
                 if(filterQuery.tags && filterQuery.tags !== null){
                     resourceObj['tags'] = filterQuery.tags;
+                    keyList.push('tags');
                 }
                 if(filterQuery.keyPairName && filterQuery.keyPairName !== null){
                     resourceObj['keyPairName'] = filterQuery.keyPairName;
+                    keyList.push('keyPairName');
                 }
                 if(filterQuery.group && filterQuery.group !== null){
                     resourceObj['group'] = filterQuery.group;
+                    keyList.push('group');
                 }
                 if(filterQuery.roles && filterQuery.roles !== null){
                     resourceObj['roles'] = filterQuery.roles;
+                    keyList.push('roles');
                 }
-                services.resources.forEach(function(resource){
-                    var filterObj = {}
+                serviceList[0].resources.forEach(function(resource){
+                    var filterObj = {};
                     Object.keys(resource).forEach(function(key){
-                        if(key !== 'id' || key !== 'state' ||  key !== 'type' ||  key !== 'name' || key !== 'platformId'){
+                        if(keyList.indexOf(key) !== -1){
                             filterObj[key] = resource[key];
                         }
-                    })
+                    });
                     if(JSON.stringify(resourceObj) === JSON.stringify(filterObj)){
-                        filterResourceList.push(resource);
+                        resourceObj['id'] = resource.id;
+                        resourceObj['type'] =resource.type;
+                        resourceObj['category'] =resource.category;
+                        resourceObj['platformId']= resource.platformId;
+                        resourceObj['name'] = resource.name;
+                        resourceObj['state'] = resource.state;
+                        filterResourceList.push(resourceObj);
                     }
-                })
+                });
                 next(null,filterResourceList);
             }else{
-                next(null,services.resources);
+                next(null,serviceList[0].resources);
             }
         }
     ],function(err,results){
@@ -515,8 +530,8 @@ serviceMapService.getServiceById = function getServiceById(serviceId,callback){
         function(next){
             services.getServiceById(serviceId,next);
         },
-        function(services,next){
-            changeServiceResponse(services,next);
+        function(serviceList,next){
+            changeServiceResponse(serviceList,next);
         }
     ],function(err,results){
         if(err){
