@@ -31,7 +31,10 @@
             $scope.postAuthenticationResource = function() {
             	reqBody.credentials = {};
             	servicesCreateService.postAuthenticateResource(items.serviceSelected.id,items.resourceObj.id,reqBody).then(function(response){
-            		console.log(response);
+                    if(response) {
+                        toastr.success('Authentication success');
+                        $state.go('dashboard.services.servicesList');
+                    }
             	});
             };
 
