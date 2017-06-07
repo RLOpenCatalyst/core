@@ -206,7 +206,23 @@
 					inlineLoader: true	
 				};
 				return genericServices.promiseGet(params);
-			}
+			};
+
+			botService.getLoggedInUser = function () {
+				var params = {
+					url: '/d4dMasters/loggedInUser',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getTeamList = function() {
+				var params = {
+					url: '/d4dMasters/readmasterjsonnew/21',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
 
         }]);
 })(angular);
