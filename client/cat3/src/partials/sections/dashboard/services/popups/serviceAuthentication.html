@@ -9,6 +9,13 @@
 
     <div class="modal-body">
         <div class="col-lg-6 col-md-6 margintop15">
+            <label for="">Username:<span class="red">*</span>
+            </label>
+            <div class="input-groups">
+                <input ng-model="IMGNewEnt.userName" type="text" name="coBlueprintName" class="form-control" required >
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
             <label for="">Choose Authentication Type:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
             </label>
             <div class="input-groups">
@@ -36,8 +43,11 @@
     </div>
     
     <div class="modal-footer">
-        <button type="button" class="btn cat-btn-cancel" ng-click="orchLogCtrl.cancelAll(orchLogCtrl.taskLogType)">
+        <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
             <i class="fa fa-times black"></i> Close
+        </button>
+        <button type="button" class="btn cat-btn-update" ng-click="postAuthenticationResource()">
+            <i class="fa fa-check white"></i> Authenticate
         </button>
     </div>
 </div>

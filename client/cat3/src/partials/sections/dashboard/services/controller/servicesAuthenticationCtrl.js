@@ -7,7 +7,7 @@
 (function(angular) {
         "use strict";
         angular.module('dashboard.services')
-        .controller('servicesAuthenticationCtrl', ['$scope', '$rootScope', 'items', '$state', 'servicesCreateService', 'toastr', function($scope, $rootScope, items, $state, servicesCreateService, toastr) {
+        .controller('servicesAuthenticationCtrl', ['$scope', '$rootScope', 'items', '$state', 'servicesCreateService', 'toastr', '$modalInstance', function($scope, $rootScope, items, $state, servicesCreateService, toastr, $modalInstance) {
             $scope.getItems = items;
             $scope.IMGNewEnt={
 	            passType:'password'
@@ -30,6 +30,7 @@
 
             $scope.postAuthenticationResource = function() {
             	reqBody.credentials = {};
+                reqBody.credentials.username = $scope.IMGNewEnt.userName;
             	servicesCreateService.postAuthenticateResource(items.serviceSelected.id,items.resourceObj.id,reqBody).then(function(response){
                     if(response) {
                         toastr.success('Authentication success');
@@ -48,7 +49,9 @@
                 reqBody.credentials.pemFileData = pemfileText;
                 $scope.postAuthenticationResource();
             };
-
+            $scope.cancel = function() {
+                $modalInstance.dismiss('cancel');
+            };
 
         }]);
 })(angular);
