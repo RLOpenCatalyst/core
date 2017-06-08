@@ -1003,10 +1003,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                             }
                         })
 
-                    }else if(service.masterDetails.bgId === node.result.masterDetails.bgId
-                            && service.masterDetails.projectId === node.result.masterDetails.projectId
-                            && service.masterDetails.envId === node.result.masterDetails.envId
-                            && service.masterDetails.configId === node.result.configDetails.id) {
+                    }else if(service.masterDetails.envId === node.result.masterDetails.envId && service.masterDetails.configId === node.result.configDetails.id) {
                         var resourceObj = {
                             id: node.result._id+'',
                             type: node.result.resourceType,

@@ -74,9 +74,19 @@ var ApiUtil = function() {
                 };
                 break;
             case 'tags':
+                var keyList = [];
+                value.forEach(function(val){
+                    Object.keys(val).forEach(function(key){
+                        var str = 'tags.'+key;
+                        var obj = {};
+                        obj[str] = val[key];
+                        keyList.push(obj)
+                    })
+                })
                 query = {
-                    'tags': {$in: value}
+                    '$or': keyList
                 };
+                console.log(JSON.stringify(query));
                 break;
             case 'groups':
                 Object.keys(value).forEach(function (groupObjKey) {
@@ -97,9 +107,15 @@ var ApiUtil = function() {
                             query['providerDetails.keyPairName'] = {$in: value[groupObjKey]};
                             break;
                         case 'tags':
-                            query = {
-                                'tags': {$in: value}
+                            var tagObj = {
+                                tags:{}
                             };
+                            value.forEach(function(val){
+                                Object.keys(val).forEach(function(key){
+                                    tagObj.tags[key] = val[key];
+                                })
+                            })
+                            query['$or'] = [tagObj];
                             break;
                         case 'roles':
                             query['configDetails.run_list'] = {$in: value};
