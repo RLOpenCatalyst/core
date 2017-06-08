@@ -881,7 +881,7 @@ function serviceMapSync(callback){
                                                                 next(null, resourceList);
                                                             }
                                                         }else{
-                                                            commonService.syncChefNodeWithResources(chefNode,function(err,resourceData){
+                                                            commonService.syncChefNodeWithResources(chefNode,service,function(err,resourceData){
                                                                 if(err){
                                                                     logger.error("Error in syncing Chef Node with Resources: ",err);
                                                                 }
