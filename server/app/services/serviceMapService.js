@@ -634,6 +634,8 @@ function formattedServiceResponse(service,callback){
         type:service.type,
         desc:service.desc,
         state:service.state,
+        identifiers:service.identifiers,
+        resources:service.resources,
         createdOn:service.createdOn,
         updatedOn:service.updatedOn,
         version:service.version.toFixed(1)

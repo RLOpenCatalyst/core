@@ -71,7 +71,7 @@
                             {
                                 name: 'Authentication',
                                 cellTooltip: true,
-                                cellTemplate:'<span ng-show="row.entity.authentication === \'failed\'"><a ng-click="grid.appScope.changeAuthenticationType(row.entity)" style="cursor:pointer;">failed</a></span>' + '<span ng-show="row.entity.authentication === \'success\'">success</span>'
+                                cellTemplate:'<span ng-show="row.entity.authentication === \'failed\'"><a ng-click="grid.appScope.changeAuthenticationType(row.entity)" style="cursor:pointer;">failed</a></span>' + '<span ng-show="row.entity.authentication === \'success\'">success</span>' + '<span ng-show="row.entity.authentication === \'authenticating\'">authenticating</span>'
                             },
                             {
                                 name: 'Boot-Strap',

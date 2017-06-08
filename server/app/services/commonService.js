@@ -422,6 +422,16 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                         }
                                     });
                                     var queryObj = {
+                                        'masterDetails.orgId': serviceDetails.masterDetails.orgId,
+                                        'masterDetails.orgName': serviceDetails.masterDetails.orgName,
+                                        'masterDetails.bgId': serviceDetails.masterDetails.bgId,
+                                        'masterDetails.bgName': serviceDetails.masterDetails.bgName,
+                                        'masterDetails.projectId': serviceDetails.masterDetails.projectId,
+                                        'masterDetails.projectName': serviceDetails.masterDetails.projectName,
+                                        'masterDetails.envId': serviceDetails.masterDetails.envId,
+                                        'masterDetails.envName': serviceDetails.masterDetails.envName,
+                                        'configDetails.id': serviceDetails.masterDetails.configId,
+                                        'configDetails.nodeName': serviceDetails.masterDetails.configName,
                                         'resourceDetails.bootStrapState':'success',
                                         'resourceDetails.credentials':encryptedCredentials,
                                         'category':'managed'
@@ -598,6 +608,16 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                         timestamp: timestampEnded
                                     });
                                     var queryObj = {
+                                        'masterDetails.orgId': serviceDetails.masterDetails.orgId,
+                                        'masterDetails.orgName': serviceDetails.masterDetails.orgName,
+                                        'masterDetails.bgId': serviceDetails.masterDetails.bgId,
+                                        'masterDetails.bgName': serviceDetails.masterDetails.bgName,
+                                        'masterDetails.projectId': serviceDetails.masterDetails.projectId,
+                                        'masterDetails.projectName': serviceDetails.masterDetails.projectName,
+                                        'masterDetails.envId': serviceDetails.masterDetails.envId,
+                                        'masterDetails.envName': serviceDetails.masterDetails.envName,
+                                        'configDetails.id': serviceDetails.masterDetails.configId,
+                                        'configDetails.nodeName': serviceDetails.masterDetails.configName,
                                         'resourceDetails.bootStrapState':'failed',
                                         'resourceDetails.credentials':encryptedCredentials,
                                         'category':'managed'

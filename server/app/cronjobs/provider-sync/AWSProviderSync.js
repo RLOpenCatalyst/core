@@ -944,65 +944,38 @@ function serviceMapVersion(service,resources,instanceStateList){
     async.waterfall([
         function(next){
             if(resources.length > 0){
-                var count = 0;
                 resources.forEach(function(node){
                     if(node.result.category !== 'managed') {
-                        var queryObj = {
-                            'masterDetails.orgId':service.masterDetails.orgId,
-                            'masterDetails.orgName':service.masterDetails.orgName,
-                            'masterDetails.bgId':service.masterDetails.bgId,
-                            'masterDetails.bgName':service.masterDetails.bgName,
-                            'masterDetails.projectId':service.masterDetails.projectId,
-                            'masterDetails.projectName':service.masterDetails.projectName,
-                            'masterDetails.envId':service.masterDetails.envId,
-                            'masterDetails.envName':service.masterDetails.envName,
-                            'configDetails.id': service.masterDetails.configId,
-                            'configDetails.name': service.masterDetails.configName
-                        }
                         instanceStateList.push('authentication_error');
-                        ec2Model.updateInstanceData(node.result._id,queryObj,function(err,data){
-                            if(err){
-                                logger.error("Error in updating Resource Details:",err);
-                                count++;
-                                if(count === resources.length){
-                                    next(null,filterResourceList);
-                                }
-                            }else{
-                                var resourceObj = {
-                                    id: node.result._id+'',
-                                    type: node.result.resourceType,
-                                    state: node.result.resourceDetails.state,
-                                    category: node.result.category,
-                                    platformId: node.result.resourceDetails.platformId,
-                                    authentication:node.result.authentication,
-                                    bootStrapState:node.result.resourceDetails.bootStrapState
-                                }
-                                if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
-                                    instanceStateList.push('bootStrapping');
-                                }
-                                var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                                resourceObj[node.type] = obj[node.type];
-                                var findCheck = false;
-                                for (var i = 0; i < filterResourceList.length; i++) {
-                                    if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
-                                        var filterObj = filterResourceList[i];
-                                        var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                                        filterObj[node.type] = resourceVal[node.type];
-                                        filterResourceList.splice(i, 1);
-                                        filterResourceList.push(filterObj);
-                                        findCheck = true;
-                                    }
-                                }
-                                count++;
-                                if (findCheck === false) {
-                                    filterResourceList.push(resourceObj);
-                                }
-                                if(count === resources.length){
-                                    next(null,filterResourceList);
-                                }
+                        var resourceObj = {
+                            id: node.result._id + '',
+                            type: node.result.resourceType,
+                            state: node.result.resourceDetails.state,
+                            category: node.result.category,
+                            platformId: node.result.resourceDetails.platformId,
+                            authentication: node.result.authentication,
+                            bootStrapState: node.result.resourceDetails.bootStrapState
+                        }
+                        if (node.result.resourceDetails.bootStrapState === 'bootStrapping') {
+                            instanceStateList.push('bootStrapping');
+                        }
+                        var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        resourceObj[node.type] = obj[node.type];
+                        var findCheck = false;
+                        for (var i = 0; i < filterResourceList.length; i++) {
+                            if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
+                                var filterObj = filterResourceList[i];
+                                var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                filterObj[node.type] = resourceVal[node.type];
+                                filterResourceList.splice(i, 1);
+                                filterResourceList.push(filterObj);
+                                findCheck = true;
                             }
-                        })
-
+                        }
+                        if (findCheck === false) {
+                            filterResourceList.push(resourceObj);
+                        }
+                        next(null, filterResourceList);
                     }else if(service.masterDetails.envId === node.result.masterDetails.envId && service.masterDetails.configId === node.result.configDetails.id) {
                         var resourceObj = {
                             id: node.result._id+'',
@@ -1036,16 +1009,9 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if (findCheck === false) {
                             filterResourceList.push(resourceObj);
                         }
-                        count++;
-                        if(count === resources.length){
-                            next(null,filterResourceList);
-                        }
+                        next(null,filterResourceList);
                     }else{
                         logger.debug("Un-Matched Record");
-                        count++;
-                        if(count === resources.length){
-                            next(null,filterResourceList);
-                        }
                     }
 
                 });
