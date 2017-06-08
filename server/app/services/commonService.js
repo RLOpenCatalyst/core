@@ -37,6 +37,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Docker = require('_pr/model/docker.js');
 var instanceModel = require('_pr/model/resources/instance-resource');
+var services = require('_pr/model/services/services.js');
 
 
 
@@ -113,6 +114,7 @@ commonService.getCredentialsFromReq = function getCredentialsFromReq(credentials
 
 
 commonService.bootstrapInstance = function bootstrapInstance(resource,credentials,serviceDetails,callback){
+    var resourceId = resource._id+'';
     masterUtil.getCongifMgmtsById(serviceDetails.masterDetails.configId, function (err, serverDetails) {
         if (err) {
             return callback(err, null);
@@ -429,6 +431,16 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                             logger.error("Error in updating Resource Authentication : " + err)
                                         }
                                     });
+                                    services.updateService({
+                                        name: serverDetails.name,
+                                        'resources': {$elemMatch: {id: resourceId}}
+                                    }, {
+                                        'resources.$.bootStrapState': 'success'
+                                    }, function (err, result) {
+                                        if (err) {
+                                            logger.error("Error in updating Service State:", err);
+                                        }
+                                    });
                                     var hardwareData = {};
                                     if (bootstrapData && bootstrapData.puppetNodeName) {
                                         var runOptions = {
@@ -593,6 +605,16 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                     instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
                                         if (err) {
                                             logger.error("Error in updating Resource Authentication : " + err)
+                                        }
+                                    });
+                                    services.updateService({
+                                        name: serverDetails.name,
+                                        'resources': {$elemMatch: {id: resourceId}}
+                                    }, {
+                                        'resources.$.bootStrapState': 'failed'
+                                    }, function (err, result) {
+                                        if (err) {
+                                            logger.error("Error in updating Service State:", err);
                                         }
                                     });
                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
