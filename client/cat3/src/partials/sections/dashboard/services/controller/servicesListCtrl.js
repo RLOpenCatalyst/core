@@ -25,7 +25,7 @@
             $scope.serviceGrid={};
             $scope.serviceGrid.columnDefs= [
                 { name: 'State',cellTemplate:'<i title="{{row.entity.state}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'Initializing\'"></i>' + '<i title="{{row.entity.state}}" class="text-green fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'Running\'"></i>' +
-                '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'Stopped\'"></i>' + '<i title="{{row.entity.state}}" class="text-black fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'Terminated\'"></i>', cellTooltip: true},
+                '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'Stopped\'"></i>' + '<i title="{{row.entity.state}}" class="text-black fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'Terminated\'"></i>' + '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'Authentication_Error\'"></i>', cellTooltip: true},
                 { name: 'Name',field:'name',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
                 { name: 'Type',field:'type',cellTooltip: true},

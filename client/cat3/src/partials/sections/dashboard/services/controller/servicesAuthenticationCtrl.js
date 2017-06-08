@@ -27,16 +27,15 @@
 	                toastr.error('HTMl5 File Reader is not Supported. Please upgrade your browser');
 	            }
 	        };
+
             $scope.ok = function() {
                 reqBody.credentials = {};
                 $scope.postAuthenticationResource = function () {
                     reqBody.credentials.username = $scope.IMGNewEnt.userName;
-                    console.log(reqBody);
                     servicesCreateService.postAuthenticateResource(items.serviceSelected.id, items.resourceObj.id, reqBody).then(function (response) {
                         if (response) {
                             $modalInstance.close(response);
                             toastr.success(response.message);
-                            $state.go('dashboard.services.servicesList');
                         }
                     });
                 };
