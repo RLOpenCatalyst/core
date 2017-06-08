@@ -28,29 +28,31 @@
 	            }
 	        };
 
-            $scope.postAuthenticationResource = function() {
-            	reqBody.credentials = {};
-                reqBody.credentials.username = $scope.IMGNewEnt.userName;
-            	servicesCreateService.postAuthenticateResource(items.serviceSelected.id,items.resourceObj.id,reqBody).then(function(response){
-                    if(response) {
-                        toastr.success('Authentication success');
-                        $state.go('dashboard.services.servicesList');
-                    }
-            	});
-            };
-
-            if ($scope.passwordModel === "password") {
-                reqBody.credentials.password = $scope.IMGNewEnt.password;
-                $scope.postAuthenticationResource();  
-            } else {
-                $scope.pemFileSelection($scope.pemfile);
-            }
-            $scope.addPemText = function(pemfileText){
-                reqBody.credentials.pemFileData = pemfileText;
-                $scope.postAuthenticationResource();
-            };
-            $scope.cancel = function() {
-                $modalInstance.dismiss('cancel');
+            $scope.ok = function() {
+                reqBody.credentials = {};
+                $scope.postAuthenticationResource = function () {
+                    reqBody.credentials.username = $scope.IMGNewEnt.userName;
+                    console.log(reqBody);
+                    servicesCreateService.postAuthenticateResource(items.serviceSelected.id, items.resourceObj.id, reqBody).then(function (response) {
+                        if (response) {
+                            toastr.success('Authentication success');
+                            $state.go('dashboard.services.servicesList');
+                        }
+                    });
+                };
+                if ($scope.passwordModel === "password") {
+                    reqBody.credentials.type = 'password';
+                    reqBody.credentials.password = $scope.IMGNewEnt.password;
+                    $scope.postAuthenticationResource();
+                } else {
+                    $scope.pemFileSelection($scope.pemfile);
+                }
+                $scope.addPemText = function (pemfileText) {
+                    reqBody.credentials.type = 'pemFile';
+                    reqBody.credentials.pemFileData = pemfileText;
+                    console.log(reqBody);
+                    $scope.postAuthenticationResource();
+                };
             };
 
         }]);
