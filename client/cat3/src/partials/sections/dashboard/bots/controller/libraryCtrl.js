@@ -356,6 +356,7 @@
         }
 
         $scope.botLibraryGridView = function() {
+            $scope.getLoggedInUser();
             $rootScope.onBodyLoading = false;
             $scope.isBotDetailsLoading = true;
             lib.gridOptions=[];
@@ -629,8 +630,7 @@
             $scope.botLibAction = undefined;
             $scope.botLibCategory = undefined;
             $scope.botLibType = undefined;
-            $scope.orgNewEnt.org = undefined;
-            $scope.botOrganizationTeam = undefined;
+            $scope.getLoggedInUser();
             $scope.numofCardPages = 0;
             $scope.paginationParams.page = 1;
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
@@ -739,7 +739,6 @@
             $scope.timeSavedBotsSelected = false;
             $scope.noShowForServiceNow = false;
             $scope.noShowForTimeSaved = true;
-            $scope.showForServiceNow = true;
             $scope.paginationParams.pageSize = 10;
             lib.gridOptions.data=[];
             $scope.botServiceNowLibraryGridView();

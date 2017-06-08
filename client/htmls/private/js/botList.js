@@ -177,8 +177,6 @@ $('#botsTable tbody').on( 'click', 'tr', function () {
     $(this).toggleClass('active');
     if($(this).hasClass('active')) {
         $('#botTeamSync').show();
-    } else {
-        $('#botTeamSync').hide();
     }
 }); 
 
@@ -199,6 +197,10 @@ $('#botTeamSync').click(function(){
             teamIds:teamId
         }];
     });
+    if($('#teamList').val() !== null && resourceIds.length <=0) {
+        bootbox.alert('Please select a BOT To continue');
+        return false;       
+    }
     reqBody.delete = [];
     var resourceType = 'bots';
     $.ajax({
