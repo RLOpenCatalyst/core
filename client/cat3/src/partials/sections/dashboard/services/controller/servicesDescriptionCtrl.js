@@ -7,7 +7,7 @@
 (function(angular) {
         "use strict";
         angular.module('dashboard.services')
-            .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', function($scope, $rootScope, uiGridOptionsService,$modal, $state) {
+            .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
                 var treeNames = ['Services', 'Service Description'];
                 $rootScope.$emit('treeNameUpdate', treeNames);
                 $scope.serviceSelected = $state.params.serviceDetail;
@@ -45,47 +45,52 @@
                     resourceListView: function() {
                         $scope.isResourceListLoading = true;
                         $scope.serviceResourceData.data = [];
-                        $scope.serviceResourceData.data = $scope.serviceSelected.resources;
-                        var bpcolumnDefs = [];
-                        var resourceGrid = [
-                            {
-                                name: 'State',
-                                field: 'state',
-                                cellTooltip: true
-                            },
-                            {
-                                name: 'Instance Id',
-                                field: 'platformId',
-                                cellTooltip: true
-                            },
-                            {
-                                name: 'Type',
-                                field: 'type',
-                                cellTooltip: true
-                            },
-                            {
-                                name: 'Category',
-                                field: 'category',
-                                cellTooltip: true
-                            },
-                            {
-                                name: 'Authentication',
-                                cellTooltip: true,
-                                cellTemplate:'<span ng-show="row.entity.authentication === \'failed\'"><a ng-click="grid.appScope.changeAuthenticationType(row.entity)" style="cursor:pointer;">failed</a></span>' + '<span ng-show="row.entity.authentication === \'success\'">success</span>'
-                            },
-                            {
-                                name: 'Boot-Strap',
-                                cellTooltip: true,
-                                field: 'bootStrapState',
+                        servicesCreateService.getResources($scope.serviceSelected.id).then(function(response){
+                            $scope.serviceResourceData.data = response;
+                            var bpcolumnDefs = [];
+                            var resourceGrid = [
+                                {
+                                    name: 'State',
+                                    cellTemplate:'<i title="{{row.entity.state}}" class="text-green fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'running\'"></i>' +
+                                    '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'stopped\'"></i>' + '<i title="{{row.entity.state}}" class="text-black fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'terminated\'"></i>' + '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'deleted\'"></i>',
+                                    cellTooltip: true
+                                },
+                                {
+                                    name: 'Instance Id',
+                                    field: 'platformId',
+                                    cellTooltip: true
+                                },
+                                {
+                                    name: 'Type',
+                                    field: 'type',
+                                    cellTooltip: true
+                                },
+                                {
+                                    name: 'Category',
+                                    field: 'category',
+                                    cellTooltip: true
+                                },
+                                {
+                                    name: 'Authentication',
+                                    cellTooltip: true,
+                                    cellTemplate:'<i title="{{row.entity.authentication}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.authentication === \'success\'"></i>' +
+                                    '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="changeAuthenticationType()"></i>'
+                                },
+                                {
+                                    name: 'Bootstrap',
+                                    cellTooltip: true,
+                                    cellTemplate: '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.bootStrapState === \'success\'"></i>' +
+                                    '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>',
+                                }
+                            ];
+                            bpcolumnDefs = resourceGrid;                                
+                            $scope.serviceResourceData.columnDefs = bpcolumnDefs;
+                            angular.extend($scope.serviceResourceData, serviceInfoUIGridDefaults.gridOption);
+                            if($scope.serviceResourceData.data) {
+                                $scope.serviceResourceData.totalItems = $scope.serviceResourceData.data.length;
                             }
-                        ];
-                        bpcolumnDefs = resourceGrid;                                
-                        $scope.serviceResourceData.columnDefs = bpcolumnDefs;
-                        angular.extend($scope.serviceResourceData, serviceInfoUIGridDefaults.gridOption);
-                        if($scope.serviceResourceData.data) {
-                            $scope.serviceResourceData.totalItems = $scope.serviceResourceData.data.length;
-                        }
-                        $scope.isResourceListLoading = false;
+                            $scope.isResourceListLoading = false;
+                        });
                     }
                     
                 });
@@ -109,7 +114,7 @@
                 }
 
                 var serviceTab = {
-                    tab: "Resources",
+                    tab: "ReadMe",
                     setTab: function(tabId) {
                         serviceTab.tab = tabId;
                     },
@@ -117,13 +122,13 @@
                         return serviceTab.tab === tabId;
                     },
                     templates: {
-                        resources: {
-                            "title": "Resources",
-                            "url": "src/partials/sections/dashboard/services/tabs/resources.html"
-                        },
                         readme: {
                             "title": "ReadMe",
                             "url": "src/partials/sections/dashboard/services/tabs/serviceReadme.html"
+                        },
+                        resources: {
+                            "title": "Resources",
+                            "url": "src/partials/sections/dashboard/services/tabs/resources.html"
                         },
                         info: {
                             "title": "Service Info",
@@ -131,6 +136,11 @@
                         }
                     }
                 };
+
+                $scope.refreshResources = function() {
+                    $scope.resourceListView();    
+                }
+
                 $scope.tab = serviceTab;
                 $scope.resourceListView();
             }]);

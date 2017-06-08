@@ -299,6 +299,7 @@ var InstanceSchema = new Schema({
     tasks: [Schema.Types.Mixed],
     usage: Schema.Types.Mixed,
     cost: Schema.Types.Mixed,
+    tags: Schema.Types.Mixed,
     normalized: String,
     region: {
         type: String,

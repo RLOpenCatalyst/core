@@ -37,6 +37,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Docker = require('_pr/model/docker.js');
 var instanceModel = require('_pr/model/resources/instance-resource');
+var services = require('_pr/model/services/services.js');
 
 
 
@@ -113,6 +114,7 @@ commonService.getCredentialsFromReq = function getCredentialsFromReq(credentials
 
 
 commonService.bootstrapInstance = function bootstrapInstance(resource,credentials,serviceDetails,callback){
+    var resourceId = resource._id+'';
     masterUtil.getCongifMgmtsById(serviceDetails.masterDetails.configId, function (err, serverDetails) {
         if (err) {
             return callback(err, null);
@@ -164,6 +166,10 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                     os: resource.resourceDetails.os
                 },
                 credentials: encryptedCredentials,
+                cost:resource.cost,
+                usage:resource.usage,
+                tags:resource.tags,
+                source:'service',
                 blueprintData: {
                     blueprintName: resource.resourceDetails.platformId
                 }
@@ -425,6 +431,16 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                             logger.error("Error in updating Resource Authentication : " + err)
                                         }
                                     });
+                                    services.updateService({
+                                        name: serverDetails.name,
+                                        'resources': {$elemMatch: {id: resourceId}}
+                                    }, {
+                                        'resources.$.bootStrapState': 'success'
+                                    }, function (err, result) {
+                                        if (err) {
+                                            logger.error("Error in updating Service State:", err);
+                                        }
+                                    });
                                     var hardwareData = {};
                                     if (bootstrapData && bootstrapData.puppetNodeName) {
                                         var runOptions = {
@@ -480,6 +496,14 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                                             logger.debug("Instance hardware details set successessfully");
                                                         }
                                                     });
+                                                    var queryObj = {
+                                                        'resourceDetails.hardware':hardwareData
+                                                    }
+                                                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Error in updating Resource Authentication : " + err)
+                                                        }
+                                                    });
                                                 });
                                             }, 30000);
                                         });
@@ -515,6 +539,14 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                                     logger.debug("Instance hardware details set successessfully");
                                                 }
                                             });
+                                            var queryObj = {
+                                                'resourceDetails.hardware':hardwareData
+                                            }
+                                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in updating Resource Authentication : " + err)
+                                                }
+                                            });
                                             if (decryptedCredentials.pemFilePath) {
                                                 fileIo.removeFile(decryptedCredentials.pemFilePath, function (err) {
                                                     if (err) {
@@ -534,10 +566,18 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                         }
                                         logger.debug('Docker Check Returned:' + retCode);
                                         if (retCode == '0') {
+                                            dockerEngineState
                                             instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
                                                 logger.debug('Instance Docker Status set to Success');
                                             });
-
+                                            var queryObj = {
+                                                'resourceDetails.dockerEngineState':'success'
+                                            }
+                                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in updating Resource Authentication : " + err)
+                                                }
+                                            });
                                         }
                                     });
 
@@ -565,6 +605,16 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                     instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
                                         if (err) {
                                             logger.error("Error in updating Resource Authentication : " + err)
+                                        }
+                                    });
+                                    services.updateService({
+                                        name: serverDetails.name,
+                                        'resources': {$elemMatch: {id: resourceId}}
+                                    }, {
+                                        'resources.$.bootStrapState': 'failed'
+                                    }, function (err, result) {
+                                        if (err) {
+                                            logger.error("Error in updating Service State:", err);
                                         }
                                     });
                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
@@ -878,146 +928,51 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
     }
 }
 
-commonService.syncChefNodeWithResources = function syncChefNodeWithResources(chefNodeDetails,masterDetails,callback){
-    async.parallel({
-        instanceSchema: function(callback) {
-            monitorsModel.getById(masterDetails.monitorId, function (err, monitor) {
-                var instance = {
-                    name: chefNodeDetails.name,
-                    orgId: masterDetails.orgId,
-                    bgId: masterDetails.bgId,
-                    projectId: masterDetails.projectId,
-                    envId: masterDetails.envId,
-                    orgName: masterDetails.orgName,
-                    bgName: masterDetails.bgName,
-                    projectName: masterDetails.projectName,
-                    environmentName: masterDetails.envName,
-                    chefNodeName: chefNodeDetails.name,
-                    runlist: chefNodeDetails.run_list,
-                    platformId: chefNodeDetails.platformId,
-                    instanceIP: chefNodeDetails.ip,
-                    instanceState: 'running',
-                    bootStrapStatus: 'success',
-                    hardware: chefNodeDetails.hardware,
-                    tagServer: masterDetails.tagServer,
-                    monitor: monitor,
-                    user: masterDetails.userName,
-                    chef: {
-                        serverId: chefNodeDetails.serverId,
-                        chefNodeName: chefNodeDetails.name
-                    },
-                    source: 'chef',
-                    blueprintData: {
-                        blueprintName: chefNodeDetails.name,
-                        templateId: "chef_import",
-                        iconPath: "../private/img/templateicons/chef_import.png"
-                    }
-                };
-                instancesDao.createInstance(instance, function (err, data) {
-                    if (err) {
-                        logger.debug(err, 'occured in inserting node in mongo');
-                        callback(err, null);
-                        return;
-                    }
-                    instance.id = data._id;
-                    instance._id = data._id;
-                    var timestampStarted = new Date().getTime();
-                    var actionLog = instancesDao.insertBootstrapActionLogForChef(instance.id, [], masterDetails.userName, timestampStarted);
-                    logsDao.insertLog({
-                        instanceId: instance._id,
-                        instanceRefId: actionLog._id,
-                        err: false,
-                        log: "Node Imported",
-                        timestamp: timestampStarted
-                    });
-                    var instanceLog = {
-                        actionId: actionLog._id,
-                        instanceId: instance.id,
-                        orgName: masterDetails.orgName,
-                        bgName: masterDetails.bgName,
-                        projectName: masterDetails.projectName,
-                        envName: masterDetails.envName,
-                        status: "running",
-                        bootStrap: "success",
-                        actionStatus: "success",
-                        platformId: chefNodeDetails.platformId,
-                        blueprintName: chefNodeDetails.name,
-                        data: chefNodeDetails.run_list,
-                        platform: chefNodeDetails.hardware.platform,
-                        os: chefNodeDetails.hardware.os,
-                        size: "",
-                        user: masterDetails.userName,
-                        startedOn: new Date().getTime(),
-                        createdOn: new Date().getTime(),
-                        providerType: "",
-                        action: "Imported From ChefServer"
-                    };
-
-                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                        if (err) {
-                            logger.error("Failed to create or update instanceLog: ", err);
-                        }
-                        callback(null,data);
-                        return;
-                    });
-                })
-            })
+commonService.syncChefNodeWithResources = function syncChefNodeWithResources(chefNodeDetails,serviceDetails,callback) {
+    var resourceObj = {
+        name: chefNodeDetails.name,
+        category: 'managed',
+        resourceType: chefNodeDetails.platformId && chefNodeDetails.platformId !== null ? 'EC2' : 'Instance',
+        masterDetails: {
+            orgId: serviceDetails.masterDetails.orgId,
+            orgName: serviceDetails.masterDetails.orgName,
+            bgId: serviceDetails.masterDetails.bgId,
+            bgName: serviceDetails.masterDetails.bgName,
+            projectId: serviceDetails.masterDetails.projectId,
+            projectName: serviceDetails.masterDetails.projectName,
+            envId: serviceDetails.masterDetails.envId,
+            envName: serviceDetails.masterDetails.envName
         },
-        resourceSchema: function(callback){
-            var resourceObj = {
-                name:chefNodeDetails.name,
-                category:'managed',
-                resourceType:chefNodeDetails.platformId && chefNodeDetails.platformId !== null ? 'EC2':'Instance',
-                masterDetails: {
-                    orgId: masterDetails.orgId,
-                    orgName: masterDetails.orgName,
-                    bgId: masterDetails.bgId,
-                    bgName: masterDetails.bgName,
-                    projectId: masterDetails.projectId,
-                    projectName: masterDetails.projectName,
-                    envId: masterDetails.envId,
-                    envName: masterDetails.environmentName
-                },
-                resourceDetails:{
-                    platformId:chefNodeDetails.platformId && chefNodeDetails.platformId !== null ? chefNodeDetails.platformId:chefNodeDetails.name,
-                    publicIp:chefNodeDetails.ip,
-                    privateIp:chefNodeDetails.ip,
-                    state:'authentication_error',
-                    bootStrapState:'success',
-                    hardware:chefNodeDetails.hardware,
-                    hostName:chefNodeDetails.fqdn
-                },
-                configDetails:{
-                    id:chefNodeDetails.serverId,
-                    nodeName:chefNodeDetails.name,
-                    run_list:chefNodeDetails.run_list
-                },
-                tagServer:masterDetails.tagServer?masterDetails.tagServer:null,
-                monitor:masterDetails.monitor?masterDetails.monitor:null,
-                blueprintData: {
-                    blueprintName: chefNodeDetails.name,
-                    templateName: "chef_import",
-                },
-                authentication:'failed'
-            }
-            resourceObj.createdOn = new Date().getTime();
-            instanceModel.createNew(resourceObj,function(err,data){
-                if(err){
-                    logger.error("Error in creating Resources>>>>:",err);
-                    return callback(err,null);
-                }else{
-                    return callback(null,data);
-                }
-            })
-
+        resourceDetails: {
+            platformId: chefNodeDetails.platformId && chefNodeDetails.platformId !== null ? chefNodeDetails.platformId : chefNodeDetails.name,
+            publicIp: chefNodeDetails.ip,
+            privateIp: chefNodeDetails.ip,
+            state: 'running',
+            bootStrapState: 'success',
+            hardware: chefNodeDetails.hardware,
+            hostName: chefNodeDetails.fqdn
+        },
+        configDetails: {
+            id: chefNodeDetails.serverId,
+            nodeName: chefNodeDetails.name,
+            run_list: chefNodeDetails.run_list
+        },
+        tagServer: serviceDetails.masterDetails.tagServer ? serviceDetails.masterDetails.tagServer : null,
+        monitor: serviceDetails.masterDetails.monitor ? serviceDetails.masterDetails.monitor : null,
+        blueprintData: {
+            blueprintName: chefNodeDetails.name,
+            templateName: "chef_import",
+        },
+        authentication: 'failed'
+    }
+    resourceObj.createdOn = new Date().getTime();
+    instanceModel.createNew(resourceObj, function (err, data) {
+        if (err) {
+            logger.error("Error in creating Resources>>>>:", err);
+            return callback(err, null);
+        } else {
+            return callback(null, data);
         }
-    },function(err,results){
-        if(err){
-            return callback(err,null);
-        }else{
-            return callback(null,results.resourceSchema);
-        }
-
     })
 }
 

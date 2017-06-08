@@ -881,7 +881,7 @@ function serviceMapSync(callback){
                                                                 next(null, resourceList);
                                                             }
                                                         }else{
-                                                            commonService.syncChefNodeWithResources(chefNode,function(err,resourceData){
+                                                            commonService.syncChefNodeWithResources(chefNode,service,function(err,resourceData){
                                                                 if(err){
                                                                     logger.error("Error in syncing Chef Node with Resources: ",err);
                                                                 }
@@ -939,12 +939,13 @@ function serviceMapSync(callback){
 }
 
 function serviceMapVersion(service,resources,instanceStateList){
+    logger.debug(" Server Map Version is Started ");
     var filterResourceList = [];
     async.waterfall([
         function(next){
             if(resources.length > 0){
+                var count = 0;
                 resources.forEach(function(node){
-                    var count = 0;
                     if(node.result.category !== 'managed') {
                         var queryObj = {
                             'masterDetails.orgId':service.masterDetails.orgId,
@@ -955,8 +956,6 @@ function serviceMapVersion(service,resources,instanceStateList){
                             'masterDetails.projectName':service.masterDetails.projectName,
                             'masterDetails.envId':service.masterDetails.envId,
                             'masterDetails.envName':service.masterDetails.envName,
-                            'resourceDetails.bootStrapState':'failed',
-                            'authentication':'failed',
                             'configDetails.id': service.masterDetails.configId,
                             'configDetails.name': service.masterDetails.configName
                         }
@@ -970,7 +969,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                                 }
                             }else{
                                 var resourceObj = {
-                                    id: node.result._id,
+                                    id: node.result._id+'',
                                     type: node.result.resourceType,
                                     state: node.result.resourceDetails.state,
                                     category: node.result.category,
@@ -981,12 +980,14 @@ function serviceMapVersion(service,resources,instanceStateList){
                                 if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
                                     instanceStateList.push('bootStrapping');
                                 }
-                                resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                resourceObj[node.type] = obj[node.type];
                                 var findCheck = false;
                                 for (var i = 0; i < filterResourceList.length; i++) {
                                     if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
                                         var filterObj = filterResourceList[i];
-                                        filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                        var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                        filterObj[node.type] = resourceVal[node.type];
                                         filterResourceList.splice(i, 1);
                                         filterResourceList.push(filterObj);
                                         findCheck = true;
@@ -1002,12 +1003,9 @@ function serviceMapVersion(service,resources,instanceStateList){
                             }
                         })
 
-                    }else if(service.masterDetails.bgId === node.result.masterDetails.bgId
-                            && service.masterDetails.projectId === node.result.masterDetails.projectId
-                            && service.masterDetails.envId === node.result.masterDetails.envId
-                            && service.masterDetails.configId === node.result.configDetails.id) {
+                    }else if(service.masterDetails.envId === node.result.masterDetails.envId && service.masterDetails.configId === node.result.configDetails.id) {
                         var resourceObj = {
-                            id: node.result._id,
+                            id: node.result._id+'',
                             type: node.result.resourceType,
                             state: node.result.resourceDetails.state,
                             category: node.result.category,
@@ -1019,12 +1017,17 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if(node.result.resourceDetails.bootStrapState === 'failed'){
                             instanceStateList.push('bootStrap_failed');
                         }
-                        resourceObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
+                            instanceStateList.push('bootStrapping');
+                        }
+                        var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        resourceObj[node.type] = obj[node.type];
                         var findCheck = false;
                         for (var i = 0; i < filterResourceList.length; i++) {
                             if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
                                 var filterObj = filterResourceList[i];
-                                filterObj[node.type] = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                filterObj[node.type] = resourceVal[node.type];
                                 filterResourceList.splice(i, 1);
                                 filterResourceList.push(filterObj);
                                 findCheck = true;
@@ -1094,7 +1097,7 @@ function serviceMapVersion(service,resources,instanceStateList){
             logger.error("Error in Server Map Version : ",err);
             return;
         }else{
-            logger.debug(" Server Map Version is Done ",err);
+            logger.debug(" Server Map Version is Done ");
             return;
         }
     })
@@ -1120,10 +1123,8 @@ function getServiceState(serviceStateList){
         return 'Pending';
     }else if(serviceStateList.indexOf('deleted') !== -1){
         return 'Deleted';
-    }else if(serviceStateList.indexOf('initializing') !== -1){
-        return 'Initializing';
     }else{
-        return 'Undefined';
+        return 'Initializing';
     }
 }
 
@@ -1178,109 +1179,115 @@ function saeSync(callback){
 }
 
 function createOrUpdateResource(instance,callback){
-    var resourceObj = {
-        name:instance.name,
-        category:'managed',
-        masterDetails: {
-            orgId: instance.orgId,
-            orgName: instance.orgName,
-            bgId: instance.bgId,
-            bgName: instance.bgName,
-            projectId: instance.projectId,
-            projectName: instance.projectName,
-            envId: instance.envId,
-            envName: instance.environmentName
-        },
-        resourceDetails:{
-            platformId:instance.platformId,
-            vpcId:instance.vpcId?instance.vpcId:null,
-            subnetId:instance.subnetId?instance.subnetId:null,
-            hostName:instance.hostName?instance.hostName:null,
-            publicIp:instance.instanceIP,
-            state:instance.instanceState,
-            bootStrapState:instance.bootStrapStatus,
-            credentials:instance.credentials,
-            route53HostedParams:instance.route53HostedParams,
-            hardware:instance.hardware
-        },
-        configDetails:{
-            id:instance.chef.serverId,
-            nodeName:instance.chef.chefNodeName,
-            run_list:instance.runlist,
-            attributes:instance.attributes
-        },
-        blueprintDetails:{
-            id:instance.blueprintData.blueprintId ? instance.blueprintData.blueprintId:null,
-            name:instance.blueprintData.blueprintName ? instance.blueprintData.blueprintName:null,
-            templateName:instance.blueprintData.templateId?instance.blueprintData.templateId:null,
-            templateType:instance.blueprintData.templateType?instance.blueprintData.templateType:null
-        },
-        user:instance.catUser,
-        isScheduled:instance.isScheduled,
-        cronJobIds:instance.cronJobIds,
-        startScheduler:instance.instanceStartScheduler,
-        stopScheduler:instance.instanceStopScheduler,
-        interval:instance.interval,
-        stackName:instance.domainName && instance.domainName!==null?instance.domainName:instance.stackName,
-        tagServer:instance.tagServer,
-        monitor:instance.monitor,
-        cost:instance.cost,
-        usage:instance.usage,
-        tags:instance.tags,
-        isDeleted:instance.isDeleted
-    }
-    if(instance.schedulerStartOn){
-        resourceObj.schedulerStartOn = instance.schedulerStartOn;
-    }
-    if(instance.schedulerStopOn){
-        resourceObj.schedulerStopOn = instance.schedulerStopOn;
-    }
-    if(instance.source === 'cloud' || instance.source === 'blueprint'){
-        resourceObj.providerDetails = {
-            id:instance.providerId,
-            type:instance.providerType,
-            region: {
-                region:instance.region && instance.region !== null ? instance.region : instance.providerData.region
-            },
-            keyPairId:instance.keyPairId
-        };
-        resourceObj.cost = instance.cost;
-        resourceObj.usage = instance.usage;
-        resourceObj.tags = instance.tags;
-        resourceObj.resourceType='EC2'
+    if(instance.source === 'service'){
+        return callback(null,null);
+    }else if(instance.source === 'cloud'){
+        return callback(null,null);
+    }else if(instance.source === 'blueprint' && instance.providerType && instance.providerType !== 'aws'){
+        return callback(null,null);
     }else {
-        resourceObj.resourceType='instance'
-    }
-    var filterBy={
-        'resourceDetails.platformId':instance.platformId,
-        'category':'managed',
-        'isDeleted':false
-    }
-    ec2Model.getInstanceData(filterBy,function(err,data){
-        if(err){
-            logger.error("Error in fetching Resources>>>>:",err);
-            return callback(err,null);
-        }else if(data.length > 0){
-            ec2Model.updateInstanceData(data[0]._id,resourceObj,function(err,data){
-                if(err){
-                    logger.error("Error in updating Resources>>>>:",err);
-                    return callback(err,null);
-                }else{
-                    return callback(null,data);
-                }
-            })
-        }else{
-            resourceObj.createdOn = new Date().getTime();
-            ec2Model.createNew(resourceObj,function(err,data){
-                if(err){
-                    logger.error("Error in creating Resources>>>>:",err);
-                    return callback(err,null);
-                }else{
-                    return callback(null,data);
-                }
-            })
+        var resourceObj = {
+            name: instance.name,
+            category: 'managed',
+            masterDetails: {
+                orgId: instance.orgId,
+                orgName: instance.orgName,
+                bgId: instance.bgId,
+                bgName: instance.bgName,
+                projectId: instance.projectId,
+                projectName: instance.projectName,
+                envId: instance.envId,
+                envName: instance.environmentName
+            },
+            resourceDetails: {
+                platformId: instance.platformId,
+                vpcId: instance.vpcId ? instance.vpcId : null,
+                subnetId: instance.subnetId ? instance.subnetId : null,
+                hostName: instance.hostName ? instance.hostName : null,
+                publicIp: instance.instanceIP,
+                privateIp: instance.privateIpAddress,
+                state: instance.instanceState,
+                bootStrapState: instance.bootStrapStatus,
+                credentials: instance.credentials,
+                route53HostedParams: instance.route53HostedParams,
+                hardware: instance.hardware,
+                dockerEngineState: instance.docker.dockerEngineStatus
+            },
+            configDetails: {
+                id: instance.chef.serverId,
+                nodeName: instance.chef.chefNodeName,
+                run_list: instance.runlist,
+                attributes: instance.attributes
+            },
+            blueprintDetails: {
+                id: instance.blueprintData.blueprintId ? instance.blueprintData.blueprintId : null,
+                name: instance.blueprintData.blueprintName ? instance.blueprintData.blueprintName : null,
+                templateName: instance.blueprintData.templateId ? instance.blueprintData.templateId : null,
+                templateType: instance.blueprintData.templateType ? instance.blueprintData.templateType : null
+            },
+            user: instance.catUser,
+            isScheduled: instance.isScheduled,
+            cronJobIds: instance.cronJobIds,
+            startScheduler: instance.instanceStartScheduler,
+            stopScheduler: instance.instanceStopScheduler,
+            interval: instance.interval,
+            stackName: instance.domainName && instance.domainName !== null ? instance.domainName : instance.stackName,
+            tagServer: instance.tagServer,
+            monitor: instance.monitor,
+            isDeleted: instance.isDeleted
         }
-    })
+        if (instance.schedulerStartOn) {
+            resourceObj.schedulerStartOn = instance.schedulerStartOn;
+        }
+        if (instance.schedulerStopOn) {
+            resourceObj.schedulerStopOn = instance.schedulerStopOn;
+        }
+        if (instance.providerType && instance.providerType !== null) {
+            resourceObj.providerDetails = {
+                id: instance.providerId,
+                type: instance.providerType,
+                region: {
+                    region: instance.region && instance.region !== null ? instance.region : instance.providerData.region
+                },
+                keyPairId: instance.keyPairId
+            };
+            resourceObj.cost = instance.cost;
+            resourceObj.usage = instance.usage;
+            resourceObj.tags = instance.tags;
+            resourceObj.resourceType = 'EC2'
+        } else {
+            resourceObj.resourceType = 'instance'
+        }
+        var filterBy = {
+            'resourceDetails.platformId': instance.platformId,
+            'category': 'managed'
+        }
+        ec2Model.getInstanceData(filterBy, function (err, data) {
+            if (err) {
+                logger.error("Error in fetching Resources>>>>:", err);
+                return callback(err, null);
+            } else if (data.length > 0) {
+                ec2Model.updateInstanceData(data[0]._id, resourceObj, function (err, data) {
+                    if (err) {
+                        logger.error("Error in updating Resources>>>>:", err);
+                        return callback(err, null);
+                    } else {
+                        return callback(null, data);
+                    }
+                })
+            } else {
+                resourceObj.createdOn = new Date().getTime();
+                ec2Model.createNew(resourceObj, function (err, data) {
+                    if (err) {
+                        logger.error("Error in creating Resources>>>>:", err);
+                        return callback(err, null);
+                    } else {
+                        return callback(null, data);
+                    }
+                })
+            }
+        })
+    }
 }
 
 function instanceSync(instances,callback){

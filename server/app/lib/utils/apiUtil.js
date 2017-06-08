@@ -74,9 +74,19 @@ var ApiUtil = function() {
                 };
                 break;
             case 'tags':
-                Object.keys(value).forEach(function (tagKey) {
-                    query['resourceDetails.tags'][tagKey] = value[tagKey];
-                });
+                var keyList = [];
+                value.forEach(function(val){
+                    Object.keys(val).forEach(function(key){
+                        var str = 'tags.'+key;
+                        var obj = {};
+                        obj[str] = val[key];
+                        keyList.push(obj)
+                    })
+                })
+                query = {
+                    '$or': keyList
+                };
+                console.log(JSON.stringify(query));
                 break;
             case 'groups':
                 Object.keys(value).forEach(function (groupObjKey) {
@@ -97,9 +107,15 @@ var ApiUtil = function() {
                             query['providerDetails.keyPairName'] = {$in: value[groupObjKey]};
                             break;
                         case 'tags':
-                            Object.keys(value[groupObjKey]).forEach(function (tagKey) {
-                                query['resourceDetails.tags'][tagKey] = value[groupObjKey][tagKey];
-                            });
+                            var tagObj = {
+                                tags:{}
+                            };
+                            value.forEach(function(val){
+                                Object.keys(val).forEach(function(key){
+                                    tagObj.tags[key] = val[key];
+                                })
+                            })
+                            query['$or'] = [tagObj];
                             break;
                         case 'roles':
                             query['configDetails.run_list'] = {$in: value};
@@ -119,26 +135,26 @@ var ApiUtil = function() {
     }
 
     this.getResourceValueByKey = function(key,resource,value){
-        var result = null;
+        var result = {};
         switch(key) {
             case 'ami':
-                result = resource.resourceDetails.amiId;
+                result[key] = resource.resourceDetails.amiId;
                 break;
             case 'ip':
                 if(value.indexOf(resource.resourceDetails.privateIp) !== 0){
-                    result = resource.resourceDetails.privateIp;
+                    result[key] = resource.resourceDetails.privateIp;
                 }else{
-                    result = resource.resourceDetails.publicIp;
+                    result[key] = resource.resourceDetails.publicIp;
                 }
                 break;
             case 'subnet':
-                result = resource.resourceDetails.subnetId;
+                result[key] = resource.resourceDetails.subnetId;
                 break;
             case 'stackName':
-                result = resource.resourceDetails.stackName;
+                result[key] = resource.resourceDetails.stackName;
                 break;
             case 'keyPairName':
-                result = resource.providerDetails.keyPairName;
+                result[key] = resource.providerDetails.keyPairName;
                 break;
             case 'roles':
                 var run_list = [];
@@ -147,36 +163,41 @@ var ApiUtil = function() {
                         run_list.push(value[i]);
                     }
                 }
-                result = run_list;
+                result[key] = run_list;
                 break;
             case 'tags':
-                Object.keys(value).forEach(function (tagKey) {
-                    if(resource.resourceDetails.tags[tagKey] === value[tagKey]){
-                        result[tagKey] = value[tagKey]
-                    }
+                var tagObj = {};
+                value.forEach(function (tagValue) {
+                    Object.keys(tagValue).forEach(function (tagKey) {
+                        if(resource.tags[tagKey] === tagValue[tagKey]){
+                            tagObj[tagKey] = tagValue[tagKey]
+                        }
+                    });
                 });
+                result[key] = tagObj;
                 break;
             case 'groups':
+                var groupObj = {};
                 Object.keys(value).forEach(function (groupObjKey) {
                     switch(groupObjKey) {
                         case 'ami':
-                            result[groupObjKey] = resource.resourceDetails.amiId;
+                            groupObj[groupObjKey] = resource.resourceDetails.amiId;
                             break;
                         case 'ip':
                             if(value.indexOf(resource.resourceDetails.privateIp) !== 0){
-                                result[groupObjKey] = resource.resourceDetails.privateIp;
+                                groupObj[groupObjKey] = resource.resourceDetails.privateIp;
                             }else{
-                                result[groupObjKey] = resource.resourceDetails.publicIp;
+                                groupObj[groupObjKey] = resource.resourceDetails.publicIp;
                             }
                             break;
                         case 'subnet':
-                            result[groupObjKey] = resource.resourceDetails.subnetId;
+                            groupObj[groupObjKey] = resource.resourceDetails.subnetId;
                             break;
                         case 'stackName':
-                            result[groupObjKey] = resource.resourceDetails.stackName;
+                            groupObj[groupObjKey] = resource.resourceDetails.stackName;
                             break;
                         case 'keyPairName':
-                            result[groupObjKey] = resource.providerDetails.keyPairName;
+                            groupObj[groupObjKey] = resource.providerDetails.keyPairName;
                             break;
                         case 'roles':
                             var run_list = [];
@@ -185,19 +206,24 @@ var ApiUtil = function() {
                                     run_list.push(value[i]);
                                 }
                             }
-                            result[groupObjKey] = run_list;
+                            groupObj[groupObjKey] = run_list;
                             break;
                         case 'tags':
-                            Object.keys(value).forEach(function (tagKey) {
-                                if(resource.resourceDetails.tags[tagKey] === value[tagKey]){
-                                    result[groupObjKey][tagKey] = value[tagKey]
-                                }
+                            var tagObj ={};
+                            value.forEach(function (tagValue) {
+                                Object.keys(tagValue).forEach(function (tagKey) {
+                                    if(resource.tags[tagKey] === tagValue[tagKey]){
+                                        tagObj[groupObjKey][tagKey] = tagValue[tagKey]
+                                    }
+                                });
                             });
+                            groupObj[groupObjKey] = tagObj
                             break;
                         default:
                             result = result;
                     }
                 });
+                result[key] = groupObj;
                 break;
             default:
                 result = result;
