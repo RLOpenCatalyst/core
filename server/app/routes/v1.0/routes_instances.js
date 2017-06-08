@@ -564,11 +564,11 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                 var resourceObj = {
                                     'resources.$.state':'deleted'
                                 }
-                                serviceMapService.updateService({resources:{$elemMatch:{id:resources[0]._id}}},resourceObj,function(err,resourceMap){
+                                serviceMapService.updateService({resources:{$elemMatch:{id:JSON.stringify(resources[0]._id)}}},resourceObj,function(err,resourceMap){
                                     if(err){
                                         logger.error("Error in updating Services.",err);
                                     }
-                                    resourceModel.updateResourceById(resources[0]._id,{isDeleted:false,'resourceDetails.state':'deleted'},function(err,data){
+                                    resourceModel.updateResourceById(resources[0]._id,{isDeleted:true,'resourceDetails.state':'deleted'},function(err,data){
                                         if(err){
                                             logger.error("Error in deleting Resources.",err);
                                         }
