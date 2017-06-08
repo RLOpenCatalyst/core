@@ -76,12 +76,12 @@ var ApiUtil = function() {
             case 'tags':
                 var keyList = [];
                 value.forEach(function(val){
+                    var obj = {};
                     Object.keys(val).forEach(function(key){
                         var str = 'tags.'+key;
-                        var obj = {};
                         obj[str] = val[key];
-                        keyList.push(obj)
                     })
+                    keyList.push(obj);
                 })
                 query = {
                     '$or': keyList

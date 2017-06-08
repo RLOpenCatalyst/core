@@ -152,7 +152,8 @@ function saveS3Data(s3Info, callback) {
                 var queryObj = {
                     'masterDetails.orgId':s3.masterDetails.orgId,
                     'providerDetails.id':s3.providerDetails.id,
-                    'resourceDetails.bucketName':s3.resourceDetails.bucketName
+                    'resourceDetails.bucketName':s3.resourceDetails.bucketName,
+                    'isDeleted':false
                 }
                 s3Model.getS3BucketData(queryObj, function (err, responseBucketData) {
                     if (err) {
@@ -162,8 +163,11 @@ function saveS3Data(s3Info, callback) {
                             callback(null, s3Info);
                         }
                     }else if (responseBucketData.length > 0) {
-                        delete s3.category;
-                        s3Model.updateS3BucketData(responseBucketData[0]._id,s3, function (err, bucketUpdatedData) {
+                        var resourceObj = {
+                            name:s3.name,
+                            resourceDetails:s3.resourceDetails
+                        }
+                        s3Model.updateS3BucketData(responseBucketData[0]._id,resourceObj, function (err, bucketUpdatedData) {
                             if (err) {
                                 logger.error("Error in updating S3 Bucket : ",s3.resourceDetails.bucketName);
                             }
@@ -211,7 +215,8 @@ function saveEC2Data(ec2Info,provider, callback) {
                     var queryObj = {
                         'masterDetails.orgId': ec2.masterDetails.orgId,
                         'providerDetails.id': ec2.providerDetails.id,
-                        'resourceDetails.platformId': ec2.resourceDetails.platformId
+                        'resourceDetails.platformId': ec2.resourceDetails.platformId,
+                        'isDeleted':false
                     }
                     ec2Model.getInstanceData(queryObj, function (err, responseInstanceData) {
                         if (err) {
@@ -221,8 +226,21 @@ function saveEC2Data(ec2Info,provider, callback) {
                                 callback(null, ec2Info);
                             }
                         } else if (responseInstanceData.length > 0) {
-                            delete ec2.category;
-                            ec2Model.updateInstanceData(responseInstanceData._id, ec2, function (err, instanceUpdatedData) {
+                            var resourceObj = {
+                                'tags':ec2.tags,
+                                'resourceDetails.platformId':ec2.resourceDetails.platformId,
+                                'resourceDetails.amiId':ec2.resourceDetails.amiId,
+                                'resourceDetails.publicIp':ec2.resourceDetails.publicIp,
+                                'resourceDetails.hostName':ec2.resourceDetails.hostName,
+                                'resourceDetails.privateIp':ec2.resourceDetails.privateIp,
+                                'resourceDetails.os':ec2.resourceDetails.os,
+                                'resourceDetails.vpcId':ec2.resourceDetails.vpcId,
+                                'resourceDetails.launchTime':ec2.resourceDetails.launchTime,
+                                'resourceDetails.subnetId':ec2.resourceDetails.subnetId,
+                                'resourceDetails.type':ec2.resourceDetails.type,
+                                'resourceDetails.state':ec2.resourceDetails.state
+                            }
+                            ec2Model.updateInstanceData(responseInstanceData[0]._id, resourceObj, function (err, instanceUpdatedData) {
                                 if (err) {
                                     logger.error("Error in updating Instance : ", ec2.resourceDetails.platformId);
                                 }
@@ -260,7 +278,8 @@ function saveRDSData(rdsInfo, callback) {
                 var queryObj = {
                     'masterDetails.orgId':rds.masterDetails.orgId,
                     'providerDetails.id':rds.providerDetails.id,
-                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId
+                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId,
+                    'isDeleted':false
                 }
                 rdsModel.getRDSData(queryObj, function (err, responseRDSData) {
                     if (err) {
@@ -271,8 +290,11 @@ function saveRDSData(rdsInfo, callback) {
                         }
                     }
                     if (responseRDSData.length > 0) {
-                        delete rds.category;
-                        rdsModel.updateRDSData(responseRDSData[0]._id,rds, function (err, rdsUpdatedData) {
+                        var resourceObj = {
+                            name:rds.name,
+                            resourceDetails:rds.resourceDetails,
+                        }
+                        rdsModel.updateRDSData(responseRDSData[0]._id,resourceObj, function (err, rdsUpdatedData) {
                             if (err) {
                                 logger.error("Error in updating RDS DBName : ",rds.resourceDetails.dbiResourceId);
                             }
@@ -947,69 +969,54 @@ function serviceMapVersion(service,resources,instanceStateList){
                 var count = 0;
                 resources.forEach(function(node){
                     if(node.result.category !== 'managed') {
-                        var queryObj = {
-                            'masterDetails.orgId':service.masterDetails.orgId,
-                            'masterDetails.orgName':service.masterDetails.orgName,
-                            'masterDetails.bgId':service.masterDetails.bgId,
-                            'masterDetails.bgName':service.masterDetails.bgName,
-                            'masterDetails.projectId':service.masterDetails.projectId,
-                            'masterDetails.projectName':service.masterDetails.projectName,
-                            'masterDetails.envId':service.masterDetails.envId,
-                            'masterDetails.envName':service.masterDetails.envName,
-                            'configDetails.id': service.masterDetails.configId,
-                            'configDetails.name': service.masterDetails.configName
-                        }
                         instanceStateList.push('authentication_error');
-                        ec2Model.updateInstanceData(node.result._id,queryObj,function(err,data){
-                            if(err){
-                                logger.error("Error in updating Resource Details:",err);
-                                count++;
-                                if(count === resources.length){
-                                    next(null,filterResourceList);
-                                }
-                            }else{
-                                var resourceObj = {
-                                    id: node.result._id+'',
-                                    type: node.result.resourceType,
-                                    state: node.result.resourceDetails.state,
-                                    category: node.result.category,
-                                    platformId: node.result.resourceDetails.platformId,
-                                    authentication:node.result.authentication,
-                                    bootStrapState:node.result.resourceDetails.bootStrapState
-                                }
-                                if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
-                                    instanceStateList.push('bootStrapping');
-                                }
-                                var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                                resourceObj[node.type] = obj[node.type];
-                                var findCheck = false;
-                                for (var i = 0; i < filterResourceList.length; i++) {
-                                    if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
-                                        var filterObj = filterResourceList[i];
-                                        var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                                        filterObj[node.type] = resourceVal[node.type];
-                                        filterResourceList.splice(i, 1);
-                                        filterResourceList.push(filterObj);
-                                        findCheck = true;
-                                    }
-                                }
-                                count++;
-                                if (findCheck === false) {
-                                    filterResourceList.push(resourceObj);
-                                }
-                                if(count === resources.length){
-                                    next(null,filterResourceList);
-                                }
-                            }
-                        })
-
-                    }else if(service.masterDetails.envId === node.result.masterDetails.envId && service.masterDetails.configId === node.result.configDetails.id) {
                         var resourceObj = {
-                            id: node.result._id+'',
+                            id: node.result._id + '',
                             type: node.result.resourceType,
                             state: node.result.resourceDetails.state,
                             category: node.result.category,
-                            name: node.result.name,
+                            platformId: node.result.resourceDetails.platformId,
+                            authentication: node.result.authentication,
+                            bootStrapState: node.result.resourceDetails.bootStrapState
+                        }
+                        if (node.result.resourceDetails.bootStrapState === 'bootStrapping') {
+                            instanceStateList.push('bootStrapping');
+                        }
+                        var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        resourceObj[node.type] = obj[node.type];
+                        var findCheck = false;
+                        for (var i = 0; i < filterResourceList.length; i++) {
+                            if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
+                                var filterObj = filterResourceList[i];
+                                var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                filterObj[node.type] = resourceVal[node.type];
+                                filterResourceList.splice(i, 1);
+                                filterResourceList.push(filterObj);
+                                findCheck = true;
+                            }
+                        }
+                        if (findCheck === false) {
+                            filterResourceList.push(resourceObj);
+                        }
+                        count++;
+                        if(count === resources.length){
+                            next(null, filterResourceList);
+                        }
+                        if(node.result.authentication ==='failed' && node.result.resourceDetails.bootStrapState ==='failed' && node.result.resourceDetails.state ==='stopped' ){
+                            commonService.startResource(service.id,node.result,function(err,state){
+                                if(err){
+                                    logger.error(err);
+                                }else{
+                                    logger.debug(state);
+                                }
+                            })
+                        }
+                    }else if(service.masterDetails.envId === node.result.masterDetails.envId && service.masterDetails.configId === node.result.configDetails.id) {
+                        var resourceObj = {
+                            id: node.result._id + '',
+                            type: node.result.resourceType,
+                            state: node.result.resourceDetails.state,
+                            category: node.result.category,
                             platformId: node.result.resourceDetails.platformId,
                             authentication: node.result.authentication,
                             bootStrapState: node.result.resourceDetails.bootStrapState
@@ -1038,13 +1045,13 @@ function serviceMapVersion(service,resources,instanceStateList){
                         }
                         count++;
                         if(count === resources.length){
-                            next(null,filterResourceList);
+                            next(null, filterResourceList);
                         }
                     }else{
                         logger.debug("Un-Matched Record");
                         count++;
                         if(count === resources.length){
-                            next(null,filterResourceList);
+                            next(null, filterResourceList);
                         }
                     }
 
@@ -1080,7 +1087,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                 delete service.id;
                 serviceMapService.createNewService(service,function(err,data){
                     if(err){
-                        logger.error("Error in updating Service:",err);
+                        logger.error("Error in creating Service:",err);
                         next(err,null);
                         return;
                     }else{

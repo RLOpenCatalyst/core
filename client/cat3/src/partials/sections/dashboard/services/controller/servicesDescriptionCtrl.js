@@ -74,7 +74,7 @@
                                     name: 'Authentication',
                                     cellTooltip: true,
                                     cellTemplate:'<i title="{{row.entity.authentication}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.authentication === \'success\'"></i>' +
-                                    '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="changeAuthenticationType()"></i>'
+                                    '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i style="cursor:pointer;" title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="grid.appScope.changeAuthenticationType(row.entity)"></i>'
                                 },
                                 {
                                     name: 'Bootstrap',

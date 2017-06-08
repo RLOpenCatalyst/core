@@ -38,8 +38,10 @@ var Chef = require('_pr/lib/chef');
 var Docker = require('_pr/model/docker.js');
 var instanceModel = require('_pr/model/resources/instance-resource');
 var services = require('_pr/model/services/services.js');
-
-
+var ObjectId = require('mongoose').Types.ObjectId;
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
+var Cryptography = require('_pr/lib/utils/cryptography');
+var EC2 = require('_pr/lib/ec2.js');
 
 
 const errorType = 'commonService';
@@ -113,8 +115,7 @@ commonService.getCredentialsFromReq = function getCredentialsFromReq(credentials
 
 
 
-commonService.bootstrapInstance = function bootstrapInstance(resource,credentials,serviceDetails,callback){
-    var resourceId = resource._id+'';
+commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId,serviceId,serviceState,credentials,serviceDetails,callback){
     masterUtil.getCongifMgmtsById(serviceDetails.masterDetails.configId, function (err, serverDetails) {
         if (err) {
             return callback(err, null);
@@ -176,12 +177,12 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
             };
             if (serverDetails.configType === 'chef') {
                 instance.chef = {
-                    serverId: serviceDetails.rowid,
+                    serverId: serverDetails.rowid,
                     chefNodeName: resource.resourceDetails.platformId
                 }
             } else {
                 instance.puppet = {
-                    serverId: serviceDetails.rowid
+                    serverId: serverDetails.rowid
                 }
             }
             instancesDao.createInstance(instance, function (err, data) {
@@ -422,6 +423,16 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                         }
                                     });
                                     var queryObj = {
+                                        'masterDetails.orgId': serviceDetails.masterDetails.orgId,
+                                        'masterDetails.orgName': serviceDetails.masterDetails.orgName,
+                                        'masterDetails.bgId': serviceDetails.masterDetails.bgId,
+                                        'masterDetails.bgName': serviceDetails.masterDetails.bgName,
+                                        'masterDetails.projectId': serviceDetails.masterDetails.projectId,
+                                        'masterDetails.projectName': serviceDetails.masterDetails.projectName,
+                                        'masterDetails.envId': serviceDetails.masterDetails.envId,
+                                        'masterDetails.envName': serviceDetails.masterDetails.envName,
+                                        'configDetails.id': serviceDetails.masterDetails.configId,
+                                        'configDetails.nodeName': serviceDetails.masterDetails.configName,
                                         'resourceDetails.bootStrapState':'success',
                                         'resourceDetails.credentials':encryptedCredentials,
                                         'category':'managed'
@@ -431,16 +442,31 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                             logger.error("Error in updating Resource Authentication : " + err)
                                         }
                                     });
-                                    services.updateService({
-                                        name: serverDetails.name,
-                                        'resources': {$elemMatch: {id: resourceId}}
-                                    }, {
-                                        'resources.$.bootStrapState': 'success'
-                                    }, function (err, result) {
-                                        if (err) {
-                                            logger.error("Error in updating Service State:", err);
-                                        }
-                                    });
+                                    if(serviceState=== 'Initializing'){
+                                        services.updateService({
+                                            '_id': ObjectId(serviceId),
+                                            'resources': {$elemMatch: {id: resourceId}}
+                                        }, {
+                                            'resources.$.bootStrapState': 'success',
+                                            'state':'Running'
+                                        }, function (err, result) {
+                                            if (err) {
+                                                logger.error("Error in updating Service State:", err);
+                                            }
+                                        });
+                                    }else{
+                                        services.updateService({
+                                            '_id': ObjectId(serviceId),
+                                            'resources': {$elemMatch: {id: resourceId}}
+                                        }, {
+                                            'resources.$.bootStrapState': 'success'
+                                        }, function (err, result) {
+                                            if (err) {
+                                                logger.error("Error in updating Service State:", err);
+                                            }
+                                        });
+                                    }
+
                                     var hardwareData = {};
                                     if (bootstrapData && bootstrapData.puppetNodeName) {
                                         var runOptions = {
@@ -598,6 +624,16 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                         timestamp: timestampEnded
                                     });
                                     var queryObj = {
+                                        'masterDetails.orgId': serviceDetails.masterDetails.orgId,
+                                        'masterDetails.orgName': serviceDetails.masterDetails.orgName,
+                                        'masterDetails.bgId': serviceDetails.masterDetails.bgId,
+                                        'masterDetails.bgName': serviceDetails.masterDetails.bgName,
+                                        'masterDetails.projectId': serviceDetails.masterDetails.projectId,
+                                        'masterDetails.projectName': serviceDetails.masterDetails.projectName,
+                                        'masterDetails.envId': serviceDetails.masterDetails.envId,
+                                        'masterDetails.envName': serviceDetails.masterDetails.envName,
+                                        'configDetails.id': serviceDetails.masterDetails.configId,
+                                        'configDetails.nodeName': serviceDetails.masterDetails.configName,
                                         'resourceDetails.bootStrapState':'failed',
                                         'resourceDetails.credentials':encryptedCredentials,
                                         'category':'managed'
@@ -608,7 +644,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,credential
                                         }
                                     });
                                     services.updateService({
-                                        name: serverDetails.name,
+                                        '_id': ObjectId(serviceId),
                                         'resources': {$elemMatch: {id: resourceId}}
                                     }, {
                                         'resources.$.bootStrapState': 'failed'
@@ -973,6 +1009,76 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
         } else {
             return callback(null, data);
         }
+    })
+}
+
+commonService.startResource = function startResource(serviceId,resource,callback) {
+    AWSProvider.getAWSProviderById(resource.providerDetails.id, function (err, providerData) {
+        if (err) {
+            logger.error(err);
+            var error = new Error("Unable to find Provider.");
+            error.status = 500;
+            callback(error, null);
+            return;
+        }
+        var ec2;
+        if (providerData.isDefault) {
+            ec2 = new EC2({
+                "isDefault": true,
+                "region": resource.providerDetails.region.region
+            });
+        } else {
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm,
+                cryptoConfig.password);
+            var decryptedAccessKey = cryptography.decryptText(providerData.accessKey,
+                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var decryptedSecretKey = cryptography.decryptText(providerData.secretKey,
+                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            ec2 = new EC2({
+                "access_key": decryptedAccessKey,
+                "secret_key": decryptedSecretKey,
+                "region": resource.providerDetails.region.region
+            });
+        }
+        ec2.startInstance([resource.resourceDetails.platformId], function (err, state) {
+            if (err) {
+                logger.error(err);
+                var error = new Error("Unable to Start AWS Resource :", resource.resourceDetails.platformId);
+                error.status = 500;
+                callback(error, null);
+                return;
+            } else {
+                ec2.describeInstances([resource.resourceDetails.platformId], function (err, instanceData) {
+                    if (err) {
+                        logger.error("Hit some error: ", err);
+                        return callback(err, null);
+                    }
+                    if (instanceData.Reservations.length && instanceData.Reservations[0].Instances.length) {
+                        callback(null, state);
+                        services.updateService({
+                            '_id': ObjectId(serviceId),
+                            'resources': {$elemMatch: {id: JSON.stringify(resource._id)}}
+                        }, {
+                            'resources.$.state': 'running'
+                        }, function (err, result) {
+                            if (err) {
+                                logger.error("Error in updating Service State:", err);
+                            }
+                            return;
+                        });
+                        instanceModel.updateInstanceData(resource._id, {'resourceDetails.publicIp':instanceData.Reservations[0].Instances[0].PublicIpAddress}, function (err, updateCount) {
+                            if (err) {
+                                logger.error("update resource ip err ==>", err);
+                                return callback(err, null);
+                            }
+                            logger.debug('instance ip updated');
+                            return;
+                        });
+                    }
+                });
+            }
+        });
     })
 }
 

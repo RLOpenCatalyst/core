@@ -107,7 +107,7 @@ InstanceResourcesSchema.statics.createNew = function(instanceData,callback){
 };
 
 InstanceResourcesSchema.statics.updateInstanceData = function(instanceId,instanceData,callback){
-    instanceResources.update({_id:new ObjectId(instanceId)}, {$set: instanceData}, {upsert: false},
+    instanceResources.update({_id:new ObjectId(instanceId)}, {$set: instanceData}, {multi: true},
         function(err, data) {
         if (err) {
             logger.error("Failed to updateInstanceData", err);
