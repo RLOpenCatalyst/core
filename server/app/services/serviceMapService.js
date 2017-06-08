@@ -552,6 +552,8 @@ serviceMapService.getServiceResources = function getServiceResources(serviceId,f
                         resourceObj['platformId']= resource.platformId;
                         resourceObj['name'] = resource.name;
                         resourceObj['state'] = resource.state;
+                        resourceObj['authentication'] = resource.authentication;
+                        resourceObj['bootStrapState'] = resource.bootStrapState;
                         filterResourceList.push(resourceObj);
                     }
                 });
