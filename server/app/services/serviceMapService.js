@@ -323,13 +323,14 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                         'resources': {$elemMatch: {id: resourceId}}
                                     }, {
                                         'resources.$.bootStrapState': 'bootStrapping',
+                                        'resources.$.authentication': 'success',
                                         state: 'Initializing'
                                     }, function (err, result) {
                                         if (err) {
                                             logger.error("Error in updating Service State:", err);
                                         }
                                         resourceModel.updateResourceById(resourceId, {
-                                            authentication: 'success',
+                                            'authentication': 'success',
                                             'resourceDetails.bootStrapState': 'bootStrapping'
                                         }, function (err, data) {
                                             if (err) {
@@ -357,17 +358,32 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                     error.message = "Invalid Resource Credentials";
                                     next(error, null);
                                 } else {
-                                    next(null, {message: "Authentication is Done for Resource"});
-                                    commonService.bootstrapInstance(resourceDetail, credentials, servicesData[0], function (err, res) {
+                                    next(null,{message: "Authentication is Done for Resource"});
+                                    services.updateService({
+                                        'name': servicesData[0].name,
+                                        'resources': {$elemMatch: {id: resourceId}}
+                                    }, {
+                                        'resources.$.bootStrapState': 'bootStrapping',
+                                        'resources.$.authentication': 'success',
+                                        'state': 'Initializing'
+                                    }, function (err, result) {
                                         if (err) {
-                                            var error = new Error();
-                                            error.code = 500;
-                                            error.message = "Error in Bootstraping Resource : " + err;
-                                            next(error, null);
-                                        } else {
-                                            next(null, res);
+                                            logger.error("Error in updating Service State:", err);
                                         }
-                                    })
+                                        resourceModel.updateResourceById(resourceId, {
+                                            'authentication': 'success',
+                                            'resourceDetails.bootStrapState': 'bootStrapping'
+                                        }, function (err, data) {
+                                            if (err) {
+                                                logger.error("Error in updating BootStrap State:", err);
+                                            }
+                                            commonService.bootstrapInstance(resourceDetail, credentials, servicesData[0], function (err, res) {
+                                                if (err) {
+                                                   logger.error(err);
+                                                }
+                                            });
+                                        });
+                                    });
                                 }
                             });
                         } else {

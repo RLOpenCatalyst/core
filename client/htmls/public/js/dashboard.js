@@ -329,7 +329,7 @@ $(document).ready(function () {
                 },
                 {"data": "", "orderable": true,
                     "render": function (data, type, full, meta) {
-                        return full.providerDetails.region ? full.providerDetails.region.region_name : '-';
+                        return full.providerDetails.region ? full.providerDetails.region.region : '-';
                     }
                 },
                 {"data": "resourceDetails.state", "orderable": true},
@@ -395,7 +395,7 @@ $(document).ready(function () {
                 },
                 {"data": "", "orderable": true,
                     "render": function (data, type, full, meta) {
-                        return full.providerDetails.region ? full.providerDetails.region.region_name : '-';
+                        return full.providerDetails.region ? full.providerDetails.region.region : '-';
                     }
                 },
                 {"data": "resourceDetails.state", "orderable": true},

@@ -836,11 +836,11 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                     authentication: 'failed'
                                 }
                                 awsInstanceList.push(instanceObj);
-                                if (regionCount === regions.length) {
-                                    callback(null, awsInstanceList);
-                                }
                             }
                         }
+                    }
+                    if (regionCount === regions.length) {
+                        callback(null, awsInstanceList);
                     }
                 }else{
                     regionCount++;
