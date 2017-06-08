@@ -13,7 +13,7 @@
 			url: "/library",
 			templateUrl: "src/partials/sections/dashboard/bots/view/library.html",
 			controller: "libraryCtrl as libr",
-			parameters:{filterView:{library:true}},
+			parameters:{actMenu:true,filterView:{library:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();
@@ -31,7 +31,7 @@
 			url: "/audittrail",
 			templateUrl: "src/partials/sections/dashboard/bots/view/audittrail.html",
 			controller: "audittrailCtrl as audit",
-			parameters:{filterView:{audittrail:true}},
+			parameters:{actMenu:true,filterView:{audittrail:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();
@@ -49,7 +49,7 @@
 			url: "/botDescription",
 			templateUrl: "src/partials/sections/dashboard/bots/view/botsDescription.html",
 			controller: "botDescriptionCtrl as btsDescription",
-			parameters:{filterView:{botsDescription:true}},
+			parameters:{actMenu:true,filterView:{botsDescription:true}},
             params:{botDetail:[],listType:0},
 			resolve: {
 				auth: ["$q", function ($q) {
@@ -68,7 +68,7 @@
 			url: "/botCreate",
 			templateUrl: "src/partials/sections/dashboard/bots/view/newBotCreate.html",
 			controller: "newBotCtrl as newBtsCtrl",
-			parameters:{filterView:{newBotCreate:true}},
+			parameters:{actMenu:true,filterView:{newBotCreate:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();
@@ -86,7 +86,7 @@
 			url: "/botsSync",
 			templateUrl: "src/partials/sections/dashboard/bots/view/sync.html",
 			controller: "syncCtrl as botsSync",
-			parameters:{filterView:{sync:true}},
+			parameters:{actMenu:true,filterView:{sync:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();

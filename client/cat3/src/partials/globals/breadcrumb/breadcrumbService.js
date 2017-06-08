@@ -25,7 +25,8 @@
 
 			}
 		};
-	}).controller('breadcrumbCtrl', ['$scope', '$rootScope', function ($scope, $rootScope) {
+	}).controller('breadcrumbCtrl', ['$scope', '$rootScope','$state', function ($scope, $rootScope,$state) {
+
 		$scope.treeCrmbData = [];
 		$scope.rightCrmbData = [];
 		$rootScope.$on('HEADER_NAV_CHANGE', function(event, headerName) {
@@ -33,6 +34,11 @@
 		});
 		
 		$rootScope.$on('treeNameUpdate', function(event, treeParams) {
+			$scope.getActMenu=false;
+			if($state.current.parameters && $state.current.parameters.actMenu) {
+				$scope.getActMenu = $state.current.parameters.actMenu;
+			}
+			$rootScope.$emit('GET_LIBRARY',$scope.getActMenu);
 			$scope.treeCrmbData = treeParams;
 			var _arrayPart1 = treeParams;
 			var _arrayPart2 = $scope.rightCrmbData;
