@@ -313,9 +313,13 @@ BotSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
     });
 };
 
-BotSchema.statics.getAllBots = function(queryParam,callback){
+BotSchema.statics.getAllBots = function(queryParam,projection,callback){
     queryParam.isDeleted = false;
-    bot.find(queryParam, function(err, bots) {
+    if(projection !== undefined)
+        bot.find(queryParam, projection, cbHandler);
+    else
+        bot.find(queryParam, cbHandler);
+    function cbHandler(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -326,7 +330,7 @@ BotSchema.statics.getAllBots = function(queryParam,callback){
         }else{
             return callback(null, []);
         }
-    });
+    }
 };
 
 

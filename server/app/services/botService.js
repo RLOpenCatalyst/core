@@ -34,21 +34,23 @@ var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
 
-const fileHound= require('filehound');
+var globalData = require('_pr/config/global-data.js');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
+var orgResourcePermission = require('_pr/model/org-resource-permission/orgResourcePermission.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 
 const errorType = 'botService';
 
 var botService = module.exports = {};
 
-botService.createNew = function createNew(reqBody,callback) {
-    commonService.convertJson2Yml(reqBody,function(err,ymlData){
+botService.createNew = function createNew(reqBody, callback) {
+    commonService.convertJson2Yml(reqBody, function (err, ymlData) {
         if (err) {
             logger.error(err);
             callback(err, null);
             return;
-        }else {
+        } else {
             botDao.createNew(ymlData, function (err, data) {
                 if (err) {
                     logger.error(err);
@@ -63,15 +65,15 @@ botService.createNew = function createNew(reqBody,callback) {
     })
 }
 
-botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
-    if(botObj.scheduler  && botObj.scheduler !== null && Object.keys(botObj.scheduler).length !== 0 && botObj.isScheduled && botObj.isScheduled === true) {
+botService.updateBotsScheduler = function updateBotsScheduler(botId, botObj, callback) {
+    if (botObj.scheduler && botObj.scheduler !== null && Object.keys(botObj.scheduler).length !== 0 && botObj.isScheduled && botObj.isScheduled === true) {
         botObj.scheduler = apiUtil.createCronJobPattern(botObj.scheduler);
-        botObj.isScheduled =true;
-    }else{
-        botObj.scheduler ={};
-        botObj.isScheduled =false;
+        botObj.isScheduled = true;
+    } else {
+        botObj.scheduler = {};
+        botObj.isScheduled = false;
     }
-    botDao.updateBotsDetail(botId,botObj,function(err,data) {
+    botDao.updateBotsDetail(botId, botObj, function (err, data) {
         if (err) {
             logger.error("Error in Updating BOTs Scheduler", err);
             callback(err, null);
@@ -94,149 +96,383 @@ botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callb
     });
 }
 
-botService.removeBotsById = function removeBotsById(botId,callback){
-    async.parallel({
-        bots: function(callback){
-            botDao.removeBotsById(botId,callback);
-        }
-    },function(err,resutls){
+
+botService.removeBotsById = function removeBotsById(id, callback) {
+    botDao.getBotsById(id,function(err,bots){
         if(err){
             logger.error(err);
-            callback(err,null);
-            return;
-        }else {
-            callback(null, resutls);
+            callback(err, null);
             return;
         }
-    });
+        else if(bots.length > 0){
+            async.parallel({
+                bots: function (callback) {
+                    botDao.removeBotsById(id, callback);
+                },
+                orgResourcePerm : function(callback){
+                  orgResourcePermission.deleteResource(botId, 'bots', callback);
+                },
+                dir:function(callback){
+                    var gitHubService =require('_pr/services/gitHubService.js');
+                    gitHubService.deleteBot(bots[0].id,function(err){
+                        if(err)
+                            callback(err,null);
+                        else
+                            callback(null,true);
+                    })
+                }
+            }, function (err, resutls) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                } else {
+                    callback(null, resutls);
+                    return;
+                }
+            });
+        } else
+            return callback(null,true);
+    })
 }
 
-botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
+botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNowCheck, userName, callback) {
     var reqData = {};
+    var filterByOrg = false;
+    var orgId;
+    var teamId;
+    var userDetail = {};
     if(botsQuery.paginationType === 'jquery'){
         async.waterfall(
             [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(botsQuery, next);
-                },
-                function (reqData, next) {
-                    reqData = reqData;
-                    apiUtil.paginationRequest(reqData, 'bots', next);
-                },
-                function (paginationReq, next) {
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    botDao.getBotsList(queryObj, next);
-                },
-                function (botList, next) {
-                    apiUtil.changeResponseForJqueryPagination(botList, reqData, next);
-                },
-
+	            function (next) {
+	                apiUtil.changeRequestForJqueryPagination(botsQuery, next);
+	            },
+	            function (reqData, next) {
+	                reqData = reqData;
+	                apiUtil.paginationRequest(reqData, 'bots', next);
+	            },
+	            function (paginationReq, next) {
+	              if(paginationReq.filterBy) {
+	                orgId = paginationReq.filterBy.orgId;
+	              }
+	                apiUtil.databaseUtil(paginationReq, next);
+	            },
+	            function (queryObj, next) {
+	                botDao.getBotsList(queryObj, function(err, result){
+	                  
+	                  if ( err ) {
+	                    return next(err, null);
+	                  }
+	                  getOrgResourceList(orgId, [],function(err, orgList){
+	                    
+	                    if ( err ) {
+	                      return next(err, null);
+	                    }
+	                    
+	                    result.docs = filterBots(false, JSON.parse(JSON.stringify(result.docs)), orgList);
+	                    return next(null, result);
+	                  });
+	                });
+	            },
+	            function (botList, next) {
+	            apiUtil.changeResponseForJqueryPagination(botList, reqData, next);
+	            }
             ], function (err, results) {
                 if (err){
                     return callback(err,null);
                 }else{
-                    return callback(null,results);
+                  return callback(null, results);
                 }
             });
-
     }else {
-        async.waterfall([
-            function (next) {
-                apiUtil.paginationRequest(botsQuery, 'bots', next);
-            },
-            function (paginationReq, next) {
-                paginationReq['searchColumns'] = ['name', 'type', 'category', 'desc', 'orgName'];
-                reqData = paginationReq;
-                apiUtil.databaseUtil(paginationReq, next);
-            },
-            function (queryObj, next) {
-                settingService.getOrgUserFilter(userName, function (err, orgIds) {
-                    if (err) {
-                        next(err, null);
-                    }
-                    if (orgIds.length > 0) {
-                        queryObj.queryObj['orgId'] = {$in: orgIds};
-                    }
-                    if (actionStatus !== null) {
-                        var key = actionStatus+'ExecutionCount';
-                        queryObj.queryObj[key] = {$gt:0};
-                    }
-                    if (serviceNowCheck === true) {
-                        queryObj.queryObj['srnSuccessExecutionCount'] = {$gt: 0};
-                        var botIds = [];
-                        botDao.getAllBots(queryObj.queryObj, function (err, botData) {
-                            if (err) {
-                                next(err, null);
-                            }
-                            if (botData.length > 0) {
-                                botData.forEach(function (bot) {
-                                    botIds.push(bot._id);
-                                })
-                            }
-                            if (botIds.length > 0) {
-                                delete queryObj.queryObj;
-                                queryObj.queryObj = {
-                                    auditId: {$in: botIds}
-                                }
-                                auditTrail.getAuditTrailList(queryObj, next);
-                            } else {
-                                botDao.getBotsList(queryObj, next);
-                            }
-                        })
-                    } else {
-                        botDao.getBotsList(queryObj, next);
-                    }
-                });
-            },
-            function (botList, next) {
-                addYmlFileDetailsForBots(botList, reqData, serviceNowCheck, next);
-            },
-            function (filterBotList, next) {
-                async.parallel({
-                    botList: function (callback) {
-                        apiUtil.paginationResponse(filterBotList, reqData, callback);
-                    },
-                    botSummary: function (callback) {
-                        auditTrailService.getBOTsSummary(botsQuery, 'BOT', userName, callback)
-                    }
-                }, function (err, data) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        next(null, data);
-                    }
-                })
-            }
-        ], function (err, results) {
-            if (err) {
-                logger.error(err);
-                callback(err, null);
-                return;
-            }
-            var resultObj = {
-                bots: results.botList.bots,
-                metaData: results.botList.metaData,
-                botSummary: results.botSummary
-            }
-            callback(null, resultObj);
-            return;
-        });
+	    async.waterfall([
+	        function(next) {
+	            apiUtil.paginationRequest(botsQuery, 'bots', next);
+	        },
+	        function(paginationReq, next) {
+	            paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
+	            if(paginationReq.filterBy) {
+	            	orgId = paginationReq.filterBy.orgId;
+	            	teamId = paginationReq.filterBy.teamId;
+	            	delete paginationReq.filterBy.teamId;
+	            }
+	            
+	            reqData = paginationReq;
+	            apiUtil.databaseUtil(paginationReq, next);
+	        },
+	        function(queryObj, next) {
+	            settingService.getOrgUserFilter(userName, function (err, orgIds) {
+	                if (err) {
+	                    next(err, null);
+	                }
+	                if(orgIds.length > 0){
+	                    queryObj.queryObj['orgId'] = {$in: orgIds};
+	                }
+	                if(actionStatus !== null) {
+	                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
+	                }
+	                d4dModelNew.d4dModelMastersUsers.find({
+	                    loginname: userName,
+	                    id:'7'
+	                }, function(err, userDetails) {
+	                	
+	                	if ( err ) {
+	                		return next(err, null);
+	                	}
+	                	
+	                	if (userDetails.length > 0) {
+	                		userDetail = userDetails[0];
+	                		userDetail.orgname_rowid = (typeof userDetail.orgname_rowid[0]) !== undefined ? userDetail.orgname_rowid[0] : userDetail.orgname_rowId;
+	                		userDetail.orgname = (typeof userDetail.orgname[0]) !== undefined ? userDetail.orgname[0] : userDetail.orgname;
+	                	}
+	                	
+	                	if(serviceNowCheck === true) {
+	                		queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
+	                		var botIds = [];
+	                		botDao.getAllBots(queryObj.queryObj,function(err,botData){
+	                			if(err){
+	                				next(err,null);
+	                			}
+	                			if(botData.length > 0){
+	                				botData.forEach(function(bot){
+	                					botIds.push(bot._id);
+	                				})
+	                			}
+	                			if(botIds.length > 0){
+	                				delete queryObj.queryObj;
+	                				queryObj.queryObj = {
+	                						auditId: {$in:botIds}
+	                				}
+	                				auditTrail.getAuditTrailList(queryObj,next);
+	                			}else{
+	                				botDao.getBotsList(queryObj, function(err, result){
+	                					return next(err,result);
+	                				});
+	                			}
+	                		});
+	                	}else{
+	                		var ids = [];
+	                		if ( userDetail.userrolename === 'Admin') {
+	                		
+	                		   var teamIds;
+	            			   if (teamId) {
+	            				   filterByOrg = true;
+	            				   teamIds = [teamId];
+	            			   }
+	            			   
+	            			   getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
+	            				   if ( err ){
+	            					   next(err,null);
+	            				   }
+	            				   
+	            				   if (filterByOrg) {
+	            					   orgBotsList.forEach(function(orgBot){
+	            						   ids = ids.concat(orgBot.resourceIds);
+	            					   });
+	            				   }
+	            				   
+	            				   if (ids.length > 0) {
+	            					   queryObj.queryObj.id = {$in:ids};
+	            				   }
+	            				   
+	            				   if (orgId) {
+	            					  delete queryObj.queryObj.orgId;
+	            				   }
+	            				   
+	            				   if (orgId && teamId && orgBotsList.length === 0) {
+	            					   return next(null, {docs:[]});
+	            				   }
+	            				   
+	            				   botDao.getBotsList(queryObj, next);
+	            			   });
+		            		}else {
+		            		
+	 	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
+	 	            			  if ( err ){
+	            					   next(err,null);
+	            				  } 
+	 	            			  orgBotsList.forEach(function(orgBot){
+            						   ids = ids.concat(orgBot.resourceIds);
+            					  });
+	 	            			  
+	 	            			  if (ids.length > 0) {
+	 	            				  queryObj.queryObj.id = {$in:ids};
+	 	            			  } else {
+	 	            				  return next(null, {docs:[]});
+	 	            			  }
+	 	            			  
+	 	            			  botDao.getBotsList(queryObj, next);
+	 	            		   });
+		 	            	}
+	                	}
+	                })
+	            });
+	        },
+	        function(botList, next) {
+	            addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
+	        },
+	        function(filterBotList, next) {
+	           async.parallel({
+	               botList:function(callback){
+	                   apiUtil.paginationResponse(filterBotList, reqData, callback);
+	               },
+	               botSummary:function(callback){
+	            	   auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback);
+	               }
+	               
+	           },function(err,data){
+	               if(err){
+	                   next(err);
+	               }else{
+	                   next(null,data);
+	               }
+	           })
+	        }
+	    ],function(err, results) {
+	        if (err){
+	            logger.error(err);
+	            callback(err,null);
+	            return;
+	        }
+	        
+	        var resultObj = {
+	            bots : results.botList.bots,
+	            metaData : results.botList.metaData,
+	            botSummary: results.botSummary
+	        };
+	        return callback(null,resultObj);
+	    });
     }
 }
 
-botService.executeBots = function executeBots(botsId,reqBody,userName,executionType,schedulerCallCheck,callback){
+function getOrgResourceList(orgId, teamIds, callback){
+	if (orgId){
+	   var query = {
+		   orgId : orgId,
+		   resourceType : 'bots'
+	   }
+	   
+	   if(teamIds.length > 0) {
+		  query.teamId = {$in : teamIds};
+	   }
+	   
+	   orgResourcePermission.find(query, function(err, orgResourceList){
+		   if ( err ) {
+			   return callback(err, null);
+		   }
+		   
+		   if (orgResourceList.length > 0 ) {
+			   var teamIds = [];
+			   orgResourceList.forEach(function(orgResource){
+				   teamIds.push(orgResource.teamId);
+			   });
+			   getTeamsInfo(orgResourceList, orgId, teamIds, function(err, result){
+				   if ( err ) {
+					   return callback(err, null);
+				   }
+				   
+				   return callback(null, result);
+			   });
+		   } else {
+			   return callback(null, []);
+		   }
+	   });
+	} else {
+		return callback(null, []);
+	}
+}
+
+function filterBots(filterByOrg, botsList, orgBots){
+	var bots;
+	var botsTeamId = {}
+	botsTeamId = orgBots.reduce(function(acc, cv, ci){
+		cv.resourceIds.forEach(function(rId){
+			if(acc[rId] === undefined){
+				acc[rId] = {
+					teams : [cv.team]
+				};
+			} else {
+				acc[rId].teams.push(cv.team);
+			}
+			return acc;
+		});
+		return acc;
+	},{});
+	
+	bots = botsList.filter(function(bot){
+		if (botsTeamId[bot.id]){
+			bot.teams = botsTeamId[bot.id].teams;
+		}
+		
+		if (filterByOrg) {
+			if (botsTeamId[bot.id] !== undefined){
+				return true;
+			}
+			
+			return false;
+		}
+		
+		return true;
+	});
+	
+	return bots;
+}
+
+function getTeamsInfo(result, orgId, teamIds, cb){
+   
+  var query = {
+    orgname_rowid : orgId,
+    id : '21'
+  };
+  
+  if (teamIds.length > 0 ){
+    query.rowid = {$in:teamIds}; 
+  }
+  
+   d4dModelNew.d4dModelMastersTeams.find(query, function(err, teamList){
+	   if (err) {
+		   return cb(err);
+	   }
+	   
+	   result.forEach(function(orgResource){
+		   teamList.forEach(function(t){
+			   if(orgResource.teamId === t.rowid){
+				   orgResource.team = {
+					   teamId : t.rowid,
+					   teamName : t.teamname
+				   };
+			   }
+		   });
+	   });
+	   
+	   return cb(null, result);
+   });
+}
+
+botService.executeBots = function executeBots(botsId, reqBody, userName, executionType, schedulerCallCheck, callback) {
     var botId = null;
     var botRemoteServerDetails = {}
     async.waterfall([
-        function(next) {
-            botDao.getBotsByBotId(botsId, next);
+        function (next) {
+            botDao.getBotsByBotId(botsId, (err, result) => {
+                if (err)
+                    next(err, null);
+                else {
+                    if (globalData.getGit(result[0].gitHubId)) {
+                        var err = new Error('Sync is in progess');
+                        err.status = 400;
+                        next(err, null);
+                    } else {
+                        next(null, result)
+                    }
+                }
+            });
         },
-        function(bots,next){
-            if(bots.length > 0) {
+        function (bots, next) {
+            if (bots.length > 0) {
                 botId = bots[0]._id;
-                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false) {
+                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'meta' || bots[0].type === 'chef') && schedulerCallCheck === false) {
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
@@ -245,7 +481,7 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                         } else if (botServerDetails !== null) {
                             botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                             botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                            next(null,bots);
+                            next(null, bots);
                         } else {
                             var error = new Error();
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
@@ -255,85 +491,85 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                     });
 
                 } else {
-                    next(null,bots);
+                    next(null, bots);
                 }
-            }else{
+            } else {
                 var error = new Error();
-                error.message = 'There is no record available in DB against BOT : '+botsId;
+                error.message = 'There is no record available in DB against BOT : ' + botsId;
                 error.status = 403;
                 next(error, null);
             }
         },
-        function(botDetails,next) {
-            if(botDetails.length > 0){
+        function (botDetails, next) {
+            if (botDetails.length > 0) {
                 async.parallel({
                     executor: function (callback) {
                         async.waterfall([
-                            function(next){
-                                var actionObj={
-                                    auditType:'BOT',
-                                    auditCategory:botDetails[0].type,
-                                    status:'running',
-                                    action:'BOT Execution',
-                                    actionStatus:'running',
-                                    catUser:userName
+                            function (next) {
+                                var actionObj = {
+                                    auditType: 'BOT',
+                                    auditCategory: botDetails[0].type,
+                                    status: 'running',
+                                    action: 'BOT Execution',
+                                    actionStatus: 'running',
+                                    catUser: userName
                                 };
                                 var auditTrailObj = {
-                                    name:botDetails[0].name,
-                                    type:botDetails[0].action,
-                                    description:botDetails[0].desc,
-                                    category:botDetails[0].category,
-                                    executionType:botDetails[0].type,
-                                    manualExecutionTime:botDetails[0].manualExecutionTime
+                                    name: botDetails[0].name,
+                                    type: botDetails[0].action,
+                                    description: botDetails[0].desc,
+                                    category: botDetails[0].category,
+                                    executionType: botDetails[0].type,
+                                    manualExecutionTime: botDetails[0].manualExecutionTime
                                 };
-                                if(schedulerCallCheck === false && reqBody.ref && reqBody.ref !== null){
-                                    auditTrailObj.serviceNowTicketRefObj =  {
-                                        ticketNo:reqBody.ref
+                                if (schedulerCallCheck === false && reqBody.ref && reqBody.ref !== null) {
+                                    auditTrailObj.serviceNowTicketRefObj = {
+                                        ticketNo: reqBody.ref
                                     }
                                 }
-                                auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
+                                auditTrailService.insertAuditTrail(botDetails[0], auditTrailObj, actionObj, next);
                             },
-                            function(auditTrail,next) {
+                            function (auditTrail, next) {
                                 var uuid = require('node-uuid');
                                 auditTrail.actionId = uuid.v4();
-                                if (botDetails[0].type === 'script') {
-                                    scriptExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
-                                }else if (botDetails[0].type === 'chef') {
-                                    chefExecutor.execute(botDetails[0],reqBody, auditTrail, userName, executionType, botRemoteServerDetails,schedulerCallCheck, next);
-                                }else if (botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint') {
-                                    if(schedulerCallCheck === true) {
+                                if (botDetails[0].type === 'script' || botDetails[0].type === 'meta') {
+                                    scriptExecutor.execute(botDetails[0], reqBody, auditTrail, userName, executionType, botRemoteServerDetails, schedulerCallCheck, next);
+                                } else if (botDetails[0].type === 'chef') {
+                                    chefExecutor.execute(botDetails[0], reqBody, auditTrail, userName, executionType, botRemoteServerDetails, schedulerCallCheck, next);
+                                } else if (botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint') {
+                                    if (schedulerCallCheck === true) {
                                         reqBody = botDetails[0].params;
                                     }
-                                    blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
-                                }else if (botDetails[0].type === 'jenkins') {
-                                    if(schedulerCallCheck === true) {
+                                    blueprintExecutor.execute(botDetails[0].id, auditTrail, reqBody, userName, next);
+                                } else if (botDetails[0].type === 'jenkins') {
+                                    if (schedulerCallCheck === true) {
                                         reqBody = botDetails[0].params;
                                     }
-                                    jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
-                                }else if (botDetails[0].type === 'api') {
-                                    if(schedulerCallCheck === true) {
+                                    jenkinsExecutor.execute(botDetails[0], auditTrail, reqBody, userName, next);
+                                } else if (botDetails[0].type === 'api') {
+                                    if (schedulerCallCheck === true) {
                                         reqBody = botDetails[0].params;
                                     }
-                                    apiExecutor.execute(botDetails[0],reqBody,auditTrail, userName,botRemoteServerDetails, next);
-                                }else {
+                                    apiExecutor.execute(botDetails[0], reqBody, auditTrail, userName, botRemoteServerDetails, next);
+                                } else {
                                     var err = new Error('Invalid BOT Type');
                                     err.status = 400;
                                     err.msg = 'Invalid BOT Type';
                                     callback(err, null);
                                 }
                             }
-                        ],function(err,executionResult){
-                            if(err){
-                                callback(err,null);
+                        ], function (err, executionResult) {
+                            if (err) {
+                                callback(err, null);
                                 return;
-                            }else{
-                               callback(null,executionResult);
-                               return;
+                            } else {
+                                callback(null, executionResult);
+                                return;
                             }
                         })
                     },
                     bots: function (callback) {
-                        if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
+                        if ((botDetails[0].type === 'script' || botDetails[0].type === 'meta' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === true) {
                             var botUpdateObj = {
                                 executionCount: botDetails[0].executionCount + 1,
@@ -342,65 +578,65 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                                 runningExecutionCount: botDetails[0].runningExecutionCount + 1
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
-                        } else if((botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
+                        } else if ((botDetails[0].type === 'script' || botDetails[0].type === 'meta' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === false) {
-                            encryptedParam(reqBody,botDetails[0].inputFormFields,function(err,encryptData){
-                                if(err){
+                            encryptedParam(reqBody, botDetails[0].inputFormFields, function (err, encryptData) {
+                                if (err) {
                                     var err = new Error('Data encryption is Failed');
                                     err.status = 400;
                                     err.message = 'Data encryption is Failed';
                                     callback(err, null);
-                                }else{
-                                    var botUpdateObj = {
+                                }else {
+                                   var botUpdateObj = {
                                         executionCount: botDetails[0].executionCount + 1,
                                         lastRunTime: new Date().getTime(),
                                         params:encryptData,
                                         lastExecutionStatus:"running",
                                         runningExecutionCount: botDetails[0].runningExecutionCount + 1
                                     }
-                                    if(reqBody.nodeIds){
+                                    if (reqBody.nodeIds) {
                                         botUpdateObj.params.nodeIds = reqBody.nodeIds;
                                     }
                                     botDao.updateBotsDetail(botId, botUpdateObj, callback);
                                 }
                             });
-                        }else{
+                        } else {
                             var err = new Error('Invalid BOT Type');
                             err.status = 400;
                             err.msg = 'Invalid BOT Type';
                             callback(err, null);
                         }
                     }
-                },function(err,data) {
-                    if(err){
-                        next(err,null);
-                    }else {
+                }, function (err, data) {
+                    if (err) {
+                        next(err, null);
+                    } else {
                         next(null, data.executor);
                     }
                 });
-            }else {
-               next(null,botDetails);
+            } else {
+                next(null, botDetails);
             }
         }
-    ],function(err,results){
-        if(err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
-        }else{
-            callback(null,results);
+        } else {
+            callback(null, results);
             return;
         }
     });
 }
 
-botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,callback){
+botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId, callback) {
     async.waterfall([
-        function(next) {
-            botDao.getBotsByBotId(botId,next);
+        function (next) {
+            botDao.getBotsByBotId(botId, next);
         },
-        function(botsDetails,next){
-            if(botsDetails.length > 0) {
+        function (botsDetails, next) {
+            if (botsDetails.length > 0) {
                 fileUpload.getReadStreamFileByFileId(botsDetails[0].ymlDocFileId, function (err, fileData) {
                     if (err) {
                         next(err, null);
@@ -417,73 +653,75 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                         })
                     }
                 });
-            }else{
-                next({errCode:400,errMsg:"BOTs is not available"},null);
+            } else {
+                next({ errCode: 400, errMsg: "BOTs is not available" }, null);
                 return;
             }
         },
-        function(ymlFileDetails,botsDetails,next) {
-            var botFactoryDirPath = appConfig.botCurrentFactoryDir;
-            fileHound.create()
-                .paths(botFactoryDirPath)
-                .match(ymlFileDetails.fileName+'.yaml')
-                .find().then(function (files) {
-                if (files.length > 0) {
-                    yamlJs.load(files[0], function (result) {
-                        if (result !== null) {
-                            fileUpload.uploadFile(result.id, files[0], null, function (err, ymlDocFileId) {
-                                if (err) {
-                                    logger.error("Error in uploading yaml documents.", err);
-                                    next(err, null);
-                                } else {
-                                    var botsObj = {
-                                        name: result.name,
-                                        id: result.id,
-                                        desc: result.desc,
-                                        category: result.botCategory ? result.botCategory : result.functionality,
-                                        action: result.action,
-                                        execution: result.execution ? result.execution : [],
-                                        manualExecutionTime: result.standardTime ? result.standardTime : 10,
-                                        type: result.type,
-                                        subType: result.subtype,
-                                        isParameterized:result.isParameterized?result.isParameterized:false,
-                                        input: result.input && result.input !==null ? result.input[0].form:null,
-                                        output: result.output,
-                                        ymlDocFileId: ymlDocFileId,
-                                        source: "GitHub"
-                                    }
-
-                                    botDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
-                                        if (err) {
-                                            logger.error(err);
-                                            callback(err,null);
-                                            return;
-                                        }else{
-                                            callback(null,updateBots);
-                                            return;
+        function (ymlFileDetails, botsDetails, next) {
+            var botFactoryDirPath = appConfig.botFactoryDir + 'gitHub/';
+            var gitHubService = require('_pr/services/gitHubService.js');
+            gitHubService.getSingleYaml(botFactoryDirPath, botId, (err, files) => {
+                if (err)
+                    next(err, null);
+                else {
+                    if (files !== null) {
+                        yamlJs.load(files, function (result) {
+                            if (result !== null) {
+                                fileUpload.uploadFile(result.id, files, null, function (err, ymlDocFileId) {
+                                    if (err) {
+                                        logger.error("Error in uploading yaml documents.", err);
+                                        next(err, null);
+                                    } else {
+                                        var botsObj = {
+                                            name: result.name,
+                                            id: result.id,
+                                            desc: result.desc,
+                                            category: result.botCategory ? result.botCategory : result.functionality,
+                                            action: result.action,
+                                            execution: result.execution ? result.execution : [],
+                                            manualExecutionTime: result.standardTime ? result.standardTime : 10,
+                                            type: result.type,
+                                            subType: result.subtype,
+                                            isParameterized: result.isParameterized ? result.isParameterized : false,
+                                            inputFormFields: result.input[0].form,
+                                            outputOptions: result.output,
+                                            ymlDocFileId: ymlDocFileId,
+                                            source: "GitHub"
                                         }
-                                    })
 
-                                }
-                            });
-                        } else {
-                            next({errCode:400,errMsg:"Error in Uploading YML."},null);
-                            return;
-                        }
-                    });
-                } else {
-                    logger.debug("YML is not available there.")
-                    botDao.removeBotsById(botsDetails[0]._id,next);
-                    return;
+                                        botDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
+                                            if (err) {
+                                                logger.error(err);
+                                                callback(err, null);
+                                                return;
+                                            } else {
+                                                callback(null, updateBots);
+                                                return;
+                                            }
+                                        })
+
+                                    }
+                                });
+                            } else {
+                                next({ errCode: 400, errMsg: "Error in Uploading YML." }, null);
+                                return;
+                            }
+                        });
+                    } else {
+                        logger.debug("YML is not available there.")
+                        botDao.removeBotsById(botsDetails[0]._id, next);
+                        return;
+                    }
                 }
             })
         }
-    ],function(err, results) {
-        if (err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
-        }else {
+        } else {
             callback(null, results)
             return;
         }
@@ -491,23 +729,23 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
 }
 
 
-botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
+botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) {
     async.waterfall([
-        function(next) {
+        function (next) {
             async.parallel({
-                gitHub:function(callback){
-                    var  gitHubService = require('_pr/services/gitHubService.js');
-                    gitHubService.getGitHubById(gitHubId,callback);
+                gitHub: function (callback) {
+                    var gitHubService = require('_pr/services/gitHubService.js');
+                    gitHubService.getGitHubById(gitHubId, callback);
                 },
-                botsDetails:function(callback){
-                    botDao.getBotsByGitHubId(gitHubId,callback);
+                botsDetails: function (callback) {
+                    botDao.getBotsByGitHubId(gitHubId, callback);
                 }
-            },next);
+            }, next);
         },
-        function(jsonObt,next) {
+        function (jsonObt, next) {
             async.parallel({
                 fileUpload: function (callback) {
-                    if(jsonObt.botsDetails.length > 0) {
+                    if (jsonObt.botsDetails.length > 0) {
                         var count = 0;
                         for (var i = 0; i < jsonObt.botsDetails.length; i++) {
                             (function (botsDetail) {
@@ -523,13 +761,13 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                 })
                             })(jsonObt.botsDetails[i]);
                         }
-                    }else {
+                    } else {
                         callback(null, jsonObt.gitHub);
                         return;
                     }
                 },
                 botSync: function (callback) {
-                    if (jsonObt.botsDetails.length > 0){
+                    if (jsonObt.botsDetails.length > 0) {
                         if (jsonObt.botsDetails[0].gitHubRepoName !== jsonObt.gitHub.repositoryName || jsonObt.botsDetails[0].gitHubRepoBranch !== jsonObt.gitHub.repositoryBranch) {
                             botDao.removeBotsByGitHubId(jsonObt.gitHub._id, function (err, data) {
                                 if (err) {
@@ -541,100 +779,100 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                     return;
                                 }
                             })
-                        }else{
+                        } else {
                             callback(null, jsonObt.gitHub);
                             return;
                         }
-                    }else{
+                    } else {
                         callback(null, jsonObt.gitHub);
                         return;
                     }
                 }
             }, next);
         },
-        function(gitHubDetails,next){
+        function (gitHubDetails, next) {
             process.setMaxListeners(100);
-            if(gitHubDetails.botSync !== null){
-                var botFactoryDirPath = appConfig.botCurrentFactoryDir;
-                fileHound.create()
-                    .paths(botFactoryDirPath)
-                    .ext('yaml')
-                    .find().then(function(files){
-                    if(files.length > 0){
+            if (gitHubDetails.botSync !== null) {
+                var botFactoryDirPath = appConfig.botFactoryDir + 'gitHub/';
+                var gitHubService = require('_pr/services/gitHubService.js');
+                gitHubService.getYamlList(botFactoryDirPath, (err, files) => {
+                    if (err)
+                        next(err, null);
+                    if (files !== null && files .length > 0){
                         var botObjList = [];
-                        for(var i = 0; i < files.length; i++){
-                            (function(ymlFile){
-                                yamlJs.load(ymlFile, function(result) {
+                        for (var i = 0; i < files.length; i++) {
+                            (function (ymlFile) {
+                                yamlJs.load(ymlFile, function (result) {
                                     process.on('uncaughtException', function (err) {
                                         botObjList.push(err);
-                                        if(botObjList.length === files.length){
-                                            next(null,botObjList);
+                                        if (botObjList.length === files.length) {
+                                            next(null, botObjList);
                                             return;
                                         }
                                     });
-                                    if(result !== null){
-                                       fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
-                                           if(err){
-                                               botObjList.push(err);
-                                               logger.error("Error in uploading yaml documents.",err);
-                                               fileUpload.removeFileByFileId(ymlDocFileId,function(err,data){
-                                                   if(err){
-                                                       logger.error("Error in removing YAML File. ",err);
-                                                   }
-                                                   if(botObjList.length === files.length){
-                                                       next(null,botObjList);
-                                                       return;
-                                                   }
-                                               });
-                                           }else{
-                                                var botsObj={
-                                                    name:result.name,
-                                                    gitHubId:gitHubDetails.botSync._id,
-                                                    gitHubRepoName:gitHubDetails.botSync.repositoryName,
-                                                    gitHubRepoBranch:gitHubDetails.botSync.repositoryBranch,
-                                                    id:result.id,
-                                                    desc:result.desc,
-                                                    category:result.botCategory?result.botCategory:result.functionality,
-                                                    action:result.action,
-                                                    execution:result.execution?result.execution:[],
-                                                    manualExecutionTime:result.manualExecutionTime ? result.manualExecutionTime:10,
-                                                    type:result.type,
-                                                    subType:result.subtype,
-                                                    input:result.input && result.input !==null ? result.input[0].form:null,
-                                                    output:result.output,
-                                                    ymlDocFileId:ymlDocFileId,
-                                                    orgId:gitHubDetails.botSync.orgId,
-                                                    isParameterized:result.isParameterized?result.isParameterized:false,
-                                                    orgName:gitHubDetails.botSync.orgName,
-                                                    source:"GitHub"
+                                    if (result !== null) {
+                                        fileUpload.uploadFile(result.id, ymlFile, null, function (err, ymlDocFileId) {
+                                            if (err) {
+                                                botObjList.push(err);
+                                                logger.error("Error in uploading yaml documents.", err);
+                                                fileUpload.removeFileByFileId(ymlDocFileId, function (err, data) {
+                                                    if (err) {
+                                                        logger.error("Error in removing YAML File. ", err);
+                                                    }
+                                                    if (botObjList.length === files.length) {
+                                                        next(null, botObjList);
+                                                        return;
+                                                    }
+                                                });
+                                            } else {
+                                                var botsObj = {
+                                                    name: result.name,
+                                                    gitHubId: gitHubDetails.botSync._id,
+                                                    gitHubRepoName: gitHubDetails.botSync.repositoryName,
+                                                    gitHubRepoBranch: gitHubDetails.botSync.repositoryBranch,
+                                                    id: result.id,
+                                                    desc: result.desc,
+                                                    category: result.botCategory ? result.botCategory : result.functionality,
+                                                    action: result.action,
+                                                    execution: result.execution ? result.execution : [],
+                                                    manualExecutionTime: result.manualExecutionTime ? result.manualExecutionTime : 10,
+                                                    type: result.type,
+                                                    subType: result.subtype,
+                                                    inputFormFields: result.input && result.input !== null ? result.input[0].form : null,
+                                                    outputOptions: result.output,
+                                                    ymlDocFileId: ymlDocFileId,
+                                                    orgId: gitHubDetails.botSync.orgId,
+                                                    isParameterized: result.isParameterized ? result.isParameterized : false,
+                                                    orgName: gitHubDetails.botSync.orgName,
+                                                    source: "GitHub"
                                                 }
-                                                botDao.getBotsByBotId(result.id,function(err,botsList){
-                                                    if(err){
+                                                botDao.getBotsByBotId(result.id, function (err, botsList) {
+                                                    if (err) {
                                                         logger.error(err);
                                                         botObjList.push(err);
-                                                        if(botObjList.length === files.length){
-                                                            next(null,botObjList);
+                                                        if (botObjList.length === files.length) {
+                                                            next(null, botObjList);
                                                             return;
                                                         }
-                                                    }else if(botsList.length > 0){
-                                                        botDao.updateBotsDetail(botsList[0]._id,botsObj,function(err,updateBots){
-                                                            if(err){
+                                                    } else if (botsList.length > 0) {
+                                                        botDao.updateBotsDetail(botsList[0]._id, botsObj, function (err, updateBots) {
+                                                            if (err) {
                                                                 logger.error(err);
                                                             }
                                                             botObjList.push(botsObj);
-                                                            if(botObjList.length === files.length){
-                                                                next(null,botObjList);
+                                                            if (botObjList.length === files.length) {
+                                                                next(null, botObjList);
                                                                 return;
                                                             }
                                                         })
-                                                    }else{
-                                                        botDao.createNew(botsObj,function(err,data){
-                                                            if(err){
+                                                    } else {
+                                                        botDao.createNew(botsObj, function (err, data) {
+                                                            if (err) {
                                                                 logger.error(err);
                                                             }
                                                             botObjList.push(botsObj);
-                                                            if(botObjList.length === files.length){
-                                                                next(null,botObjList);
+                                                            if (botObjList.length === files.length) {
+                                                                next(null, botObjList);
                                                                 return;
                                                             }
                                                         });
@@ -642,10 +880,10 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                                 })
                                             }
                                         })
-                                    }else{
+                                    } else {
                                         botObjList.push(result);
-                                        if(botObjList.length === files.length){
-                                            next(null,botObjList);
+                                        if (botObjList.length === files.length) {
+                                            next(null, botObjList);
                                             return;
                                         }
                                     }
@@ -653,23 +891,21 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                             })(files[i]);
                         }
 
-                    }else{
-                        logger.info("There is no YML files in this directory.",botFactoryDirPath);
+                    } else {
+                        logger.info("There is no YML files in this directory.", botFactoryDirPath);
                     }
-                }).catch(function(err){
-                    next(err,null);
                 });
 
-            }else{
-                next(null,gitHubDetails.botSync);
+            } else {
+                next(null, gitHubDetails.botSync);
             }
         },
-        function(botsDetails,next){
-            botDao.getBotsByGitHubId(gitHubId,function(err,botsList){
-                if(err){
-                    next(err,null);
+        function (botsDetails, next) {
+            botDao.getBotsByGitHubId(gitHubId, function (err, botsList) {
+                if (err) {
+                    next(err, null);
                     return;
-                }else if(botsList.length>0) {
+                } else if (botsList.length > 0) {
                     var count = 0;
                     for (var i = 0; i < botsList.length; i++) {
                         (function (bots) {
@@ -699,60 +935,60 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
 
                         })(botsList[i]);
                     }
-                }else{
-                    next(null,botsDetails);
+                } else {
+                    next(null, botsDetails);
                 }
             });
         }
-    ],function(err, results) {
-        if (err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
-        }else {
+        } else {
             callback(null, results)
             return;
         }
     });
 }
 
-botService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
+botService.getBotsHistory = function getBotsHistory(botId, botsQuery, callback) {
     var reqData = {};
     async.waterfall([
-        function(next) {
+        function (next) {
             apiUtil.paginationRequest(botsQuery, 'botHistory', next);
         },
-        function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName'];
+        function (paginationReq, next) {
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name', 'masterDetails.orgName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
-        function(queryObj, next) {
+        function (queryObj, next) {
             queryObj.queryObj.auditId = botId;
             queryObj.queryObj.auditType = 'BOT';
-            auditTrail.getAuditTrailList(queryObj,next)
+            auditTrail.getAuditTrailList(queryObj, next)
         },
-        function(auditTrailList, next) {
+        function (auditTrailList, next) {
             apiUtil.paginationResponse(auditTrailList, reqData, next);
         }
-    ],function(err, results) {
-        if (err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
         }
-        callback(null,results)
+        callback(null, results)
         return;
     });
 }
 
-botService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
+botService.getParticularBotsHistory = function getParticularBotsHistory(botId, historyId, callback) {
     async.waterfall([
-        function(next){
-            botDao.getBotsById(botId,next);
+        function (next) {
+            botDao.getBotsById(botId, next);
         },
-        function(bots,next){
-            if(bots.length > 0) {
+        function (bots, next) {
+            if (bots.length > 0) {
                 var query = {
                     auditType: 'BOT',
                     auditId: botId,
@@ -760,85 +996,85 @@ botService.getParticularBotsHistory = function getParticularBotsHistory(botId,hi
                 };
                 auditTrail.getAuditTrails(query, next);
 
-            }else{
-                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            } else {
+                next({ errCode: 400, errMsg: "Bots is not exist in DB" }, null)
             }
         }
-    ],function(err,results){
-        if(err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
-        }else{
-            callback(null,results);
+        } else {
+            callback(null, results);
             return;
         }
     });
 }
 
-botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,callback){
+botService.getParticularBotsHistoryLogs = function getParticularBotsHistoryLogs(botId, historyId, callback) {
     async.waterfall([
-        function(next){
-            botDao.getBotsById(botId,next);
+        function (next) {
+            botDao.getBotsById(botId, next);
         },
-        function(bots,next){
-            if(bots.length > 0) {
+        function (bots, next) {
+            if (bots.length > 0) {
                 var logsDao = require('_pr/model/dao/logsdao.js');
                 var queryObj = {
                     botRefId: historyId
                 }
-                logsDao.getLogsDetails(queryObj,next);
-            }else{
-                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+                logsDao.getLogsDetails(queryObj, next);
+            } else {
+                next({ errCode: 400, errMsg: "Bots is not exist in DB" }, null)
             }
         }
-    ],function(err,results){
-        if(err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
-        }else{
-            callback(null,results);
+        } else {
+            callback(null, results);
             return;
         }
     });
 }
 
-botService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(botId,status,callback){
+botService.updateLastBotExecutionStatus = function updateLastBotExecutionStatus(botId, status, callback) {
     async.waterfall([
-        function(next){
-            botDao.getBotsById(botId,next);
+        function (next) {
+            botDao.getBotsById(botId, next);
         },
-        function(bots,next){
-            if(bots.length > 0) {
+        function (bots, next) {
+            if (bots.length > 0) {
                 var botObj = {
-                    lastExecutionStatus:status
+                    lastExecutionStatus: status
                 }
-                botDao.updateBotsDetail(botId,botObj,next);
-            }else{
-                next({code:400, message:"Bots is not exist in DB"},null)
+                botDao.updateBotsDetail(botId, botObj, next);
+            } else {
+                next({ code: 400, message: "Bots is not exist in DB" }, null)
             }
         }
-    ],function(err,results){
-        if(err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
-        }else{
-            callback(null,results);
+        } else {
+            callback(null, results);
             return;
         }
     });
 }
 
 
-function encryptedParam(paramDetails,inputFormDetails, callback) {
+function encryptedParam(paramDetails, inputFormDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if (paramDetails.type === 'script' && paramDetails.data && paramDetails.data !== null) {
-        inputFormDetails.forEach(function(formField){
-            if(formField.type === 'password' || formField.type === 'restricted'){
+        inputFormDetails.forEach(function (formField) {
+            if (formField.type === 'password' || formField.type === 'restricted') {
                 var encryptedText = cryptography.encryptText(paramDetails.data[formField.name], cryptoConfig.encryptionEncoding,
                     cryptoConfig.decryptionEncoding);
                 paramDetails.data[formField.name] = encryptedText;
@@ -846,21 +1082,21 @@ function encryptedParam(paramDetails,inputFormDetails, callback) {
         })
         callback(null, paramDetails);
         return;
-    }else{
+    } else {
         callback(null, paramDetails);
         return;
     }
 }
 
-function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
+function addYmlFileDetailsForBots(bots, reqData, serviceNowCheck, callback) {
     if (bots.docs.length === 0) {
-        return callback(null,bots);
-    }else{
-        var botsList =[];
-        var botsObj={};
-        for(var i = 0; i <bots.docs.length; i++){
-            (function(bot){
-                if(serviceNowCheck ===false) {
+        return callback(null, bots);
+    } else {
+        var botsList = [];
+        var botsObj = {};
+        for (var i = 0; i < bots.docs.length; i++) {
+            (function (bot) {
+                if (serviceNowCheck === false) {
                     fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId, function (err, file) {
                         if (err) {
                             logger.error("Error in fetching YAML Documents for : " + bot.name + " " + err);
@@ -893,10 +1129,10 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                             lastRunTime: bot.lastRunTime,
                             savedTime: bot.savedTime,
                             source: bot.source,
-                            execution:bot.execution,
-                            lastExecutionStatus:bot.lastExecutionStatus
+                            execution: bot.execution,
+                            lastExecutionStatus: bot.lastExecutionStatus
                         }
-                        if(bot.type === 'jenkins') {
+                        if (bot.type === 'jenkins') {
                             botsObj.isParameterized = bot.isParameterized;
                         }
                         botsList.push(botsObj);
@@ -913,11 +1149,11 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                             return callback(null, bots);
                         }
                     })
-                }else{
+                } else {
                     botDao.getBotsById(bot.auditId, function (err, botDetails) {
                         if (err) {
                             logger.error("Error in fetching BOT Details for _id: " + bot.auditId + " " + err);
-                        }else {
+                        } else {
                             fileUpload.getReadStreamFileByFileId(botDetails[0].ymlDocFileId, function (err, file) {
                                 if (err) {
                                     logger.error("Error in fetching YAML Documents for : " + bot.name + " " + err);
@@ -947,11 +1183,11 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                                         lastRunTime: botDetails[0].lastRunTime,
                                         savedTime: bot.savedTime,
                                         source: botDetails[0].source,
-                                        execution:botDetails[0].execution,
+                                        execution: botDetails[0].execution,
                                         lastExecutionStatus: botDetails[0].lastExecutionStatus,
                                         actionLogId: bot.actionLogId
                                     }
-                                    if(serviceNowCheck === true){
+                                    if (serviceNowCheck === true) {
                                         botsObj.srnTicketNo = bot.auditTrailConfig.serviceNowTicketRefObj.ticketNo;
                                         botsObj.srnTicketLink = bot.auditTrailConfig.serviceNowTicketRefObj.ticketLink;
                                         botsObj.srnTicketShortDesc = bot.auditTrailConfig.serviceNowTicketRefObj.shortDesc;
@@ -966,7 +1202,7 @@ function addYmlFileDetailsForBots(bots,reqData,serviceNowCheck,callback){
                                         botsObj.srnTicketUpdatedOn = bot.auditTrailConfig.serviceNowTicketRefObj.updatedOn;
                                         botsObj.srnTicketCategory = bot.auditTrailConfig.serviceNowTicketRefObj.category;
                                     }
-                                    if(bot.type === 'jenkins') {
+                                    if (bot.type === 'jenkins') {
                                         botsObj.isParameterized = bot.isParameterized;
                                     }
                                     botsList.push(botsObj);

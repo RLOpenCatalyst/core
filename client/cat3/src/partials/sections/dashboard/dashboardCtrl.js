@@ -23,7 +23,7 @@
                 /*Otherwise dont enable default landing logic. This is so that user can land on url directly*/
                 if ($state.current.name === 'dashboard') {
                     if ($rootScope.serviceBool) {
-                        $state.go('dashboard.bots');
+                        $state.go('dashboard.bots.library');
                     } else if ($rootScope.workZoneBool) {
                         $state.go('dashboard.workzone');
                     } else if ($rootScope.designBool) {

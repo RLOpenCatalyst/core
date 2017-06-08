@@ -1,46 +1,50 @@
 var mongoose = require('mongoose');
 var logger = require('_pr/logger')(module);
+var mongoosePaginate = require('mongoose-paginate');
 var Schema = mongoose.Schema;
 var GitHubTempFileSchema = new Schema({
-    botName:{
+    id:{
         type: String,
-        required: false,
-        trim: true
+        trim: true,
+        required: false
     },
-	files: [{
-        fileName: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        state: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        path: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        state:{
-            type: String,
-            required: true,
-            trim: true
-        }
-    } ],
+    name: {
+        type: String,
+        trim: true,
+        required: false
+    },
+    type: {
+        type: String,
+        trim: true,
+        required: false
+    },
+    category: {
+        type: String,
+        trim: true,
+        required: false
+    },
+    executionCount:{
+        type:Number,
+        required:false,
+        default:0
+    },
+    status:{
+        type: String,
+        trim: true,
+        required: false
+    },
+    isScheduled:{
+        type: Boolean,
+        required: false,
+        default:false
+    },
     gitHubId:{
         type: String,
-        required: true,
-        trim: true
+        trim: true,
+        required: false
     },
-    createdOn:{
-        type: Number,
-        required: false,
-        default:Date.now()
-    }
 })
-
+GitHubTempFileSchema.plugin(mongoosePaginate);
 GitHubTempFileSchema.statics.gitFilesInsert = function gitFilesInsert(tempOject, callback) {
     githubTemp.create(tempOject, function (err, data) {
         if (err) {
@@ -51,17 +55,15 @@ GitHubTempFileSchema.statics.gitFilesInsert = function gitFilesInsert(tempOject,
         }
     });
 };
-GitHubTempFileSchema.statics.gitFilesList = function gitFilesList(gitHubId,callback) {
-    githubTemp.find({gitHubId:gitHubId},function(err, githubfile) {
+GitHubTempFileSchema.statics.gitFilesList = function gitFilesList(params,callback) {
+    githubTemp.paginate(params.queryObj, params.options,function(err, githubfile) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
             error.status = 500;
             return callback(error);
-        }else if(githubfile.length > 0){
-            return callback(null, githubfile);
         }else{
-            return callback(null, []);
+            return callback(null, githubfile);
         }
     });
 };
@@ -74,5 +76,17 @@ GitHubTempFileSchema.statics.gitFilesdelete = function gitFilesdelete(gitHubId,c
             return callback(null);
     });
 }
+GitHubTempFileSchema.statics.getAllBots = function (gitHubId,callback) {
+    githubTemp.find({"gitHubId":gitHubId}, {"_id":0,"id":1,"type":1,"status":1},function(err, botsList) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else{
+            return callback(null, botsList);
+        }
+    });
+};
 var githubTemp = mongoose.model('githubTemp', GitHubTempFileSchema);
 module.exports = githubTemp;

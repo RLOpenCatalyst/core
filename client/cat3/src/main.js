@@ -75,6 +75,9 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window'
 angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'authenticationAPI', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, moment, authenticationAPI,$http, $log, $location, $window, auth, $state, modulePerms) {
 	'use strict';
 	//global Scope Constant Defined;
+	$rootScope.$on('GET_LIBRARY',function($event,reqParams){
+		$scope.actMenu = reqParams;
+	});
 	$rootScope.app = $rootScope.app || {};
 	$rootScope.app.isDashboard = false;
 	$rootScope.appDetails = $rootScope.appDetails || {};

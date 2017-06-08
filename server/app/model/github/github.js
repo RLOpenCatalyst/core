@@ -88,6 +88,23 @@ var GitHubSchema = new Schema({
         type: Number,
         required: false,
         default:Date.now()
+    },
+    count:{
+        new:{
+            type:Number,
+            required: false,
+            default:0
+        },
+        modified:{
+            type:Number,
+            required:false,
+            default:0
+        },
+        deleted:{
+            type:Number,
+            required:false,
+            default:0
+        }
     }
 });
 
