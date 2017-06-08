@@ -103,17 +103,12 @@ var BotSchema = new Schema ({
         trim: true,
         required: true
     },
-    inputFormFields:Schema.Types.Mixed,
-    outputOptions:Schema.Types.Mixed,
+    input:Schema.Types.Mixed,
+    output:Schema.Types.Mixed,
     params:Schema.Types.Mixed,
     isParameterized:{
         type: Boolean,
         default: false
-    },
-    lastExecutionStatus:{
-        type: String,
-        trim: true,
-        required: false
     },
     ymlDocFileId : {
         type: String,
@@ -138,6 +133,10 @@ var BotSchema = new Schema ({
         default: 0
     },
     failedExecutionCount: {
+        type: Number,
+        default: 0
+    },
+    runningExecutionCount: {
         type: Number,
         default: 0
     },

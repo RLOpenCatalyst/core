@@ -417,8 +417,6 @@ var EC2 = function(awsSettings) {
 				Value: tags[key]
 			});
 		}
-		console.log(tagsArray);
-
 		var params = {
 			Resources: [
 				instanceId

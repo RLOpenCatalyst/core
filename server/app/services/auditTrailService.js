@@ -454,7 +454,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var successCount = 0;
                     for(var i = 0; i < botsList.length; i++){
                         if(botsList[i].successExecutionCount){
-                            successCount = botsList[i].successExecutionCount;
+                            successCount = successCount + botsList[i].successExecutionCount;
                         }
                     }
                     callback(null,successCount);
@@ -471,8 +471,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                 totalNoOfRunningBots: function(callback){
                     var runningCount = 0;
                     for(var i = 0; i < botsList.length; i++){
-                        if(botsList[i].lastExecutionStatus && botsList[i].lastExecutionStatus === 'failed'){
-                            runningCount = runningCount + 1;
+                        if(botsList[i].runningExecutionCount){
+                            runningCount = runningCount + botsList[i].runningExecutionCount;
                         }
                     }
                     callback(null,runningCount);
@@ -481,16 +481,16 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var days =0,hours = 0, minutes = 0, seconds = 0;
                     if(botsList.length > 0) {
                         for (var k = 0; k < botsList.length; k++) {
-                            if(botsList[k].savedTime && botsList[k].savedTime.days) {
+                            if(botsList[k].savedTime && botsList[k].savedTime.days && botsList[k].savedTime.days > 0) {
                                 days = days + botsList[k].savedTime.days;
                             }
-                            if(botsList[k].savedTime && botsList[k].savedTime.hours) {
+                            if(botsList[k].savedTime && botsList[k].savedTime.hours && botsList[k].savedTime.hours > 0) {
                                 hours = hours + botsList[k].savedTime.hours;
                             }
-                            if(botsList[k].savedTime && botsList[k].savedTime.minutes){
+                            if(botsList[k].savedTime && botsList[k].savedTime.minutes && botsList[k].savedTime.minutes > 0){
                                 minutes = minutes + botsList[k].savedTime.minutes;
                             }
-                            if(botsList[k].savedTime && botsList[k].savedTime.seconds){
+                            if(botsList[k].savedTime && botsList[k].savedTime.seconds && botsList[k].savedTime.seconds > 0){
                                 seconds = seconds + botsList[k].savedTime.seconds;
                             }
                         }
@@ -504,7 +504,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         minutes = minutes % 60;
                     }
                     if(hours >= 24){
-                        days = days + Math.floor(hours / 60);
+                        days = days + Math.floor(hours / 24);
                         hours = minutes % 24
                     }
                     var result = {
@@ -519,7 +519,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var failedCount = 0;
                     for(var i = 0; i < botsList.length; i++){
                         if(botsList[i].failedExecutionCount){
-                            failedCount = botsList[i].failedExecutionCount;
+                            failedCount = failedCount + botsList[i].failedExecutionCount;
                         }
                     }
                     callback(null,failedCount);

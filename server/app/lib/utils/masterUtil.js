@@ -30,6 +30,7 @@ var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
 var cicdDashboardService = require('_pr/services/cicdDashboardService');
+var request = require('request');
 
 var MasterUtil = function () {
     // Return All Orgs specific to User
@@ -42,7 +43,6 @@ var MasterUtil = function () {
                 logger.debug("Unable to fetch User.");
                 callback(err, null);
             }
-            logger.debug("Able to get User: ", JSON.stringify(users));
             if (users) {
                 var count = 0;
                 var usrCount = 0;
@@ -68,7 +68,6 @@ var MasterUtil = function () {
                                         for (var y = 0; y < orgs.length; y++) {
                                             (function (countOrg) {
                                                 if (orgs[countOrg].id === '1') {
-                                                    logger.debug("Able to get Org.", JSON.stringify(orgs[countOrg]));
                                                     orgList.push(orgs[countOrg]);
                                                 }
                                             })(y);
@@ -76,7 +75,6 @@ var MasterUtil = function () {
 
                                     }
                                     if (count === usrCount) {
-                                        logger.debug("Returned Orgs: ", JSON.stringify(orgList));
                                         callback(errOccured, orgList);
                                     }
 
@@ -101,7 +99,6 @@ var MasterUtil = function () {
                                         for (var y = 0; y < orgs.length; y++) {
                                             (function (countOrg) {
                                                 if (orgs[countOrg].id === '1') {
-                                                    logger.debug("Able to get Org.", JSON.stringify(orgs[countOrg]));
                                                     orgList.push(orgs[countOrg]);
                                                 }
                                             })(y);
@@ -109,7 +106,6 @@ var MasterUtil = function () {
                                     }
                                     logger.debug('count ==>', count, "user length = >", usrCount);
                                     if (count === usrCount) {
-                                        logger.debug("Returned Orgs: ", JSON.stringify(orgList));
                                         callback(errOccured, orgList);
                                     }
                                 });
@@ -145,14 +141,12 @@ var MasterUtil = function () {
                     for (var i = 0; i < bgs.length; i++) {
                         (function (bgCount) {
                             if (bgs[bgCount].id === '2') {
-                                logger.debug("Returned BG: ", JSON.stringify(bgs[bgCount]));
                                 names = configmgmtDao.convertRowIDToValue(bgs[bgCount].orgname_rowid, rowidlist)
                                 bgs[bgCount].orgname = names;
                                 productGroupList.push(bgs[bgCount]);
                             }
                         })(i);
                     }
-                    logger.debug("productGroupList: ", JSON.stringify(productGroupList));
                     callback(null, productGroupList);
                     return;
                 });
@@ -234,7 +228,6 @@ var MasterUtil = function () {
                             }
                         })(i);
                     }
-                    logger.debug("Returned ENVs: ", JSON.stringify(envList));
                     callback(null, envList);
                     return;
                 });
@@ -275,7 +268,6 @@ var MasterUtil = function () {
                             }
                         })(i);
                     }
-                    logger.debug("Returned Projects: ", JSON.stringify(projectList));
                     callback(null, projectList);
                     return;
                 });
@@ -415,7 +407,6 @@ var MasterUtil = function () {
 
     // Return all TemplateTypes
     this.getTemplateTypes = function (orgList, callback) {
-        logger.debug("getTemplateTypes called. ", JSON.stringify(orgList));
         var templateTypeList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -825,13 +816,47 @@ var MasterUtil = function () {
     this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
         d4dModelNew.d4dModelMastersBOTsRemoteServer.findOne({
             orgname_rowid: orgId,
-            id:'32',
-            active:true
+            id:'32'
         }, function(err, remoteServerDetails) {
             if (err){
                 logger.error(err);
                 callback(err, null);
                 return;
+            }else if(remoteServerDetails !== null){
+                var options = {
+                    url: "http://"+remoteServerDetails["hostIP"]+":"+remoteServerDetails["hostPort"],
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                request.get(options,function(err,response,body){
+                    if(err){
+                        logger.error("Unable to connect remote server");
+                        d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                            orgname_rowid: orgId,
+                            id:'32'
+                        }, {$set:{active:false}}, function (err, data) {
+                            if (err) {
+                                logger.error('Error in Updating State of Bot-Engine', err);
+                            }
+                            callback(null,null);
+                            return;
+                        });
+                    }else{
+                        callback(null,remoteServerDetails);
+                        if(remoteServerDetails.active === false){
+                            d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                                orgname_rowid: orgId,
+                                id:'32'
+                            }, {$set:{active:true}}, function (err, data) {
+                                if (err) {
+                                    logger.error('Error in Updating State of Bot-Engine', err);
+                                }
+                            });
+                        }
+                        return;
+                    }
+                });
             }else{
                 callback(null,remoteServerDetails);
                 return;
@@ -884,7 +909,6 @@ var MasterUtil = function () {
                 logger.debug("Unable to fetch User.");
                 callback(err, null);
             }
-            logger.debug("Able to get User: ", JSON.stringify(users));
             if (users) {
                 var count = 0;
                 var usrCount = 0;
@@ -910,7 +934,6 @@ var MasterUtil = function () {
                                         for (var y = 0; y < orgs.length; y++) {
                                             (function (countOrg) {
                                                 if (orgs[countOrg].id === '1') {
-                                                    logger.debug("Able to get Org.", JSON.stringify(orgs[countOrg]));
                                                     orgList.push(orgs[countOrg]);
                                                 }
                                             })(y);
@@ -918,7 +941,6 @@ var MasterUtil = function () {
 
                                     }
                                     if (count === usrCount) {
-                                        logger.debug("Returned Orgs: ", JSON.stringify(orgList));
                                         callback(errOccured, orgList);
                                     }
 
@@ -943,7 +965,6 @@ var MasterUtil = function () {
                                         for (var y = 0; y < orgs.length; y++) {
                                             (function (countOrg) {
                                                 if (orgs[countOrg].id === '1') {
-                                                    logger.debug("Able to get Org.", JSON.stringify(orgs[countOrg]));
                                                     orgList.push(orgs[countOrg]);
                                                 }
                                             })(y);
@@ -951,7 +972,6 @@ var MasterUtil = function () {
                                     }
                                     logger.debug('count ==>', count, "user length = >", usrCount);
                                     if (count === usrCount) {
-                                        logger.debug("Returned Orgs: ", JSON.stringify(orgList));
                                         callback(errOccured, orgList);
                                     }
                                 });
@@ -1127,7 +1147,6 @@ var MasterUtil = function () {
             if (err) {
                 callback(err, null);
             }
-            logger.debug("Able to fetch Team: ", JSON.stringify(teams));
             if (teams) {
                 configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < teams.length; i++) {
@@ -1405,7 +1424,6 @@ var MasterUtil = function () {
 
     // check valid user permission
     this.checkPermission = function (username, callback) {
-        logger.debug("User for permission: ", JSON.stringify(username));
         this.getLoggedInUser(username, function (err, anUser) {
             if (err) {
                 callback(err, null);
@@ -1563,7 +1581,6 @@ var MasterUtil = function () {
                             }
                         })(i);
                     }
-                    logger.debug("Returned Projects: ", JSON.stringify(projectList));
                     callback(null, projectList);
                     return;
                 });
@@ -1577,7 +1594,6 @@ var MasterUtil = function () {
 
     // Return all TemplateTypes
     this.getTemplateTypesById = function (anId, callback) {
-        logger.debug("getTemplateTypesById called. ", JSON.stringify(anId));
         var templateTypeList = [];
         d4dModelNew.d4dModelMastersDesignTemplateTypes.find({
             rowid: anId
@@ -1816,7 +1832,6 @@ var MasterUtil = function () {
                             if (err) {
                                 logger.debug("Error to update Settings.");
                             }
-                            logger.debug("Settings Updated: ", JSON.stringify(aBody));
                         });
                     }
 
@@ -1864,7 +1879,6 @@ var MasterUtil = function () {
                 callback(err, null);
                 return;
             }
-            logger.debug("Got users for Org All.", JSON.stringify(users));
             if (users.length > 0) {
                 callback(null, users);
                 return;
@@ -2170,7 +2184,6 @@ var MasterUtil = function () {
                 callback(err, null);
             }
             if (envs.length) {
-                logger.debug("Got Environment: ", JSON.stringify(envs));
                 callback(null, envs[0].environmentname);
                 return;
             } else {
@@ -2183,6 +2196,19 @@ var MasterUtil = function () {
     this.getChefDetailsByOrgId = function (orgId, callback) {
         d4dModelNew.d4dModelMastersConfigManagement.find({
             orgname_rowid: orgId,
+            "id": '10'
+        }, function (err, chefDetails) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, chefDetails);
+            }
+        });
+    };
+
+    this.getChefDetailsById = function (id, callback) {
+        d4dModelNew.d4dModelMastersConfigManagement.find({
+            rowid: id,
             "id": '10'
         }, function (err, chefDetails) {
             if (err) {
@@ -2329,7 +2355,6 @@ var MasterUtil = function () {
                             }
                         })(i);
                     }
-                    logger.debug("Returned Projects: ", JSON.stringify(projectList));
                     callback(null, projectList);
                     return;
                 });
@@ -2443,7 +2468,6 @@ var MasterUtil = function () {
                                 filterArray.push(str);
                             }
                         }
-                        logger.debug("created array: ", JSON.stringify(filterArray));
                         var count = 0;
                         for (var k = 0; k < filterArray.length; k++) {
                             (function (k) {
@@ -2456,7 +2480,6 @@ var MasterUtil = function () {
                                         logger.error("Failed to get filteredData: ", err);
                                         return;
                                     }
-                                    logger.debug("filteredData array: ", JSON.stringify(filteredData));
                                     if (filteredData.length) {
                                         var applicationName = filteredData[0].applicationName;
                                         var applicationVersion = filteredData[0].applicationVersion;
@@ -2494,7 +2517,6 @@ var MasterUtil = function () {
                                         };
                                         finalJson.push(tempJson);
                                         if (filterArray.length === count) {
-                                            logger.debug("Send finalJson: ", JSON.stringify(finalJson));
                                             return callback(null, finalJson);
                                         }
                                     } else {
@@ -2619,7 +2641,6 @@ var MasterUtil = function () {
             'rabbitmq_vhostname': monitorDetails.parameters.transportProtocolParameters.vhost,
             'instance-id': instanceId
         };
-        logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
         return sensuAttributes;
     };
 }

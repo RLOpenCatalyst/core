@@ -19,8 +19,6 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
 var instancesModel = require('_pr/model/classes/instance/instance');
-var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
-var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var resourceMetricsModel = require('_pr/model/resource-metrics');
 var instanceService = require('_pr/services/instanceService');
 var async = require('async');
@@ -86,7 +84,7 @@ function initialize(){
 	var endTimeInLocal = new Date();
 	dateUtil.getStartOfAHourInUTCAsync(endTimeInLocal, function(err, utcDate){
 		if(err){
-			console.log("Error: "+err);
+			logger.error("Error: "+err);
 		}else{
 			endTimeInUTC = utcDate;
 		}
@@ -95,7 +93,7 @@ function initialize(){
 	var startTimeInLocal = new Date(endTimeInLocal.getTime() - 1*60*60*1000);
 	dateUtil.getStartOfAHourInUTCAsync(startTimeInLocal, function(err, utcDate){
 		if(err){
-			console.log("Error: "+err);
+            logger.error("Error: "+err);
 		}else{
 			startTimeInUTC = utcDate;
 		}
@@ -117,11 +115,8 @@ function aggregateEC2UsageForProvider(provider, startTime, endTime, period) {
                 managed: function (callback) {
                     generateEC2UsageMetricsForProvider(provider, instances.managed, startTime, endTime, period, callback);
                 },
-                unmanaged: function (callback) {
-                    generateEC2UsageMetricsForProvider(provider, instances.unmanaged, startTime, endTime, period, callback);
-                },
-                unassigned: function (callback) {
-                    generateEC2UsageMetricsForProvider(provider, instances.unassigned, startTime, endTime, period, callback);
+                ec2UsageMetrics: function (callback) {
+                    generateEC2UsageMetricsForProvider(provider,null, startTime, endTime, period, callback);
                 },
                 s3BucketUsageMetrics: function (callback) {
                     generateS3UsageMetricsForProvider(provider, startTime, endTime, period, callback);
@@ -142,11 +137,8 @@ function aggregateEC2UsageForProvider(provider, startTime, endTime, period) {
                 managed: function (callback) {
                     updateManagedInstanceUsage(usageMetrics.managed, callback);
                 },
-                unmanaged: function (callback) {
-                    updateUnmanagedInstanceUsage(usageMetrics.unmanaged, callback);
-                },
-                unassigned: function (callback) {
-                    updateUnassignedInstanceUsage(usageMetrics.unassigned, callback);
+                ec2UsageMetrics: function (callback) {
+                    updateResourceUsage(usageMetrics.ec2UsageMetrics, callback);
                 },
                 s3BucketUsageMetrics: function (callback) {
                     updateResourceUsage(usageMetrics.s3BucketUsageMetrics, callback);
@@ -181,20 +173,40 @@ function aggregateEC2UsageForProvider(provider, startTime, endTime, period) {
  * @param callback
  */
 function generateEC2UsageMetricsForProvider(provider, instances, startTime, endTime, period, callback) {
-    async.waterfall([
-        function (next) {
-            resourceService.getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, period, next);
-        },
-        function (ec2UsageMetrics, next) {
-        	saveResourceUsageMetrics(ec2UsageMetrics, next);
-        }
-    ], function (err, results) {
-        if (err) {
-            callback(err);
-        } else {
-            callback(null, results);
-        }
-    });
+    if(instances === null) {
+        async.waterfall([
+            function (next) {
+                resources.getResourcesByProviderResourceType(provider._id, 'EC2', next);
+            },
+            function (ec2Instance,next) {
+                resourceService.getEC2ResourceUsageMetrics(provider, ec2Instance, startTime, endTime, period, next);
+            },
+            function (ec2UsageMetrics, next) {
+                saveResourceUsageMetrics(ec2UsageMetrics, next);
+            }
+        ], function (err, results) {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, results);
+            }
+        });
+    }else{
+        async.waterfall([
+            function (next) {
+                resourceService.getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, period, next);
+            },
+            function (ec2UsageMetrics, next) {
+                saveResourceUsageMetrics(ec2UsageMetrics, next);
+            }
+        ], function (err, results) {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, results);
+            }
+        });
+    }
 }
 
 function generateS3UsageMetricsForProvider(provider, startTime, endTime, period, callback) {
@@ -275,8 +287,6 @@ function updateManagedInstanceUsage(instanceUsageMetrics, next) {
     var results = [];
     if(instanceUsageMetrics.length == 0)
         return next(null, results);
-
-    // @TODO get rid of nesting
     for(var i = 0; i < instanceUsageMetrics.length; i++) {
         (function (j) {
             formatUsageData(instanceUsageMetrics[j], function(err, formattedUsageMetrics) {
@@ -300,92 +310,32 @@ function updateManagedInstanceUsage(instanceUsageMetrics, next) {
     };
 }
 
-/**
- *
- * @param instanceUsageMetrics
- * @param next
- */
-function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
-    var results = [];
-    if(instanceUsageMetrics.length == 0)
-        return next(null, results);
-    // @TODO get rid of nesting
-    for(var i = 0; i < instanceUsageMetrics.length; i++) {
-        (function (j) {
-            formatUsageData(instanceUsageMetrics[j], function(err, formattedUsageMetrics) {
-                if(err) {
-                    next(err);
-                } else {
-                    unManagedInstancesModel.updateUsage(formattedUsageMetrics.resourceId,
-                        formattedUsageMetrics.metrics, function(err, result) {
-                            if(err)
-                                next(err);
-                            else
-                                results.push(result);
-
-                            if(results.length == instanceUsageMetrics.length)
-                                next(null, results);
-                        }
-                    );
-                }
-            });
-        })(i);
-    };
-}
-
-function updateUnassignedInstanceUsage(instanceUsageMetrics, next) {
-    var results = [];
-    if(instanceUsageMetrics.length == 0)
-        return next(null, results);
-    // @TODO get rid of nesting
-    for(var i = 0; i < instanceUsageMetrics.length; i++) {
-        (function (j) {
-            formatUsageData(instanceUsageMetrics[j], function(err, formattedUsageMetrics) {
-                if(err) {
-                    next(err);
-                } else {
-                    unassignedInstancesModel.updateUsage(formattedUsageMetrics.resourceId,
-                        formattedUsageMetrics.metrics, function(err, result) {
-                            if(err)
-                                next(err);
-                            else
-                                results.push(result);
-
-                            if(results.length == instanceUsageMetrics.length)
-                                next(null, results);
-                        }
-                    );
-                }
-            });
-        })(i);
-    };
-}
 
 function updateResourceUsage(resourcesUsageMetrics,next){
     var results = [];
-    if(resourcesUsageMetrics.length == 0)
+    if(resourcesUsageMetrics.length === 0) {
         return next(null, results);
-    // @TODO get rid of nesting
-    for(var i = 0; i < resourcesUsageMetrics.length; i++) {
-        (function (j) {
-            formatUsageData(resourcesUsageMetrics[j], function(err, formattedUsageMetrics) {
-                if(err) {
-                    next(err);
-                } else {
-                    resources.updateResourceUsage(formattedUsageMetrics.resourceId,
-                        formattedUsageMetrics.metrics, function(err, result) {
-                            if(err)
-                                next(err);
-                            else
-                                results.push(result);
-                            if(results.length == resourcesUsageMetrics.length)
-                                next(null, results);
-                        }
-                    );
-                }
-            });
-        })(i);
-    };
+    }else {
+        for (var i = 0; i < resourcesUsageMetrics.length; i++) {
+            (function (j) {
+                formatUsageData(resourcesUsageMetrics[j], function (err, formattedUsageMetrics) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        resources.updateResourceUsage(formattedUsageMetrics.resourceId,
+                            formattedUsageMetrics.metrics, function (err, result) {
+                                if (err)
+                                    next(err);
+                                else
+                                    results.push(result);
+                                if (results.length == resourcesUsageMetrics.length)
+                                    next(null, results);
+                        });
+                    }
+                });
+            })(i);
+        };
+    }
 };
 
 

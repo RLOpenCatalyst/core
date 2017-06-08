@@ -66,7 +66,7 @@
                         $scope.instanceList = result;
                         for (var i = 0; i < $scope.instanceList.length; i++) {
                             var appItem = $scope.instanceList[i].appUrls;
-                            if(appItem && appItem.length >0) {
+                            if(appItem && appItem.length >0 ) {
                                 for (var j = 0; j < appItem.length; j++) {
                                     var url = appItem[j].url;
                                     if (url) {

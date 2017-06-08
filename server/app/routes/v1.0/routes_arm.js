@@ -33,7 +33,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var async = require('async');
-
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -329,8 +329,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             createdOn: new Date().getTime(),
                                             startedOn: new Date().getTime(),
                                             providerType: instances[i].providerType,
-                                            action: "Deleted",
-                                            logs: []
+                                            action: "Deleted"
                                         };
                                         var timestampStarted = new Date().getTime();
                                         var actionLog = instancesDao.insertDeleteActionLog(instances[i]._id, req.session.user.cn, timestampStarted);
@@ -339,17 +338,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             logReferenceIds.push(actionLog._id);
                                         }
                                         logsDao.insertLog({
-                                            referenceId: logReferenceIds,
+                                            instanceId:instances[i]._id,
+                                            instanceRefId:actionLog._id,
                                             err: false,
                                             log: "Instance Deleted",
                                             timestamp: timestampStarted
                                         });
                                         instanceLog.actionId = actionLog._id;
-                                        instanceLog.logs = {
-                                            err: false,
-                                            log: "Instance Deleted",
-                                            timestamp: new Date().getTime()
-                                        };
                                         instanceLogModel.createOrUpdate(actionLog._id, instances[i]._id, instanceLog, function (err, logData) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -373,12 +368,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 return;
                                             }
                                             var resourceObj = {
-                                                stackStatus: "DELETED",
+                                                'state': 'Deleted',
+                                                'resources.$.state':'deleted'
                                             }
-                                            var resourceMapService = require('_pr/services/resourceMapService.js');
-                                            resourceMapService.updateResourceMap(azureArm.deploymentName, resourceObj, function (err, resourceMap) {
+                                            serviceMapService.updateService({name:azureArm.deploymentName}, resourceObj, function (err, resourceMap) {
                                                 if (err) {
-                                                    logger.error("Error in updating Resource Map.", err);
+                                                    logger.error("Error in updating Services.", err);
                                                 }
                                             });
                                             if(error.code === 409 || error.code === '409'){

@@ -20,9 +20,54 @@ var Schema = mongoose.Schema;
 
 var AWSResourcesSchema = function AWSResources() {
     Schema.apply(this, arguments);
-
     this.add({
-        masterDetails: Schema.Types.Mixed,
+        name:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        masterDetails: {
+            orgId: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            orgName: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            bgId: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            bgName: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            projectName: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            projectId: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            envId: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            envName: {
+                type: String,
+                required: false,
+                trim: true
+            }
+        },
         providerDetails: {
             id: {
                 type: String,
@@ -30,6 +75,51 @@ var AWSResourcesSchema = function AWSResources() {
                 trim: true
             },
             type: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            region: Schema.Types.Mixed,
+            keyPairId:{
+                type: String,
+                required: false,
+                trim: true
+            },
+            keyPairName:{
+                type: String,
+                required: false,
+                trim: true
+            }
+        },
+        configDetails: {
+            id: String,
+            nodeName: String,
+            run_list: [{
+                type: String,
+                trim: true
+            }],
+            attributes: [{
+                name: String,
+                jsonObj: {}
+            }]
+        },
+        blueprintDetails: {
+            id: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            name:{
+                type: String,
+                required: false,
+                trim: true
+            },
+            templateName: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            templateType:{
                 type: String,
                 required: false,
                 trim: true
@@ -57,7 +147,89 @@ var AWSResourcesSchema = function AWSResources() {
         tags:Schema.Types.Mixed,
         usage:Schema.Types.Mixed,
         cost:Schema.Types.Mixed,
+        createdOn:{
+            type:Number,
+            default:Date.now(),
+            required:false
+        },
+        monitor: {
+            type: Schema.Types.Mixed,
+            required: false,
+            default: null
+        },
+        tagServer: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        isScheduled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        startScheduler: [{
+            cronPattern: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            cronTime: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            cronDays: {
+                type: [String],
+                required: false
+            }
+        }],
+        stopScheduler: [{
+            cronPattern: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            cronTime: {
+                type: String,
+                required: false,
+                trim: true
+            },
+            cronDays: {
+                type: [String],
+                required: false
+            }
+        }],
+        schedulerStartOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        schedulerEndOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        interval:[Schema.Types.Mixed],
+        cronJobIds: {
+            type: [String],
+            required: false,
+            trim: true
+        },
+        user:{
+            type: String,
+            required: false,
+            trim: true
+        },
         isDeleted:{
+            type:Boolean,
+            default:false
+        },
+        authentication:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        serverDeletedCheck:{
             type:Boolean,
             default:false
         }

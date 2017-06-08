@@ -68,7 +68,8 @@ module.exports.setRoutes = function(socketIo) {
 
                 logReferenceIds.push(actionLog._id);
                 logsDao.insertLog({
-                    referenceId: logReferenceIds,
+                    instanceId:instance._id,
+                    instanceRefId:actionLog._id,
                     err: false,
                     log: "Initiating SSH Shell Connection",
                     timestamp: timestampStarted
@@ -92,8 +93,7 @@ module.exports.setRoutes = function(socketIo) {
                     createdOn: new Date().getTime(),
                     startedOn: new Date().getTime(),
                     providerType: instance.providerType,
-                    action: "SSH",
-                    logs: []
+                    action: "SSH"
                 };
 
                 shellClient.open({
@@ -113,18 +113,14 @@ module.exports.setRoutes = function(socketIo) {
                                 actionLogId: actionLog._id
                             });
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: "Host Unreachable",
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: true,
-                                log: "Host Unreachable",
-                                timestamp: new Date().getTime()
-                            };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -136,18 +132,14 @@ module.exports.setRoutes = function(socketIo) {
                                 actionLogId: actionLog._id
                             });
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: "The username or password/pemfile you entered is incorrect",
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: true,
-                                log: "The username or password/pemfile you entered is incorrect",
-                                timestamp: new Date().getTime()
-                            };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -159,18 +151,14 @@ module.exports.setRoutes = function(socketIo) {
                                 actionLogId: actionLog._id
                             });
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: "Unable to connect to instance, error code = " + err.errCode + ".",
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: true,
-                                log: "Unable to connect to instance, error code = " + err.errCode + ".",
-                                timestamp: new Date().getTime()
-                            };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -204,18 +192,14 @@ module.exports.setRoutes = function(socketIo) {
                                 actionLogId: actionLog._id
                             });
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: "Host Unreachable",
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: true,
-                                log: "Host Unreachable",
-                                timestamp: new Date().getTime()
-                            };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -227,18 +211,14 @@ module.exports.setRoutes = function(socketIo) {
                                 actionLogId: actionLog._id
                             });
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: "The username or password/pemfile you entered is incorrect",
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: true,
-                                log: "The username or password/pemfile you entered is incorrect",
-                                timestamp: new Date().getTime()
-                            };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -250,18 +230,14 @@ module.exports.setRoutes = function(socketIo) {
                                 actionLogId: actionLog._id
                             });
                             logsDao.insertLog({
-                                referenceId: logReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: true,
                                 log: "Something went wrong, error code = " + err.errCode + ".",
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: true,
-                                log: "Something went wrong, error code = " + err.errCode + ".",
-                                timestamp: new Date().getTime()
-                            };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -283,7 +259,8 @@ module.exports.setRoutes = function(socketIo) {
                     }
 
                     logsDao.insertLog({
-                        referenceId: logReferenceIds,
+                        instanceId:instance._id,
+                        instanceRefId:actionLog._id,
                         err: false,
                         log: "SSH Shell initiated",
                         timestamp: timestampEnded
@@ -291,11 +268,6 @@ module.exports.setRoutes = function(socketIo) {
                     instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "success";
-                    instanceLog.logs = {
-                        err: false,
-                        log: "SSH Shell initiated",
-                        timestamp: new Date().getTime()
-                    };
                     instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                         if (err) {
                             logger.error("Failed to create or update instanceLog: ", err);

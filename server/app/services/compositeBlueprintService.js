@@ -815,12 +815,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                 startedOn: new Date().getTime(),
                                 createdOn: new Date().getTime(),
                                 providerType: blueprint.blueprintConfig.cloudProviderType,
-                                action: "Bootstrap",
-                                logs: [{
-                                    err: false,
-                                    log: "Starting instance",
-                                    timestamp: new Date().getTime()
-                                }]
+                                action: "Bootstrap"
                             };
 
                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -841,7 +836,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
 
                             var logsReferenceIds = [instance.id, actionLog._id];
                             logsDao.insertLog({
-                                referenceId: logsReferenceIds,
+                                instanceId:instance._id,
+                                instanceRefId:actionLog._id,
                                 err: false,
                                 log: "Starting instance",
                                 timestamp: timestampStarted
@@ -852,17 +848,13 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                 if (err) {
                                     var timestamp = new Date().getTime();
                                     logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
+                                        instanceId:instance._id,
+                                        instanceRefId:actionLog._id,
                                         err: true,
                                         log: "Instance ready state wait failed. Unable to bootstrap",
                                         timestamp: timestamp
                                     });
                                     logger.error("waitForInstanceRunnnigState returned an error  >>", err);
-                                    instanceLog.logs = {
-                                        err: true,
-                                        log: "Instance ready state wait failed. Unable to bootstrap",
-                                        timestamp: new Date().getTime()
-                                    };
                                     instanceLog.actionStatus = "failed";
                                     instanceLog.endedOn = new Date().getTime();
                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -892,17 +884,13 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
 
                                 logger.debug('waiting for instance');
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    instanceId:instance._id,
+                                    instanceRefId:actionLog._id,
                                     err: false,
                                     log: "waiting for instance state to be ok",
                                     timestamp: new Date().getTime()
                                 });
                                 instanceLog.status = instanceData.State.Name;
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: "waiting for instance state to be ok",
-                                    timestamp: new Date().getTime()
-                                };
                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
@@ -911,7 +899,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                 ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function(err) {
                                     if (err) {
                                         logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
+                                            instanceId:instance._id,
+                                            instanceRefId:actionLog._id,
                                             err: true,
                                             log: "Instance ok state wait failed. Unable to bootstrap",
                                             timestamp: new Date().getTime()
@@ -946,18 +935,14 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                             });
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: true,
                                                 log: "Unable to decrpt pem file. Bootstrap failed",
                                                 timestamp: timestampEnded
                                             });
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLog.actionStatus = "failed";
-                                            instanceLog.logs = {
-                                                err: true,
-                                                log: "Unable to decrpt pem file. Bootstrap failed",
-                                                timestamp: new Date().getTime()
-                                            };
                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -1021,11 +1006,6 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                     });
                                                     instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.actionStatus = "failed";
-                                                    instanceLog.logs = {
-                                                        err: true,
-                                                        log: "Bootstrap failed",
-                                                        timestamp: new Date().getTime()
-                                                    };
                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                         if (err) {
                                                             logger.error("Failed to create or update instanceLog: ", err);
@@ -1033,7 +1013,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                     });
                                                     var timestampEnded = new Date().getTime();
                                                     logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
+                                                        instanceId:instance._id,
+                                                        instanceRefId:actionLog._id,
                                                         err: true,
                                                         log: "Bootstrap failed",
                                                         timestamp: timestampEnded
@@ -1053,11 +1034,6 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                         });
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "success";
-                                                        instanceLog.logs = {
-                                                            err: false,
-                                                            log: "Instance Bootstraped successfully",
-                                                            timestamp: new Date().getTime()
-                                                        };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -1065,7 +1041,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                         });
                                                         var timestampEnded = new Date().getTime();
                                                         logsDao.insertLog({
-                                                            referenceId: logsReferenceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
                                                             err: false,
                                                             log: "Instance Bootstraped successfully",
                                                             timestamp: timestampEnded
@@ -1138,11 +1115,6 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                         });
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "failed";
-                                                        instanceLog.logs = {
-                                                            err: false,
-                                                            log: "Bootstrap Failed",
-                                                            timestamp: new Date().getTime()
-                                                        };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -1150,7 +1122,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                         });
                                                         var timestampEnded = new Date().getTime();
                                                         logsDao.insertLog({
-                                                            referenceId: logsReferenceIds,
+                                                            instanceId:instance._id,
+                                                            instanceRefId:actionLog._id,
                                                             err: false,
                                                             log: "Bootstrap Failed",
                                                             timestamp: timestampEnded
@@ -1163,41 +1136,18 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                 }
 
                                             }, function(stdOutData) {
-
-                                                instanceLog.logs = {
-                                                    err: false,
-                                                    log: stdOutData.toString('ascii'),
-                                                    timestamp: new Date().getTime()
-                                                };
-                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
-                                                    if (err) {
-                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                    }
-                                                });
-
                                                 logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: false,
                                                     log: stdOutData.toString('ascii'),
                                                     timestamp: new Date().getTime()
                                                 });
 
                                             }, function(stdErrData) {
-
-                                                instanceLog.logs = {
-                                                    err: true,
-                                                    log: stdErrData.toString('ascii'),
-                                                    timestamp: new Date().getTime()
-                                                };
-                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
-                                                    if (err) {
-                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                    }
-                                                });
-
-                                                //retrying 4 times before giving up.
                                                 logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
+                                                    instanceId:instance._id,
+                                                    instanceRefId:actionLog._id,
                                                     err: true,
                                                     log: stdErrData.toString('ascii'),
                                                     timestamp: new Date().getTime()

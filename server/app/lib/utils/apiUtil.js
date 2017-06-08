@@ -37,6 +37,199 @@ var ApiUtil = function() {
         }
         return errObj;
     };
+    this.getQueryByKey = function(key,value){
+        var query = {};
+        switch(key) {
+            case 'ami':
+                query = {
+                    'resourceDetails.amiId': {$in: value}
+                };
+                break;
+            case 'ip':
+                query = {
+                    $or: [
+                        {'resourceDetails.privateIp': {$in: value}},
+                        {'resourceDetails.publicIp': {$in: value}}
+                    ]
+                };
+                break;
+            case 'subnet':
+                query = {
+                    'resourceDetails.subnetId': {$in: value}
+                };
+                break;
+            case 'stackName':
+                query = {
+                    'stackName': value
+                };
+                break;
+            case 'keyPairName':
+                query = {
+                    'providerDetails.keyPairName': {$in: value}
+                };
+                break;
+            case 'roles':
+                query = {
+                    'configDetails.run_list': {$in: value}
+                };
+                break;
+            case 'tags':
+                var keyList = [];
+                value.forEach(function(val){
+                    var obj = {};
+                    Object.keys(val).forEach(function(key){
+                        var str = 'tags.'+key;
+                        obj[str] = val[key];
+                    })
+                    keyList.push(obj);
+                })
+                query = {
+                    '$or': keyList
+                };
+                console.log(JSON.stringify(query));
+                break;
+            case 'groups':
+                Object.keys(value).forEach(function (groupObjKey) {
+                    switch(groupObjKey) {
+                        case 'ami':
+                            query['resourceDetails.amiId'] = {$in: value[groupObjKey]};
+                            break;
+                        case 'ip':
+                            query["$or"] = [
+                                    {'resourceDetails.privateIp': {$in: value[groupObjKey]}},
+                                    {'resourceDetails.publicIp': {$in: value[groupObjKey]}}
+                                ];
+                            break;
+                        case 'subnet':
+                            query['resourceDetails.subnetId'] = {$in: value[groupObjKey]};
+                            break;
+                        case 'keyPairName':
+                            query['providerDetails.keyPairName'] = {$in: value[groupObjKey]};
+                            break;
+                        case 'tags':
+                            var tagObj = {
+                                tags:{}
+                            };
+                            value.forEach(function(val){
+                                Object.keys(val).forEach(function(key){
+                                    tagObj.tags[key] = val[key];
+                                })
+                            })
+                            query['$or'] = [tagObj];
+                            break;
+                        case 'roles':
+                            query['configDetails.run_list'] = {$in: value};
+                            break;
+                        case 'stackName':
+                            query['stackName'] = value;
+                            break;
+                        default:
+                            query = query;
+                    }
+                });
+                break;
+            default:
+                query= query;
+        }
+        return query;
+    }
+
+    this.getResourceValueByKey = function(key,resource,value){
+        var result = {};
+        switch(key) {
+            case 'ami':
+                result[key] = resource.resourceDetails.amiId;
+                break;
+            case 'ip':
+                if(value.indexOf(resource.resourceDetails.privateIp) !== 0){
+                    result[key] = resource.resourceDetails.privateIp;
+                }else{
+                    result[key] = resource.resourceDetails.publicIp;
+                }
+                break;
+            case 'subnet':
+                result[key] = resource.resourceDetails.subnetId;
+                break;
+            case 'stackName':
+                result[key] = resource.resourceDetails.stackName;
+                break;
+            case 'keyPairName':
+                result[key] = resource.providerDetails.keyPairName;
+                break;
+            case 'roles':
+                var run_list = [];
+                for(var  i = 0; i < value.length; i++){
+                    if(resource.configDetails.run_list.indexOf(value[i]) !== -1){
+                        run_list.push(value[i]);
+                    }
+                }
+                result[key] = run_list;
+                break;
+            case 'tags':
+                var tagObj = {};
+                value.forEach(function (tagValue) {
+                    Object.keys(tagValue).forEach(function (tagKey) {
+                        if(resource.tags[tagKey] === tagValue[tagKey]){
+                            tagObj[tagKey] = tagValue[tagKey]
+                        }
+                    });
+                });
+                result[key] = tagObj;
+                break;
+            case 'groups':
+                var groupObj = {};
+                Object.keys(value).forEach(function (groupObjKey) {
+                    switch(groupObjKey) {
+                        case 'ami':
+                            groupObj[groupObjKey] = resource.resourceDetails.amiId;
+                            break;
+                        case 'ip':
+                            if(value.indexOf(resource.resourceDetails.privateIp) !== 0){
+                                groupObj[groupObjKey] = resource.resourceDetails.privateIp;
+                            }else{
+                                groupObj[groupObjKey] = resource.resourceDetails.publicIp;
+                            }
+                            break;
+                        case 'subnet':
+                            groupObj[groupObjKey] = resource.resourceDetails.subnetId;
+                            break;
+                        case 'stackName':
+                            groupObj[groupObjKey] = resource.resourceDetails.stackName;
+                            break;
+                        case 'keyPairName':
+                            groupObj[groupObjKey] = resource.providerDetails.keyPairName;
+                            break;
+                        case 'roles':
+                            var run_list = [];
+                            for(var  i = 0; i < value.length; i++){
+                                if(resource.configDetails.run_list.indexOf(value[i]) !== -1){
+                                    run_list.push(value[i]);
+                                }
+                            }
+                            groupObj[groupObjKey] = run_list;
+                            break;
+                        case 'tags':
+                            var tagObj ={};
+                            value.forEach(function (tagValue) {
+                                Object.keys(tagValue).forEach(function (tagKey) {
+                                    if(resource.tags[tagKey] === tagValue[tagKey]){
+                                        tagObj[groupObjKey][tagKey] = tagValue[tagKey]
+                                    }
+                                });
+                            });
+                            groupObj[groupObjKey] = tagObj
+                            break;
+                        default:
+                            result = result;
+                    }
+                });
+                result[key] = groupObj;
+                break;
+            default:
+                result = result;
+        }
+        return result;
+    }
     this.removeFile = function(filePath){
         fileIo.removeFile(filePath, function(err, result) {
             if (err) {
@@ -260,11 +453,7 @@ var ApiUtil = function() {
                 if (c.length > 1) {
                     filterBy[b[0]] = {'$in': c};
                 } else {
-                    if(key === 'resources' && b[0] === 'providerId'){
-                        filterBy['providerDetails.id'] = b[1];
-                    }else {
-                        filterBy[b[0]] = b[1];
-                    }
+                    filterBy[b[0]] = b[1];
                 }
             }
             request['filterBy'] = filterBy;

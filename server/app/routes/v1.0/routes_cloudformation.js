@@ -33,7 +33,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var async = require('async');
-
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -208,17 +208,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 logReferenceIds.push(actionLog._id);
                                             }
                                             logsDao.insertLog({
-                                                referenceId: logReferenceIds,
+                                                instanceId:instance._id,
+                                                instanceRefId:actionLog._id,
                                                 err: false,
                                                 log: "Instance Shutting-Down",
                                                 timestamp: timestampStarted
                                             });
                                             instanceLog.actionId = actionLog._id;
-                                            instanceLog.logs = {
-                                                err: false,
-                                                log: "Instance Shutting-Down",
-                                                timestamp: new Date().getTime()
-                                            };
                                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -241,12 +237,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         return;
                                     }
                                     var resourceObj = {
-                                        state:"Deleted"
+                                        'state': 'Deleted',
+                                        'resources.$.state':'deleted'
                                     }
-                                    var resourceMapService = require('_pr/services/resourceMapService.js');
-                                    resourceMapService.updateResourceMap(cloudFormation.stackName,resourceObj,function(err,resourceMap){
+                                    serviceMapService.updateService({name:cloudFormation.stackName},resourceObj,function(err,resourceMap){
                                         if(err){
-                                            logger.error("Error in updating Resource Map.",err);
+                                            logger.error("Error in updating Services.",err);
                                         }
                                     });
                                     res.send(200, {

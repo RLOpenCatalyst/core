@@ -46,6 +46,7 @@
     "json2csv": "3.6.3",
     "json2yaml": "^1.1.0",
     "jsonwebtoken": "6.2.0",
+    "json2yaml":"^1.1.0",
     "kerberos": "0.0.23",
     "ldapjs": "^0.7.1",
     "lodash.topairs": "4.1.0",

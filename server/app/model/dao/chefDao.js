@@ -22,62 +22,102 @@ var mongoosePaginate = require('mongoose-paginate');
 
 var Schema = mongoose.Schema;
 var chefNodeSchema = new Schema({
-    chefServerId:{
+    serverId:{
         type:String,
         requires:true,
         trim:true
     },
-    chefNodeName: {
+    orgId:{
         type:String,
         requires:true,
         trim:true
     },
-    chefNodeIp: {
+    name: {
+        type:String,
+        requires:true,
+        trim:true
+    },
+    platformId: {
+        type:String,
+        requires:true,
+        trim:true
+    },
+    ip: {
         type:String,
         requires:false,
         trim:true
     },
-    chefNodeFqdn: {
+    fqdn: {
         type:String,
         requires:false,
         trim:true
     },
-    chefNodePlatform: {
+    hardware:{
+        os:String,
+        os_version:String,
+        platform:String,
+        platform_version:String,
+        platform_family:String,
+        memory:{
+            total:String,
+            free:String
+        }
+    },
+    state:{
         type:String,
         requires:false,
         trim:true
     },
-    chefNodeUpTime: {
+    upTime: {
         type:String,
         requires:false,
         trim:true
     },
-    chefNodeEnv:{
+    idleTime:{
+        type:String,
+        requires:false,
+        trim:true
+    },
+    envName:{
         type:String,
         required:false,
         trim:true
     },
-    chefJsonClass:{
+    jsonClass:{
         type:String,
         required:false,
         trim:true
     },
-    chefType:{
+    type:{
         type:String,
         required:false,
         trim:true
     },
-    createdOn:{
-        type:Date,
+    run_list:{
+        type:[String],
+        required:false
+    },
+    updatedOn:{
+        type:Number,
         required:false,
         default:Date.now
+    },
+    createdOn:{
+        type:Number,
+        required:false,
+        default:Date.now
+    },
+    isDeleted:{
+        type:Boolean,
+        required:false,
+        default:false
     }
 });
 chefNodeSchema.plugin(mongoosePaginate);
 var chefNodes = mongoose.model('chefNode', chefNodeSchema);
 
 var chefDao = function() {
-    this.createChefNode = function(chefNodeDetails, callback) {
+    this.createNew = function(chefNodeDetails, callback) {
         var chefNode = new chefNodes(chefNodeDetails);
         chefNode.save(function(err, data) {
             if (err) {
@@ -89,8 +129,20 @@ var chefDao = function() {
         });
     };
 
-    this.getChefNodeByChefName = function(chefName, callback) {
-        chefNodes.find({chefNodeName:chefName},function(err, chefData) {
+    this.getChefNodes = function(filterBy, callback) {
+        chefNodes.find(filterBy,function(err, chefData) {
+            if (err) {
+                logger.error(err);
+                return callback(err,null);
+            }else{
+                return callback(null, chefData);
+            }
+        });
+    };
+
+
+    this.removeTerminatedChefNodes = function(filterBy, callback) {
+        chefNodes.update(filterBy,{state:'terminated',isDeleted:true},function(err, chefData) {
             if (err) {
                 logger.error(err);
                 callback(err,null);
@@ -100,19 +152,8 @@ var chefDao = function() {
         });
     };
 
-    this.removeChefNodeByChefName = function(chefName, callback) {
-        chefNodes.remove({"chefNodeName":{'$in':chefName}},function(err, chefData) {
-            if (err) {
-                logger.error(err);
-                callback(err,null);
-            }else{
-                callback(null, chefData);
-            }
-        });
-    };
-
-    this.removeChefNodeByChefServerId = function(serverId, callback) {
-        chefNodes.remove({chefServerId:serverId},
+    this.removeChefNodes = function(filterBy, callback) {
+        chefNodes.remove(filterBy,
             function(err, chefData) {
             if (err) {
                 logger.error(err);
@@ -123,46 +164,32 @@ var chefDao = function() {
         });
     };
 
-    this.updateChefNodeEnv = function(chefNodeName,newEnv, callback) {
+    this.updateChefNodeDetailById = function(chefNodeId,fields, callback) {
         chefNodes.update({
-            "chefNodeName": chefNodeName
+            _id: new ObjectId(chefNodeId)
         }, {
-            $set: {
-                chefEnv:newEnv
-            }
+            $set: fields
         }, {
             upsert: false
         },function(err, data) {
             if (err) {
                 logger.error(err);
-                callback(err,null);
+                return callback(err,null);
             }else{
-                callback(null, data);
+                return callback(null, data);
             }
         });
     };
 
-    this.getNodesByServerId = function(query,callback){
-        chefNodes.paginate(query.queryObj, query.options,
-            function(err, nodes) {
-                if (err) {
-                    return callback(err);
-                } else {
-                    return callback(null, nodes);
-                }
-            });
-    };
-
-    this.getChefNodesByServerId = function(serverId,callback){
-        chefNodes.find({chefServerId:serverId}, function(err, nodes) {
+    this.getChefNodesWithPagination = function(query,callback){
+        query.queryObj.isDeleted = false;
+        chefNodes.paginate(query.queryObj, query.options, function(err, nodes) {
             if (err) {
                 return callback(err);
-            } else if(nodes.length > 0) {
+            } else {
                 return callback(null, nodes);
-            } else{
-                return callback(null, []);
             }
         });
-    }
+    };
 }
 module.exports = new chefDao();
