@@ -21,6 +21,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var settingService = require('_pr/services/settingsService');
 var logger = require('_pr/logger')(module);
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/resources*", sessionVerificationFunc);
@@ -116,10 +117,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         var trackReport = {
                             totalResources:resourceList.length,
                             totalAssignedResources:0,
+                            totalManagedResources:0,
                             totalUnAssignedResources:0,
                         }
                         resourceList.forEach(function(service){
-                            if(service.category === 'assigned'){
+                            if(service.category === 'managed'){
+                                trackReport.totalManagedResources = trackReport.totalManagedResources + 1;
+                            }else if(service.category === 'assigned'){
                                 trackReport.totalAssignedResources = trackReport.totalAssignedResources + 1;
                             }else if(service.category === 'unassigned'){
                                 trackReport.totalUnAssignedResources = trackReport.totalUnAssignedResources + 1;
@@ -130,9 +134,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         next(null,trackReport);
                     }else{
                         var trackReport = {
-                            totalResources:resources.length,
-                            totalAssignedResources:resources.length,
-                            totalUnAssignedResources:resources.length,
+                            totalResources:resourceList.length,
+                            totalAssignedResources:resourceList.length,
+                            totalManagedResources:resourceList.length,
+                            totalUnAssignedResources:resourceList.length,
                         }
                         next(null,trackReport);
                     }
@@ -166,6 +171,64 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(resources, next) {
                     resourceService.bulkUpdateUnassignedResourceTags(req.body.resources, next);
+                }
+            ],
+            function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
+    app.patch('/resources/:resourceId/provider/:providerId/tags', updateUnassignedResourceTags);
+
+    function updateUnassignedResourceTags(req,res,next){
+        async.waterfall(
+            [
+                function (next) {
+                    providerService.checkIfProviderExists(req.params.providerId, next);
+                },
+                function(provider, next) {
+                    if('tags' in req.body) {
+                        resourceService.updateAWSResourceTags(req.params.resourceId, provider, req.body.tags, next);
+                    } else {
+                        var err = new Error("Malformed request");
+                        err.status = 400;
+                        next(err);
+                    }
+                }
+            ],
+            function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
+    app.post('/resources/provider/:providerId/import', importAssignedResources);
+
+    function importAssignedResources(req,res,next){
+        async.waterfall(
+            [
+                function (next) {
+                    providerService.checkIfProviderExists(req.params.providerId, next);
+                },
+                function(provider, next) {
+                    configmgmtDao.getEnvNameFromEnvId(req.body.envId,function (err, envName){
+                        if(err){
+                            var err = new Error("Server Behaved Unexpectedly");
+                            err.status = 500;
+                            next(err);
+                        }else{
+                            resourceService.importAWSResources(req.body.resourceIds, provider, req.body, envName, next);
+                        }
+                    })
                 }
             ],
             function (err, results) {

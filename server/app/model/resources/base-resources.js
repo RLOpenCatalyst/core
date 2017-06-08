@@ -21,6 +21,11 @@ var Schema = mongoose.Schema;
 var AWSResourcesSchema = function AWSResources() {
     Schema.apply(this, arguments);
     this.add({
+        name:{
+            type: String,
+            required: false,
+            trim: true
+        },
         masterDetails: {
             orgId: {
                 type: String,
@@ -79,24 +84,24 @@ var AWSResourcesSchema = function AWSResources() {
                 type: String,
                 required: false,
                 trim: true
+            },
+            keyPairName:{
+                type: String,
+                required: false,
+                trim: true
             }
         },
-        chefServerDetails: {
+        configDetails: {
             id: String,
             nodeName: String,
-            runList: [{
+            run_list: [{
                 type: String,
                 trim: true
             }],
             attributes: [{
                 name: String,
                 jsonObj: {}
-            }],
-            bootStrapStatus:{
-                type: String,
-                required: false,
-                trim: true
-            }
+            }]
         },
         blueprintDetails: {
             id: {
@@ -104,7 +109,7 @@ var AWSResourcesSchema = function AWSResources() {
                 required: false,
                 trim: true
             },
-            type: {
+            name:{
                 type: String,
                 required: false,
                 trim: true
@@ -142,10 +147,6 @@ var AWSResourcesSchema = function AWSResources() {
         tags:Schema.Types.Mixed,
         usage:Schema.Types.Mixed,
         cost:Schema.Types.Mixed,
-        isDeleted:{
-            type:Boolean,
-            default:false
-        },
         createdOn:{
             type:Number,
             default:Date.now(),
@@ -155,6 +156,11 @@ var AWSResourcesSchema = function AWSResources() {
             type: Schema.Types.Mixed,
             required: false,
             default: null
+        },
+        tagServer: {
+            type: String,
+            required: false,
+            trim: true
         },
         isScheduled: {
             type: Boolean,
@@ -208,6 +214,24 @@ var AWSResourcesSchema = function AWSResources() {
             type: [String],
             required: false,
             trim: true
+        },
+        user:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        isDeleted:{
+            type:Boolean,
+            default:false
+        },
+        authentication:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        serverDeletedCheck:{
+            type:Boolean,
+            default:false
         }
     });
 };

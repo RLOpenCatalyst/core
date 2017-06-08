@@ -91,6 +91,7 @@ module.exports = function(grunt) {
 					{'catalyst/partials/sections/dashboard/analytics/analytics.css':'src/partials/sections/dashboard/analytics/analytics.scss'},
 					{'catalyst/partials/sections/dashboard/design/design.css':'src/partials/sections/dashboard/design/design.scss'},
 					{'catalyst/partials/sections/dashboard/bots/bots.css':'src/partials/sections/dashboard/bots/bots.scss'},
+					{'catalyst/partials/sections/dashboard/services/services.css':'src/partials/sections/dashboard/services/services.scss'},
 					{'catalyst/partials/sections/dashboard/setting/setting.css':'src/partials/sections/dashboard/setting/setting.scss'}
 				]
 			}

@@ -45,8 +45,54 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
+    app.get('/services/:serviceName/versions', function(req, res) {
+        serviceMapService.getAllServiceVersionByName(req.params.serviceName,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(200,result)
+                return
+            }
+        });
+    });
+
     app.post('/services', function(req, res) {
+        req.body.userName = req.session.user.cn;
         serviceMapService.createNewService(req.body,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(200,result)
+                return
+            }
+        });
+    });
+
+    app.post('/services/:serviceId/resource/:resourceId/authentication', function(req, res) {
+        var credentials = null;
+        if(req.body.credentials){
+            credentials =req.body.credentials;
+        }else{
+            var error =  new Error();
+            error.code = 500;
+            error.message = "There is no Credentials Details for Resource"
+            res.send(error);
+        }
+        serviceMapService.resourceAuthentication(req.params.serviceId,req.params.resourceId,credentials,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(200,result)
+                return
+            }
+        });
+    });
+
+    app.get('/services/:serviceId/resources', function(req, res) {
+        serviceMapService.getServiceResources(req.params.serviceId,req.query,function(err,result){
             if(err){
                 res.send(500,err);
                 return;
@@ -70,7 +116,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.delete('/services/:serviceId', function(req, res) {
-        serviceMapService.deleteService(req.params.serviceId,function(err,result){
+        serviceMapService.deleteServiceById(req.params.serviceId,function(err,result){
             if(err){
                 res.send(500,err);
                 return;

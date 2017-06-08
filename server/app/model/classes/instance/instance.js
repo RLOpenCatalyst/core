@@ -28,11 +28,10 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var AzureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var VmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var OpenStackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
-
+var instance = require('_pr/model/resources/instance-resource');
 var Schema = mongoose.Schema;
 
 var ACTION_LOG_TYPES = {
-
     BOOTSTRAP: {
         type: 1,
         name: 'Bootstrap'
@@ -300,6 +299,7 @@ var InstanceSchema = new Schema({
     tasks: [Schema.Types.Mixed],
     usage: Schema.Types.Mixed,
     cost: Schema.Types.Mixed,
+    tags: Schema.Types.Mixed,
     normalized: String,
     region: {
         type: String,
@@ -411,6 +411,11 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    source: {
+        type: String,
+        required: false,
+        trim: true
+    },
     monitor: {
         type: Schema.Types.Mixed,
         required: false,
@@ -465,9 +470,19 @@ var InstancesDao = function () {
         });
     };
 
+    this.getAllNonTerminatedInstances = function (queryObj, callback) {
+        Instances.find(queryObj, function (err, data) {
+            if (err) {
+                logger.error("Failed getAllNonTerminatedInstances (%s)", queryObj, err);
+                return callback(err, null);
+            }else{
+                return callback(null, data);
+            }
+        });
+    };
+
     this.getInstanceByPlatformId = function (platformId, callback) {
         logger.debug("Enter getInstanceByPlatformId (%s)", platformId);
-
         Instances.find({
             platformId: platformId
         }, function (err, data) {
@@ -478,7 +493,6 @@ var InstancesDao = function () {
             }
             logger.debug("Exit getInstanceByPlatformId (%s)", platformId);
             callback(null, data);
-
         });
     };
 
@@ -854,8 +868,20 @@ var InstancesDao = function () {
         );
     };
 
-    this.getAllInstancesByStackName = function getAll(queryObj,callback) {
+    this.getAllInstancesByStackName = function getAllInstancesByStackName(queryObj,callback) {
         Instances.find(queryObj,
+            function (err, instances) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    return callback(null, instances);
+                }
+            }
+        );
+    };
+
+    this.getInstancesByFilter = function getInstancesByFilter(filterBy,callback) {
+        Instances.find(filterBy,
             function (err, instances) {
                 if (err) {
                     return callback(err);
@@ -1276,27 +1302,6 @@ var InstancesDao = function () {
         });
     };
 
-
-    this.updateInstanceLog = function (instanceId, log, callback) {
-        logger.debug("Enter updateInstanceLog ", instanceId, log);
-        Instances.update({
-            "_id": new ObjectId(instanceId),
-        }, {
-            $push: {
-                "logs": log
-            }
-        }, {
-            upsert: false
-        }, function (err, data) {
-            if (err) {
-                logger.error("Failed to updateInstanceLog ", instanceId, log, err);
-                callback(err, null);
-                return;
-            }
-            logger.debug("Exit updateInstanceLog", instanceId, log);
-            callback(null, data);
-        });
-    };
 
     this.updateInstancesRunlist = function (instanceId, runlist, callback) {
         logger.debug("Enter updateInstancesRunlist ", instanceId, runlist);
@@ -2189,6 +2194,20 @@ var InstancesDao = function () {
         Instances.update({
             _id: new ObjectId(instanceId)
         }, {
+            $set: instanceData
+        }, {
+            upsert: false
+        }, function (err, instance) {
+            if (err) {
+                logger.debug("Got error while updating Instance: ", err);
+                return callback(err, null);
+            }
+            return callback(null, instance);
+        });
+    }
+
+    this.updateInstanceByFilter = function updateInstanceByFilter(filterBy, instanceData, callback) {
+        Instances.update(filterBy, {
             $set: instanceData
         }, {
             upsert: false

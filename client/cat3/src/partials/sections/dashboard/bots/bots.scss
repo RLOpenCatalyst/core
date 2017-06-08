@@ -25,10 +25,6 @@
   margin-left: -12px;
 }
 
-.marginleft-18 {
-  margin-left: -18px!important;
-}
-
 .marginleft-8 {
   margin-left: -8px; 
 }
@@ -43,10 +39,6 @@
 
 .marginleft20 {
   margin-left:20px
-}
-
-.marginleft35 {
-  margin-left:35px
 }
 
 .marginleft17 {
@@ -140,10 +132,6 @@
   .bot-search {
     -webkit-appearance: textfield !important;
     font-size: 16px;
-  }
-
-  .borderTop {
-    border-top: 1px dashed #ddd;
   }
 }
 
@@ -749,14 +737,6 @@ body .botDescriptionPage {
   margin-right:10px;
 }
 
-.scheduleBorder {
-  border: 1px solid #ddd;
-}
-
-.backColor {
-  background: #fff;
-}
-
 .botsExecution {
   margin-left: 12px;
   margin-top: 6px;
@@ -782,10 +762,6 @@ body .botDescriptionPage {
 
 .btnDescription {
   padding:4px 10px;font-size:13px;margin-right:10px;
-}
-
-.paddingForScreen {
-  padding-left: 2.4%;
 }
 
 fieldset#editParamPage{
@@ -948,10 +924,6 @@ fieldset#editParamPage legend {
   margin-right: 18px;
 }
 
-.margintop28 {
-  margin-top:28px;
-}
-
 .gridHeightBots {
   height: 370px;
 }
@@ -961,10 +933,6 @@ fieldset#editParamPage legend {
 }
 
 
-
-.width99 {
-  width: 99%;
-}
 
 @media (min-width : 1550px){
     .agent-card .image-cell + * {
@@ -1012,9 +980,6 @@ fieldset#editParamPage legend {
     }
     .marginright14 {
         margin-right: 14px;
-    }
-    .paddingForScreen {
-      padding-left: 1.7%;
     }
     .gridHeightBots {
       height: 650px;

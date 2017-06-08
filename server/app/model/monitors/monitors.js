@@ -95,7 +95,7 @@ MonitorsSchema.statics.getMonitors = function (params, callback) {
 
 MonitorsSchema.statics.getById = function (monitorId, callback) {
     logger.debug('monitorId-------->',monitorId);
-    if (monitorId) {
+    if (monitorId !== null || monitorId !== 'null') {
         this.find({'_id': monitorId, 'isDeleted': false},
             hiddenFields,
             function (err, monitors) {

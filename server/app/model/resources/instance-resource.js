@@ -44,6 +44,15 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             required:false,
             trim:true
         },
+        type:{
+            type:String,
+            required:false,
+            trim:true
+        },
+        launchTime:{
+            type:Number,
+            required:false
+        },
         state:{
             type:String,
             required:false,
@@ -59,12 +68,29 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             required: false,
             trim: true
         },
+        amiId: {
+            type: String,
+            required: false,
+            trim: true
+        },
         vpcId: {
             type: String,
             required: false,
             trim: true
         },
-        route53HostedParams:[Schema.Types.Mixed]
+        bootStrapState:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        credentials:Schema.Types.Mixed,
+        route53HostedParams:[Schema.Types.Mixed],
+        hardware:Schema.Types.Mixed,
+        dockerEngineState: {
+            type: String,
+            required: false,
+            trim: true
+        }
     }
 });
 
@@ -73,14 +99,15 @@ InstanceResourcesSchema.statics.createNew = function(instanceData,callback){
     instanceResource.save(function(err, data) {
         if (err) {
             logger.error("createNew Failed", err, data);
-            return;
+            return callback(err,null);
+        }else{
+            return callback(null,data);
         }
-        callback(null,data);
     });
 };
 
 InstanceResourcesSchema.statics.updateInstanceData = function(instanceId,instanceData,callback){
-    instanceResources.update({_id:new ObjectId(instanceId)}, {$set: instanceData}, {upsert: false},
+    instanceResources.update({_id:new ObjectId(instanceId)}, {$set: instanceData}, {multi: true},
         function(err, data) {
         if (err) {
             logger.error("Failed to updateInstanceData", err);

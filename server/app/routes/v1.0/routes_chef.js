@@ -333,6 +333,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
                                             serverId: req.params.serverId,
                                             chefNodeName: node.name
                                         },
+                                        source:'chef',
                                         blueprintData: {
                                             blueprintName: node.name,
                                             templateId: "chef_import",
@@ -473,7 +474,6 @@ module.exports.setRoutes = function (app, verificationFunc) {
                 }
                 taskstatus = obj;
                 for (var i = 0; i < nodeList.length; i++) {
-
                     (function (nodeName) {
                         chef.getNode(nodeName, function (err, node) {
                             if (err) {
@@ -584,10 +584,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
                 hostedChefUrl: chefDetails.url
             });
             if (reqBody.selectedNodes.length) {
-//                res.sendStatus(400);
-
                 importNodes(reqBody.selectedNodes, chefDetails);
-
             } else {
                 res.send(400);
                 return;
@@ -871,7 +868,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
     });
 
 
-    app.post('/chef/servers/:serverId/nodes/:nodeName/updateEnv', function (req, res) {
+    app.post('/chef/servers/:serverId/nodes/:nodeId/updateEnv', function (req, res) {
         configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 logger.debug(err);
@@ -889,12 +886,12 @@ module.exports.setRoutes = function (app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.updateNodeEnvironment(req.params.nodeName, req.body.envName, function (err, success) {
+            chef.updateNodeEnvironment(req.body.nodeName, req.body.envName, function (err, success) {
                 if (err) {
                     res.send(500);
                     return;
                 } else if (success) {
-                    chefDao.updateChefNodeEnv(req.params.nodeName, req.body.envName, function (err, data) {
+                    chefDao.updateChefNodeDetailById(req.params.nodeId, {envName:req.body.envName}, function (err, data) {
                         if (err) {
                             res.send(500);
                             return;
@@ -1439,11 +1436,11 @@ module.exports.setRoutes = function (app, verificationFunc) {
                         apiUtil.paginationRequest(reqData, 'chefNodes', next);
                     },
                     function (paginationReq, next) {
-                        paginationReq['searchColumns'] = ['chefNodeIp', 'chefNodeName', "chefNodePlatform"];
+                        paginationReq['searchColumns'] = ['ip', 'name', "platform",'envName'];
                         apiUtil.databaseUtil(paginationReq, next);
                     },
                     function (queryObj, next) {
-                        chefDao.getNodesByServerId(queryObj, next);
+                        chefDao.getChefNodesWithPagination(queryObj, next);
                     },
                     function (nodes, next) {
                         apiUtil.changeResponseForJqueryPagination(nodes, reqObj, next);

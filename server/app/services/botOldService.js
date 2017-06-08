@@ -411,26 +411,35 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                 && auditTrails[0].auditTrailConfig.manualExecutionTime !== null && auditTrails[0].actionStatus === 'success') {
                 var seconds = 0, minutes = 0, hours = 0;
                 var executionTime = getExecutionTime(auditTrails[0].endedOn, auditTrails[0].startedOn);
-                seconds = ((auditTrails[0].auditTrailConfig.manualExecutionTime * 60) - executionTime);
-                if (seconds >= 60) {
-                    minutes = minutes + Math.floor(seconds / 60);
-                    seconds = seconds % 60;
-                }
-                if (minutes >= 60) {
-                    hours = hours + Math.floor(minutes / 60);
-                    minutes = minutes % 60;
-                }
-                var result = {
-                    hours: hours,
-                    minutes: minutes,
-                    seconds: seconds
-                }
-                auditTrail.updateAuditTrails(auditId, {savedTime: result}, function (err, data) {
-                    if (err) {
-                        logger.error(err);
+                if(executionTime > (auditTrails[0].auditTrailConfig.manualExecutionTime * 60)) {
+                    seconds = (auditTrails[0].auditTrailConfig.manualExecutionTime * 60) - executionTime;
+                    if (seconds >= 60) {
+                        minutes = minutes + Math.floor(seconds / 60);
+                        seconds = seconds % 60;
                     }
-                    next(null, auditTrails);
-                })
+                    if (minutes >= 60) {
+                        hours = hours + Math.floor(minutes / 60);
+                        minutes = minutes % 60;
+                    }
+                    var result = {
+                        hours: hours,
+                        minutes: minutes,
+                        seconds: seconds
+                    }
+                    auditTrail.updateAuditTrails(auditId, {savedTime: result}, function (err, data) {
+                        if (err) {
+                            logger.error(err);
+                        }
+                        next(null, auditTrails);
+                    })
+                }else{
+                    auditTrail.updateAuditTrails(auditId, {overRunFlag: true}, function (err, data) {
+                        if (err) {
+                            logger.error(err);
+                        }
+                        next(null, auditTrails);
+                    })
+                }
             } else {
                 next(null, auditTrails);
             }
@@ -449,9 +458,9 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                     for (var m = 0; m < botAuditTrail.length; m++) {
                         if (botAuditTrail[m].savedTime && botAuditTrail[m].actionStatus ==='success') {
                             successCount = successCount + 1;
-                            seconds = seconds + botAuditTrail[m].savedTime.seconds;
-                            minutes = minutes + botAuditTrail[m].savedTime.minutes;
-                            hours = hours + botAuditTrail[m].savedTime.hours;
+                            seconds = seconds + botAuditTrail[m].savedTime.seconds > 0 ? botAuditTrail[m].savedTime.seconds:0;
+                            minutes = minutes + botAuditTrail[m].savedTime.minutes > 0 ? botAuditTrail[m].savedTime.minutes:0;
+                            hours = hours + botAuditTrail[m].savedTime.hours > 0 ? botAuditTrail[m].savedTime.hours:0;
                         }
                         if(botAuditTrail[m].actionStatus ==='success' && botAuditTrail[m].auditTrailConfig.serviceNowTicketRefObj
                             && botAuditTrail[m].auditTrailConfig.serviceNowTicketRefObj !== null){

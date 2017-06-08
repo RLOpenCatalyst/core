@@ -24,85 +24,76 @@ var serviceSchema = new Schema({
         orgId:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
         orgName:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
         bgId:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
         bgName:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
         projectId:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
         projectName:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
         envId:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
         envName:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
-        chefServerId:{
+        configId:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
-        chefServerName:{
+        configName:{
             type: String,
             trim: true,
-            required: true
+            required: false
         },
-        monitorId:{
-            type: String,
-            trim: true,
-            required: true
-        },
-        monitorName:{
-            type: String,
-            trim: true,
-            required: true
-        }
+        monitor:Schema.Types.Mixed
     },
     name: {
         type: String,
         trim: true,
-        required: true
+        required: false
     },
     type:{
         type: String,
         trim: true,
-        required: true
+        required: false
     },
     desc:{
         type: String,
         trim: true,
-        required: true
+        required: false
     },
     state:{
         type: String,
         trim: true,
-        required: true
+        required: false
     },
-    identifiers:[Schema.Types.Mixed],
+    identifiers:Schema.Types.Mixed,
     resources:[Schema.Types.Mixed],
     ymlFileId:{
         type: String,
@@ -111,8 +102,21 @@ var serviceSchema = new Schema({
     },
     createdOn:{
         type: Number,
+        required: false
+    },
+    updatedOn:{
+        type: Number,
+        required: false
+    },
+    createdBy:{
+        type: String,
         required: false,
-        default:Date.now()
+        trim: true
+    },
+    version:{
+        type: Number,
+        required: false,
+        default:1.0
     },
     isDeleted:{
         type: Boolean,
@@ -137,7 +141,7 @@ serviceSchema.statics.createNew = function createNew(servicesObj, callback) {
 };
 
 
-serviceSchema.statics.updatedServiceById = function updatedServiceById(serviceId,servicesObj,callback) {
+serviceSchema.statics.updateServiceById = function updateServiceById(serviceId,servicesObj,callback) {
     services.update({_id:ObjectId(serviceId)},{$set:servicesObj},{multi:true},function (err, data) {
         if (err) {
             logger.error(err);
@@ -148,7 +152,7 @@ serviceSchema.statics.updatedServiceById = function updatedServiceById(serviceId
     });
 };
 
-serviceSchema.statics.updatedService = function updatedService(filterQuery,servicesObj,callback) {
+serviceSchema.statics.updateService = function updateService(filterQuery,servicesObj,callback) {
     services.update(filterQuery,{$set:servicesObj},{multi:true},function (err, data) {
         if (err) {
             logger.error(err);
@@ -159,7 +163,50 @@ serviceSchema.statics.updatedService = function updatedService(filterQuery,servi
     });
 };
 
+serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEachService(filterBy,callback){
+    filterBy.isDeleted = false;
+    services.aggregate([
+            {
+                $match:filterBy
+            },
+            {
+                $sort:
+                    {
+                        version:1
+                    }
+            },
+            {
+                $group:
+                    {
+                        _id:"$name",
+                        id: { $last: "$_id" },
+                        name: { $last: "$name" },
+                        type: { $last: "$type" },
+                        state: { $last: "$state" },
+                        ymlFileId: { $last: "$ymlFileId" },
+                        desc: { $last: "$desc" },
+                        resources: { $last: "$resources" },
+                        version: { $last: "$version" },
+                        masterDetails: { $last: "$masterDetails" },
+                        identifiers: { $last: "$identifiers" },
+                        createdOn: { $last: "$createdOn" },
+                        updatedOn: { $last: "$updatedOn" }
+                    }
+            }],
+        function(err, serviceList) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err,null);
+            }else {
+                return callback(null, serviceList);
+            }
+        });
+}
+
 serviceSchema.statics.getServices = function getServices(filterBy,callback) {
+    filterBy.isDeleted = false;
+    filterBy.state = {$ne:'Error'};
     services.find(filterBy,function (err, data) {
         if (err) {
             logger.error(err);
@@ -172,14 +219,49 @@ serviceSchema.statics.getServices = function getServices(filterBy,callback) {
 
 
 serviceSchema.statics.getAllServicesByFilter = function getAllServicesByFilter(filterQueryObj, callback) {
-    this.paginate(filterQueryObj.queryObj, filterQueryObj.options,function (err, servicesList) {
-        if (err) {
-            logger.error(err);
-            return callback(err, null);
-        } else {
-            return callback(null, servicesList);
-        }
-    });
+    filterQueryObj.queryObj.isDeleted = false;
+    services.aggregate([
+            {
+                $match:filterQueryObj.queryObj
+            },
+            {
+                $sort: {
+                    version :1
+                }
+            },
+            {
+                $skip: (filterQueryObj.options.page - 1) * filterQueryObj.options.limit
+            },
+            {
+                $limit: filterQueryObj.options.limit
+            },
+            {
+                $group:
+                    {
+                        _id:"$name",
+                        id: { $last: "$_id" },
+                        name: { $last: "$name" },
+                        type: { $last: "$type" },
+                        state: { $last: "$state" },
+                        ymlFileId: { $last: "$ymlFileId" },
+                        desc: { $last: "$desc" },
+                        resources: { $last: "$resources" },
+                        version: { $last: "$version" },
+                        masterDetails: { $last: "$masterDetails" },
+                        identifiers: { $last: "$identifiers" },
+                        createdOn: { $last: "$createdOn" },
+                        updatedOn: { $last: "$updatedOn" }
+                    }
+            }],
+        function(err, serviceList) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }else {
+                return callback(null, serviceList);
+            }
+        });
 };
 
 serviceSchema.statics.getServiceById = function getServiceById(serviceId, callback) {
@@ -193,17 +275,6 @@ serviceSchema.statics.getServiceById = function getServiceById(serviceId, callba
     });
 };
 
-
-serviceSchema.statics.deleteServiceById = function deleteServiceById(serviceId, callback) {
-    services.remove({_id:ObjectId(serviceId)},function (err, servicesObj) {
-        if (err) {
-            logger.error(err);
-            return callback(err, null);
-        } else {
-            return callback(null, servicesObj);
-        }
-    });
-};
 
 
 

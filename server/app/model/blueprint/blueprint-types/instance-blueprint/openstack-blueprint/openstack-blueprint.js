@@ -255,6 +255,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                     serverId: self.infraManagerId,
                     chefNodeName: instanceData.server.id
                 },
+                source:'blueprint',
                 blueprintData: {
                     blueprintId: launchParams.blueprintData._id,
                     blueprintName: launchParams.blueprintData.name,

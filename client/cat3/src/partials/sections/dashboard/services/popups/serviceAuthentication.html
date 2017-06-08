@@ -1,0 +1,57 @@
+<div id='servicesAuthentication'>
+    <form name="serviceAuthentication">
+        <div class="modal-header">
+            <span class="close" ng-click="cancel()">×</span>
+            <h4 class="modal-title">
+                <i class="fa fa-eraser"></i>
+                Authenticate - {{getItems.serviceSelected.id}}
+            </h4>
+        </div>
+
+        <div class="modal-body">
+            <fieldset>
+                <div class="col-lg-6 col-md-6">
+                    <label for="">Username:<span class="red">*</span>
+                    </label>
+                    <div class="input-groups">
+                        <input ng-model="IMGNewEnt.userName" type="text" name="coBlueprintName" class="form-control" required >
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <label for="">Choose Authentication Type:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+                    </label>
+                    <div class="input-groups">
+                        <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+                        <select ng-model="IMGNewEnt.passType" class="form-control ng-pristine ng-untouched ng-invalid ng-invalid-required" ng-change="depNewApp.getRepository();" required="">
+                            <option value="password">Password</option>
+                            <option value="pemFile">Pem File</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 margintop15" ng-if="IMGNewEnt.passType === 'password' ">
+                    <label for="">Password :<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+                    </label>
+                    <div class="input-groups">
+                        <input ng-model="IMGNewEnt.password" type="password" name="coBlueprintName" class="form-control" required >
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 margintop15" ng-if="IMGNewEnt.passType === 'pemFile' ">
+                    <label for="">File Upload:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+                    </label>
+                    <div class="input-groups">
+                        <input type="file" name="autenticationPemfile" class="form-control form-controls" ngf-select="" ng-model="$parent.pemfile" name="file" accept=".pem" required="">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+                <i class="fa fa-times black"></i> Close
+            </button>
+            <button type="button" class="btn cat-btn-update" ng-click="ok()">
+                <i class="fa fa-check white"></i> Authenticate
+            </button>
+        </div>
+    </form>
+</div>

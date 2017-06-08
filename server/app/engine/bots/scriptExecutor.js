@@ -31,8 +31,7 @@ var auditQueue = require('_pr/config/global-data.js');
 var request = require('request');
 var scriptService = require('_pr/services/scriptService.js');
 var commonService = require('_pr/services/commonService.js');
-var fileIo = require('_pr/lib/utils/fileio');
-var SCP = require('_pr/lib/utils/scp');
+
 
 const errorType = 'scriptExecutor';
 
@@ -151,8 +150,8 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
     } else if(requestBody && requestBody.data && schedulerCheck === false) {
         replaceTextObj = requestBody.data;
     } else {
-        for (var j = 0; j < botsScriptDetails.input.length; j++) {
-            replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
+        for (var j = 0; j < botDetail.input.length; j++) {
+            replaceTextObj[botDetail.input[j].name] = botDetail.input[j].default;
         }
     }
 
@@ -331,8 +330,8 @@ function executeScriptOnRemote(instance,botDetail,requestBody,actionLogId,auditT
         } else if (requestBody && requestBody.data && schedulerCheck === false) {
             replaceTextObj = requestBody.data;
         } else {
-            for (var j = 0; j < botDetails.input.length; j++) {
-                replaceTextObj[botDetails.input[j].name] = botDetails.input[j].default;
+            for (var j = 0; j < botDetail.input.length; j++) {
+                replaceTextObj[botDetail.input[j].name] = botDetail.input[j].default;
             }
         }
         var reqBody = {

@@ -70,176 +70,199 @@
                     capRept.listGrid[value].data=[];
                     capRept.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capRept.listGrid[value].paginationPageSize=25;
-                    $scope.colArray=['platformId','state','privateIpAddress','os'];
-         if(capRept.serviceType === 'EC2') {
-                    capRept.listGrid[value].columnDefs = [
-                        {name: 'Instance Id', field: 'platformId', cellTooltip: true},
-                        {name: 'os', enableFiltering: true, displayName: 'OS', field: 'os', cellTooltip: true},
-                        {name: 'privateIpAddress', displayName: 'IP Address',field:'privateIpAddress', cellTooltip: true},
-                        {name: 'state', displayName: 'Status', cellTooltip: true},
-                        {
-                            name: 'Region', displayName: 'Region',
-                            field: 'region',
-                            cellTooltip: true
-                        },
-                        {
-                            name: 'cost',
-                            displayName: 'Cost ( '+$scope.currentMonth+' )',
-                            cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
-                        },
-                        {
-                            name: 'Action',
-                            cellTooltip: true,
-                            cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
-                            "&nbsp;&nbsp; <span ng-show='row.entity.showSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
-                        }
-                        // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
-                    ];
-                }
-                if(capRept.serviceType === 'RDS') {
-                    $scope.colArray=['platformId','state','dbEngine'];
-                    capRept.listGrid[value].columnDefs = [
-                        {name: 'Instance', field: 'platformId', cellTooltip: true},
-                        {name: 'dbEngine', enableFiltering: true, displayName: 'Engine', field: 'dbEngine', cellTooltip: true},
-                        {name: 'state', displayName: 'Status', cellTooltip: true},
-                        {
-                            name: 'Region', displayName: 'Region',
-                            field: 'region',
-                            cellTooltip: true
-                        },
-                        {
-                            name: 'cost',
-                            displayName: 'Cost ( '+$scope.currentMonth+' )',
-                            cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
-                        },
-                        {
-                            name: 'Action',
-                            cellTooltip: true,
-                            cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
-                            "&nbsp;&nbsp; <span ng-show='row.entity.showSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
-                        }
-                        // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
-                    ];
-                }
-                if(capRept.serviceType === 'S3'){
-                    $scope.colArray=['bucketName','bucketOwnerName','orgName'];
-                    capRept.listGrid[value].columnDefs=[
-                        {name: 'bucketName', field: 'bucketName', cellTooltip: true},
-                        {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
-                        {name: 'bucketSize', field: 'bucketSize', displayName:'Bucket Size (MB)', cellTooltip: true},
+                    $scope.colArray=['resourceDetails.platformId','resourceDetails.state','resourceDetails.privateIp','resourceDetails.os'];
+                    if(capRept.serviceType === 'EC2') {
+                        capRept.listGrid[value].columnDefs = [
+                            {name: 'Instance Id', field: 'resourceDetails.platformId', cellTooltip: true},
+                            {name: 'os', enableFiltering: true, displayName: 'OS', field: 'os', cellTooltip: true},
+                            {
+                                name: 'privateIpAddress',
+                                displayName: 'IP Address',
+                                field: 'resourceDetails.privateIp',
+                                cellTooltip: true
+                            },
+                            {name: 'state', displayName: 'State', cellTooltip: true},
+                            {
+                                name: 'Region', displayName: 'Region',
+                                field: 'region',
+                                cellTooltip: true
+                            },
+                            {
+                                name: 'cost',
+                                displayName: 'Cost ( ' + $scope.currentMonth + ' )',
+                                cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
+                            },
+                            {
+                                name: 'Action',
+                                cellTooltip: true,
+                                cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
+                                "&nbsp;&nbsp; <span ng-show='row.entity.showSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
+                            }
+                            // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
+                        ];
+                    }
+                    if(capRept.serviceType === 'RDS') {
+                        $scope.colArray = ['platformId', 'state', 'dbEngine'];
+                        capRept.listGrid[value].columnDefs = [
+                            {name: 'Instance', field: 'platformId', cellTooltip: true},
+                            {
+                                name: 'dbEngine',
+                                enableFiltering: true,
+                                displayName: 'Engine',
+                                field: 'dbEngine',
+                                cellTooltip: true
+                            },
+                            {name: 'state', displayName: 'State', cellTooltip: true},
+                            {
+                                name: 'Region', displayName: 'Region',
+                                field: 'region',
+                                cellTooltip: true
+                            },
+                            {
+                                name: 'cost',
+                                displayName: 'Cost ( ' + $scope.currentMonth + ' )',
+                                cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
+                            },
+                            {
+                                name: 'Action',
+                                cellTooltip: true,
+                                cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
+                                "&nbsp;&nbsp; <span ng-show='row.entity.showSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
+                            }
+                            // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
+                        ];
+                    }
+                    if(capRept.serviceType === 'S3') {
+                        $scope.colArray = ['bucketName', 'bucketOwnerName', 'orgName'];
+                        capRept.listGrid[value].columnDefs = [
+                            {name: 'bucketName', field: 'bucketName', cellTooltip: true},
+                            {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
+                            {
+                                name: 'bucketSize',
+                                field: 'bucketSize',
+                                displayName: 'Bucket Size (MB)',
+                                cellTooltip: true
+                            },
 
-                        {name: 'cost',  displayName: 'Cost ( '+$scope.currentMonth+' )',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
-                        {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "}
-                    ];
-                }
+                            {
+                                name: 'cost',
+                                displayName: 'Cost ( ' + $scope.currentMonth + ' )',
+                                cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
+                            },
+                            {
+                                name: 'Action',
+                                cellTooltip: true,
+                                cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "
+                            }
+                        ];
+                    }
                     capRept.listGrid[value].onRegisterApi=function (gridApi) {
                        gridApi.grid.registerRowsProcessor($scope.singleFilter, 200);
                         $scope.gridApi = gridApi;
                     };
-                if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
-                    var param = {
-                        inlineLoader: true
-                    };
-                    if($rootScope.organNewEnt.instanceType === 'Managed') {
-                        $scope.colArray.push('bgName','projectName','environmentName');
-                        capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
-                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
-                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true});
-                        $scope.instanceType= 'managedInstances';
-                        param.url = '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType;
-                    } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                        $scope.colArray.push('bgName','projectName','environmentName');
-                        capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
-                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
-                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true});
-                        param.url = '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase();
-                    } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
-                        param.url = '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase();
-                    }
-                   /* var param = {
-                        inlineLoader:true,
-                       url: '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType
-                        //url:'src/partials/sections/dashboard/analytics/data/ins.json'
-                    };*/
-                    genSevs.promiseGet(param).then(function (instResult) {
-                        capRept.listGrid[value].data=[];
-                        if($rootScope.organNewEnt.instanceType === 'Managed') {
-                            capRept.listGrid[value].data= instResult.managedInstances;
-                        } else{
+                    if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
+                        var param = {
+                            inlineLoader: true
+                        };
+                        if ($rootScope.organNewEnt.instanceType === 'Managed'  || $rootScope.organNewEnt.instanceType === 'Assigned') {
+                            $scope.colArray.push('masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName');
+                            capRept.listGrid[value].columnDefs.splice(5, 0, {
+                                name: 'bgName',
+                                displayName: 'Bg Name',
+                                field: 'masterDetails.bgName',
+                                cellTooltip: true
+                            });
+                            capRept.listGrid[value].columnDefs.splice(6, 0, {
+                                name: 'projectName',
+                                displayName: 'Project Name',
+                                field: 'masterDetails.projectName',
+                                cellTooltip: true
+                            });
+                            capRept.listGrid[value].columnDefs.splice(7, 0, {
+                                name: 'envName',
+                                displayName: 'Env Name',
+                                field: 'masterDetails.envName',
+                                cellTooltip: true
+                            });
+                            param.url = '/resources?filterBy=providerDetails.id:' + fltrObj.provider.id + ',resourceType:' + capRept.serviceType + ',category:' + $rootScope.organNewEnt.instanceType.toLowerCase();
+                        } else if ($rootScope.organNewEnt.instanceType === 'Unassigned') {
+                            param.url = '/resources?filterBy=providerDetails.id:' + fltrObj.provider.id + ',resourceType:' + capRept.serviceType + ',category:' + $rootScope.organNewEnt.instanceType.toLowerCase();
+                        }
+                        genSevs.promiseGet(param).then(function (instResult) {
+                            capRept.listGrid[value].data = [];
                             capRept.listGrid[value].data = instResult.data;
-                        }
-                        angular.forEach( capRept.listGrid[value].data,function (rs,k) {
-                            if($rootScope.organNewEnt.instanceType === 'Managed'){
-                                capRept.listGrid[value].data[k].showSchedule=true;
-                                if(rs.hardware && rs.hardware.os){
-                                    capRept.listGrid[value].data[k].os=rs.hardware.os;
+                            angular.forEach(capRept.listGrid[value].data, function (rs, k) {
+                                if ($rootScope.organNewEnt.instanceType === 'Managed') {
+                                    capRept.listGrid[value].data[k].showSchedule = true;
+                                    if (rs.hardware && rs.hardware.os) {
+                                        capRept.listGrid[value].data[k].os = rs.resourceDetails.hardware.os;
+                                    }
+                                    if (rs.providerData && rs.providerData.region) {
+                                        capRept.listGrid[value].data[k].region = rs.providerDetails.region.region;
+                                    }
+                                    if (rs.instanceState) {
+                                        capRept.listGrid[value].data[k].state = rs.resourceDetails.state;
+                                    }
+                                } else {
+                                    capRept.listGrid[value].data[k].platformId = rs.resourceDetails.platformId;
+                                    capRept.listGrid[value].data[k].os = rs.resourceDetails.os;
+                                    capRept.listGrid[value].data[k].state = rs.resourceDetails.state;
+                                    capRept.listGrid[value].data[k].privateIpAddress = rs.resourceDetails.privateIp;
+                                    capRept.listGrid[value].data[k].region = rs.providerDetails.region.region;
+                                    capRept.listGrid[value].data[k].bgName = rs.masterDetails.bgName;
+                                    capRept.listGrid[value].data[k].projectName = rs.masterDetails.projectName;
+                                    capRept.listGrid[value].data[k].envName = rs.masterDetails.envName;
+                                    capRept.listGrid[value].data[k].showSchedule = false;
                                 }
-                                if(rs.providerData && rs.providerData.region){
-                                    capRept.listGrid[value].data[k].region=rs.providerData.region;
-                                }
-                                if(rs.instanceState){
-                                    capRept.listGrid[value].data[k].state=rs.instanceState;
-                                }
-                            }else{
-                                capRept.listGrid[value].data[k].platformId = rs.resourceDetails.platformId;
-                                capRept.listGrid[value].data[k].os = rs.resourceDetails.os;
-                                capRept.listGrid[value].data[k].state = rs.resourceDetails.state;
-                                capRept.listGrid[value].data[k].privateIpAddress=rs.resourceDetails.privateIp;
-                                capRept.listGrid[value].data[k].region = rs.providerDetails.region.region_name;
-                                capRept.listGrid[value].data[k].bgName = rs.masterDetails.bgName;
-                                capRept.listGrid[value].data[k].projectName = rs.masterDetails.projectName;
-                                capRept.listGrid[value].data[k].environmentName = rs.masterDetails.envName;
-                                capRept.listGrid[value].data[k].showSchedule=false;
-                            }
 
+                            });
+                            if (capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0) {
+                                capRept.listGrid[value].nodataFound = true;
+                            } else {
+                                capRept.listGrid[value].nodataFound = false;
+                            }
                         });
-                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0){
-                            capRept.listGrid[value].nodataFound =true;
-                        } else {
-                            capRept.listGrid[value].nodataFound =false;
-                        }
-                    });
-                } else if(fltrObj && fltrObj.provider && fltrObj.provider.id){
-                    var paramResources= {
-                        inlineLoader:true,
-                       url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
-                       // url:'src/partials/sections/dashboard/analytics/data/ins.json'
-                    };
-                    genSevs.promiseGet(paramResources).then(function (instResult) {
-                        /////
-                        capRept.listGrid[value].data = instResult.data;
-                            if(capRept.serviceType === 'RDS'){
-                                angular.forEach(instResult.data,function (va,ke) {
+                    }else if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
+                        var paramResources = {
+                            inlineLoader: true,
+                            url: '/resources?filterBy=providerDetails.id:' + fltrObj.provider.id + ',resourceType:' + capRept.serviceType + ',category:' + $rootScope.organNewEnt.instanceType.toLowerCase()
+                            // url:'src/partials/sections/dashboard/analytics/data/ins.json'
+                        };
+                        genSevs.promiseGet(paramResources).then(function (instResult) {
+                            /////
+                            capRept.listGrid[value].data = instResult.data;
+                            if (capRept.serviceType === 'RDS') {
+                                angular.forEach(instResult.data, function (va, ke) {
                                     capRept.listGrid[value].data[ke].platformId = va.resourceDetails.dbInstanceIdentifier;
                                     capRept.listGrid[value].data[ke].dbEngine = va.resourceDetails.dbEngine;
                                     capRept.listGrid[value].data[ke].state = va.resourceDetails.dbInstanceStatus;
-                                    capRept.listGrid[value].data[ke].providerData={};
+                                    capRept.listGrid[value].data[ke].providerData = {};
                                     capRept.listGrid[value].data[ke].region = va.resourceDetails.region;
                                     capRept.listGrid[value].data[ke].orgName = va.masterDetails.orgName;
-                                    capRept.listGrid[value].data[ke].showSchedule=false;
+                                    capRept.listGrid[value].data[ke].showSchedule = false;
                                 });
                             }
 
-                        if(capRept.serviceType === 'S3'){
-                            angular.forEach(instResult.data,function (va,ke) {
-                                capRept.listGrid[value].data[ke].platformId= va.resourceDetails.bucketName;
-                                capRept.listGrid[value].data[ke].bucketName = va.resourceDetails.bucketName;
-                                capRept.listGrid[value].data[ke].bucketOwnerName = va.resourceDetails.bucketOwnerName;
-                                capRept.listGrid[value].data[ke].bucketSize = va.resourceDetails.bucketSize;
-                                capRept.listGrid[value].data[ke].orgName = va.masterDetails.orgName;
-                            });
+                            if (capRept.serviceType === 'S3') {
+                                angular.forEach(instResult.data, function (va, ke) {
+                                    capRept.listGrid[value].data[ke].platformId = va.resourceDetails.bucketName;
+                                    capRept.listGrid[value].data[ke].bucketName = va.resourceDetails.bucketName;
+                                    capRept.listGrid[value].data[ke].bucketOwnerName = va.resourceDetails.bucketOwnerName;
+                                    capRept.listGrid[value].data[ke].bucketSize = va.resourceDetails.bucketSize;
+                                    capRept.listGrid[value].data[ke].orgName = va.masterDetails.orgName;
+                                });
 
-                        }
-                        ///
+                            }
+                            ///
 
 
-                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0){
-                            capRept.listGrid[value].nodataFound =true;
-                        } else {
-                            capRept.listGrid[value].nodataFound =false;
-                        }
-                    });
-                }
+                            if (capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0) {
+                                capRept.listGrid[value].nodataFound = true;
+                            } else {
+                                capRept.listGrid[value].nodataFound = false;
+                            }
+                        });
+                    }
 
                 //}
             };

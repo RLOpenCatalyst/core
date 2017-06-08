@@ -1,0 +1,26 @@
+<div id="serviceInfo">
+	<div class="container summary-container">
+		<table class="table table-bordered">
+               <thead>
+                  <tr class="paramRow">
+                     <th class="th-parameters">Organization</th>
+                     <th class="th-values">Business Group</th>
+                     <th class="th-values">Project</th>
+                     <th class="th-values">Environment</th>
+                     <th class="th-values">Config Server</th>
+                     <th class="th-values">Monitoring Server</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr>
+                     <td>{{serviceSelected.masterDetails.orgName}}</td>
+                     <td>{{serviceSelected.masterDetails.bgName}}</td>
+                     <td>{{serviceSelected.masterDetails.projectName}}</td>
+                     <td>{{serviceSelected.masterDetails.envName}}</td>
+                     <td>{{serviceSelected.masterDetails.configName}}</td>
+                     <td>{{serviceSelected.masterDetails.monitor.name}}</td>
+                  </tr>
+               </tbody>
+        </table>
+	</div>
+</div>

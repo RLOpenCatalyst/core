@@ -12,10 +12,16 @@ var resourceModel = require('_pr/model/resources/resources');
 var tagsModel = require('_pr/model/tags');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var instanceService = require('_pr/services/instanceService');
+var commonService = require('_pr/services/commonService');
 var noticeService = require('_pr/services/noticeService.js');
 var serviceMapService = require('_pr/services/serviceMapService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var credentialCryptography = require('_pr/lib/credentialcryptography');
+var chefDao = require('_pr/model/dao/chefDao.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
+
+
 
 var AWSRDSS3ProviderSync = Object.create(CatalystCronJob);
 AWSRDSS3ProviderSync.execute = awsRDSS3ProviderSync;
@@ -45,21 +51,21 @@ function awsRDSS3ProviderSync() {
                                 return;
                             }
                         }else{
-                            logger.info("Please configure Provider in Organization " +org.orgname+" for S3/RDS Provider Sync");
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for EC2/S3/RDS Provider Sync");
                             return;
                         }
                     });
                 })(orgs[i]);
             }
         }else{
-            logger.info("Please configure Organization for S3/RDS Provider Sync");
+            logger.info("Please configure Organization for EC2/S3/RDS Provider Sync");
             return;
         }
     });
 }
 
 function awsRDSS3ProviderSyncForProvider(provider,orgName) {
-    logger.info("S3/RDS Data Fetching started for Provider "+provider.providerName);
+    logger.info("EC2/S3/RDS Data Fetching started for Provider "+provider.providerName);
     async.waterfall([
         function (next) {
             async.parallel({
@@ -108,27 +114,30 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
                 }
             });
         },
-        function(resourcesDetails,next){
-            resourceModel.getAllResourcesByCategory(provider._id,'unassigned',next);
-        },
-        function(resources,next){
-            tagMappingSyncForResources(resources,provider,'unassigned',next);
-        },
-        function(resources,next){
-            resourceModel.getAllResourcesByCategory(provider._id,'assigned',next);
-        },
-        function(assignedResources,next){
-            tagMappingSyncForResources(assignedResources,provider,'assigned',next);
-        },
-        function(assignedInstances,next){
-            serviceMapSync(next);
-        }
-    ], function (err, results) {
+        function(resourcesDetails,next) {
+            async.parallel({
+                serviceSync: function (callback) {
+                    serviceMapSync(callback);
+                },
+                saeSync: function (callback) {
+                    saeSync(callback);
+                },
+                tagMapping: function (callback) {
+                    resourceTagMapping(provider,callback);
+                }
+            }, function (err, results) {
+                if (err) {
+                    next(err,null);
+                } else {
+                    next(null, results);
+                }
+            })
+        }],function (err, results) {
         if (err) {
             logger.error(err);
             return;
         } else {
-            logger.info("EC2/S3/RDS Data Successfully Added for Provider "+provider.providerName);
+            logger.info("EC2/S3/RDS Data Successfully ended for Provider "+provider.providerName);
             return;
         }
     });
@@ -143,7 +152,8 @@ function saveS3Data(s3Info, callback) {
                 var queryObj = {
                     'masterDetails.orgId':s3.masterDetails.orgId,
                     'providerDetails.id':s3.providerDetails.id,
-                    'resourceDetails.bucketName':s3.resourceDetails.bucketName
+                    'resourceDetails.bucketName':s3.resourceDetails.bucketName,
+                    'isDeleted':false
                 }
                 s3Model.getS3BucketData(queryObj, function (err, responseBucketData) {
                     if (err) {
@@ -153,8 +163,11 @@ function saveS3Data(s3Info, callback) {
                             callback(null, s3Info);
                         }
                     }else if (responseBucketData.length > 0) {
-                        delete s3.category;
-                        s3Model.updateS3BucketData(responseBucketData[0]._id,s3, function (err, bucketUpdatedData) {
+                        var resourceObj = {
+                            name:s3.name,
+                            resourceDetails:s3.resourceDetails
+                        }
+                        s3Model.updateS3BucketData(responseBucketData[0]._id,resourceObj, function (err, bucketUpdatedData) {
                             if (err) {
                                 logger.error("Error in updating S3 Bucket : ",s3.resourceDetails.bucketName);
                             }
@@ -188,7 +201,7 @@ function saveEC2Data(ec2Info,provider, callback) {
         var count = 0;
         for (var i = 0; i < ec2Info.length; i++) {
             (function (ec2) {
-                instancesDao.getInstancesByProviderIdOrgIdAndPlatformId(ec2.masterDetails.orgId,ec2.providerDetails.id,ec2.resourceDetails.platformId,function(err,managedInstances) {
+                instancesDao.getInstancesByProviderIdOrgIdAndPlatformId(ec2.masterDetails.orgId, ec2.providerDetails.id, ec2.resourceDetails.platformId, function (err, managedInstances) {
                     if (err) {
                         logger.error(err);
                     }
@@ -197,50 +210,59 @@ function saveEC2Data(ec2Info,provider, callback) {
                             if (err) {
                                 logger.error(err);
                             }
+                        });
+                    }
+                    var queryObj = {
+                        'masterDetails.orgId': ec2.masterDetails.orgId,
+                        'providerDetails.id': ec2.providerDetails.id,
+                        'resourceDetails.platformId': ec2.resourceDetails.platformId,
+                        'isDeleted':false
+                    }
+                    ec2Model.getInstanceData(queryObj, function (err, responseInstanceData) {
+                        if (err) {
+                            logger.error("Error in getting Instance : ", ec2.resourceDetails.platformId);
                             count++;
                             if (count === ec2Info.length) {
                                 callback(null, ec2Info);
                             }
-                        });
-                    }else {
-                        var queryObj = {
-                            'masterDetails.orgId': ec2.masterDetails.orgId,
-                            'providerDetails.id': ec2.providerDetails.id,
-                            'resourceDetails.platformId': ec2.resourceDetails.platformId
-                        }
-                        ec2Model.getInstanceData(queryObj, function (err, responseInstanceData) {
-                            if (err) {
-                                logger.error("Error in getting Instance : ", ec2.resourceDetails.platformId);
+                        } else if (responseInstanceData.length > 0) {
+                            var resourceObj = {
+                                'tags':ec2.tags,
+                                'resourceDetails.platformId':ec2.resourceDetails.platformId,
+                                'resourceDetails.amiId':ec2.resourceDetails.amiId,
+                                'resourceDetails.publicIp':ec2.resourceDetails.publicIp,
+                                'resourceDetails.hostName':ec2.resourceDetails.hostName,
+                                'resourceDetails.privateIp':ec2.resourceDetails.privateIp,
+                                'resourceDetails.os':ec2.resourceDetails.os,
+                                'resourceDetails.vpcId':ec2.resourceDetails.vpcId,
+                                'resourceDetails.launchTime':ec2.resourceDetails.launchTime,
+                                'resourceDetails.subnetId':ec2.resourceDetails.subnetId,
+                                'resourceDetails.type':ec2.resourceDetails.type,
+                                'resourceDetails.state':ec2.resourceDetails.state
+                            }
+                            ec2Model.updateInstanceData(responseInstanceData[0]._id, resourceObj, function (err, instanceUpdatedData) {
+                                if (err) {
+                                    logger.error("Error in updating Instance : ", ec2.resourceDetails.platformId);
+                                }
                                 count++;
                                 if (count === ec2Info.length) {
                                     callback(null, ec2Info);
                                 }
-                            } else if (responseInstanceData.length > 0) {
-                                delete ec2.category;
-                                ec2Model.updateInstanceData(responseInstanceData._id, ec2, function (err, instanceUpdatedData) {
-                                    if (err) {
-                                        logger.error("Error in updating Instance : ", ec2.resourceDetails.platformId);
-                                    }
-                                    count++;
-                                    if (count === ec2Info.length) {
-                                        callback(null, ec2Info);
-                                    }
-                                });
-                            } else {
-                                ec2.createdOn = new Date().getTime();
-                                ec2Model.createNew(ec2, function (err, instanceSavedData) {
-                                    if (err) {
-                                        logger.error("Error in creating Instance : ", ec2.resourceDetails.platformId);
-                                    }
-                                    count++;
-                                    if (count === ec2Info.length) {
-                                        callback(null, ec2Info);
-                                    }
-                                });
-                            }
-                        })
-                    }
-                });
+                            });
+                        } else {
+                            ec2.createdOn = new Date().getTime();
+                            ec2Model.createNew(ec2, function (err, instanceSavedData) {
+                                if (err) {
+                                    logger.error("Error in creating Instance : ", ec2.resourceDetails.platformId);
+                                }
+                                count++;
+                                if (count === ec2Info.length) {
+                                    callback(null, ec2Info);
+                                }
+                            });
+                        }
+                    })
+                })
             })(ec2Info[i]);
         }
     }
@@ -256,7 +278,8 @@ function saveRDSData(rdsInfo, callback) {
                 var queryObj = {
                     'masterDetails.orgId':rds.masterDetails.orgId,
                     'providerDetails.id':rds.providerDetails.id,
-                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId
+                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId,
+                    'isDeleted':false
                 }
                 rdsModel.getRDSData(queryObj, function (err, responseRDSData) {
                     if (err) {
@@ -267,8 +290,11 @@ function saveRDSData(rdsInfo, callback) {
                         }
                     }
                     if (responseRDSData.length > 0) {
-                        delete rds.category;
-                        rdsModel.updateRDSData(responseRDSData[0]._id,rds, function (err, rdsUpdatedData) {
+                        var resourceObj = {
+                            name:rds.name,
+                            resourceDetails:rds.resourceDetails,
+                        }
+                        rdsModel.updateRDSData(responseRDSData[0]._id,resourceObj, function (err, rdsUpdatedData) {
                             if (err) {
                                 logger.error("Error in updating RDS DBName : ",rds.resourceDetails.dbiResourceId);
                             }
@@ -570,6 +596,31 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
     }
 }
 
+function resourceTagMapping(provider,callback){
+    logger.debug("Tag Mapping is started");
+    async.waterfall([
+        function (next) {
+            resourceModel.getAllResourcesByCategory(provider._id, 'unassigned', next);
+        },
+        function (resources, next) {
+            tagMappingSyncForResources(resources, provider, 'unassigned', next);
+        },
+        function (resources, next) {
+            resourceModel.getAllResourcesByCategory(provider._id, 'assigned', next);
+        },
+        function (assignedResources, next) {
+            tagMappingSyncForResources(assignedResources, provider, 'assigned', next);
+        }],function (err, data) {
+        if (err) {
+            logger.error("Error in Tag-Mapping: ",err);
+            return callback(err, null);
+        } else {
+            logger.debug("Tag-Mapping is Done");
+            return callback(null, data);
+        }
+    })
+}
+
 function tagMappingSyncForResources(resources,provider,category,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
         if (err) {
@@ -765,113 +816,130 @@ function ec2PlatformIdList(ec2Info,callback){
 }
 
 function serviceMapSync(callback){
+    logger.debug("ServiceMap is Started");
     async.waterfall([
         function(next){
-            serviceMapService.getServices(next);
+            serviceMapService.getLastVersionOfEachService({},next);
         },
         function(services,next){
             if(services.length >0){
                 var count = 0;
                 for(var i = 0; i < services.length; i++){
                     (function(service) {
-                        if (service.type === 'SoftwareStack' || service.type === 'OSImage') {
-                            instancesDao.getInstanceById(service.resources[0].id, function (err, instanceData) {
-                                if (err) {
-                                    logger.error(err);
-                                }
-                                if (instanceData.length > 0) {
-                                    var serviceState = null;
-                                    if (instanceData[0].instanceState === 'terminated') {
-                                        serviceState = 'Terminated';
-                                    } else if (instanceData[0].instanceState === 'stopped') {
-                                        serviceState = 'Stopped';
-                                    } else if (instanceData[0].instanceState === 'running') {
-                                        serviceState = 'Running';
-                                    } else {
-                                        logger.debug("Invalid state for service: " + instanceData[0].instanceState);
-                                    }
-                                    if (serviceState !== null) {
-                                        serviceMapService.updateService({'name':service.name,'resouces.id':service.resources[0].id}, {state: serviceState,'resources.$.state':instanceData[0].instanceState}, function (err, data) {
-                                            if (err) {
-                                                logger.error(err);
-                                            }
-                                            count++;
-                                            if(count === services.length){
-                                                callback(null,services.length);
-                                                return;
-                                            }
-                                        })
-                                    }else{
-                                        count++;
-                                        if(count === services.length){
-                                            callback(null,services.length);
-                                            return;
-                                        }
-                                    }
-                                } else {
-                                    count++;
-                                    logger.debug("No Records are available in DB against Instance : " + service.resources[0]);
-                                    if(count === services.length){
-                                        callback(null,services.length);
-                                        return;
-                                    }
-                                }
-                            });
-                        } else if (service.type === 'CloudFormation') {
-                            var instanceIds = [];
-                            for (var j = 0; j < service.resources.length; j++) {
-                                instanceIds.push(service.resources[j].id);
-                            }
-                            instancesDao.getInstances(instanceIds, function (err, instances) {
-                                if (err) {
-                                    logger.error(err);
-                                } else if (instances.length > 0) {
-                                    var serviceStateList = [], serviceState = null;
-                                    instances.forEach(function (instance) {
-                                        serviceStateList.push(instance.instanceState);
-                                    })
-                                    if (serviceStateList.indexOf('running') >= 0) {
-                                        serviceState = 'Running';
-                                    } else if (serviceStateList.indexOf('stopped') >= 0) {
-                                        serviceState = 'Stopped';
-                                    } else if (serviceStateList.indexOf('terminated') >= 0) {
-                                        serviceState = 'Terminated';
-                                    } else {
-                                        logger.debug("Invalid state for service: " + instanceData[0].instanceState);
-                                    }
-                                    if (serviceState !== null) {
-                                        serviceMapService.updateService(service.name, {state: serviceState}, function (err, data) {
-                                            if (err) {
-                                                logger.error(err);
-                                            }
-                                            count++;
-                                            if(count === services.length){
-                                                callback(null,services.length);
-                                                return;
-                                            }
-                                        })
-                                    }else{
-                                        count++;
-                                        if(count === services.length){
-                                            callback(null,services.length);
-                                            return;
-                                        }
-                                    }
-                                } else {
-                                    count++;
-                                    logger.debug("No Records are available in DB against Instance : " + service.resources[0]);
-                                    if(count === services.length){
-                                        callback(null,services.length);
-                                        return;
-                                    }
-                                }
-                            });
-                        } else {
+                        if(service.state !== 'Deleted') {
                             count++;
-                            logger.debug("Un-Supported Type : " + service.type);
-                            if(count === services.length){
-                                callback(null,services.length);
-                                return;
+                            var keyCount = 0;
+                            Object.keys(service.identifiers).forEach(function (key) {
+                                if(key ==='aws') {
+                                    var identifierCount = 0, resourceList = [], queryObj = {}, instanceStateList = [];
+                                    keyCount++;
+                                    Object.keys(service.identifiers.aws).forEach(function (key) {
+                                        var queryObj = apiUtil.getQueryByKey(key,service.identifiers.aws[key]);
+                                        resourceModel.getResources(queryObj, function (err, resource) {
+                                            if (err) {
+                                                logger.error("Error in fetching Resources for Query:", queryObj, err);
+                                            }
+                                            if (resource.length > 0) {
+                                                identifierCount++;
+                                                resource.forEach(function (instance) {
+                                                    resourceList.push({
+                                                        type:key,
+                                                        value:service.identifiers.aws[key],
+                                                        result: instance
+                                                    });
+                                                    instanceStateList.push(instance.resourceDetails.state);
+                                                });
+                                                if (identifierCount === Object.keys(service.identifiers.aws).length) {
+                                                    serviceMapVersion(service, resourceList, instanceStateList);
+                                                }
+                                                if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.aws).length) {
+                                                    next(null, resourceList);
+                                                }
+                                            } else {
+                                                identifierCount++;
+                                                if (identifierCount === Object.keys(service.identifiers.aws).length) {
+                                                    serviceMapVersion(service, resourceList, instanceStateList);
+                                                }
+                                                if (count === services.length && keyCount === Object.keys(service.identifiers).length &&  identifierCount === Object.keys(service.identifiers.aws).length) {
+                                                    next(null, resourceList);
+                                                }
+                                            }
+                                        })
+                                    })
+                                }else{
+                                    var identifierCount = 0, resourceList = [], queryObj = {}, instanceStateList = [];
+                                    keyCount++;
+                                    Object.keys(service.identifiers.chef).forEach(function (key) {
+                                        var queryObj = apiUtil.getQueryByKey(key,service.identifiers.aws[key]);
+                                        queryObj['masterDetails.orgId'] = service.masterDetails.orgId;
+                                        queryObj['masterDetails.envName'] = service.masterDetails.envName;
+                                        queryObj['masterDetails.serverId'] = service.masterDetails.serverId;
+                                        chefDao.getChefNodes(queryObj,function(err,chefNodes){
+                                            if (err) {
+                                                logger.error("Error in fetching Chef Node Details for Query:", queryObj, err);
+                                            }else if(chefNodes.length > 0){
+                                                var chefNodeCount = 0;
+                                                identifierCount++;
+                                                chefNodes.forEach(function(chefNode){
+                                                    var query ={
+                                                        'configDetails.nodeName':chefNode.name,
+                                                        $or:[{
+                                                            'resourceDetails.publicIp':chefNode.ip},
+                                                            {
+                                                            'resourceDetails.privateIp':chefNode.ip
+                                                        }],
+                                                        'resourceDetails.hostName':chefNode.fqdn
+                                                    }
+                                                    ec2Model.getInstanceData(query,function(err,data){
+                                                        if(err){
+                                                            logger.error("Error in finding Resource Details for Query : ",query,err);
+                                                        }
+                                                        if(data.length > 0){
+                                                            chefNodeCount++;
+                                                            if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
+                                                                serviceMapVersion(service, resourceList, instanceStateList);
+                                                            }
+                                                            if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
+                                                                next(null, resourceList);
+                                                            }
+                                                        }else{
+                                                            commonService.syncChefNodeWithResources(chefNode,service,function(err,resourceData){
+                                                                if(err){
+                                                                    logger.error("Error in syncing Chef Node with Resources: ",err);
+                                                                }
+                                                                resourceList.push({
+                                                                    type:key,
+                                                                    value:service.identifiers.aws[key],
+                                                                    result: resourceData
+                                                                });
+                                                                chefNodeCount++;
+                                                                if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
+                                                                    serviceMapVersion(service, resourceList, instanceStateList);
+                                                                }
+                                                                if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
+                                                                    next(null, resourceList);
+                                                                }
+                                                            })
+                                                        }
+                                                    })
+                                                })
+                                            }else{
+                                                identifierCount++;
+                                                if (identifierCount === Object.keys(service.identifiers.chef).length) {
+                                                    serviceMapVersion(service, resourceList, instanceStateList);
+                                                }
+                                                if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.chef).length) {
+                                                    next(null, resourceList);
+                                                }
+                                            }
+                                        })
+                                    })
+                                }
+                            });
+                        }else{
+                            count++;
+                            if (count === services.length) {
+                                next(null, services);
                             }
                         }
                     })(services[i]);
@@ -885,9 +953,452 @@ function serviceMapSync(callback){
             callback(err,null);
             return;
         }else{
+            logger.debug("ServiceMap is Done");
             callback(null,data);
             return;
         }
     })
+}
 
+function serviceMapVersion(service,resources,instanceStateList){
+    logger.debug(" Server Map Version is Started ");
+    var filterResourceList = [];
+    async.waterfall([
+        function(next){
+            if(resources.length > 0){
+                var count = 0;
+                resources.forEach(function(node){
+                    if(node.result.category !== 'managed') {
+                        instanceStateList.push('authentication_error');
+                        var resourceObj = {
+                            id: node.result._id + '',
+                            type: node.result.resourceType,
+                            state: node.result.resourceDetails.state,
+                            category: node.result.category,
+                            platformId: node.result.resourceDetails.platformId,
+                            authentication: node.result.authentication,
+                            bootStrapState: node.result.resourceDetails.bootStrapState
+                        }
+                        if (node.result.resourceDetails.bootStrapState === 'bootStrapping') {
+                            instanceStateList.push('bootStrapping');
+                        }
+                        var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        resourceObj[node.type] = obj[node.type];
+                        var findCheck = false;
+                        for (var i = 0; i < filterResourceList.length; i++) {
+                            if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
+                                var filterObj = filterResourceList[i];
+                                var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                filterObj[node.type] = resourceVal[node.type];
+                                filterResourceList.splice(i, 1);
+                                filterResourceList.push(filterObj);
+                                findCheck = true;
+                            }
+                        }
+                        if (findCheck === false) {
+                            filterResourceList.push(resourceObj);
+                        }
+                        count++;
+                        if(count === resources.length){
+                            next(null, filterResourceList);
+                        }
+                        if(node.result.authentication ==='failed' && node.result.resourceDetails.bootStrapState ==='failed' && node.result.resourceDetails.state ==='stopped' ){
+                            commonService.startResource(service.id,node.result,function(err,state){
+                                if(err){
+                                    logger.error(err);
+                                }else{
+                                    logger.debug(state);
+                                }
+                            })
+                        }
+                    }else if(service.masterDetails.envId === node.result.masterDetails.envId && service.masterDetails.configId === node.result.configDetails.id) {
+                        var resourceObj = {
+                            id: node.result._id + '',
+                            type: node.result.resourceType,
+                            state: node.result.resourceDetails.state,
+                            category: node.result.category,
+                            platformId: node.result.resourceDetails.platformId,
+                            authentication: node.result.authentication,
+                            bootStrapState: node.result.resourceDetails.bootStrapState
+                        }
+                        if(node.result.resourceDetails.bootStrapState === 'failed'){
+                            instanceStateList.push('bootStrap_failed');
+                        }
+                        if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
+                            instanceStateList.push('bootStrapping');
+                        }
+                        var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                        resourceObj[node.type] = obj[node.type];
+                        var findCheck = false;
+                        for (var i = 0; i < filterResourceList.length; i++) {
+                            if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
+                                var filterObj = filterResourceList[i];
+                                var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                filterObj[node.type] = resourceVal[node.type];
+                                filterResourceList.splice(i, 1);
+                                filterResourceList.push(filterObj);
+                                findCheck = true;
+                            }
+                        }
+                        if (findCheck === false) {
+                            filterResourceList.push(resourceObj);
+                        }
+                        count++;
+                        if(count === resources.length){
+                            next(null, filterResourceList);
+                        }
+                    }else{
+                        logger.debug("Un-Matched Record");
+                        count++;
+                        if(count === resources.length){
+                            next(null, filterResourceList);
+                        }
+                    }
+
+                });
+            }else{
+                next(null,resources);
+            }
+        },
+        function(filterObj,next){
+            if(service.resources.length === 0){
+                instanceStateList.push('initializing');
+            }
+            var serviceState = getServiceState(instanceStateList);
+            if(service.resources.length === filterObj.length && instanceStateList.indexOf('deleted') === -1){
+                service.updatedOn = new Date().getTime();
+                serviceMapService.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
+                    if(err){
+                        logger.error("Error in updating Service:",err);
+                        next(err,null);
+                        return;
+                    }else{
+                        logger.debug("Successfully updated Service");
+                        next(null,data);
+                        return;
+                    }
+                })
+            }else{
+                service.resources = filterObj;
+                service.state = serviceState;
+                service.version = service.version + 0.1;
+                service.createdOn = new Date().getTime();
+                delete service._id;
+                delete service.id;
+                serviceMapService.createNewService(service,function(err,data){
+                    if(err){
+                        logger.error("Error in creating Service:",err);
+                        next(err,null);
+                        return;
+                    }else{
+                        logger.debug("Successfully created Service");
+                        next(null,data);
+                        return;
+                    }
+                })
+            }
+        }
+
+    ],function(err,results){
+        if(err){
+            logger.error("Error in Server Map Version : ",err);
+            return;
+        }else{
+            logger.debug(" Server Map Version is Done ");
+            return;
+        }
+    })
+
+}
+
+function getServiceState(serviceStateList){
+    if(serviceStateList.indexOf('authentication_error') !== -1){
+        return 'Authentication_Error';
+    }else if(serviceStateList.indexOf('bootStrap_failed') !== -1){
+        return 'BootStrap_Failed';
+    }else if(serviceStateList.indexOf('bootStrapping') !== -1){
+        return 'Initializing';
+    }else if(serviceStateList.indexOf('running') !== -1){
+        return 'Running';
+    }else if(serviceStateList.indexOf('stopped') !== -1){
+        return 'Stopped';
+    }else if(serviceStateList.indexOf('terminated') !== -1){
+        return 'Terminated';
+    }else if(serviceStateList.indexOf('shutting-down') !== -1){
+        return 'Shut-Down';
+    }else if(serviceStateList.indexOf('pending') !== -1){
+        return 'Pending';
+    }else if(serviceStateList.indexOf('deleted') !== -1){
+        return 'Deleted';
+    }else{
+        return 'Initializing';
+    }
+}
+
+function saeSync(callback){
+    logger.debug("SAE Sync is stared");
+    async.waterfall([
+        function(next){
+            instancesDao.getAllNonTerminatedInstances({isDeleted:false},next);
+        },
+        function(instances,next){
+            if(instances.length > 0){
+                async.parallel({
+                    instanceSync:function(callback){
+                        instanceSync(instances,callback);
+                    },
+                    resourceSync:function(callback){
+                        var count = 0;
+                        instances.forEach(function(instance){
+                            createOrUpdateResource(instance,function(err,data){
+                                if(err){
+                                    logger.error("Error in create or Update resources:",err);
+                                }
+                                count++;
+                                if(count === instances.length){
+                                    callback(null,instances);
+                                }
+                            })
+                        })
+                    }
+                },function(err,results){
+                    if(err){
+                        next(err,null);
+                    }else{
+                        next(null,results);
+                    }
+                })
+            }else{
+                logger.debug("There is no instance present in DB without terminated state");
+                next(null,instances);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error("There are some error in SAE Sync.",err);
+            return callback(err,null);
+        }else{
+            logger.debug("SAE Sync is Done");
+            return callback(null,results);
+        }
+
+    })
+}
+
+function createOrUpdateResource(instance,callback){
+    if(instance.source === 'service'){
+        return callback(null,null);
+    }else if(instance.source === 'cloud'){
+        return callback(null,null);
+    }else if(instance.source === 'blueprint' && instance.providerType && instance.providerType !== 'aws'){
+        return callback(null,null);
+    }else {
+        var resourceObj = {
+            name: instance.name,
+            category: 'managed',
+            masterDetails: {
+                orgId: instance.orgId,
+                orgName: instance.orgName,
+                bgId: instance.bgId,
+                bgName: instance.bgName,
+                projectId: instance.projectId,
+                projectName: instance.projectName,
+                envId: instance.envId,
+                envName: instance.environmentName
+            },
+            resourceDetails: {
+                platformId: instance.platformId,
+                vpcId: instance.vpcId ? instance.vpcId : null,
+                subnetId: instance.subnetId ? instance.subnetId : null,
+                hostName: instance.hostName ? instance.hostName : null,
+                publicIp: instance.instanceIP,
+                privateIp: instance.privateIpAddress,
+                state: instance.instanceState,
+                bootStrapState: instance.bootStrapStatus,
+                credentials: instance.credentials,
+                route53HostedParams: instance.route53HostedParams,
+                hardware: instance.hardware,
+                dockerEngineState: instance.docker.dockerEngineStatus
+            },
+            configDetails: {
+                id: instance.chef.serverId,
+                nodeName: instance.chef.chefNodeName,
+                run_list: instance.runlist,
+                attributes: instance.attributes
+            },
+            blueprintDetails: {
+                id: instance.blueprintData.blueprintId ? instance.blueprintData.blueprintId : null,
+                name: instance.blueprintData.blueprintName ? instance.blueprintData.blueprintName : null,
+                templateName: instance.blueprintData.templateId ? instance.blueprintData.templateId : null,
+                templateType: instance.blueprintData.templateType ? instance.blueprintData.templateType : null
+            },
+            user: instance.catUser,
+            isScheduled: instance.isScheduled,
+            cronJobIds: instance.cronJobIds,
+            startScheduler: instance.instanceStartScheduler,
+            stopScheduler: instance.instanceStopScheduler,
+            interval: instance.interval,
+            stackName: instance.domainName && instance.domainName !== null ? instance.domainName : instance.stackName,
+            tagServer: instance.tagServer,
+            monitor: instance.monitor,
+            isDeleted: instance.isDeleted
+        }
+        if (instance.schedulerStartOn) {
+            resourceObj.schedulerStartOn = instance.schedulerStartOn;
+        }
+        if (instance.schedulerStopOn) {
+            resourceObj.schedulerStopOn = instance.schedulerStopOn;
+        }
+        if (instance.providerType && instance.providerType !== null) {
+            resourceObj.providerDetails = {
+                id: instance.providerId,
+                type: instance.providerType,
+                region: {
+                    region: instance.region && instance.region !== null ? instance.region : instance.providerData.region
+                },
+                keyPairId: instance.keyPairId
+            };
+            resourceObj.cost = instance.cost;
+            resourceObj.usage = instance.usage;
+            resourceObj.tags = instance.tags;
+            resourceObj.resourceType = 'EC2'
+        } else {
+            resourceObj.resourceType = 'instance'
+        }
+        var filterBy = {
+            'resourceDetails.platformId': instance.platformId,
+            'category': 'managed'
+        }
+        ec2Model.getInstanceData(filterBy, function (err, data) {
+            if (err) {
+                logger.error("Error in fetching Resources>>>>:", err);
+                return callback(err, null);
+            } else if (data.length > 0) {
+                ec2Model.updateInstanceData(data[0]._id, resourceObj, function (err, data) {
+                    if (err) {
+                        logger.error("Error in updating Resources>>>>:", err);
+                        return callback(err, null);
+                    } else {
+                        return callback(null, data);
+                    }
+                })
+            } else {
+                resourceObj.createdOn = new Date().getTime();
+                ec2Model.createNew(resourceObj, function (err, data) {
+                    if (err) {
+                        logger.error("Error in creating Resources>>>>:", err);
+                        return callback(err, null);
+                    } else {
+                        return callback(null, data);
+                    }
+                })
+            }
+        })
+    }
+}
+
+function instanceSync(instances,callback){
+    var count = 0,credentials = {};
+    instances.forEach(function(instance){
+        if(instance.providerId && instance.providerId !== null){
+            count++;
+            if(count === instances.length){
+                return callback(null,instances);
+            }
+        }else{
+            var nodeDetails = {
+                nodeIp: instance.instanceIP,
+                nodeOs: instance.hardware.os,
+                nodeName: instance.platformId
+            }
+            instance.credentials['source'] = 'executor';
+            credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
+                if (decryptedCredentials.fileData) {
+                    credentials = {
+                        "username": decryptedCredentials.username,
+                        "pemFileData": decryptedCredentials.fileData,
+                        "pemFileLocation": instance.credentials.pemFileLocation
+                    }
+                } else {
+                    credentials = {
+                        "username": decryptedCredentials.username,
+                        "password": decryptedCredentials.password
+                    }
+                }
+                commonService.checkNodeCredentials(credentials,nodeDetails,function(err,credentialFlag){
+                    if(err){
+                        logger.error("Error in checking credentials of a instance : ",instance.platformId,err);
+                    }
+                    if(credentialFlag === true) {
+                        count++;
+                        if(count === instances.length){
+                            callback(null,instances);
+                        }
+                    }else{
+                        instancesDao.removeTerminatedInstanceById(instance._id, function (err, data) {
+                            if (err) {
+                                count++;
+                                logger.error(err);
+                                if (count === instances.length) {
+                                    callback(null, instances);
+                                    return;
+                                }
+                            } else {
+                                count++;
+                                var timestampStarted = new Date().getTime();
+                                var user = instance.catUser ? instance.catUser : 'superadmin';
+                                var actionLog = instancesDao.insertInstanceStatusActionLog(instance._id, user, 'terminated', timestampStarted);
+                                logsDao.insertLog({
+                                    instanceId: instance._id,
+                                    instanceRefId: actionLog._id,
+                                    err: false,
+                                    log: "Instance : terminated",
+                                    timestamp: timestampStarted
+                                });
+                                var instanceLog = {
+                                    actionId: actionLog._id,
+                                    instanceId: instance._id,
+                                    orgName: instance.orgName,
+                                    bgName: instance.bgName,
+                                    projectName: instance.projectName,
+                                    envName: instance.environmentName,
+                                    status: 'terminated',
+                                    actionStatus: "success",
+                                    platformId: instance.platformId,
+                                    blueprintName: instance.blueprintData.blueprintName,
+                                    data: instance.runlist,
+                                    platform: instance.hardware.platform,
+                                    os: instance.hardware.os,
+                                    size: instance.instanceType,
+                                    user: user,
+                                    createdOn: new Date().getTime(),
+                                    startedOn: new Date().getTime(),
+                                    providerType: instance.providerType,
+                                    action: 'Terminated',
+                                    logs: []
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                noticeService.notice("system", {
+                                    title: "Instance : terminated",
+                                    body: "Instance " + instance.platformId + " is Terminated."
+                                }, "success", function (err, data) {
+                                    if (err) {
+                                        logger.error("Error in Notification Service, ", err);
+                                    }
+                                });
+                                if (count === instances.length) {
+                                    callback(null, instances);
+                                    return;
+                                }
+                            }
+                        })
+                    }
+                })
+            });
+        }
+    })
 }

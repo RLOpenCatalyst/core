@@ -361,20 +361,21 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                     projectName: project[0].projectname,
                                     envId: opts.envId,
                                     envName: envName,
-                                    chefServerId: infraManager.infraManagerId,
-                                    chefServerName: chefDetails.configname,
-                                    monitorId: monitor !== null ? monitor._id : monitor,
-                                    monitorName: monitor !== null ? monitor.name : monitor
+                                    configId: infraManager.infraManagerId,
+                                    configName: chefDetails.configname,
+                                    monitor: monitor
                                 },
                                 name: opts.stackName !== null ? opts.stackName : opts.domainName,
                                 type: self.templateType === 'chef' ? 'Software Stack' : self.templateType === 'ami' ? 'OSImage' : self.templateType === 'cft' ? 'CloudFormation' : 'AzureArm',
                                 state: 'Initializing',
                                 desc: self.name,
-                                identifiers:[{
-                                    type:opts.stackName !== null ? 'Stack Name' : 'Domain Name',
-                                    value:opts.stackName !== null ? opts.stackName : opts.domainName
-                                }],
-                                createdOn: new Date.getTime()
+                                identifiers: {
+                                    aws: {
+                                        type: 'stackName',
+                                        value: opts.stackName !== null ? opts.stackName : opts.domainName
+                                    }
+                                },
+                                createdOn: new Date().getTime()
                             }
                             serviceMapService.createNewService(serviceMapObj,function(err,data){
                                 if(err){

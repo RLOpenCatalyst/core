@@ -19,8 +19,6 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
 var instancesModel = require('_pr/model/classes/instance/instance');
-var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
-var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var resourceMetricsModel = require('_pr/model/resource-metrics');
 var instanceService = require('_pr/services/instanceService');
 var async = require('async');
@@ -181,7 +179,7 @@ function generateEC2UsageMetricsForProvider(provider, instances, startTime, endT
                 resources.getResourcesByProviderResourceType(provider._id, 'EC2', next);
             },
             function (ec2Instance,next) {
-                resourceService.getEC2InstanceUsageMetrics(provider, ec2Instance, startTime, endTime, period, next);
+                resourceService.getEC2ResourceUsageMetrics(provider, ec2Instance, startTime, endTime, period, next);
             },
             function (ec2UsageMetrics, next) {
                 saveResourceUsageMetrics(ec2UsageMetrics, next);
