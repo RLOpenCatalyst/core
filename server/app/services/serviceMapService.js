@@ -545,14 +545,20 @@ serviceMapService.getServiceResources = function getServiceResources(serviceId,f
                             filterObj[key] = resource[key];
                         }
                     });
-                    if(JSON.stringify(resourceObj) === JSON.stringify(filterObj)){
-                        resourceObj['id'] = resource.id;
-                        resourceObj['type'] =resource.type;
-                        resourceObj['category'] =resource.category;
-                        resourceObj['platformId']= resource.platformId;
-                        resourceObj['name'] = resource.name;
-                        resourceObj['state'] = resource.state;
-                        filterResourceList.push(resourceObj);
+                    if(Object.keys(filterObj).length > 0) {
+                        if (JSON.stringify(resourceObj) === JSON.stringify(filterObj)) {
+                            resourceObj['id'] = resource.id;
+                            resourceObj['type'] = resource.type;
+                            resourceObj['category'] = resource.category;
+                            resourceObj['platformId'] = resource.platformId;
+                            resourceObj['name'] = resource.name;
+                            resourceObj['state'] = resource.state;
+                            resourceObj['authentication'] = resource.authentication;
+                            resourceObj['bootStrapState'] = resource.bootStrapState;
+                            filterResourceList.push(resourceObj);
+                        }
+                    }else{
+                        filterResourceList.push(resource);
                     }
                 });
                 next(null,filterResourceList);

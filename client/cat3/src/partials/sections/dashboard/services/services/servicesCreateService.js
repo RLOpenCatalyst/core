@@ -47,6 +47,14 @@
 				return genericServices.promiseGet(params); 	
 			};
 
+			serviceCreate.getResources = function(serviceId) {
+				var params = {
+					url: '/services/' + serviceId + '/resources',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params); 	
+			};
+
 			serviceCreate.deleteService = function(serviceId) {
 				var params = {
 					url: '/services/' + serviceId,
