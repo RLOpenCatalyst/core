@@ -448,6 +448,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'resources': {$elemMatch: {id: resourceId}}
                                         }, {
                                             'resources.$.bootStrapState': 'success',
+                                            'resources.$.category': 'managed',
                                             'state':'Running'
                                         }, function (err, result) {
                                             if (err) {
@@ -459,7 +460,8 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             '_id': ObjectId(serviceId),
                                             'resources': {$elemMatch: {id: resourceId}}
                                         }, {
-                                            'resources.$.bootStrapState': 'success'
+                                            'resources.$.bootStrapState': 'success',
+                                            'resources.$.category': 'managed'
                                         }, function (err, result) {
                                             if (err) {
                                                 logger.error("Error in updating Service State:", err);

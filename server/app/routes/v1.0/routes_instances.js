@@ -561,21 +561,13 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             if(err){
                                 logger.error("Error in fetching Resources:",err);
                             }else{
-                                var resourceObj = {
-                                    'resources.$.state':'deleted'
-                                }
-                                serviceMapService.updateService({resources:{$elemMatch:{id:JSON.stringify(resources[0]._id)}}},resourceObj,function(err,resourceMap){
-                                    if(err){
-                                        logger.error("Error in updating Services.",err);
-                                    }
-                                    resourceModel.updateResourceById(resources[0]._id,{isDeleted:true,'resourceDetails.state':'deleted'},function(err,data){
-                                        if(err){
-                                            logger.error("Error in deleting Resources.",err);
-                                        }
-                                    })
-                                });
-                                logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
-                                res.send(200);
+                               serviceMapService.updateServiceMapVersion(resources[0]._id+'',function(err,data){
+                                   if(err){
+                                       logger.error("Error in updating Service Map Version:");
+                                   }
+                               });
+                               logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
+                               res.send(200);
                             }
                         })
                     });
@@ -585,7 +577,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     });
 
     app.post('/instances/:instanceId/appUrl', function (req, res) { //function(instanceId, ipaddress, callback)
-
         instancesDao.addAppUrls(req.params.instanceId, req.body.appUrls, function (err, appUrls) {
             if (err) {
                 logger.error("Failed to add appurl", err);
