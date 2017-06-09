@@ -207,7 +207,6 @@ serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEac
 serviceSchema.statics.getServices = function getServices(filterBy,callback) {
     filterBy.isDeleted = false;
     filterBy.state = {$ne:'Error'};
-    console.log(filterBy);
     services.find(filterBy,function (err, data) {
         if (err) {
             logger.error(err);

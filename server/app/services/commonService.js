@@ -594,7 +594,6 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                         }
                                         logger.debug('Docker Check Returned:' + retCode);
                                         if (retCode == '0') {
-                                            dockerEngineState
                                             instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
                                                 logger.debug('Instance Docker Status set to Success');
                                             });
@@ -985,7 +984,7 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
             platformId: chefNodeDetails.platformId && chefNodeDetails.platformId !== null ? chefNodeDetails.platformId : chefNodeDetails.name,
             publicIp: chefNodeDetails.ip,
             privateIp: chefNodeDetails.ip,
-            state: 'running',
+            state: 'unknown',
             bootStrapState: 'success',
             hardware: chefNodeDetails.hardware,
             hostName: chefNodeDetails.fqdn

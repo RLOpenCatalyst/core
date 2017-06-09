@@ -834,7 +834,6 @@ function serviceMapSync(callback){
                                 keyCount++;
                                 Object.keys(service.identifiers.aws).forEach(function (key) {
                                     var queryObj = apiUtil.getQueryByKey(key, service.identifiers.aws[key]);
-                                    console.log(JSON.stringify(queryObj));
                                     if (queryObj.error) {
                                         serviceMapService.updateServiceById(service.id, {state: 'Error'}, function (err, res) {
                                             if (err) {
@@ -889,7 +888,6 @@ function serviceMapSync(callback){
                                 keyCount++;
                                 Object.keys(service.identifiers.chef).forEach(function (key) {
                                     var queryObj = apiUtil.getQueryByKey(key, service.identifiers.chef[key]);
-                                    console.log(JSON.stringify(queryObj));
                                     if (queryObj.error) {
                                         serviceMapService.updateServiceById(service.id, {state: 'Error'}, function (err, res) {
                                             if (err) {
@@ -905,9 +903,8 @@ function serviceMapSync(callback){
                                             }
                                         })
                                     } else {
-                                        queryObj['masterDetails.orgId'] = service.masterDetails.orgId;
-                                        queryObj['masterDetails.envName'] = service.masterDetails.envName;
-                                        queryObj['masterDetails.serverId'] = service.masterDetails.serverId;
+                                        queryObj['orgId'] = service.masterDetails.orgId;
+                                        queryObj['serverId'] = service.masterDetails.configId;
                                         chefDao.getChefNodes(queryObj, function (err, chefNodes) {
                                             if (err) {
                                                 logger.error("Error in fetching Chef Node Details for Query:", queryObj, err);
@@ -916,20 +913,34 @@ function serviceMapSync(callback){
                                                 identifierCount++;
                                                 chefNodes.forEach(function (chefNode) {
                                                     var query = {
-                                                        'configDetails.nodeName': chefNode.name,
                                                         $or: [{
                                                             'resourceDetails.publicIp': chefNode.ip
-                                                        },
+                                                             },
                                                             {
                                                                 'resourceDetails.privateIp': chefNode.ip
+                                                            },
+                                                            {
+                                                                'configDetails.nodeName': chefNode.name
                                                             }],
-                                                        'resourceDetails.hostName': chefNode.fqdn
+                                                        'resourceDetails.hostName': chefNode.fqdn,
+                                                        isDeleted:false
                                                     }
                                                     ec2Model.getInstanceData(query, function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in finding Resource Details for Query : ", query, err);
                                                         }
                                                         if (data.length > 0) {
+                                                            ec2Model.updateInstanceData(data[0]._id,{'resourceDetails.bootStrapState':'success'},function(err,data){
+                                                                if(err){
+                                                                    logger.error("Error in updating BootStrap State:",err);
+                                                                }
+                                                            });
+                                                            data[0].resourceDetails.bootStrapState = 'success';
+                                                            resourceList.push({
+                                                                type: key,
+                                                                value: service.identifiers.chef[key],
+                                                                result: data[0]
+                                                            });
                                                             chefNodeCount++;
                                                             if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                 serviceMapVersion(service, resourceList, instanceStateList);
@@ -937,6 +948,7 @@ function serviceMapSync(callback){
                                                             if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                 next(null, resourceList);
                                                             }
+                                                            instanceStateList.push(data[0].resourceDetails.state);
                                                         } else {
                                                             commonService.syncChefNodeWithResources(chefNode, service, function (err, resourceData) {
                                                                 if (err) {
@@ -944,10 +956,11 @@ function serviceMapSync(callback){
                                                                 }
                                                                 resourceList.push({
                                                                     type: key,
-                                                                    value: service.identifiers.aws[key],
+                                                                    value: service.identifiers.chef[key],
                                                                     result: resourceData
                                                                 });
                                                                 chefNodeCount++;
+                                                                instanceStateList.push(resourceData.resourceDetails.state);
                                                                 if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                     serviceMapVersion(service, resourceList, instanceStateList);
                                                                 }
@@ -1147,11 +1160,11 @@ function serviceMapVersion(service,resources,instanceStateList){
 function getServiceState(serviceStateList){
     if(serviceStateList.indexOf('error') !== -1){
         return 'Error';
-    }else if(serviceStateList.indexOf('authentication_error') !== -1){
+    }else if(serviceStateList.indexOf('authentication_error') !== -1 || serviceStateList.indexOf('unknown') !== -1 ){
         return 'Authentication_Error';
     }else if(serviceStateList.indexOf('bootStrap_failed') !== -1){
         return 'BootStrap_Failed';
-    }else if(serviceStateList.indexOf('bootStrapping') !== -1){
+    }else if(serviceStateList.indexOf('bootStrapping') !== -1 || serviceStateList.indexOf('initializing') !== -1){
         return 'Initializing';
     }else if(serviceStateList.indexOf('stopped') !== -1){
         return 'Stopped';

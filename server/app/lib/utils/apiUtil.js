@@ -69,8 +69,12 @@ var ApiUtil = function() {
                 };
                 break;
             case 'roles':
+                var keyList = [];
+                value.forEach(function(val){
+                    keyList.push('role['+val+']')
+                })
                 query = {
-                    'configDetails.run_list': {$in: value}
+                    'run_list': {$in: keyList}
                 };
                 break;
             case 'tags':
@@ -117,7 +121,11 @@ var ApiUtil = function() {
                             query['$or'] = [tagObj];
                             break;
                         case 'roles':
-                            query['configDetails.run_list'] = {$in: value};
+                            var keyList = [];
+                            value.forEach(function(val){
+                                keyList.push('role['+val+']')
+                            })
+                            query['run_list'] = {$in: keyList};
                             break;
                         case 'stackName':
                             query['stackName'] = value;

@@ -560,14 +560,17 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         resourceModel.getResources({'resourceDetails.platformId':platformId,category:'managed',isDeleted:false},function(err,resources){
                             if(err){
                                 logger.error("Error in fetching Resources:",err);
-                            }else{
-                               serviceMapService.updateServiceMapVersion(resources[0]._id+'',function(err,data){
+                            }else if(resources.length > 0){
+                               serviceMapService.updateServiceMapVersion(resources[0]._id + '',function(err,data){
                                    if(err){
                                        logger.error("Error in updating Service Map Version:");
                                    }
                                });
                                logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
                                res.send(200);
+                            }else{
+                                logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
+                                res.send(200);
                             }
                         })
                     });
