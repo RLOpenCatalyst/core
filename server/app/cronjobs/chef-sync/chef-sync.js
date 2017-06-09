@@ -115,12 +115,25 @@ function chefSyncWithChefNodes(nodeDetailList,callback){
                     })
                 },
                 resourceSync: function(callback){
-                    instanceModel.getInstanceData({'configDetails.id':nodeDetail.serverId,'configDetails.nodeName':nodeDetail.name,serverDeletedCheck:false},function(err,instances){
+                    var query = {
+                        $or: [{
+                            'resourceDetails.publicIp': nodeDetail.ip
+                        },
+                            {
+                                'resourceDetails.privateIp': nodeDetail.ip
+                            },
+                            {
+                                'configDetails.nodeName': nodeDetail.name
+                            }],
+                        'resourceDetails.hostName': nodeDetail.fqdn,
+                        isDeleted:false
+                    }
+                    instanceModel.getInstanceData(query,function(err,instances){
                         if(err){
                             logger.error("Error in fetching Resource Details in DB:",err);
                             callback(err,null);
                         }else if(instances.length > 0){
-                            instanceModel.updateInstanceData(instances[0]._id,{'configDetails.run_list':nodeDetail.run_list,'configDetails.override':nodeDetail.override},function(err,data){
+                            instanceModel.updateInstanceData(instances[0]._id,{'configDetails.id':nodeDetail.serverId,'configDetails.run_list':nodeDetail.run_list,'configDetails.override':nodeDetail.override},function(err,data){
                                 if (err) {
                                     logger.error("Error in updating Resource Details in DB:",err);
                                     callback(err,null);
@@ -291,13 +304,13 @@ function getChefNodeDetails(nodeList,chefObj,chefServerId,orgId,callback){
                     chefNodeObj.ip = nodeIp;
                     chefNodeObj.platformId = platformId;
                     var hardwareData = {
-                        platform: 'unknown',
-                        platformVersion: 'unknown',
-                        platformFamily: 'unknown',
-                        architecture: 'unknown',
+                        platform: '-',
+                        platformVersion: '-',
+                        platformFamily: '-',
+                        architecture: '-',
                         memory: {
-                            total: 'unknown',
-                            free: 'unknown'
+                            total: '-',
+                            free: '-'
                         },
                         os: 'linux'
                     };
