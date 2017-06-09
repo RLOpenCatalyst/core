@@ -75,13 +75,13 @@
                   </select>
                </div>
                 <div class="col-lg-6 col-md-6 authPemFile margintop15">
-                  <label for="autenticationYAMLfile" class="servicesLabel">YAML File
+                  <label for="yamlfile" class="servicesLabel">YAML File
                   <span class="control-label red">&nbsp;*</span>
-                  <span ng-show="newServiceForm.autenticationYAMLfile.$touched && newServiceForm.autenticationYAMLfile.$error.required" class="inputValidationMsg">Required
+                  <span ng-show="newServiceForm.yamlfile.$touched && newServiceForm.yamlfile.$error.required" class="inputValidationMsg">Required
                   </span>
                   </label>
                   <div class="input-groups">
-                     <input type="file" name="autenticationYAMLfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required="" onchange="angular.element(this).scope().setFile(this)">
+                     <input type="file" name="yamlfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required onchange="angular.element(this).scope().setFile(this)">
                   </div>
                </div>
             </div>

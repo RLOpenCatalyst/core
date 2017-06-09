@@ -45,52 +45,54 @@
                     resourceListView: function() {
                         $scope.isResourceListLoading = true;
                         $scope.serviceResourceData.data = [];
-                        servicesCreateService.getResources($scope.serviceSelected.id).then(function(response){
-                            $scope.serviceResourceData.data = response;
-                            var bpcolumnDefs = [];
-                            var resourceGrid = [
-                                {
-                                    name: 'State',
-                                    cellTemplate:'<i title="{{row.entity.state}}" class="text-green fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'running\'"></i>' +
-                                    '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'stopped\'"></i>' + '<i title="{{row.entity.state}}" class="text-black fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'terminated\'"></i>' + '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'deleted\'"></i>',
-                                    cellTooltip: true
-                                },
-                                {
-                                    name: 'Instance Id',
-                                    field: 'platformId',
-                                    cellTooltip: true
-                                },
-                                {
-                                    name: 'Type',
-                                    field: 'type',
-                                    cellTooltip: true
-                                },
-                                {
-                                    name: 'Category',
-                                    field: 'category',
-                                    cellTooltip: true
-                                },
-                                {
-                                    name: 'Authentication',
-                                    cellTooltip: true,
-                                    cellTemplate:'<i title="{{row.entity.authentication}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.authentication === \'success\'"></i>' +
-                                    '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i style="cursor:pointer;" title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="grid.appScope.changeAuthenticationType(row.entity)"></i>'
-                                },
-                                {
-                                    name: 'Bootstrap',
-                                    cellTooltip: true,
-                                    cellTemplate: '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.bootStrapState === \'success\'"></i>' +
-                                    '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>',
+                        if($scope.serviceSelected.id) {
+                            servicesCreateService.getResources($scope.serviceSelected.id).then(function(response){
+                                $scope.serviceResourceData.data = response;
+                                var bpcolumnDefs = [];
+                                var resourceGrid = [
+                                    {
+                                        name: 'State',
+                                        cellTemplate:'<i title="{{row.entity.state}}" class="text-green fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'running\'"></i>' +
+                                        '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'stopped\'"></i>' + '<i title="{{row.entity.state}}" class="text-black fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'terminated\'"></i>' + '<i title="{{row.entity.state}}" class="text-red fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.state === \'deleted\'"></i>' + '<span title="{{row.entity.state}}" ng-show="row.entity.state === \'unknown\'">-</span>',
+                                        cellTooltip: true
+                                    },
+                                    {
+                                        name: 'Instance Id',
+                                        field: 'platformId',
+                                        cellTooltip: true
+                                    },
+                                    {
+                                        name: 'Type',
+                                        field: 'type',
+                                        cellTooltip: true
+                                    },
+                                    {
+                                        name: 'Category',
+                                        field: 'category',
+                                        cellTooltip: true
+                                    },
+                                    {
+                                        name: 'Authentication',
+                                        cellTooltip: true,
+                                        cellTemplate:'<i title="{{row.entity.authentication}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.authentication === \'success\'"></i>' +
+                                        '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'pending\'"></i>' + '<i style="cursor:pointer;" title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="grid.appScope.changeAuthenticationType(row.entity)"></i>'
+                                    },
+                                    {
+                                        name: 'Bootstrap',
+                                        cellTooltip: true,
+                                        cellTemplate: '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.bootStrapState === \'success\'"></i>' +
+                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>',
+                                    }
+                                ];
+                                bpcolumnDefs = resourceGrid;                                
+                                $scope.serviceResourceData.columnDefs = bpcolumnDefs;
+                                angular.extend($scope.serviceResourceData, serviceInfoUIGridDefaults.gridOption);
+                                if($scope.serviceResourceData.data) {
+                                    $scope.serviceResourceData.totalItems = $scope.serviceResourceData.data.length;
                                 }
-                            ];
-                            bpcolumnDefs = resourceGrid;                                
-                            $scope.serviceResourceData.columnDefs = bpcolumnDefs;
-                            angular.extend($scope.serviceResourceData, serviceInfoUIGridDefaults.gridOption);
-                            if($scope.serviceResourceData.data) {
-                                $scope.serviceResourceData.totalItems = $scope.serviceResourceData.data.length;
-                            }
-                            $scope.isResourceListLoading = false;
-                        });
+                                $scope.isResourceListLoading = false;
+                            });
+                        }
                     }
                     
                 });
@@ -110,6 +112,12 @@
                                 }
                             }
                         }
+                    }).result.then(function(response) {
+                        if(response) {
+                            $scope.resourceListView();
+                        }
+                    }, function() {
+                        console.log("Dismiss at " + new Date());
                     });
                 }
 

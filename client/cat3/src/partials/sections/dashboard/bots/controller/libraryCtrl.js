@@ -83,7 +83,7 @@
                     '<img src="images/bots/serviceManagement.png" ng-show="row.entity.category==\'Service Management\'" alt="row.entity.category" title="Service Management" class="task-type-img" />'+
                     '<img src="images/bots/upgrade.png" ng-show="row.entity.category==\'Upgrade\'" alt="row.entity.category" title="Upgrade" class="task-type-img" />',cellTooltip: true},
                 { name: 'Name',displayName: 'Name',field:'name',cellTooltip: true},
-                { name: 'BOT Id',displayName: 'BOT Id',field:'id',cellTooltip: true},
+                { name: 'Type',displayName: 'Type',field:'type',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
              //   { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
                 { name: 'Organization',field:'orgName',cellTooltip: true},
@@ -483,6 +483,9 @@
         };
 
         $rootScope.applyFilter = function() {
+            $scope.isBotLibraryPageLoading = true;
+            $scope.botLibGridOptions.data = [];
+            $scope.showLoadRecord();
             var url = '/bot?filterBy=';
             if($scope.botLibAction !== undefined && $scope.botLibType !== undefined && $scope.botLibCategory !== undefined) {
                 url += 'category:'+ $scope.botLibCategory + ',type:'+$scope.botLibType + ',action:'+$scope.botLibAction 
