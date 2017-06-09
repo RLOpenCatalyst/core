@@ -448,6 +448,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'resources': {$elemMatch: {id: resourceId}}
                                         }, {
                                             'resources.$.bootStrapState': 'success',
+                                            'resources.$.category': 'managed',
                                             'state':'Running'
                                         }, function (err, result) {
                                             if (err) {
@@ -459,7 +460,8 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             '_id': ObjectId(serviceId),
                                             'resources': {$elemMatch: {id: resourceId}}
                                         }, {
-                                            'resources.$.bootStrapState': 'success'
+                                            'resources.$.bootStrapState': 'success',
+                                            'resources.$.category': 'managed'
                                         }, function (err, result) {
                                             if (err) {
                                                 logger.error("Error in updating Service State:", err);
@@ -592,7 +594,6 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                         }
                                         logger.debug('Docker Check Returned:' + retCode);
                                         if (retCode == '0') {
-                                            dockerEngineState
                                             instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
                                                 logger.debug('Instance Docker Status set to Success');
                                             });
@@ -983,7 +984,7 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
             platformId: chefNodeDetails.platformId && chefNodeDetails.platformId !== null ? chefNodeDetails.platformId : chefNodeDetails.name,
             publicIp: chefNodeDetails.ip,
             privateIp: chefNodeDetails.ip,
-            state: 'running',
+            state: 'unknown',
             bootStrapState: 'success',
             hardware: chefNodeDetails.hardware,
             hostName: chefNodeDetails.fqdn

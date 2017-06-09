@@ -156,8 +156,10 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                 fileUpload.getReadStreamFileByFileId(servicesObj.fileId, function (err, fileDetail) {
                     if (err) {
                         logger.error("Error in reading YML File.");
-                        callback(err, null);
-                        return;
+                        var error =new Error();
+                        error.code = 500;
+                        error.message = "Invalid YML"
+                        return callback(error, null);
                     } else {
                         var fileName = uuid.v4() + '_' + fileDetail.fileName;
                         var desPath = appConfig.tempDir + fileName;
@@ -167,44 +169,49 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                                 callback(err, null);
                                 return;
                             } else {
-                                ymlJs.load(desPath, function (result) {
-                                    if (result !== null) {
-                                        servicesObj.identifiers = result;
-                                        servicesObj.type = 'Service';
-                                        servicesObj.ymlFileId = servicesObj.fileId;
-                                        servicesObj.createdOn = new Date().getTime();
-                                        getMasterDetails(servicesObj.masterDetails,function(err,result) {
-                                            if (err) {
-                                                logger.error("Unable to Master Details");
-                                                callback(err, null);
-                                                return;
-                                            } else {
-                                                monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
-                                                    servicesObj.masterDetails = result;
-                                                    servicesObj.masterDetails.monitor = monitor;
-                                                    servicesObj.state = 'Initializing';
-                                                    services.createNew(servicesObj, function (err, servicesData) {
-                                                        if (err) {
-                                                            logger.error("services.createNew is Failed ==>", err);
-                                                            callback(err, null);
-                                                            apiUtil.removeFile(desPath);
-                                                            return;
-                                                        } else {
-                                                            callback(null, servicesData);
-                                                            apiUtil.removeFile(desPath);
-                                                            return;
-                                                        }
+                                try {
+                                    ymlJs.load(desPath, function (result) {
+                                        if (result !== null) {
+                                            servicesObj.identifiers = result;
+                                            servicesObj.type = 'Service';
+                                            servicesObj.ymlFileId = servicesObj.fileId;
+                                            servicesObj.createdOn = new Date().getTime();
+                                            getMasterDetails(servicesObj.masterDetails, function (err, result) {
+                                                if (err) {
+                                                    logger.error("Unable to Master Details");
+                                                    callback(err, null);
+                                                    return;
+                                                } else {
+                                                    monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
+                                                        servicesObj.masterDetails = result;
+                                                        servicesObj.masterDetails.monitor = monitor;
+                                                        servicesObj.state = 'Initializing';
+                                                        services.createNew(servicesObj, function (err, servicesData) {
+                                                            if (err) {
+                                                                logger.error("services.createNew is Failed ==>", err);
+                                                                callback(err, null);
+                                                                apiUtil.removeFile(desPath);
+                                                                return;
+                                                            } else {
+                                                                callback(null, servicesData);
+                                                                apiUtil.removeFile(desPath);
+                                                                return;
+                                                            }
+                                                        });
                                                     });
-                                                });
-                                            }
-                                        });
-                                    } else {
-                                        var err = new Error("There is no data present YML.")
-                                        err.code = 403;
-                                        callback(err, null);
-                                        apiUtil.removeFile(desPath);
-                                    }
-                                })
+                                                }
+                                            });
+                                        } else {
+                                            var err = new Error("There is no data present YML.")
+                                            err.code = 403;
+                                            callback(err, null);
+                                            apiUtil.removeFile(desPath);
+                                        }
+                                    })
+                                }catch(err){
+                                    console.log("durgesh kumar sharma");
+                                    console.log(err);
+                                }
                             }
                         });
                     }
@@ -303,6 +310,10 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                         next(error,null);
                     }
                     if(resourceDetail !== null && resourceDetail.resourceDetails.state === 'running' ) {
+                        var bootStrapState = 'bootStrapping';
+                        if(resourceDetail.resourceDetails.bootStrapState === 'success'){
+                            bootStrapState = 'success';
+                        }
                         next(null, {code: 202, message: "Authentication is in Progress"});
                         services.updateService({
                             name: servicesData[0].name,
@@ -356,7 +367,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                 name: servicesData[0].name,
                                                 'resources': {$elemMatch: {id: resourceId}}
                                             }, {
-                                                'resources.$.bootStrapState': 'bootStrapping',
+                                                'resources.$.bootStrapState': bootStrapState,
                                                 'resources.$.authentication': 'success',
                                                 state: serviceState
                                             }, function (err, result) {
@@ -365,7 +376,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                 }
                                                 resourceModel.updateResourceById(resourceId, {
                                                     'authentication': 'success',
-                                                    'resourceDetails.bootStrapState': 'bootStrapping'
+                                                    'resourceDetails.bootStrapState': bootStrapState
                                                 }, function (err, data) {
                                                     if (err) {
                                                         logger.error("Error in updating BootStrap State:", err);
@@ -418,7 +429,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                 'name': servicesData[0].name,
                                                 'resources': {$elemMatch: {id: resourceId}}
                                             }, {
-                                                'resources.$.bootStrapState': 'bootStrapping',
+                                                'resources.$.bootStrapState': bootStrapState,
                                                 'resources.$.authentication': 'success',
                                                 'state': serviceState
                                             }, function (err, result) {
@@ -427,7 +438,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                 }
                                                 resourceModel.updateResourceById(resourceId, {
                                                     'authentication': 'success',
-                                                    'resourceDetails.bootStrapState': 'bootStrapping'
+                                                    'resourceDetails.bootStrapState': bootStrapState
                                                 }, function (err, data) {
                                                     if (err) {
                                                         logger.error("Error in updating BootStrap State:", err);
@@ -455,7 +466,6 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                             if (err) {
                                 next(err, null);
                             } else {
-
                                 services.updateService({
                                     name: servicesData[0].name,
                                     'resources': {$elemMatch: {id: resourceId}}
@@ -508,7 +518,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                         name: servicesData[0].name,
                                                         'resources': {$elemMatch: {id: resourceId}}
                                                     }, {
-                                                        'resources.$.bootStrapState': 'bootStrapping',
+                                                        'resources.$.bootStrapState': bootStrapState,
                                                         'resources.$.authentication': 'success',
                                                         state: serviceState
                                                     }, function (err, result) {
@@ -517,7 +527,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                         }
                                                         resourceModel.updateResourceById(resourceId, {
                                                             'authentication': 'success',
-                                                            'resourceDetails.bootStrapState': 'bootStrapping'
+                                                            'resourceDetails.bootStrapState': bootStrapState
                                                         }, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Error in updating BootStrap State:", err);
@@ -570,7 +580,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                         'name': servicesData[0].name,
                                                         'resources': {$elemMatch: {id: resourceId}}
                                                     }, {
-                                                        'resources.$.bootStrapState': 'bootStrapping',
+                                                        'resources.$.bootStrapState': bootStrapState,
                                                         'resources.$.authentication': 'success',
                                                         'state': serviceState
                                                     }, function (err, result) {
@@ -579,7 +589,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                         }
                                                         resourceModel.updateResourceById(resourceId, {
                                                             'authentication': 'success',
-                                                            'resourceDetails.bootStrapState': 'bootStrapping'
+                                                            'resourceDetails.bootStrapState': bootStrapState
                                                         }, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Error in updating BootStrap State:", err);
@@ -633,6 +643,91 @@ serviceMapService.getServices = function getServices(filterQuery,callback){
     async.waterfall([
         function(next){
             services.getServices(filterQuery,next);
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+}
+
+
+serviceMapService.updateServiceMapVersion = function updateServiceMapVersion(resourceId,callback){
+    async.waterfall([
+        function(next){
+            services.getServices({resources:{$elemMatch:{id:resourceId}}},next);
+        },
+        function(serviceList,next){
+            async.parallel({
+                resourceSync: function (callback) {
+                    resourceModel.updateResourceById(resourceId, {
+                        isDeleted: true,
+                        'resourceDetails.state': 'deleted'
+                    }, callback)
+                },
+                serviceSync: function (callback) {
+                    if (serviceList.length > 0) {
+                        var count = 0;
+                        serviceList.forEach(function (service) {
+                            if (service.resources.length === 1) {
+                                service.resources = [];
+                                service.state = 'Initializing';
+                                service.version = service.version + 0.1;
+                                services.createNew(service, function (err, data) {
+                                    if (err) {
+                                        logger.error(err);
+                                    }
+                                    count++;
+                                    if (count === serviceList.length) {
+                                        callback(null, serviceList);
+                                    }
+                                })
+                            } else {
+                                var resourceCount = 0, serviceStateList = [];
+                                service.resources.forEach(function (resource) {
+                                    resourceCount++;
+                                    if (resource.id === resourceId) {
+                                        service.resources.splice(resourceCount - 1, 1);
+                                    }
+                                    if (resource.authentication === 'failed') {
+                                        serviceStateList.push('authentication_error');
+                                    } else if (resource.bootStrapState === 'failed') {
+                                        serviceStateList.push('bootStrap_failed');
+                                    } else if (resource.bootStrapState === 'bootStrapping') {
+                                        serviceStateList.push('bootStrapping');
+                                    } else {
+                                        serviceStateList.push(resource.state);
+                                    }
+                                });
+                                service.state = getServiceState(serviceStateList);
+                                service.version = service.version + 0.1;
+                                services.createNew(service, function (err, data) {
+                                    if (err) {
+                                        logger.error(err);
+                                    }
+                                    count++;
+                                    if (count === serviceList.length) {
+                                        callback(null, serviceList);
+                                    }
+                                })
+                            }
+
+                        })
+                    } else {
+                        callback(null, serviceList);
+                    }
+                }
+            },function(err,results){
+                if(err){
+                    next(err,null);
+                }else{
+                    next(null,results);
+                }
+            })
         }
     ],function(err,results){
         if(err){
@@ -858,5 +953,25 @@ function getMasterDetails(masterDetail,callback){
             });
         });
     });
+}
+
+function getServiceState(serviceStateList){
+    if(serviceStateList.indexOf('error') !== -1){
+        return 'Error';
+    }else if(serviceStateList.indexOf('authentication_error') !== -1 || serviceStateList.indexOf('unknown') !== -1 ){
+        return 'Authentication_Error';
+    }else if(serviceStateList.indexOf('bootStrap_failed') !== -1){
+        return 'BootStrap_Failed';
+    }else if(serviceStateList.indexOf('bootStrapping') !== -1){
+        return 'Initializing';
+    }else if(serviceStateList.indexOf('stopped') !== -1){
+        return 'Stopped';
+    }else if(serviceStateList.indexOf('shutting-down') !== -1){
+        return 'Shut-Down';
+    }else if(serviceStateList.indexOf('pending') !== -1){
+        return 'Pending';
+    }else{
+        return 'Running';
+    }
 }
 

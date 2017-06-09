@@ -826,15 +826,29 @@ function serviceMapSync(callback){
                 var count = 0;
                 for(var i = 0; i < services.length; i++){
                     (function(service) {
-                        if(service.state !== 'Deleted') {
-                            count++;
-                            var keyCount = 0;
-                            Object.keys(service.identifiers).forEach(function (key) {
-                                if(key ==='aws') {
-                                    var identifierCount = 0, resourceList = [], queryObj = {}, instanceStateList = [];
-                                    keyCount++;
-                                    Object.keys(service.identifiers.aws).forEach(function (key) {
-                                        var queryObj = apiUtil.getQueryByKey(key,service.identifiers.aws[key]);
+                        count++;
+                        var keyCount = 0;
+                        Object.keys(service.identifiers).forEach(function (key) {
+                            if (key === 'aws') {
+                                var identifierCount = 0, resourceList = [], queryObj = {}, instanceStateList = [];
+                                keyCount++;
+                                Object.keys(service.identifiers.aws).forEach(function (key) {
+                                    var queryObj = apiUtil.getQueryByKey(key, service.identifiers.aws[key]);
+                                    if (queryObj.error) {
+                                        serviceMapService.updateServiceById(service.id, {state: 'Error'}, function (err, res) {
+                                            if (err) {
+                                                logger.error("Invalid Key is in YML:", err);
+                                            }
+                                            identifierCount++
+                                            instanceStateList.push('error');
+                                            if (identifierCount === Object.keys(service.identifiers.aws).length) {
+                                                serviceMapVersion(service, resourceList, instanceStateList);
+                                            }
+                                            if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.aws).length) {
+                                                next(null, resourceList);
+                                            }
+                                        })
+                                    } else {
                                         resourceModel.getResources(queryObj, function (err, resource) {
                                             if (err) {
                                                 logger.error("Error in fetching Resources for Query:", queryObj, err);
@@ -843,11 +857,13 @@ function serviceMapSync(callback){
                                                 identifierCount++;
                                                 resource.forEach(function (instance) {
                                                     resourceList.push({
-                                                        type:key,
-                                                        value:service.identifiers.aws[key],
+                                                        type: key,
+                                                        value: service.identifiers.aws[key],
                                                         result: instance
                                                     });
-                                                    instanceStateList.push(instance.resourceDetails.state);
+                                                    if (instance.resourceDetails.state !== 'terminated' || instance.resourceDetails.state !== 'deleted') {
+                                                        instanceStateList.push(instance.resourceDetails.state);
+                                                    }
                                                 });
                                                 if (identifierCount === Object.keys(service.identifiers.aws).length) {
                                                     serviceMapVersion(service, resourceList, instanceStateList);
@@ -860,41 +876,71 @@ function serviceMapSync(callback){
                                                 if (identifierCount === Object.keys(service.identifiers.aws).length) {
                                                     serviceMapVersion(service, resourceList, instanceStateList);
                                                 }
-                                                if (count === services.length && keyCount === Object.keys(service.identifiers).length &&  identifierCount === Object.keys(service.identifiers.aws).length) {
+                                                if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.aws).length) {
                                                     next(null, resourceList);
                                                 }
                                             }
                                         })
-                                    })
-                                }else{
-                                    var identifierCount = 0, resourceList = [], queryObj = {}, instanceStateList = [];
-                                    keyCount++;
-                                    Object.keys(service.identifiers.chef).forEach(function (key) {
-                                        var queryObj = apiUtil.getQueryByKey(key,service.identifiers.aws[key]);
-                                        queryObj['masterDetails.orgId'] = service.masterDetails.orgId;
-                                        queryObj['masterDetails.envName'] = service.masterDetails.envName;
-                                        queryObj['masterDetails.serverId'] = service.masterDetails.serverId;
-                                        chefDao.getChefNodes(queryObj,function(err,chefNodes){
+                                    }
+                                })
+                            } else {
+                                var identifierCount = 0, resourceList = [], queryObj = {}, instanceStateList = [];
+                                keyCount++;
+                                Object.keys(service.identifiers.chef).forEach(function (key) {
+                                    var queryObj = apiUtil.getQueryByKey(key, service.identifiers.chef[key]);
+                                    if (queryObj.error) {
+                                        serviceMapService.updateServiceById(service.id, {state: 'Error'}, function (err, res) {
+                                            if (err) {
+                                                logger.error("Invalid Key is in YML:", err);
+                                            }
+                                            identifierCount++;
+                                            instanceStateList.push('error');
+                                            if (identifierCount === Object.keys(service.identifiers.chef).length) {
+                                                serviceMapVersion(service, resourceList, instanceStateList);
+                                            }
+                                            if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.chef).length) {
+                                                next(null, resourceList);
+                                            }
+                                        })
+                                    } else {
+                                        queryObj['orgId'] = service.masterDetails.orgId;
+                                        queryObj['serverId'] = service.masterDetails.configId;
+                                        chefDao.getChefNodes(queryObj, function (err, chefNodes) {
                                             if (err) {
                                                 logger.error("Error in fetching Chef Node Details for Query:", queryObj, err);
-                                            }else if(chefNodes.length > 0){
+                                            } else if (chefNodes.length > 0) {
                                                 var chefNodeCount = 0;
                                                 identifierCount++;
-                                                chefNodes.forEach(function(chefNode){
-                                                    var query ={
-                                                        'configDetails.nodeName':chefNode.name,
-                                                        $or:[{
-                                                            'resourceDetails.publicIp':chefNode.ip},
+                                                chefNodes.forEach(function (chefNode) {
+                                                    var query = {
+                                                        $or: [{
+                                                            'resourceDetails.publicIp': chefNode.ip
+                                                             },
                                                             {
-                                                            'resourceDetails.privateIp':chefNode.ip
-                                                        }],
-                                                        'resourceDetails.hostName':chefNode.fqdn
+                                                                'resourceDetails.privateIp': chefNode.ip
+                                                            },
+                                                            {
+                                                                'configDetails.nodeName': chefNode.name
+                                                            }],
+                                                        'resourceDetails.hostName': chefNode.fqdn,
+                                                        isDeleted:false
                                                     }
-                                                    ec2Model.getInstanceData(query,function(err,data){
-                                                        if(err){
-                                                            logger.error("Error in finding Resource Details for Query : ",query,err);
+                                                    ec2Model.getInstanceData(query, function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Error in finding Resource Details for Query : ", query, err);
                                                         }
-                                                        if(data.length > 0){
+                                                        if (data.length > 0) {
+                                                            ec2Model.updateInstanceData(data[0]._id,{'resourceDetails.bootStrapState':'success'},function(err,data){
+                                                                if(err){
+                                                                    logger.error("Error in updating BootStrap State:",err);
+                                                                }
+                                                            });
+                                                            data[0].resourceDetails.bootStrapState = 'success';
+                                                            resourceList.push({
+                                                                type: key,
+                                                                value: service.identifiers.chef[key],
+                                                                result: data[0]
+                                                            });
                                                             chefNodeCount++;
                                                             if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                 serviceMapVersion(service, resourceList, instanceStateList);
@@ -902,17 +948,19 @@ function serviceMapSync(callback){
                                                             if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                 next(null, resourceList);
                                                             }
-                                                        }else{
-                                                            commonService.syncChefNodeWithResources(chefNode,service,function(err,resourceData){
-                                                                if(err){
-                                                                    logger.error("Error in syncing Chef Node with Resources: ",err);
+                                                            instanceStateList.push(data[0].resourceDetails.state);
+                                                        } else {
+                                                            commonService.syncChefNodeWithResources(chefNode, service, function (err, resourceData) {
+                                                                if (err) {
+                                                                    logger.error("Error in syncing Chef Node with Resources: ", err);
                                                                 }
                                                                 resourceList.push({
-                                                                    type:key,
-                                                                    value:service.identifiers.aws[key],
+                                                                    type: key,
+                                                                    value: service.identifiers.chef[key],
                                                                     result: resourceData
                                                                 });
                                                                 chefNodeCount++;
+                                                                instanceStateList.push(resourceData.resourceDetails.state);
                                                                 if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                     serviceMapVersion(service, resourceList, instanceStateList);
                                                                 }
@@ -923,7 +971,7 @@ function serviceMapSync(callback){
                                                         }
                                                     })
                                                 })
-                                            }else{
+                                            } else {
                                                 identifierCount++;
                                                 if (identifierCount === Object.keys(service.identifiers.chef).length) {
                                                     serviceMapVersion(service, resourceList, instanceStateList);
@@ -933,15 +981,10 @@ function serviceMapSync(callback){
                                                 }
                                             }
                                         })
-                                    })
-                                }
-                            });
-                        }else{
-                            count++;
-                            if (count === services.length) {
-                                next(null, services);
+                                    }
+                                })
                             }
-                        }
+                        });
                     })(services[i]);
                 }
             }else{
@@ -968,7 +1011,7 @@ function serviceMapVersion(service,resources,instanceStateList){
             if(resources.length > 0){
                 var count = 0;
                 resources.forEach(function(node){
-                    if(node.result.category !== 'managed') {
+                    if(node.result.category !== 'managed' && node.result.resourceDetails.state !== 'terminated') {
                         instanceStateList.push('authentication_error');
                         var resourceObj = {
                             id: node.result._id + '',
@@ -1002,7 +1045,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if(count === resources.length){
                             next(null, filterResourceList);
                         }
-                        if(node.result.authentication ==='failed' && node.result.resourceDetails.bootStrapState ==='failed' && node.result.resourceDetails.state ==='stopped' ){
+                        if(node.result.authentication ==='failed'  && node.result.resourceType ==='EC2' && node .result.resourceDetails.bootStrapState ==='failed' && node.result.resourceDetails.state ==='stopped' ){
                             commonService.startResource(service.id,node.result,function(err,state){
                                 if(err){
                                     logger.error(err);
@@ -1011,7 +1054,10 @@ function serviceMapVersion(service,resources,instanceStateList){
                                 }
                             })
                         }
-                    }else if(service.masterDetails.envId === node.result.masterDetails.envId && service.masterDetails.configId === node.result.configDetails.id) {
+                    }else if(service.masterDetails.bgId === node.result.masterDetails.bgId
+                        && service.masterDetails.projectId === node.result.masterDetails.projectId
+                        && service.masterDetails.envId === node.result.masterDetails.envId
+                        && service.masterDetails.configId === node.result.configDetails.id && node.result.resourceDetails.state !== 'terminated') {
                         var resourceObj = {
                             id: node.result._id + '',
                             type: node.result.resourceType,
@@ -1048,7 +1094,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                             next(null, filterResourceList);
                         }
                     }else{
-                        logger.debug("Un-Matched Record");
+                        logger.debug("Un-Matched Resource or Terminated:");
                         count++;
                         if(count === resources.length){
                             next(null, filterResourceList);
@@ -1065,7 +1111,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                 instanceStateList.push('initializing');
             }
             var serviceState = getServiceState(instanceStateList);
-            if(service.resources.length === filterObj.length && instanceStateList.indexOf('deleted') === -1){
+            if(service.resources.length === filterObj.length){
                 service.updatedOn = new Date().getTime();
                 serviceMapService.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
                     if(err){
@@ -1112,26 +1158,22 @@ function serviceMapVersion(service,resources,instanceStateList){
 }
 
 function getServiceState(serviceStateList){
-    if(serviceStateList.indexOf('authentication_error') !== -1){
+    if(serviceStateList.indexOf('error') !== -1){
+        return 'Error';
+    }else if(serviceStateList.indexOf('authentication_error') !== -1 || serviceStateList.indexOf('unknown') !== -1 ){
         return 'Authentication_Error';
     }else if(serviceStateList.indexOf('bootStrap_failed') !== -1){
         return 'BootStrap_Failed';
-    }else if(serviceStateList.indexOf('bootStrapping') !== -1){
+    }else if(serviceStateList.indexOf('bootStrapping') !== -1 || serviceStateList.indexOf('initializing') !== -1){
         return 'Initializing';
-    }else if(serviceStateList.indexOf('running') !== -1){
-        return 'Running';
     }else if(serviceStateList.indexOf('stopped') !== -1){
         return 'Stopped';
-    }else if(serviceStateList.indexOf('terminated') !== -1){
-        return 'Terminated';
     }else if(serviceStateList.indexOf('shutting-down') !== -1){
         return 'Shut-Down';
     }else if(serviceStateList.indexOf('pending') !== -1){
         return 'Pending';
-    }else if(serviceStateList.indexOf('deleted') !== -1){
-        return 'Deleted';
     }else{
-        return 'Initializing';
+        return 'Running';
     }
 }
 

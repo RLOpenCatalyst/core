@@ -348,7 +348,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
             apiUtil.queryFilterBy(queryParam,next);
         },
         function(filterQuery,next) {
-        	orgId = filterQuery.orgId;
+        	var orgId = filterQuery.orgId;
         	teamId = filterQuery.teamId;
         	delete filterQuery.teamId;
             filterQuery.isDeleted=false;
@@ -370,7 +370,6 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     }else if(orgIds.length > 0){
                         filterQuery.orgId = {$in:orgIds};
                     }
-                    
                     d4dModelNew.d4dModelMastersUsers.find({
 	                    loginname: userName,
 	                    id:'7'
@@ -379,25 +378,20 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
 	                	if ( err ) {
 	                		return next(err, null);
 	                	}
-	                	
 	                	var userDetail = {};
 	                	if (userDetails.length > 0) {
 	                		userDetail = userDetails[0];
 	                		userDetail.orgname_rowid = (typeof userDetail.orgname_rowid[0]) !== undefined ? userDetail.orgname_rowid[0] : userDetail.orgname_rowId;
 	                		userDetail.orgname = (typeof userDetail.orgname[0]) !== undefined ? userDetail.orgname[0] : userDetail.orgname;
 	                	}
-	                	
 	                	var teamIds;
 	                	if (teamId) {
          				   filterByOrg = true;
          				   teamIds = [teamId];
          			   	}
-	                	
 	                	var ids = [];
 	                	if ( userDetail.userrolename === 'Admin') {
-	                		
             			   getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
-            				   
             				   if ( err ){
             					   next(err,null);
             				   }
@@ -406,25 +400,19 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
             						   ids = ids.concat(orgBot.resourceIds);
             					   });
             				   }
-            				   
             				   if (ids.length > 0) {
             					   filterQuery.id = {$in:ids};
             				   }
-            				   
             				   if (orgId) {
             					   filterQuery.orgId = orgId;
             				   }
-            				   
             				   if (orgId && teamId && orgBotsList.length === 0) {
             					   return next(null, []);
             				   }
-            				   
             				   botDao.getAllBots(filterQuery, next);
             			   });
 	            		}else {
-	            		
  	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
- 	            			   
  	            			  if ( err ){
  	            				  next(err,null);
  	            			  } 
@@ -437,7 +425,6 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
  	            			  } else {
  	            				  return next(null, []);
  	            			  }
- 	            			  
  	            			  botDao.getAllBots(filterQuery, next);
  	            		   });
 	 	            	}
