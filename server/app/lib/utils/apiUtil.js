@@ -86,7 +86,6 @@ var ApiUtil = function() {
                 query = {
                     '$or': keyList
                 };
-                console.log(JSON.stringify(query));
                 break;
             case 'groups':
                 Object.keys(value).forEach(function (groupObjKey) {
@@ -124,12 +123,12 @@ var ApiUtil = function() {
                             query['stackName'] = value;
                             break;
                         default:
-                            query = query;
+                            query['error'] = true;
                     }
                 });
                 break;
             default:
-                query= query;
+                query['error']= true;
         }
         return query;
     }
@@ -220,13 +219,13 @@ var ApiUtil = function() {
                             groupObj[groupObjKey] = tagObj
                             break;
                         default:
-                            result = result;
+                            result['error'] = true;
                     }
                 });
                 result[key] = groupObj;
                 break;
             default:
-                result = result;
+                result['error'] = true;
         }
         return result;
     }

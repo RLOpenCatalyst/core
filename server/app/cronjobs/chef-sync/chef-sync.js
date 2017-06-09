@@ -291,13 +291,13 @@ function getChefNodeDetails(nodeList,chefObj,chefServerId,orgId,callback){
                     chefNodeObj.ip = nodeIp;
                     chefNodeObj.platformId = platformId;
                     var hardwareData = {
-                        platform: 'unknown',
-                        platformVersion: 'unknown',
-                        platformFamily: 'unknown',
-                        architecture: 'unknown',
+                        platform: '-',
+                        platformVersion: '-',
+                        platformFamily: '-',
+                        architecture: '-',
                         memory: {
-                            total: 'unknown',
-                            free: 'unknown'
+                            total: '-',
+                            free: '-'
                         },
                         os: 'linux'
                     };
