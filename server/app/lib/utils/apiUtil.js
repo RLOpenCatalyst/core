@@ -69,8 +69,12 @@ var ApiUtil = function() {
                 };
                 break;
             case 'roles':
+                var keyList = [];
+                value.forEach(function(val){
+                    keyList.push('role['+val+']')
+                })
                 query = {
-                    'configDetails.run_list': {$in: value}
+                    'run_list': {$in: keyList}
                 };
                 break;
             case 'tags':
@@ -86,7 +90,6 @@ var ApiUtil = function() {
                 query = {
                     '$or': keyList
                 };
-                console.log(JSON.stringify(query));
                 break;
             case 'groups':
                 Object.keys(value).forEach(function (groupObjKey) {
@@ -118,18 +121,22 @@ var ApiUtil = function() {
                             query['$or'] = [tagObj];
                             break;
                         case 'roles':
-                            query['configDetails.run_list'] = {$in: value};
+                            var keyList = [];
+                            value.forEach(function(val){
+                                keyList.push('role['+val+']')
+                            })
+                            query['run_list'] = {$in: keyList};
                             break;
                         case 'stackName':
                             query['stackName'] = value;
                             break;
                         default:
-                            query = query;
+                            query['error'] = true;
                     }
                 });
                 break;
             default:
-                query= query;
+                query['error']= true;
         }
         return query;
     }
@@ -220,13 +227,13 @@ var ApiUtil = function() {
                             groupObj[groupObjKey] = tagObj
                             break;
                         default:
-                            result = result;
+                            result['error'] = true;
                     }
                 });
                 result[key] = groupObj;
                 break;
             default:
-                result = result;
+                result['error'] = true;
         }
         return result;
     }
