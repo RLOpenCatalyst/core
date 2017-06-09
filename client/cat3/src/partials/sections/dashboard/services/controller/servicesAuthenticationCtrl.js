@@ -49,7 +49,6 @@
                 $scope.addPemText = function (pemfileText) {
                     reqBody.credentials.type = 'pemFile';
                     reqBody.credentials.pemFileData = pemfileText;
-                    console.log(reqBody);
                     $scope.postAuthenticationResource();
                 };
             };
