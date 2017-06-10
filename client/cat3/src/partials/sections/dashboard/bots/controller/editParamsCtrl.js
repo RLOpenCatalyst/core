@@ -11,9 +11,7 @@
         .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'responseFormatter', 'genericServices', 'botsCreateService', 'toastr', '$modal', function ($scope, $rootScope, $state, responseFormatter, genSevs, botsCreateService, toastr, $modal) {
             var items;
 
-            $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
-                $scope.templateSelected = reqParams;
-            });
+            $scope.templateSelected = $state.params.botDetail;
 
             if($scope.templateSelected) {
                 items = $scope.templateSelected;
@@ -25,11 +23,12 @@
                     buss:$rootScope.organObject[0].businessGroups[0],
                     proj:$rootScope.organObject[0].businessGroups[0].projects[0],
                     env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0],
-                    blueprintType:items.subType,
-                    blueprintName:items.execution[0].name
+                    blueprintType:items.subType
                 };
             }
-
+            if(items.execution && items.execution[0]) {
+                $scope.IMGNewEnt.blueprintName = items.execution[0].name;
+            }
             $scope.botName = items.name;
             $scope.botParams = items.inputFormFields;
             $scope.botEditParams = {};

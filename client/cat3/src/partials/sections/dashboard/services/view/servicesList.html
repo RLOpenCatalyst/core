@@ -2,7 +2,7 @@
 <div id="serviceLibraryPage">
    <div class="page-name">
       Service Library&nbsp;
-      <span class="pull-right">
+      <span class="pull-right marginright20">
         <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="refreshServiceList();">
         <i class="fa fa-refresh white"></i>
         </button>
@@ -13,9 +13,13 @@
         </button>
       </span>
    </div>
-   <div class="borderTop"></div>
+   <div class="borderTop" style="margin-bottom:5px;"></div>
    <!--sidebar filter -->
-
+   <span class="marginleft35"><span><i class="text-gray fa fa-fw fa-circle-o"></i><span>Initializing&nbsp;</span></span>|&nbsp;<span><i class="text-green fa fa-fw fa-circle-o"></i><span>Running</span></span>
+   |&nbsp;<span><i class="text-red fa fa-fw fa-circle-o"></i><span>Stopped</span></span>
+   |&nbsp;<span><i class="text-black fa fa-fw fa-circle-o"></i><span>Terminated</span></span>
+   |&nbsp;<span><i class="text-red fa fa-fw fa-circle-o"></i><span>Authentication_Error</span></span>
+   </span>
    <!--table section starts here-->
    <div class="width99 col-lg-12 paddingForScreen margintop10" >
      <loading size="large" name="isServiceLibraryPageLoading" type="block" align="center"></loading>

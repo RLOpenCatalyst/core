@@ -27,6 +27,8 @@
                         $state.go('dashboard.bots.library');
                     } else if ($rootScope.workZoneBool) {
                         $state.go('dashboard.workzone');
+                    } else if ($rootScope.servicesBool) {
+                        $state.go('dashboard.services');
                     } else if ($rootScope.designBool) {
                         $state.go('dashboard.design');
                     } else if ($rootScope.trackBool) {
