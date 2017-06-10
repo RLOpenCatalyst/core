@@ -309,7 +309,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                         error.message = "Error in getting Resource Details By Id: "+resourceId +' : '+ err;
                         next(error,null);
                     }
-                    if(resourceDetail !== null && resourceDetail.resourceDetails.state === 'running' ) {
+                    if(resourceDetail !== null && (resourceDetail.resourceDetails.state === 'running' || resourceDetail.resourceDetails.state === 'unknown' )) {
                         var bootStrapState = 'bootStrapping';
                         if(resourceDetail.resourceDetails.bootStrapState === 'success'){
                             bootStrapState = 'success';
@@ -460,7 +460,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                 }
                             })
                         })
-                    }else  if(resourceDetail !== null && resourceDetail.resourceDetails.state === 'stopped' && resourceDetail.category !== 'managed' ) {
+                    }else  if(resourceDetail !== null && resourceDetail.resourceDetails.state === 'stopped' && resourceDetail.category !== 'managed') {
                         next(null, {code: 202, message: "Authentication is in Progress"});
                         commonService.startResource(serviceId,resourceDetail,function(err,state) {
                             if (err) {

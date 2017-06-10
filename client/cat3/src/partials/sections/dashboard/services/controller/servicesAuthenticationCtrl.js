@@ -39,7 +39,7 @@
                         }
                     });
                 };
-                if ($scope.passwordModel === "password") {
+                if ($scope.IMGNewEnt.passType === "password") {
                     reqBody.credentials.type = 'password';
                     reqBody.credentials.password = $scope.IMGNewEnt.password;
                     $scope.postAuthenticationResource();

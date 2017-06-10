@@ -968,7 +968,7 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
 commonService.syncChefNodeWithResources = function syncChefNodeWithResources(chefNodeDetails,serviceDetails,callback) {
     var resourceObj = {
         name: chefNodeDetails.name,
-        category: 'managed',
+        category: 'unmanaged',
         resourceType: chefNodeDetails.platformId && chefNodeDetails.platformId !== null ? 'EC2' : 'Instance',
         masterDetails: {
             orgId: serviceDetails.masterDetails.orgId,
