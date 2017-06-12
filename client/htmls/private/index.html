@@ -73,6 +73,11 @@
                 <i class="fa fa-cloud white"></i>&nbsp;CLOUD
               </a>
             </li>
+            <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
+              <a class="navigationTab" id="services" href="#"  onclick="setleftnavigation(this,'services');" >
+                <i class="fa fa-sellsy white"></i>&nbsp;SERVICES
+              </a>
+            </li>
 
 
 
@@ -854,6 +859,19 @@ function setleftnavigation(toplink, breadcrumbHeader) {
             console.log('here');
           }else{
              window.location.href = "../../cat3/#/dashboard/CM/analytics/cost/";
+            return false;
+          }
+        }
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+    }else if (TabID === "services") {   
+        if(isAngularIntegration){
+          var checkUrl = window.location.href;
+          if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+            console.log('here');
+          }else{
+             window.location.href = "../../cat3/#/dashboard/services/servicesList";
             return false;
           }
         }

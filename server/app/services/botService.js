@@ -97,30 +97,27 @@ botService.updateBotsScheduler = function updateBotsScheduler(botId, botObj, cal
 }
 
 botService.removeBotsById = function removeBotsById(id, callback) {
-    botDao.getBotsById(id,(err,bots)=>{
-        if(err){
+    botDao.getBotsById(id,function(err,bots) {
+        if (err) {
             logger.error(err);
             callback(err, null);
             return;
         }
-        else if(bots !== []){
+        else if (bots !== []) {
             async.parallel({
                 bots: function (callback) {
                     botDao.removeBotsById(id, callback);
                 },
-                auditTrails: function (callback) {
-                    auditTrail.removeAuditTrails({ auditId: id }, callback);
+                orgResourcePerm: function (callback) {
+                    orgResourcePermission.deleteResource(botId, 'bots', callback);
                 },
-                orgResourcePerm : function(callback){
-                  orgResourcePermission.deleteResource(botId, 'bots', callback);
-                },
-                dir:function(callback){
-                    var gitHubService =require('_pr/services/gitHubService.js');
-                    gitHubService.deleteBot(bots[0].id,(err)=>{
-                        if(err)
-                            callback(err,null);
+                dir: function (callback) {
+                    var gitHubService = require('_pr/services/gitHubService.js');
+                    gitHubService.deleteBot(bots[0].id, function (err) {
+                        if (err)
+                            callback(err, null);
                         else
-                            callback(null,true);
+                            callback(null, true);
                     })
                 }
             }, function (err, resutls) {
@@ -135,8 +132,8 @@ botService.removeBotsById = function removeBotsById(id, callback) {
             });
         }
         else
-            return callback(null,true);
-    })
+            return callback(null, true);
+    });
 }
 
 botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNowCheck, userName, callback) {
@@ -148,309 +145,294 @@ botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNo
     if(botsQuery.paginationType === 'jquery'){
         async.waterfall(
             [
-	            function (next) {
-	                apiUtil.changeRequestForJqueryPagination(botsQuery, next);
-	            },
-	            function (reqData, next) {
-	                reqData = reqData;
-	                apiUtil.paginationRequest(reqData, 'bots', next);
-	            },
-	            function (paginationReq, next) {
-	              if(paginationReq.filterBy) {
-	                orgId = paginationReq.filterBy.orgId;
-	              }
-	                apiUtil.databaseUtil(paginationReq, next);
-	            },
-	            function (queryObj, next) {
-	                botDao.getBotsList(queryObj, function(err, result){
-	                  
-	                  if ( err ) {
-	                    return next(err, null);
-	                  }
-	                  getOrgResourceList(orgId, [],function(err, orgList){
-	                    
-	                    if ( err ) {
-	                      return next(err, null);
-	                    }
-	                    
-	                    result.docs = filterBots(false, JSON.parse(JSON.stringify(result.docs)), orgList);
-	                    return next(null, result);
-	                  });
-	                });
-	            },
-	            function (botList, next) {
-	            apiUtil.changeResponseForJqueryPagination(botList, reqData, next);
-	            }
+                function (next) {
+                    apiUtil.changeRequestForJqueryPagination(botsQuery, next);
+                },
+                function (reqData, next) {
+                    reqData = reqData;
+                    apiUtil.paginationRequest(reqData, 'bots', next);
+                },
+                function (paginationReq, next) {
+                    if(paginationReq.filterBy) {
+                        orgId = paginationReq.filterBy.orgId;
+                    }
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function (queryObj, next) {
+                    botDao.getBotsList(queryObj, function(err, result){
+                        if ( err ) {
+                            return next(err, null);
+                        }
+                        getOrgResourceList(orgId, [],function(err, orgList){
+                            if ( err ) {
+                                return next(err, null);
+                            }
+                            result.docs = filterBots(false, JSON.parse(JSON.stringify(result.docs)), orgList);
+                            return next(null, result);
+                        });
+                    });
+                },
+                function (botList, next) {
+                    apiUtil.changeResponseForJqueryPagination(botList, reqData, next);
+                }
             ], function (err, results) {
                 if (err){
                     return callback(err,null);
                 }else{
-                  return callback(null, results);
+                    return callback(null, results);
                 }
             });
     }else {
-	    async.waterfall([
-	        function(next) {
-	            apiUtil.paginationRequest(botsQuery, 'bots', next);
-	        },
-	        function(paginationReq, next) {
-	            paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
-	            if(paginationReq.filterBy) {
-	            	orgId = paginationReq.filterBy.orgId;
-	            	teamId = paginationReq.filterBy.teamId;
-	            	delete paginationReq.filterBy.teamId;
-	            }
-	            
-	            reqData = paginationReq;
-	            apiUtil.databaseUtil(paginationReq, next);
-	        },
-	        function(queryObj, next) {
-	            settingService.getOrgUserFilter(userName, function (err, orgIds) {
-	                if (err) {
-	                    next(err, null);
-	                }
-	                if(orgIds.length > 0){
-	                    queryObj.queryObj['orgId'] = {$in: orgIds};
-	                }
-	                if(actionStatus !== null) {
-	                    queryObj.queryObj['lastExecutionStatus'] = actionStatus;
-	                }
-	                d4dModelNew.d4dModelMastersUsers.find({
-	                    loginname: userName,
-	                    id:'7'
-	                }, function(err, userDetails) {
-	                	
-	                	if ( err ) {
-	                		return next(err, null);
-	                	}
-	                	
-	                	if (userDetails.length > 0) {
-	                		userDetail = userDetails[0];
-	                		userDetail.orgname_rowid = (typeof userDetail.orgname_rowid[0]) !== undefined ? userDetail.orgname_rowid[0] : userDetail.orgname_rowId;
-	                		userDetail.orgname = (typeof userDetail.orgname[0]) !== undefined ? userDetail.orgname[0] : userDetail.orgname;
-	                	}
-	                	
-	                	if(serviceNowCheck === true) {
-	                		queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
-	                		var botIds = [];
-	                		botDao.getAllBots(queryObj.queryObj,function(err,botData){
-	                			if(err){
-	                				next(err,null);
-	                			}
-	                			if(botData.length > 0){
-	                				botData.forEach(function(bot){
-	                					botIds.push(bot._id);
-	                				})
-	                			}
-	                			if(botIds.length > 0){
-	                				delete queryObj.queryObj;
-	                				queryObj.queryObj = {
-	                						auditId: {$in:botIds}
-	                				}
-	                				auditTrail.getAuditTrailList(queryObj,next);
-	                			}else{
-	                				botDao.getBotsList(queryObj, function(err, result){
-	                					return next(err,result);
-	                				});
-	                			}
-	                		});
-	                	}else{
-	                		var ids = [];
-	                		if ( userDetail.userrolename === 'Admin') {
-	                		
-	                		   var teamIds;
-	            			   if (teamId) {
-	            				   filterByOrg = true;
-	            				   teamIds = [teamId];
-	            			   }
-	            			   
-	            			   getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
-	            				   if ( err ){
-	            					   next(err,null);
-	            				   }
-	            				   
-	            				   if (filterByOrg) {
-	            					   orgBotsList.forEach(function(orgBot){
-	            						   ids = ids.concat(orgBot.resourceIds);
-	            					   });
-	            				   }
-	            				   
-	            				   if (ids.length > 0) {
-	            					   queryObj.queryObj.id = {$in:ids};
-	            				   }
-	            				   
-	            				   if (orgId) {
-	            					  delete queryObj.queryObj.orgId;
-	            				   }
-	            				   
-	            				   if (orgId && teamId && orgBotsList.length === 0) {
-	            					   return next(null, {docs:[]});
-	            				   }
-	            				   
-	            				   botDao.getBotsList(queryObj, next);
-	            			   });
-		            		}else {
-		            		
-	 	            		   getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
-	 	            			  if ( err ){
-	            					   next(err,null);
-	            				  } 
-	 	            			  orgBotsList.forEach(function(orgBot){
-            						   ids = ids.concat(orgBot.resourceIds);
-            					  });
-	 	            			  
-	 	            			  if (ids.length > 0) {
-	 	            				  queryObj.queryObj.id = {$in:ids};
-	 	            			  } else {
-	 	            				  return next(null, {docs:[]});
-	 	            			  }
-	 	            			  
-	 	            			  botDao.getBotsList(queryObj, next);
-	 	            		   });
-		 	            	}
-	                	}
-	                })
-	            });
-	        },
-	        function(botList, next) {
-	            addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
-	        },
-	        function(filterBotList, next) {
-	           async.parallel({
-	               botList:function(callback){
-	                   apiUtil.paginationResponse(filterBotList, reqData, callback);
-	               },
-	               botSummary:function(callback){
-	            	   auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback);
-	               }
-	               
-	           },function(err,data){
-	               if(err){
-	                   next(err);
-	               }else{
-	                   next(null,data);
-	               }
-	           })
-	        }
-	    ],function(err, results) {
-	        if (err){
-	            logger.error(err);
-	            callback(err,null);
-	            return;
-	        }
-	        
-	        var resultObj = {
-	            bots : results.botList.bots,
-	            metaData : results.botList.metaData,
-	            botSummary: results.botSummary
-	        };
-	        return callback(null,resultObj);
-	    });
+        async.waterfall([
+            function(next) {
+                apiUtil.paginationRequest(botsQuery, 'bots', next);
+            },
+            function(paginationReq, next) {
+                paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
+                if(paginationReq.filterBy) {
+                    orgId = paginationReq.filterBy.orgId;
+                    teamId = paginationReq.filterBy.teamId;
+                    delete paginationReq.filterBy.teamId;
+                }
+                reqData = paginationReq;
+                apiUtil.databaseUtil(paginationReq, next);
+            },
+            function(queryObj, next) {
+                settingService.getOrgUserFilter(userName, function (err, orgIds) {
+                    if (err) {
+                        next(err, null);
+                    }
+                    if(orgIds.length > 0){
+                        queryObj.queryObj['orgId'] = {$in: orgIds};
+                    }
+                    if (actionStatus !== null) {
+                        var key = actionStatus+'ExecutionCount';
+                        queryObj.queryObj[key] = {$gt:0};
+                    }
+                    d4dModelNew.d4dModelMastersUsers.find({
+                        loginname: userName,
+                        id:'7'
+                    }, function(err, userDetails) {
+
+                        if ( err ) {
+                            return next(err, null);
+                        }
+                        if (userDetails.length > 0) {
+                            userDetail = userDetails[0];
+                            userDetail.orgname_rowid = (typeof userDetail.orgname_rowid[0]) !== undefined ? userDetail.orgname_rowid[0] : userDetail.orgname_rowId;
+                            userDetail.orgname = (typeof userDetail.orgname[0]) !== undefined ? userDetail.orgname[0] : userDetail.orgname;
+                        }
+                        if(serviceNowCheck === true) {
+                            queryObj.queryObj['srnSuccessExecutionCount'] = {$gt:0};
+                            var botIds = [];
+                            botDao.getAllBots(queryObj.queryObj,function(err,botData){
+                                if(err){
+                                    next(err,null);
+                                }
+                                if(botData.length > 0){
+                                    botData.forEach(function(bot){
+                                        botIds.push(bot._id);
+                                    })
+                                }
+                                if(botIds.length > 0){
+                                    delete queryObj.queryObj;
+                                    queryObj.queryObj = {
+                                        auditId: {$in:botIds}
+                                    }
+                                    auditTrail.getAuditTrailList(queryObj,next);
+                                }else{
+                                    botDao.getBotsList(queryObj, function(err, result){
+                                        return next(err,result);
+                                    });
+                                }
+                            });
+                        }else{
+                            var ids = [];
+                            if ( userDetail.userrolename === 'Admin') {
+                                var teamIds;
+                                if (teamId) {
+                                    filterByOrg = true;
+                                    teamIds = [teamId];
+                                }
+                                getOrgResourceList((orgId || userDetail.orgname_rowid), (teamIds || [] ), function(err, orgBotsList){
+                                    if ( err ){
+                                        next(err,null);
+                                    }
+                                    if (filterByOrg) {
+                                        orgBotsList.forEach(function(orgBot){
+                                            ids = ids.concat(orgBot.resourceIds);
+                                        });
+                                    }
+                                    if (ids.length > 0) {
+                                        queryObj.queryObj.id = {$in:ids};
+                                    }
+                                    if (orgId) {
+                                        delete queryObj.queryObj.orgId;
+                                    }
+                                    if (orgId && teamId && orgBotsList.length === 0) {
+                                        return next(null, {docs:[]});
+                                    }
+                                    botDao.getBotsList(queryObj, next);
+                                });
+                            }else {
+                                getOrgResourceList(userDetail.orgname_rowid, userDetail.teamname_rowid.split(','), function(err, orgBotsList){
+                                    if ( err ){
+                                        next(err,null);
+                                    }
+                                    orgBotsList.forEach(function(orgBot){
+                                        ids = ids.concat(orgBot.resourceIds);
+                                    });
+                                    if (ids.length > 0) {
+                                        queryObj.queryObj.id = {$in:ids};
+                                    } else {
+                                        return next(null, {docs:[]});
+                                    }
+                                    botDao.getBotsList(queryObj, next);
+                                });
+                            }
+                        }
+                    })
+                });
+            },
+            function(botList, next) {
+                addYmlFileDetailsForBots(botList,reqData,serviceNowCheck,next);
+            },
+            function(filterBotList, next) {
+                async.parallel({
+                    botList:function(callback){
+                        apiUtil.paginationResponse(filterBotList, reqData, callback);
+                    },
+                    botSummary:function(callback){
+                        auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback);
+                    }
+
+                },function(err,data){
+                    if(err){
+                        next(err);
+                    }else{
+                        next(null,data);
+                    }
+                })
+            }
+        ],function(err, results) {
+            if (err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }
+
+            var resultObj = {
+                bots : results.botList.bots,
+                metaData : results.botList.metaData,
+                botSummary: results.botSummary
+            };
+            return callback(null,resultObj);
+        });
     }
 }
 
 function getOrgResourceList(orgId, teamIds, callback){
-	if (orgId){
-	   var query = {
-		   orgId : orgId,
-		   resourceType : 'bots'
-	   }
-	   
-	   if(teamIds.length > 0) {
-		  query.teamId = {$in : teamIds};
-	   }
-	   
-	   orgResourcePermission.find(query, function(err, orgResourceList){
-		   if ( err ) {
-			   return callback(err, null);
-		   }
-		   
-		   if (orgResourceList.length > 0 ) {
-			   var teamIds = [];
-			   orgResourceList.forEach(function(orgResource){
-				   teamIds.push(orgResource.teamId);
-			   });
-			   getTeamsInfo(orgResourceList, orgId, teamIds, function(err, result){
-				   if ( err ) {
-					   return callback(err, null);
-				   }
-				   
-				   return callback(null, result);
-			   });
-		   } else {
-			   return callback(null, []);
-		   }
-	   });
-	} else {
-		return callback(null, []);
-	}
+    if (orgId){
+        var query = {
+            orgId : orgId,
+            resourceType : 'bots'
+        }
+
+        if(teamIds.length > 0) {
+            query.teamId = {$in : teamIds};
+        }
+
+        orgResourcePermission.find(query, function(err, orgResourceList){
+            if ( err ) {
+                return callback(err, null);
+            }
+
+            if (orgResourceList.length > 0 ) {
+                var teamIds = [];
+                orgResourceList.forEach(function(orgResource){
+                    teamIds.push(orgResource.teamId);
+                });
+                getTeamsInfo(orgResourceList, orgId, teamIds, function(err, result){
+                    if ( err ) {
+                        return callback(err, null);
+                    }
+
+                    return callback(null, result);
+                });
+            } else {
+                return callback(null, []);
+            }
+        });
+    } else {
+        return callback(null, []);
+    }
 }
 
 function filterBots(filterByOrg, botsList, orgBots){
-	var bots;
-	var botsTeamId = {}
-	botsTeamId = orgBots.reduce(function(acc, cv, ci){
-		cv.resourceIds.forEach(function(rId){
-			if(acc[rId] === undefined){
-				acc[rId] = {
-					teams : [cv.team]
-				};
-			} else {
-				acc[rId].teams.push(cv.team);
-			}
-			return acc;
-		});
-		return acc;
-	},{});
-	
-	bots = botsList.filter(function(bot){
-		if (botsTeamId[bot.id]){
-			bot.teams = botsTeamId[bot.id].teams;
-		}
-		
-		if (filterByOrg) {
-			if (botsTeamId[bot.id] !== undefined){
-				return true;
-			}
-			
-			return false;
-		}
-		
-		return true;
-	});
-	
-	return bots;
+    var bots;
+    var botsTeamId = {}
+    botsTeamId = orgBots.reduce(function(acc, cv, ci){
+        cv.resourceIds.forEach(function(rId){
+            if(acc[rId] === undefined){
+                acc[rId] = {
+                    teams : [cv.team]
+                };
+            } else {
+                acc[rId].teams.push(cv.team);
+            }
+            return acc;
+        });
+        return acc;
+    },{});
+
+    bots = botsList.filter(function(bot){
+        if (botsTeamId[bot.id]){
+            bot.teams = botsTeamId[bot.id].teams;
+        }
+
+        if (filterByOrg) {
+            if (botsTeamId[bot.id] !== undefined){
+                return true;
+            }
+
+            return false;
+        }
+
+        return true;
+    });
+
+    return bots;
 }
 
 function getTeamsInfo(result, orgId, teamIds, cb){
-   
-  var query = {
-    orgname_rowid : orgId,
-    id : '21'
-  };
-  
-  if (teamIds.length > 0 ){
-    query.rowid = {$in:teamIds}; 
-  }
-  
-   d4dModelNew.d4dModelMastersTeams.find(query, function(err, teamList){
-	   if (err) {
-		   return cb(err);
-	   }
-	   
-	   result.forEach(function(orgResource){
-		   teamList.forEach(function(t){
-			   if(orgResource.teamId === t.rowid){
-				   orgResource.team = {
-					   teamId : t.rowid,
-					   teamName : t.teamname
-				   };
-			   }
-		   });
-	   });
-	   
-	   return cb(null, result);
-   });
+
+    var query = {
+        orgname_rowid : orgId,
+        id : '21'
+    };
+
+    if (teamIds.length > 0 ){
+        query.rowid = {$in:teamIds};
+    }
+
+    d4dModelNew.d4dModelMastersTeams.find(query, function(err, teamList){
+        if (err) {
+            return cb(err);
+        }
+
+        result.forEach(function(orgResource){
+            teamList.forEach(function(t){
+                if(orgResource.teamId === t.rowid){
+                    orgResource.team = {
+                        teamId : t.rowid,
+                        teamName : t.teamname
+                    };
+                }
+            });
+        });
+
+        return cb(null, result);
+    });
 }
 
 botService.executeBots = function executeBots(botsId, reqBody, userName, executionType, schedulerCallCheck, callback) {
@@ -458,7 +440,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
     var botRemoteServerDetails = {}
     async.waterfall([
         function (next) {
-            botDao.getBotsByBotId(botsId, (err, result) => {
+            botDao.getBotsByBotId(botsId, function(err, result) {
                 if (err)
                     next(err, null);
                 else {
@@ -574,28 +556,28 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     bots: function (callback) {
                         if ((botDetails[0].type === 'script' || botDetails[0].type === 'meta' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === true) {
-                            var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
-                                executionCount: botExecutionCount,
+                                executionCount: botDetails[0].executionCount + 1,
                                 lastRunTime: new Date().getTime(),
-                                lastExecutionStatus: "running"
+                                lastExecutionStatus: "running",
+                                runningExecutionCount: botDetails[0].runningExecutionCount + 1
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         } else if ((botDetails[0].type === 'script' || botDetails[0].type === 'meta' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints' || botDetails[0].type === 'blueprint')
                             && schedulerCallCheck === false) {
-                            encryptedParam(reqBody, botDetails[0].inputFormFields, function (err, encryptData) {
+                            encryptedParam(reqBody, botDetails[0].input, function (err, encryptData) {
                                 if (err) {
                                     var err = new Error('Data encryption is Failed');
                                     err.status = 400;
                                     err.message = 'Data encryption is Failed';
                                     callback(err, null);
                                 } else {
-                                    var botExecutionCount = botDetails[0].executionCount + 1;
                                     var botUpdateObj = {
-                                        executionCount: botExecutionCount,
+                                        executionCount: botDetails[0].executionCount + 1,
                                         lastRunTime: new Date().getTime(),
-                                        params: encryptData,
-                                        lastExecutionStatus: "running"
+                                        params:encryptData,
+                                        lastExecutionStatus:"running",
+                                        runningExecutionCount: botDetails[0].runningExecutionCount + 1
                                     }
                                     if (reqBody.nodeIds) {
                                         botUpdateObj.params.nodeIds = reqBody.nodeIds;
@@ -664,7 +646,7 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId, c
         function (ymlFileDetails, botsDetails, next) {
             var botFactoryDirPath = appConfig.botFactoryDir + 'gitHub/';
             var gitHubService = require('_pr/services/gitHubService.js');
-            gitHubService.getSingleYaml(botFactoryDirPath, botId, (err, files) => {
+            gitHubService.getSingleYaml(botFactoryDirPath, botId, function(err, files) {
                 if (err)
                     next(err, null);
                 else {
@@ -687,8 +669,8 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId, c
                                             type: result.type,
                                             subType: result.subtype,
                                             isParameterized: result.isParameterized ? result.isParameterized : false,
-                                            inputFormFields: result.input[0].form,
-                                            outputOptions: result.output,
+                                            input: result.input && result.input !== null ? result.input[0].form : null,
+                                            output: result.output,
                                             ymlDocFileId: ymlDocFileId,
                                             source: "GitHub"
                                         }
@@ -707,7 +689,7 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId, c
                                     }
                                 });
                             } else {
-                                next({ errCode: 400, errMsg: "Error in Uploading YML." }, null);
+                                next({errCode: 400, errMsg: "Error in Uploading YML."}, null);
                                 return;
                             }
                         });
@@ -717,7 +699,7 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId, c
                         return;
                     }
                 }
-            })
+            });
         }
     ], function (err, results) {
         if (err) {
@@ -798,10 +780,10 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
             if (gitHubDetails.botSync !== null) {
                 var botFactoryDirPath = appConfig.botFactoryDir + 'gitHub/';
                 var gitHubService = require('_pr/services/gitHubService.js');
-                gitHubService.getYamlList(botFactoryDirPath, (err, files) => {
+                gitHubService.getYamlList(botFactoryDirPath, function(err, files) {
                     if (err)
                         next(err, null);
-                    if (files !== null && files .length > 0){
+                    if (files !== null && files.length > 0) {
                         var botObjList = [];
                         for (var i = 0; i < files.length; i++) {
                             (function (ymlFile) {
@@ -841,8 +823,8 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
                                                     manualExecutionTime: result.manualExecutionTime ? result.manualExecutionTime : 10,
                                                     type: result.type,
                                                     subType: result.subtype,
-                                                    inputFormFields: result.input && result.input !== null ? result.input[0].form : null,
-                                                    outputOptions: result.output,
+                                                    input: result.input && result.input !== null ? result.input[0].form : null,
+                                                    output: result.output,
                                                     ymlDocFileId: ymlDocFileId,
                                                     orgId: gitHubDetails.botSync.orgId,
                                                     isParameterized: result.isParameterized ? result.isParameterized : false,
@@ -898,7 +880,6 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
                         logger.info("There is no YML files in this directory.", botFactoryDirPath);
                     }
                 });
-
             } else {
                 next(null, gitHubDetails.botSync);
             }
@@ -1114,8 +1095,8 @@ function addYmlFileDetailsForBots(bots, reqData, serviceNowCheck, callback) {
                             category: bot.category,
                             type: bot.type,
                             subType: bot.subType,
-                            inputFormFields: bot.inputFormFields,
-                            outputOptions: bot.outputOptions,
+                            inputFormFields: bot.input,
+                            outputOptions: bot.output,
                             ymlDocFileId: bot.ymlDocFileId,
                             orgId: bot.orgId,
                             orgName: bot.orgName,
@@ -1171,8 +1152,8 @@ function addYmlFileDetailsForBots(bots, reqData, serviceNowCheck, callback) {
                                         category: botDetails[0].category,
                                         type: botDetails[0].type,
                                         subType: botDetails[0].subType,
-                                        inputFormFields: botDetails[0].inputFormFields,
-                                        outputOptions: botDetails[0].outputOptions,
+                                        inputFormFields: botDetails[0].input,
+                                        outputOptions: botDetails[0].output,
                                         ymlDocFileId: botDetails[0].ymlDocFileId,
                                         orgId: botDetails[0].orgId,
                                         orgName: botDetails[0].orgName,

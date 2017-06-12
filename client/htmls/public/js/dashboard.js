@@ -53,57 +53,40 @@ $(document).ready(function () {
         $childUnassignedInstanceTemplate.removeClass('childUnassignedInstanceTemplate');
         $childUnassignedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass(bgClass);
 
-        $.get('../providers/' + providerid + '/managedInstances', function (dataManaged) {
-            var managedInstancesLength = dataManaged.metaData.totalRecords;
+        $.get( '../resources/track/report?filterBy=providerDetails.id:'+ providerid+',resourceType:EC2', function (resources) {
+            var managedInstancesLength = resources.totalManagedResources;
             $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
-
             var totalInstances;
-            var managedData = dataManaged.metaData.totalRecords;
+            var managedData = resources.totalManagedResources;
             updateTotalCount("managed", providerid, managedData);
-
+            var unmanagedData = resources.totalAssignedResources;
             $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function () {
                 $('#mainPanelId').hide();
                 $('#managedTableContainer').show();
                 $('#providerforManagedInstId').empty().append(providerName);
                 loadManagedInstances(providerid);
             });
-
-            $.get('../providers/' + providerid + '/unmanagedInstances', function (dataUnmanaged) {
-                var unmanagedData = dataUnmanaged.metaData.totalRecords;
-                $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
-
-
-                updateTotalCount("unmanaged", providerid, unmanagedData);
-
-
-                awstotalinstancecount = awstotalinstancecount + totalInstances;
-
-                $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function () {
-                    $('#mainPanelId').hide();
-                    $('#unmanagedTableContainer').show();
-                    $('#providerforunManagedInstId').empty().append(providerName);
-                    loadAssignedInstances(providerid);
-                });
-                $.get('../providers/' + providerid + '/unassigned-instances', function (dataUnmanaged) {
-                    var unassignedData = dataUnmanaged.recordsTotal;
-                    $childUnassignedInstanceTemplate.find('.countUnassignedInstance').empty().append(unassignedData);
-
-
-                    updateTotalCount("unassigned", providerid, unassignedData);
-
-                    totalInstances = managedData + unmanagedData + unassignedData;
-
-                    updateTotalCount("managedunmanaged", providerid, totalInstances);
-                    awstotalinstancecount = awstotalinstancecount + totalInstances;
-
-                    $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalInstances);
-                    $childUnassignedInstanceTemplate.find('#unassignedInstSpecificMoreInfo').click(function () {
-                        $('#mainPanelId').hide();
-                        $('#unassignedTableContainer').show();
-                        $('#providerforunAssignedInstId').empty().append(providerName);
-                        loadUnassignedInstances(providerid);
-                    });
-                });
+            $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
+            updateTotalCount("unmanaged", providerid, unmanagedData);
+            awstotalinstancecount = awstotalinstancecount + totalInstances;
+            $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function () {
+                $('#mainPanelId').hide();
+                $('#unmanagedTableContainer').show();
+                $('#providerforunManagedInstId').empty().append(providerName);
+                loadAssignedInstances(providerid);
+            });
+            var unassignedData = resources.totalUnAssignedResources;
+            $childUnassignedInstanceTemplate.find('.countUnassignedInstance').empty().append(unassignedData);
+            updateTotalCount("unassigned", providerid, unassignedData);
+            totalInstances = managedData + unmanagedData + unassignedData;
+            updateTotalCount("managedunmanaged", providerid, totalInstances);
+            awstotalinstancecount = awstotalinstancecount + totalInstances;
+            $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalInstances);
+            $childUnassignedInstanceTemplate.find('#unassignedInstSpecificMoreInfo').click(function () {
+                $('#mainPanelId').hide();
+                $('#unassignedTableContainer').show();
+                $('#providerforunAssignedInstId').empty().append(providerName);
+                loadUnassignedInstances(providerid);
             });
         });
         $rowTemplate.append($childProviderTemplate);
@@ -153,21 +136,7 @@ $(document).ready(function () {
             var $presentProviderView = $('.infrastructureClass');
             $presentProviderView.show();
             $('#totalProviders').append(totalcountproviders);
-
-            $('#totalManagedInstancesMoreInfo').on('click', function () {
-                $('#mainPanelId').hide();
-                $('#trackedManagedInstancesAllProviderTableContainer').show();
-                loadAllManagedInstances();
-            });
-
-            $('#totalAssignedInstancesMoreInfo').on('click', function () {
-                $('#mainPanelId').hide();
-                $('#trackedAssignedInstancesAllProviderTableContainer').show();
-                loadAllAssignedInstances();
-            });
             var providerDetail, providerView;
-
-
             for (var i = 0; i < awsproviderscount; i++) {
                 providerDetail = totalProviders.awsProviders[i];
                 providerView = $('#awsProviderView');
@@ -226,7 +195,7 @@ $(document).ready(function () {
             "serverSide": true,
             "destroy": true,
             "ajax": {
-                "url":'/providers/' + providerId + '/managedInstanceList',
+                "url":'/resources?filterBy=providerDetails.id:'+ providerId+',resourceType:EC2,category:managed',
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
@@ -242,39 +211,47 @@ $(document).ready(function () {
                 }
             },
             "columns": [
-                {"data": "platformId", "orderable": true},
-                {"data": "orgName", "orderable": false,
+                {"data": "resourceDetails.platformId", "orderable": true},
+                {"data": "masterDetails.orgName", "orderable": false,
                     "render": function (data) {
                         return data ? data : '-';
                     }
                 },
-                {"data": "bgName", "orderable": false,
+                {"data": "masterDetails.bgName", "orderable": false,
                     "render": function (data) {
                         return data ? data : '-';
                     }
                 },
-                {"data": "projectName", "orderable": false,
+                {"data": "masterDetails.projectName", "orderable": false,
                     "render": function (data) {
                         return data ? data : '-';
                     }
                 },
-                {"data": "environmentName", "orderable": true,
+                {"data": "masterDetails.envName", "orderable": true,
                     "render": function (data) {
                         return data ? data : '-';
                     }
                 },
-                {"data": "hardware.os", "orderable": false,
+                {"data": "resourceDetails.os", "orderable": false,
                     "render": function (data) {
                         return data ? data : '-';
                     }
                 },
-                {"data": "instanceIP", "orderable": true},
+                {"data": "resourceDetails.publicIp", "orderable": true,
+                    "render": function(data, type, full){
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return full.resourceDetails.privateIp;
+                        }
+                    }
+                },
                 {"data": "", "orderable": true,
                     "render": function (data, type, full, meta) {
-                        return full.region ? full.region : full.providerData ? full.providerData.region : '-';
+                        return full.providerDetails.region.region ? full.providerDetails.region.region : '-';
                     }
                 },
-                {"data": "instanceState", "orderable": true},
+                {"data": "resourceDetails.state", "orderable": true},
                 {"data": "", "orderable": false,
                     "render": function (data, type, full, meta) {
                         return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2) : '-';
@@ -290,68 +267,6 @@ $(document).ready(function () {
         });
     }
 
-    function loadAllManagedInstances() {
-        $('#allProviderTrackedManagedInstanceListTable').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "destroy": true,
-            "ajax": {
-                "url": '/tracked-instances?category=managed',
-                "data": function( result ) {
-                    var columnIndex = parseInt(result.order[0].column);
-                    var newResult = {
-                        draw:result.draw,
-                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
-                        pageSize:result.length,
-                        sortOrder:result.order[0].dir,
-                        sortBy:result.columns[columnIndex].data,
-                        filterBy:result.filterBy,
-                        search:result.search.value
-                    }
-                    return newResult;
-                }
-            },
-            "columns": [
-                {"data": "platformId", "orderable": true},
-                {"data": "orgName", "orderable": false,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "projectName", "orderable": false,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "environmentName", "orderable": true,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "hardware.os", "orderable": false,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "instanceIP", "orderable": true},
-                {"data": "instanceState", "orderable": true},
-                {"data": "providerType", "orderable": true,
-                    "render": function (data) {
-                        if (data === 'aws') {
-                            return 'AWS';
-                        } else if (data === 'azure') {
-                            return 'Azure';
-                        } else if (data === 'vmware') {
-                            return 'VMWare';
-                        } else if (data === 'openstack') {
-                            return 'OpenStack';
-                        }
-                    }
-                }
-            ]
-        });
-    }
-
     function loadAssignedInstances(providerId) {
         $('#unmanagedinstanceListTable').DataTable({
             "processing": true,
@@ -361,7 +276,7 @@ $(document).ready(function () {
                 $(row).attr({"data-id": data._id})
             },
             "ajax": {
-                "url": '/providers/' + providerId + '/unmanagedInstanceList',
+                "url":'/resources?filterBy=providerDetails.id:'+ providerId+',resourceType:EC2,category:assigned',
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
@@ -377,47 +292,47 @@ $(document).ready(function () {
                 }
             },
             "columns": [
-                {"data": "platformId", "orderable": true},
-                {"data": "orgName", "orderable": false,
+                {"data": "resourceDetails.platformId", "orderable": true},
+                {"data": "masterDetails.orgName", "orderable": false,
+                    "render": function (data) {
+                        return data ? data : '';
+                    }
+                },
+                {"data": "masterDetails.bgName", "orderable": false,
                     "render": function (data) {
                         return data ? data : '-';
                     }
                 },
-                {"data": "bgName", "orderable": false,
+                {"data": "masterDetails.projectName", "orderable": false,
                     "render": function (data) {
                         return data ? data : '-';
                     }
                 },
-                {"data": "projectName", "orderable": false,
+                {"data": "masterDetails.envName", "orderable": true,
                     "render": function (data) {
                         return data ? data : '-';
                     }
                 },
-                {"data": "environmentName", "orderable": true,
+                {"data": "resourceDetails.os", "orderable": false,
                     "render": function (data) {
-                        return data ? data : '-';
+                        return data ? data : '';
                     }
                 },
-                {"data": "os", "orderable": false,
-                    "render": function (data) {
-                        return data ? data : '-';
-                    }
-                },
-                {"data": "ip", "orderable": true,
+                {"data": "resourceDetails.publicIp", "orderable": true,
                     "render": function(data, type, full){
                         if(data !== null){
                             return data;
                         }else{
-                            return full.privateIpAddress;
+                            return full.resourceDetails.privateIp;
                         }
                     }
                 },
                 {"data": "", "orderable": true,
                     "render": function (data, type, full, meta) {
-                        return full.region ? full.region : full.providerData ? full.providerData.region : '-';
+                        return full.providerDetails.region ? full.providerDetails.region.region : '-';
                     }
                 },
-                {"data": "state", "orderable": true},
+                {"data": "resourceDetails.state", "orderable": true},
                 {"data": "", "orderable": false,
                     "render": function (data, type, full, meta) {
                         return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2) : '-';
@@ -442,7 +357,7 @@ $(document).ready(function () {
                 $(row).attr({"data-id": data._id})
             },
             "ajax": {
-                "url":'/providers/' + providerId + '/unassigned-instances',
+                "url":'/resources?filterBy=providerDetails.id:'+ providerId+',resourceType:EC2,category:unassigned',
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
@@ -458,32 +373,32 @@ $(document).ready(function () {
                 }
             },
             "columns": [
-                {"data": "platformId", "orderable": true},
-                {"data": "orgName", "orderable": false,
+                {"data": "resourceDetails.platformId", "orderable": true},
+                {"data": "masterDetails.orgName", "orderable": false,
                     "render": function (data) {
                         return data ? data : '';
                     }
                 },
-                {"data": "os", "orderable": false,
+                {"data": "resourceDetails.os", "orderable": false,
                     "render": function (data) {
                         return data ? data : '';
                     }
                 },
-                {"data": "ip", "orderable": true,
+                {"data": "resourceDetails.publicIp", "orderable": true,
                     "render": function(data, type, full){
                         if(data !== null){
                             return data;
                         }else{
-                            return full.privateIpAddress;
+                            return full.resourceDetails.privateIp;
                         }
                     }
                 },
                 {"data": "", "orderable": true,
                     "render": function (data, type, full, meta) {
-                        return full.region ? full.region : full.providerData ? full.providerData.region : '-';
+                        return full.providerDetails.region ? full.providerDetails.region.region : '-';
                     }
                 },
-                {"data": "state", "orderable": true},
+                {"data": "resourceDetails.state", "orderable": true},
                 {"data": "", "orderable": false,
                     "render": function (data, type, full, meta) {
                         return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2) : '-';
@@ -493,90 +408,6 @@ $(document).ready(function () {
                     "render": function (data, type, full, meta) {
                         return full.usage ? '<span>' + full.usage.CPUUtilization.average + '&nbsp;%</span>' +
                             '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + full._id + '><i class="fa fa-list"></i></a>' : '-';
-                    }
-                }
-            ]
-        });
-    }
-
-    function loadAllAssignedInstances() {
-        $('#allProviderTrackedAssignedInstanceListTable').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "destroy": true,
-            "createdRow": function (row, data) {
-                $(row).attr({"data-id": data._id})
-            },
-            "ajax": {
-                "url": '/tracked-instances?category=assigned',
-                "data": function( result ) {
-                    var columnIndex = parseInt(result.order[0].column);
-                    var newResult = {
-                        draw:result.draw,
-                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
-                        pageSize:result.length,
-                        sortOrder:result.order[0].dir,
-                        sortBy:result.columns[columnIndex].data,
-                        filterBy:result.filterBy,
-                        search:result.search.value
-                    }
-                    return newResult;
-                }
-            },
-            "columns": [
-                {"data": "platformId", "orderable": true},
-                {"data": "orgName", "orderable": false,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "projectName", "orderable": false,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "environmentName", "orderable": true,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "os", "orderable": false,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "ip", "orderable": true,
-                    "render": function(data, type, full){
-                        if(data !== null){
-                            return data;
-                        }else{
-                            return full.privateIpAddress;
-                        }
-                    }
-                },
-                {"data": "state", "orderable": true},
-                {"data": "providerType", "orderable": true,
-                    "render": function (data) {
-                        if (data === 'aws') {
-                            return 'AWS';
-                        } else if (data === 'azure') {
-                            return 'Azure';
-                        } else if (data === 'vmware') {
-                            return 'VMWare';
-                        } else if (data === 'openstack') {
-                            return 'OpenStack';
-                        }
-                    }
-                },
-                {"data": "", "orderable": false,
-                    "render": function (data, type, full, meta) {
-                        return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2) : '-';
-                    }
-                },
-                {"data": "usage", "orderable": false,
-                    "render": function (data, type, full, meta) {
-                        return full.usage ? '<span>' + full.usage.CPUUtilization.average + '&nbsp;%</span>' +
-                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage=' + full._id + '><i class="fa fa-list"></i></a>' : '-';
                     }
                 }
             ]

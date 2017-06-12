@@ -123,7 +123,7 @@ function getDefaultsConfig() {
                 "bots":"createdOn",
                 "gitHub":"createdOn",
                 "notice":"createdOn",
-                "resourceMap":"createdOn"
+                "services":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,

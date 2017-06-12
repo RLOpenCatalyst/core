@@ -96,24 +96,7 @@ function aggregateAWSResourceCosts() {
                     next(null, orgs, providers)
                 }
             })
-        }/*,
-         function(orgs, providers, next) {
-         async.parallel([
-         function(next1) {
-         AWSResourceCostsAggregation.aggregateEntityCostTrendByOrg(orgs, next1)
-         },
-         function(next1) {
-         AWSResourceCostsAggregation.aggregateEntityCostTrendByProvider(providers, next1)
-         }
-         
-         ], function(err) {
-         if(err) {
-         next(err)
-         } else {
-         next()
-         }
-         })
-         }*/
+        }
     ], function (err) {
         if (err) {
             logger.error(err)

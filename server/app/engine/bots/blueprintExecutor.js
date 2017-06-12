@@ -18,7 +18,7 @@ var logger = require('_pr/logger')(module);
 var async = require('async');
 var usersDao = require('_pr/model/users.js');
 var Blueprints = require('_pr/model/blueprint');
-var resourceMapService = require('_pr/services/resourceMapService.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 const errorType = 'blueprintExecutor';
 
@@ -89,9 +89,12 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                         next({code: 400, message: "Invalid Stack name"}, null);
                         return;
                     } else {
-                        resourceMapService.getResourceMapByName(stackName, function (err, data) {
+                        serviceMapService.getServices({name:stackName}, function (err, data) {
                             if (err) {
                                 next(err, null);
+                                return;
+                            } else if(data.length > 0) {
+                                next({code: 400, message: "Stack Name is already associated with other Services.Please enter unique Stack Name."}, null);
                                 return;
                             } else {
                                 next(null, blueprint);
@@ -106,9 +109,12 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                         next({code: 400, message: "Invalid Domain name"}, null);
                         return;
                     } else {
-                        resourceMapService.getResourceMapByName(domainName, function (err, data) {
+                        serviceMapService.getServices({name:domainName}, function (err, data) {
                             if (err) {
                                 next(err, null);
+                                return;
+                            } else if(data.length > 0) {
+                                next({code: 400, message: "Domain Name is already associated with other Services.Please enter unique Domain Name."}, null);
                                 return;
                             } else {
                                 next(null, blueprint);
@@ -144,8 +150,8 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                 blueprint.launch({
                     envId: reqBody.envId,
                     ver: reqBody.version,
-                    stackName: stackName,
-                    domainName: domainName,
+                    stackName: stackName === '' || stackName === null?null:stackName,
+                    domainName: domainName === '' || domainName === null?null:domainName,
                     sessionUser: userName,
                     tagServer: reqBody.tagServer,
                     monitorId: monitorId,

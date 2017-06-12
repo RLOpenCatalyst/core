@@ -744,6 +744,34 @@ accordion .panel-heading {
     margin-left: 5px;
 }
 
+.width99 {
+  width: 99%;
+}
+
+.marginleft-18 {
+  margin-left: -18px!important;
+}
+
+.backColor {
+  background: #fff;
+}
+
+.scheduleBorder {
+  border: 1px solid #ddd;
+}
+
+.margintop28 {
+  margin-top:28px;
+}
+
+.margintop9 {
+  margin-top:9px;
+}
+
+.marginleft35 {
+  margin-left:35px
+}
+
 #blueprintInfoPage, #botInfoPage {
     .td-padding {
         padding-left: 18px;
@@ -1636,11 +1664,18 @@ input[type="text"].ui-grid-filter-input{
     padding: 6.5px!important
 }
 
+.paddingForScreen {
+  padding-left: 2.4%;
+}
+
 @media (min-width: 1550px) {
     .bots-panel-body {
         max-height: 350px;
         min-height: 350px;
         overflow-y:auto!important;
+    }
+    .paddingForScreen {
+      padding-left: 1.7%;
     }
 }
 
@@ -1802,4 +1837,8 @@ input[type="text"].ui-grid-filter-input{
 }
 .ui-grid-icon-spin5:before {
   content: '\ea61';
+}
+
+.borderTop {
+  border-top: 1px dashed #ddd;
 }

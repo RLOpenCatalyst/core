@@ -38,7 +38,7 @@ var botOldService = require('_pr/services/botOldService.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
-var resourceMapService = require('_pr/services/resourceMapService.js');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 
 
 
@@ -196,9 +196,12 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                     next({code: 400, message: "Invalid Stack name"}, null);
                     return;
                 } else {
-                    resourceMapService.getResourceMapByName(stackName, function (err, data) {
+                    serviceMapService.getServices({name:stackName}, function (err, data) {
                         if (err) {
                             next(err, null);
+                            return;
+                        } else if(data.length > 0) {
+                            next({code: 400, message: "Stack Name is already associated with other Services.Please enter unique Stack Name."}, null);
                             return;
                         } else {
                             next(null, blueprint);
@@ -213,11 +216,14 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                     next({code: 400, message: "Invalid Domain name"}, null);
                     return;
                 } else {
-                    resourceMapService.getResourceMapByName(domainName, function (err, data) {
+                    serviceMapService.getServices({name:domainName}, function (err, data) {
                         if (err) {
                             next(err, null);
                             return;
-                        } else {
+                        } else if(data.length > 0) {
+                            next({code: 400, message: "Domain Name is already associated with other Services.Please enter unique Domain Name."}, null);
+                            return;
+                        } else{
                             next(null, blueprint);
                             return;
                         }
@@ -295,8 +301,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         blueprint.launch({
                             envId: reqBody.envId,
                             ver: reqBody.version,
-                            stackName: reqBody.stackName,
-                            domainName: reqBody.domainName,
+                            stackName: reqBody.stackName === '' || reqBody.stackName === null?null:reqBody.stackName,
+                            domainName: reqBody.domainName === '' || reqBody.domainName === null?null:reqBody.domainName,
                             sessionUser: reqBody.userName,
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
@@ -310,8 +316,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                     blueprint.launch({
                         envId: reqBody.envId,
                         ver: reqBody.version,
-                        stackName: reqBody.stackName,
-                        domainName: reqBody.domainName,
+                        stackName: reqBody.stackName === '' || reqBody.stackName === null?null:reqBody.stackName,
+                        domainName: reqBody.domainName === '' || reqBody.domainName === null?null:reqBody.domainName,
                         sessionUser: reqBody.userName,
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
@@ -427,7 +433,6 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
     var networkProfile = new gcpNetworkProfileModel(blueprint.networkProfile);
     if (networkProfile) {
         var providerId = networkProfile.providerId;
-
         providerService.getProvider(providerId, function(err, provider) {
             if (err) {
                 var error = new Error("Error while fetching Provider.");
@@ -475,7 +480,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
 
                                 var timestampStarted = new Date().getTime();
                                 logsDao.insertLog({
-                                    referenceId: instanceData.id,
+                                    instanceId: instanceData.id,
                                     err: false,
                                     log: "Starting instance",
                                     timestamp: timestampStarted

@@ -75,6 +75,9 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window'
 angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'authenticationAPI', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, moment, authenticationAPI,$http, $log, $location, $window, auth, $state, modulePerms) {
 	'use strict';
 	//global Scope Constant Defined;
+	$rootScope.$on('GET_LIBRARY',function($event,reqParams){
+		$scope.actMenu = reqParams;
+	});
 	$rootScope.app = $rootScope.app || {};
 	$rootScope.app.isDashboard = false;
 	$rootScope.appDetails = $rootScope.appDetails || {};
@@ -86,7 +89,8 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
 			settings: modulePerms.settingsAccess(),
 			track: modulePerms.trackAccess(),
 			analyticsBool: modulePerms.analyticsBool(),
-			serviceBool: modulePerms.serviceBool()
+			serviceBool: modulePerms.serviceBool(),
+			servicesBool: modulePerms.servicesBool()
 		};
 		$rootScope.workZoneBool = _permSet.workzone;
 		$rootScope.designBool = _permSet.design;
@@ -94,6 +98,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
 		$rootScope.trackBool = _permSet.track;
 		$rootScope.analyticsBool = _permSet.analyticsBool;
 		$rootScope.serviceBool = _permSet.serviceBool;
+		$rootScope.servicesBool = _permSet.servicesBool;
 	});
 	$scope.$watch(function() {
 		$rootScope.moduleSelection = $state.params;
