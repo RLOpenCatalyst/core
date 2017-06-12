@@ -118,14 +118,16 @@ function chefSyncWithChefNodes(nodeDetailList,callback){
                     var query = {
                         $or: [{
                             'resourceDetails.publicIp': nodeDetail.ip
-                        },
+                            },
                             {
                                 'resourceDetails.privateIp': nodeDetail.ip
                             },
                             {
                                 'configDetails.nodeName': nodeDetail.name
+                            },
+                            {
+                                'resourceDetails.platformId': nodeDetail.platformId
                             }],
-                        'resourceDetails.hostName': nodeDetail.fqdn,
                         isDeleted:false
                     }
                     instanceModel.getInstanceData(query,function(err,instances){
@@ -282,7 +284,7 @@ function getChefNodeDetails(nodeList,chefObj,chefServerId,orgId,callback){
                         fqdn: nodeDetail.automatic.fqdn,
                         upTime: nodeDetail.automatic.uptime,
                         idleTime: nodeDetail.automatic.idletime,
-                        state:"running"
+                        state:"unknown"
                     };
                     if (!nodeDetail.automatic) {
                         nodeDetail.automatic = {};

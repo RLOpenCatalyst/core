@@ -310,9 +310,10 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                         next(error,null);
                     }
                     if(resourceDetail !== null && (resourceDetail.resourceDetails.state === 'running' || resourceDetail.resourceDetails.state === 'unknown' )) {
-                        var bootStrapState = 'bootStrapping';
+                        var bootStrapState = 'bootStrapping',instanceCategory = resourceDetail.category;
                         if(resourceDetail.resourceDetails.bootStrapState === 'success'){
                             bootStrapState = 'success';
+                            instanceCategory = 'managed';
                         }
                         next(null, {code: 202, message: "Authentication is in Progress"});
                         services.updateService({
@@ -369,14 +370,16 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                             }, {
                                                 'resources.$.bootStrapState': bootStrapState,
                                                 'resources.$.authentication': 'success',
-                                                state: serviceState
+                                                'resources.$.category': instanceCategory,
+                                                'state': serviceState
                                             }, function (err, result) {
                                                 if (err) {
                                                     logger.error("Error in updating Service State:", err);
                                                 }
                                                 resourceModel.updateResourceById(resourceId, {
                                                     'authentication': 'success',
-                                                    'resourceDetails.bootStrapState': bootStrapState
+                                                    'resourceDetails.bootStrapState': bootStrapState,
+                                                    'category': instanceCategory,
                                                 }, function (err, data) {
                                                     if (err) {
                                                         logger.error("Error in updating BootStrap State:", err);
@@ -431,6 +434,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                             }, {
                                                 'resources.$.bootStrapState': bootStrapState,
                                                 'resources.$.authentication': 'success',
+                                                'resources.$.category': instanceCategory,
                                                 'state': serviceState
                                             }, function (err, result) {
                                                 if (err) {
@@ -438,7 +442,8 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                 }
                                                 resourceModel.updateResourceById(resourceId, {
                                                     'authentication': 'success',
-                                                    'resourceDetails.bootStrapState': bootStrapState
+                                                    'resourceDetails.bootStrapState': bootStrapState,
+                                                    'category': instanceCategory,
                                                 }, function (err, data) {
                                                     if (err) {
                                                         logger.error("Error in updating BootStrap State:", err);
@@ -520,14 +525,16 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                     }, {
                                                         'resources.$.bootStrapState': bootStrapState,
                                                         'resources.$.authentication': 'success',
-                                                        state: serviceState
+                                                        'resources.$.category': instanceCategory,
+                                                        'state': serviceState
                                                     }, function (err, result) {
                                                         if (err) {
                                                             logger.error("Error in updating Service State:", err);
                                                         }
                                                         resourceModel.updateResourceById(resourceId, {
                                                             'authentication': 'success',
-                                                            'resourceDetails.bootStrapState': bootStrapState
+                                                            'resourceDetails.bootStrapState': bootStrapState,
+                                                            'category': instanceCategory
                                                         }, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Error in updating BootStrap State:", err);
@@ -582,6 +589,7 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                     }, {
                                                         'resources.$.bootStrapState': bootStrapState,
                                                         'resources.$.authentication': 'success',
+                                                        'resources.$.category': instanceCategory,
                                                         'state': serviceState
                                                     }, function (err, result) {
                                                         if (err) {
@@ -589,7 +597,8 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                                                         }
                                                         resourceModel.updateResourceById(resourceId, {
                                                             'authentication': 'success',
-                                                            'resourceDetails.bootStrapState': bootStrapState
+                                                            'resourceDetails.bootStrapState': bootStrapState,
+                                                            'category': instanceCategory
                                                         }, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Error in updating BootStrap State:", err);

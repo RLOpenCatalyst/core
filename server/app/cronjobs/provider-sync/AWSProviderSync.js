@@ -921,10 +921,13 @@ function serviceMapSync(callback){
                                                             },
                                                             {
                                                                 'configDetails.nodeName': chefNode.name
+                                                            },
+                                                            {
+                                                                'resourceDetails.platformId': chefNode.platformId
                                                             }],
-                                                        'resourceDetails.hostName': chefNode.fqdn,
                                                         isDeleted:false
                                                     }
+                                                    console.log(query);
                                                     ec2Model.getInstanceData(query, function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in finding Resource Details for Query : ", query, err);
@@ -1045,7 +1048,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if(count === resources.length){
                             next(null, filterResourceList);
                         }
-                        if(node.result.authentication ==='failed'  && node.result.resourceType ==='EC2' && node .result.resourceDetails.bootStrapState ==='failed' && node.result.resourceDetails.state ==='stopped' ){
+                        if(node.result.authentication ==='failed'  && node.result.resourceType ==='EC2'  && node.result.resourceDetails.state ==='stopped' ){
                             commonService.startResource(service.id,node.result,function(err,state){
                                 if(err){
                                     logger.error(err);
