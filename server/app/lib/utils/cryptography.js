@@ -132,7 +132,7 @@ function Cryptography(algorithm, password) {
                 return;
             }else {
                 var decryptData = decrypt(fileData, decryptionEncoding, encryptionEncoding);
-                var encodedData = Base64.encode(decryptData);
+                var encodedData = new Buffer(decryptData).toString('base64')
                 callback(null, encodedData);
             }
         });

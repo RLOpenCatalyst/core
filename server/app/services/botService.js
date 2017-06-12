@@ -1075,7 +1075,7 @@ function encryptedParam(paramDetails, inputFormDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
-    if (paramDetails.type === 'script' && paramDetails.data && paramDetails.data !== null) {
+    if ((paramDetails.type === 'script' || paramDetails.type === 'meta')&& paramDetails.data && paramDetails.data !== null) {
         inputFormDetails.forEach(function (formField) {
             if (formField.type === 'password' || formField.type === 'restricted') {
                 var encryptedText = cryptography.encryptText(paramDetails.data[formField.name], cryptoConfig.encryptionEncoding,

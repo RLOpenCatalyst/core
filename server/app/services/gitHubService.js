@@ -416,10 +416,12 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId, us
                 }
                 async.parallel([
                     function (callback) {
-                        if (result.botsDetails[0].type === 'script') {
+                        if (result.botsDetails[0].type === 'script' || result.botsDetails[0].type === 'meta') {
                             var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/' + result.botsDetails[0].type + '_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
-                            gitHubSingleSync(formattedGitHub,botId, cmdFull, cmd, callback);
+                            gitHubSingleSync(formattedGitHub, botId, cmdFull, cmd, callback);
                         }
+                        else
+                            callback(null);    
                     },
                     function (callback) {
                         var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/YAML/' + result.botsDetails[0].id + '.yaml?ref=' + formattedGitHub.repositoryBranch;
