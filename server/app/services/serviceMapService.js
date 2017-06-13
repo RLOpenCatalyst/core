@@ -537,7 +537,7 @@ serviceMapService.getServiceById = function getServiceById(serviceId,callback){
             callback(err,null);
             return;
         }else{
-            callback(null,results);
+            callback(null,results[0]);
             return;
         }
     })
