@@ -1059,7 +1059,7 @@ commonService.startResource = function startResource(serviceId,resource,callback
                         callback(null, state);
                         services.updateService({
                             '_id': ObjectId(serviceId),
-                            'resources': {$elemMatch: {id: JSON.stringify(resource._id)}}
+                            'resources': {$elemMatch: {id: resource._id + ''}}
                         }, {
                             'resources.$.state': 'running'
                         }, function (err, result) {
@@ -1068,7 +1068,7 @@ commonService.startResource = function startResource(serviceId,resource,callback
                             }
                             return;
                         });
-                        instanceModel.updateInstanceData(resource._id, {'resourceDetails.publicIp':instanceData.Reservations[0].Instances[0].PublicIpAddress}, function (err, updateCount) {
+                        instanceModel.updateInstanceData(resource._id, {'resourceDetails.publicIp':instanceData.Reservations[0].Instances[0].PublicIpAddress,'resourceDetails.state':'running'}, function (err, updateCount) {
                             if (err) {
                                 logger.error("update resource ip err ==>", err);
                                 return callback(err, null);

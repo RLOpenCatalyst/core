@@ -848,7 +848,48 @@ function serviceMapSync(callback){
                                                 next(null, resourceList);
                                             }
                                         })
-                                    } else {
+                                    } else if(key ==='groups') {
+                                        var groupKeyCount = 0;
+                                        identifierCount++;
+                                        Object.keys(queryObj).forEach(function (groupKey) {
+                                            resourceModel.getResources(queryObj[groupKey], function (err, resource) {
+                                                if (err) {
+                                                    logger.error("Error in fetching Resources for Query:", queryObj[groupKey], err);
+                                                }
+                                                if (resource.length > 0) {
+                                                    groupKeyCount++;
+                                                    resource.forEach(function (instance) {
+                                                        resourceList.push({
+                                                            type: key,
+                                                            value: groupKey,
+                                                            result: instance
+                                                        });
+                                                        if (instance.resourceDetails.state !== 'terminated' || instance.resourceDetails.state !== 'deleted') {
+                                                            instanceStateList.push(instance.resourceDetails.state);
+                                                        }
+                                                    });
+                                                    if (identifierCount === Object.keys(service.identifiers.aws).length && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        serviceMapVersion(service, resourceList, instanceStateList);
+                                                    }
+                                                    if (count === services.length && keyCount === Object.keys(service.identifiers).length
+                                                        && identifierCount === Object.keys(service.identifiers.aws).length
+                                                        && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        next(null, resourceList);
+                                                    }
+                                                } else {
+                                                    groupKeyCount++;
+                                                    if (identifierCount === Object.keys(service.identifiers.aws).length && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        serviceMapVersion(service, resourceList, instanceStateList);
+                                                    }
+                                                    if (count === services.length && keyCount === Object.keys(service.identifiers).length
+                                                        && identifierCount === Object.keys(service.identifiers.aws).length
+                                                        && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        next(null, resourceList);
+                                                    }
+                                                }
+                                            })
+                                        })
+                                    }else{
                                         resourceModel.getResources(queryObj, function (err, resource) {
                                             if (err) {
                                                 logger.error("Error in fetching Resources for Query:", queryObj, err);
@@ -902,7 +943,50 @@ function serviceMapSync(callback){
                                                 next(null, resourceList);
                                             }
                                         })
-                                    } else {
+                                    } else if(key ==='groups') {
+                                        var groupKeyCount = 0;
+                                        identifierCount++;
+                                        Object.keys(queryObj).forEach(function (groupKey) {
+                                            queryObj[key]['orgId'] = service.masterDetails.orgId;
+                                            queryObj[key]['serverId'] = service.masterDetails.configId;
+                                            resourceModel.getResources(queryObj[groupKey], function (err, resource) {
+                                                if (err) {
+                                                    logger.error("Error in fetching Resources for Query:", queryObj[groupKey], err);
+                                                }
+                                                if (resource.length > 0) {
+                                                    groupKeyCount++;
+                                                    resource.forEach(function (instance) {
+                                                        resourceList.push({
+                                                            type: key,
+                                                            value: groupKey,
+                                                            result: instance
+                                                        });
+                                                        if (instance.resourceDetails.state !== 'terminated' || instance.resourceDetails.state !== 'deleted') {
+                                                            instanceStateList.push(instance.resourceDetails.state);
+                                                        }
+                                                    });
+                                                    if (identifierCount === Object.keys(service.identifiers.chef).length && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        serviceMapVersion(service, resourceList, instanceStateList);
+                                                    }
+                                                    if (count === services.length && keyCount === Object.keys(service.identifiers).length
+                                                        && identifierCount === Object.keys(service.identifiers.chef).length
+                                                        && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        next(null, resourceList);
+                                                    }
+                                                } else {
+                                                    groupKeyCount++;
+                                                    if (identifierCount === Object.keys(service.identifiers.chef).length && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        serviceMapVersion(service, resourceList, instanceStateList);
+                                                    }
+                                                    if (count === services.length && keyCount === Object.keys(service.identifiers).length
+                                                        && identifierCount === Object.keys(service.identifiers.chef).length
+                                                        && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        next(null, resourceList);
+                                                    }
+                                                }
+                                            })
+                                        })
+                                    }else {
                                         queryObj['orgId'] = service.masterDetails.orgId;
                                         queryObj['serverId'] = service.masterDetails.configId;
                                         chefDao.getChefNodes(queryObj, function (err, chefNodes) {
@@ -927,7 +1011,6 @@ function serviceMapSync(callback){
                                                             }],
                                                         isDeleted:false
                                                     }
-                                                    console.log(query);
                                                     ec2Model.getInstanceData(query, function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in finding Resource Details for Query : ", query, err);
@@ -1028,14 +1111,22 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if (node.result.resourceDetails.bootStrapState === 'bootStrapping') {
                             instanceStateList.push('bootStrapping');
                         }
-                        var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                        resourceObj[node.type] = obj[node.type];
+                        if(node.type ==='groups'){
+                            resourceObj[node.type] = node.value;
+                        }else {
+                            var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                            resourceObj[node.type] = obj[node.type];
+                        }
                         var findCheck = false;
                         for (var i = 0; i < filterResourceList.length; i++) {
                             if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
                                 var filterObj = filterResourceList[i];
-                                var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                                filterObj[node.type] = resourceVal[node.type];
+                                if(node.type ==='groups'){
+                                    filterObj[node.type] = node.value;
+                                }else {
+                                    var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                    filterObj[node.type] = resourceVal[node.type];
+                                }
                                 filterResourceList.splice(i, 1);
                                 filterResourceList.push(filterObj);
                                 findCheck = true;
@@ -1076,14 +1167,22 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if(node.result.resourceDetails.bootStrapState === 'bootStrapping'){
                             instanceStateList.push('bootStrapping');
                         }
-                        var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                        resourceObj[node.type] = obj[node.type];
+                        if(node.type ==='groups'){
+                            resourceObj[node.type] = node.value;
+                        }else {
+                            var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                            resourceObj[node.type] = obj[node.type];
+                        }
                         var findCheck = false;
                         for (var i = 0; i < filterResourceList.length; i++) {
                             if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
                                 var filterObj = filterResourceList[i];
-                                var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
-                                filterObj[node.type] = resourceVal[node.type];
+                                if(node.type ==='groups'){
+                                    filterObj[node.type] = node.value;
+                                }else {
+                                    var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
+                                    filterObj[node.type] = resourceVal[node.type];
+                                }
                                 filterResourceList.splice(i, 1);
                                 filterResourceList.push(filterObj);
                                 findCheck = true;

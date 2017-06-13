@@ -309,319 +309,13 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                         error.message = "Error in getting Resource Details By Id: "+resourceId +' : '+ err;
                         next(error,null);
                     }
-                    if(resourceDetail !== null && (resourceDetail.resourceDetails.state === 'running' || resourceDetail.resourceDetails.state === 'unknown' )) {
-                        var bootStrapState = 'bootStrapping',instanceCategory = resourceDetail.category;
-                        if(resourceDetail.resourceDetails.bootStrapState === 'success'){
-                            bootStrapState = 'success';
-                            instanceCategory = 'managed';
-                        }
+                    if(resourceDetail !== null) {
                         next(null, {code: 202, message: "Authentication is in Progress"});
-                        services.updateService({
-                            name: servicesData[0].name,
-                            'resources': {$elemMatch: {id: resourceId}}
-                        }, {
-                            'resources.$.authentication': 'authenticating'
-                        }, function (err, result) {
-                            if (err) {
-                                logger.error("Error in updating Service State:", err);
+                        checkCredentialsForResource(resourceDetail,serviceId,resourceId,credentials,servicesData[0],function(err,data){
+                            if(err){
+                                logger.error("Error in checking Authentication Credentials:",err);
                             }
-                            resourceModel.updateResourceById(resourceId, {
-                                'authentication': 'authenticating'
-                            }, function (err, data) {
-                                if (err) {
-                                    logger.error("Error in updating Resource BootStrap State:", err);
-                                }
-                                var nodeDetail = {
-                                    nodeIp: resourceDetail.resourceDetails.publicIp && resourceDetail.resourceDetails.publicIp !== null ? resourceDetail.resourceDetails.publicIp : resourceDetail.resourceDetails.privateIp,
-                                    nodeOs: resourceDetail.resourceDetails.os
-                                }
-                                if (credentials.type && credentials.type === 'password') {
-                                    commonService.checkNodeCredentials(credentials, nodeDetail, function (err, credentialFlag) {
-                                        if (err || credentialFlag === false) {
-                                            logger.error("Invalid Resource Credentials", err);
-                                            services.updateService({
-                                                name: servicesData[0].name,
-                                                'resources': {$elemMatch: {id: resourceId}}
-                                            }, {
-                                                'resources.$.authentication': 'failed',
-                                                state: serviceState
-                                            }, function (err, result) {
-                                                if (err) {
-                                                    logger.error("Error in updating Service State:", err);
-                                                }
-                                            });
-                                            resourceModel.updateResourceById(resourceId, {
-                                                'authentication': 'failed',
-                                            }, function (err, data) {
-                                                if (err) {
-                                                    logger.error("Error in updating BootStrap State:", err);
-                                                }
-                                            });
-                                        } else {
-                                            var serviceState = 'Initializing';
-                                            servicesData[0].resources.forEach(function (instance) {
-                                                if (instance.id !== resourceId && instance.authentication === 'failed') {
-                                                        serviceState = 'Authentication_Error';
-                                                }
-                                            });
-                                            services.updateService({
-                                                name: servicesData[0].name,
-                                                'resources': {$elemMatch: {id: resourceId}}
-                                            }, {
-                                                'resources.$.bootStrapState': bootStrapState,
-                                                'resources.$.authentication': 'success',
-                                                'resources.$.category': instanceCategory,
-                                                'state': serviceState
-                                            }, function (err, result) {
-                                                if (err) {
-                                                    logger.error("Error in updating Service State:", err);
-                                                }
-                                                resourceModel.updateResourceById(resourceId, {
-                                                    'authentication': 'success',
-                                                    'resourceDetails.bootStrapState': bootStrapState,
-                                                    'category': instanceCategory,
-                                                }, function (err, data) {
-                                                    if (err) {
-                                                        logger.error("Error in updating BootStrap State:", err);
-                                                    }
-                                                    commonService.bootstrapInstance(resourceDetail,resourceId,serviceId,serviceState,credentials, servicesData[0], function (err, res) {
-                                                        if (err) {
-                                                            var error = new Error();
-                                                            error.code = 500;
-                                                            error.message = "Error in Bootstraping Resource : " + err;
-                                                            next(error, null);
-                                                        } else {
-                                                            next(null, res);
-                                                        }
-                                                    });
-                                                });
-                                            });
-                                        }
-                                    })
-                                } else if (credentials.type && credentials.type === 'pemFile') {
-                                    commonService.checkNodeCredentials(nodeDetail, credentials, function (err, credentialFlag) {
-                                        if (err || credentialFlag === false) {
-                                            logger.error("Invalid Resource Credentials", err);
-                                            services.updateService({
-                                                name: servicesData[0].name,
-                                                'resources': {$elemMatch: {id: resourceId}}
-                                            }, {
-                                                'resources.$.authentication': 'failed',
-                                                state: serviceState
-                                            }, function (err, result) {
-                                                if (err) {
-                                                    logger.error("Error in updating Service State:", err);
-                                                }
-                                            });
-                                            resourceModel.updateResourceById(resourceId, {
-                                                'authentication': 'failed',
-                                            }, function (err, data) {
-                                                if (err) {
-                                                    logger.error("Error in updating BootStrap State:", err);
-                                                }
-                                            });
-                                        } else {
-                                            next(null, {message: "Authentication is Done for Resource"});
-                                            var serviceState = 'Initializing';
-                                            servicesData[0].resources.forEach(function (instance) {
-                                                if (instance.id !== resourceId && instance.authentication === 'failed') {
-                                                    serviceState = 'Authentication_Error';
-                                                }
-                                            });
-                                            services.updateService({
-                                                'name': servicesData[0].name,
-                                                'resources': {$elemMatch: {id: resourceId}}
-                                            }, {
-                                                'resources.$.bootStrapState': bootStrapState,
-                                                'resources.$.authentication': 'success',
-                                                'resources.$.category': instanceCategory,
-                                                'state': serviceState
-                                            }, function (err, result) {
-                                                if (err) {
-                                                    logger.error("Error in updating Service State:", err);
-                                                }
-                                                resourceModel.updateResourceById(resourceId, {
-                                                    'authentication': 'success',
-                                                    'resourceDetails.bootStrapState': bootStrapState,
-                                                    'category': instanceCategory,
-                                                }, function (err, data) {
-                                                    if (err) {
-                                                        logger.error("Error in updating BootStrap State:", err);
-                                                    }
-                                                    commonService.bootstrapInstance(resourceDetail,resourceId,serviceId,serviceState,credentials, servicesData[0], function (err, res) {
-                                                        if (err) {
-                                                            logger.error(err);
-                                                        }
-                                                    });
-                                                });
-                                            });
-                                        }
-                                    });
-                                } else {
-                                    var error = new Error();
-                                    error.code = 500;
-                                    error.message = "Invalid Credential Type";
-                                    next(error, null);
-                                }
-                            })
                         })
-                    }else  if(resourceDetail !== null && resourceDetail.resourceDetails.state === 'stopped' && resourceDetail.category !== 'managed') {
-                        next(null, {code: 202, message: "Authentication is in Progress"});
-                        commonService.startResource(serviceId,resourceDetail,function(err,state) {
-                            if (err) {
-                                next(err, null);
-                            } else {
-                                services.updateService({
-                                    name: servicesData[0].name,
-                                    'resources': {$elemMatch: {id: resourceId}}
-                                }, {
-                                    'resources.$.authentication': 'authenticating'
-                                }, function (err, result) {
-                                    if (err) {
-                                        logger.error("Error in updating Service State:", err);
-                                    }
-                                    resourceModel.updateResourceById(resourceId, {
-                                        'authentication': 'authenticating'
-                                    }, function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in updating Resource BootStrap State:", err);
-                                        }
-                                        var nodeDetail = {
-                                            nodeIp: resourceDetail.resourceDetails.publicIp && resourceDetail.resourceDetails.publicIp !== null ? resourceDetail.resourceDetails.publicIp : resourceDetail.resourceDetails.privateIp,
-                                            nodeOs: resourceDetail.resourceDetails.os
-                                        }
-                                        if (credentials.type && credentials.type === 'password') {
-                                            commonService.checkNodeCredentials(credentials, nodeDetail, function (err, credentialFlag) {
-                                                if (err || credentialFlag === false) {
-                                                    logger.error("Invalid Resource Credentials", err);
-                                                    services.updateService({
-                                                        name: servicesData[0].name,
-                                                        'resources': {$elemMatch: {id: resourceId}}
-                                                    }, {
-                                                        'resources.$.authentication': 'failed',
-                                                        state: serviceState
-                                                    }, function (err, result) {
-                                                        if (err) {
-                                                            logger.error("Error in updating Service State:", err);
-                                                        }
-                                                    });
-                                                    resourceModel.updateResourceById(resourceId, {
-                                                        'authentication': 'failed',
-                                                    }, function (err, data) {
-                                                        if (err) {
-                                                            logger.error("Error in updating BootStrap State:", err);
-                                                        }
-                                                    });
-                                                } else {
-                                                    var serviceState = 'Initializing';
-                                                    servicesData[0].resources.forEach(function (instance) {
-                                                        if (instance.id !== resourceId && instance.authentication === 'failed') {
-                                                            serviceState = 'Authentication_Error';
-                                                        }
-                                                    });
-                                                    services.updateService({
-                                                        name: servicesData[0].name,
-                                                        'resources': {$elemMatch: {id: resourceId}}
-                                                    }, {
-                                                        'resources.$.bootStrapState': bootStrapState,
-                                                        'resources.$.authentication': 'success',
-                                                        'resources.$.category': instanceCategory,
-                                                        'state': serviceState
-                                                    }, function (err, result) {
-                                                        if (err) {
-                                                            logger.error("Error in updating Service State:", err);
-                                                        }
-                                                        resourceModel.updateResourceById(resourceId, {
-                                                            'authentication': 'success',
-                                                            'resourceDetails.bootStrapState': bootStrapState,
-                                                            'category': instanceCategory
-                                                        }, function (err, data) {
-                                                            if (err) {
-                                                                logger.error("Error in updating BootStrap State:", err);
-                                                            }
-                                                            commonService.bootstrapInstance(resourceDetail, resourceId, serviceId, serviceState, credentials, servicesData[0], function (err, res) {
-                                                                if (err) {
-                                                                    var error = new Error();
-                                                                    error.code = 500;
-                                                                    error.message = "Error in Bootstraping Resource : " + err;
-                                                                    next(error, null);
-                                                                } else {
-                                                                    next(null, res);
-                                                                }
-                                                            });
-                                                        });
-                                                    });
-                                                }
-                                            })
-                                        } else if (credentials.type && credentials.type === 'pemFile') {
-                                            commonService.checkNodeCredentials(nodeDetail, credentials, function (err, credentialFlag) {
-                                                if (err || credentialFlag === false) {
-                                                    logger.error("Invalid Resource Credentials", err);
-                                                    services.updateService({
-                                                        name: servicesData[0].name,
-                                                        'resources': {$elemMatch: {id: resourceId}}
-                                                    }, {
-                                                        'resources.$.authentication': 'failed',
-                                                        state: serviceState
-                                                    }, function (err, result) {
-                                                        if (err) {
-                                                            logger.error("Error in updating Service State:", err);
-                                                        }
-                                                    });
-                                                    resourceModel.updateResourceById(resourceId, {
-                                                        'authentication': 'failed',
-                                                    }, function (err, data) {
-                                                        if (err) {
-                                                            logger.error("Error in updating BootStrap State:", err);
-                                                        }
-                                                    });
-                                                } else {
-                                                    next(null, {message: "Authentication is Done for Resource"});
-                                                    var serviceState = 'Initializing';
-                                                    servicesData[0].resources.forEach(function (instance) {
-                                                        if (instance.id !== resourceId && instance.authentication === 'failed') {
-                                                            serviceState = 'Authentication_Error';
-                                                        }
-                                                    });
-                                                    services.updateService({
-                                                        'name': servicesData[0].name,
-                                                        'resources': {$elemMatch: {id: resourceId}}
-                                                    }, {
-                                                        'resources.$.bootStrapState': bootStrapState,
-                                                        'resources.$.authentication': 'success',
-                                                        'resources.$.category': instanceCategory,
-                                                        'state': serviceState
-                                                    }, function (err, result) {
-                                                        if (err) {
-                                                            logger.error("Error in updating Service State:", err);
-                                                        }
-                                                        resourceModel.updateResourceById(resourceId, {
-                                                            'authentication': 'success',
-                                                            'resourceDetails.bootStrapState': bootStrapState,
-                                                            'category': instanceCategory
-                                                        }, function (err, data) {
-                                                            if (err) {
-                                                                logger.error("Error in updating BootStrap State:", err);
-                                                            }
-                                                            commonService.bootstrapInstance(resourceDetail, resourceId, serviceId, serviceState, credentials, servicesData[0], function (err, res) {
-                                                                if (err) {
-                                                                    logger.error(err);
-                                                                }
-                                                            });
-                                                        });
-                                                    });
-                                                }
-                                            });
-                                        } else {
-                                            var error = new Error();
-                                            error.code = 500;
-                                            error.message = "Invalid Credential Type";
-                                            next(error, null);
-                                        }
-                                    })
-                                })
-                            }
-                        });
                     }else{
                         var err =  new Error();
                         err.code = 500;
@@ -629,7 +323,6 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                         next(err,null);
                     }
                 })
-
             }else{
                 var err =  new Error();
                 err.code = 500;
@@ -982,5 +675,77 @@ function getServiceState(serviceStateList){
     }else{
         return 'Running';
     }
+}
+
+function checkCredentialsForResource(resource,serviceId,resourceId,credentials,service,callback){
+    var bootStrapState = 'bootStrapping',instanceCategory = resource.category;
+    if(resource.resourceDetails.bootStrapState === 'success'){
+        bootStrapState = 'success';
+        instanceCategory = 'managed';
+    }
+    var nodeDetail = {
+        nodeIp: resource.resourceDetails.publicIp && resource.resourceDetails.publicIp !== null ? resource.resourceDetails.publicIp : resource.resourceDetails.privateIp,
+        nodeOs: resource.resourceDetails.os
+    }
+    commonService.checkNodeCredentials(nodeDetail, credentials, function (err, credentialFlag) {
+        if (err || credentialFlag === false) {
+            logger.error("Invalid Resource Credentials", err);
+            callback(err,null);
+            services.updateService({
+                name: service.name,
+                'resources': {$elemMatch: {id: resourceId}}
+            }, {
+                'resources.$.authentication': 'failed',
+                state: 'Authentication_Error'
+            }, function (err, result) {
+                if (err) {
+                    logger.error("Error in updating Service State:", err);
+                }
+            });
+            resourceModel.updateResourceById(resourceId, {
+                'authentication': 'failed',
+            }, function (err, data) {
+                if (err) {
+                    logger.error("Error in updating BootStrap State:", err);
+                }
+            });
+        } else {
+            var serviceState = 'Initializing';
+            service.resources.forEach(function (instance) {
+                if (instance.id !== resourceId && instance.authentication === 'failed') {
+                    serviceState = 'Authentication_Error';
+                }
+            });
+            services.updateService({
+                'name': service.name,
+                'resources': {$elemMatch: {id: resourceId}}
+            }, {
+                'resources.$.bootStrapState': bootStrapState,
+                'resources.$.authentication': 'success',
+                'resources.$.category': instanceCategory,
+                'state': serviceState
+            }, function (err, result) {
+                if (err) {
+                    logger.error("Error in updating Service State:", err);
+                }
+                resourceModel.updateResourceById(resourceId, {
+                    'authentication': 'success',
+                    'resourceDetails.bootStrapState': bootStrapState,
+                    'category': instanceCategory,
+                }, function (err, data) {
+                    if (err) {
+                        logger.error("Error in updating BootStrap State:", err);
+                    }
+                    commonService.bootstrapInstance(resource, resourceId, serviceId, serviceState, credentials, service, function (err, res) {
+                        if (err) {
+                            logger.error(err);
+                        }else{
+                            callback(null,res);
+                        }
+                    });
+                });
+            });
+        }
+    });
 }
 

@@ -58,6 +58,11 @@ var ApiUtil = function() {
                     'resourceDetails.subnetId': {$in: value}
                 };
                 break;
+            case 'vpc':
+                query = {
+                    'resourceDetails.vpcId': {$in: value}
+                };
+                break;
             case 'stackName':
                 query = {
                     'stackName': value
@@ -70,8 +75,8 @@ var ApiUtil = function() {
                 break;
             case 'roles':
                 var keyList = [];
-                value.forEach(function(val){
-                    keyList.push('role['+val+']')
+                value.forEach(function (val) {
+                    keyList.push('role[' + val + ']')
                 })
                 query = {
                     'run_list': {$in: keyList}
@@ -79,10 +84,10 @@ var ApiUtil = function() {
                 break;
             case 'tags':
                 var keyList = [];
-                value.forEach(function(val){
+                value.forEach(function (val) {
                     var obj = {};
-                    Object.keys(val).forEach(function(key){
-                        var str = 'tags.'+key;
+                    Object.keys(val).forEach(function (key) {
+                        var str = 'tags.' + key;
                         obj[str] = val[key];
                     })
                     keyList.push(obj);
@@ -92,51 +97,59 @@ var ApiUtil = function() {
                 };
                 break;
             case 'groups':
-                Object.keys(value).forEach(function (groupObjKey) {
-                    switch(groupObjKey) {
-                        case 'ami':
-                            query['resourceDetails.amiId'] = {$in: value[groupObjKey]};
-                            break;
-                        case 'ip':
-                            query["$or"] = [
-                                    {'resourceDetails.privateIp': {$in: value[groupObjKey]}},
-                                    {'resourceDetails.publicIp': {$in: value[groupObjKey]}}
+                value.forEach(function (key) {
+                    var queryObj  = {};
+                    Object.keys(key.identifiers).forEach(function (groupObjKey) {
+                        switch (groupObjKey) {
+                            case 'ami':
+                                queryObj['resourceDetails.amiId'] = {$in: key.identifiers[groupObjKey]};
+                                break;
+                            case 'ip':
+                                queryObj["$or"] = [
+                                    {'resourceDetails.privateIp': {$in: key.identifiers[groupObjKey]}},
+                                    {'resourceDetails.publicIp': {$in: key.identifiers[groupObjKey]}}
                                 ];
-                            break;
-                        case 'subnet':
-                            query['resourceDetails.subnetId'] = {$in: value[groupObjKey]};
-                            break;
-                        case 'keyPairName':
-                            query['providerDetails.keyPairName'] = {$in: value[groupObjKey]};
-                            break;
-                        case 'tags':
-                            var tagObj = {
-                                tags:{}
-                            };
-                            value.forEach(function(val){
-                                Object.keys(val).forEach(function(key){
-                                    tagObj.tags[key] = val[key];
+                                break;
+                            case 'subnet':
+                                queryObj['resourceDetails.subnetId'] = {$in: key.identifiers[groupObjKey]};
+                                break;
+                            case 'keyPairName':
+                                queryObj['providerDetails.keyPairName'] = {$in: key.identifiers[groupObjKey]};
+                                break;
+                            case 'tags':
+                                var keyList = [];
+                                key.identifiers[groupObjKey].forEach(function (val) {
+                                    var obj = {};
+                                    Object.keys(val).forEach(function (key) {
+                                        var str = 'tags.' + key;
+                                        obj[str] = val[key];
+                                    })
+                                    keyList.push(obj);
                                 })
-                            })
-                            query['$or'] = [tagObj];
-                            break;
-                        case 'roles':
-                            var keyList = [];
-                            value.forEach(function(val){
-                                keyList.push('role['+val+']')
-                            })
-                            query['run_list'] = {$in: keyList};
-                            break;
-                        case 'stackName':
-                            query['stackName'] = value;
-                            break;
-                        default:
-                            query['error'] = true;
-                    }
+                                queryObj['$or']= keyList;
+                                break;
+                            case 'roles':
+                                var keyList = [];
+                                key.identifiers[groupObjKey].forEach(function (val) {
+                                    keyList.push('role[' + val + ']')
+                                })
+                                queryObj['run_list'] = {$in: keyList};
+                                break;
+                            case 'vpc':
+                                queryObj['resourceDetails.vpcId'] =  {$in: key.identifiers[groupObjKey]};
+                                break;
+                            case 'stackName':
+                                queryObj['stackName'] = key.identifiers[groupObjKey];
+                                break;
+                            default:
+                                queryObj['error'] = true;
+                        }
+                    });
+                    query[key.name] = queryObj;
                 });
                 break;
             default:
-                query['error']= true;
+                query['error'] = true;
         }
         return query;
     }
@@ -157,6 +170,9 @@ var ApiUtil = function() {
             case 'subnet':
                 result[key] = resource.resourceDetails.subnetId;
                 break;
+            case 'vpc':
+                result[key] = resource.resourceDetails.vpcId;
+                break;
             case 'stackName':
                 result[key] = resource.resourceDetails.stackName;
                 break;
@@ -166,7 +182,8 @@ var ApiUtil = function() {
             case 'roles':
                 var run_list = [];
                 for(var  i = 0; i < value.length; i++){
-                    if(resource.configDetails.run_list.indexOf(value[i]) !== -1){
+                    var val = 'role['+value[i]+']';
+                    if(resource.configDetails.run_list.indexOf(val) !== -1){
                         run_list.push(value[i]);
                     }
                 }
@@ -184,53 +201,59 @@ var ApiUtil = function() {
                 result[key] = tagObj;
                 break;
             case 'groups':
-                var groupObj = {};
-                Object.keys(value).forEach(function (groupObjKey) {
-                    switch(groupObjKey) {
-                        case 'ami':
-                            groupObj[groupObjKey] = resource.resourceDetails.amiId;
-                            break;
-                        case 'ip':
-                            if(value.indexOf(resource.resourceDetails.privateIp) !== 0){
-                                groupObj[groupObjKey] = resource.resourceDetails.privateIp;
-                            }else{
-                                groupObj[groupObjKey] = resource.resourceDetails.publicIp;
-                            }
-                            break;
-                        case 'subnet':
-                            groupObj[groupObjKey] = resource.resourceDetails.subnetId;
-                            break;
-                        case 'stackName':
-                            groupObj[groupObjKey] = resource.resourceDetails.stackName;
-                            break;
-                        case 'keyPairName':
-                            groupObj[groupObjKey] = resource.providerDetails.keyPairName;
-                            break;
-                        case 'roles':
-                            var run_list = [];
-                            for(var  i = 0; i < value.length; i++){
-                                if(resource.configDetails.run_list.indexOf(value[i]) !== -1){
-                                    run_list.push(value[i]);
+                value.forEach(function (key) {
+                    var groupObj  = {};
+                    Object.keys(key.identifiers).forEach(function (groupObjKey) {
+                        switch (groupObjKey) {
+                            case 'ami':
+                                groupObj[groupObjKey] = resource.resourceDetails.amiId;
+                                break;
+                            case 'ip':
+                                if (value.indexOf(resource.resourceDetails.privateIp) !== 0) {
+                                    groupObj[groupObjKey] = resource.resourceDetails.privateIp;
+                                } else {
+                                    groupObj[groupObjKey] = resource.resourceDetails.publicIp;
                                 }
-                            }
-                            groupObj[groupObjKey] = run_list;
-                            break;
-                        case 'tags':
-                            var tagObj ={};
-                            value.forEach(function (tagValue) {
-                                Object.keys(tagValue).forEach(function (tagKey) {
-                                    if(resource.tags[tagKey] === tagValue[tagKey]){
-                                        tagObj[groupObjKey][tagKey] = tagValue[tagKey]
+                                break;
+                            case 'subnet':
+                                groupObj[groupObjKey] = resource.resourceDetails.subnetId;
+                                break;
+                            case 'stackName':
+                                groupObj[groupObjKey] = resource.resourceDetails.stackName;
+                                break;
+                            case 'keyPairName':
+                                groupObj[groupObjKey] = resource.providerDetails.keyPairName;
+                                break;
+                            case 'vpc':
+                                groupObj[groupObjKey] = resource.providerDetails.vpcId;
+                                break;
+                            case 'roles':
+                                var run_list = [];
+                                for (var i = 0; i < value.length; i++) {
+                                    var val = 'role['+value[i]+']'
+                                    if (resource.configDetails.run_list.indexOf(val) !== -1) {
+                                        run_list.push(value[i]);
                                     }
+                                }
+                                groupObj[groupObjKey] = run_list;
+                                break;
+                            case 'tags':
+                                var tagObj = {};
+                                value.forEach(function (tagValue) {
+                                    Object.keys(tagValue).forEach(function (tagKey) {
+                                        if (resource.tags[tagKey] === tagValue[tagKey]) {
+                                            tagObj[groupObjKey][tagKey] = tagValue[tagKey]
+                                        }
+                                    });
                                 });
-                            });
-                            groupObj[groupObjKey] = tagObj
-                            break;
-                        default:
-                            result['error'] = true;
-                    }
+                                groupObj[groupObjKey] = tagObj
+                                break;
+                            default:
+                                result['error'] = true;
+                        }
+                    })
+                    result[key.name] = groupObj;
                 });
-                result[key] = groupObj;
                 break;
             default:
                 result['error'] = true;
