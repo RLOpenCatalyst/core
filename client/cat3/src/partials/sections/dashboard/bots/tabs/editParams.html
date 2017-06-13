@@ -105,8 +105,8 @@
                   </tbody>
                </table>
             </div>
-            <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
-      		<div ng-if="botType ==='chef' || botType === 'script'" ng-show="botCheck" class="chefExecution">
+            <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef' || botType === 'meta'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
+      		<div ng-if="botType ==='chef' || botType === 'script' || botType === 'meta'" ng-show="botCheck" class="chefExecution">
             <fieldset id="editParamPage">
             <legend>Remote Machine</legend><br>
       		<div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
@@ -122,7 +122,7 @@
                            </form>
 				            </span>
                      </div>
-                     <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script' || botType === 'meta'" ng-show="botCheck">
                         <div class="alert alert-info padding6 text-center" ng-if="originalInstanceList.length === 0" align="center">No Instances Found</div>
                         <ul ng-if="originalInstanceList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="instanceDetails in originalInstanceList | filter :searchText">
@@ -139,10 +139,10 @@
             <div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
                <div class="panel-group">
                   <div class="panel panel-default">
-                     <div ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck" class="panel-heading" style="height: 40px;">
+                     <div ng-if="botType === 'chef' || botType === 'script' || botType === 'meta'" ng-show="botCheck" class="panel-heading" style="height: 40px;">
                         <span>Selected Instances</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedInstanceList.length <= 0">Please select Instance.</span>
                      </div>
-                     <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'|| botType === 'meta'" ng-show="botCheck">
                      	<div class="alert alert-info padding6 text-center" ng-if="selectedInstanceList.length === 0" align="center">No Instances Selected</div>
                         <ul class="list-group" dnd-list="selectedInstanceList" >
                            <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedInstance in selectedInstanceList" dnd-draggable="selectedInstance"
