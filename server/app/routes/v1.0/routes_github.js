@@ -249,6 +249,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err) {
+                    if (!("status" in err))
+                        err.status = 500
                     res.status(err.status).send(err);
                 } else {
                     return res.status(200).send(results);
@@ -270,6 +272,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err) {
+                    if (!("status" in err))
+                        err.status = 500
                     res.status(err.status).send(err);
                 } else {
                     return res.status(200).send(results);
@@ -290,9 +294,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
             ],
             function(err) {
-                if(err)
-                    return res.sendStatus(500);
-                else
+                if (err) {
+                    if (!("status" in err))
+                        err.status = 500
+                    res.status(err.status).send(err);
+                } else
                     return res.sendStatus(200);
             }
         );
