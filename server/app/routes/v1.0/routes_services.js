@@ -46,7 +46,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/services/:serviceName/versions', function(req, res) {
-        serviceMapService.getAllServiceVersionByName(req.params.serviceName,function(err,result){
+        serviceMapService.getAllServiceVersionByName(req.params.serviceName,req.query,function(err,result){
             if(err){
                 res.send(500,err);
                 return;
@@ -85,7 +85,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 res.send(500,err);
                 return;
             }else{
-                res.send(200,result)
+                res.send(result.code,result)
                 return
             }
         });

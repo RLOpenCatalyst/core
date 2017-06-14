@@ -990,7 +990,7 @@ function serviceMapSync(callback){
                                                                     result: data[0]
                                                                 });
                                                                 if (data[0].resourceDetails.state !== 'terminated' || data[0].resourceDetails.state !== 'deleted') {
-                                                                    instanceStateList.push(chefNode.state);
+                                                                    instanceStateList.push(data[0].resourceDetails.state);
                                                                 }
                                                                 chefNodeCount++;
                                                                 if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length && groupKeyCount ===  Object.keys(queryObj).length) {
@@ -1071,19 +1071,22 @@ function serviceMapSync(callback){
                                                                 }
                                                             });
                                                             data[0].resourceDetails.bootStrapState = 'success';
+                                                            data[0].resourceDetails.hardware = chefNode.hardware;
                                                             resourceList.push({
                                                                 type: key,
                                                                 value: service.identifiers.chef[key],
                                                                 result: data[0]
                                                             });
                                                             chefNodeCount++;
+                                                            if (data[0].resourceDetails.state !== 'terminated' || data[0].resourceDetails.state !== 'deleted') {
+                                                                instanceStateList.push(data[0].resourceDetails.state);
+                                                            }
                                                             if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                 serviceMapVersion(service, resourceList, instanceStateList);
                                                             }
                                                             if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                 next(null, resourceList);
                                                             }
-                                                            instanceStateList.push(data[0].resourceDetails.state);
                                                         } else {
                                                             commonService.syncChefNodeWithResources(chefNode, service, function (err, resourceData) {
                                                                 if (err) {
@@ -1258,7 +1261,7 @@ function serviceMapVersion(service,resources,instanceStateList){
             }
         },
         function(filterObj,next){
-            if(service.resources.length === 0){
+            if(resources.length === 0){
                 instanceStateList.push('initializing');
             }
             var serviceState = getServiceState(instanceStateList);

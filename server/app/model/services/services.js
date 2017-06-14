@@ -217,6 +217,19 @@ serviceSchema.statics.getServices = function getServices(filterBy,callback) {
     });
 };
 
+serviceSchema.statics.getServicesWithPagination = function getServicesWithPagination(filterBy,callback) {
+    filterBy.queryObj.isDeleted = false;
+    filterBy.queryObj.state = {$ne:'Error'};
+    services.paginate(filterBy.queryObj,filterBy.options,function (err, data) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        } else {
+            return callback(null, data);
+        }
+    });
+};
+
 
 serviceSchema.statics.getAllServicesByFilter = function getAllServicesByFilter(filterQueryObj, callback) {
     filterQueryObj.queryObj.isDeleted = false;

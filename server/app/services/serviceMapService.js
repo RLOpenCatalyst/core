@@ -20,15 +20,12 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var services = require('_pr/model/services/services.js');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 var monitors = require('_pr/model/monitors/monitors');
-var appConfig = require('_pr/config');
-var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
-const ymlJs= require('yamljs');
+const jsYml= require('js-yaml');
 var uuid = require('node-uuid');
 var resourceModel = require('_pr/model/resources/resources');
 var commonService = require('_pr/services/commonService');
-const ymlValidator = require('yaml-validator');
 
 var serviceMapService = module.exports = {};
 
@@ -117,13 +114,34 @@ serviceMapService.deleteServiceById = function deleteServiceById(serviceId,callb
     })
 }
 
-serviceMapService.getAllServiceVersionByName = function getAllServiceVersionByName(serviceName,callback){
+serviceMapService.getAllServiceVersionByName = function getAllServiceVersionByName(serviceName,reqQueryObj,callback){
+    var reqData = {};
     async.waterfall([
-        function(next){
-            services.getServices({name:serviceName},next);
+        function (next) {
+            apiUtil.paginationRequest(reqQueryObj, 'versions', next);
+        },
+        function(paginationReq,next){
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj,next){
+            queryObj.queryObj.name = serviceName;
+            services.getServicesWithPagination(queryObj,next);
         },
         function(services,next){
-            changeServiceResponse(services,next);
+            if(services.docs.length > 0){
+                var versionList = [];
+                services.docs.forEach(function(service){
+                    versionList.push(service.version);
+                });
+                services.docs = versionList;
+                next(null,services);
+            }else{
+                next(null,services);
+            }
+        },
+        function(serviceList,next){
+            apiUtil.paginationResponse(serviceList, reqData, next);
         }
     ],function(err,results){
         if(err){
@@ -161,67 +179,47 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                         logger.error("Error in reading YML File.");
                         var error =new Error();
                         error.code = 500;
-                        error.message = "Invalid YML"
+                        error.message = "Error in reading YML File."
                         return callback(error, null);
                     } else {
-                        var fileName = uuid.v4() + '_' + fileDetail.fileName;
-                        var desPath = appConfig.tempDir + fileName;
-                        fileIo.writeFile(desPath, fileDetail.fileData, false, function (err) {
-                            if (err) {
-                                logger.error("Unable to write file");
-                                callback(err, null);
-                                return;
-                            } else {
-                                try {
-                                    const validator = new ymlValidator();
-                                    validator.validate(desPath);
-                                    validator.report();
-                                    ymlJs.load(desPath, function (result) {
-                                        if (result !== null) {
-                                            servicesObj.identifiers = result;
-                                            servicesObj.type = 'Service';
-                                            servicesObj.ymlFileId = servicesObj.fileId;
-                                            servicesObj.createdOn = new Date().getTime();
-                                            getMasterDetails(servicesObj.masterDetails, function (err, result) {
-                                                if (err) {
-                                                    logger.error("Unable to Master Details");
-                                                    callback(err, null);
-                                                    return;
-                                                } else {
-                                                    monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
-                                                        servicesObj.masterDetails = result;
-                                                        servicesObj.masterDetails.monitor = monitor;
-                                                        servicesObj.state = 'Initializing';
-                                                        services.createNew(servicesObj, function (err, servicesData) {
-                                                            if (err) {
-                                                                logger.error("services.createNew is Failed ==>", err);
-                                                                callback(err, null);
-                                                                apiUtil.removeFile(desPath);
-                                                                return;
-                                                            } else {
-                                                                callback(null, servicesData);
-                                                                apiUtil.removeFile(desPath);
-                                                                return;
-                                                            }
-                                                        });
-                                                    });
-                                                }
-                                            });
-                                        } else {
-                                            var err = new Error("There is no data present YML.")
-                                            err.code = 403;
+                        try {
+                            var result = jsYml.safeLoad(fileDetail.fileData);
+                            if (result !== null) {
+                                    servicesObj.identifiers = result;
+                                    servicesObj.type = 'Service';
+                                    servicesObj.ymlFileId = servicesObj.fileId;
+                                    servicesObj.createdOn = new Date().getTime();
+                                    getMasterDetails(servicesObj.masterDetails, function (err, result) {
+                                        if (err) {
+                                            logger.error("Unable to Master Details");
                                             callback(err, null);
-                                            apiUtil.removeFile(desPath);
+                                            return;
+                                        } else {
+                                            monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
+                                                servicesObj.masterDetails = result;
+                                                servicesObj.masterDetails.monitor = monitor;
+                                                servicesObj.state = 'Initializing';
+                                                services.createNew(servicesObj, function (err, servicesData) {
+                                                    if (err) {
+                                                        logger.error("services.createNew is Failed ==>", err);
+                                                        callback(err, null);
+                                                        return;
+                                                    } else {
+                                                        callback(null, servicesData);
+                                                        return;
+                                                    }
+                                                });
+                                            });
                                         }
-                                    })
-                                }catch(err){
-                                    var error =new Error();
-                                    error.code = 500;
-                                    error.message = "Invalid YML"
-                                    return callback(error, null);
-                                }
+                                    });
+                                } else {
+                                var err = new Error("There is no data present YML.")
+                                err.code = 403;
+                                callback(err, null);
                             }
-                        });
+                        } catch(err){
+                            return callback({code:500,message:'Invalid YAML : '+err.message}, null);
+                        }
                     }
                 });
             }
@@ -454,6 +452,46 @@ serviceMapService.updateServiceMapVersion = function updateServiceMapVersion(res
                     next(null,results);
                 }
             })
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+}
+
+serviceMapService.getAllServiceResourcesByName = function getAllServiceResourcesByName(serviceName,reqQueryObj,callback){
+    var reqData = {};
+    async.waterfall([
+        function (next) {
+            apiUtil.paginationRequest(reqQueryObj, 'versions', next);
+        },
+        function(paginationReq,next){
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj,next){
+            queryObj.queryObj.name = serviceName;
+            services.getServicesWithPagination(queryObj,next);
+        },
+        function(services,next){
+            if(services.docs.length > 0){
+                var versionList = [];
+                services.docs.forEach(function(service){
+                    versionList.push(service.version);
+                });
+                services.docs = versionList;
+                next(null,services);
+            }else{
+                next(null,services);
+            }
+        },
+        function(serviceList,next){
+            apiUtil.paginationResponse(serviceList, reqData, next);
         }
     ],function(err,results){
         if(err){
@@ -734,20 +772,26 @@ function checkCredentialsForResource(resource,serviceId,resourceId,credentials,s
                 }
             });
         } else {
-            var serviceStateList = [],serviceState = '';
+            var authenticationFailedCount = 0,authenticationSuccessCount = 0,serviceState = 'Initializing',awsCheck = false;
+            if(service.identifiers.aws && service.identifiers.aws !== null){
+                awsCheck = true;
+            }
             service.resources.forEach(function (instance) {
-                if (instance.id !== resourceId && instance.authentication === 'failed') {
-                    serviceStateList.push['authentication_error'];
-                }else{
-                    serviceStateList.push[instance.state];
+                if (instance.authentication === 'failed') {
+                    authenticationFailedCount = authenticationFailedCount + 1;
+                }
+                if (instance.authentication === 'success') {
+                    authenticationSuccessCount = authenticationSuccessCount + 1;
                 }
             });
-            if(serviceStateList.length === 1 && resource.resourceDetails.bootStrapState ==='success'){
-                serviceState = 'Running';
-            }else if(serviceStateList.length === 1 ){
+            if(authenticationFailedCount > 1){
+                serviceState = 'Authentication_Error';
+            }else if(authenticationFailedCount === 1 && awsCheck === true){
                 serviceState = 'Initializing';
+            }else if(authenticationFailedCount === 1 && awsCheck === false){
+                serviceState = 'Running';
             }else{
-                serviceState = getServiceState(serviceStateList);
+                serviceState = 'Initializing';
             }
             services.updateService({
                 'name': service.name,

@@ -25,11 +25,10 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/resources*", sessionVerificationFunc);
-
     app.get('/resources',getAllResources);
-
     app.get('/resources/:resourceId',getResourceById);
-
+    app.post('resource/:resourceId/authentication',resourceAuthentication);
+    app.post('resource/:resourceId/bootStrap',bootStrapResource);
     app.get('/resources/track/report',getResourceTrackReport);
 
     function getAllResources(req, res) {
@@ -239,5 +238,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
             }
         );
+    }
+
+    function resourceAuthentication(req,res){
+
+    }
+
+    function bootStrapResource(req,res){
+
     }
 };

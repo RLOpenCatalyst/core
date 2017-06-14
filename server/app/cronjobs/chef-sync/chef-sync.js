@@ -156,19 +156,21 @@ function chefSyncWithChefNodes(nodeDetailList,callback){
                                         logger.error("Error in remove terminated ot deleted node from chef:",err);
                                     }
                                     chefCount++;
-                                    console.log("Chef-Sync is Done");
                                     if(chefCount === chefNodes.length){
+                                        logger.debug("Chef-Sync is Done");
                                         callback(null,nodeDetailList);
                                     }
                                 })
                             }else{
                                 chefCount++;
                                 if(chefCount === chefNodes.length){
+                                    logger.debug("Chef-Sync is Done");
                                     callback(null,nodeDetailList);
                                 }
                             }
                         })
                     }else{
+                        logger.debug("Chef-Sync is Done");
                         callback(null,nodeDetailList);
                     }
                 })
