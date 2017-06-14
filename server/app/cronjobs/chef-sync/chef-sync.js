@@ -8,8 +8,10 @@ var chefDao = require('_pr/model/dao/chefDao.js');
 var appConfig = require('_pr/config');
 var resources = require('_pr/model/resources/resources.js');
 var instanceModel = require('_pr/model/resources/instance-resource');
+var instancesDao = require('_pr/model/classes/instance/instance');
+var serviceMapService = require('_pr/services/serviceMapService.js');
 var ChefSync = Object.create(CatalystCronJob);
-ChefSync.interval = '*/5 * * * *';
+ChefSync.interval = '*/2 * * * *';
 ChefSync.execute = chefSync;
 
 module.exports = ChefSync;
@@ -84,80 +86,177 @@ function chefSyncWithChefNodes(nodeDetailList,callback){
     logger.debug("Syncing Chef-Node Details is started");
     if(nodeDetailList.length > 0){
         var count = 0;
-        nodeDetailList.forEach(function(nodeDetail){
-            async.parallel({
-                chefSync: function(callback){
-                    chefDao.getChefNodes({serverId:nodeDetail.serverId,isDeleted:false,name:nodeDetail.name},function(err,chefNodes){
-                        if(err){
-                            logger.error("Error in fetching Chef Node Details:");
-                            callback(err,null);
-                        }else if(chefNodes.length > 0){
-                            nodeDetail.updatedOn  = new Date().getTime();
-                            chefDao.updateChefNodeDetailById(chefNodes[0]._id,nodeDetail,function (err, data) {
-                                if (err) {
-                                    logger.error("Error in updating Chef Node in DB:",err);
-                                    callback(err,null);
-                                }else{
-                                    callback(null, nodeDetailList);
-                                }
-                            });
-                        }else{
-                            nodeDetail.createdOn  = new Date().getTime();
-                            chefDao.createNew(nodeDetail, function (err, data) {
-                                if (err) {
-                                    logger.error("Error in creating Chef Node in DB:",err);
-                                    callback(err,null);
-                                }else{
-                                    callback(null, nodeDetailList);
-                                }
-                            });
-                        }
-                    })
-                },
-                resourceSync: function(callback){
-                    var query = {
-                        $or: [{
-                            'resourceDetails.publicIp': nodeDetail.ip
-                            },
-                            {
-                                'resourceDetails.privateIp': nodeDetail.ip
-                            },
-                            {
-                                'configDetails.nodeName': nodeDetail.name
-                            },
-                            {
-                                'resourceDetails.platformId': nodeDetail.platformId
-                            }],
-                        isDeleted:false
+        async.parallel({
+            chefSyncForDeleteNode:function(callback){
+                var chefNodeNameList = [];
+                nodeDetailList.forEach(function(node){
+                    chefNodeNameList.push(node.name);
+                });
+                chefDao.getChefNodes({isDeleted:false},function(err,chefNodes){
+                    if(err){
+                        logger.error("Error in finding Chef Nodes Details:",err);
                     }
-                    instanceModel.getInstanceData(query,function(err,instances){
-                        if(err){
-                            logger.error("Error in fetching Resource Details in DB:",err);
-                            callback(err,null);
-                        }else if(instances.length > 0){
-                            instanceModel.updateInstanceData(instances[0]._id,{'configDetails.id':nodeDetail.serverId,'configDetails.run_list':nodeDetail.run_list,'configDetails.override':nodeDetail.override},function(err,data){
-                                if (err) {
-                                    logger.error("Error in updating Resource Details in DB:",err);
+                    if(chefNodes.length>0){
+                        var chefCount = 0;
+                        chefNodes.forEach(function(chefNode){
+                            if(chefNodeNameList.indexOf(chefNode.name) === -1){
+                                async.parallel({
+                                    chefDelete: function(callback){
+                                        chefDao.removeTerminatedChefNodes({name:chefNode.name,isDeleted:false},callback);
+                                    },
+                                    instanceDelete: function(callback){
+                                        var query = {
+                                            $or: [{
+                                                instanceIP: chefNode.ip
+                                            },
+                                                {
+                                                    privateIpAddress: chefNode.ip
+                                                },
+                                                {
+                                                    chefNodeName: chefNode.name
+                                                },
+                                                {
+                                                    platformId: chefNode.platformId
+                                                }],
+                                            isDeleted:false
+                                        }
+                                        instancesDao.updateInstanceByFilter(query,{isDeleted:true},callback);
+                                    },
+                                    resourceDelete: function(callback){
+                                        var query = {
+                                            $or: [{
+                                                'resourceDetails.publicIp': chefNode.ip
+                                            },
+                                                {
+                                                    'resourceDetails.privateIp': chefNode.ip
+                                                },
+                                                {
+                                                    'configDetails.nodeName': chefNode.name
+                                                },
+                                                {
+                                                    'resourceDetails.platformId': chefNode.platformId
+                                                }],
+                                            isDeleted:false
+                                        }
+                                        instanceModel.getInstanceData(query,function(err,data){
+                                            if(err){
+                                                logger.error(err);
+                                                callback(err,null);
+                                            }
+                                            if(data.length > 0) {
+                                                serviceMapService.updateServiceMapVersion(data[0]._id + '', callback)
+                                            }else{
+                                                callback(null,data);
+                                            }
+                                        })
+                                    }
+
+                                },function(err,results){
+                                    if(err){
+                                        logger.error("Error in remove terminated ot deleted node from chef:",err);
+                                    }
+                                    chefCount++;
+                                    console.log("Chef-Sync is Done");
+                                    if(chefCount === chefNodes.length){
+                                        callback(null,nodeDetailList);
+                                    }
+                                })
+                            }else{
+                                chefCount++;
+                                if(chefCount === chefNodes.length){
+                                    callback(null,nodeDetailList);
+                                }
+                            }
+                        })
+                    }else{
+                        callback(null,nodeDetailList);
+                    }
+                })
+
+            },
+            chefSyncForNewNode:function(callback){
+                nodeDetailList.forEach(function(nodeDetail){
+                    async.parallel({
+                        chefSync: function(callback){
+                            chefDao.getChefNodes({serverId:nodeDetail.serverId,isDeleted:false,name:nodeDetail.name},function(err,chefNodes){
+                                if(err){
+                                    logger.error("Error in fetching Chef Node Details:");
                                     callback(err,null);
+                                }else if(chefNodes.length > 0){
+                                    nodeDetail.updatedOn  = new Date().getTime();
+                                    chefDao.updateChefNodeDetailById(chefNodes[0]._id,nodeDetail,function (err, data) {
+                                        if (err) {
+                                            logger.error("Error in updating Chef Node in DB:",err);
+                                            callback(err,null);
+                                        }else{
+                                            callback(null, nodeDetailList);
+                                        }
+                                    });
                                 }else{
-                                    callback(null, data);
+                                    nodeDetail.createdOn  = new Date().getTime();
+                                    chefDao.createNew(nodeDetail, function (err, data) {
+                                        if (err) {
+                                            logger.error("Error in creating Chef Node in DB:",err);
+                                            callback(err,null);
+                                        }else{
+                                            callback(null, nodeDetailList);
+                                        }
+                                    });
                                 }
                             })
-                        }else{
-                            callback(null,instances);
+                        },
+                        resourceSync: function(callback){
+                            var query = {
+                                $or: [{
+                                    'resourceDetails.publicIp': nodeDetail.ip
+                                },
+                                    {
+                                        'resourceDetails.privateIp': nodeDetail.ip
+                                    },
+                                    {
+                                        'configDetails.nodeName': nodeDetail.name
+                                    },
+                                    {
+                                        'resourceDetails.platformId': nodeDetail.platformId
+                                    }],
+                                isDeleted:false
+                            }
+                            instanceModel.getInstanceData(query,function(err,instances){
+                                if(err){
+                                    logger.error("Error in fetching Resource Details in DB:",err);
+                                    callback(err,null);
+                                }else if(instances.length > 0){
+                                    instanceModel.updateInstanceData(instances[0]._id,{'configDetails.id':nodeDetail.serverId,'configDetails.run_list':nodeDetail.run_list,'configDetails.override':nodeDetail.override},function(err,data){
+                                        if (err) {
+                                            logger.error("Error in updating Resource Details in DB:",err);
+                                            callback(err,null);
+                                        }else{
+                                            callback(null, data);
+                                        }
+                                    })
+                                }else{
+                                    callback(null,instances);
+                                }
+                            })
+                        }
+                    },function(err,results){
+                        if(err){
+                            logger.error("Error in Chef-Node Syncing : ",err);
+                        }
+                        count++;
+                        if (count === nodeDetailList.length) {
+                            logger.debug("Syncing Chef-Node Details is Done");
+                            return callback(null, nodeDetailList);
                         }
                     })
-                }
-            },function(err,results){
-                if(err){
-                    logger.error("Error in Chef-Node Syncing : ",err);
-                }
-                count++;
-                if (count === nodeDetailList.length) {
-                    logger.debug("Syncing Chef-Node Details is Done");
-                    return callback(null, nodeDetailList);
-                }
-            })
+                })
+            }
+        },function(err,resutls){
+            if(err){
+                return callback(err,null);
+            }else{
+                return callback(null,resutls);
+            }
         })
     }else{
         logger.debug("There is no Node present in Chef Server for Chef Sync:")

@@ -127,7 +127,6 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                 err.status = 400;
                 return callback(err, null);
             }
-
             var instance = {
                 name: resource.resourceDetails.platformId,
                 orgId: serviceDetails.masterDetails.orgId,
@@ -139,11 +138,6 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                 projectName: serviceDetails.masterDetails.projectName,
                 envId: serviceDetails.masterDetails.envId,
                 tagServer: serviceDetails.masterDetails.tagServer ? serviceDetails.masterDetails.tagServer : null,
-                providerId: resource.providerDetails.id,
-                providerType: resource.providerDetails.type,
-                providerData: {
-                    region: resource.providerDetails.region.region
-                },
                 chefNodeName: resource.resourceDetails.platformId,
                 runlist: resource.configDetails.run_list,
                 platformId: resource.resourceDetails.platformId,
@@ -175,6 +169,21 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                     blueprintName: resource.resourceDetails.platformId
                 }
             };
+            if(resource.providerDetails && resource.providerDetails.id){
+                instance['providerId'] = resource.providerDetails.id;
+                instance['providerType'] = resource.providerDetails.type;
+                instance['providerData'] = {
+                    region: resource.providerDetails.region.region
+                }
+            }
+
+            if(resource.resourceDetails.hardware && resource.resourceDetails.hardware !== null){
+                instance['hardware'] = resource.resourceDetails.hardware;
+            }
+            if(resource.resourceDetails.bootStrapState && resource.resourceDetails.bootStrapState ==='success'){
+                instance['bootStrapStatus'] = 'success';
+                instance['instanceState'] = 'running';
+            }
             if (serverDetails.configType === 'chef') {
                 instance.chef = {
                     serverId: serverDetails.rowid,
@@ -190,501 +199,622 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                     logger.error('Unable to create Instance ', err);
                     return;
                 }
-                instance.id = data._id;
-                instance._id = data._id;
-                var timestampStarded = new Date().getTime();
-                var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], resource.userName, timestampStarded);
-                logsDao.insertLog({
-                    instanceId: instance._id,
-                    instanceRefId: actionLog._id,
-                    err: false,
-                    log: "Bootstrapping instance",
-                    timestamp: timestampStarded
-                });
-                var instanceLog = {
-                    actionId: actionLog._id,
-                    instanceId: instance.id,
-                    orgName: serviceDetails.masterDetails.orgName,
-                    bgName: serviceDetails.masterDetails.bgName,
-                    projectName: serviceDetails.masterDetails.projectName,
-                    envName: serviceDetails.masterDetails.envName,
-                    status: resource.resourceDetails.state,
-                    actionStatus: "waiting",
-                    platformId: resource.resourceDetails.platformId,
-                    blueprintName: resource.resourceDetails.platformId,
-                    data: [],
-                    platform: "unknown",
-                    os: resource.resourceDetails.os,
-                    size: "",
-                    user: resource.userName,
-                    startedOn: new Date().getTime(),
-                    createdOn: new Date().getTime(),
-                    providerType: resource.providerDetails.type,
-                    action: "Imported From Service"
-                };
-                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                    if (err) {
-                        logger.error("Failed to create or update instanceLog: ", err);
-                    }
-                });
-                credentialCryptography.decryptCredential(encryptedCredentials, function (err, decryptedCredentials) {
-                    if (err) {
-                        logger.error("unable to decrypt credentials", err);
-                        var timestampEnded = new Date().getTime();
-                        logsDao.insertLog({
-                            instanceId: instance._id,
-                            instanceRefId: actionLog._id,
-                            err: true,
-                            log: "Unable to decrypt credentials. Bootstrap Failed",
-                            timestamp: timestampEnded
-                        });
-                        var queryObj = {
-                            'resourceDetails.bootStrapState':'failed',
-                            'resourceDetails.credentials':encryptedCredentials,
-                            'category':'managed'
+                if(resource.resourceDetails.bootStrapState !== 'success') {
+                    instance.id = data._id;
+                    instance._id = data._id;
+                    var timestampStarded = new Date().getTime();
+                    var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], resource.userName, timestampStarded);
+                    logsDao.insertLog({
+                        instanceId: instance._id,
+                        instanceRefId: actionLog._id,
+                        err: false,
+                        log: "Bootstrapping instance",
+                        timestamp: timestampStarded
+                    });
+                    var instanceLog = {
+                        actionId: actionLog._id,
+                        instanceId: instance.id,
+                        orgName: serviceDetails.masterDetails.orgName,
+                        bgName: serviceDetails.masterDetails.bgName,
+                        projectName: serviceDetails.masterDetails.projectName,
+                        envName: serviceDetails.masterDetails.envName,
+                        status: resource.resourceDetails.state,
+                        actionStatus: "waiting",
+                        platformId: resource.resourceDetails.platformId,
+                        blueprintName: resource.resourceDetails.platformId,
+                        data: [],
+                        platform: "unknown",
+                        os: resource.resourceDetails.os,
+                        size: "",
+                        user: resource.userName,
+                        startedOn: new Date().getTime(),
+                        createdOn: new Date().getTime(),
+                        providerType: resource.providerDetails.type,
+                        action: "Imported From Service"
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
                         }
-                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
-                            if (err) {
-                                logger.error("Error in updating Resource Authentication : " + err)
-                            }
-                        });
-                        instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                        instanceLog.endedOn = new Date().getTime();
-                        instanceLog.actionStatus = "failed";
-                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                            if (err) {
-                                logger.error("Failed to create or update instanceLog: ", err);
-                            }
-                        });
-                        return;
-                    }
-                    var infraManager;
-                    var bootstrapOption;
-                    var deleteOptions;
-                    if (serverDetails.configType === 'chef') {
-                        logger.debug('In chef ');
-                        infraManager = new Chef({
-                            userChefRepoLocation: serverDetails.chefRepoLocation,
-                            chefUserName: serverDetails.loginname,
-                            chefUserPemFile: serverDetails.userpemfile,
-                            chefValidationPemFile: serverDetails.validatorpemfile,
-                            hostedChefUrl: serverDetails.url
-                        });
-                        bootstrapOption = {
-                            instanceIp: instance.instanceIP,
-                            pemFilePath: decryptedCredentials.pemFileLocation,
-                            instancePassword: decryptedCredentials.password,
-                            instanceUsername: instance.credentials.username,
-                            nodeName: instance.chef.chefNodeName,
-                            environment: serviceDetails.masterDetails.envName,
-                            instanceOS: instance.hardware.os
-                        };
-                        if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
-                            var sensuCookBooks = MasterUtils.getSensuCookbooks();
-                            var runlist = sensuCookBooks;
-                            var jsonAttributes = {};
-                            jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
-                            bootstrapOption['runlist'] = runlist;
-                            bootstrapOption['jsonAttributes'] = jsonAttributes;
-                        }
-                        deleteOptions = {
-                            privateKey: decryptedCredentials.pemFileLocation,
-                            username: decryptedCredentials.username,
-                            host: instance.instanceIP,
-                            instanceOS: instance.hardware.os,
-                            port: 22,
-                            cmds: ["rm -rf /etc/chef/", "rm -rf /var/chef/"],
-                            cmdswin: ["del "]
-                        }
-                        if (decryptedCredentials.pemFileLocation) {
-                            deleteOptions.privateKey = decryptedCredentials.pemFileLocation;
-                        } else {
-                            deleteOptions.password = decryptedCredentials.password;
-                        }
-                    } else {
-                        var puppetSettings = {
-                            host: serverDetails.hostname,
-                            username: serverDetails.username,
-                        };
-                        if (serverDetails.pemFileLocation) {
-                            puppetSettings.pemFileLocation = serverDetails.pemFileLocation;
-                        } else {
-                            puppetSettings.password = serverDetails.puppetpassword;
-                        }
-                        logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
-                        bootstrapOption = {
-                            host: instance.instanceIP,
-                            username: instance.credentials.username,
-                            pemFileLocation: decryptedCredentials.pemFileLocation,
-                            password: decryptedCredentials.password,
-                            environment: serviceDetails.masterDetails.envName,
-                        };
-                        var deleteOptions = {
-                            username: decryptedCredentials.username,
-                            host: instance.instanceIP,
-                            port: 22,
-                        }
-                        if (decryptedCredentials.pemFileLocation) {
-                            deleteOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
-                        } else {
-                            deleteOptions.password = decryptedCredentials.password;
-                        }
-                        infraManager = new Puppet(puppetSettings);
-                    }
-                    infraManager.cleanClient(deleteOptions, function (err, retCode) {
-                        logger.debug("Entering chef.bootstarp");
-                        infraManager.bootstrapInstance(bootstrapOption, function (err, code, bootstrapData) {
-                            if (err) {
-                                logger.error("knife launch err ==>", err);
-                                instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-                                    if (err) {
-                                        logger.error("Failed to update BootStrap Status: ", err);
-                                    }
-                                });
-                                if (err.message) {
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        instanceId: instance._id,
-                                        instanceRefId: actionLog._id,
-                                        err: true,
-                                        log: err.message,
-                                        timestamp: timestampEnded
-                                    });
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                } else {
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        instanceId: instance._id,
-                                        instanceRefId: actionLog._id,
-                                        err: true,
-                                        log: "Bootstrap Failed",
-                                        timestamp: timestampEnded
-                                    });
-                                    var queryObj = {
-                                        'resourceDetails.bootStrapState':'failed',
-                                        'resourceDetails.credentials':encryptedCredentials,
-                                        'category':'managed'
-                                    }
-                                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in updating Resource Authentication : " + err)
-                                        }
-                                    });
-                                    instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                }
-                            } else {
-                                if (code == 0) {
-                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
-                                        if (err) {
-                                            logger.error("Unable to set instance bootstarp status. code 0");
-                                        } else {
-                                            logger.debug("Instance bootstrap status set to success");
-                                        }
-                                    });
-                                    var nodeName;
-                                    if (bootstrapData && bootstrapData.puppetNodeName) {
-                                        instancesDao.updateInstancePuppetNodeName(instance.id, bootstrapData.puppetNodeName, function (err, updateData) {
-                                            if (err) {
-                                                logger.error("Unable to set puppet node name");
-                                            } else {
-                                                logger.debug("puppet node name updated successfully");
-                                            }
-                                        });
-                                        nodeName = bootstrapData.puppetNodeName;
-                                    } else {
-                                        nodeName = instance.chef.chefNodeName;
-                                    }
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        instanceId: instance._id,
-                                        instanceRefId: actionLog._id,
-                                        err: false,
-                                        log: "Instance Bootstrapped Successfully",
-                                        timestamp: timestampEnded
-                                    });
-                                    instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-                                    instanceLog.actionStatus = "success";
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                    var queryObj = {
-                                        'masterDetails.orgId': serviceDetails.masterDetails.orgId,
-                                        'masterDetails.orgName': serviceDetails.masterDetails.orgName,
-                                        'masterDetails.bgId': serviceDetails.masterDetails.bgId,
-                                        'masterDetails.bgName': serviceDetails.masterDetails.bgName,
-                                        'masterDetails.projectId': serviceDetails.masterDetails.projectId,
-                                        'masterDetails.projectName': serviceDetails.masterDetails.projectName,
-                                        'masterDetails.envId': serviceDetails.masterDetails.envId,
-                                        'masterDetails.envName': serviceDetails.masterDetails.envName,
-                                        'configDetails.id': serviceDetails.masterDetails.configId,
-                                        'configDetails.nodeName': serviceDetails.masterDetails.configName,
-                                        'resourceDetails.bootStrapState':'success',
-                                        'resourceDetails.credentials':encryptedCredentials,
-                                        'category':'managed'
-                                    }
-                                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in updating Resource Authentication : " + err)
-                                        }
-                                    });
-                                    if(serviceState=== 'Initializing'){
-                                        services.updateService({
-                                            '_id': ObjectId(serviceId),
-                                            'resources': {$elemMatch: {id: resourceId}}
-                                        }, {
-                                            'resources.$.bootStrapState': 'success',
-                                            'resources.$.category': 'managed',
-                                            'state':'Running'
-                                        }, function (err, result) {
-                                            if (err) {
-                                                logger.error("Error in updating Service State:", err);
-                                            }
-                                        });
-                                    }else{
-                                        services.updateService({
-                                            '_id': ObjectId(serviceId),
-                                            'resources': {$elemMatch: {id: resourceId}}
-                                        }, {
-                                            'resources.$.bootStrapState': 'success',
-                                            'resources.$.category': 'managed'
-                                        }, function (err, result) {
-                                            if (err) {
-                                                logger.error("Error in updating Service State:", err);
-                                            }
-                                        });
-                                    }
-
-                                    var hardwareData = {};
-                                    if (bootstrapData && bootstrapData.puppetNodeName) {
-                                        var runOptions = {
-                                            username: decryptedCredentials.username,
-                                            host: instance.instanceIP,
-                                            port: 22,
-                                        }
-                                        if (decryptedCredentials.pemFileLocation) {
-                                            runOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
-                                        } else {
-                                            runOptions.password = decryptedCredentials.password;
-                                        }
-                                        infraManager.runClient(runOptions, function (err, retCode) {
-                                            if (decryptedCredentials.pemFileLocation) {
-                                                fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
-                                                    if (err) {
-                                                        logger.debug("Unable to delete temp pem file =>", err);
-                                                    } else {
-                                                        logger.debug("temp pem file deleted =>", err);
-                                                    }
-                                                });
-                                            }
-                                            if (err) {
-                                                logger.error("Unable to run puppet client", err);
-                                                return;
-                                            }
-                                            setTimeout(function () {
-                                                infraManager.getNode(nodeName, function (err, nodeData) {
-                                                    if (err) {
-                                                        logger.error(err);
-                                                        return;
-                                                    }
-                                                    instanceLog.platform = nodeData.facts.values.operatingsystem;
-                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                        if (err) {
-                                                            logger.error("Failed to create or update instanceLog: ", err);
-                                                        }
-                                                    });
-                                                    hardwareData.architecture = nodeData.facts.values.hardwaremodel;
-                                                    hardwareData.platform = nodeData.facts.values.operatingsystem;
-                                                    hardwareData.platformVersion = nodeData.facts.values.operatingsystemrelease;
-                                                    hardwareData.memory = {
-                                                        total: 'unknown',
-                                                        free: 'unknown'
-                                                    };
-                                                    hardwareData.memory.total = nodeData.facts.values.memorysize;
-                                                    hardwareData.memory.free = nodeData.facts.values.memoryfree;
-                                                    hardwareData.os = instance.hardware.os;
-                                                    instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
-                                                        if (err) {
-                                                            logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
-                                                        } else {
-                                                            logger.debug("Instance hardware details set successessfully");
-                                                        }
-                                                    });
-                                                    var queryObj = {
-                                                        'resourceDetails.hardware':hardwareData
-                                                    }
-                                                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
-                                                        if (err) {
-                                                            logger.error("Error in updating Resource Authentication : " + err)
-                                                        }
-                                                    });
-                                                });
-                                            }, 30000);
-                                        });
-
-                                    } else {
-                                        infraManager.getNode(nodeName, function (err, nodeData) {
-                                            if (err) {
-                                                logger.error(err);
-                                                return;
-                                            }
-                                            instanceLog.platform = nodeData.automatic.platform;
-                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                if (err) {
-                                                    logger.error("Failed to create or update instanceLog: ", err);
-                                                }
-                                            });
-                                            hardwareData.architecture = nodeData.automatic.kernel.machine;
-                                            hardwareData.platform = nodeData.automatic.platform;
-                                            hardwareData.platformVersion = nodeData.automatic.platform_version;
-                                            hardwareData.memory = {
-                                                total: 'unknown',
-                                                free: 'unknown'
-                                            };
-                                            if (nodeData.automatic.memory) {
-                                                hardwareData.memory.total = nodeData.automatic.memory.total;
-                                                hardwareData.memory.free = nodeData.automatic.memory.free;
-                                            }
-                                            hardwareData.os = instance.hardware.os;
-                                            instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
-                                                if (err) {
-                                                    logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
-                                                } else {
-                                                    logger.debug("Instance hardware details set successessfully");
-                                                }
-                                            });
-                                            var queryObj = {
-                                                'resourceDetails.hardware':hardwareData
-                                            }
-                                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
-                                                if (err) {
-                                                    logger.error("Error in updating Resource Authentication : " + err)
-                                                }
-                                            });
-                                            if (decryptedCredentials.pemFilePath) {
-                                                fileIo.removeFile(decryptedCredentials.pemFilePath, function (err) {
-                                                    if (err) {
-                                                        logger.error("Unable to delete temp pem file =>", err);
-                                                    } else {
-                                                        logger.debug("temp pem file deleted");
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                    var _docker = new Docker();
-                                    _docker.checkDockerStatus(instance.id, function (err, retCode) {
-                                        if (err) {
-                                            logger.error("Failed _docker.checkDockerStatus", err);
-                                            return;
-                                        }
-                                        logger.debug('Docker Check Returned:' + retCode);
-                                        if (retCode == '0') {
-                                            instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
-                                                logger.debug('Instance Docker Status set to Success');
-                                            });
-                                            var queryObj = {
-                                                'resourceDetails.dockerEngineState':'success'
-                                            }
-                                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
-                                                if (err) {
-                                                    logger.error("Error in updating Resource Authentication : " + err)
-                                                }
-                                            });
-                                        }
-                                    });
-
-                                } else {
-                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-                                        if (err) {
-                                            logger.error("Unable to set instance bootstarp status code != 0");
-                                        } else {
-                                            logger.debug("Instance bootstrap status set to failed");
-                                        }
-                                    });
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        instanceId: instance._id,
-                                        instanceRefId: actionLog._id,
-                                        err: true,
-                                        log: "Bootstrap Failed",
-                                        timestamp: timestampEnded
-                                    });
-                                    var queryObj = {
-                                        'masterDetails.orgId': serviceDetails.masterDetails.orgId,
-                                        'masterDetails.orgName': serviceDetails.masterDetails.orgName,
-                                        'masterDetails.bgId': serviceDetails.masterDetails.bgId,
-                                        'masterDetails.bgName': serviceDetails.masterDetails.bgName,
-                                        'masterDetails.projectId': serviceDetails.masterDetails.projectId,
-                                        'masterDetails.projectName': serviceDetails.masterDetails.projectName,
-                                        'masterDetails.envId': serviceDetails.masterDetails.envId,
-                                        'masterDetails.envName': serviceDetails.masterDetails.envName,
-                                        'configDetails.id': serviceDetails.masterDetails.configId,
-                                        'configDetails.nodeName': serviceDetails.masterDetails.configName,
-                                        'resourceDetails.bootStrapState':'failed',
-                                        'resourceDetails.credentials':encryptedCredentials,
-                                        'category':'managed'
-                                    }
-                                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in updating Resource Authentication : " + err)
-                                        }
-                                    });
-                                    services.updateService({
-                                        '_id': ObjectId(serviceId),
-                                        'resources': {$elemMatch: {id: resourceId}}
-                                    }, {
-                                        'resources.$.bootStrapState': 'failed'
-                                    }, function (err, result) {
-                                        if (err) {
-                                            logger.error("Error in updating Service State:", err);
-                                        }
-                                    });
-                                    instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                }
-                            }
-
-                        }, function (stdOutData) {
-                            logsDao.insertLog({
-                                instanceId: instance._id,
-                                instanceRefId: actionLog._id,
-                                err: false,
-                                log: stdOutData.toString('ascii'),
-                                timestamp: new Date().getTime()
-                            });
-                        }, function (stdErrData) {
+                    });
+                    credentialCryptography.decryptCredential(encryptedCredentials, function (err, decryptedCredentials) {
+                        if (err) {
+                            logger.error("unable to decrypt credentials", err);
+                            var timestampEnded = new Date().getTime();
                             logsDao.insertLog({
                                 instanceId: instance._id,
                                 instanceRefId: actionLog._id,
                                 err: true,
-                                log: stdErrData.toString('ascii'),
-                                timestamp: new Date().getTime()
+                                log: "Unable to decrypt credentials. Bootstrap Failed",
+                                timestamp: timestampEnded
+                            });
+                            var queryObj = {
+                                'resourceDetails.bootStrapState': 'failed',
+                                'resourceDetails.credentials': encryptedCredentials,
+                                'category': 'managed'
+                            }
+                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                if (err) {
+                                    logger.error("Error in updating Resource Authentication : " + err)
+                                }
+                            });
+                            instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
+                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+                            return;
+                        }
+                        var infraManager;
+                        var bootstrapOption;
+                        var deleteOptions;
+                        if (serverDetails.configType === 'chef') {
+                            logger.debug('In chef ');
+                            infraManager = new Chef({
+                                userChefRepoLocation: serverDetails.chefRepoLocation,
+                                chefUserName: serverDetails.loginname,
+                                chefUserPemFile: serverDetails.userpemfile,
+                                chefValidationPemFile: serverDetails.validatorpemfile,
+                                hostedChefUrl: serverDetails.url
+                            });
+                            bootstrapOption = {
+                                instanceIp: instance.instanceIP,
+                                pemFilePath: decryptedCredentials.pemFileLocation,
+                                instancePassword: decryptedCredentials.password,
+                                instanceUsername: instance.credentials.username,
+                                nodeName: instance.chef.chefNodeName,
+                                environment: serviceDetails.masterDetails.envName,
+                                instanceOS: instance.hardware.os
+                            };
+                            if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                var runlist = sensuCookBooks;
+                                var jsonAttributes = {};
+                                jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                bootstrapOption['runlist'] = runlist;
+                                bootstrapOption['jsonAttributes'] = jsonAttributes;
+                            }
+                            deleteOptions = {
+                                privateKey: decryptedCredentials.pemFileLocation,
+                                username: decryptedCredentials.username,
+                                host: instance.instanceIP,
+                                instanceOS: instance.hardware.os,
+                                port: 22,
+                                cmds: ["rm -rf /etc/chef/", "rm -rf /var/chef/"],
+                                cmdswin: ["del "]
+                            }
+                            if (decryptedCredentials.pemFileLocation) {
+                                deleteOptions.privateKey = decryptedCredentials.pemFileLocation;
+                            } else {
+                                deleteOptions.password = decryptedCredentials.password;
+                            }
+                        } else {
+                            var puppetSettings = {
+                                host: serverDetails.hostname,
+                                username: serverDetails.username,
+                            };
+                            if (serverDetails.pemFileLocation) {
+                                puppetSettings.pemFileLocation = serverDetails.pemFileLocation;
+                            } else {
+                                puppetSettings.password = serverDetails.puppetpassword;
+                            }
+                            logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
+                            bootstrapOption = {
+                                host: instance.instanceIP,
+                                username: instance.credentials.username,
+                                pemFileLocation: decryptedCredentials.pemFileLocation,
+                                password: decryptedCredentials.password,
+                                environment: serviceDetails.masterDetails.envName,
+                            };
+                            var deleteOptions = {
+                                username: decryptedCredentials.username,
+                                host: instance.instanceIP,
+                                port: 22,
+                            }
+                            if (decryptedCredentials.pemFileLocation) {
+                                deleteOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
+                            } else {
+                                deleteOptions.password = decryptedCredentials.password;
+                            }
+                            infraManager = new Puppet(puppetSettings);
+                        }
+                        infraManager.cleanClient(deleteOptions, function (err, retCode) {
+                            logger.debug("Entering chef.bootstarp");
+                            infraManager.bootstrapInstance(bootstrapOption, function (err, code, bootstrapData) {
+                                if (err) {
+                                    logger.error("knife launch err ==>", err);
+                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                        if (err) {
+                                            logger.error("Failed to update BootStrap Status: ", err);
+                                        }
+                                    });
+                                    if (err.message) {
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            instanceId: instance._id,
+                                            instanceRefId: actionLog._id,
+                                            err: true,
+                                            log: err.message,
+                                            timestamp: timestampEnded
+                                        });
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                    } else {
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            instanceId: instance._id,
+                                            instanceRefId: actionLog._id,
+                                            err: true,
+                                            log: "Bootstrap Failed",
+                                            timestamp: timestampEnded
+                                        });
+                                        var queryObj = {
+                                            'resourceDetails.bootStrapState': 'failed',
+                                            'resourceDetails.credentials': encryptedCredentials,
+                                            'category': 'managed'
+                                        }
+                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                            if (err) {
+                                                logger.error("Error in updating Resource Authentication : " + err)
+                                            }
+                                        });
+                                        instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    if (code == 0) {
+                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
+                                            if (err) {
+                                                logger.error("Unable to set instance bootstarp status. code 0");
+                                            } else {
+                                                logger.debug("Instance bootstrap status set to success");
+                                            }
+                                        });
+                                        var nodeName;
+                                        if (bootstrapData && bootstrapData.puppetNodeName) {
+                                            instancesDao.updateInstancePuppetNodeName(instance.id, bootstrapData.puppetNodeName, function (err, updateData) {
+                                                if (err) {
+                                                    logger.error("Unable to set puppet node name");
+                                                } else {
+                                                    logger.debug("puppet node name updated successfully");
+                                                }
+                                            });
+                                            nodeName = bootstrapData.puppetNodeName;
+                                        } else {
+                                            nodeName = instance.chef.chefNodeName;
+                                        }
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            instanceId: instance._id,
+                                            instanceRefId: actionLog._id,
+                                            err: false,
+                                            log: "Instance Bootstrapped Successfully",
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+                                        instanceLog.actionStatus = "success";
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                        var queryObj = {
+                                            'masterDetails.orgId': serviceDetails.masterDetails.orgId,
+                                            'masterDetails.orgName': serviceDetails.masterDetails.orgName,
+                                            'masterDetails.bgId': serviceDetails.masterDetails.bgId,
+                                            'masterDetails.bgName': serviceDetails.masterDetails.bgName,
+                                            'masterDetails.projectId': serviceDetails.masterDetails.projectId,
+                                            'masterDetails.projectName': serviceDetails.masterDetails.projectName,
+                                            'masterDetails.envId': serviceDetails.masterDetails.envId,
+                                            'masterDetails.envName': serviceDetails.masterDetails.envName,
+                                            'configDetails.id': serviceDetails.masterDetails.configId,
+                                            'configDetails.nodeName': serviceDetails.masterDetails.configName,
+                                            'resourceDetails.bootStrapState': 'success',
+                                            'resourceDetails.state': 'running',
+                                            'resourceDetails.credentials': encryptedCredentials,
+                                            'category': 'managed'
+                                        }
+                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                            if (err) {
+                                                logger.error("Error in updating Resource Authentication : " + err)
+                                            }
+                                        });
+                                        if (serviceState === 'Initializing') {
+                                            services.updateService({
+                                                '_id': ObjectId(serviceId),
+                                                'resources': {$elemMatch: {id: resourceId}}
+                                            }, {
+                                                'resources.$.bootStrapState': 'success',
+                                                'resources.$.category': 'managed',
+                                                'resources.$.state': 'running',
+                                                'state': 'Running'
+                                            }, function (err, result) {
+                                                if (err) {
+                                                    logger.error("Error in updating Service State:", err);
+                                                }
+                                            });
+                                        } else {
+                                            services.updateService({
+                                                '_id': ObjectId(serviceId),
+                                                'resources': {$elemMatch: {id: resourceId}}
+                                            }, {
+                                                'resources.$.bootStrapState': 'success',
+                                                'resources.$.state': 'running',
+                                                'resources.$.category': 'managed'
+                                            }, function (err, result) {
+                                                if (err) {
+                                                    logger.error("Error in updating Service State:", err);
+                                                }
+                                            });
+                                        }
+
+                                        var hardwareData = {};
+                                        if (bootstrapData && bootstrapData.puppetNodeName) {
+                                            var runOptions = {
+                                                username: decryptedCredentials.username,
+                                                host: instance.instanceIP,
+                                                port: 22,
+                                            }
+                                            if (decryptedCredentials.pemFileLocation) {
+                                                runOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
+                                            } else {
+                                                runOptions.password = decryptedCredentials.password;
+                                            }
+                                            infraManager.runClient(runOptions, function (err, retCode) {
+                                                if (decryptedCredentials.pemFileLocation) {
+                                                    fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
+                                                        if (err) {
+                                                            logger.debug("Unable to delete temp pem file =>", err);
+                                                        } else {
+                                                            logger.debug("temp pem file deleted =>", err);
+                                                        }
+                                                    });
+                                                }
+                                                if (err) {
+                                                    logger.error("Unable to run puppet client", err);
+                                                    return;
+                                                }
+                                                setTimeout(function () {
+                                                    infraManager.getNode(nodeName, function (err, nodeData) {
+                                                        if (err) {
+                                                            logger.error(err);
+                                                            return;
+                                                        }
+                                                        instanceLog.platform = nodeData.facts.values.operatingsystem;
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
+                                                        });
+                                                        hardwareData.architecture = nodeData.facts.values.hardwaremodel;
+                                                        hardwareData.platform = nodeData.facts.values.operatingsystem;
+                                                        hardwareData.platformVersion = nodeData.facts.values.operatingsystemrelease;
+                                                        hardwareData.memory = {
+                                                            total: 'unknown',
+                                                            free: 'unknown'
+                                                        };
+                                                        hardwareData.memory.total = nodeData.facts.values.memorysize;
+                                                        hardwareData.memory.free = nodeData.facts.values.memoryfree;
+                                                        hardwareData.os = instance.hardware.os;
+                                                        instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
+                                                            if (err) {
+                                                                logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                                                            } else {
+                                                                logger.debug("Instance hardware details set successessfully");
+                                                            }
+                                                        });
+                                                        var queryObj = {
+                                                            'resourceDetails.hardware': hardwareData
+                                                        }
+                                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                            if (err) {
+                                                                logger.error("Error in updating Resource Authentication : " + err)
+                                                            }
+                                                        });
+                                                    });
+                                                }, 30000);
+                                            });
+
+                                        } else {
+                                            infraManager.getNode(nodeName, function (err, nodeData) {
+                                                if (err) {
+                                                    logger.error(err);
+                                                    return;
+                                                }
+                                                instanceLog.platform = nodeData.automatic.platform;
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
+                                                hardwareData.architecture = nodeData.automatic.kernel.machine;
+                                                hardwareData.platform = nodeData.automatic.platform;
+                                                hardwareData.platformVersion = nodeData.automatic.platform_version;
+                                                hardwareData.memory = {
+                                                    total: 'unknown',
+                                                    free: 'unknown'
+                                                };
+                                                if (nodeData.automatic.memory) {
+                                                    hardwareData.memory.total = nodeData.automatic.memory.total;
+                                                    hardwareData.memory.free = nodeData.automatic.memory.free;
+                                                }
+                                                hardwareData.os = instance.hardware.os;
+                                                instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
+                                                    if (err) {
+                                                        logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                                                    } else {
+                                                        logger.debug("Instance hardware details set successessfully");
+                                                    }
+                                                });
+                                                var queryObj = {
+                                                    'resourceDetails.hardware': hardwareData
+                                                }
+                                                instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                    if (err) {
+                                                        logger.error("Error in updating Resource Authentication : " + err)
+                                                    }
+                                                });
+                                                if (decryptedCredentials.pemFilePath) {
+                                                    fileIo.removeFile(decryptedCredentials.pemFilePath, function (err) {
+                                                        if (err) {
+                                                            logger.error("Unable to delete temp pem file =>", err);
+                                                        } else {
+                                                            logger.debug("temp pem file deleted");
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        var _docker = new Docker();
+                                        _docker.checkDockerStatus(instance.id, function (err, retCode) {
+                                            if (err) {
+                                                logger.error("Failed _docker.checkDockerStatus", err);
+                                                return;
+                                            }
+                                            logger.debug('Docker Check Returned:' + retCode);
+                                            if (retCode == '0') {
+                                                instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
+                                                    logger.debug('Instance Docker Status set to Success');
+                                                });
+                                                var queryObj = {
+                                                    'resourceDetails.dockerEngineState': 'success'
+                                                }
+                                                instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                    if (err) {
+                                                        logger.error("Error in updating Resource Authentication : " + err)
+                                                    }
+                                                });
+                                            }
+                                        });
+
+                                    } else {
+                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                            if (err) {
+                                                logger.error("Unable to set instance bootstarp status code != 0");
+                                            } else {
+                                                logger.debug("Instance bootstrap status set to failed");
+                                            }
+                                        });
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            instanceId: instance._id,
+                                            instanceRefId: actionLog._id,
+                                            err: true,
+                                            log: "Bootstrap Failed",
+                                            timestamp: timestampEnded
+                                        });
+                                        var queryObj = {
+                                            'masterDetails.orgId': serviceDetails.masterDetails.orgId,
+                                            'masterDetails.orgName': serviceDetails.masterDetails.orgName,
+                                            'masterDetails.bgId': serviceDetails.masterDetails.bgId,
+                                            'masterDetails.bgName': serviceDetails.masterDetails.bgName,
+                                            'masterDetails.projectId': serviceDetails.masterDetails.projectId,
+                                            'masterDetails.projectName': serviceDetails.masterDetails.projectName,
+                                            'masterDetails.envId': serviceDetails.masterDetails.envId,
+                                            'masterDetails.envName': serviceDetails.masterDetails.envName,
+                                            'configDetails.id': serviceDetails.masterDetails.configId,
+                                            'configDetails.nodeName': serviceDetails.masterDetails.configName,
+                                            'resourceDetails.bootStrapState': 'failed',
+                                            'resourceDetails.state': 'failed',
+                                            'resourceDetails.credentials': encryptedCredentials,
+                                            'category': 'managed'
+                                        }
+                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                            if (err) {
+                                                logger.error("Error in updating Resource Authentication : " + err)
+                                            }
+                                        });
+                                        services.updateService({
+                                            '_id': ObjectId(serviceId),
+                                            'resources': {$elemMatch: {id: resourceId}}
+                                        }, {
+                                            'resources.$.bootStrapState': 'failed'
+                                        }, function (err, result) {
+                                            if (err) {
+                                                logger.error("Error in updating Service State:", err);
+                                            }
+                                        });
+                                        instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                    }
+                                }
+
+                            }, function (stdOutData) {
+                                logsDao.insertLog({
+                                    instanceId: instance._id,
+                                    instanceRefId: actionLog._id,
+                                    err: false,
+                                    log: stdOutData.toString('ascii'),
+                                    timestamp: new Date().getTime()
+                                });
+                            }, function (stdErrData) {
+                                logsDao.insertLog({
+                                    instanceId: instance._id,
+                                    instanceRefId: actionLog._id,
+                                    err: true,
+                                    log: stdErrData.toString('ascii'),
+                                    timestamp: new Date().getTime()
+                                });
                             });
                         });
+                        callback(null, {
+                            code: 200,
+                            message: "Instance Imported : " + resource.resourceDetails.platformId
+                        });
                     });
-                    callback(null, {code: 200, message: "Instance Imported : " + resource.resourceDetails.platformId});
-                });
+                }else{
+                    instance.id = data._id;
+                    instance._id = data._id;
+                    var timestampStarded = new Date().getTime();
+                    var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], resource.userName, timestampStarded);
+                    logsDao.insertLog({
+                        instanceId: instance._id,
+                        instanceRefId: actionLog._id,
+                        err: false,
+                        log: "Imported From Service",
+                        timestamp: timestampStarded
+                    });
+                    var instanceLog = {
+                        actionId: actionLog._id,
+                        instanceId: instance.id,
+                        orgName: serviceDetails.masterDetails.orgName,
+                        bgName: serviceDetails.masterDetails.bgName,
+                        projectName: serviceDetails.masterDetails.projectName,
+                        envName: serviceDetails.masterDetails.envName,
+                        status: resource.resourceDetails.state,
+                        actionStatus: "success",
+                        platformId: resource.resourceDetails.platformId,
+                        blueprintName: resource.resourceDetails.platformId,
+                        data: [],
+                        platform: resource.resourceDetails.hardware.platform,
+                        os: resource.resourceDetails.os,
+                        size: "",
+                        user: resource.userName,
+                        startedOn: new Date().getTime(),
+                        createdOn: new Date().getTime(),
+                        providerType: resource.providerDetails.type,
+                        action: "Imported From Service"
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+                    var queryObj = {
+                        'masterDetails.orgId': serviceDetails.masterDetails.orgId,
+                        'masterDetails.orgName': serviceDetails.masterDetails.orgName,
+                        'masterDetails.bgId': serviceDetails.masterDetails.bgId,
+                        'masterDetails.bgName': serviceDetails.masterDetails.bgName,
+                        'masterDetails.projectId': serviceDetails.masterDetails.projectId,
+                        'masterDetails.projectName': serviceDetails.masterDetails.projectName,
+                        'masterDetails.envId': serviceDetails.masterDetails.envId,
+                        'masterDetails.envName': serviceDetails.masterDetails.envName,
+                        'configDetails.id': serviceDetails.masterDetails.configId,
+                        'configDetails.nodeName': serviceDetails.masterDetails.configName,
+                        'resourceDetails.bootStrapState': 'success',
+                        'resourceDetails.state': 'running',
+                        'resourceDetails.credentials': encryptedCredentials,
+                        'category': 'managed'
+                    }
+                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                        if (err) {
+                            logger.error("Error in updating Resource Authentication : " + err)
+                        }
+                    });
+                    if (serviceState === 'Initializing') {
+                        services.updateService({
+                            '_id': ObjectId(serviceId),
+                            'resources': {$elemMatch: {id: resourceId}}
+                        }, {
+                            'resources.$.bootStrapState': 'success',
+                            'resources.$.category': 'managed',
+                            'resources.$.state': 'running',
+                            'state': 'Running'
+                        }, function (err, result) {
+                            if (err) {
+                                logger.error("Error in updating Service State:", err);
+                            }
+                        });
+                    } else {
+                        services.updateService({
+                            '_id': ObjectId(serviceId),
+                            'resources': {$elemMatch: {id: resourceId}}
+                        }, {
+                            'resources.$.bootStrapState': 'success',
+                            'resources.$.state': 'running',
+                            'resources.$.category': 'managed'
+                        }, function (err, result) {
+                            if (err) {
+                                logger.error("Error in updating Service State:", err);
+                            }
+                        });
+                    }
+                    var _docker = new Docker();
+                    _docker.checkDockerStatus(instance.id, function (err, retCode) {
+                        if (err) {
+                            logger.error("Failed _docker.checkDockerStatus", err);
+                            return;
+                        }
+                        logger.debug('Docker Check Returned:' + retCode);
+                        if (retCode == '0') {
+                            instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
+                                logger.debug('Instance Docker Status set to Success');
+                            });
+                            var queryObj = {
+                                'resourceDetails.dockerEngineState': 'success'
+                            }
+                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                if (err) {
+                                    logger.error("Error in updating Resource Authentication : " + err)
+                                }
+                            });
+                        }
+                    });
+                    callback(null, {
+                        code: 200,
+                        message: "Instance Imported : " + resource.resourceDetails.platformId
+                    });
+                }
             });
         });
     });

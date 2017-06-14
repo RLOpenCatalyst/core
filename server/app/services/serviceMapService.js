@@ -26,9 +26,9 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 const ymlJs= require('yamljs');
 var uuid = require('node-uuid');
-var Cryptography = require('_pr/lib/utils/cryptography');
 var resourceModel = require('_pr/model/resources/resources');
 var commonService = require('_pr/services/commonService');
+const ymlValidator = require('yaml-validator');
 
 var serviceMapService = module.exports = {};
 
@@ -121,6 +121,9 @@ serviceMapService.getAllServiceVersionByName = function getAllServiceVersionByNa
     async.waterfall([
         function(next){
             services.getServices({name:serviceName},next);
+        },
+        function(services,next){
+            changeServiceResponse(services,next);
         }
     ],function(err,results){
         if(err){
@@ -170,6 +173,9 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                                 return;
                             } else {
                                 try {
+                                    const validator = new ymlValidator();
+                                    validator.validate(desPath);
+                                    validator.report();
                                     ymlJs.load(desPath, function (result) {
                                         if (result !== null) {
                                             servicesObj.identifiers = result;
@@ -209,8 +215,10 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                                         }
                                     })
                                 }catch(err){
-                                    console.log("durgesh kumar sharma");
-                                    console.log(err);
+                                    var error =new Error();
+                                    error.code = 500;
+                                    error.message = "Invalid YML"
+                                    return callback(error, null);
                                 }
                             }
                         });
@@ -311,6 +319,23 @@ serviceMapService.resourceAuthentication = function resourceAuthentication(servi
                     }
                     if(resourceDetail !== null) {
                         next(null, {code: 202, message: "Authentication is in Progress"});
+                        services.updateService({
+                            'name': servicesData[0].name,
+                            'resources': {$elemMatch: {id: resourceId}}
+                        }, {
+                            'resources.$.authentication': 'authenticating',
+                        }, function (err, result) {
+                            if (err) {
+                                logger.error("Error in updating Service State:", err);
+                            }
+                        })
+                        resourceModel.updateResourceById(resourceId, {
+                                'authentication': 'authenticating'
+                            }, function (err, data) {
+                            if (err) {
+                                logger.error("Error in updating BootStrap State:", err);
+                            }
+                        });
                         checkCredentialsForResource(resourceDetail,serviceId,resourceId,credentials,servicesData[0],function(err,data){
                             if(err){
                                 logger.error("Error in checking Authentication Credentials:",err);
@@ -367,8 +392,7 @@ serviceMapService.updateServiceMapVersion = function updateServiceMapVersion(res
             async.parallel({
                 resourceSync: function (callback) {
                     resourceModel.updateResourceById(resourceId, {
-                        isDeleted: true,
-                        'resourceDetails.state': 'deleted'
+                        isDeleted: true
                     }, callback)
                 },
                 serviceSync: function (callback) {
@@ -710,12 +734,21 @@ function checkCredentialsForResource(resource,serviceId,resourceId,credentials,s
                 }
             });
         } else {
-            var serviceState = 'Initializing';
+            var serviceStateList = [],serviceState = '';
             service.resources.forEach(function (instance) {
                 if (instance.id !== resourceId && instance.authentication === 'failed') {
-                    serviceState = 'Authentication_Error';
+                    serviceStateList.push['authentication_error'];
+                }else{
+                    serviceStateList.push[instance.state];
                 }
             });
+            if(serviceStateList.length === 1 && resource.resourceDetails.bootStrapState ==='success'){
+                serviceState = 'Running';
+            }else if(serviceStateList.length === 1 ){
+                serviceState = 'Initializing';
+            }else{
+                serviceState = getServiceState(serviceStateList);
+            }
             services.updateService({
                 'name': service.name,
                 'resources': {$elemMatch: {id: resourceId}}
