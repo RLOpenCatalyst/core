@@ -447,6 +447,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     if (globalData.getGit(result[0].gitHubId)) {
                         var err = new Error('Sync is in progess');
                         err.status = 400;
+                        err.message = 'Sync is in progess';
                         next(err, null);
                     } else {
                         next(null, result)
