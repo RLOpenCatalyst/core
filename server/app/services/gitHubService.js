@@ -37,7 +37,7 @@ var request = require('request');
 var getDirName = require('path').dirname;
 var gitGubService = module.exports = {};
 var settingService = require('_pr/services/settingsService');
-var yamljs = require('yamljs');
+var jsyaml = require('js-yaml');
 var globalData = require('_pr/config/global-data.js');
 var copy = require('copy-dir');
 var noticeService = require('_pr/services/noticeService.js');
@@ -413,11 +413,11 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId, us
                     function (callback) {
                         if (result.botsDetails[0].type === 'script' || result.botsDetails[0].type === 'meta') {
                             var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/' + result.botsDetails[0].type + '_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
-                            gitHubSingleSync(formattedGitHub, botId, cmdFull, cmd, function (response) { 
+                            gitHubSingleSync(formattedGitHub, botId, cmdFull, cmd, function (response) {
                                 if (response != null && !("message" in response))
                                     callback(response);
                                 else
-                                    callback(null);    
+                                    callback(null);
                             });
                         } else
                             callback(null);
@@ -525,15 +525,21 @@ gitGubService.getYamlList = function getYamlList(srcPath, callback) {
             var yamlList = [];
             async.each(botList, function (bot, callbackChild) {
                 var currentPath = srcPath + bot + '/current';
-                fs.readlink(currentPath, (err, link) => {
-                    if (err)
-                        callbackChild(err);
-                    else {
-                        fs.exists(link + '/' + bot + '.yaml', (exists) => {
-                            if (exists)
-                                yamlList.push(link + '/' + bot + '.yaml');
-                            callbackChild(null);
+                fs.exists(currentPath, (isAval) => {
+                    if (isAval) {
+                        fs.readlink(currentPath, (err, link) => {
+                            if (err)
+                                callbackChild(err);
+                            else {
+                                fs.exists(link + '/' + bot + '.yaml', (exists) => {
+                                    if (exists)
+                                        yamlList.push(link + '/' + bot + '.yaml');
+                                    callbackChild(null);
+                                })
+                            }
                         })
+                    } else {
+                        callbackChild(null);
                     }
                 })
             }, function (err) {
@@ -885,45 +891,55 @@ function getDiff(gitHubId, srcPath, botsPath, callback) {
                                 callback(null);
                             } else {
                                 dirList.splice(dirList.indexOf(botDetails.id), 1);
-                                fs.readlink(botsPath + botDetails.id + '/current', (err, curretDir) => {
-                                    if (err)
-                                        callback(err);
-                                    else {
-                                        fs.readdir(curretDir, (err, botsFiles) => {
-                                            if (botsFiles.length === 0) {
-                                                botDetails.status = 'new';
-                                                result.bots.push(botDetails);
-                                                result.new += 1;
-                                                callback(null);
-                                            } else {
-                                                async.parallel([
-                                                    function (callbackChild) {
-                                                        compare(curretDir + '/' + botDetails.id + '.yaml', srcPath + '/YAML/' + botDetails.id + '.yaml', options, callbackChild);
-                                                    },
-                                                    function (callbackChild) {
-                                                        options.excludeFilter = '*.md,*.yaml';
-                                                        var codePath = srcPath + '/Code/' + botDetails.type + '_BOTs/' + botDetails.id;
-                                                        if (fs.existsSync(codePath)) {
-                                                            compare(curretDir, codePath, options, callbackChild);
-                                                        } else
-                                                            callbackChild(null, null);
-                                                    }
-                                                ], function (err, status) {
-                                                    if (err)
-                                                        callback(err);
-                                                    else {
+                                fs.exists(botsPath + botDetails.id + '/current', (isAval) => {
+                                    if (isAval) {
+                                        fs.readlink(botsPath + botDetails.id + '/current', (err, curretDir) => {
+                                            if (err)
+                                                callback(err);
+                                            else {
+                                                fs.readdir(curretDir, (err, botsFiles) => {
+                                                    if (botsFiles.length === 0) {
+                                                        botDetails.status = 'new';
+                                                        result.bots.push(botDetails);
+                                                        result.new += 1;
                                                         callback(null);
-                                                        if (status[0] === 'modified' || status[1] === 'modified') {
-                                                            botDetails.status = 'modified';
-                                                            result.bots.push(botDetails);
-                                                            result.modified += 1;
-                                                        }
+                                                    } else {
+                                                        async.parallel([
+                                                            function (callbackChild) {
+                                                                compare(curretDir + '/' + botDetails.id + '.yaml', srcPath + '/YAML/' + botDetails.id + '.yaml', options, callbackChild);
+                                                            },
+                                                            function (callbackChild) {
+                                                                options.excludeFilter = '*.md,*.yaml';
+                                                                var codePath = srcPath + '/Code/' + botDetails.type + '_BOTs/' + botDetails.id;
+                                                                if (fs.existsSync(codePath)) {
+                                                                    compare(curretDir, codePath, options, callbackChild);
+                                                                } else
+                                                                    callbackChild(null, null);
+                                                            }
+                                                        ], function (err, status) {
+                                                            if (err)
+                                                                callback(err);
+                                                            else {
+                                                                callback(null);
+                                                                if (status[0] === 'modified' || status[1] === 'modified') {
+                                                                    botDetails.status = 'modified';
+                                                                    result.bots.push(botDetails);
+                                                                    result.modified += 1;
+                                                                }
+                                                            }
+                                                        })
                                                     }
                                                 })
                                             }
-                                        })
+                                        });
                                     }
-                                });
+                                    else {
+                                        botDetails.status = 'new';
+                                        result.bots.push(botDetails);
+                                        result.new += 1;
+                                        callback(null);
+                                     }
+                                })
                             }
                         }, function (err) {
                             if (dirList.length > 0) {
@@ -963,22 +979,27 @@ function readYaml(srcPath, callback) {
         if (err)
             callback(err, null);
         else {
-            for (var yaml in yamlList) {
-                yamljs.load(srcPath + '/' + yamlList[yaml], (result) => {
-                    if (result) {
-                        botsData.push({
-                            "id": result.id,
-                            "name": result.name,
-                            "type": result.type,
-                            "category": result.botCategory ? result.botCategory : result.functionality
-                        });
-                    }
-                    count++;
-                    if (count === yamlList.length) {
-                        callback(null, botsData);
-                    }
-                })
-            }
+            async.each(yamlList, (yaml, callbackChild) => {
+                try {
+                    jsyaml.safeLoadAll(fs.readFileSync(srcPath + '/' + yaml), (result) => {
+                        if (result) {
+                            botsData.push({
+                                "id": result.id,
+                                "name": result.name,
+                                "type": result.type,
+                                "category": result.botCategory ? result.botCategory : result.functionality
+                            });
+                        }
+                    }, {
+                        filename: yaml
+                    })
+                } catch (error) {
+                    logger.error(error.message);
+                }
+                callbackChild(null);
+            }, function (err) {
+                callback(err, botsData);
+            })
         }
     });
 }
@@ -1087,36 +1108,41 @@ function copyToCurrent(sourceCode, source, destPath, uploadPath, versionNum, bot
         }
     })
     fs.exists(destPath + '/ver_' + versionNum, (isAval) => {
-        if (fs.existsSync(destPath + '/current'))
-            fs.unlinkSync(destPath + '/current');
         if (!isAval) {
             mkdirp(destPath + '/ver_' + versionNum, (err, made) => {
                 if (err)
                     return callback(err);
                 else {
-                    fs.createReadStream(source + '/YAML/' + botId + '.yaml').pipe(fs.createWriteStream(destPath + '/ver_' + versionNum + '/' + botId + '.yaml'));
-                    fs.symlink(destPath + '/ver_' + versionNum, destPath + '/current', function (err) {
-                        if (err)
-                            return callback('Unable to create symlink to new version folder');
-                        else {
-                            copyUpload(uploadPath, destPath + '/ver_' + versionNum, botId);
-                            return callback(null);
-                        }
-                    });
+                    writeYaml(destPath + '/current', source + '/YAML/' + botId + '.yaml', destPath + '/ver_' + versionNum + '/' + botId + '.yaml', destPath + '/ver_' + versionNum, callback);
                 }
             })
         } else {
-            fs.createReadStream(source + '/YAML/' + botId + '.yaml').pipe(fs.createWriteStream(destPath + '/ver_' + versionNum + '/' + botId + '.yaml'));
-            fs.symlink(destPath + '/ver_' + versionNum, destPath + '/current', function (err) {
-                if (err)
-                    return callback('Unable to create symlink to new version folder');
-                else {
-                    copyUpload(uploadPath, destPath + '/ver_' + versionNum, botId);
-                    return callback(null);
-                }
-            });
+            writeYaml(destPath + '/current', source + '/YAML/' + botId + '.yaml', destPath + '/ver_' + versionNum + '/' + botId + '.yaml', destPath + '/ver_' + versionNum, callback);
         }
     })
+
+    function writeYaml(current, sourceYaml, destYaml, versionPath, callback) {
+        fs.exists(sourceYaml, function (isAval) {
+            if (isAval) {
+                if (fs.existsSync(current))
+                    fs.unlinkSync(current);
+                fs.createReadStream(sourceYaml).pipe(fs.createWriteStream(destYaml));
+                fs.symlink(versionPath, current, function (err) {
+                    if (err)
+                        return callback('Unable to create symlink to new version folder');
+                    else {
+                        copyUpload(uploadPath, versionPath, botId);
+                        return callback(null);
+                    }
+                });
+            } else {
+                if (fs.existsSync(versionPath))
+                    fse.removeSync(versionPath);
+                logger.error('Unable to Read Yaml: ' + botId);
+                return callback('Unable to Read Yaml: ' + botId);
+            }
+        });
+    }
 }
 
 function copyUpload(upload, srcPath, botid) {

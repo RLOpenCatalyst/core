@@ -169,6 +169,7 @@ function executeScriptOnLocal(botDetail,requestBody,auditTrail,userName,botHostD
         json: true,
         body: reqBody
     };
+    var logsReferenceIds = [botDetail._id,actionId];
     request.post(options, function (err, res, body) {
         if (res.statusCode === 200) {
             var auditQueueDetails = {

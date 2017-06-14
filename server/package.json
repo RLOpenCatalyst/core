@@ -1,6 +1,6 @@
 {
   "name": "Catalyst",
-  "version": "0.0.1",
+  "version": "4.2.0",
   "description": "DevOps Platform for DevOps",
   "main": "app/app.js",
   "config": {
