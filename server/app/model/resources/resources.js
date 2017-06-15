@@ -81,6 +81,20 @@ ResourceSchema.statics.getResourceByIds = function(resourceIds,callback) {
     });
 };
 
+ResourceSchema.statics.updateResource =  function(filterBy,fields,callback){
+    Resources.update(filterBy, {
+        $set:fields
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
 ResourceSchema.statics.getResources = function(queryObj,callback) {
     queryObj.isDeleted = false;
     Resources.find(queryObj, function(err, data) {

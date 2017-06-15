@@ -411,8 +411,9 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                 && auditTrails[0].auditTrailConfig.manualExecutionTime !== null && auditTrails[0].actionStatus === 'success') {
                 var seconds = 0, minutes = 0, hours = 0;
                 var executionTime = getExecutionTime(auditTrails[0].endedOn, auditTrails[0].startedOn);
-                if(executionTime > (auditTrails[0].auditTrailConfig.manualExecutionTime * 60)) {
-                    seconds = (auditTrails[0].auditTrailConfig.manualExecutionTime * 60) - executionTime;
+                var manualExecutionTimeInSeconds = auditTrails[0].auditTrailConfig.manualExecutionTime * 60;
+                if(manualExecutionTimeInSeconds > executionTime) {
+                    seconds = manualExecutionTimeInSeconds - executionTime;
                     if (seconds >= 60) {
                         minutes = minutes + Math.floor(seconds / 60);
                         seconds = seconds % 60;

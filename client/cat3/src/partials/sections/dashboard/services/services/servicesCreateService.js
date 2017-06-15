@@ -47,9 +47,9 @@
 				return genericServices.promiseGet(params); 	
 			};
 
-			serviceCreate.getResources = function(serviceId) {
+			serviceCreate.getResources = function(serviceName) {
 				var params = {
-					url: '/services/' + serviceId + '/resources',
+					url: '/services/' + serviceName + '/resources?version=latest',
 					inlineLoader: true
 				}
 				return genericServices.promiseGet(params); 	
