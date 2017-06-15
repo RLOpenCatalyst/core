@@ -115,8 +115,7 @@ var serviceSchema = new Schema({
     },
     version:{
         type: Number,
-        required: false,
-        default:1.0
+        required: false
     },
     isDeleted:{
         type: Boolean,

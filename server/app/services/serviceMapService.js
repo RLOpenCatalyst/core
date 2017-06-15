@@ -199,6 +199,7 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                                                 servicesObj.masterDetails = result;
                                                 servicesObj.masterDetails.monitor = monitor;
                                                 servicesObj.state = 'Initializing';
+                                                servicesObj.version = 1.0;
                                                 services.createNew(servicesObj, function (err, servicesData) {
                                                     if (err) {
                                                         logger.error("services.createNew is Failed ==>", err);
@@ -401,6 +402,7 @@ serviceMapService.updateServiceMapVersion = function updateServiceMapVersion(res
                                 service.resources = [];
                                 service.state = 'Initializing';
                                 service.version = service.version + 0.1;
+                                service.version = parseFloat(service.version).toFixed(1);
                                 services.createNew(service, function (err, data) {
                                     if (err) {
                                         logger.error(err);
@@ -429,6 +431,7 @@ serviceMapService.updateServiceMapVersion = function updateServiceMapVersion(res
                                 });
                                 service.state = getServiceState(serviceStateList);
                                 service.version = service.version + 0.1;
+                                service.version = parseFloat(service.version).toFixed(1);
                                 services.createNew(service, function (err, data) {
                                     if (err) {
                                         logger.error(err);
@@ -464,113 +467,48 @@ serviceMapService.updateServiceMapVersion = function updateServiceMapVersion(res
     })
 }
 
-serviceMapService.getAllServiceResourcesByName = function getAllServiceResourcesByName(serviceName,reqQueryObj,callback){
-    var reqData = {};
+serviceMapService.getAllServiceResourcesByName = function getAllServiceResourcesByName(serviceName,filterQuery,callback){
     async.waterfall([
         function (next) {
-            apiUtil.paginationRequest(reqQueryObj, 'versions', next);
-        },
-        function(paginationReq,next){
-            reqData = paginationReq;
-            apiUtil.databaseUtil(paginationReq, next);
-        },
-        function(queryObj,next){
-            queryObj.queryObj.name = serviceName;
-            services.getServicesWithPagination(queryObj,next);
-        },
-        function(services,next){
-            if(services.docs.length > 0){
-                var versionList = [];
-                services.docs.forEach(function(service){
-                    versionList.push(service.version);
-                });
-                services.docs = versionList;
-                next(null,services);
+            var queryObj = {
+                name:serviceName
+            }
+            if(filterQuery.version && filterQuery.version === 'latest'){
+                services.getLastVersionOfEachService(queryObj,next);
+            }else if(filterQuery.version){
+                queryObj.version = parseFloat(filterQuery.version);
+                services.getServices(queryObj,next);
             }else{
-                next(null,services);
+                services.getServices(queryObj,next);
             }
         },
-        function(serviceList,next){
-            apiUtil.paginationResponse(serviceList, reqData, next);
-        }
-    ],function(err,results){
-        if(err){
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-    })
-}
-
-serviceMapService.getServiceResources = function getServiceResources(serviceId,filterQuery,callback){
-    async.waterfall([
-        function(next){
-            services.getServiceById(serviceId,next);
-        },
-        function(serviceList,next){
-            var keyList = [];
-            if(serviceList.length > 0 && serviceList[0].resources.length > 0){
-                var resourceObj = {},filterResourceList = [];
-                if(filterQuery.ami && filterQuery.ami !== null){
-                    resourceObj['ami'] = filterQuery.ami;
-                    keyList.push('ami');
-                }
-                if(filterQuery.ip && filterQuery.ip !== null){
-                    resourceObj['ip'] = filterQuery.ip;
-                    keyList.push('ip');
-                }
-                if(filterQuery.vpc && filterQuery.vpc !== null){
-                    resourceObj['vpc'] = filterQuery.vpc;
-                    keyList.push('vpc');
-                }
-                if(filterQuery.subnet && filterQuery.subnet !== null){
-                    resourceObj['subnet'] = filterQuery.subnet;
-                    keyList.push('subnet');
-                }
-                if(filterQuery.tags && filterQuery.tags !== null){
-                    resourceObj['tags'] = filterQuery.tags;
-                    keyList.push('tags');
-                }
-                if(filterQuery.keyPairName && filterQuery.keyPairName !== null){
-                    resourceObj['keyPairName'] = filterQuery.keyPairName;
-                    keyList.push('keyPairName');
-                }
-                if(filterQuery.group && filterQuery.group !== null){
-                    resourceObj['group'] = filterQuery.group;
-                    keyList.push('group');
-                }
-                if(filterQuery.roles && filterQuery.roles !== null){
-                    resourceObj['roles'] = filterQuery.roles;
-                    keyList.push('roles');
-                }
-                serviceList[0].resources.forEach(function(resource){
-                    var filterObj = {};
-                    Object.keys(resource).forEach(function(key){
-                        if(keyList.indexOf(key) !== -1){
-                            filterObj[key] = resource[key];
+        function(serviceList,next) {
+            if (serviceList.length > 0) {
+                var filterResourceList = [];
+                serviceList.forEach(function(service){
+                    var filterObj = {
+                        version:filterQuery.version?filterQuery.version:service.version.toFixed(1),
+                        state:service.state,
+                        resources:[]
+                    }
+                    service.resources.forEach(function (resource) {
+                        if(Object.keys(filterQuery).length ===1 && filterQuery.version){
+                                filterObj.resources.push(resource);
+                        }else if(Object.keys(filterQuery).length > 0){
+                            Object.keys(filterQuery).forEach(function(key){
+                                if(key!== 'version' && filterQuery[key] === resource[key]){
+                                    filterObj.resources.push(resource);
+                                }
+                            })
+                        }else{
+                            filterObj.resources.push(resource);
                         }
                     });
-                    if(Object.keys(filterObj).length > 0) {
-                        if (JSON.stringify(resourceObj) === JSON.stringify(filterObj)) {
-                            resourceObj['id'] = resource.id;
-                            resourceObj['type'] = resource.type;
-                            resourceObj['category'] = resource.category;
-                            resourceObj['platformId'] = resource.platformId;
-                            resourceObj['name'] = resource.name;
-                            resourceObj['state'] = resource.state;
-                            resourceObj['authentication'] = resource.authentication;
-                            resourceObj['bootStrapState'] = resource.bootStrapState;
-                            filterResourceList.push(resourceObj);
-                        }
-                    }else{
-                        filterResourceList.push(resource);
-                    }
+                    filterResourceList.push(filterObj);
                 });
-                next(null,filterResourceList);
-            }else{
-                next(null,[]);
+                next(null, filterResourceList);
+            } else {
+                next(null, []);
             }
         }
     ],function(err,results){
@@ -583,8 +521,6 @@ serviceMapService.getServiceResources = function getServiceResources(serviceId,f
         }
     })
 }
-
-
 
 serviceMapService.getServiceById = function getServiceById(serviceId,callback){
     async.waterfall([

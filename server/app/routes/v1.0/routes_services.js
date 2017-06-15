@@ -91,8 +91,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
-    app.get('/services/:serviceId/resources', function(req, res) {
-        serviceMapService.getServiceResources(req.params.serviceId,req.query,function(err,result){
+    app.get('/services/:serviceName/resources', function(req, res) {
+        serviceMapService.getAllServiceResourcesByName(req.params.serviceName,req.query,function(err,result){
             if(err){
                 res.send(500,err);
                 return;

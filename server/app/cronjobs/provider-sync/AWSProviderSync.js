@@ -852,6 +852,7 @@ function serviceMapSync(callback){
                                         var groupKeyCount = 0;
                                         identifierCount++;
                                         Object.keys(queryObj).forEach(function (groupKey) {
+                                            queryObj[groupKey]['isDeleted'] = false;
                                             resourceModel.getResources(queryObj[groupKey], function (err, resource) {
                                                 if (err) {
                                                     logger.error("Error in fetching Resources for Query:", queryObj[groupKey], err);
@@ -944,19 +945,18 @@ function serviceMapSync(callback){
                                             }
                                         })
                                     } else if(key ==='groups') {
-                                        var groupKeyCount = 0;
+                                        var groupKeyList = [];
                                         identifierCount++;
                                         Object.keys(queryObj).forEach(function (groupKey) {
                                             queryObj[groupKey]['orgId'] = service.masterDetails.orgId;
                                             queryObj[groupKey]['serverId'] = service.masterDetails.configId;
-                                            queryObj['isDeleted'] = false;
+                                            queryObj[groupKey]['isDeleted'] = false;
                                             chefDao.getChefNodes(queryObj[groupKey], function (err, chefNodes) {
                                                 if (err) {
                                                     logger.error("Error in fetching Resources for Query:", queryObj[groupKey], err);
                                                 }
                                                 if (chefNodes.length > 0) {
                                                     var chefNodeCount = 0;
-                                                    groupKeyCount++;
                                                     chefNodes.forEach(function (chefNode) {
                                                         var query = {
                                                             $or: [{
@@ -986,17 +986,20 @@ function serviceMapSync(callback){
                                                                 data[0].resourceDetails.bootStrapState = 'success';
                                                                 resourceList.push({
                                                                     type: key,
-                                                                    value: service.identifiers.chef[key],
+                                                                    value: groupKey,
                                                                     result: data[0]
                                                                 });
                                                                 if (data[0].resourceDetails.state !== 'terminated' || data[0].resourceDetails.state !== 'deleted') {
                                                                     instanceStateList.push(data[0].resourceDetails.state);
                                                                 }
                                                                 chefNodeCount++;
-                                                                if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                                if(groupKeyList.indexOf(groupKey) === -1){
+                                                                    groupKeyList.push(groupKey);
+                                                                }
+                                                                if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length && groupKeyList.length ===  Object.keys(queryObj).length) {
                                                                     serviceMapVersion(service, resourceList, instanceStateList);
                                                                 }
-                                                                if (count === services.length && keyCount === Object.keys(service.identifiers).length && groupKeyCount ===  Object.keys(queryObj).length && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
+                                                                if (count === services.length && keyCount === Object.keys(service.identifiers).length && groupKeyList.length ===  Object.keys(queryObj).length && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                     next(null, resourceList);
                                                                 }
                                                             } else {
@@ -1006,15 +1009,15 @@ function serviceMapSync(callback){
                                                                     }
                                                                     resourceList.push({
                                                                         type: key,
-                                                                        value: service.identifiers.chef[key],
+                                                                        value: groupKey,
                                                                         result: resourceData
                                                                     });
                                                                     chefNodeCount++;
                                                                     instanceStateList.push(resourceData.resourceDetails.state);
-                                                                    if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
+                                                                    if (identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length && groupKeyList.length ===  Object.keys(queryObj).length ) {
                                                                         serviceMapVersion(service, resourceList, instanceStateList);
                                                                     }
-                                                                    if (count === services.length && keyCount === Object.keys(service.identifiers).length && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
+                                                                    if (count === services.length && keyCount === Object.keys(service.identifiers).length && groupKeyList.length ===  Object.keys(queryObj).length    && identifierCount === Object.keys(service.identifiers.chef).length && chefNodeCount === chefNodes.length) {
                                                                         next(null, resourceList);
                                                                     }
                                                                 })
@@ -1022,13 +1025,15 @@ function serviceMapSync(callback){
                                                         })
                                                     })
                                                 } else {
-                                                    groupKeyCount++;
-                                                    if (identifierCount === Object.keys(service.identifiers.chef).length && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                    if(groupKeyList.indexOf(groupKey) === -1){
+                                                        groupKeyList.push(groupKey);
+                                                    }
+                                                    if (identifierCount === Object.keys(service.identifiers.chef).length && groupKeyList.length ===  Object.keys(queryObj).length) {
                                                         serviceMapVersion(service, resourceList, instanceStateList);
                                                     }
                                                     if (count === services.length && keyCount === Object.keys(service.identifiers).length
                                                         && identifierCount === Object.keys(service.identifiers.chef).length
-                                                        && groupKeyCount ===  Object.keys(queryObj).length) {
+                                                        && groupKeyList.length ===  Object.keys(queryObj).length) {
                                                         next(null, resourceList);
                                                     }
                                                 }
@@ -1265,7 +1270,18 @@ function serviceMapVersion(service,resources,instanceStateList){
                 instanceStateList.push('initializing');
             }
             var serviceState = getServiceState(instanceStateList);
+            var checkEqualFlag = false;
             if(service.resources.length === filterObj.length){
+                service.resources.forEach(function(resource){
+                    checkEqualFlag = false;
+                    filterObj.forEach(function(filterResource){
+                        if(JSON.stringify(resource.id) === JSON.stringify(filterResource.id)){
+                            checkEqualFlag = true;
+                        }
+                    })
+                })
+            }
+            if(checkEqualFlag){
                 service.updatedOn = new Date().getTime();
                 serviceMapService.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
                     if(err){
@@ -1282,6 +1298,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                 service.resources = filterObj;
                 service.state = serviceState;
                 service.version = service.version + 0.1;
+                service.version = parseFloat(service.version).toFixed(1);
                 service.createdOn = new Date().getTime();
                 delete service._id;
                 delete service.id;
