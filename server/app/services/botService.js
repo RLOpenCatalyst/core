@@ -462,16 +462,15 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
-                            callback(err, null);
-                            return;
+                            next(err, null);
                         } else if (botServerDetails !== null) {
                             botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                             botRemoteServerDetails.hostPort = botServerDetails.hostPort;
                             next(null, bots);
                         } else {
                             var error = new Error();
-                            error.message = 'BOTs Remote Engine is not configured or not in running mode';
-                            error.status = 403;
+                            error.message = 'Remote BOTs Engine is not configured or not in running mode';
+                            error.status = 503;
                             next(error, null);
                         }
                     });
