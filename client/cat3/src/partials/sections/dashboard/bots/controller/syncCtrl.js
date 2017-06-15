@@ -109,12 +109,20 @@
 					$scope.isBotSyncPageLoading = true;
 					$scope.isBotSyncDetailsLoading = true;
 		            botsCreateService.getGitHubSyncDetails($scope.actionStatus,botsSyncCtrl.newEnt.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
-	                    $scope.botSyncGrid.data =  result.githubsync;
-	                    $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
-	                    $scope.botSyncGrid.botData = result.metaData;
-	                    $scope.isBotSyncPageLoading = false;
-	                    $scope.isBotSyncDetailsLoading = false;
-		            });
+	                    if(result) {
+							$scope.botSyncGrid.data =  result.githubsync;
+	                        $scope.botSyncGrid.totalItems = result.metaData.totalRecords;
+	                        $scope.botSyncGrid.botData = result.metaData;	
+						} 
+						$scope.isBotSyncPageLoading = false;
+	                	$scope.isBotSyncDetailsLoading = false;
+						
+		            }, function(error) {
+	                	$scope.isBotSyncPageLoading = false;
+	                	$scope.isBotSyncDetailsLoading = false;
+	                	toastr.error(error);
+	                	$scope.errorMessage = "No Records found";
+	            	})
 				} else {
 					$scope.botSyncGrid.data = [];
 				}
@@ -189,6 +197,9 @@
 
 			$scope.backToLibrary = function() {
 				$state.go('dashboard.bots.library');
+				$scope.actionStatus = 'cancel';
+				botsCreateService.getGitHubSyncDetails($scope.actionStatus,botsSyncCtrl.newEnt.gitHubId,$scope.paginationParams.page, $scope.paginationParams.pageSize, $scope.paginationParams.sortBy, $scope.paginationParams.sortOrder).then(function (result) {
+				});
 			}
 
 			$scope.init();
