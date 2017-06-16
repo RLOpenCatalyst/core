@@ -1,8 +1,12 @@
 <div id='newServicePage' class="container scheduleBorder margintop15 backColor">
    <form name="newServiceForm" novalidate ng-submit="newServiceForm.$valid && ok()">
-      <div class="page-name">
-         <span class="marginleft-18">Create New Service</span>
+      <div id="status-buttons" class="page-name text-center">
+          <a><span class="active">1</span><span class="textColor">Service MetaData</span></a>
+          <a><span class="backGroundClass">2</span><span class="textColor">Configuration</span></a>
       </div>
+      <!-- <div class="page-name">
+         <span class="marginleft-18">Create New Service</span>
+      </div> -->
       <div class="borderTop"></div>
       <loading name="isNewServicePageLoading" size="large" type="block" align="center"></loading>
       <div class="row new-task-wrapper" ng-show="!isNewServicePageLoading">
@@ -76,11 +80,16 @@
                </div>
                 <div class="col-lg-6 col-md-6 authPemFile margintop15">
                   <label for="yamlfile" class="servicesLabel">YAML File
-                  <span class="control-label red">&nbsp;*</span>
+                  <span class="control-label red">*</span>
                   <span ng-show="newServiceForm.yamlfile.$touched && newServiceForm.yamlfile.$error.required" class="inputValidationMsg">Required
                   </span>
                   </label>
-                  <div class="input-groups">
+                  <select name="yamlSelection" ng-model="yamlSelection" class="form-control width-100">
+                     <option value="">Select</option>                    
+                     <option value="upload">Upload YAML File</option>
+                     <option value="chooseTemplate">Choose a Template</option>
+                  </select>
+                  <div class="input-groups margintop15" ng-show="yamlSelection === 'upload'">
                      <input type="file" name="yamlfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required onchange="angular.element(this).scope().setFile(this)">
                   </div>
                </div>

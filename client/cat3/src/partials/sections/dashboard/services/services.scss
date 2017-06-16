@@ -105,6 +105,45 @@
   margin-right: 20px;
 }
 
+/* numbered buttons */
+#status-buttons a { 
+  color:#FFF; 
+  display:inline-block; 
+  font-size:12px; 
+  margin-right:10px; 
+  text-align:center; 
+  text-transform:uppercase; 
+}
+
+#status-buttons a:hover { 
+  text-decoration:none; 
+}
+
+#status-buttons span.backGroundClass { 
+   background:#080808; 
+   display:block; 
+   height:30px; 
+   margin:0 auto 10px; 
+   padding-top:5px; 
+   width:30px; 
+   border-radius:50%; 
+}
+
+/* active buttons */
+#status-buttons a.active { 
+  background:#00BC8C!important;
+  display:block; 
+   height:30px; 
+   margin:0 auto 10px; 
+   padding-top:5px; 
+   width:30px; 
+   border-radius:50%; 
+}
+
+.textColor {
+  color: #4e5964!important;
+}
+
 
 @media (min-width : 1550px){
 	.gridHeightServices {
