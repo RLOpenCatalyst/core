@@ -115,8 +115,7 @@ var serviceSchema = new Schema({
     },
     version:{
         type: Number,
-        required: false,
-        default:1.0
+        required: false
     },
     isDeleted:{
         type: Boolean,
@@ -208,6 +207,19 @@ serviceSchema.statics.getServices = function getServices(filterBy,callback) {
     filterBy.isDeleted = false;
     filterBy.state = {$ne:'Error'};
     services.find(filterBy,function (err, data) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        } else {
+            return callback(null, data);
+        }
+    });
+};
+
+serviceSchema.statics.getServicesWithPagination = function getServicesWithPagination(filterBy,callback) {
+    filterBy.queryObj.isDeleted = false;
+    filterBy.queryObj.state = {$ne:'Error'};
+    services.paginate(filterBy.queryObj,filterBy.options,function (err, data) {
         if (err) {
             logger.error(err);
             return callback(err, null);

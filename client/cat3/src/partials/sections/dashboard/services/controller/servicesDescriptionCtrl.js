@@ -45,9 +45,9 @@
                     resourceListView: function() {
                         $scope.isResourceListLoading = true;
                         $scope.serviceResourceData.data = [];
-                        if($scope.serviceSelected.id) {
-                            servicesCreateService.getResources($scope.serviceSelected.id).then(function(response){
-                                $scope.serviceResourceData.data = response;
+                        if($scope.serviceSelected.name) {
+                            servicesCreateService.getResources($scope.serviceSelected.name).then(function(response){
+                                $scope.serviceResourceData.data = response[0].resources;
                                 var bpcolumnDefs = [];
                                 var resourceGrid = [
                                     {
