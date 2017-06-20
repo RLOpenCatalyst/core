@@ -115,7 +115,7 @@ commonService.getCredentialsFromReq = function getCredentialsFromReq(credentials
 
 
 
-commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId,serviceId,serviceState,credentials,serviceDetails,callback){
+commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId,credentials,serviceDetails,callback){
     masterUtil.getCongifMgmtsById(serviceDetails.masterDetails.configId, function (err, serverDetails) {
         if (err) {
             return callback(err, null);
@@ -453,35 +453,53 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                                 logger.error("Error in updating Resource Authentication : " + err)
                                             }
                                         });
-                                        if (serviceState === 'Initializing') {
-                                            services.updateService({
-                                                '_id': ObjectId(serviceId),
-                                                'resources': {$elemMatch: {id: resourceId}}
-                                            }, {
-                                                'resources.$.bootStrapState': 'success',
-                                                'resources.$.category': 'managed',
-                                                'resources.$.state': 'running',
-                                                'state': 'Running'
-                                            }, function (err, result) {
-                                                if (err) {
-                                                    logger.error("Error in updating Service State:", err);
-                                                }
-                                            });
-                                        } else {
-                                            services.updateService({
-                                                '_id': ObjectId(serviceId),
-                                                'resources': {$elemMatch: {id: resourceId}}
-                                            }, {
-                                                'resources.$.bootStrapState': 'success',
-                                                'resources.$.state': 'running',
-                                                'resources.$.category': 'managed'
-                                            }, function (err, result) {
-                                                if (err) {
-                                                    logger.error("Error in updating Service State:", err);
-                                                }
-                                            });
-                                        }
+                                        services.getServices({resources: {$elemMatch: {id: resourceId}}},function(err,results){
+                                            if(err){
+                                                logger.error(err);
+                                            }else if(results.length > 0){
+                                                var count = 0;
+                                                results.forEach(function(service){
+                                                    if (service.serviceState === 'Initializing') {
+                                                        services.updateService({
+                                                            '_id': service._id,
+                                                            'resources': {$elemMatch: {id: resourceId}}
+                                                        }, {
+                                                            'resources.$.bootStrapState': 'success',
+                                                            'resources.$.category': 'managed',
+                                                            'resources.$.state': 'running',
+                                                            'state': 'Running'
+                                                        }, function (err, result) {
+                                                            if (err) {
+                                                                logger.error("Error in updating Service State:", err);
+                                                            }
+                                                            count++;
+                                                            if(count === results.length){
+                                                                logger.debug("Service Update is Done");
+                                                            }
+                                                        });
+                                                    } else {
+                                                        services.updateService({
+                                                            'resources': {$elemMatch: {id: resourceId}}
+                                                        }, {
+                                                            'resources.$.bootStrapState': 'success',
+                                                            'resources.$.state': 'running',
+                                                            'resources.$.category': 'managed'
+                                                        }, function (err, result) {
+                                                            if (err) {
+                                                                logger.error("Error in updating Service State:", err);
+                                                            }
+                                                            count++;
+                                                            if(count === results.length){
+                                                                logger.debug("Service Update is Done");
+                                                            }
+                                                        });
+                                                    }
+                                                })
+                                            }else{
+                                                logger.debug("There is no Service belong to Resource");
+                                            }
 
+                                        })
                                         var hardwareData = {};
                                         if (bootstrapData && bootstrapData.puppetNodeName) {
                                             var runOptions = {
@@ -659,7 +677,6 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             }
                                         });
                                         services.updateService({
-                                            '_id': ObjectId(serviceId),
                                             'resources': {$elemMatch: {id: resourceId}}
                                         }, {
                                             'resources.$.bootStrapState': 'failed'
@@ -761,34 +778,52 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                             logger.error("Error in updating Resource Authentication : " + err)
                         }
                     });
-                    if (serviceState === 'Initializing') {
-                        services.updateService({
-                            '_id': ObjectId(serviceId),
-                            'resources': {$elemMatch: {id: resourceId}}
-                        }, {
-                            'resources.$.bootStrapState': 'success',
-                            'resources.$.category': 'managed',
-                            'resources.$.state': 'running',
-                            'state': 'Running'
-                        }, function (err, result) {
-                            if (err) {
-                                logger.error("Error in updating Service State:", err);
-                            }
-                        });
-                    } else {
-                        services.updateService({
-                            '_id': ObjectId(serviceId),
-                            'resources': {$elemMatch: {id: resourceId}}
-                        }, {
-                            'resources.$.bootStrapState': 'success',
-                            'resources.$.state': 'running',
-                            'resources.$.category': 'managed'
-                        }, function (err, result) {
-                            if (err) {
-                                logger.error("Error in updating Service State:", err);
-                            }
-                        });
-                    }
+                    services.getServices({resources: {$elemMatch: {id: resourceId}}},function(err,results) {
+                        if (err) {
+                            logger.error(err);
+                        } else if (results.length > 0) {
+                            var count = 0;
+                            results.forEach(function (service) {
+                                if (service.serviceState === 'Initializing') {
+                                    services.updateService({
+                                        '_id': service._id,
+                                        'resources': {$elemMatch: {id: resourceId}}
+                                    }, {
+                                        'resources.$.bootStrapState': 'success',
+                                        'resources.$.category': 'managed',
+                                        'resources.$.state': 'running',
+                                        'state': 'Running'
+                                    }, function (err, result) {
+                                        if (err) {
+                                            logger.error("Error in updating Service State:", err);
+                                        }
+                                        count++;
+                                        if (count === results.length) {
+                                            logger.debug("Service Update is Done");
+                                        }
+                                    });
+                                } else {
+                                    services.updateService({
+                                        'resources': {$elemMatch: {id: resourceId}}
+                                    }, {
+                                        'resources.$.bootStrapState': 'success',
+                                        'resources.$.state': 'running',
+                                        'resources.$.category': 'managed'
+                                    }, function (err, result) {
+                                        if (err) {
+                                            logger.error("Error in updating Service State:", err);
+                                        }
+                                        count++;
+                                        if (count === results.length) {
+                                            logger.debug("Service Update is Done");
+                                        }
+                                    });
+                                }
+                            })
+                        } else {
+                            logger.debug("There is no Service belong to Resource");
+                        }
+                    });
                     var _docker = new Docker();
                     _docker.checkDockerStatus(instance.id, function (err, retCode) {
                         if (err) {
@@ -1143,7 +1178,7 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
     })
 }
 
-commonService.startResource = function startResource(serviceId,resource,callback) {
+commonService.startResource = function startResource(resource,callback) {
     AWSProvider.getAWSProviderById(resource.providerDetails.id, function (err, providerData) {
         if (err) {
             logger.error(err);
@@ -1188,7 +1223,6 @@ commonService.startResource = function startResource(serviceId,resource,callback
                     if (instanceData.Reservations.length && instanceData.Reservations[0].Instances.length) {
                         callback(null, state);
                         services.updateService({
-                            '_id': ObjectId(serviceId),
                             'resources': {$elemMatch: {id: resource._id + ''}}
                         }, {
                             'resources.$.state': 'running'

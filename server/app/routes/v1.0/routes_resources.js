@@ -16,6 +16,8 @@
 
 var resourceService = require('_pr/services/resourceService');
 var providerService = require('_pr/services/providerService');
+var commonService = require('_pr/services/commonService');
+var saeService = require('_pr/services/saeService');
 var resources = require('_pr/model/resources/resources');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
@@ -27,10 +29,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/resources*", sessionVerificationFunc);
     app.get('/resources',getAllResources);
     app.get('/resources/:resourceId',getResourceById);
-    app.post('resource/:resourceId/authentication',resourceAuthentication);
-    app.post('resource/:resourceId/bootStrap',bootStrapResource);
     app.get('/resources/track/report',getResourceTrackReport);
-
     function getAllResources(req, res) {
             var reqObj = {};
             async.waterfall(
@@ -48,6 +47,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         }
                         if(paginationReq.filterBy && paginationReq.filterBy.resourceType && paginationReq.filterBy.resourceType === 'RDS') {
                             paginationReq['searchColumns'] = ['resourceDetails.dbName','resourceDetails.dbEngine','resourceDetails.dbInstanceClass','resourceDetails.region'];
+                        }
+                        if(paginationReq.filterBy && paginationReq.filterBy.resourceType && paginationReq.filterBy.resourceType === 'EC2') {
+                            paginationReq['searchColumns'] = ['resourceDetails.platformId','resourceDetails.state','name','providerDetails.region.region'];
                         }
                         apiUtil.databaseUtil(paginationReq, next);
                     },
@@ -238,13 +240,5 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
             }
         );
-    }
-
-    function resourceAuthentication(req,res){
-
-    }
-
-    function bootStrapResource(req,res){
-
     }
 };
