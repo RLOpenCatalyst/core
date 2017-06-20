@@ -27,6 +27,7 @@ const jsYml= require('js-yaml');
 var uuid = require('node-uuid');
 var resourceModel = require('_pr/model/resources/resources');
 var commonService = require('_pr/services/commonService');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 var serviceMapService = module.exports = {};
 
@@ -208,8 +209,14 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                                                         return;
                                                     } else {
                                                         callback(null, servicesData);
-                                                        saeService.serviceMapSync();
-                                                        return;
+                                                        /*saeService.saeAnalysis(servicesData,function(err,data){
+                                                            if(err){
+                                                                logger.error("Error in Starting Service Map:",err);
+                                                            }else{
+                                                                logger.debug("Service Map is Done:",err);
+                                                                return;
+                                                            }
+                                                        });*/
                                                     }
                                                 });
                                             });
@@ -304,66 +311,44 @@ serviceMapService.updateService = function updateService(filterQuery,data,callba
     })
 }
 
-serviceMapService.resourceAuthentication = function resourceAuthentication(serviceId,resourceId,credentials,callback){
-    async.waterfall([
-        function(next){
-            services.getServiceById(serviceId,next);
-        },
-        function(servicesData,next){
-            if(servicesData.length >0){
-                resourceModel.getResourceById(resourceId,function(err,resourceDetail){
-                    if(err){
-                        var error =  new Error();
-                        error.code = 500;
-                        error.message = "Error in getting Resource Details By Id: "+resourceId +' : '+ err;
-                        next(error,null);
-                    }
-                    if(resourceDetail !== null) {
-                        next(null, {code: 202, message: "Authentication is in Progress"});
-                        services.updateService({
-                            'resources': {$elemMatch: {id: resourceId}}
-                        }, {
-                            'resources.$.authentication': 'authenticating',
-                        }, function (err, result) {
-                            if (err) {
-                                logger.error("Error in updating Service State:", err);
-                            }
-                        })
-                        resourceModel.updateResourceById(resourceId, {
-                                'authentication': 'authenticating'
-                            }, function (err, data) {
-                            if (err) {
-                                logger.error("Error in updating BootStrap State:", err);
-                            }
-                        });
-                        checkCredentialsForResource(resourceDetail,serviceId,resourceId,credentials,servicesData[0],function(err,data){
-                            if(err){
-                                logger.error("Error in checking Authentication Credentials:",err);
-                            }
-                        })
-                    }else{
-                        var err =  new Error();
-                        err.code = 500;
-                        err.message = "No Resource is available in DB against resourceId: "+resourceId;
-                        next(err,null);
-                    }
-                })
-            }else{
-                var err =  new Error();
-                err.code = 500;
-                err.message = "No Service is available in DB against serviceId: "+serviceId;
-                next(err,null);
-            }
+serviceMapService.resourceAuthentication = function resourceAuthentication(resourceId,credentials,callback){
+    resourceModel.getResourceById(resourceId,function(err,resourceDetail) {
+        if (err) {
+            var error = new Error();
+            error.code = 500;
+            error.message = "Error in getting Resource Details By Id: " + resourceId + ' : ' + err;
+            callback(error, null);
         }
-    ],function(err,results){
-        if(err){
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
+        if (resourceDetail !== null) {
+            callback(null, {code: 202, message: "Authentication is in Progress"});
+            services.updateService({
+                'resources': {$elemMatch: {id: resourceId}}
+            }, {
+                'resources.$.authentication': 'authenticating',
+            }, function (err, result) {
+                if (err) {
+                    logger.error("Error in updating Service State:", err);
+                }
+            })
+            resourceModel.updateResourceById(resourceId, {
+                'authentication': 'authenticating'
+            }, function (err, data) {
+                if (err) {
+                    logger.error("Error in updating BootStrap State:", err);
+                }
+            });
+            checkCredentialsForResource(resourceDetail, resourceId, credentials, function (err, data) {
+                if (err) {
+                    logger.error("Error in checking Authentication Credentials:", err);
+                }
+            })
+        } else {
+            var err = new Error();
+            err.code = 500;
+            err.message = "No Resource is available in DB against resourceId: " + resourceId;
+            callback(err, null);
         }
-    })
+    });
 }
 
 serviceMapService.getServices = function getServices(filterQuery,callback){
@@ -676,7 +661,7 @@ function getServiceState(serviceStateList){
     }
 }
 
-function checkCredentialsForResource(resource,serviceId,resourceId,credentials,service,callback) {
+function checkCredentialsForResource(resource,resourceId,credentials,callback) {
     var bootStrapState = 'bootStrapping', instanceCategory = resource.category;
     if (resource.resourceDetails.bootStrapState === 'success') {
         bootStrapState = 'success';
@@ -723,22 +708,20 @@ function checkCredentialsForResource(resource,serviceId,resourceId,credentials,s
                             resourceModel.updateResourceById(resourceId, queryObj, callback)
                         },
                         serviceSync: function (callback) {
+                            console.log(serviceList.length);
                             if (serviceList.length > 0) {
                                 var count = 0;
                                 serviceList.forEach(function (service) {
-                                    var authenticationFailedCount = 0, authenticationSuccessCount = 0,
-                                        serviceState = 'Initializing', awsCheck = false;
+                                    console.log(service);
+                                    var authenticationFailedCount = 0,serviceState = 'Initializing', awsCheck = false;
                                     if (service.identifiers.aws && service.identifiers.aws !== null) {
                                         awsCheck = true;
                                     }
-                                    service.resources.forEach(function (instance) {
-                                        if (instance.authentication === 'failed') {
+                                    for(var i = 0; i < service.resources.length; i++){
+                                        if (service.resources[i].authentication === 'failed' || service.resources[i].authentication === 'authenticating') {
                                             authenticationFailedCount = authenticationFailedCount + 1;
                                         }
-                                        if (instance.authentication === 'success') {
-                                            authenticationSuccessCount = authenticationSuccessCount + 1;
-                                        }
-                                    });
+                                    }
                                     if (authenticationFailedCount > 1) {
                                         serviceState = 'Authentication_Error';
                                     } else if (authenticationFailedCount === 1 && awsCheck === true) {
@@ -748,8 +731,10 @@ function checkCredentialsForResource(resource,serviceId,resourceId,credentials,s
                                     } else {
                                         serviceState = 'Initializing';
                                     }
+                                    console.log(authenticationFailedCount);
+                                    console.log(serviceState);
                                     serviceMapService.updateService({
-                                        'name': service.name,
+                                        '_id': ObjectId(service._id),
                                         'resources': {$elemMatch: {id: resource._id + ''}}
                                     }, {
                                         'resources.$.bootStrapState': bootStrapState,
@@ -782,8 +767,8 @@ function checkCredentialsForResource(resource,serviceId,resourceId,credentials,s
                 if (err) {
                     callback(err, null);
                     return;
-                } else {
-                    commonService.bootstrapInstance(resource, resourceId,credentials, service, function (err, res) {
+                } else if(results.serviceSync && results.serviceSync.length > 0) {
+                    commonService.bootstrapInstance(resource, resourceId, credentials, results.serviceSync[0], function (err, res) {
                         if (err) {
                             logger.error(err);
                             callback(err, null);
@@ -792,6 +777,8 @@ function checkCredentialsForResource(resource,serviceId,resourceId,credentials,s
                             return callback(null, res);
                         }
                     });
+                }else{
+                    return callback(null, results);
                 }
             });
         }

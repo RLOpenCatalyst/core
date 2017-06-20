@@ -11,13 +11,21 @@
 				return genericServices.promisePost(params);
 			};
 
-			serviceCreate.postAuthenticateResource = function (serviceId, resourceId,services) {
+			serviceCreate.postAuthenticateResource = function (resourceId,services) {
 				var params = {
-					url: '/services/' + serviceId + '/resource/' + resourceId + '/authentication',
+					url: '/resources/' + resourceId + '/authentication',
 					data: services
 				};
 				return genericServices.promisePost(params);
 			};
+
+            serviceCreate.postBootStrapResource = function (resourceId,services) {
+                var params = {
+                    url: '/resources/' + resourceId + '/bootStrap',
+                    data: services
+                };
+                return genericServices.promisePost(params);
+            };
 
 			serviceCreate.getMonitorList = function (orgId) {
 				var url = '/monitors';

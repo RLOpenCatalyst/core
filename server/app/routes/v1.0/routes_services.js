@@ -70,27 +70,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
-    app.post('/services/:serviceId/resource/:resourceId/authentication', function(req, res) {
-        var credentials = null;
-        if(req.body.credentials){
-            credentials =req.body.credentials;
-        }else{
-            var error =  new Error();
-            error.code = 500;
-            error.message = "There is no Credentials Details for Resource"
-            res.send(error);
-        }
-        serviceMapService.resourceAuthentication(req.params.serviceId,req.params.resourceId,credentials,function(err,result){
-            if(err){
-                res.send(500,err);
-                return;
-            }else{
-                res.send(result.code,result)
-                return
-            }
-        });
-    });
-
     app.get('/services/:serviceName/resources', function(req, res) {
         serviceMapService.getAllServiceResourcesByName(req.params.serviceName,req.query,function(err,result){
             if(err){

@@ -17,7 +17,7 @@
 var resourceService = require('_pr/services/resourceService');
 var providerService = require('_pr/services/providerService');
 var commonService = require('_pr/services/commonService');
-var saeService = require('_pr/services/saeService');
+var serviceMapService = require('_pr/services/serviceMapService');
 var resources = require('_pr/model/resources/resources');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
@@ -241,4 +241,37 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         );
     }
+
+    app.post('/resources/:resourceId/authentication', function(req, res) {
+        var credentials = null;
+        if(req.body.credentials){
+            credentials =req.body.credentials;
+        }else{
+            var error =  new Error();
+            error.code = 500;
+            error.message = "There is no Credentials Details for Resource"
+            res.send(error);
+        }
+        serviceMapService.resourceAuthentication(req.params.resourceId,credentials,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(result.code,result)
+                return
+            }
+        });
+    });
+
+    app.post('/resources/:resourceId/bootStrap', function(req, res) {
+        commonService.bootStrappingResource(req.params.resourceId,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(result.code,result)
+                return
+            }
+        });
+    });
 };

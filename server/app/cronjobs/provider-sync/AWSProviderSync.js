@@ -226,19 +226,27 @@ function saveEC2Data(ec2Info,provider, callback) {
                                 callback(null, ec2Info);
                             }
                         } else if (responseInstanceData.length > 0) {
-                            var resourceObj = {
-                                'tags':ec2.tags,
-                                'resourceDetails.platformId':ec2.resourceDetails.platformId,
-                                'resourceDetails.amiId':ec2.resourceDetails.amiId,
-                                'resourceDetails.publicIp':ec2.resourceDetails.publicIp,
-                                'resourceDetails.hostName':ec2.resourceDetails.hostName,
-                                'resourceDetails.privateIp':ec2.resourceDetails.privateIp,
-                                'resourceDetails.os':ec2.resourceDetails.os,
-                                'resourceDetails.vpcId':ec2.resourceDetails.vpcId,
-                                'resourceDetails.launchTime':ec2.resourceDetails.launchTime,
-                                'resourceDetails.subnetId':ec2.resourceDetails.subnetId,
-                                'resourceDetails.type':ec2.resourceDetails.type,
-                                'resourceDetails.state':ec2.resourceDetails.state
+                            var resourceObj = {};
+                            if(ec2.resourceDetails.state ==='shutting-down' || ec2.resourceDetails.state ==='terminated'){
+                                resourceObj = {
+                                    'resourceDetails.state':ec2.resourceDetails.state,
+                                    'isDeleted': true
+                                }
+                            }else{
+                                resourceObj = {
+                                    'tags':ec2.tags,
+                                    'resourceDetails.platformId':ec2.resourceDetails.platformId,
+                                    'resourceDetails.amiId':ec2.resourceDetails.amiId,
+                                    'resourceDetails.publicIp':ec2.resourceDetails.publicIp,
+                                    'resourceDetails.hostName':ec2.resourceDetails.hostName,
+                                    'resourceDetails.privateIp':ec2.resourceDetails.privateIp,
+                                    'resourceDetails.os':ec2.resourceDetails.os,
+                                    'resourceDetails.vpcId':ec2.resourceDetails.vpcId,
+                                    'resourceDetails.launchTime':ec2.resourceDetails.launchTime,
+                                    'resourceDetails.subnetId':ec2.resourceDetails.subnetId,
+                                    'resourceDetails.type':ec2.resourceDetails.type,
+                                    'resourceDetails.state':ec2.resourceDetails.state
+                                }
                             }
                             ec2Model.updateInstanceData(responseInstanceData[0]._id, resourceObj, function (err, instanceUpdatedData) {
                                 if (err) {
@@ -486,7 +494,7 @@ function deleteEC2ResourceData(ec2Info,providerId, callback) {
                             }
                         });
                     },
-                    assignedUnassigned: function (callback) {
+                    resources: function (callback) {
                         resourceModel.getResourcesByProviderResourceType(providerId, 'EC2', function (err, ec2data) {
                             if (err) {
                                 return callback(err, null);

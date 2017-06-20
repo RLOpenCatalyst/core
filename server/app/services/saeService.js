@@ -17,10 +17,9 @@
 const logger = require('_pr/logger')(module);
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
-var commonService = require('_pr/services/commonService');
 var chefDao = require('_pr/model/dao/chefDao.js');
 var ec2Model = require('_pr/model/resources/instance-resource');
-const serviceMapService = require('_pr/services/serviceMapService.js');
+var services = require('_pr/model/services/services.js');
 var resourceModel = require('_pr/model/resources/resources');
 var saeService = module.exports = {};
 
@@ -29,22 +28,23 @@ saeService.serviceMapSync = function serviceMapSync(callback){
     logger.debug("ServiceMap is Started");
     async.waterfall([
         function(next){
-            var serviceMapService = require('_pr/services/serviceMapService.js');
-            serviceMapService.getLastVersionOfEachService({},next);
+            services.getLastVersionOfEachService({},next);
         },
         function(services,next){
             if(services.length >0){
                 var saeAnalysisList = [];
-                for(var i = 0; i < services.length; i++){
-                    saeAnalysisList.push(function(callback){saeAnalysis(services[0],callback);});
+                services.forEach(function(service){
+                    saeAnalysisList.push(function(callback){saeAnalysis(service,callback);});
+                });
+                if(saeAnalysisList.length === services.length) {
+                    async.parallel(saeAnalysisList, function (err, results) {
+                        if (err) {
+                            next(err, null);
+                        } else {
+                            next(null, results);
+                        }
+                    })
                 }
-                async.parallel(saeAnalysisList,function(err,results){
-                    if(err){
-                        next(err,null);
-                    }else{
-                        next(null,results);
-                    }
-                })
             }else{
                 next(null,services);
             }
@@ -69,7 +69,7 @@ function saeAnalysis(service,callback) {
             Object.keys(service.identifiers.aws).forEach(function (awsKey) {
                 var queryObj = apiUtil.getQueryByKey(awsKey, service.identifiers.aws[awsKey]);
                 if (queryObj.error) {
-                    serviceMapService.updateServiceById(service.id, {state: 'Error'}, function (err, res) {
+                    services.updateServiceById(service.id, {state: 'Error'}, function (err, res) {
                         if (err) {
                             logger.error("Invalid Key is in YML:", err);
                         }
@@ -164,7 +164,7 @@ function saeAnalysis(service,callback) {
             Object.keys(service.identifiers.chef).forEach(function (chefKey) {
                 var queryObj = apiUtil.getQueryByKey(chefKey, service.identifiers.chef[chefKey]);
                 if (queryObj.error) {
-                    serviceMapService.updateServiceById(service.id, {state: 'Error'}, function (err, res) {
+                    services.updateServiceById(service.id, {state: 'Error'}, function (err, res) {
                         if (err) {
                             logger.error("Invalid Key is in YML:", err);
                         }
@@ -252,6 +252,7 @@ function saeAnalysis(service,callback) {
                                                 callback(null, resourceList);
                                             }
                                         } else {
+                                            var commonService = require('_pr/services/commonService');
                                             commonService.syncChefNodeWithResources(chefNode, service, function (err, resourceData) {
                                                 if (err) {
                                                     logger.error("Error in syncing Chef Node with Resources: ", err);
@@ -330,6 +331,7 @@ function saeAnalysis(service,callback) {
                                             serviceMapVersion(service, resourceList, instanceStateList);
                                         }
                                     } else {
+                                        var commonService = require('_pr/services/commonService');
                                         commonService.syncChefNodeWithResources(chefNode, service, function (err, resourceData) {
                                             if (err) {
                                                 logger.error("Error in syncing Chef Node with Resources: ", err);
@@ -414,6 +416,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                             next(null, filterResourceList);
                         }
                         if(node.result.authentication ==='failed'  && node.result.resourceType ==='EC2'  && node.result.resourceDetails.state ==='stopped' ){
+                            var commonService = require('_pr/services/commonService');
                             commonService.startResource(node.result,function(err,state){
                                 if(err){
                                     logger.error(err);
@@ -500,7 +503,7 @@ function serviceMapVersion(service,resources,instanceStateList){
             }
             if(checkEqualFlag){
                 service.updatedOn = new Date().getTime();
-                serviceMapService.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
+                services.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
                     if(err){
                         logger.error("Error in updating Service:",err);
                         next(err,null);
@@ -519,7 +522,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                 service.createdOn = new Date().getTime();
                 delete service._id;
                 delete service.id;
-                serviceMapService.createNewService(service,function(err,data){
+                services.createNew(service,function(err,data){
                     if(err){
                         logger.error("Error in creating Service:",err);
                         next(err,null);
@@ -573,7 +576,7 @@ saeService.updateServiceVersion = function updateServiceVersion(resource,authent
     }
     async.waterfall([
         function(next){
-            serviceMapService.getServices({resources:{$elemMatch:{id:resource._id+''}}},next);
+            services.getServices({resources:{$elemMatch:{id:resource._id+''}}},next);
         },
         function(serviceList,next){
             async.parallel({
@@ -618,7 +621,7 @@ saeService.updateServiceVersion = function updateServiceVersion(resource,authent
                             } else {
                                 serviceState = 'Initializing';
                             }
-                            serviceMapService.updateService({
+                            services.updateService({
                                 'name': service.name,
                                 'resources': {$elemMatch: {id: resource._id+''}}
                             }, {
