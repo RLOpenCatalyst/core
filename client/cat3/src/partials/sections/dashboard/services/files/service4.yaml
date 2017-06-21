@@ -1,0 +1,9 @@
+---
+aws:
+  tags:
+  - TagKey11: TagValue11
+    TagKey12: TagValue12
+    TagKey13: TagValue13
+    TagKey14: TagValue14
+  - TagKey21: TagValue21
+    TagKey22: TagValue22

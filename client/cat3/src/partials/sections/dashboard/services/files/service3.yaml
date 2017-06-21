@@ -1,0 +1,5 @@
+---
+aws:
+  subnet:
+  - subnet-sample11
+  - subnet-sample12

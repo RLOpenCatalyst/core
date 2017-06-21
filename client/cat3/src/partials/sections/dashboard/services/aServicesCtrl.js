@@ -13,7 +13,7 @@
 			url: "/servicesList",
 			templateUrl: "src/partials/sections/dashboard/services/view/servicesList.html",
 			controller: "servicesListCtrl",
-			parameters:{filterView:{services:true}},
+			parameters:{actServiceMenu:true,filterView:{services:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();
@@ -31,7 +31,7 @@
             url: "/servicesCreate",
             templateUrl: "src/partials/sections/dashboard/services/view/servicesCreate.html",
             controller: "servicesCreateCtrl",
-            parameters:{filterView:{servicesCreate:true}},
+            parameters:{actServiceMenu:true,filterView:{servicesCreate:true}},
             resolve: {
                 auth: ["$q", function ($q) {
                     var deferred = $q.defer();
@@ -49,7 +49,7 @@
             url: "/serviceDescription",
             templateUrl: "src/partials/sections/dashboard/services/view/servicesDescription.html",
             controller: "servicesDescriptionCtrl",
-            parameters:{filterView:{serviceDescription:true}},
+            parameters:{actServiceMenu:true,filterView:{serviceDescription:true}},
             params:{serviceDetail:[],listType:0},
             resolve: {
                 auth: ["$q", function ($q) {
@@ -65,61 +65,7 @@
                 }]
             }
         })
-	}]).controller('servicesTreeMenu',['$rootScope', '$scope', '$http','workzoneServices', 'workzoneEnvironment','genericServices', 'workzoneNode', '$timeout', 'modulePermission', '$window', function ($rootScope, $scope, $http, workzoneServices, workzoneEnvironment,genSevs, workzoneNode, $timeout, modulePerms, $window){
-            //For showing menu icon in menu over breadcrumb without position flickering during load
-            $scope.isLoading = true;
-            $scope.dashboardUrl = "";
-            $scope.d4dData = "";
-            //this function is applicable only if enviornments are only selectable items.
-            function getNames(node) {
-                return {
-                    bg: node.bgname,
-                    org: node.orgname,
-                    proj: node.projname,
-                    env: node.text
-                };
-            }
-            function treeDefaultSelection() {
-                var node = workzoneNode.getWorkzoneNode();
-                console.log(node);
-                if (node) {
-                    $scope.relevancelab.selectNodeLabel(node);
-                } else if ($('[data-nodetype="env"]').length) {
-                    $('[data-nodetype="env"]').eq(0).click();
-                } else {
-                    if (modulePerms.settingsAccess()) {
-                        $window.location.href = "/private/index.html#ajax/Settings/Dashboard.html";
-                    } else {
-                        $scope.setWorkZoneMessage('NO_ENV_CONFIGURED_NO_SETTINGS_ACCESS');
-                    }
-                }
-            }
-
-            workzoneServices.getTree().then(function (response) {
-                $scope.isLoading = false;
-                $scope.roleList = response.data;
-                $timeout(treeDefaultSelection, 0);
-            }, function () {
-                $rootScope.$emit("USER_LOGOUT");
-            });
-
-            $scope.relevancelab = {};
-            $scope.relevancelab.selectNodeLabelCallback = function (node) {
-                if (node.selectable === false) {
-                    $scope.relevancelab.selectNodeHead(node);
-                } else {
-                    var requestParamNames = getNames(node);
-                    workzoneNode.setWorkzoneNode(node);
-                }
-            };
-            $scope.relevancelab.selectNodeHeadCallback = function (node) {
-                //this will need to implement when you wants to add events on node parents
-                if (node.selectable !== false) {
-                    $scope.relevancelab.selectNodeLabel(node);
-                }
-            };
-	}])
-	.controller('servicesCtrl',['$scope', '$rootScope', '$state','genericServices', function ($scope, $rootScope, $state, genericServices) {
+	}]).controller('servicesCtrl',['$scope', '$rootScope', '$state','genericServices', function ($scope, $rootScope, $state, genericServices) {
 		$state.go('dashboard.services.servicesList');
 		$scope.$watch(function() {
 			$rootScope.stateItems = $state.current.name;

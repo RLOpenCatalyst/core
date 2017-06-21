@@ -1,16 +1,21 @@
-<div id='newServicePage' class="container scheduleBorder margintop15 backColor">
+<div id='newServicePage' class="container margintop15 backColor">
    <form name="newServiceForm" novalidate ng-submit="newServiceForm.$valid && ok()">
-      <div id="status-buttons" class="page-name text-center">
-          <a><span class="active">1</span><span class="textColor">Service MetaData</span></a>
-          <a><span class="backGroundClass">2</span><span class="textColor">Configuration</span></a>
+      <div class="servicesHeader">
+          <div class="top_nav_c">
+              <div class="top_nav_c_digit">1</div>
+              <div class="top_nav_c_main">Step One</div>
+              <div class="top_nav_c_sub">Tell me about your service</div>
+          </div>
+          <div class="top_nav_c top_nav_c_border">
+            <div ng-class="step2Active ? 'top_nav_c_digit' : 'top_nav_c_digit off'">2</div>
+            <div ng-class="step2Active ? 'top_nav_c_main' : 'top_nav_c_main off'">Step Two</div>
+            <div ng-class="step2Active ? 'top_nav_c_sub' : 'top_nav_c_sub off'">Define your service with YAML</div>
+          </div>
       </div>
-      <!-- <div class="page-name">
-         <span class="marginleft-18">Create New Service</span>
-      </div> -->
-      <div class="borderTop"></div>
       <loading name="isNewServicePageLoading" size="large" type="block" align="center"></loading>
-      <div class="row new-task-wrapper" ng-show="!isNewServicePageLoading">
-         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding">
+      <div class="row new-task-wrapper scheduleBorder" ng-show="!isNewServicePageLoading">
+        <div ng-show="steps[0].isDisplayed">
+         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding" style="height:350px;">
             <div class="jobDetailsContent">
                <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
                   <label class="control-label servicesLabel">Name
@@ -78,32 +83,61 @@
                      <option ng-repeat="monitor in monitorList" value="{{monitor._id}}">{{monitor.name}}</option>
                   </select>
                </div>
-                <div class="col-lg-6 col-md-6 authPemFile margintop15">
-                  <label for="yamlfile" class="servicesLabel">YAML File
-                  <span class="control-label red">*</span>
-                  <span ng-show="newServiceForm.yamlfile.$touched && newServiceForm.yamlfile.$error.required" class="inputValidationMsg">Required
-                  </span>
-                  </label>
-                  <select name="yamlSelection" ng-model="yamlSelection" class="form-control width-100">
-                     <option value="">Select</option>                    
-                     <option value="upload">Upload YAML File</option>
-                     <option value="chooseTemplate">Choose a Template</option>
-                  </select>
-                  <div class="input-groups margintop15" ng-show="yamlSelection === 'upload'">
-                     <input type="file" name="yamlfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required onchange="angular.element(this).scope().setFile(this)">
-                  </div>
-               </div>
             </div>
          </div>
+       </div>
+       <div ng-show="steps[1].isDisplayed">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding heightForServiceYamlTemplate">
+            <div class="jobDetailsContent">
+              <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+                <label for="yamlfile" class="servicesLabel">YAML File
+                <span class="control-label red">*</span>
+                <span ng-show="newServiceForm.yamlfile.$touched && newServiceForm.yamlfile.$error.required" class="inputValidationMsg">Required
+                </span>
+                </label>
+                <select name="yamlSelection" ng-model="yamlSelection" class="form-control width-100" ng-change="configSelect()">
+                   <option value="">Select</option>                    
+                   <option value="upload">Upload YAML</option>
+                   <option value="chooseTemplate">Choose a Template</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--step[1] gets over here-->
          <!--second column script-->
       </div>
-      <div class="pager">
-         <button type="button" class="btn cat-btn-cancel margintop10" ui-sref="dashboard.services.servicesList">
-         <i class="fa fa-times black"></i> Cancel
-         </button>
-         <button  type="submit" class="btn cat-btn-update margintop10 marginleft10" ng-disabled="newServiceForm.$invalid" ng-click="postServices()">
-         <i class="fa fa-check white"></i> Save
-         </button>
+      <div class="row scheduleBorder margintop10" ng-show="steps[1].isDisplayed && yamlSelection">
+        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 heightForServiceYamlTemplate" ng-show="yamlSelection === 'upload'">
+          <label class="servicesLabel">Upload</label>
+          <div class="input-groups">
+             <input type="file" name="yamlfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required onchange="angular.element(this).scope().setFile(this)">
+          </div>
+        </div>
+        <div class="col-lg-12 col-md-12 margintop5 marginleft-15" ng-class="{'heightForServiceTemplate':templateSelected}" ng-show="yamlSelection === 'chooseTemplate'">
+          <div class="col-lg-3 col-md-3 col-sm-6">
+            <h4>Template List:</h4>
+            <div class="dashboard-stats__item cursor" ng-repeat="templateDetails in getTemplateDetails" ng-class="templateDetails === templateSelected ? 'serviceTemplateSelected' : 'disableTemplateSelected'" ng-click="showYaml(templateDetails)">
+              <ul style="margin-left:-32px;">
+                <li title="{{templateDetails.name}}" class="lineHeight">{{templateDetails.name}}</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-5 col-md-5 col-sm-3">
+            <h4>Edit source here:</h4>
+            <div ui-ace ng-model="yamlResult"></div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-3">
+            <h4>Result:</h4>
+            <pre ng-show="!errorDisplay" class="margintop10">{{yamlErrorDetails | json}}</pre> 
+            <pre ng-show="errorDisplay" class="margintop10 preWrap">{{yamlErrorDetails}}</pre> 
+          </div>
+        </div>
       </div>
    </form>
+</div>
+<div class="pager">
+   <button class="btn  cat-btn-update" ng-click="previous(stpLen)" ng-disabled="!previousEnabled" ng-show="!isSubmitComposite">Previous</button>
+   <button class="btn cat-btn-update" ng-show="isNextVisible" ng-click="next(stpLen)" ng-disabled="!nextEnabled">Next</button>
+   <button class="btn  cat-btn-update" ng-show="isSubmitVisible" ng-disabled="newServiceForm.$invalid" ng-click="postServices()">Save</button>
 </div>

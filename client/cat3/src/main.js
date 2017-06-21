@@ -28,6 +28,7 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','angul
 	'ui.grid.resizeColumns',
 	'global.uiGridOptions',
 	'global.messages',
+	'ui.ace',
 	'ui.grid.selection','ui.grid.cellNav'
 ]);
 
