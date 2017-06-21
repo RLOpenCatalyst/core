@@ -132,7 +132,7 @@ UnmanagedInstanceSchema.statics.updateInstanceMasterDetails = function updateIns
 };
 
 UnmanagedInstanceSchema.statics.getAll = function getAll(query, callback) {
-	query.queryObj.isDeleted =  false;
+	//query.queryObj.isDeleted =  false;
 	this.paginate(query.queryObj, query.options,
 		function(err, instances) {
 			if (err) {
@@ -193,7 +193,7 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 
 
 UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
-	jsonData.queryObj.isDeleted = false;
+	//jsonData.queryObj.isDeleted = false;
 	this.paginate(jsonData.queryObj, jsonData.options, function(err, instances) {
 			if (err) {
 				logger.error("Failed getByProviderId (%s)", err);

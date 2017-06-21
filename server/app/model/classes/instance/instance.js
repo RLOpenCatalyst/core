@@ -1970,7 +1970,7 @@ var InstancesDao = function () {
     };
 
     this.getByProviderId = function (jsonData, callback) {
-        jsonData.queryObj.isDeleted = false;
+        //jsonData.queryObj.isDeleted = false;
         Instances.paginate(jsonData.queryObj, jsonData.options, function (err, instances) {
             if (err) {
                 logger.error("Failed getByProviderId (%s)", err);
