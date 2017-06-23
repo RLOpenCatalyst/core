@@ -30,14 +30,8 @@ var csv = require("fast-csv");
 var fs = require('fs');
 var async = require('async');
 var dateUtil = require('_pr/lib/utils/dateUtil');
-var unassignedInstancesModel = require('_pr/model/unassigned-instances');
-var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var instancesModel = require('_pr/model/classes/instance/instance');
-var entityCosts = require('_pr/model/entity-costs');
-var mongoDbClient = require('mongodb').MongoClient;
 var commonService = require('_pr/services/commonService');
-var masterUtils = require('_pr/lib/utils/masterUtil.js');
-var Chef = require('_pr/lib/chef');
 
 
 
@@ -58,7 +52,6 @@ resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
 resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV;
 resourceService.updateDomainNameForInstance = updateDomainNameForInstance;
 resourceService.aggregateResourceCostsForPeriod = aggregateResourceCostsForPeriod;
-resourceService.importAWSResources = importAWSResources;
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
 // @TODO Unique identifier of S3 and RDS resources should be available in resource without casting.
@@ -1408,88 +1401,4 @@ function updateAWSResourceTags(resourceId,provider,tags,callback){
 
     })
 
-}
-
-function importAWSResources(resourceIds,provider,reqBody,envName,callback){
-    async.waterfall([
-        function(next){
-            resources.getResourceByIds(resourceIds,next);
-        },
-        function(resourceList,next){
-            if(resourceList.length > 0){
-                commonService.getCredentialsFromReq(reqBody.credentials,function(err,credentials){
-                    if(err){
-                        next(err,null);
-                    }else{
-                        masterUtils.getCongifMgmtsById(reqBody.configManagmentId,function(err,infraManagerDetails) {
-                            if (err) {
-                                next(err, null);
-                            } else if (infraManagerDetails === null) {
-                                var err = new Error("Config Management not found");
-                                err.status = 403;
-                                next(err);
-                            } else {
-                                if (infraManagerDetails.configType === 'chef') {
-                                    var chef = new Chef({
-                                        userChefRepoLocation: infraManagerDetails.chefRepoLocation,
-                                        chefUserName: infraManagerDetails.loginname,
-                                        chefUserPemFile: infraManagerDetails.userpemfile,
-                                        chefValidationPemFile: infraManagerDetails.validatorpemfile,
-                                        hostedChefUrl: infraManagerDetails.url
-                                    });
-                                    chef.getEnvironment(envName, function (err, env) {
-                                        if (err) {
-                                            var err = new Error("Unable to get chef environment");
-                                            err.status = 403;
-                                            next(err);
-                                        } else if (!env) {
-                                            chef.createEnvironment(envName, function (err) {
-                                                if (err) {
-                                                    var err = new Error("Unable to create environment in chef");
-                                                    err.status = 500;
-                                                    next(err);
-                                                } else {
-                                                    next(null, resourceList, credentials, infraManagerDetails);
-                                                }
-                                            });
-                                        } else {
-                                            next(null, resourceList, credentials, infraManagerDetails);
-                                        }
-
-                                    });
-                                } else {
-                                    next(null, resourceList, credentials, infraManagerDetails);
-                                }
-                            }
-                        })
-                    }
-                })
-            }else{
-                var err = new Error("Unable to find resources");
-                err.status = 400;
-                next(err);
-            }
-        },
-        function(credentials,resourceList,serverDetails,next){
-            var bootStrapResourceList = []
-            resourceList.forEach(function(resource){
-                bootStrapResourceList.push(function(callback){commonService.bootstrapInstance(resource,credentials,provider,envName,reqBody,serverDetails,callback);});
-            })
-            async.parallel(bootStrapResourceList,function(err,results){
-                if(err){
-                    logger.error(err);
-                    next(err);
-                }else {
-                    next(null, results)
-                    return;
-                }
-            })
-        }
-    ],function(err,results){
-        if(err){
-            callback(err,null);
-        }else{
-            callback(null,results);
-        }
-    })
 }

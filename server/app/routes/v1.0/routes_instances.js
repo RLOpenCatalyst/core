@@ -561,7 +561,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             if(err){
                                 logger.error("Error in fetching Resources:",err);
                             }else if(resources.length > 0){
-                               serviceMapService.updateServiceMapVersion(resources[0]._id + '',function(err,data){
+                               serviceMapService.deleteResourceFromServices(resources[0]._id + '',function(err,data){
                                    if(err){
                                        logger.error("Error in updating Service Map Version:");
                                    }

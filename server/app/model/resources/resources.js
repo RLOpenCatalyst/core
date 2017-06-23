@@ -230,6 +230,7 @@ ResourceSchema.statics.updateResourceById = function(resourceId, fields, callbac
 
 ResourceSchema.statics.getResourcesWithPagination=function(dataBaseQueryObj,callback){
     dataBaseQueryObj.queryObj.isDeleted = false;
+    dataBaseQueryObj.queryObj['resourceDetails.state'] = {$ne:'terminated'};
     Resources.paginate(dataBaseQueryObj.queryObj, dataBaseQueryObj.options, function(err, data) {
         if (err) {
             logger.error("Failed to getResourcesWithPagination", err);
