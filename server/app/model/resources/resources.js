@@ -182,7 +182,7 @@ ResourceSchema.statics.updateResourceTag = function(params, fields, callback) {
 };
 
 ResourceSchema.statics.getResourcesWithPagination=function(dataBaseQueryObj,callback){
-    dataBaseQueryObj.queryObj.isDeleted = false;
+    //dataBaseQueryObj.queryObj.isDeleted = false;
     Resources.paginate(dataBaseQueryObj.queryObj, dataBaseQueryObj.options, function(err, data) {
         if (err) {
             logger.error("Failed to getResourcesWithPagination", err);
