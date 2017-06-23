@@ -23,7 +23,6 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var settingService = require('_pr/services/settingsService');
 var logger = require('_pr/logger')(module);
-var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/resources*", sessionVerificationFunc);
@@ -212,35 +211,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    app.post('/resources/provider/:providerId/import', importAssignedResources);
-
-    function importAssignedResources(req,res,next){
-        async.waterfall(
-            [
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function(provider, next) {
-                    configmgmtDao.getEnvNameFromEnvId(req.body.envId,function (err, envName){
-                        if(err){
-                            var err = new Error("Server Behaved Unexpectedly");
-                            err.status = 500;
-                            next(err);
-                        }else{
-                            resourceService.importAWSResources(req.body.resourceIds, provider, req.body, envName, next);
-                        }
-                    })
-                }
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
 
     app.post('/resources/:resourceId/authentication', function(req, res) {
         var credentials = null;
@@ -259,6 +229,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }else{
                 res.send(result.code,result)
                 return
+            }
+        });
+    });
+
+    app.get('/resources/:resourceId/authenticate', function(req, res) {
+        resources.getResourceById(req.params.resourceId,function(err,resource){
+            if(err){
+                res.send(500,err);
+                return;
+            }else if(resource !== null){
+                res.send(200,resource.authentication?resource.authentication:null);
+                return
+            }else{
+                var error = new Error("Resource is not exist in DB.");
+                error.code = 403;
+                error.message = "Resource is not exist in DB"
+                res.send(403,err);
             }
         });
     });

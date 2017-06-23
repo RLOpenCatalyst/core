@@ -80,7 +80,7 @@ function saeAnalysis(service,callback) {
                             serviceMapVersion(service, resourceList, instanceStateList);
                         }
                     })
-                } else if (key === 'groups') {
+                } else if (awsKey === 'groups') {
                     var groupKeyList = [];
                     identifierCount++;
                     Object.keys(queryObj).forEach(function (groupKey) {
@@ -182,6 +182,7 @@ function saeAnalysis(service,callback) {
                         queryObj[groupKey]['orgId'] = service.masterDetails.orgId;
                         queryObj[groupKey]['serverId'] = service.masterDetails.configId;
                         queryObj[groupKey]['isDeleted'] = false;
+                        console.log(JSON.stringify(queryObj[groupKey]));
                         groupKeyList.push(function (callback) {
                             chefGroupResources(groupKey, queryObj[groupKey], callback);
                         });
@@ -388,7 +389,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                             instanceStateList.push('bootStrapping');
                         }
                         if(node.type ==='groups'){
-                            resourceObj[node.type] = node.value;
+                            resourceObj[node.type] = [node.value];
                         }else {
                             var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
                             resourceObj[node.type] = obj[node.type];
@@ -398,7 +399,11 @@ function serviceMapVersion(service,resources,instanceStateList){
                             if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
                                 var filterObj = filterResourceList[i];
                                 if(node.type ==='groups'){
-                                    filterObj[node.type] = node.value;
+                                    var groupList = filterObj[node.type];
+                                    if(groupList.indexOf(node.value) === -1){
+                                        groupList.push(node.value);
+                                        filterObj[node.type] = groupList;
+                                    }
                                 }else {
                                     var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
                                     filterObj[node.type] = resourceVal[node.type];
@@ -445,7 +450,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                             instanceStateList.push('bootStrapping');
                         }
                         if(node.type ==='groups'){
-                            resourceObj[node.type] = node.value;
+                            resourceObj[node.type] = [node.value];
                         }else {
                             var obj = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
                             resourceObj[node.type] = obj[node.type];
@@ -455,7 +460,11 @@ function serviceMapVersion(service,resources,instanceStateList){
                             if (JSON.stringify(filterResourceList[i].id) === JSON.stringify(resourceObj.id)) {
                                 var filterObj = filterResourceList[i];
                                 if(node.type ==='groups'){
-                                    filterObj[node.type] = node.value;
+                                    var groupList = filterObj[node.type];
+                                    if(groupList.indexOf(node.value) === -1){
+                                        groupList.push(node.value);
+                                        filterObj[node.type] = groupList;
+                                    }
                                 }else {
                                     var resourceVal = apiUtil.getResourceValueByKey(node.type, node.result, node.value);
                                     filterObj[node.type] = resourceVal[node.type];

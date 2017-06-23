@@ -166,6 +166,23 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
                         });
+                        services.updateService({
+                            'resources': {$elemMatch: {id: resourceId}}
+                        }, {
+                            'resources.$.bootStrapState': 'bootStrapping'
+                        }, function (err, result) {
+                            if (err) {
+                                logger.error("Error in updating Service State:", err);
+                            }
+                        });
+                        var queryObj = {
+                            'resourceDetails.bootStrapState': 'bootStrapping'
+                        }
+                        resourceModel.updateResourceById(resourceId, queryObj, function(err,data){
+                            if(err){
+                                logger.error("Error in updating Resource:");
+                            }
+                        });
                         credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
                             if (err) {
                                 logger.error("unable to decrypt credentials", err);
@@ -1732,7 +1749,7 @@ function uploadFilesOnBotEngine(orgId,callback){
                         }
                     };
                     request.post(options, function (err, res, data) {
-                        next(err, res)
+                        next(err, res);
                         fs.unlinkSync(uploadCompress);
                     });
                 }

@@ -15,13 +15,7 @@
  */
 
 var logger = require('_pr/logger')(module);
-var appConfig = require('_pr/config');
-var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
-var instancesDao = require('_pr/model/classes/instance/instance');
-var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
-var MasterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
-var validate = require('express-validation');
 var instanceValidator = require('_pr/validators/instanceValidator');
 var	providerService = require('_pr/services/providerService');
 var instanceService = require('_pr/services/instanceService');

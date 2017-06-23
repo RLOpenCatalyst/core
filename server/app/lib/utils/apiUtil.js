@@ -109,8 +109,19 @@ var ApiUtil = function() {
             case 'roles':
                 var keyList = [];
                 value.forEach(function (val) {
-                    keyList.push('role[' + val + ']')
-                })
+                    var splitVal = val.split(/\b(\s)/);
+                    console.log(splitVal);
+                    var chefRoles = '';
+                    for(var i = 0; i < splitVal.length;i++){
+                        if(chefRoles = ''){
+                            chefRoles = 'role[' + splitVal[i] + ']';
+                        }else{
+                            chefRoles = chefRoles + ',role[' + splitVal[i] + ']';
+                        }
+                    }
+                    keyList.push(chefRoles);
+                });
+                console.log(keyList);
                 query = {
                     'run_list': {$in: keyList}
                 };
@@ -164,8 +175,12 @@ var ApiUtil = function() {
                             case 'roles':
                                 var keyList = [];
                                 key.identifiers[groupObjKey].forEach(function (val) {
-                                    keyList.push('role[' + val + ']')
-                                })
+                                    var splitVal = val.trim().split(" ");
+                                    for (var i = 0; i < splitVal.length; i++) {
+                                            keyList.push('role[' + splitVal[i] + ']');
+                                    }
+                                });
+                                console.log(keyList);
                                 queryObj['run_list'] = {$in: keyList};
                                 break;
                             case 'vpc':
@@ -175,7 +190,7 @@ var ApiUtil = function() {
                                 queryObj['stackName'] = key.identifiers[groupObjKey];
                                 break;
                             default:
-                                queryObj['error'] = true;
+                                query['error'] = true;
                         }
                     });
                     query[key.name] = queryObj;

@@ -18,7 +18,6 @@ const logger = require('_pr/logger')(module);
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var services = require('_pr/model/services/services.js');
-var saeService = require('_pr/services/saeService.js');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 var monitors = require('_pr/model/monitors/monitors');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
@@ -42,35 +41,45 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.databaseUtil(paginationReq, next);
         },
         function (queryObj, next) {
-            services.getLastVersionOfEachService(queryObj.queryObj,function(err,data){
-                if(err){
-                    next(err,null);
-                }else if(data.length > 0){
-                    services.getAllServicesByFilter(queryObj, function(err,filterData){
-                        if(err){
-                            next(err,null);
-                        }else{
-                            var response = {
-                                docs:filterData,
-                                total:data.length,
-                                limit:queryObj.options.limit,
-                                page:queryObj.options.page,
-                                pages:Math.ceil(data.length / queryObj.options.limit)
-                            };
-                            next(null,response);
-                        }
-                    });
-                }else{
-                    var response = {
-                        docs:data,
-                        total:data.length,
-                        limit:queryObj.options.limit,
-                        page:queryObj.options.page,
-                        pages:Math.ceil(data.length / queryObj.options.limit)
-                    };
-                    next(null,response);
+            if(reqQueryObj.version && reqQueryObj.version === 'latest'){
+                services.getLastVersionOfEachService(queryObj.queryObj, function (err, data) {
+                    if (err) {
+                        next(err, null);
+                    } else if (data.length > 0) {
+                        services.getAllServicesByFilter(queryObj, function (err, filterData) {
+                            if (err) {
+                                next(err, null);
+                            } else {
+                                var response = {
+                                    docs: filterData,
+                                    total: data.length,
+                                    limit: queryObj.options.limit,
+                                    page: queryObj.options.page,
+                                    pages: Math.ceil(data.length / queryObj.options.limit)
+                                };
+                                next(null, response);
+                            }
+                        });
+                    } else {
+                        var response = {
+                            docs: data,
+                            total: data.length,
+                            limit: queryObj.options.limit,
+                            page: queryObj.options.page,
+                            pages: Math.ceil(data.length / queryObj.options.limit)
+                        };
+                        next(null, response);
+                    }
+                })
+            }else{
+                if(reqQueryObj.version){
+                    queryObj.queryObj.version = parseFloat(reqQueryObj.version);
                 }
-            })
+                if(reqQueryObj.resourceId){
+                    queryObj.queryObj.resources = {$elemMatch: {id: reqQueryObj.resourceId}};
+                }
+                services.getServicesWithPagination(queryObj,next);
+            }
         },
         function(services,next){
             changeServiceResponse(services,next);
@@ -209,14 +218,7 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                                                         return;
                                                     } else {
                                                         callback(null, servicesData);
-                                                        /*saeService.saeAnalysis(servicesData,function(err,data){
-                                                            if(err){
-                                                                logger.error("Error in Starting Service Map:",err);
-                                                            }else{
-                                                                logger.debug("Service Map is Done:",err);
-                                                                return;
-                                                            }
-                                                        });*/
+                                                        return;
                                                     }
                                                 });
                                             });
@@ -478,12 +480,19 @@ serviceMapService.getAllServiceResourcesByName = function getAllServiceResources
                         resources:[]
                     }
                     service.resources.forEach(function (resource) {
-                        if(Object.keys(filterQuery).length ===1 && filterQuery.version){
-                                filterObj.resources.push(resource);
-                        }else if(Object.keys(filterQuery).length > 0){
+                        if(Object.keys(filterQuery).length > 1){
                             Object.keys(filterQuery).forEach(function(key){
-                                if(key!== 'version' && filterQuery[key] === resource[key]){
-                                    filterObj.resources.push(resource);
+                                if(key === 'groups'){
+                                   var groupValList =  resource[key];
+                                   if(groupValList.indexOf(filterQuery[key]) !== -1){
+                                       filterObj.resources.push(resource);
+                                   }
+                                }else {
+                                    if(filterQuery[key] === resource[key]){
+                                        filterObj.resources.push(resource);
+                                    }else{
+                                        filterObj.resources.push(resource);
+                                    }
                                 }
                             })
                         }else{

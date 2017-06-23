@@ -350,7 +350,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             auditType:opts.auditType,
                             actionLogId:opts.actionLogId
                         };
-                        if(opts.stackName !== null || opts.domainName !== null) {
+                        if(opts.serviceCheck && opts.serviceCheck === true) {
                             var serviceMapObj = {
                                 masterDetails: {
                                     orgId: self.orgId,
@@ -365,16 +365,10 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                     configName: chefDetails.configname,
                                     monitor: monitor
                                 },
-                                name: opts.stackName !== null ? opts.stackName : opts.domainName,
-                                type: self.templateType === 'chef' ? 'Software Stack' : self.templateType === 'ami' ? 'OSImage' : self.templateType === 'cft' ? 'CloudFormation' : 'AzureArm',
+                                name: self.name,
+                                type: 'Service',
                                 state: 'Initializing',
-                                desc: self.name,
-                                identifiers: {
-                                    aws: {
-                                        type: 'stackName',
-                                        value: opts.stackName !== null ? opts.stackName : opts.domainName
-                                    }
-                                },
+                                desc: self.templateType === 'chef' ? 'Software Stack' : self.templateType === 'ami' ? 'OSImage' : self.templateType === 'cft' ? 'CloudFormation' : 'AzureArm',
                                 createdOn: new Date().getTime()
                             }
                             serviceMapService.createNewService(serviceMapObj,function(err,data){

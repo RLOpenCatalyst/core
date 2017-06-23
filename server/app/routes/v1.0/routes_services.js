@@ -16,6 +16,8 @@
 
 var logger = require('_pr/logger')(module);
 var serviceMapService = require('_pr/services/serviceMapService.js');
+var saeValidator = require('_pr/validators/saeValidator');
+var validate = require('express-validation');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -70,7 +72,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
-    app.get('/services/:serviceName/resources', function(req, res) {
+    app.get('/services/:serviceName/resources',validate(saeValidator.get), function(req, res) {
         serviceMapService.getAllServiceResourcesByName(req.params.serviceName,req.query,function(err,result){
             if(err){
                 res.send(500,err);
