@@ -144,7 +144,7 @@ function chefSyncWithChefNodes(nodeDetailList,callback){
                                                 callback(err,null);
                                             }
                                             if(data.length > 0) {
-                                                serviceMapService.updateServiceMapVersion(data[0]._id + '', callback)
+                                                serviceMapService.deleteResourceFromServices(data[0]._id + '', callback)
                                             }else{
                                                 callback(null,data);
                                             }
