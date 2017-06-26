@@ -18,12 +18,13 @@
         var index = 0, // points to the current step in the steps array
         steps = $scope.steps = [{
             'isDisplayed': true,
-            'name': 'choose templates',
-            'title': 'Choose Templates'
+            'name': 'service details'
         }, {
             'isDisplayed': false,
-            'name': 'Create Blueprint',
-            'title': 'Create Blueprint'
+            'name': 'yaml details'
+        },{
+            'isDisplayed': false,
+            'name': 'preview'
         }];
         $scope.nextEnabled = false;
         $scope.previousEnabled = true;
@@ -31,6 +32,7 @@
         $scope.isSubmitVisible = false;
         $scope.step1Active = true;
         $scope.step2Active = false;
+        $scope.step3Active = false;
 
         $scope.getTemplates = function() {
             $scope.getYamlDetails = {};
@@ -76,10 +78,25 @@
         $scope.configSelect = function() {
             if($scope.yamlSelection === 'chooseTemplate') {
                 $scope.getTemplates();
+                $scope.nextEnabled = true;
+            } else {
+                $scope.yamlResult = null;
+                $scope.nextEnabled = false;
             }
         };
-    
 
+        $scope.setFile = function(element) {
+        $scope.$apply(function($scope) {
+                $scope.theFile = element.files[0];
+            });
+        };
+
+        $scope.clearFile = function() {
+            angular.element("input[type='file']").val(null);
+            $scope.theFile = {};
+            $scope.nextEnabled = false;
+        };
+    
         angular.extend($scope, {
             /* Moves to the next step*/
             next : function () {
@@ -110,16 +127,32 @@
             /* Sets the correct buttons to be enabled or disabled.*/
             setButtons : function() {
                 if (index === steps.length - 1) {
+                    $scope.step2Active = true;
+                    $scope.step1Active = false;
+                    $scope.step3Active = true;
+                    $scope.isNextVisible = false;
+                    $scope.isSubmitVisible = true;
+                    $scope.saveEnabled = true;
+                    $scope.previousEnabled = true;
+                } else if(index === 1) {
                     $scope.isNextVisible = false;
                     $scope.step2Active = true;
                     $scope.step1Active = false;
+                    $scope.step3Active = false;
                     $scope.previousEnabled = true;
-                    $scope.isSubmitVisible = true;
+                    if($scope.yamlSelection !== undefined) {
+                        $scope.nextEnabled = true;    
+                    } else {
+                        $scope.nextEnabled = false;
+                    }
+                    $scope.isNextVisible = true;
+                    $scope.isSubmitVisible = false;
                 } else if (index === 0) {
                     $scope.isNextVisible = true;
                     $scope.isSubmitVisible = false;
                     $scope.step2Active = false;
                     $scope.step1Active = true;
+                    $scope.step3Active = false;
                     //disabling the card selected state.
                     $scope.previousEnabled = true;
                     if($scope.serviceName) {
@@ -140,7 +173,15 @@
             } else {
                 $scope.nextEnabled = false;
             }
-        }); 
+        });
+
+        $scope.$watch('yamlfile', function() {
+            if($scope.yamlfile){
+                $scope.nextEnabled = true;
+            } else {
+                $scope.nextEnabled = false;
+            }
+        });  
 
         $scope.getConfigList = function(orgId) {
         	$scope.isConfigMonitorLoading = true;
@@ -189,7 +230,7 @@
 	        	}
 	        	$scope.isConfigMonitorLoading = false;
         	});
-        }
+        };
 
         $scope.postServices = function() {
         	reqBody = {

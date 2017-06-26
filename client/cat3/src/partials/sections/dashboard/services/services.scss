@@ -182,7 +182,7 @@
   float: left;    
   font-family: 'Ruda',sans-serif;
   padding-left: 25px;
-  width: 583px;
+  width: 385px;
   margin-top: 8px;
   padding-top: 4px;
 }
@@ -261,6 +261,12 @@ pre {
 
 .preWrap {
   white-space: pre-wrap;
+}
+
+.filterClear  {
+  float: right;
+  margin-top: -25px;
+  margin-right: 6px;
 }
 
 @media (min-width : 1550px){

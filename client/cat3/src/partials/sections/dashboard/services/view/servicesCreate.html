@@ -11,6 +11,11 @@
             <div ng-class="step2Active ? 'top_nav_c_main' : 'top_nav_c_main off'">Step Two</div>
             <div ng-class="step2Active ? 'top_nav_c_sub' : 'top_nav_c_sub off'">Define your service with YAML</div>
           </div>
+          <div class="top_nav_c top_nav_c_border">
+            <div ng-class="step3Active ? 'top_nav_c_digit' : 'top_nav_c_digit off'">3</div>
+            <div ng-class="step3Active ? 'top_nav_c_main' : 'top_nav_c_main off'">Step Three</div>
+            <div ng-class="step3Active ? 'top_nav_c_sub' : 'top_nav_c_sub off'">Preview</div>
+          </div>
       </div>
       <loading name="isNewServicePageLoading" size="large" type="block" align="center"></loading>
       <div class="row new-task-wrapper scheduleBorder" ng-show="!isNewServicePageLoading">
@@ -111,7 +116,7 @@
         <div class="col-lg-6 col-md-6 col-xs-6 margintop15 heightForServiceYamlTemplate" ng-show="yamlSelection === 'upload'">
           <label class="servicesLabel">Upload</label>
           <div class="input-groups">
-             <input type="file" name="yamlfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required onchange="angular.element(this).scope().setFile(this)">
+             <input type="file" name="yamlfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" onchange="angular.element(this).scope().setFile(this)"><span title="Clear" class="filterClear cursor" ng-click="clearFile()">×</span>
           </div>
         </div>
         <div class="col-lg-12 col-md-12 margintop5 marginleft-15" ng-class="{'heightForServiceTemplate':templateSelected}" ng-show="yamlSelection === 'chooseTemplate'">
@@ -133,6 +138,51 @@
             <pre ng-show="errorDisplay" class="margintop10 preWrap">{{yamlErrorDetails}}</pre> 
           </div>
         </div>
+      </div>
+      <!--step 3-->
+      <div class="row margintop10" ng-show="steps[2].isDisplayed">
+        <table class="table table-striped table-bordered table-hover dataTable no-footer">
+          <thead>
+          <tr class="paramRow" role="row">
+             <td>Parameter</td>
+             <td>Value</td>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+             <td>Name</td>
+             <td>{{serviceName}}</td>
+          </tr>
+          <tr>
+             <td>Description</td>
+             <td>{{serviceDescription}}</td>
+          </tr>
+          <tr>
+             <td>Organization</td>
+             <td>{{IMGNewEnt.org.name}}</td>
+          </tr>
+          <tr>
+             <td>Business Group</td>
+             <td>{{IMGNewEnt.buss.name}}</td>
+          </tr>
+          <tr>
+             <td>Project</td>
+             <td>{{IMGNewEnt.proj.name}}</td>
+          </tr>
+          <tr>
+             <td>Environment</td>
+             <td>{{IMGNewEnt.env.name}}</td>
+          </tr>
+          <tr ng-if="theFile.name">
+             <td>Yaml File</td>
+             <td>{{theFile.name}}</td>
+          </tr>
+          <tr ng-if="!theFile.name && yamlResult !==null">
+             <td>Template</td>
+             <td>{{yamlResult}}</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
    </form>
 </div>
