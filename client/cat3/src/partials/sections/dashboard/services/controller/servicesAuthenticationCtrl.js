@@ -32,14 +32,14 @@
                 reqBody.credentials = {};
                 $scope.postAuthenticationResource = function () {
                     reqBody.credentials.username = $scope.IMGNewEnt.userName;
-                    servicesCreateService.postAuthenticateResource(items.serviceSelected.id, items.resourceObj.id, reqBody).then(function (response) {
+                    servicesCreateService.postAuthenticateResource(items.resourceObj.id, reqBody).then(function (response) {
                         if (response) {
                             $modalInstance.close(response);
                             toastr.success(response.message);
                         }
                     });
                 };
-                if ($scope.passwordModel === "password") {
+                if ($scope.IMGNewEnt.passType === "password") {
                     reqBody.credentials.type = 'password';
                     reqBody.credentials.password = $scope.IMGNewEnt.password;
                     $scope.postAuthenticationResource();

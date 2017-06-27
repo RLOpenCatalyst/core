@@ -16,22 +16,19 @@
 
 var resourceService = require('_pr/services/resourceService');
 var providerService = require('_pr/services/providerService');
+var commonService = require('_pr/services/commonService');
+var serviceMapService = require('_pr/services/serviceMapService');
 var resources = require('_pr/model/resources/resources');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var settingService = require('_pr/services/settingsService');
 var logger = require('_pr/logger')(module);
-var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/resources*", sessionVerificationFunc);
-
     app.get('/resources',getAllResources);
-
     app.get('/resources/:resourceId',getResourceById);
-
     app.get('/resources/track/report',getResourceTrackReport);
-
     function getAllResources(req, res) {
             var reqObj = {};
             async.waterfall(
@@ -49,6 +46,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         }
                         if(paginationReq.filterBy && paginationReq.filterBy.resourceType && paginationReq.filterBy.resourceType === 'RDS') {
                             paginationReq['searchColumns'] = ['resourceDetails.dbName','resourceDetails.dbEngine','resourceDetails.dbInstanceClass','resourceDetails.region'];
+                        }
+                        if(paginationReq.filterBy && paginationReq.filterBy.resourceType && paginationReq.filterBy.resourceType === 'EC2') {
+                            paginationReq['searchColumns'] = ['resourceDetails.platformId','resourceDetails.state','name','providerDetails.region.region'];
                         }
                         apiUtil.databaseUtil(paginationReq, next);
                     },
@@ -211,33 +211,54 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    app.post('/resources/provider/:providerId/import', importAssignedResources);
 
-    function importAssignedResources(req,res,next){
-        async.waterfall(
-            [
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function(provider, next) {
-                    configmgmtDao.getEnvNameFromEnvId(req.body.envId,function (err, envName){
-                        if(err){
-                            var err = new Error("Server Behaved Unexpectedly");
-                            err.status = 500;
-                            next(err);
-                        }else{
-                            resourceService.importAWSResources(req.body.resourceIds, provider, req.body, envName, next);
-                        }
-                    })
-                }
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
+    app.post('/resources/:resourceId/authentication', function(req, res) {
+        var credentials = null;
+        if(req.body.credentials){
+            credentials =req.body.credentials;
+        }else{
+            var error =  new Error();
+            error.code = 500;
+            error.message = "There is no Credentials Details for Resource"
+            res.send(error);
+        }
+        serviceMapService.resourceAuthentication(req.params.resourceId,credentials,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(result.code,result)
+                return
             }
-        );
-    }
+        });
+    });
+
+    app.get('/resources/:resourceId/authenticate', function(req, res) {
+        resources.getResourceById(req.params.resourceId,function(err,resource){
+            if(err){
+                res.send(500,err);
+                return;
+            }else if(resource !== null){
+                res.send(200,resource.authentication?resource.authentication:null);
+                return
+            }else{
+                var error = new Error("Resource is not exist in DB.");
+                error.code = 403;
+                error.message = "Resource is not exist in DB"
+                res.send(403,err);
+            }
+        });
+    });
+
+    app.post('/resources/:resourceId/bootStrap', function(req, res) {
+        commonService.bootStrappingResource(req.params.resourceId,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(result.code,result)
+                return
+            }
+        });
+    });
 };
