@@ -115,9 +115,6 @@ function updateAWSResourceCostsFromCSV(provider, resources, downloadedCSVPath, u
             resourceCost.remove(provider.orgId, provider._id, billIntervalId, next)
         },
         function(count, next) {
-            /*var lineNumber = (count == 0)?0:count
-            var startingLineNumber = (count == 0)?1:(count+2)*/
-
             var stream = fs.createReadStream(downloadedCSVPath)
             csv.fromStream(stream).on('data', function(data) {
                 if(data[awsBillIndexes.totalCost] == 'LineItem') {
@@ -696,68 +693,98 @@ function getBucketsInfo(provider,orgName,callback) {
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
     var s3Config = {
         access_key: decryptedAccessKey,
-        secret_key: decryptedSecretKey,
-        region: "us-east-1"
+        secret_key: decryptedSecretKey
     };
-    var s3 = new S3(s3Config);
-    s3.getBucketList(function(err,data){
-        if(err){
-            logger.error(err);
-            callback(err,null);
-        }else{
-            var results=[];
-            if(data.Buckets.length === 0){
-                callback(null,results);
+    var regions = appConfig.aws.regions;
+    var resultList = [];
+    regions.forEach(function(region){
+        resultList.push(function(callback){getS3BucketDetails(region,callback);});
+    });
+    if(regions.length === resultList.length){
+        async.parallel(resultList,function(err,results){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
             }else{
-                for(var i = 0; i < data.Buckets.length; i++){
-                    (function(bucket) {
-                        var bucketObj = {
-                            name:bucket.Name,
-                            masterDetails:{
-                                orgId:provider.orgId[0],
-                                orgName:orgName
-                            },
-                            providerDetails:{
-                                id: provider._id,
-                                type: provider.providerType,
-                            },
-                            resourceType:"S3",
-                            category:"unassigned",
-                            resourceDetails:{
-                                bucketName: bucket.Name,
-                                bucketCreatedOn: Date.parse(bucket.CreationDate),
-                                bucketOwnerName: data.Owner.DisplayName,
-                                bucketOwnerID: data.Owner.ID,
-                                bucketSize:0,
-                                bucketSizeUnit:'MegaBytes'
+                var s3BucketList = [],s3BucketNameList = [];
+                for(var i = 0; i < results.length; i++){
+                    if(results[i].length && results[i].length > 0){
+                        for(var j = 0; j < results[i].length; j++){
+                            if(s3BucketNameList.indexOf(results[i][j].resourceDetails.bucketName) === -1){
+                                s3BucketList.push(results[i][j]);
+                                s3BucketNameList.push(results[i][j].resourceDetails.bucketName);
                             }
-                        };
-                        s3.getBucketSize(bucket.Name, function (err, bucketSize) {
-                            if (err) {
-                                logger.error(err);
-                                callback(err, null);
-                            } else {
-                                bucketObj.resourceDetails.bucketSize = Math.round(bucketSize);
-                                s3.getBucketTag(bucket.Name, function(err,bucketTag){
-                                    if (err) {
-                                        logger.error(err);
-                                        callback(err, null);
-                                    } else {
-                                        bucketObj.tags = bucketTag;
-                                        results.push(bucketObj);
-                                        bucketObj={};
-                                        if (results.length === data.Buckets.length) {
-                                            callback(null, results);
+                        }
+                    }
+                }
+                callback(null,s3BucketList);
+                return;
+            }
+        })
+    }
+    function getS3BucketDetails(region,callback) {
+        s3Config.region = region.region;
+        var s3 = new S3(s3Config);
+        s3.getBucketList(function (err, data) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+            } else {
+                var results = [];
+                if (data.Buckets.length === 0) {
+                    callback(null, results);
+                } else {
+                    for (var i = 0; i < data.Buckets.length; i++) {
+                        (function (bucket) {
+                            var bucketObj = {
+                                name: bucket.Name,
+                                masterDetails: {
+                                    orgId: provider.orgId[0],
+                                    orgName: orgName
+                                },
+                                providerDetails: {
+                                    id: provider._id,
+                                    type: provider.providerType,
+                                    region:region
+                                },
+                                resourceType: "S3",
+                                category: "unassigned",
+                                resourceDetails: {
+                                    bucketName: bucket.Name,
+                                    bucketCreatedOn: Date.parse(bucket.CreationDate),
+                                    bucketOwnerName: data.Owner.DisplayName,
+                                    bucketOwnerID: data.Owner.ID,
+                                    bucketSize: 0,
+                                    bucketSizeUnit: 'MegaBytes'
+                                }
+                            };
+                            s3.getBucketSize(bucket.Name, function (err, bucketSize) {
+                                if (err) {
+                                    logger.error(err);
+                                    callback(err, null);
+                                } else {
+                                    bucketObj.resourceDetails.bucketSize = Math.round(bucketSize);
+                                    s3.getBucketTag(bucket.Name, function (err, bucketTag) {
+                                        if (err) {
+                                            logger.error(err);
+                                            callback(err, null);
+                                        } else {
+                                            bucketObj.tags = bucketTag;
+                                            results.push(bucketObj);
+                                            if (results.length === data.Buckets.length) {
+                                                callback(null, results);
+                                            }
                                         }
-                                    }
-                                })
-                            }
-                        })
-                    })(data.Buckets[i]);
+                                    })
+                                }
+                            })
+                        })(data.Buckets[i]);
+                    }
                 }
             }
-        }
-    })
+        })
+    }
 };
 
 function getEC2InstancesInfo(provider,orgName,callback) {
@@ -771,21 +798,18 @@ function getEC2InstancesInfo(provider,orgName,callback) {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey
     };
-    var regionCount = 0;
     var regions = appConfig.aws.regions;
-    var awsInstanceList=[];
-    for (var i = 0; i < regions.length; i++) {
-        (function (region) {
-            ec2Config.region = region.region;
-            var ec2 = new EC2(ec2Config);
-            ec2.describeInstances(null, function(err, awsRes) {
-                if (err) {
-                    logger.error("Unable to fetch instances from aws", err);
-                    return;
-                }
+    function getEC2InstanceDetails(region,callback){
+        var awsInstanceList=[];
+        ec2Config.region = region.region;
+        var ec2 = new EC2(ec2Config);
+        ec2.describeInstances(null, function(err, awsRes) {
+            if (err) {
+                logger.error("Unable to fetch instances from aws", err);
+                callback(err,null);
+            }else {
                 var reservations = awsRes.Reservations;
-                if(reservations.length >0) {
-                    regionCount++;
+                if (reservations.length > 0) {
                     for (var j = 0; j < reservations.length; j++) {
                         if (reservations[j].Instances && reservations[j].Instances.length) {
                             var awsInstances = reservations[j].Instances;
@@ -806,8 +830,9 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                     providerDetails: {
                                         region: region,
                                         id: provider._id,
-                                        type: 'aws',
-                                        keyPairName: instance.KeyName
+                                        type: provider.providerType,
+                                        keyPairName: instance.KeyName,
+                                        region:region
                                     },
                                     resourceDetails: {
                                         platformId: instance.InstanceId,
@@ -832,17 +857,36 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                             }
                         }
                     }
-                    if (regionCount === regions.length) {
-                        callback(null, awsInstanceList);
-                    }
-                }else{
-                    regionCount++;
-                    if (regionCount === regions.length) {
-                        callback(null, awsInstanceList);
+                    callback(null,awsInstanceList);
+                } else {
+                    callback(null,reservations);
+                }
+            }
+        });
+    }
+    var resultList =[];
+    regions.forEach(function(region){
+       resultList.push(function(callback){getEC2InstanceDetails(region,callback);});
+    });
+    if(regions.length === resultList.length){
+        async.parallel(resultList,function(err,results){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }else{
+                var ec2InstanceList = [];
+                for(var i = 0; i < results.length; i++){
+                    if(results[i].length && results[i].length > 0){
+                        for(var j = 0; j < results[i].length; j++){
+                            ec2InstanceList.push(results[i][j]);
+                        }
                     }
                 }
-            });
-        })(regions[i]);
+                callback(null,ec2InstanceList);
+                return;
+            }
+        })
     }
 };
 
@@ -855,88 +899,115 @@ function getRDSInstancesInfo(provider,orgName,callback) {
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
     var rdsConfig = {
         access_key: decryptedAccessKey,
-        secret_key: decryptedSecretKey,
-        region: "us-west-1"
+        secret_key: decryptedSecretKey
     };
-    var rds = new RDS(rdsConfig);
-    rds.getRDSDBInstances(function(err,dbInstances){
-        if(err){
-            logger.error(err);
-            callback(err,null);
-            return;
-        }else{
-            var results=[];
-            if(dbInstances.length === 0){
-                callback(null,results);
+    var regions = appConfig.aws.regions;
+    var resultList = [];
+    regions.forEach(function(region){
+        resultList.push(function(callback){getRDSDBInstanceDetails(region,callback);});
+    });
+    if(regions.length === resultList.length){
+        async.parallel(resultList,function(err,results){
+            if(err){
+                logger.error(err);
+                callback(err,null);
                 return;
             }else{
-                var sysDate=new Date();
-                for(var i = 0; i < dbInstances.length; i++){
-                    (function(dbInstance) {
-                        var rdsDbInstanceObj = {
-                            name:dbInstance.DBInstanceIdentifier,
-                            masterDetails:{
-                                orgId:provider.orgId[0],
-                                orgName:orgName
-                            },
-                            providerDetails:{
-                                id: provider._id,
-                                type: provider.providerType
-                            },
-                            resourceType:"RDS",
-                            category:"unassigned",
-                            isDeleted:false,
-                            resourceDetails: {
-                                dbInstanceIdentifier: dbInstance.DBInstanceIdentifier,
-                                dbName: dbInstance.DBName,
-                                dbInstanceClass: dbInstance.DBInstanceClass,
-                                dbEngine: dbInstance.Engine,
-                                dbInstanceStatus: dbInstance.DBInstanceStatus,
-                                dbMasterUserName: dbInstance.MasterUsername,
-                                dbEndpoint: dbInstance.Endpoint,
-                                dbAllocatedStorage: dbInstance.AllocatedStorage,
-                                dbInstanceCreatedOn: dbInstance.InstanceCreateTime ? Date.parse(dbInstance.InstanceCreateTime) : Date.parse(sysDate),
-                                preferredBackupWindow: dbInstance.PreferredBackupWindow,
-                                backupRetentionPeriod: dbInstance.BackupRetentionPeriod,
-                                vpcSecurityGroups: dbInstance.VpcSecurityGroups,
-                                dbParameterGroups: dbInstance.DBParameterGroups,
-                                preferredMaintenanceWindow: dbInstance.PreferredMaintenanceWindow,
-                                region: dbInstance.AvailabilityZone,
-                                dbSubnetGroup: dbInstance.DBSubnetGroup,
-                                latestRestorableTime: dbInstance.LatestRestorableTime ? Date.parse(dbInstance.LatestRestorableTime) : Date.parse(sysDate),
-                                multiAZ: dbInstance.MultiAZ,
-                                engineVersion: dbInstance.EngineVersion,
-                                autoMinorVersionUpgrade: dbInstance.AutoMinorVersionUpgrade,
-                                licenseModel: dbInstance.LicenseModel,
-                                optionGroupMemberships: dbInstance.OptionGroupMemberships,
-                                publiclyAccessible: dbInstance.PubliclyAccessible,
-                                storageType: dbInstance.StorageType,
-                                storageEncrypted: dbInstance.StorageEncrypted,
-                                dbiResourceId: dbInstance.DbiResourceId,
-                                accountNumber: appConfig.aws.s3AccountNumber,
-                                caCertificateIdentifier: dbInstance.CACertificateIdentifier
-                            }
-                        };
-                        var params ={
-                            ResourceName:'arn:aws:rds:us-west-1:'+appConfig.aws.s3AccountNumber+':db:'+dbInstance.DBInstanceIdentifier
-                        };
-                        rds.getRDSDBInstanceTag(params,function(err,rdsTags){
-                            if(err){
-                                logger.error(err);
-                            }
-                            rdsDbInstanceObj.tags = rdsTags;
-                            results.push(rdsDbInstanceObj);
-                            rdsDbInstanceObj={};
-                            if(dbInstances.length === results.length){
-                                callback(null,results);
-                            }
-                        })
+                var rdsDBInstanceList = [];
+                for(var i = 0; i < results.length; i++){
+                    if(results[i].length && results[i].length > 0){
+                        for(var j = 0; j < results[i].length; j++){
+                            rdsDBInstanceList.push(results[i][j]);
+                        }
+                    }
+                }
+                callback(null,rdsDBInstanceList);
+                return;
+            }
+        })
+    }
+    function getRDSDBInstanceDetails(region,callback) {
+        rdsConfig.region = region.region;
+        var rds = new RDS(rdsConfig);
+        rds.getRDSDBInstances(function (err, dbInstances) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+            } else {
+                var results = [];
+                if (dbInstances.length === 0) {
+                    callback(null, results);
+                    return;
+                } else {
+                    var sysDate = new Date();
+                    for (var i = 0; i < dbInstances.length; i++) {
+                        (function (dbInstance) {
+                            var rdsDbInstanceObj = {
+                                name: dbInstance.DBInstanceIdentifier,
+                                masterDetails: {
+                                    orgId: provider.orgId[0],
+                                    orgName: orgName
+                                },
+                                providerDetails: {
+                                    id: provider._id,
+                                    type: provider.providerType,
+                                    region:region
+                                },
+                                resourceType: "RDS",
+                                category: "unassigned",
+                                isDeleted: false,
+                                resourceDetails: {
+                                    dbInstanceIdentifier: dbInstance.DBInstanceIdentifier,
+                                    dbName: dbInstance.DBName,
+                                    dbInstanceClass: dbInstance.DBInstanceClass,
+                                    dbEngine: dbInstance.Engine,
+                                    dbInstanceStatus: dbInstance.DBInstanceStatus,
+                                    dbMasterUserName: dbInstance.MasterUsername,
+                                    dbEndpoint: dbInstance.Endpoint,
+                                    dbAllocatedStorage: dbInstance.AllocatedStorage,
+                                    dbInstanceCreatedOn: dbInstance.InstanceCreateTime ? Date.parse(dbInstance.InstanceCreateTime) : Date.parse(sysDate),
+                                    preferredBackupWindow: dbInstance.PreferredBackupWindow,
+                                    backupRetentionPeriod: dbInstance.BackupRetentionPeriod,
+                                    vpcSecurityGroups: dbInstance.VpcSecurityGroups,
+                                    dbParameterGroups: dbInstance.DBParameterGroups,
+                                    preferredMaintenanceWindow: dbInstance.PreferredMaintenanceWindow,
+                                    region: dbInstance.AvailabilityZone,
+                                    dbSubnetGroup: dbInstance.DBSubnetGroup,
+                                    latestRestorableTime: dbInstance.LatestRestorableTime ? Date.parse(dbInstance.LatestRestorableTime) : Date.parse(sysDate),
+                                    multiAZ: dbInstance.MultiAZ,
+                                    engineVersion: dbInstance.EngineVersion,
+                                    autoMinorVersionUpgrade: dbInstance.AutoMinorVersionUpgrade,
+                                    licenseModel: dbInstance.LicenseModel,
+                                    optionGroupMemberships: dbInstance.OptionGroupMemberships,
+                                    publiclyAccessible: dbInstance.PubliclyAccessible,
+                                    storageType: dbInstance.StorageType,
+                                    storageEncrypted: dbInstance.StorageEncrypted,
+                                    dbiResourceId: dbInstance.DbiResourceId,
+                                    accountNumber: appConfig.aws.s3AccountNumber,
+                                    caCertificateIdentifier: dbInstance.CACertificateIdentifier
+                                }
+                            };
+                            var params = {
+                                ResourceName: 'arn:aws:rds:us-west-1:' + appConfig.aws.s3AccountNumber + ':db:' + dbInstance.DBInstanceIdentifier
+                            };
+                            rds.getRDSDBInstanceTag(params, function (err, rdsTags) {
+                                if (err) {
+                                    logger.error(err);
+                                }
+                                rdsDbInstanceObj.tags = rdsTags;
+                                results.push(rdsDbInstanceObj);
+                                if (dbInstances.length === results.length) {
+                                    callback(null, results);
+                                }
+                            })
 
-                    })(dbInstances[i]);
+                        })(dbInstances[i]);
+                    }
                 }
             }
-        }
-    })
+        })
+    }
 };
 
 function getResources(query,paginationCheck, next) {

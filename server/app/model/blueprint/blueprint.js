@@ -350,7 +350,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             auditType:opts.auditType,
                             actionLogId:opts.actionLogId
                         };
-                        if(opts.serviceCheck && opts.serviceCheck === true) {
+                        if(opts.serviceCheckFlag && opts.serviceCheckFlag === true) {
                             var serviceMapObj = {
                                 masterDetails: {
                                     orgId: self.orgId,

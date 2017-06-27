@@ -182,7 +182,6 @@ function saeAnalysis(service,callback) {
                         queryObj[groupKey]['orgId'] = service.masterDetails.orgId;
                         queryObj[groupKey]['serverId'] = service.masterDetails.configId;
                         queryObj[groupKey]['isDeleted'] = false;
-                        console.log(JSON.stringify(queryObj[groupKey]));
                         groupKeyList.push(function (callback) {
                             chefGroupResources(groupKey, queryObj[groupKey], callback);
                         });

@@ -149,6 +149,7 @@ function saveS3Data(s3Info, callback) {
         var count = 0;
         for (var i = 0; i < s3Info.length; i++) {
             (function (s3) {
+                console.log(s3.length);
                 var queryObj = {
                     'masterDetails.orgId':s3.masterDetails.orgId,
                     'providerDetails.id':s3.providerDetails.id,
@@ -365,8 +366,8 @@ function deleteS3ResourceData(s3Info,providerId, callback) {
                                         logger.error("Error in deleting S3 Bucket :",s3.resourceDetails.bucketName)
                                     }
                                     count++;
-                                    if (count === ec2data.length) {
-                                        next(null, ec2data);
+                                    if (count === s3Data.length) {
+                                        next(null, s3Data);
                                     }
                                 })
                             } else {
