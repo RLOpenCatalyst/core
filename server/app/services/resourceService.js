@@ -268,7 +268,6 @@ function getEC2ResourceUsageMetrics(provider, instances, startTime, endTime, per
     if(instances.length == 0)
         callback(null, instanceUsageMetrics);
 
-    // @TODO Create promise for creating cw client
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var amazonConfig;
@@ -292,9 +291,6 @@ function getEC2ResourceUsageMetrics(provider, instances, startTime, endTime, per
             "secret_key": decryptedSecretKey
         };
     }
-
-    /*var endTime = new Date();
-     var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
             if(instances[j].providerDetails && instances[j].providerDetails.region && instances[j].providerDetails.region !== null) {
@@ -321,15 +317,6 @@ function getEC2ResourceUsageMetrics(provider, instances, startTime, endTime, per
                         if(err) {
                             logger.error(err)
                         } else {
-                            /* TODO: To split up into different entries.*/
-                            /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-
-                            /* Currently modifying the start time and end time with the period.
-                             * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                             * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                             * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                             * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                             */
                             var dbEndTime = startTime;
                             var dbStartTime = getStartTime(dbEndTime, period);
 
@@ -369,8 +356,6 @@ function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, per
 
     if(instances.length == 0)
         callback(null, instanceUsageMetrics);
-
-    // @TODO Create promise for creating cw client
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var amazonConfig;
@@ -394,9 +379,6 @@ function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, per
             "secret_key": decryptedSecretKey
         };
     }
-
-    /*var endTime = new Date();
-     var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
             if(('providerData' in instances[j]) && (typeof instances[j].providerData !== undefined)
@@ -425,15 +407,6 @@ function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, per
                         if(err) {
                             logger.error(err)
                         } else {
-                            /* TODO: To split up into different entries.*/
-                            /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-
-                            /* Currently modifying the start time and end time with the period.
-                             * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                             * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                             * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                             * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                             */
                             var dbEndTime = startTime;
                             var dbStartTime = getStartTime(dbEndTime, period);
 
@@ -519,15 +492,6 @@ function getS3BucketsMetrics(provider, buckets, startTime, endTime, period, call
                     if(err) {
                         logger.error(err)
                     } else {
-                        /* TODO: To split up into different entries.*/
-                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-
-                        /* Currently modifying the start time and end time with the period.
-                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                         */
                         var dbEndTime = startTime;
                         var dbStartTime = getStartTime(dbEndTime, period);
 
@@ -584,8 +548,6 @@ function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, peri
             "region":"us-east-1"
         };
     }
-    /*var endTime= new Date();
-     var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
     for(var i = 0; i < dbInstances.length; i++) {
         (function(rds) {
             cw = new CW(amazonConfig);
@@ -649,16 +611,6 @@ function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, peri
                     if(err) {
                         logger.error(err)
                     } else {
-
-                        /* TODO: To split up into different entries.*/
-                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-
-                        /* Currently modifying the start time and end time with the period.
-                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                         */
                         var dbEndTime = startTime;
                         var dbStartTime = getStartTime(dbEndTime, period);
 
@@ -693,98 +645,68 @@ function getBucketsInfo(provider,orgName,callback) {
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
     var s3Config = {
         access_key: decryptedAccessKey,
-        secret_key: decryptedSecretKey
+        secret_key: decryptedSecretKey,
+        region:'us-west-1'
     };
-    var regions = appConfig.aws.regions;
-    var resultList = [];
-    regions.forEach(function(region){
-        resultList.push(function(callback){getS3BucketDetails(region,callback);});
-    });
-    if(regions.length === resultList.length){
-        async.parallel(resultList,function(err,results){
-            if(err){
-                logger.error(err);
-                callback(err,null);
-                return;
-            }else{
-                var s3BucketList = [],s3BucketNameList = [];
-                for(var i = 0; i < results.length; i++){
-                    if(results[i].length && results[i].length > 0){
-                        for(var j = 0; j < results[i].length; j++){
-                            if(s3BucketNameList.indexOf(results[i][j].resourceDetails.bucketName) === -1){
-                                s3BucketList.push(results[i][j]);
-                                s3BucketNameList.push(results[i][j].resourceDetails.bucketName);
-                            }
-                        }
-                    }
-                }
-                callback(null,s3BucketList);
-                return;
-            }
-        })
-    }
-    function getS3BucketDetails(region,callback) {
-        s3Config.region = region.region;
-        var s3 = new S3(s3Config);
-        s3.getBucketList(function (err, data) {
-            if (err) {
-                logger.error(err);
-                callback(err, null);
+    var s3 = new S3(s3Config);
+    s3.getBucketList(function (err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+        } else {
+            var results = [];
+            if (data.Buckets.length === 0) {
+                callback(null, results);
             } else {
-                var results = [];
-                if (data.Buckets.length === 0) {
-                    callback(null, results);
-                } else {
-                    for (var i = 0; i < data.Buckets.length; i++) {
-                        (function (bucket) {
-                            var bucketObj = {
-                                name: bucket.Name,
-                                masterDetails: {
-                                    orgId: provider.orgId[0],
-                                    orgName: orgName
-                                },
-                                providerDetails: {
-                                    id: provider._id,
-                                    type: provider.providerType,
-                                    region:region
-                                },
-                                resourceType: "S3",
-                                category: "unassigned",
-                                resourceDetails: {
-                                    bucketName: bucket.Name,
-                                    bucketCreatedOn: Date.parse(bucket.CreationDate),
-                                    bucketOwnerName: data.Owner.DisplayName,
-                                    bucketOwnerID: data.Owner.ID,
-                                    bucketSize: 0,
-                                    bucketSizeUnit: 'MegaBytes'
-                                }
-                            };
-                            s3.getBucketSize(bucket.Name, function (err, bucketSize) {
-                                if (err) {
-                                    logger.error(err);
-                                    callback(err, null);
-                                } else {
-                                    bucketObj.resourceDetails.bucketSize = Math.round(bucketSize);
-                                    s3.getBucketTag(bucket.Name, function (err, bucketTag) {
-                                        if (err) {
-                                            logger.error(err);
-                                            callback(err, null);
-                                        } else {
-                                            bucketObj.tags = bucketTag;
-                                            results.push(bucketObj);
-                                            if (results.length === data.Buckets.length) {
-                                                callback(null, results);
-                                            }
+                for (var i = 0; i < data.Buckets.length; i++) {
+                    (function (bucket) {
+                        var bucketObj = {
+                            name: bucket.Name,
+                            masterDetails: {
+                                orgId: provider.orgId[0],
+                                orgName: orgName
+                            },
+                            providerDetails: {
+                                id: provider._id,
+                                type: provider.providerType,
+                                region: 'us-west-1'
+                            },
+                            resourceType: "S3",
+                            category: "unassigned",
+                            resourceDetails: {
+                                bucketName: bucket.Name,
+                                bucketCreatedOn: Date.parse(bucket.CreationDate),
+                                bucketOwnerName: data.Owner.DisplayName,
+                                bucketOwnerID: data.Owner.ID,
+                                bucketSize: 0,
+                                bucketSizeUnit: 'MegaBytes'
+                            }
+                        };
+                        s3.getBucketSize(bucket.Name, function (err, bucketSize) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                            } else {
+                                bucketObj.resourceDetails.bucketSize = Math.round(bucketSize);
+                                s3.getBucketTag(bucket.Name, function (err, bucketTag) {
+                                    if (err) {
+                                        logger.error(err);
+                                        callback(err, null);
+                                    } else {
+                                        bucketObj.tags = bucketTag;
+                                        results.push(bucketObj);
+                                        if (results.length === data.Buckets.length) {
+                                            callback(null, results);
                                         }
-                                    })
-                                }
-                            })
-                        })(data.Buckets[i]);
-                    }
+                                    }
+                                })
+                            }
+                        })
+                    })(data.Buckets[i]);
                 }
             }
-        })
-    }
+        }
+    });
 };
 
 function getEC2InstancesInfo(provider,orgName,callback) {
@@ -989,7 +911,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                                 }
                             };
                             var params = {
-                                ResourceName: 'arn:aws:rds:us-west-1:' + appConfig.aws.s3AccountNumber + ':db:' + dbInstance.DBInstanceIdentifier
+                                ResourceName: 'arn:aws:rds:'+region.region+':' + appConfig.aws.s3AccountNumber + ':db:' + dbInstance.DBInstanceIdentifier
                             };
                             rds.getRDSDBInstanceTag(params, function (err, rdsTags) {
                                 if (err) {

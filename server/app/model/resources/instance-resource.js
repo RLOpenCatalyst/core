@@ -96,11 +96,13 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
 
 InstanceResourcesSchema.statics.createNew = function(instanceData,callback){
     var instanceResource = new instanceResources(instanceData);
+    console.log(JSON.stringify(instanceResource));
     instanceResource.save(function(err, data) {
         if (err) {
             logger.error("createNew Failed", err, data);
             return callback(err,null);
         }else{
+            console.log(data._id);
             return callback(null,data);
         }
     });
@@ -129,5 +131,5 @@ InstanceResourcesSchema.statics.getInstanceData = function(filterBy,callback){
 };
 
 
-var instanceResources = Resources.discriminator('instanceResources', InstanceResourcesSchema);
+var instanceResources = Resources.discriminator('ec2', InstanceResourcesSchema);
 module.exports = instanceResources;

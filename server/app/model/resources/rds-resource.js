@@ -151,5 +151,5 @@ RDSResourcesSchema.statics.getRDSData = function(queryObj,callback){
 
 
 
-var RDSResources = Resources.discriminator('rdsResources', RDSResourcesSchema);
+var RDSResources = Resources.discriminator('rds', RDSResourcesSchema);
 module.exports = RDSResources;

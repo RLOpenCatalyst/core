@@ -106,6 +106,8 @@ function saeAnalysis(service,callback) {
                         }
                     });
                     function awsGroupResources(groupKey, query, callback) {
+                        console.log(JSON.stringify(groupKey));
+                        console.log(JSON.stringify(query));
                         resourceModel.getResources(query, function (err, resource) {
                             if (err) {
                                 logger.error("Error in fetching Resources for Query:", query, err);
@@ -500,18 +502,21 @@ function serviceMapVersion(service,resources,instanceStateList){
             var serviceState = getServiceState(instanceStateList);
             var checkEqualFlag = false;
             if(service.resources.length === filterObj.length){
-                service.resources.forEach(function(resource){
-                    checkEqualFlag = false;
-                    filterObj.forEach(function(filterResource){
-                        if(JSON.stringify(resource.id) === JSON.stringify(filterResource.id)){
-                            checkEqualFlag = true;
-                        }
+                if(service.resources.length > 0 && filterObj.length > 0) {
+                    service.resources.forEach(function (resource) {
+                        checkEqualFlag = false;
+                        filterObj.forEach(function (filterResource) {
+                            if (JSON.stringify(resource.id) === JSON.stringify(filterResource.id)) {
+                                checkEqualFlag = true;
+                            }
+                        })
                     })
-                })
+                }else{
+                    checkEqualFlag = true;
+                }
             }
             if(checkEqualFlag){
-                service.updatedOn = new Date().getTime();
-                services.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
+                services.updateServiceById(service.id,{state:serviceState,resources:filterObj,updatedOn : new Date().getTime()},function(err,data){
                     if(err){
                         logger.error("Error in updating Service:",err);
                         next(err,null);
