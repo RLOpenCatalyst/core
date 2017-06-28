@@ -83,7 +83,7 @@ var S3 = function(awsSettings) {
                 logger.error(err, err.stack);
                 callback(err,null);
             } else {
-                if(data.Contents.length === 0){
+                if(data.Contents && data.Contents.length === 0){
                      callback(null, 0);
                 }else {
                     for (var i = 0; i < data.Contents.length; i++) {

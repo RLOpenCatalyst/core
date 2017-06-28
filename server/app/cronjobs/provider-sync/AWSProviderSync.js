@@ -40,15 +40,20 @@ function awsRDSS3ProviderSync() {
                             logger.error(err);
                             return;
                         } else if(providers.length > 0){
-                            var count = 0;
-                            for(var j = 0; j < providers.length; j++){
-                                (function(provider){
-                                    count++;
-                                    awsRDSS3ProviderSyncForProvider(provider,org.orgname)
-                                })(providers[j]);
-                            }
-                            if(count === providers.length){
-                                return;
+                            var providerDetailList = [];
+                            providers.forEach(function(provider){
+                                providerDetailList.push(function(callback){awsRDSS3ProviderSyncForProvider(provider,org.orgname,callback);});
+                            });
+                            if(providerDetailList.length === providers.length) {
+                                async.parallel(providerDetailList, function (err, results) {
+                                    if (err) {
+                                        logger.error(err);
+                                        return;
+                                    } else {
+                                        logger.debug("Provider Sync is Completed");
+                                        return;
+                                    }
+                                })
                             }
                         }else{
                             logger.info("Please configure Provider in Organization " +org.orgname+" for EC2/S3/RDS Provider Sync");
@@ -64,7 +69,7 @@ function awsRDSS3ProviderSync() {
     });
 }
 
-function awsRDSS3ProviderSyncForProvider(provider,orgName) {
+function awsRDSS3ProviderSyncForProvider(provider,orgName,callback) {
     logger.info("EC2/S3/RDS Data Fetching started for Provider "+provider.providerName);
     async.waterfall([
         function (next) {
@@ -135,9 +140,11 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
         }],function (err, results) {
         if (err) {
             logger.error(err);
+            callback(err,null);
             return;
         } else {
-            logger.info("EC2/S3/RDS Data Successfully ended for Provider "+provider.providerName);
+            logger.info("EC2/S3/RDS Data Successfully ended for Provider " +provider.providerName);
+            callback(null,results);
             return;
         }
     });
@@ -365,8 +372,8 @@ function deleteS3ResourceData(s3Info,providerId, callback) {
                                         logger.error("Error in deleting S3 Bucket :",s3.resourceDetails.bucketName)
                                     }
                                     count++;
-                                    if (count === ec2data.length) {
-                                        next(null, ec2data);
+                                    if (count === s3Data.length) {
+                                        next(null, s3Data);
                                     }
                                 })
                             } else {

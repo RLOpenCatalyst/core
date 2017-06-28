@@ -28,8 +28,21 @@ function chefSync(){
                             logger.error(err);
                             return;
                         }else if(chefDetails.length > 0){
-                            aggregateChefSync(chefDetails[0]);
-                            return;
+                            var chefDetailList = [];
+                            chefDetails.forEach(function(chefDetail){
+                                chefDetailList.push(function(callback){aggregateChefSync(chefDetail,callback);});
+                            });
+                            if(chefDetailList.length === chefDetails.length) {
+                                async.parallel(chefDetailList, function (err, results) {
+                                    if (err) {
+                                        logger.error(err);
+                                        return;
+                                    } else {
+                                        logger.debug("Chef Sync is Completed");
+                                        return;
+                                    }
+                                })
+                            }
                         }else{
                             logger.info("There is no chef server associated with  "+org.orgname+" Organization");
                             return;
@@ -46,7 +59,7 @@ function chefSync(){
     });
 }
 
-function aggregateChefSync(chefDetail){
+function aggregateChefSync(chefDetail,callback){
     logger.info("Chef Sync started");
     var chefSettings = appConfig.chef;
     var chefRepoLocation = chefSettings.chefReposLocation + chefDetail.orgname_rowid[0];
@@ -74,9 +87,11 @@ function aggregateChefSync(chefDetail){
     ],function(err,results){
         if (err) {
             logger.error("Error in chef Sync "+err);
+            callback(err,null);
             return;
         } else {
-            logger.info("Chef Sync completed");
+            logger.info("Chef Sync completed for :",chefDetail.configname);
+            callback(null,results);
             return;
         }
     })

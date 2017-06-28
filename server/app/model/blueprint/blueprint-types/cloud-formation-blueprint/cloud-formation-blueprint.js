@@ -39,6 +39,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var auditTrailService = require('_pr/services/auditTrailService');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
+var serviceMapService = require('_pr/services/serviceMapService');
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -99,7 +100,11 @@ function getInfraManagerConfigType(blueprint) {
 CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback) {
     var self = this;
     var nodeIdWithActionLogId = [];
-
+    var ymlText = {
+        aws:{
+            groups:[]
+        }
+    };
     AWSProvider.getAWSProviderById(self.cloudProviderId, function (err, aProvider) {
         if (err) {
             logger.error("Unable to fetch provide", err);
@@ -428,6 +433,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 chefNodeName: instanceData.InstanceId,
                                                                 runlist: runlist,
                                                                 platformId: instanceData.InstanceId,
+                                                                imageId:instanceData.ImageId,
                                                                 appUrls: appUrls,
                                                                 instanceIP: instanceData.PublicIpAddress || instanceData.PrivateIpAddress,
                                                                 instanceState: instanceData.State.Name,
@@ -505,6 +511,60 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                     return;
                                                                 }
                                                                 instance.id = data._id;
+                                                                if(launchParams.serviceMapObj){
+                                                                    var serviceObj = launchParams.serviceMapObj;
+                                                                    ymlText.aws.groups.push({
+                                                                        name: instanceName,
+                                                                        identifiers: {
+                                                                            ip: [instanceData.PrivateIpAddress],
+                                                                            subnet: [instanceData.SubnetId],
+                                                                            vpc: [instanceData.VpcId]
+                                                                        }
+                                                                    });
+                                                                    if(nodeIdWithActionLogId.length === instances.length) {
+                                                                        var fileUpload = require('_pr/model/file-upload/file-upload');
+                                                                        var async = require('async');
+                                                                        var yml = require('json2yaml');
+                                                                        var ymlFolderName = appConfig.tempDir;
+                                                                        var ymlFileName = instance.id + '.yaml';
+                                                                        var ymlFolder = path.normalize(ymlFolderName);
+                                                                        mkdirp.sync(ymlFolder);
+                                                                        ymlText = yml.stringify(ymlText);
+                                                                        async.waterfall([
+                                                                            function (next) {
+                                                                                fileIo.writeFile(ymlFolder + '/' + ymlFileName, ymlText, null, next);
+                                                                            },
+                                                                            function (next) {
+                                                                                fileUpload.uploadFile(instance.id + '.yaml', ymlFolder + '/' + ymlFileName, null, next);
+                                                                            }
+                                                                        ], function (err, results) {
+                                                                            if (err) {
+                                                                                logger.error(err);
+                                                                                fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
+                                                                                    if (err) {
+                                                                                        logger.error(err);
+                                                                                    } else {
+                                                                                        logger.debug("Successfully remove YML file");
+                                                                                    }
+                                                                                })
+                                                                            } else {
+                                                                                serviceObj.fileId = results;
+                                                                                serviceMapService.createNewService(serviceObj, function (err, data) {
+                                                                                    if (err) {
+                                                                                        logger.error("Error in creating Service Map Service:", err);
+                                                                                    }
+                                                                                    fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
+                                                                                        if (err) {
+                                                                                            logger.error(err);
+                                                                                        } else {
+                                                                                            logger.debug("Successfully remove YML file");
+                                                                                        }
+                                                                                    })
+                                                                                })
+                                                                            }
+                                                                        })
+                                                                    }
+                                                                }
                                                                 var timestampStarted = new Date().getTime();
                                                                 var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                                                                 var logsReferenceIds = [instance.id, actionLog._id, launchParams.actionLogId];                                                                

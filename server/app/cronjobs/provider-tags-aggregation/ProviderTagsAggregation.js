@@ -23,15 +23,20 @@ function providerTagAggregation() {
                             logger.error(err);
                             return;
                         } else if(providers.length > 0){
-                            var count = 0;
-                            for(var j = 0; j < providers.length; j++){
-                                (function(provider){
-                                    count++;
-                                    aggregateTagForProvider(provider);
-                                })(providers[j]);
-                            }
-                            if(count ===providers.length){
-                                return;
+                            var providerDetailList = [];
+                            providers.forEach(function(provider){
+                                providerDetailList.push(function(callback){aggregateTagForProvider(provider,callback);});
+                            });
+                            if(providerDetailList.length === providers.length) {
+                                async.parallel(providerDetailList, function (err, results) {
+                                    if (err) {
+                                        logger.error(err);
+                                        return;
+                                    } else {
+                                        logger.debug("Tag Sync is Completed");
+                                        return;
+                                    }
+                                })
                             }
 
                         }else{
@@ -50,7 +55,7 @@ function providerTagAggregation() {
     });
 };
 
-function aggregateTagForProvider(provider) {
+function aggregateTagForProvider(provider,callback) {
     var tags={};
     logger.info('Tags aggregation started for provider '+provider._id);
     async.waterfall([
@@ -83,9 +88,11 @@ function aggregateTagForProvider(provider) {
     ], function (err, results) {
         if (err) {
             logger.error(err);
+            callback(err,null);
             return;
         }else {
             logger.info('Tags aggregation ended for Provider'+provider._id);
+            callback(null,results);
             return;
         }
     });
