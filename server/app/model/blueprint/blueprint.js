@@ -351,7 +351,8 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             actionLogId:opts.actionLogId
                         };
                         if(opts.serviceCheckFlag && opts.serviceCheckFlag === true) {
-                            var serviceMapObj = {
+                            var id = uuid.v4();
+                            launchParams.serviceMapObj = {
                                 masterDetails: {
                                     orgId: self.orgId,
                                     orgName: project[0].orgname,
@@ -365,19 +366,9 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                     configName: chefDetails.configname,
                                     monitor: monitor
                                 },
-                                name: self.name,
-                                type: 'Service',
-                                state: 'Initializing',
-                                desc: self.templateType === 'chef' ? 'Software Stack' : self.templateType === 'ami' ? 'OSImage' : self.templateType === 'cft' ? 'CloudFormation' : 'AzureArm',
-                                createdOn: new Date().getTime()
+                                name: self.name + '_' + id.split("-")[0],
+                                desc: self.templateType === 'chef' ? 'Software Stack' : self.templateType === 'ami' ? 'OSImage' : self.templateType === 'cft' ? 'CloudFormation' : 'AzureArm'
                             }
-                            serviceMapService.createNewService(serviceMapObj,function(err,data){
-                                if(err){
-                                    logger.error("Error in creating Services:",err);
-                                }else{
-                                    logger.debug("Successfully Created Services");
-                                }
-                            });
                         }
                         if (!env) {
                             chef.createEnvironment(envName, function (err) {

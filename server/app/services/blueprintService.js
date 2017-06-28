@@ -310,7 +310,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             botId:data.auditId,
                             auditType:data.auditType,
                             actionLogId:auditTrail.actionId,
-                            serviceCheckFlag:reqBody.serviceCheckFlag?reqBody.serviceCheckFlag:false
+                            serviceCheckFlag:reqBody.serviceCheckFlag?reqBody.serviceCheckFlag:true
                         },next);
                     });
                 }else{
@@ -326,7 +326,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         botId:null,
                         auditType:null,
                         actionLogId:null,
-                        serviceCheckFlag:reqBody.serviceCheckFlag?reqBody.serviceCheckFlag:false
+                        serviceCheckFlag:reqBody.serviceCheckFlag?reqBody.serviceCheckFlag:true
                     },next);
                 }
             }else{

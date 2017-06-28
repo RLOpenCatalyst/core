@@ -194,6 +194,7 @@ var InstanceSchema = new Schema({
             jsonObj: {}
         }],
     platformId: String,
+    imageId: String,
     instanceIP: {
         type: String,
         index: true,

@@ -32,11 +32,12 @@ var uuid = require('node-uuid');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
-var credentialcryptography = require('_pr/lib/credentialcryptography');
+var credentialCryptography = require('_pr/lib/credentialcryptography');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Schema = mongoose.Schema;
 var resourceService = require('_pr/services/resourceService');
+var serviceMapService = require('_pr/services/serviceMapService');
 var auditTrailService = require('_pr/services/auditTrailService');
 var noticeService = require('_pr/services/noticeService.js');
 
@@ -251,6 +252,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             vpcId: instanceData.VpcId,
                             subnetId: instanceData.SubnetId,
                             privateIpAddress: instanceData.PrivateIpAddress,
+                            imageId:instanceData.ImageId,
                             hostName: instanceData.PrivateDnsName,
                             credentials: {
                                 username: anImage.userName,
@@ -271,8 +273,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                 iconPath: launchParams.blueprintData.iconpath
                             }
                         };
-
-
                         logger.debug('Creating instance in catalyst');
                         instancesDao.createInstance(instance, function (err, data) {
                             if (err) {
@@ -284,6 +284,64 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             }
                             instance = data;
                             instance.id = data._id;
+                            if(launchParams.serviceMapObj){
+                                var serviceObj = launchParams.serviceMapObj;
+                                var ymlText = {
+                                    aws:{
+                                        groups: [{
+                                            name:launchParams.blueprintName,
+                                            identifiers: {
+                                                ip: [instanceData.PrivateIpAddress],
+                                                subnet: [instanceData.SubnetId],
+                                                vpc: [instanceData.VpcId]
+                                            }
+                                        }]
+                                    }
+                                }
+                                var mkDir = require('mkdirp');
+                                var fileUpload = require('_pr/model/file-upload/file-upload');
+                                var async = require('async');
+                                var path = require('path');
+                                var yml = require('json2yaml');
+                                var ymlFolderName = appConfig.tempDir;
+                                var ymlFileName = instance.id + '.yaml';
+                                var ymlFolder = path.normalize(ymlFolderName);
+                                mkDir.sync(ymlFolder);
+                                ymlText = yml.stringify(ymlText);
+                                async.waterfall([
+                                    function (next) {
+                                        fileIo.writeFile(ymlFolder + '/' + ymlFileName, ymlText, null, next);
+                                    },
+                                    function (next) {
+                                        fileUpload.uploadFile(instance.id + '.yaml', ymlFolder + '/' + ymlFileName, null, next);
+                                    }
+                                ], function (err, results) {
+                                    if (err) {
+                                        logger.error(err);
+                                        fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
+                                            if (err) {
+                                                logger.error(err);
+                                            }else {
+                                                logger.debug("Successfully remove YML file");
+                                            }
+                                        })
+                                    } else {
+                                        serviceObj.fileId = results;
+                                        serviceMapService.createNewService(serviceObj,function(err,data){
+                                            if(err){
+                                                logger.error("Error in creating Service Map Service:",err);
+                                            }
+                                            fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
+                                                if (err) {
+                                                    logger.error(err);
+                                                }else {
+                                                    logger.debug("Successfully remove YML file");
+                                                }
+                                            })
+                                        })
+                                    }
+                                })
+                            }
 
                             //Returning handle when all instances are created
                             newinstanceIDs.push(instance.id);
@@ -549,7 +607,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     var cryptoConfig = appConfig.cryptoSettings;
                                     var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
                                     //cryptography.decryptFile(instance.credentials.pemFileLocation, cryptoConfig.decryptionEncoding, tempUncryptedPemFileLoc, cryptoConfig.encryptionEncoding, function(err) {
-                                    credentialcryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
+                                    credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
 
                                         if (err) {
                                             instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {

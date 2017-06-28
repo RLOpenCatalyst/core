@@ -599,7 +599,7 @@ function formattedServiceResponse(service,callback){
         state:service.state,
         createdOn:service.createdOn,
         updatedOn:service.updatedOn,
-        version:service.version.toFixed(1)
+        version:service.version
     }
     getMasterDetails(service.masterDetails,function(err,data){
             if(err){
