@@ -96,7 +96,6 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
 
 InstanceResourcesSchema.statics.createNew = function(instanceData,callback){
     var instanceResource = new instanceResources(instanceData);
-    console.log(JSON.stringify(instanceResource));
     instanceResource.save(function(err, data) {
         if (err) {
             logger.error("createNew Failed", err, data);
@@ -131,5 +130,5 @@ InstanceResourcesSchema.statics.getInstanceData = function(filterBy,callback){
 };
 
 
-var instanceResources = Resources.discriminator('ec2', InstanceResourcesSchema);
+var instanceResources = Resources.discriminator('instanceResources', InstanceResourcesSchema);
 module.exports = instanceResources;
