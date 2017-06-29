@@ -18,7 +18,6 @@ const logger = require('_pr/logger')(module);
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var chefDao = require('_pr/model/dao/chefDao.js');
-var ec2Model = require('_pr/model/resources/instance-resource');
 var services = require('_pr/model/services/services.js');
 var resourceModel = require('_pr/model/resources/resources');
 var saeService = module.exports = {};
@@ -227,12 +226,12 @@ function saeAnalysis(service,callback) {
                                             }],
                                         isDeleted: false
                                     }
-                                    ec2Model.getInstanceData(query, function (err, data) {
+                                    resourceModel.getResources(query, function (err, data) {
                                         if (err) {
                                             logger.error("Error in finding Resource Details for Query : ", query, err);
                                         }
                                         if (data.length > 0) {
-                                            ec2Model.updateInstanceData(data[0]._id, {
+                                            resourceModel.updateResourceById(data[0]._id, {
                                                 'resourceDetails.bootStrapState': 'success',
                                                 'resourceDetails.hardware': chefNode.hardware
                                             }, function (err, data) {
@@ -304,12 +303,12 @@ function saeAnalysis(service,callback) {
                                         }],
                                     isDeleted: false
                                 }
-                                ec2Model.getInstanceData(query, function (err, data) {
+                                resourceModel.getResources(query, function (err, data) {
                                     if (err) {
                                         logger.error("Error in finding Resource Details for Query : ", query, err);
                                     }
                                     if (data.length > 0) {
-                                        ec2Model.updateInstanceData(data[0]._id, {
+                                        resourceModel.updateResourceById(data[0]._id, {
                                             'resourceDetails.bootStrapState': 'success',
                                             'resourceDetails.hardware': chefNode.hardware
                                         }, function (err, data) {

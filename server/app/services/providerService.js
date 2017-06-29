@@ -381,19 +381,16 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
     async.forEach(Object.keys(tagMappings),
         function(catalystEntityType, next1) {
             var tagMapping = tagMappings[catalystEntityType];
-
             if (['project', 'environment', 'businessGroup'].indexOf(catalystEntityType ) < 0) {
                 var err = new Error('Invalid Request');
                 err.status = 400;
                 return next1(err);
             }
-
             if (!('tagName' in tagMapping)) {
                 var err = new Error('Malformed Request');
                 err.status = 400;
                 return next1(err);
             }
-
             async.waterfall([
                 function(next2) {
                     var deleteParams = {
@@ -459,21 +456,11 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, catalys
                 err.status = 400;
                 return next(err);
             }
-
-            // Tag value validation to be added
-            /*if((tagMapping.catalystEntityMapping[catalystEntityId].tagValue)
-                && (tagDetails.values.indexOf(tagMapping.catalystEntityMapping[catalystEntityId].tagValue) < 0)) {
-                var err = new Error('Tag value not found');
-                err.status = 404;
-                next(err);
-            }*/
-
             catalystEntityMappings[catalystEntityId] = {
                 'tagValues': tagMapping.catalystEntityMapping[catalystEntityId].tagValues,
                 'catalystEntityId': tagMapping.catalystEntityMapping[catalystEntityId].catalystEntityId,
                 'catalystEntityName': tagMapping.catalystEntityMapping[catalystEntityId].catalystEntityName
             }
-
             return next();
         },
         function(err) {

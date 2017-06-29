@@ -17,9 +17,6 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
-var S3Resource = require('_pr/model/resources/s3-resource');
-var RDSResource = require('_pr/model/resources/rds-resource');
-var EC2Resource = require('_pr/model/resources/instance-resource')
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
 var EC2 = require('_pr/lib/ec2.js');
@@ -61,7 +58,10 @@ function getAllResourcesForProvider(provider, next) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             function(callback) {
-                resources.getResourcesByProviderId(provider._id, callback);
+                var queryObj = {
+                    'providerDetails.id':provider._id
+                };
+                resources.getResources(queryObj, callback);
             }
         ],
         function(err, results) {
@@ -77,16 +77,13 @@ function getAllResourcesForProvider(provider, next) {
                     } else if('resourceType' in current) {
                         switch(current.resourceType) {
                             case 'RDS':
-                                var tempInstance = new RDSResource(current);
-                                temp[tempInstance.resourceDetails.dbInstanceIdentifier] = current;
+                                temp[current.resourceDetails.dbInstanceIdentifier] = current;
                                 break;
                             case 'S3':
-                                var tempInstance = new S3Resource(current);
-                                temp[tempInstance.resourceDetails.bucketName] = current;
+                                temp[current.resourceDetails.bucketName] = current;
                                 break;
                             case 'EC2':
-                                var tempInstance = new EC2Resource(current);
-                                temp[tempInstance.resourceDetails.platformId] = current;
+                                temp[current.resourceDetails.platformId] = current;
                                 break;
                             default:
                                 break;
@@ -1006,7 +1003,7 @@ function bulkUpdateUnassignedResourceTags(bulkResources, callback){
             var fields = {
                 'tags': bulkResources[j].tags
             }
-            resources.updateResourceTag(params, fields,
+            resources.updateResource(params, fields,
                 function(err, resourceUpdated) {
                     if (err) {
                         logger.error(err);
