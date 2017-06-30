@@ -932,7 +932,7 @@ function createOrUpdateResource(instance,callback){
                 publicIp: instance.instanceIP,
                 privateIp: instance.privateIpAddress,
                 state: instance.instanceState,
-                bootStrapState: instance.bootStrapStatus,
+                bootStrapState: instance.bootStrapStatus === 'waiting' || instance.bootStrapStatus === 'pending'?'bootStrapping':instance.bootStrapStatus,
                 credentials: instance.credentials,
                 route53HostedParams: instance.route53HostedParams,
                 hardware: instance.hardware,
@@ -955,6 +955,7 @@ function createOrUpdateResource(instance,callback){
             cronJobIds: instance.cronJobIds,
             startScheduler: instance.instanceStartScheduler,
             stopScheduler: instance.instanceStopScheduler,
+            authentication:'success',
             interval: instance.interval,
             stackName: instance.domainName && instance.domainName !== null ? instance.domainName : instance.stackName,
             tagServer: instance.tagServer,
@@ -985,7 +986,7 @@ function createOrUpdateResource(instance,callback){
         }
         var filterBy = {
             'resourceDetails.platformId': instance.platformId,
-            'category': 'managed'
+            'isDeleted':false
         }
         resourceModel.getResources(filterBy, function (err, data) {
             if (err) {

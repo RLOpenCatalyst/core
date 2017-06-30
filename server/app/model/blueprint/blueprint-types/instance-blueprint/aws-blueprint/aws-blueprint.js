@@ -37,6 +37,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Schema = mongoose.Schema;
 var resourceService = require('_pr/services/resourceService');
+var resourceModel = require('_pr/model/resources/resources');
 var serviceMapService = require('_pr/services/serviceMapService');
 var auditTrailService = require('_pr/services/auditTrailService');
 var noticeService = require('_pr/services/noticeService.js');
@@ -273,277 +274,259 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                 iconPath: launchParams.blueprintData.iconpath
                             }
                         };
-                        logger.debug('Creating instance in catalyst');
-                        instancesDao.createInstance(instance, function (err, data) {
-                            if (err) {
-                                logger.error("Failed to create Instance", err);
-                                callback({
-                                    message: "Failed to create instance in DB"
-                                });
-                                return;
+                        var instanceObj = {
+                            name: launchParams.blueprintName,
+                            masterDetails: {
+                                orgId: launchParams.orgId,
+                                orgName: launchParams.orgName,
+                                bgId: launchParams.bgId,
+                                bgName: launchParams.bgName,
+                                projectId: launchParams.projectId,
+                                projectName: launchParams.projectName,
+                                envId: launchParams.envId,
+                                environmentName: launchParams.envName,
+                            },
+                            providerDetails: {
+                                id: launchParams.cloudProviderId,
+                                type: launchParams.cloudProviderType,
+                                keyPairId: self.keyPairId,
+                                region: aKeyPair.region,
+                                keyPairName: instanceData.KeyName
+                            },
+                            resourceDetails: {
+                                platformId: instanceData.InstanceId,
+                                amiId: instanceData.ImageId,
+                                publicIp: instanceData.PublicIpAddress || null,
+                                hostName: instanceData.PrivateDnsName,
+                                os: (instanceData.Platform && instanceData.Platform === 'windows') ? 'windows' : 'linux',
+                                state: instanceData.State.Name,
+                                subnetId: instanceData.SubnetId,
+                                vpcId: instanceData.VpcId,
+                                privateIp: instanceData.PrivateIpAddress,
+                                type: instanceData.InstanceType,
+                                launchTime: Date.parse(instanceData.LaunchTime),
+                                bootStrapState:'bootStrapping'
+                            },
+                            credentials: {
+                                username: anImage.userName,
+                                pemFileLocation: encryptedPemFileLocation,
+                                password: encrptedPassword
+                            },
+                            configDetails: {
+                                id: launchParams.infraManagerId,
+                                nodeName: instanceData.InstanceId
+                            },
+                            blueprintDetails: {
+                                id: launchParams.blueprintData.id ? launchParams.blueprintData.blueprintId : null,
+                                name: launchParams.blueprintData.blueprintName ? launchParams.blueprintData.blueprintName : null,
+                                templateName: launchParams.blueprintData.templateId ? launchParams.blueprintData.templateId : null,
+                                templateType: launchParams.blueprintData.templateType ? launchParams.blueprintData.templateType : null
+                            },
+                            resourceType: 'EC2',
+                            category: "managed",
+                            authentication: 'success',
+                            stackName: launchParams.domainName && launchParams.domainName !== null ? launchParams.domainName : launchParams.stackName,
+                            tagServer: launchParams.tagServer,
+                            monitor: launchParams.monitor,
+                            user:launchParams.sessionUser
+                        }
+                        instanceObj.createdOn = new Date().getTime();
+                        resourceModel.getResources({'resourceDetails.platformId':instanceData.InstanceId,'masterDetails.orgId':launchParams.orgId},function(err,resourceDetails){
+                            if(err){
+                                logger.error("Error in fetching resource Details:",err);
                             }
-                            instance = data;
-                            instance.id = data._id;
-                            if(launchParams.serviceMapObj){
-                                var serviceObj = launchParams.serviceMapObj;
-                                var ymlText = {
-                                    aws:{
-                                        groups: [{
-                                            name:launchParams.blueprintName,
-                                            identifiers: {
-                                                ip: [instanceData.PrivateIpAddress],
-                                                subnet: [instanceData.SubnetId],
-                                                vpc: [instanceData.VpcId]
-                                            }
-                                        }]
-                                    }
-                                }
-                                var mkDir = require('mkdirp');
-                                var fileUpload = require('_pr/model/file-upload/file-upload');
-                                var async = require('async');
-                                var path = require('path');
-                                var yml = require('json2yaml');
-                                var ymlFolderName = appConfig.tempDir;
-                                var ymlFileName = instance.id + '.yaml';
-                                var ymlFolder = path.normalize(ymlFolderName);
-                                mkDir.sync(ymlFolder);
-                                ymlText = yml.stringify(ymlText);
-                                async.waterfall([
-                                    function (next) {
-                                        fileIo.writeFile(ymlFolder + '/' + ymlFileName, ymlText, null, next);
-                                    },
-                                    function (next) {
-                                        fileUpload.uploadFile(instance.id + '.yaml', ymlFolder + '/' + ymlFileName, null, next);
-                                    }
-                                ], function (err, results) {
+                            if(resourceDetails.length > 0){
+                                resourceModel.updateResourceById(resourceDetails[0]._id,instanceObj, function (err, resource){
                                     if (err) {
-                                        logger.error(err);
-                                        fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
-                                            if (err) {
-                                                logger.error(err);
-                                            }else {
-                                                logger.debug("Successfully remove YML file");
-                                            }
-                                        })
-                                    } else {
-                                        serviceObj.fileId = results;
-                                        serviceMapService.createNewService(serviceObj,function(err,data){
-                                            if(err){
-                                                logger.error("Error in creating Service Map Service:",err);
-                                            }
+                                        logger.error("Error in updating Resources>>>>:", err);
+                                    }
+                                    createInstance(resourceDetails[0]._id);
+                                })
+                            }else{
+                                resourceModel.createNew(instanceObj, function (err, resource){
+                                    if (err) {
+                                        logger.error("Error in creating Resources>>>>:", err);
+                                    }
+                                    createInstance(resource._id);
+                                })
+                            }
+                        });
+                        function createInstance(resourceId){
+                            logger.debug('Creating instance in catalyst');
+                            instancesDao.createInstance(instance, function (err, data) {
+                                if (err) {
+                                    logger.error("Failed to create Instance", err);
+                                    callback({
+                                        message: "Failed to create instance in DB"
+                                    });
+                                    return;
+                                }
+                                instance = data;
+                                instance.id = data._id;
+                                if (launchParams.serviceMapObj) {
+                                    var serviceObj = launchParams.serviceMapObj;
+                                    var ymlText = {
+                                        aws: {
+                                            groups: [{
+                                                name: launchParams.blueprintName,
+                                                identifiers: {
+                                                    ip: [instanceData.PrivateIpAddress],
+                                                    subnet: [instanceData.SubnetId],
+                                                    vpc: [instanceData.VpcId]
+                                                }
+                                            }]
+                                        }
+                                    }
+                                    var mkDir = require('mkdirp');
+                                    var fileUpload = require('_pr/model/file-upload/file-upload');
+                                    var async = require('async');
+                                    var path = require('path');
+                                    var yml = require('json2yaml');
+                                    var ymlFolderName = appConfig.tempDir;
+                                    var ymlFileName = instance.id + '.yaml';
+                                    var ymlFolder = path.normalize(ymlFolderName);
+                                    mkDir.sync(ymlFolder);
+                                    ymlText = yml.stringify(ymlText);
+                                    async.waterfall([
+                                        function (next) {
+                                            fileIo.writeFile(ymlFolder + '/' + ymlFileName, ymlText, null, next);
+                                        },
+                                        function (next) {
+                                            fileUpload.uploadFile(instance.id + '.yaml', ymlFolder + '/' + ymlFileName, null, next);
+                                        }
+                                    ], function (err, results) {
+                                        if (err) {
+                                            logger.error(err);
                                             fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
                                                 if (err) {
                                                     logger.error(err);
-                                                }else {
+                                                } else {
                                                     logger.debug("Successfully remove YML file");
                                                 }
                                             })
-                                        })
-                                    }
-                                })
-                            }
+                                        } else {
+                                            serviceObj.fileId = results;
+                                            serviceMapService.createNewService(serviceObj, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in creating Service Map Service:", err);
+                                                }
+                                                fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
+                                                    if (err) {
+                                                        logger.error(err);
+                                                    } else {
+                                                        logger.debug("Successfully remove YML file");
+                                                    }
+                                                })
+                                            })
+                                        }
+                                    })
+                                }
+                                //Returning handle when all instances are created
+                                newinstanceIDs.push(instance.id);
+                                logger.debug('Lengths ---- ' + newinstanceIDs.length + '  ' + instancesLength);
+                                var timestampStarted = new Date().getTime();
+                                var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
+                                var logsReferenceIds = [instance.id, actionLog._id, launchParams.actionLogId];
 
-                            //Returning handle when all instances are created
-                            newinstanceIDs.push(instance.id);
-                            logger.debug('Lengths ---- ' + newinstanceIDs.length + '  ' + instancesLength);
-                            var timestampStarted = new Date().getTime();
-                            var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
-                            var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
-
-                            if (launchParams.auditTrailId !== null) {
-                                var resultTaskExecution = {
-                                    "actionLogId": launchParams.actionLogId,
-                                    "auditTrailConfig.nodeIdsWithActionLog": [{
+                                if (launchParams.auditTrailId !== null) {
+                                    var resultTaskExecution = {
+                                        "actionLogId": launchParams.actionLogId,
+                                        "auditTrailConfig.nodeIdsWithActionLog": [{
                                             "actionLogId": logsReferenceIds[1],
                                             "nodeId": logsReferenceIds[0]
                                         }],
-                                    "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                    "masterDetails.orgName": launchParams.orgName,
-                                    "masterDetails.bgName": launchParams.bgName,
-                                    "masterDetails.projectName": launchParams.projectName,
-                                    "masterDetails.envName": launchParams.envName
-                                }
-                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                    if (err) {
-                                        logger.error("Failed to create or update bots Log: ", err);
+                                        "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                        "masterDetails.orgName": launchParams.orgName,
+                                        "masterDetails.bgName": launchParams.bgName,
+                                        "masterDetails.projectName": launchParams.projectName,
+                                        "masterDetails.envName": launchParams.envName
                                     }
-                                });
-                            }
-                            if (newinstanceIDs.length >= instancesLength) {
-                                callback(null, {
-                                    "id": newinstanceIDs,
-                                    "message": "instance launch success"
-                                });
-                            }
-                            var instanceLog = {
-                                actionId: actionLog._id,
-                                instanceId: instance.id,
-                                orgName: launchParams.orgName,
-                                bgName: launchParams.bgName,
-                                projectName: launchParams.projectName,
-                                envName: launchParams.envName,
-                                status: instanceData.State.Name,
-                                actionStatus: "waiting",
-                                platformId: instanceData.InstanceId,
-                                blueprintName: launchParams.blueprintData.name,
-                                data: paramRunList,
-                                platform: "unknown",
-                                os: self.instanceOS,
-                                size: self.instanceType,
-                                user: launchParams.sessionUser,
-                                startedOn: new Date().getTime(),
-                                createdOn: new Date().getTime(),
-                                providerType: launchParams.cloudProviderType,
-                                action: "Bootstrap"
-                            };
-
-                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                if (err) {
-                                    logger.error("Failed to create or update instanceLog: ", err);
-                                }
-                            });
-                            var botLogFile = appConfig.botLogDir + launchParams.actionLogId;
-                            var fileName = 'BB_Execution.log';
-                            var winston = require('winston');
-                            var path = require('path');
-                            var mkdirp = require('mkdirp');
-                            var log_folder = path.normalize(botLogFile);
-                            mkdirp.sync(log_folder);
-                            var awsLogger = new winston.Logger({
-                                transports: [
-                                    new winston.transports.DailyRotateFile({
-                                        level: 'debug',
-                                        datePattern: '',
-                                        filename: fileName,
-                                        dirname:log_folder,
-                                        handleExceptions: true,
-                                        json: true,
-                                        maxsize: 5242880,
-                                        maxFiles: 5,
-                                        colorize: true,
-                                        timestamp:false,
-                                        name:'bb-execution-log'
-                                    }),
-                                    new winston.transports.Console({
-                                        level: 'debug',
-                                        handleExceptions: true,
-                                        json: false,
-                                        colorize: true,
-                                        name:'bot-console'
-                                    })
-                                ],
-                                exitOnError: false
-                            });
-                            var logData ={
-                                instanceId:instance._id,
-                                instanceRefId:actionLog._id,
-                                botId:launchParams.botId,
-                                botRefId: launchParams.actionLogId,
-                                err: false,
-                                log: "Starting instance",
-                                timestamp: timestampStarted
-                            };
-                            logsDao.insertLog(logData);
-                            noticeService.updater(launchParams.actionLogId,'log',logData);
-                            awsLogger.debug("Starting instance");
-                            //For windows instance handle another check..
-
-                            ec2.waitForInstanceRunnnigState(instance.platformId, function (err, instanceData) {
-                                if (err) {
-                                    var timestamp = new Date().getTime();
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                    auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                         if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
+                                            logger.error("Failed to create or update bots Log: ", err);
                                         }
                                     });
-                                    if (launchParams.auditTrailId !== null) {
-                                        var resultTaskExecution = {
-                                            actionStatus: "failed",
-                                            status: "failed",
-                                            endedOn: new Date().getTime(),
-                                            actionLogId:launchParams.actionLogId
-                                        }
-                                        auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                            if (err) {
-                                                logger.error("Failed to create or update bots Log: ", err);
-                                            }
-                                        });
-                                        var logData ={
-                                            instanceId:instance._id,
-                                            instanceRefId:actionLog._id,
-                                            botId:launchParams.botId,
-                                            botRefId: launchParams.actionLogId,
-                                            err: true,
-                                            log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
-                                            timestamp: new Date().getTime()
-                                        };
-                                        logsDao.insertLog(logData);
-                                        noticeService.updater(launchParams.actionLogId,'log',logData);
-                                    }
-                                    var logData ={
-                                        instanceId:instance._id,
-                                        instanceRefId:actionLog._id,
-                                        botId:launchParams.botId,
-                                        botRefId: launchParams.actionLogId,
-                                        err: true,
-                                        log: "Instance ready state wait failed. Unable to bootstrap",
-                                        timestamp: timestamp
-                                    };
-                                    logsDao.insertLog(logData);
-                                    noticeService.updater(launchParams.actionLogId,'log',logData);
-                                    noticeService.notice(launchParams.sessionUser, {
-                                        title: "Blueprint BOTs Execution",
-                                        body: "Instance ready state wait failed. Unable to bootstrap"
-                                    }, "error",function(err,data){
-                                        if(err){
-                                            logger.error("Error in Notification Service, ",err);
-                                        }
-                                    });
-                                    awsLogger.error("waitForInstanceRunnnigState returned an error  >>", err);
-                                    logger.error("waitForInstanceRunnnigState returned an error  >>", err);
-                                    return;
                                 }
-                                instance.instanceIP = instanceData.PublicIpAddress || instanceData.PrivateIpAddress;
-                                instancesDao.updateInstanceIp(instance.id, instance.instanceIP, function (err, updateCount) {
-                                    if (err) {
-                                        logger.error("instancesDao.updateInstanceIp Failed ==>", err);
-                                        return;
-                                    }
-                                    logger.debug('Instance ip upadated');
-                                });
-                                instancesDao.updateInstanceState(instance.id, instanceData.State.Name, function (err, updateCount) {
-                                    if (err) {
-                                        logger.error("error(date instance state err ==>", err);
-                                        return;
-                                    }
-                                    logger.debug('instance state upadated');
-                                });
+                                if (newinstanceIDs.length >= instancesLength) {
+                                    callback(null, {
+                                        "id": newinstanceIDs,
+                                        "message": "instance launch success"
+                                    });
+                                }
+                                var instanceLog = {
+                                    actionId: actionLog._id,
+                                    instanceId: instance.id,
+                                    orgName: launchParams.orgName,
+                                    bgName: launchParams.bgName,
+                                    projectName: launchParams.projectName,
+                                    envName: launchParams.envName,
+                                    status: instanceData.State.Name,
+                                    actionStatus: "waiting",
+                                    platformId: instanceData.InstanceId,
+                                    blueprintName: launchParams.blueprintData.name,
+                                    data: paramRunList,
+                                    platform: "unknown",
+                                    os: self.instanceOS,
+                                    size: self.instanceType,
+                                    user: launchParams.sessionUser,
+                                    startedOn: new Date().getTime(),
+                                    createdOn: new Date().getTime(),
+                                    providerType: launchParams.cloudProviderType,
+                                    action: "Bootstrap"
+                                };
 
-                                instanceLog.status = instanceData.State.Name;
                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
                                 });
-
-                                logger.debug('waiting for instance');
-                                var logData ={
-                                    instanceId:instance._id,
-                                    instanceRefId:actionLog._id,
-                                    botId:launchParams.botId,
+                                var botLogFile = appConfig.botLogDir + launchParams.actionLogId;
+                                var fileName = 'BB_Execution.log';
+                                var winston = require('winston');
+                                var path = require('path');
+                                var mkdirp = require('mkdirp');
+                                var log_folder = path.normalize(botLogFile);
+                                mkdirp.sync(log_folder);
+                                var awsLogger = new winston.Logger({
+                                    transports: [
+                                        new winston.transports.DailyRotateFile({
+                                            level: 'debug',
+                                            datePattern: '',
+                                            filename: fileName,
+                                            dirname: log_folder,
+                                            handleExceptions: true,
+                                            json: true,
+                                            maxsize: 5242880,
+                                            maxFiles: 5,
+                                            colorize: true,
+                                            timestamp: false,
+                                            name: 'bb-execution-log'
+                                        }),
+                                        new winston.transports.Console({
+                                            level: 'debug',
+                                            handleExceptions: true,
+                                            json: false,
+                                            colorize: true,
+                                            name: 'bot-console'
+                                        })
+                                    ],
+                                    exitOnError: false
+                                });
+                                var logData = {
+                                    instanceId: instance._id,
+                                    instanceRefId: actionLog._id,
+                                    botId: launchParams.botId,
                                     botRefId: launchParams.actionLogId,
                                     err: false,
-                                    log: "waiting for instance state to be ok",
-                                    timestamp: new Date().getTime()
+                                    log: "Starting instance",
+                                    timestamp: timestampStarted
                                 };
                                 logsDao.insertLog(logData);
-                                noticeService.updater(launchParams.actionLogId,'log',logData);
-                                awsLogger.debug("waiting for instance state to be ok");
-
-                                ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function (err) {
+                                noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                awsLogger.debug("Starting instance");
+                                ec2.waitForInstanceRunnnigState(instance.platformId, function (err, instanceData) {
                                     if (err) {
+                                        var timestamp = new Date().getTime();
                                         instanceLog.actionStatus = "failed";
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -551,74 +534,100 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
                                             }
                                         });
-
                                         if (launchParams.auditTrailId !== null) {
                                             var resultTaskExecution = {
                                                 actionStatus: "failed",
                                                 status: "failed",
                                                 endedOn: new Date().getTime(),
-                                                actionLogId:launchParams.actionLogId
+                                                actionLogId: launchParams.actionLogId
                                             }
                                             auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                 if (err) {
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }
                                             });
-                                            var logData ={
-                                                instanceId:instance._id,
-                                                instanceRefId:actionLog._id,
-                                                botId:launchParams.botId,
+                                            var logData = {
+                                                instanceId: instance._id,
+                                                instanceRefId: actionLog._id,
+                                                botId: launchParams.botId,
                                                 botRefId: launchParams.actionLogId,
                                                 err: true,
                                                 log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
                                                 timestamp: new Date().getTime()
                                             };
                                             logsDao.insertLog(logData);
-                                            noticeService.updater(launchParams.actionLogId,'log',logData);
+                                            noticeService.updater(launchParams.actionLogId, 'log', logData);
                                         }
-                                        var logData ={
-                                            instanceId:instance._id,
-                                            instanceRefId:actionLog._id,
-                                            botId:launchParams.botId,
+                                        var logData = {
+                                            instanceId: instance._id,
+                                            instanceRefId: actionLog._id,
+                                            botId: launchParams.botId,
                                             botRefId: launchParams.actionLogId,
                                             err: true,
-                                            log: "Instance ok state wait failed. Unable to bootstrap",
-                                            timestamp: new Date().getTime()
+                                            log: "Instance ready state wait failed. Unable to bootstrap",
+                                            timestamp: timestamp
                                         };
                                         logsDao.insertLog(logData);
-                                        noticeService.updater(launchParams.actionLogId,'log',logData);
+                                        noticeService.updater(launchParams.actionLogId, 'log', logData);
                                         noticeService.notice(launchParams.sessionUser, {
                                             title: "Blueprint BOTs Execution",
-                                            body: "Instance ok state wait failed. Unable to bootstrap"
-                                        }, "error",function(err,data){
-                                            if(err){
-                                                logger.error("Error in Notification Service, ",err);
+                                            body: "Instance ready state wait failed. Unable to bootstrap"
+                                        }, "error", function (err, data) {
+                                            if (err) {
+                                                logger.error("Error in Notification Service, ", err);
                                             }
                                         });
-                                        awsLogger.error("Instance ok state wait failed. Unable to bootstrap");
-                                        logger.error('intance wait failed ==> ', err);
+                                        awsLogger.error("waitForInstanceRunnnigState returned an error  >>", err);
+                                        logger.error("waitForInstanceRunnnigState returned an error  >>", err);
                                         return;
                                     }
-
-                                    logger.debug('intance wait success');
-
-
-                                    //decrypting pem file
-                                    var cryptoConfig = appConfig.cryptoSettings;
-                                    var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
-                                    //cryptography.decryptFile(instance.credentials.pemFileLocation, cryptoConfig.decryptionEncoding, tempUncryptedPemFileLoc, cryptoConfig.encryptionEncoding, function(err) {
-                                    credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
-
+                                    instance.instanceIP = instanceData.PublicIpAddress || instanceData.PrivateIpAddress;
+                                    resourceModel.updateResourceById(resourceId,{'resourceDetails.publicIp':instanceData.PublicIpAddress,
+                                        'resourceDetails.privateIp':instanceData.PrivateIpAddress,'resourceDetails.state':instanceData.State.Name},function(err,data){
+                                        if(err){
+                                            logger.error("Error in updating Resource Details:",err);
+                                        }
+                                    });
+                                    instancesDao.updateInstanceIp(instance.id, instance.instanceIP, function (err, updateCount) {
                                         if (err) {
-                                            instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-                                                if (err) {
-                                                    logger.error("Unable to set instance bootstarp status", err);
-                                                } else {
-                                                    logger.debug("Instance bootstrap status set to failed");
-                                                }
-                                            });
-                                            instanceLog.endedOn = new Date().getTime();
+                                            logger.error("instancesDao.updateInstanceIp Failed ==>", err);
+                                            return;
+                                        }
+                                        logger.debug('Instance ip upadated');
+                                    });
+                                    instancesDao.updateInstanceState(instance.id, instanceData.State.Name, function (err, updateCount) {
+                                        if (err) {
+                                            logger.error("error(date instance state err ==>", err);
+                                            return;
+                                        }
+                                        logger.debug('instance state upadated');
+                                    });
+
+                                    instanceLog.status = instanceData.State.Name;
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+
+                                    logger.debug('waiting for instance');
+                                    var logData = {
+                                        instanceId: instance._id,
+                                        instanceRefId: actionLog._id,
+                                        botId: launchParams.botId,
+                                        botRefId: launchParams.actionLogId,
+                                        err: false,
+                                        log: "waiting for instance state to be ok",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    logsDao.insertLog(logData);
+                                    noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                    awsLogger.debug("waiting for instance state to be ok");
+
+                                    ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function (err) {
+                                        if (err) {
                                             instanceLog.actionStatus = "failed";
+                                            instanceLog.endedOn = new Date().getTime();
                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -630,298 +639,178 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                     actionStatus: "failed",
                                                     status: "failed",
                                                     endedOn: new Date().getTime(),
-                                                    actionLogId:launchParams.actionLogId
+                                                    actionLogId: launchParams.actionLogId
                                                 }
                                                 auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                     if (err) {
                                                         logger.error("Failed to create or update bots Log: ", err);
                                                     }
                                                 });
-                                                var logData ={
-                                                    instanceId:instance._id,
-                                                    instanceRefId:actionLog._id,
-                                                    botId:launchParams.botId,
+                                                var logData = {
+                                                    instanceId: instance._id,
+                                                    instanceRefId: actionLog._id,
+                                                    botId: launchParams.botId,
                                                     botRefId: launchParams.actionLogId,
                                                     err: true,
                                                     log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
                                                     timestamp: new Date().getTime()
                                                 };
                                                 logsDao.insertLog(logData);
-                                                noticeService.updater(launchParams.actionLogId,'log',logData);
+                                                noticeService.updater(launchParams.actionLogId, 'log', logData);
                                             }
-
-                                            var timestampEnded = new Date().getTime();
-                                            var logData ={
-                                                instanceId:instance._id,
-                                                instanceRefId:actionLog._id,
-                                                botId:launchParams.botId,
+                                            var logData = {
+                                                instanceId: instance._id,
+                                                instanceRefId: actionLog._id,
+                                                botId: launchParams.botId,
                                                 botRefId: launchParams.actionLogId,
                                                 err: true,
-                                                log: "Unable to decrpt pem file. Bootstrap failed",
-                                                timestamp: timestampEnded
+                                                log: "Instance ok state wait failed. Unable to bootstrap",
+                                                timestamp: new Date().getTime()
                                             };
                                             logsDao.insertLog(logData);
-                                            noticeService.updater(launchParams.actionLogId,'log',logData);
+                                            noticeService.updater(launchParams.actionLogId, 'log', logData);
                                             noticeService.notice(launchParams.sessionUser, {
                                                 title: "Blueprint BOTs Execution",
-                                                body: "Unable to decrpt pem file. Bootstrap failed"
-                                            }, "error",function(err,data){
-                                                if(err){
-                                                    logger.error("Error in Notification Service, ",err);
+                                                body: "Instance ok state wait failed. Unable to bootstrap"
+                                            }, "error", function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in Notification Service, ", err);
                                                 }
                                             });
-                                            awsLogger.error("Unable to decrpt pem file. Bootstrap failed");
-                                            instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                            if (instance.hardware.os != 'windows')
-                                                return;
+                                            awsLogger.error("Instance ok state wait failed. Unable to bootstrap");
+                                            logger.error('intance wait failed ==> ', err);
+                                            return;
                                         }
 
+                                        logger.debug('intance wait success');
 
-                                        var repoData = {};
-                                        repoData['projectId'] = launchParams.blueprintData.projectId;
-                                        if (launchParams.blueprintData.nexus.repoName) {
-                                            repoData['repoName'] = launchParams.blueprintData.nexus.repoName;
-                                        } else if (launchParams.blueprintData.docker.image) {
-                                            repoData['repoName'] = launchParams.blueprintData.docker.image;
-                                        }
 
-                                        launchParams.blueprintData.getCookBookAttributes(instance, repoData, function (err, jsonAttributes) {
+                                        //decrypting pem file
+                                        var cryptoConfig = appConfig.cryptoSettings;
+                                        var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
+                                        //cryptography.decryptFile(instance.credentials.pemFileLocation, cryptoConfig.decryptionEncoding, tempUncryptedPemFileLoc, cryptoConfig.encryptionEncoding, function(err) {
+                                        credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
 
-                                            var runlist = instance.runlist;
-                                            if (launchParams.blueprintData.extraRunlist) {
-                                                runlist = launchParams.blueprintData.extraRunlist.concat(instance.runlist);
-                                            }
-
-                                            var sensuCookBooks = masterUtil.getSensuCookbooks();
-                                            var sensuCookBook = sensuCookBooks[0];
-                                            if (runlist.indexOf(sensuCookBook) === -1 && launchParams.monitor && launchParams.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                                runlist = sensuCookBooks.concat(runlist);
-                                                jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
-                                            }
-
-                                            //logger.debug("runlist: ", JSON.stringify(runlist));
-                                            var bootstrapInstanceParams = {
-                                                instanceIp: instance.instanceIP,
-                                                pemFilePath: decryptedCredentials.pemFileLocation,
-                                                runlist: runlist,
-                                                instanceUsername: instance.credentials.username,
-                                                nodeName: instance.chef.chefNodeName,
-                                                environment: launchParams.envName,
-                                                instanceOS: instance.hardware.os,
-                                                jsonAttributes: jsonAttributes,
-                                                instancePassword: decryptedCredentials.password
-                                            };
-                                            launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function (err, code) {
-
-                                                if (decryptedCredentials.pemFileLocation) {
-                                                    fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
-                                                        if (err) {
-                                                            logger.error("Unable to delete temp pem file =>", err);
-                                                        } else {
-                                                            logger.debug("temp pem file deleted =>", err);
-                                                        }
-                                                    });
-                                                }
-                                                logger.error('process stopped ==> ', err, code);
-                                                if (err) {
-                                                    instanceLog.endedOn = new Date().getTime();
-                                                    instanceLog.actionStatus = "failed";
-                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                        if (err) {
-                                                            logger.error("Failed to create or update instanceLog: ", err);
-                                                        }
-                                                    });
-                                                    if (launchParams.auditTrailId !== null) {
-                                                        var resultTaskExecution = {
-                                                            actionStatus: "failed",
-                                                            status: "failed",
-                                                            endedOn: new Date().getTime(),
-                                                            actionLogId:launchParams.actionLogId
-                                                        }
-                                                        auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                                            if (err) {
-                                                                logger.error("Failed to create or update bot Log: ", err);
-                                                            }
-                                                        });
-                                                        var logData ={
-                                                            instanceId:instance._id,
-                                                            instanceRefId:actionLog._id,
-                                                            botId:launchParams.botId,
-                                                            botRefId: launchParams.actionLogId,
-                                                            err: true,
-                                                            log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
-                                                            timestamp: new Date().getTime()
-                                                        };
-                                                        logsDao.insertLog(logData);
-                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
+                                            if (err) {
+                                                resourceModel.updateResourceById(resourceId,{'resourceDetails.bootStrapState':'failed'},function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in updating Resource Details:",err);
                                                     }
-                                                    logger.error("knife launch err ==>", err);
-                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                                })
+                                                instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                                    if (err) {
+                                                        logger.error("Unable to set instance bootstarp status", err);
+                                                    } else {
+                                                        logger.debug("Instance bootstrap status set to failed");
+                                                    }
+                                                });
+                                                instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
 
+                                                if (launchParams.auditTrailId !== null) {
+                                                    var resultTaskExecution = {
+                                                        actionStatus: "failed",
+                                                        status: "failed",
+                                                        endedOn: new Date().getTime(),
+                                                        actionLogId: launchParams.actionLogId
+                                                    }
+                                                    auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                        }
                                                     });
-                                                    var timestampEnded = new Date().getTime();
-                                                    var logData ={
-                                                        instanceId:instance._id,
-                                                        instanceRefId:actionLog._id,
-                                                        botId:launchParams.botId,
+                                                    var logData = {
+                                                        instanceId: instance._id,
+                                                        instanceRefId: actionLog._id,
+                                                        botId: launchParams.botId,
                                                         botRefId: launchParams.actionLogId,
                                                         err: true,
-                                                        log: "Bootstrap failed",
-                                                        timestamp: timestampEnded
+                                                        log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
+                                                        timestamp: new Date().getTime()
                                                     };
                                                     logsDao.insertLog(logData);
-                                                    noticeService.updater(launchParams.actionLogId,'log',logData);
-                                                    noticeService.notice(launchParams.sessionUser, {
-                                                        title: "Blueprint BOTs Execution",
-                                                        body: "Bootstrap failed"
-                                                    }, "error",function(err,data){
-                                                        if(err){
-                                                            logger.error("Error in Notification Service, ",err);
-                                                        }
-                                                    });
-                                                    awsLogger.error("Bootstrap failed");
-                                                    instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                } else {
-                                                    if (code === 0) {
-                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
+                                                    noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                }
+
+                                                var timestampEnded = new Date().getTime();
+                                                var logData = {
+                                                    instanceId: instance._id,
+                                                    instanceRefId: actionLog._id,
+                                                    botId: launchParams.botId,
+                                                    botRefId: launchParams.actionLogId,
+                                                    err: true,
+                                                    log: "Unable to decrpt pem file. Bootstrap failed",
+                                                    timestamp: timestampEnded
+                                                };
+                                                logsDao.insertLog(logData);
+                                                noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                noticeService.notice(launchParams.sessionUser, {
+                                                    title: "Blueprint BOTs Execution",
+                                                    body: "Unable to decrpt pem file. Bootstrap failed"
+                                                }, "error", function (err, data) {
+                                                    if (err) {
+                                                        logger.error("Error in Notification Service, ", err);
+                                                    }
+                                                });
+                                                awsLogger.error("Unable to decrpt pem file. Bootstrap failed");
+                                                instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                if (instance.hardware.os != 'windows')
+                                                    return;
+                                            }
+
+
+                                            var repoData = {};
+                                            repoData['projectId'] = launchParams.blueprintData.projectId;
+                                            if (launchParams.blueprintData.nexus.repoName) {
+                                                repoData['repoName'] = launchParams.blueprintData.nexus.repoName;
+                                            } else if (launchParams.blueprintData.docker.image) {
+                                                repoData['repoName'] = launchParams.blueprintData.docker.image;
+                                            }
+
+                                            launchParams.blueprintData.getCookBookAttributes(instance, repoData, function (err, jsonAttributes) {
+
+                                                var runlist = instance.runlist;
+                                                if (launchParams.blueprintData.extraRunlist) {
+                                                    runlist = launchParams.blueprintData.extraRunlist.concat(instance.runlist);
+                                                }
+
+                                                var sensuCookBooks = masterUtil.getSensuCookbooks();
+                                                var sensuCookBook = sensuCookBooks[0];
+                                                if (runlist.indexOf(sensuCookBook) === -1 && launchParams.monitor && launchParams.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                    runlist = sensuCookBooks.concat(runlist);
+                                                    jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
+                                                }
+
+                                                //logger.debug("runlist: ", JSON.stringify(runlist));
+                                                var bootstrapInstanceParams = {
+                                                    instanceIp: instance.instanceIP,
+                                                    pemFilePath: decryptedCredentials.pemFileLocation,
+                                                    runlist: runlist,
+                                                    instanceUsername: instance.credentials.username,
+                                                    nodeName: instance.chef.chefNodeName,
+                                                    environment: launchParams.envName,
+                                                    instanceOS: instance.hardware.os,
+                                                    jsonAttributes: jsonAttributes,
+                                                    instancePassword: decryptedCredentials.password
+                                                };
+                                                launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function (err, code) {
+
+                                                    if (decryptedCredentials.pemFileLocation) {
+                                                        fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
                                                             if (err) {
-                                                                logger.error("Unable to set instance bootstarp status. code 0", err);
+                                                                logger.error("Unable to delete temp pem file =>", err);
                                                             } else {
-                                                                logger.debug("Instance bootstrap status set to success");
+                                                                logger.debug("temp pem file deleted =>", err);
                                                             }
                                                         });
-                                                        instanceLog.endedOn = new Date().getTime();
-                                                        instanceLog.actionStatus = "success";
-                                                        if (launchParams.auditTrailId !== null) {
-                                                            var resultTaskExecution = {
-                                                                actionStatus: "success",
-                                                                status: "success",
-                                                                endedOn: new Date().getTime(),
-                                                                actionLogId:launchParams.actionLogId
-                                                            }
-                                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                                                if (err) {
-                                                                    logger.error("Failed to create or update bots Log: ", err);
-                                                                }
-                                                                var botOldService = require('_pr/services/botOldService');
-                                                                botOldService.updateSavedTimePerBots(launchParams.botId,launchParams.auditTrailId,launchParams.auditType,function(err,data){
-                                                                    if (err) {
-                                                                        logger.error("Failed to update bots saved Time: ", err);
-                                                                    }
-                                                                    if(launchParams.bot_id !== null && launchParams.bot_id !== 'undefined' && typeof launchParams.bot_id !== 'undefined') {                                                                        
-                                                                        var logData ={
-                                                                            instanceId:instance._id,
-                                                                            instanceRefId:actionLog._id,
-                                                                            botId:launchParams.botId,
-                                                                            botRefId: launchParams.actionLogId,
-                                                                            err: false,
-                                                                            log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
-                                                                            timestamp: new Date().getTime()
-                                                                        };
-                                                                        logsDao.insertLog(logData);
-                                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
-                                                                    }
-                                                                });
-                                                            });
-                                                        }
-                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                            if (err) {
-                                                                logger.error("Failed to create or update instanceLog: ", err);
-                                                            }
-                                                        });
-                                                        var timestampEnded = new Date().getTime();
-                                                        var logData ={
-                                                            instanceId:instance._id,
-                                                            instanceRefId:actionLog._id,
-                                                            botId:launchParams.botId,
-                                                            botRefId: launchParams.actionLogId,
-                                                            err: false,
-                                                            log: "Instance Bootstrapped successfully",
-                                                            timestamp: timestampEnded
-                                                        };
-                                                        logsDao.insertLog(logData);
-                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
-                                                        noticeService.notice(launchParams.sessionUser, {
-                                                            title: "Blueprint BOTs Execution",
-                                                            body: "Instance "+instanceData.InstanceId+" is launched  on "+launchParams.envName,
-                                                        }, "success",function(err,data){
-                                                            if(err){
-                                                                logger.error("Error in Notification Service, ",err);
-                                                            }
-                                                        });
-                                                        awsLogger.debug("Instance Bootstrapped successfully");
-                                                        if (domainName !== null) {
-                                                            resourceService.updateDomainNameForInstance(domainName, instance.instanceIP, instance.id, awsSettings, function (err, updateDomainName) {
-                                                                if (err) {
-                                                                    logger.error("resourceService.updateDomainNameForInstance Failed ==>", err);
-                                                                }
-                                                                logger.debug("Domain name is updated successfully");
-                                                            });
-                                                        }
-                                                        instanceLog.endedOn = new Date().getTime();
-                                                        instanceLog.actionStatus = "success";
-                                                        instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-                                                        launchParams.infraManager.getNode(instance.chefNodeName, function (err, nodeData) {
-                                                            if (err) {
-                                                                logger.error("Failed chef.getNode", err);
-                                                                return;
-                                                            }
-                                                            instanceLog.platform = nodeData.automatic.platform;
-                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                if (err) {
-                                                                    logger.error("Failed to create or update instanceLog: ", err);
-                                                                }
-                                                            });
-                                                            var hardwareData = {};
-                                                            hardwareData.architecture = nodeData.automatic.kernel.machine;
-                                                            hardwareData.platform = nodeData.automatic.platform;
-                                                            hardwareData.platformVersion = nodeData.automatic.platform_version;
-                                                            hardwareData.memory = {
-                                                                total: 'unknown',
-                                                                free: 'unknown'
-                                                            };
-                                                            if (nodeData.automatic.memory) {
-                                                                hardwareData.memory.total = nodeData.automatic.memory.total;
-                                                                hardwareData.memory.free = nodeData.automatic.memory.free;
-                                                            }
-                                                            hardwareData.os = instance.hardware.os;
-                                                            instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
-                                                                if (err) {
-                                                                    logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
-                                                                } else {
-                                                                    logger.debug("Instance hardware details set successessfully");
-                                                                }
-                                                            });
-                                                            //Checking docker status and updating
-                                                            var _docker = new Docker();
-                                                            _docker.checkDockerStatus(instance.id,
-                                                                function (err, retCode) {
-                                                                    if (err) {
-                                                                        logger.error("Failed _docker.checkDockerStatus", err);
-                                                                        res.send(500);
-                                                                        return;
-                                                                        //res.end('200');
-
-                                                                    }
-                                                                    logger.debug('Docker Check Returned:' + retCode);
-                                                                    if (retCode == '0') {
-                                                                        instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
-                                                                            logger.debug('Instance Docker Status set to Success');
-                                                                        });
-
-                                                                    }
-                                                                });
-
-                                                        });
-
-                                                    }else {
-                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-                                                            if (err) {
-                                                                logger.error("Unable to set instance bootstarp status code != 0", err);
-                                                            } else {
-                                                                logger.debug("Instance bootstrap status set to failed");
-                                                            }
-                                                        });
+                                                    }
+                                                    logger.error('process stopped ==> ', err, code);
+                                                    if (err) {
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "failed";
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -934,100 +823,322 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 actionStatus: "failed",
                                                                 status: "failed",
                                                                 endedOn: new Date().getTime(),
-                                                                actionLogId:launchParams.actionLogId
+                                                                actionLogId: launchParams.actionLogId
                                                             }
                                                             auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update bot Log: ", err);
                                                                 }
                                                             });
-                                                            var logData ={
-                                                                instanceId:instance._id,
-                                                                instanceRefId:actionLog._id,
-                                                                botId:launchParams.botId,
+                                                            var logData = {
+                                                                instanceId: instance._id,
+                                                                instanceRefId: actionLog._id,
+                                                                botId: launchParams.botId,
                                                                 botRefId: launchParams.actionLogId,
                                                                 err: true,
                                                                 log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
                                                                 timestamp: new Date().getTime()
                                                             };
                                                             logsDao.insertLog(logData);
-                                                            noticeService.updater(launchParams.actionLogId,'log',logData);
-                                                            if(launchParams.bot_id !== null && launchParams.bot_id !== 'undefined' && typeof launchParams.bot_id !== 'undefined') {                                                                
-                                                                var logData ={
-                                                                    instanceId:instance._id,
-                                                                    instanceRefId:actionLog._id,
-                                                                    botId:launchParams.botId,
-                                                                    botRefId: launchParams.actionLogId,
-                                                                    err: false,
-                                                                    log: 'BOT has failed for Blueprint BOT:' + launchParams.bot_id,
-                                                                    timestamp: new Date().getTime()
-                                                                };
-                                                                logsDao.insertLog(logData);
-                                                                noticeService.updater(launchParams.actionLogId,'log',logData);
-                                                            }
+                                                            noticeService.updater(launchParams.actionLogId, 'log', logData);
                                                         }
-                                                        var timestampEnded = new Date().getTime();                                                        
-                                                        var logData ={
-                                                            instanceId:instance._id,
-                                                            instanceRefId:actionLog._id,
-                                                            botId:launchParams.botId,
+                                                        logger.error("knife launch err ==>", err);
+                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+
+                                                        });
+                                                        var timestampEnded = new Date().getTime();
+                                                        var logData = {
+                                                            instanceId: instance._id,
+                                                            instanceRefId: actionLog._id,
+                                                            botId: launchParams.botId,
                                                             botRefId: launchParams.actionLogId,
-                                                            err: false,
-                                                            log: "Bootstrap Failed",
+                                                            err: true,
+                                                            log: "Bootstrap failed",
                                                             timestamp: timestampEnded
                                                         };
                                                         logsDao.insertLog(logData);
-                                                        noticeService.updater(launchParams.actionLogId,'log',logData);
-                                                        awsLogger.error("Bootstrap Failed");
+                                                        noticeService.updater(launchParams.actionLogId, 'log', logData);
                                                         noticeService.notice(launchParams.sessionUser, {
                                                             title: "Blueprint BOTs Execution",
                                                             body: "Bootstrap failed"
-                                                        }, "error",function(err,data){
-                                                            if(err){
-                                                                logger.error("Error in Notification Service, ",err);
+                                                        }, "error", function (err, data) {
+                                                            if (err) {
+                                                                logger.error("Error in Notification Service, ", err);
                                                             }
                                                         });
+                                                        resourceModel.updateResourceById(resourceId,{'resourceDetails.bootStrapState':'failed'},function(err,data){
+                                                            if(err){
+                                                                logger.error("Error in updating Resource Details:",err);
+                                                            }
+                                                        })
+                                                        awsLogger.error("Bootstrap failed");
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                    }
-                                                }
-                                            }, function (stdOutData) {
-                                                var logData ={
-                                                    instanceId:instance._id,
-                                                    instanceRefId:actionLog._id,
-                                                    botId:launchParams.botId,
-                                                    botRefId: launchParams.actionLogId,
-                                                    err: false,
-                                                    log: stdOutData.toString('ascii'),
-                                                    timestamp: new Date().getTime()
-                                                };
-                                                logsDao.insertLog(logData);
-                                                noticeService.updater(launchParams.actionLogId,'log',logData);
-                                                awsLogger.debug(stdOutData.toString('ascii'));
+                                                    } else {
+                                                        if (code === 0) {
+                                                            resourceModel.updateResourceById(resourceId,{'resourceDetails.bootStrapState':'success'},function(err,data){
+                                                                if(err){
+                                                                    logger.error("Error in updating Resource Details:",err);
+                                                                }
+                                                            })
+                                                            instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
+                                                                if (err) {
+                                                                    logger.error("Unable to set instance bootstarp status. code 0", err);
+                                                                } else {
+                                                                    logger.debug("Instance bootstrap status set to success");
+                                                                }
+                                                            });
+                                                            instanceLog.endedOn = new Date().getTime();
+                                                            instanceLog.actionStatus = "success";
+                                                            if (launchParams.auditTrailId !== null) {
+                                                                var resultTaskExecution = {
+                                                                    actionStatus: "success",
+                                                                    status: "success",
+                                                                    endedOn: new Date().getTime(),
+                                                                    actionLogId: launchParams.actionLogId
+                                                                }
+                                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                                    }
+                                                                    var botOldService = require('_pr/services/botOldService');
+                                                                    botOldService.updateSavedTimePerBots(launchParams.botId, launchParams.auditTrailId, launchParams.auditType, function (err, data) {
+                                                                        if (err) {
+                                                                            logger.error("Failed to update bots saved Time: ", err);
+                                                                        }
+                                                                        if (launchParams.bot_id !== null && launchParams.bot_id !== 'undefined' && typeof launchParams.bot_id !== 'undefined') {
+                                                                            var logData = {
+                                                                                instanceId: instance._id,
+                                                                                instanceRefId: actionLog._id,
+                                                                                botId: launchParams.botId,
+                                                                                botRefId: launchParams.actionLogId,
+                                                                                err: false,
+                                                                                log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
+                                                                                timestamp: new Date().getTime()
+                                                                            };
+                                                                            logsDao.insertLog(logData);
+                                                                            noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                                        }
+                                                                    });
+                                                                });
+                                                            }
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                }
+                                                            });
+                                                            var timestampEnded = new Date().getTime();
+                                                            var logData = {
+                                                                instanceId: instance._id,
+                                                                instanceRefId: actionLog._id,
+                                                                botId: launchParams.botId,
+                                                                botRefId: launchParams.actionLogId,
+                                                                err: false,
+                                                                log: "Instance Bootstrapped successfully",
+                                                                timestamp: timestampEnded
+                                                            };
+                                                            logsDao.insertLog(logData);
+                                                            noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                            noticeService.notice(launchParams.sessionUser, {
+                                                                title: "Blueprint BOTs Execution",
+                                                                body: "Instance " + instanceData.InstanceId + " is launched  on " + launchParams.envName,
+                                                            }, "success", function (err, data) {
+                                                                if (err) {
+                                                                    logger.error("Error in Notification Service, ", err);
+                                                                }
+                                                            });
+                                                            awsLogger.debug("Instance Bootstrapped successfully");
+                                                            if (domainName !== null) {
+                                                                resourceService.updateDomainNameForInstance(domainName, instance.instanceIP, instance.id, awsSettings, function (err, updateDomainName) {
+                                                                    if (err) {
+                                                                        logger.error("resourceService.updateDomainNameForInstance Failed ==>", err);
+                                                                    }
+                                                                    logger.debug("Domain name is updated successfully");
+                                                                });
+                                                            }
+                                                            instanceLog.endedOn = new Date().getTime();
+                                                            instanceLog.actionStatus = "success";
+                                                            instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+                                                            launchParams.infraManager.getNode(instance.chefNodeName, function (err, nodeData) {
+                                                                if (err) {
+                                                                    logger.error("Failed chef.getNode", err);
+                                                                    return;
+                                                                }
+                                                                instanceLog.platform = nodeData.automatic.platform;
+                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                    }
+                                                                });
+                                                                var hardwareData = {};
+                                                                hardwareData.architecture = nodeData.automatic.kernel.machine;
+                                                                hardwareData.platform = nodeData.automatic.platform;
+                                                                hardwareData.platformVersion = nodeData.automatic.platform_version;
+                                                                hardwareData.memory = {
+                                                                    total: 'unknown',
+                                                                    free: 'unknown'
+                                                                };
+                                                                if (nodeData.automatic.memory) {
+                                                                    hardwareData.memory.total = nodeData.automatic.memory.total;
+                                                                    hardwareData.memory.free = nodeData.automatic.memory.free;
+                                                                }
+                                                                hardwareData.os = instance.hardware.os;
+                                                                resourceModel.updateResourceById(resourceId,{'resourceDetails.hardware':hardwareData},function(err,data){
+                                                                    if(err){
+                                                                        logger.error("Error in updating Resource Details:",err);
+                                                                    }
+                                                                })
+                                                                instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
+                                                                    if (err) {
+                                                                        logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                                                                    } else {
+                                                                        logger.debug("Instance hardware details set successessfully");
+                                                                    }
+                                                                });
+                                                                //Checking docker status and updating
+                                                                var _docker = new Docker();
+                                                                _docker.checkDockerStatus(instance.id,
+                                                                    function (err, retCode) {
+                                                                        if (err) {
+                                                                            logger.error("Failed _docker.checkDockerStatus", err);
+                                                                            res.send(500);
+                                                                            return;
+                                                                            //res.end('200');
 
-                                            }, function (stdErrData) {
-                                                var logData ={
-                                                    instanceId:instance._id,
-                                                    instanceRefId:actionLog._id,
-                                                    botId:launchParams.botId,
-                                                    botRefId: launchParams.actionLogId,
-                                                    err: true,
-                                                    log: stdErrData.toString('ascii'),
-                                                    timestamp: new Date().getTime()
-                                                };
-                                                logsDao.insertLog(logData);
-                                                noticeService.updater(launchParams.actionLogId,'log',logData);
-                                                awsLogger.error(stdErrData.toString('ascii'));
+                                                                        }
+                                                                        logger.debug('Docker Check Returned:' + retCode);
+                                                                        if (retCode == '0') {
+                                                                            resourceModel.updateResourceById(resourceId,{'resourceDetails.dockerEngineState':'success'},function(err,data){
+                                                                                if(err){
+                                                                                    logger.error("Error in updating Resource Details:",err);
+                                                                                }
+                                                                            })
+                                                                            instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
+                                                                                logger.debug('Instance Docker Status set to Success');
+                                                                            });
+
+                                                                        }
+                                                                    });
+
+                                                            });
+
+                                                        } else {
+                                                            resourceModel.updateResourceById(resourceId,{'resourceDetails.bootStrapState':'failed'},function(err,data){
+                                                                if(err){
+                                                                    logger.error("Error in updating Resource Details:",err);
+                                                                }
+                                                            })
+                                                            instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                                                if (err) {
+                                                                    logger.error("Unable to set instance bootstarp status code != 0", err);
+                                                                } else {
+                                                                    logger.debug("Instance bootstrap status set to failed");
+                                                                }
+                                                            });
+                                                            instanceLog.endedOn = new Date().getTime();
+                                                            instanceLog.actionStatus = "failed";
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                }
+                                                            });
+                                                            if (launchParams.auditTrailId !== null) {
+                                                                var resultTaskExecution = {
+                                                                    actionStatus: "failed",
+                                                                    status: "failed",
+                                                                    endedOn: new Date().getTime(),
+                                                                    actionLogId: launchParams.actionLogId
+                                                                }
+                                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update bot Log: ", err);
+                                                                    }
+                                                                });
+                                                                var logData = {
+                                                                    instanceId: instance._id,
+                                                                    instanceRefId: actionLog._id,
+                                                                    botId: launchParams.botId,
+                                                                    botRefId: launchParams.actionLogId,
+                                                                    err: true,
+                                                                    log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
+                                                                    timestamp: new Date().getTime()
+                                                                };
+                                                                logsDao.insertLog(logData);
+                                                                noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                                if (launchParams.bot_id !== null && launchParams.bot_id !== 'undefined' && typeof launchParams.bot_id !== 'undefined') {
+                                                                    var logData = {
+                                                                        instanceId: instance._id,
+                                                                        instanceRefId: actionLog._id,
+                                                                        botId: launchParams.botId,
+                                                                        botRefId: launchParams.actionLogId,
+                                                                        err: false,
+                                                                        log: 'BOT has failed for Blueprint BOT:' + launchParams.bot_id,
+                                                                        timestamp: new Date().getTime()
+                                                                    };
+                                                                    logsDao.insertLog(logData);
+                                                                    noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                                }
+                                                            }
+                                                            var timestampEnded = new Date().getTime();
+                                                            var logData = {
+                                                                instanceId: instance._id,
+                                                                instanceRefId: actionLog._id,
+                                                                botId: launchParams.botId,
+                                                                botRefId: launchParams.actionLogId,
+                                                                err: false,
+                                                                log: "Bootstrap Failed",
+                                                                timestamp: timestampEnded
+                                                            };
+                                                            logsDao.insertLog(logData);
+                                                            noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                            awsLogger.error("Bootstrap Failed");
+                                                            noticeService.notice(launchParams.sessionUser, {
+                                                                title: "Blueprint BOTs Execution",
+                                                                body: "Bootstrap failed"
+                                                            }, "error", function (err, data) {
+                                                                if (err) {
+                                                                    logger.error("Error in Notification Service, ", err);
+                                                                }
+                                                            });
+                                                            instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                        }
+                                                    }
+                                                }, function (stdOutData) {
+                                                    var logData = {
+                                                        instanceId: instance._id,
+                                                        instanceRefId: actionLog._id,
+                                                        botId: launchParams.botId,
+                                                        botRefId: launchParams.actionLogId,
+                                                        err: false,
+                                                        log: stdOutData.toString('ascii'),
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    logsDao.insertLog(logData);
+                                                    noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                    awsLogger.debug(stdOutData.toString('ascii'));
+
+                                                }, function (stdErrData) {
+                                                    var logData = {
+                                                        instanceId: instance._id,
+                                                        instanceRefId: actionLog._id,
+                                                        botId: launchParams.botId,
+                                                        botRefId: launchParams.actionLogId,
+                                                        err: true,
+                                                        log: stdErrData.toString('ascii'),
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    logsDao.insertLog(logData);
+                                                    noticeService.updater(launchParams.actionLogId, 'log', logData);
+                                                    awsLogger.error(stdErrData.toString('ascii'));
+                                                });
                                             });
                                         });
                                     });
                                 });
-                            });
 
 
-                        }); //end of create instance.
+                            }); //end of create instance.
+                        };
                     } //end of createinstancewrapper function
-
-
                     for (var ic = 0; ic < instanceDataAll.length; ic++) {
                         addinstancewrapper(instanceDataAll[ic], instanceDataAll.length);
                     }

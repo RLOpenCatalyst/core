@@ -233,9 +233,18 @@ var ResourceSchema = new Schema({
         required: false,
         trim: true
     },
+    cloudFormationId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    armId: {
+        type: String,
+        required: false,
+        trim: true
+    },
     serverDeletedCheck: {
-        type: Boolean,
-        default: false
+        type: Boolean
     }
 });
 

@@ -51,7 +51,7 @@
     "lodash.topairs": "4.1.0",
     "mkdirp": "^0.5.0",
     "mocha": "2.4.5",
-    "moment": "2.14.1",
+    "moment": "2.18.1",
     "mongodb": "^2.2.29",
     "mongoose": "4.9.6",
     "mongoose-double": "0.0.1",
