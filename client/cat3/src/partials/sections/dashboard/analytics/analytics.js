@@ -222,11 +222,11 @@
         $scope.getResourse = function(instType) {
 			$rootScope.filterNewEnt.resources=[];
 			$scope.selectedResources=[];
-        	if(instType === 'Managed') {
+        	if($scope.filter && instType === 'Managed') {
 	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
-					if(response.data && response.data.managedInstances &&  response.data.managedInstances.length >0){
-						$scope.resourceList = response.data.managedInstances;
-						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].platformId);
+					if(response.data &&  response.data.length >0){
+						$scope.resourceList = response.data;
+						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].resourceDetails.platformId);
 					} else{
 						$scope.resourceList=[];
 					}
@@ -234,11 +234,11 @@
 	                toastr.error(error);
 	            });
 	        }
-	        if(instType === 'Assigned') {
+	        if($scope.filter && instType === 'Assigned') {
 	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
-					if(response.data && response.data.unmanagedInstances.length >0){
-						$scope.resourceList = response.data.unmanagedInstances;
-						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].platformId);
+					if(response.data && response.data.length >0){
+						$scope.resourceList = response.data;
+						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].resourceDetails.platformId);
 					} else{
 						$scope.resourceList = [];
 					}
@@ -247,13 +247,13 @@
 	                toastr.error(error);
 	            });
 	        }
-	        if(instType === 'Unassigned') {
+	        if($scope.filter && instType === 'Unassigned') {
 	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
-					if(response.data && response.data.data && response.data.data.length >0){
-						$scope.resourceList = response.data.data;
-						$scope.toggleResourceSelection(response.data.data[0]._id,response.data.data[0].platformId);
+					if(response.data && response.data.length >0){
+						$scope.resourceList = response.data;
+						$scope.toggleResourceSelection(response.data[0]._id,response.data[0].resourceDetails.platformId);
 						$rootScope.filterNewEnt.resources=$scope.selectedResources;
-						$rootScope.filterNewEnt.platformId[response.data.data[0]._id]=response.data.data[0].platformId;
+						$rootScope.filterNewEnt.platformId[response.data[0]._id]=response.data[0].resourceDetails.platformId;
 					} else {
 						$scope.resourceList = [];
 					}
@@ -273,18 +273,11 @@
     		} else {
     			if($scope.selectedResources.length === 10){
     				console.log($scope.selectedResources.length);
-    				///toastr.error('Maximum 5 resources allowed.');
     			}else{
 					$rootScope.filterNewEnt.platformId[resourceId]=platformId;
     				$scope.selectedResources.push(resourceId);
     			}
     		}
-            // if($scope.selectedResources === resourceId){
-				// $scope.selectedResources='';
-            // } else{
-				// $scope.selectedResources=resourceId;
-            // }
-
 			$rootScope.filterNewEnt.resources=$scope.selectedResources;
 		};
 		if (!$rootScope.stateParams.view && $rootScope.organObject) {
