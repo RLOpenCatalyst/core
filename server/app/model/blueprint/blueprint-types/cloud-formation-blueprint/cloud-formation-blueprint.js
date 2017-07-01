@@ -514,7 +514,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                     environmentName: launchParams.envName
                                                                 },
                                                                 providerDetails: {
-                                                                    id: launchParams.cloudProviderId,
+                                                                    id: cloudFormation.cloudProviderId,
                                                                     type: self.cloudProviderType || 'aws',
                                                                     keyPairId: keyPair._id,
                                                                     region: self.region,
@@ -559,7 +559,12 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 cloudFormationId: cloudFormation._id
                                                             }
                                                             instanceObj.createdOn = new Date().getTime();
-                                                            resourceModel.getResources({'resourceDetails.platformId':instanceData.InstanceId,'masterDetails.orgId':launchParams.orgId},function(err,resourceDetails){
+                                                            var queryObj = {
+                                                                'masterDetails.orgId': instanceObj.masterDetails.orgId,
+                                                                'providerDetails.id': cloudFormation.cloudProviderId,
+                                                                'resourceDetails.platformId': instanceObj.resourceDetails.platformId
+                                                            };
+                                                            resourceModel.getResources(queryObj,function(err,resourceDetails){
                                                                 if(err){
                                                                     logger.error("Error in fetching resource Details:",err);
                                                                 }
@@ -646,7 +651,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                     var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                                                                     var logsReferenceIds = [instance.id, actionLog._id, launchParams.actionLogId];
                                                                     var logData = {
-                                                                        instanceId: instance._id,
+                                                                        instanceId: instance.id,
                                                                         instanceRefId: actionLog._id,
                                                                         botId: launchParams.botId,
                                                                         botRefId: launchParams.actionLogId,
@@ -717,7 +722,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                             })
                                                                             var timestampEnded = new Date().getTime();
                                                                             var logData = {
-                                                                                instanceId: instance._id,
+                                                                                instanceId: instance.id,
                                                                                 instanceRefId: actionLog._id,
                                                                                 botId: launchParams.botId,
                                                                                 botRefId: launchParams.actionLogId,
@@ -763,7 +768,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     }
                                                                                     if (launchParams.bot_id !== null) {
                                                                                         var logData = {
-                                                                                            instanceId: instance._id,
+                                                                                            instanceId: instance.id,
                                                                                             instanceRefId: actionLog._id,
                                                                                             botId: launchParams.botId,
                                                                                             botRefId: launchParams.actionLogId,
@@ -798,7 +803,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 })
                                                                                 var timestampEnded = new Date().getTime();
                                                                                 var logData = {
-                                                                                    instanceId: instance._id,
+                                                                                    instanceId: instance.id,
                                                                                     instanceRefId: actionLog._id,
                                                                                     botId: launchParams.botId,
                                                                                     botRefId: launchParams.actionLogId,
@@ -844,7 +849,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         }
                                                                                         if (launchParams.bot_id !== null) {
                                                                                             var logData = {
-                                                                                                instanceId: instance._id,
+                                                                                                instanceId: instance.id,
                                                                                                 instanceRefId: actionLog._id,
                                                                                                 botId: launchParams.botId,
                                                                                                 botRefId: launchParams.actionLogId,
@@ -916,7 +921,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         })
                                                                                         var timestampEnded = new Date().getTime();
                                                                                         var logData = {
-                                                                                            instanceId: instance._id,
+                                                                                            instanceId: instance.id,
                                                                                             instanceRefId: actionLog._id,
                                                                                             botId: launchParams.botId,
                                                                                             botRefId: launchParams.actionLogId,
@@ -962,7 +967,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                 }
                                                                                                 if (launchParams.bot_id !== null) {
                                                                                                     var logData = {
-                                                                                                        instanceId: instance._id,
+                                                                                                        instanceId: instance.id,
                                                                                                         instanceRefId: actionLog._id,
                                                                                                         botId: launchParams.botId,
                                                                                                         botRefId: launchParams.actionLogId,
@@ -992,7 +997,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             })
                                                                                             var timestampEnded = new Date().getTime();
                                                                                             var logData = {
-                                                                                                instanceId: instance._id,
+                                                                                                instanceId: instance.id,
                                                                                                 instanceRefId: actionLog._id,
                                                                                                 botId: launchParams.botId,
                                                                                                 botRefId: launchParams.actionLogId,
@@ -1012,7 +1017,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             });
                                                                                             cftLogger.debug("Instance Bootstraped successfully");
                                                                                             var logData = {
-                                                                                                instanceId: instance._id,
+                                                                                                instanceId: instance.id,
                                                                                                 instanceRefId: actionLog._id,
                                                                                                 botId: launchParams.botId,
                                                                                                 botRefId: launchParams.actionLogId,
@@ -1054,7 +1059,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                         }
                                                                                                         if (launchParams.bot_id !== null) {
                                                                                                             var logData = {
-                                                                                                                instanceId: instance._id,
+                                                                                                                instanceId: instance.id,
                                                                                                                 instanceRefId: actionLog._id,
                                                                                                                 botId: launchParams.botId,
                                                                                                                 botRefId: launchParams.actionLogId,
@@ -1148,7 +1153,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             })
                                                                                             var timestampEnded = new Date().getTime();
                                                                                             var logData = {
-                                                                                                instanceId: instance._id,
+                                                                                                instanceId: instance.id,
                                                                                                 instanceRefId: actionLog._id,
                                                                                                 botId: launchParams.botId,
                                                                                                 botRefId: launchParams.actionLogId,
@@ -1189,7 +1194,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                     }
                                                                                                     if (launchParams.bot_id !== null && launchParams.bot_id !== 'undefined' && typeof launchParams.bot_id !== 'undefined') {
                                                                                                         var logData = {
-                                                                                                            instanceId: instance._id,
+                                                                                                            instanceId: instance.id,
                                                                                                             instanceRefId: actionLog._id,
                                                                                                             botId: launchParams.botId,
                                                                                                             botRefId: launchParams.actionLogId,
@@ -1212,7 +1217,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
 
                                                                                 }, function (stdOutData) {
                                                                                     var logData = {
-                                                                                        instanceId: instance._id,
+                                                                                        instanceId: instance.id,
                                                                                         instanceRefId: actionLog._id,
                                                                                         botId: launchParams.botId,
                                                                                         botRefId: launchParams.actionLogId,
@@ -1227,7 +1232,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
 
                                                                                     //retrying 4 times before giving up.
                                                                                     var logData = {
-                                                                                        instanceId: instance._id,
+                                                                                        instanceId: instance.id,
                                                                                         instanceRefId: actionLog._id,
                                                                                         botId: launchParams.botId,
                                                                                         botRefId: launchParams.actionLogId,

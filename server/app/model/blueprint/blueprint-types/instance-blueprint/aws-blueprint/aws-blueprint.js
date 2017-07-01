@@ -331,7 +331,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             user:launchParams.sessionUser
                         }
                         instanceObj.createdOn = new Date().getTime();
-                        resourceModel.getResources({'resourceDetails.platformId':instanceData.InstanceId,'masterDetails.orgId':launchParams.orgId},function(err,resourceDetails){
+                        var queryObj = {
+                            'masterDetails.orgId': instanceObj.masterDetails.orgId,
+                            'providerDetails.id': instanceObj.providerDetails.id,
+                            'resourceDetails.platformId': instanceObj.resourceDetails.platformId
+                        }
+                        resourceModel.getResources(queryObj,function(err,resourceDetails){
                             if(err){
                                 logger.error("Error in fetching resource Details:",err);
                             }

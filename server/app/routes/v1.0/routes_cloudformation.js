@@ -34,6 +34,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var async = require('async');
 var serviceMapService = require('_pr/services/serviceMapService.js');
+var resourceModel = require('_pr/model/resources/resources');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -179,6 +180,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     return;
                                                 }
                                             });
+                                            resourceModel.getResources({'resourceDetails.platformId':instance.platformId,category:'managed',isDeleted:false},function(err,resources){
+                                                if(err){
+                                                    logger.error("Error in fetching Resources:",err);
+                                                }
+                                                if(resources.length > 0){
+                                                    serviceMapService.deleteResourceFromServices(resources[0]._id + '',function(err,data){
+                                                        if(err){
+                                                            logger.error("Error in updating Service Map Version:");
+                                                        }
+                                                    });
+                                                }
+                                            })
                                             var instanceLog = {
                                                 actionId: "",
                                                 instanceId: instance._id,
@@ -236,15 +249,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         });
                                         return;
                                     }
-                                    var resourceObj = {
-                                        'state': 'Deleted',
-                                        'resources.$.state':'deleted'
-                                    }
-                                    serviceMapService.updateService({name:cloudFormation.stackName},resourceObj,function(err,resourceMap){
-                                        if(err){
-                                            logger.error("Error in updating Services.",err);
-                                        }
-                                    });
                                     res.send(200, {
                                         message: "deleted",
                                         instanceIds: instanceIds

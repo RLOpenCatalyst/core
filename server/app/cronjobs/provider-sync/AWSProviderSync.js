@@ -156,8 +156,7 @@ function saveS3Data(s3Info, callback) {
                 var queryObj = {
                     'masterDetails.orgId':s3.masterDetails.orgId,
                     'providerDetails.id':s3.providerDetails.id,
-                    'resourceDetails.bucketName':s3.resourceDetails.bucketName,
-                    'isDeleted':false
+                    'resourceDetails.bucketName':s3.resourceDetails.bucketName
                 }
                 resourceModel.getResources(queryObj, function (err, responseBucketData) {
                     if (err) {
@@ -219,8 +218,7 @@ function saveEC2Data(ec2Info,provider, callback) {
                     var queryObj = {
                         'masterDetails.orgId': ec2.masterDetails.orgId,
                         'providerDetails.id': ec2.providerDetails.id,
-                        'resourceDetails.platformId': ec2.resourceDetails.platformId,
-                        'isDeleted':false
+                        'resourceDetails.platformId': ec2.resourceDetails.platformId
                     }
                     resourceModel.getResources(queryObj, function (err, responseInstanceData) {
                         if (err) {
@@ -290,8 +288,7 @@ function saveRDSData(rdsInfo, callback) {
                 var queryObj = {
                     'masterDetails.orgId':rds.masterDetails.orgId,
                     'providerDetails.id':rds.providerDetails.id,
-                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId,
-                    'isDeleted':false
+                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId
                 }
                 resourceModel.getResources(queryObj, function (err, responseRDSData) {
                     if (err) {

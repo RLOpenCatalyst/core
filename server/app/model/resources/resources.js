@@ -327,7 +327,7 @@ ResourceSchema.statics.getResources = function(queryObj,callback) {
             callback(err, null);
             return;
         }
-        callback(null, data);
+        return callback(null, data);
     });
 };
 
