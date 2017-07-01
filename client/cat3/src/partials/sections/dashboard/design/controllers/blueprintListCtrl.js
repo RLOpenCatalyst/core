@@ -4,6 +4,7 @@
         .controller('blueprintListCtrl',['$scope','$rootScope','$state','$modal','toastr','blueprintService','genericServices', function ($scope,$rootScope,$state,$modal,toastr,bpServ,gencSers) {
             var pbList = this;
             $rootScope.filterhide= $state.params.filterhide;
+            $rootScope.showForDesign= $state.params.showForDesign;
             $rootScope.state = $state;
             pbList.blueprintList={
                 list:[],

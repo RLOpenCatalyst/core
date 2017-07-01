@@ -1,0 +1,193 @@
+<div id='newServicePage' class="container margintop15 backColor">
+   <form name="newServiceForm" novalidate ng-submit="newServiceForm.$valid && ok()">
+      <div class="servicesHeader">
+          <div class="top_nav_c">
+              <div class="top_nav_c_digit">1</div>
+              <div class="top_nav_c_main">Step One</div>
+              <div class="top_nav_c_sub">Tell me about your service</div>
+          </div>
+          <div class="top_nav_c top_nav_c_border">
+            <div ng-class="step2Active ? 'top_nav_c_digit' : 'top_nav_c_digit off'">2</div>
+            <div ng-class="step2Active ? 'top_nav_c_main' : 'top_nav_c_main off'">Step Two</div>
+            <div ng-class="step2Active ? 'top_nav_c_sub' : 'top_nav_c_sub off'">Define your service with YAML</div>
+          </div>
+          <div class="top_nav_c top_nav_c_border">
+            <div ng-class="step3Active ? 'top_nav_c_digit' : 'top_nav_c_digit off'">3</div>
+            <div ng-class="step3Active ? 'top_nav_c_main' : 'top_nav_c_main off'">Step Three</div>
+            <div ng-class="step3Active ? 'top_nav_c_sub' : 'top_nav_c_sub off'">Preview</div>
+          </div>
+      </div>
+      <loading name="isNewServicePageLoading" size="large" type="block" align="center"></loading>
+      <div class="row new-task-wrapper scheduleBorder" ng-show="!isNewServicePageLoading">
+        <div ng-show="steps[0].isDisplayed">
+         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding" style="height:350px;">
+            <div class="jobDetailsContent">
+               <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+                  <label class="control-label servicesLabel">Name
+                  <span class="control-label red">&nbsp;*</span>
+                  <span ng-show="newServiceForm.serviceName.$touched && newServiceForm.serviceName.$invalid" class="inputValidationMsg">Required
+                  </span>
+                  </label>
+                  <input type="text" name="serviceName" placeholder="Enter the Service Name" class="form-control" required autofocus ng-model="serviceName" maxlength="50" />
+               </div>
+
+               <div class="col-lg-6 col-md-6 col-sm-4 col-xs-6 margintop15">
+                  <label class="control-label servicesLabel">Description
+                  </label>
+                  <input type="text" name="serviceDescription" placeholder="Enter the Service Description" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="serviceDescription" maxlength="50" />
+               </div>
+
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Organization:<span class="red">*</span></label>
+                  <div class="input-groups">
+                      <select name="org" ng-model="IMGNewEnt.org" ng-options="org.name group by org.a for org in organObject" class="chooseProjectExisting width-100 form-control" ng-change="getMonitorConfig(IMGNewEnt.org)"  required>
+                          <option value="">Select</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Business Groups:<span class="red">*</span></label>
+                  <div class="input-groups">
+                      <select name="buss" id="bgListInputExisting" class="chooseBGExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups"  ng-model="IMGNewEnt.buss"  required>
+                          <option value="">Select</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Project:<span class="red">*</span></label>
+                  <div class="input-groups">
+                      <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups[organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups.indexOf(IMGNewEnt.buss)].projects" ng-model="IMGNewEnt.proj" required>
+                          <option value="">Select</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Environment:<span class="red">*</span></label>
+                  <div class="input-groups">
+                      <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="env.name group by env.a for env in IMGNewEnt.proj.environments" ng-model="IMGNewEnt.env" required>
+                          <option value="">Select</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="" class="servicesLabel">Config Management :<span class="red">*</span>
+                   <loading size="medium" name="isConfigMonitorLoading" type="inline" classes='white' class="ng-scope"></loading>
+                  </label>
+                  <div class="input-groups">
+                      <select ng-model="IMGNewEnt.serverTypeInd" class="form-control ng-pristine ng-untouched ng-invalid ng-invalid-required"  required="">
+                          <option value="">Choose Server</option>
+                          <option ng-repeat="serverOption in configList" value="{{serverOption.rowid}}" class="ng-binding ng-scope">{{serverOption.configname}}</option>
+                      </select>
+                  </div>
+              </div>
+
+               <div class="col-lg-6 col-md-6 projectRepo margintop15">
+                  <label for="" class="servicesLabel">Monitoring:<loading size="medium" name="isConfigMonitorLoading" type="inline" classes='white' class="ng-scope"></loading></label>
+                  <select name="monitorId" ng-model="monitorId" class="form-control width-100">
+                     <option value="null">None</option>
+                     <option ng-repeat="monitor in monitorList" value="{{monitor._id}}">{{monitor.name}}</option>
+                  </select>
+               </div>
+            </div>
+         </div>
+       </div>
+       <div ng-show="steps[1].isDisplayed">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding heightForServiceYamlTemplate">
+            <div class="jobDetailsContent">
+              <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+                <label for="yamlfile" class="servicesLabel">YAML File
+                <span class="control-label red">*</span>
+                <span ng-show="newServiceForm.yamlfile.$touched && newServiceForm.yamlfile.$error.required" class="inputValidationMsg">Required
+                </span>
+                </label>
+                <select name="yamlSelection" ng-model="yamlSelection" class="form-control width-100" ng-change="configSelect()">
+                   <option value="">Select</option>                    
+                   <option value="upload">Upload YAML</option>
+                   <option value="chooseTemplate">Choose a Template</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--step[1] gets over here-->
+         <!--second column script-->
+      </div>
+      <div class="row scheduleBorder margintop10" ng-show="steps[1].isDisplayed && yamlSelection">
+        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 heightForServiceYamlTemplate" ng-show="yamlSelection === 'upload'">
+          <label class="servicesLabel">Upload</label>
+          <div class="input-groups">
+             <input type="file" name="yamlfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" onchange="angular.element(this).scope().setFile(this)"><span title="Clear" class="filterClear cursor" ng-click="clearFile()">×</span>
+          </div>
+        </div>
+        <div class="col-lg-12 col-md-12 margintop5 marginleft-15" ng-class="{'heightForServiceTemplate':templateSelected}" ng-show="yamlSelection === 'chooseTemplate'">
+          <div class="col-lg-3 col-md-3 col-sm-6">
+            <h4>Template List:</h4>
+            <div class="dashboard-stats__item cursor" ng-repeat="templateDetails in getTemplateDetails" ng-class="templateDetails === templateSelected ? 'serviceTemplateSelected' : 'disableTemplateSelected'" ng-click="showYaml(templateDetails)">
+              <ul style="margin-left:-32px;">
+                <li title="{{templateDetails.name}}" class="lineHeight">{{templateDetails.name}}</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-5 col-md-5 col-sm-3">
+            <h4>Edit source here:</h4>
+            <div ui-ace ng-model="yamlResult"></div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-3">
+            <h4>Result:</h4>
+            <pre ng-show="!errorDisplay" class="margintop10">{{yamlErrorDetails | json}}</pre> 
+            <pre ng-show="errorDisplay" class="margintop10 preWrap">{{yamlErrorDetails}}</pre> 
+          </div>
+        </div>
+      </div>
+      <!--step 3-->
+      <div class="row margintop10" ng-show="steps[2].isDisplayed">
+        <table class="table table-striped table-bordered table-hover dataTable no-footer">
+          <thead>
+          <tr class="paramRow" role="row">
+             <td>Parameter</td>
+             <td>Value</td>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+             <td>Name</td>
+             <td>{{serviceName}}</td>
+          </tr>
+          <tr>
+             <td>Description</td>
+             <td>{{serviceDescription}}</td>
+          </tr>
+          <tr>
+             <td>Organization</td>
+             <td>{{IMGNewEnt.org.name}}</td>
+          </tr>
+          <tr>
+             <td>Business Group</td>
+             <td>{{IMGNewEnt.buss.name}}</td>
+          </tr>
+          <tr>
+             <td>Project</td>
+             <td>{{IMGNewEnt.proj.name}}</td>
+          </tr>
+          <tr>
+             <td>Environment</td>
+             <td>{{IMGNewEnt.env.name}}</td>
+          </tr>
+          <tr ng-if="theFile.name">
+             <td>Yaml File</td>
+             <td>{{theFile.name}}</td>
+          </tr>
+          <tr ng-if="!theFile.name && yamlResult !==null">
+             <td>Template</td>
+             <td>{{yamlResult}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+   </form>
+</div>
+<div class="pager">
+   <button class="btn  cat-btn-update" ng-click="previous(stpLen)" ng-disabled="!previousEnabled" ng-show="!isSubmitComposite">Previous</button>
+   <button class="btn cat-btn-update" ng-show="isNextVisible" ng-click="next(stpLen)" ng-disabled="!nextEnabled">Next</button>
+   <button class="btn  cat-btn-update" ng-show="isSubmitVisible" ng-disabled="newServiceForm.$invalid" ng-click="postServices()">Save</button>
+</div>

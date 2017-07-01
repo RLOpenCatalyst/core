@@ -71,5 +71,13 @@
 				return genericServices.promiseDelete(params); 	
 			};
 
+			serviceCreate.getTemplates = function() {
+				var params = {
+					url: 'src/partials/sections/dashboard/design/template.json',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params); 	
+			};
+
         }]);
 })(angular);

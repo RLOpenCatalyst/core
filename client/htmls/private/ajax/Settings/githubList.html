@@ -166,4 +166,49 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalForGitSync" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog " style="">
+      <div class="modal-content">
+        <form role="form" id="gitSyncForBots">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">
+               <i class="ace-icon fa fa-download bigger-120"></i> BOT(s) Library
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div class="col-lg-12">
+               <div id="gitImpLoader" style="display:none">
+                  <img class="center-block" style="height: 50px; width: 50px;margin-top:10px;" src="img/loading.gif" />
+                </div>
+               <table id="gitImportTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+                  <thead>
+                     <tr class="rowCustomStyle">
+                        <td style="width:200px;">BOT(s) Name</td>
+                        <td>BOT Id</td>
+                        <td>Action&nbsp;<input type="checkbox" id="selectAllCheckbox"/></td>
+                     </tr>
+                  </thead>
+                  <tbody id="importBotsList">
+                  </tbody>
+                  <input type="hidden" id="gitEditImportHiddenInputId">
+               </table>
+               <div id="noDataAvailable" style="display:none" class="alert alert-info text-center">No Data Found</div>
+               <div class="clearfix"></div>
+               
+            </div>
+            <div class="clearfix"></div>
+         </div>
+         <div class="modal-footer">
+            <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+            <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
+            <button type="submit" id="gitCloneImportSave" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Clone</button>
+         </div>
+         
+     </form>
+      </div>
+   </div>
+</div>
+
 <script src="js/gitHubList.js"></script>

@@ -1,0 +1,38 @@
+---
+aws:
+  groups:
+  - name: NAT
+    identifiers:
+      ami:
+      - ami-sample11
+      - ami-sample12
+  - name: NGINX
+    identifiers:
+      ip:
+      - 1.1.1.1
+      - 2.2.2.2
+  - name: Application
+    identifiers:
+      tag:
+      - TagKey11: TagValue11
+        TagKey12: TagValue12
+      - TagKey21: TagValue21
+        TagKey22: TagValue22
+  - name: Datastore
+    identifiers:
+      ami:
+      - ami-sample11
+      - ami-sample12
+      tag:
+      - TagKey11: TagValue11
+        TagKey12: TagValue12
+      - TagKey21: TagValue21
+        TagKey22: TagValue22
+      subnet:
+      - subnet-sample11
+      - subnet-sample12
+      vpc:
+      - vpc-sample11
+      - vpc-sample12
+ 
+ 

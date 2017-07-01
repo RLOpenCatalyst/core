@@ -7,11 +7,12 @@
 
 (function (angular) {
     "use strict";
-    angular.module('dashboard.services')
+    angular.module('dashboard.design')
     .controller('servicesListCtrl',['$scope', '$rootScope', '$state', 'genericServices','confirmbox', 'toastr', 'servicesCreateService', '$modal', 'uiGridOptionsService', '$timeout', function ($scope, $rootScope, $state, genericServices, confirmbox, toastr, servicesCreateService, $modal, uiGridOptionsService, $timeout) {
-        var treeNames = ['Services','Service Library'];
+        var treeNames = ['Design','Services','Service Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
-
+        $rootScope.filterhide= $state.params.filterhide;
+        $rootScope.showForDesign = $state.params.showForDesign;
         var serviceLibraryUIGridDefaults = uiGridOptionsService.options();
         $scope.paginationParams = serviceLibraryUIGridDefaults.pagination;
         $scope.paginationParams=[];
@@ -31,7 +32,7 @@
                 { name: 'Type',field:'type',cellTooltip: true},
                 { name: 'Created On',field:'createdOn',cellTemplate:'<span title="{{row.entity.createdOn  | timestampToLocaleTime}}">{{row.entity.createdOn  | timestampToLocaleTime}}</span>',cellTooltip: true},
                 { name: 'Version',field:'version', cellTooltip: true},
-                { name: 'More Info',cellTemplate:'<a title="More Info"><i class="fa fa-info font-size-16 cursor" ui-sref="dashboard.services.servicesDescription({serviceDetail:row.entity,listType:1})" ></i></a>'},
+                { name: 'More Info',cellTemplate:'<a title="More Info"><i class="fa fa-info font-size-16 cursor" ui-sref="dashboard.design.servicesDescription({serviceDetail:row.entity,listType:1})" ></i></a>'},
                 { name: 'Action',cellTemplate:'<span  title="Delete" class="fa fa-trash-o btn btn-danger btn-sg tableactionbutton btnDeleteTask white marginleft10" ng-click="grid.appScope.deleteService(row.entity)"></span>'}
             ];
             $scope.serviceGrid.data=[];

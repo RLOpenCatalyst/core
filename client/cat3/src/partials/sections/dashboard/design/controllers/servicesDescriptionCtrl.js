@@ -6,10 +6,13 @@
  */
 (function(angular) {
         "use strict";
-        angular.module('dashboard.services')
+        angular.module('dashboard.design')
             .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
-                var treeNames = ['Services', 'Service Description'];
+                var treeNames = ['Design','Services', 'Service Description'];
                 $rootScope.$emit('treeNameUpdate', treeNames);
+                console.log($state.params);
+                $rootScope.filterhide= $state.params.filterhide;
+                $rootScope.showForDesign= $state.params.showForDesign;
                 $scope.serviceSelected = $state.params.serviceDetail;
 
                 var serviceInfoUIGridDefaults = uiGridOptionsService.options();
@@ -75,13 +78,13 @@
                                         name: 'Authentication',
                                         cellTooltip: true,
                                         cellTemplate:'<i title="{{row.entity.authentication}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.authentication === \'success\'"></i>' +
-                                        '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'pending\'"></i>' + '<i style="cursor:pointer;" title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="grid.appScope.changeAuthenticationType(row.entity)"></i>'
+                                        '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'pending\'"></i>' + '<i style="cursor:pointer;color:#d25353!important" title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="grid.appScope.changeAuthenticationType(row.entity)"></i>'
                                     },
                                     {
                                         name: 'Bootstrap',
                                         cellTooltip: true,
                                         cellTemplate: '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.bootStrapState === \'success\'"></i>' +
-                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>',
+                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" style="color:#d25353!important" ng-show="row.entity.bootStrapState === \'failed\'"></i>',
                                     }
                                 ];
                                 bpcolumnDefs = resourceGrid;                                
@@ -100,7 +103,7 @@
                 $scope.changeAuthenticationType = function(serviceObject) {
                     $modal.open({
                         animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/services/popups/serviceAuthentication.html',
+                        templateUrl: 'src/partials/sections/dashboard/design/view/popups/serviceAuthentication.html',
                         controller: 'servicesAuthenticationCtrl',
                         backdrop: 'static',
                         keyboard: false,
@@ -132,15 +135,15 @@
                     templates: {
                         readme: {
                             "title": "ReadMe",
-                            "url": "src/partials/sections/dashboard/services/tabs/serviceReadme.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/serviceReadme.html"
                         },
                         resources: {
                             "title": "Resources",
-                            "url": "src/partials/sections/dashboard/services/tabs/resources.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/resources.html"
                         },
                         info: {
                             "title": "Service Info",
-                            "url": "src/partials/sections/dashboard/services/tabs/serviceInfo.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/serviceInfo.html"
                         }
                     }
                 };

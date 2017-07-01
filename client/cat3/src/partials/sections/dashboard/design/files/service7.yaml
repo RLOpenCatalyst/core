@@ -1,0 +1,6 @@
+--- 
+chef: 
+  roles: 
+    - "ROLE11 ROLE12"
+    - ROLE2
+    - ROLE3
