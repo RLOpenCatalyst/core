@@ -200,11 +200,11 @@ function getGlobalGitServers() {
             {"data": "repositoryBranch" ,"orderable" : false},
             {"data": "","orderable" : true,
                 "render": function (data) {
-                    var $tdAction = '<div class="btn-group">' +
+                    var $tdAction = /*'<div class="btn-group">' +
                         '<button class="btn btn-info pull-left btn-sg tableactionbutton syncGitRepo" data-placement="top" value="Sync" title="Sync">' +
                         '<i class="ace-icon fa fa-refresh bigger-120"></i>' +
                         '</button>' +
-                        '</div>' +
+                        '</div>' +*/
                         '<div style="margin-left:14px;" class="btn-group">' +
                         '<button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit">' +
                         '<i class="ace-icon fa fa-pencil bigger-120"></i>' +
