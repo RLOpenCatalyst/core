@@ -6,7 +6,9 @@
 		<div id='analyticsTreeMenuPage'>
 			<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTree}">
 				<div id='navigPage-inner'>
-					<div id="treeParent">
+					<div id="treeParent" style="margin-top:10px;margin-left:14px;">
+						<i class="icon fa fa-building label-spacing"></i>
+				        <span>Instances</span>
 						<ul class="tree-ul">
 							<li ng-repeat="provider in desCtrl.providersMenu">
 								<div class="liContents">
@@ -28,6 +30,27 @@
 								</div>
 							</li>
 						</ul>
+						<i class="icon fa fa-building label-spacing"></i>
+				        <span>Services</span>
+				        <ul class="tree-ul">
+				    	<li>
+				        <div class="liContents">
+				            <div data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
+				                <ul class="tree-ul">
+				                    <li ui-sref="dashboard.design.servicesList" class="pointer-cursor" ui-sref-active='activeSection'>
+				                        <div class="liContents">
+				                        	<div class="liContents-wrapper">
+					                        	<i class="icon fa fa-money label-spacing"></i>
+						                        <span>Services Library</span>
+						                        <i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems==='dashboard.design.servicesList'"></i>
+						                    </div>
+				                        </div>
+				                    </li>
+				                </ul>
+				            </div>
+				        </div>
+				    </li>
+				</ul>
 					</div>
 				</div>
 			</div>
@@ -72,9 +95,9 @@
 		<br/>
 	</div>
 
-	<div class="panelRight">
+	<div class="panelRight" >
 		<div id='rightPanel' class='container-fluid'>
-			<ul class="nav nav-tabs" style="height: 43px;">
+			<ul class="nav nav-tabs" ng-hide="showForDesign" style="height: 43px;">
 				<li ng-class="{'active':state.current.name === 'dashboard.design.list'}"  ui-sref="dashboard.design.list({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600"><i class="fa fa-list fa-2" aria-hidden="true"></i> List</a></li>
 				<li ng-if="state.params.templateObj.templatetypename !== 'Composite'" ng-class="{'active':state.current.name === 'dashboard.design.add'}" ui-sref="dashboard.design.add({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> New</a></li>
 				<li ng-if="state.params.templateObj.templatetypename === 'Composite'" ng-class="{'active':state.current.name === 'dashboard.design.compositeNew'}" ui-sref="dashboard.design.compositeNew({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> New</a></li>

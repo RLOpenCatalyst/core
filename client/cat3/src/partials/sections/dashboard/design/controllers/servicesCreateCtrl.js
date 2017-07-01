@@ -7,11 +7,13 @@
 
 (function (angular) {
     "use strict";
-    angular.module('dashboard.services').
+    angular.module('dashboard.design').
     controller('servicesCreateCtrl',['$scope', '$rootScope', '$state', '$http', 'genericServices','toastr', 'servicesCreateService', function ($scope, $rootScope, $state, $http, genericServices, toastr, servicesCreateService) {
     	$scope.isNewServicePageLoading = true;
-        var treeNames = ['Services','Service Create'];
+        var treeNames = ['Design','Services','Service Create'];
         $rootScope.$emit('treeNameUpdate', treeNames);
+        $rootScope.filterhide= $state.params.filterhide;
+        $rootScope.showForDesign= $state.params.showForDesign;
         var reqBody = {};
         $scope.showTemplate = false;
         $scope.templateSelection = false;
@@ -117,7 +119,7 @@
                     return;
                 }
                 if (index === 0) {
-                    $state.go('dashboard.services.servicesList');
+                    $state.go('dashboard.design.servicesList');
                     return;
                 }
                 steps[index--].isDisplayed = false;
@@ -255,7 +257,7 @@
                         reqBody.fileId = yamlfileId;
                         servicesCreateService.postCreateService(reqBody).then(function(response){
                             toastr.success('Service created successfully');
-                            $state.go('dashboard.services.servicesList');
+                            $state.go('dashboard.design.servicesList');
                         });
                     }
                 });

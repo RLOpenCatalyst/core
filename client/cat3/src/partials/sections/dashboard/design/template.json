@@ -2,48 +2,48 @@
     "name": "ServiceSAE-Amazon-AMI",
     "description": "Get resources by Amazon AMI ID",
     "type": "YAML",
-    "yamlPath": "src/partials/sections/dashboard/services/files/service1.yaml"
+    "yamlPath": "src/partials/sections/dashboard/design/files/service1.yaml"
   },
   {
     "name": "ServiceSAE-Amazon-VPC",
     "description": "Get resources by Amazon VPC ID",
     "type": "YAML",
-    "yamlPath": "src/partials/sections/dashboard/services/files/service2.yaml"
+    "yamlPath": "src/partials/sections/dashboard/design/files/service2.yaml"
   },
   {
     "name": "ServiceSAE-Amazon-Subnet",
     "description": "Get resources by Amazon Subnet ID",
     "type": "YAML",
-    "yamlPath": "src/partials/sections/dashboard/services/files/service3.yaml"
+    "yamlPath": "src/partials/sections/dashboard/design/files/service3.yaml"
   },
   {
     "name": "ServiceSAE-Amazon-Tag",
     "description": "Get resources by Amazon Tags",
     "type": "YAML",
-    "yamlPath": "src/partials/sections/dashboard/services/files/service4.yaml"
+    "yamlPath": "src/partials/sections/dashboard/design/files/service4.yaml"
   },
   {
     "name": "ServiceSAE-Amazon-IP",
     "description": "Get resources by Amazon EC2 IpAddress",
     "type": "YAML",
-    "yamlPath": "src/partials/sections/dashboard/services/files/service5.yaml"
+    "yamlPath": "src/partials/sections/dashboard/design/files/service5.yaml"
   },
   {
     "name": "ServiceSAE-Amazon-CustomGroup",
     "description": "Get resources from Amazon by grouping them by VPC, Subnet, AMI, IpAddress and Tag",
     "type": "YAML",
-    "yamlPath": "src/partials/sections/dashboard/services/files/service6.yaml"
+    "yamlPath": "src/partials/sections/dashboard/design/files/service6.yaml"
   },
   {
     "name": "ServiceSAE-Chef-Roles",
     "description": "Get resources by Chef Roles",
     "type": "YAML",
-    "yamlPath": "src/partials/sections/dashboard/services/files/service7.yaml"
+    "yamlPath": "src/partials/sections/dashboard/design/files/service7.yaml"
   },
   {
     "name": "ServiceSAE-Chef-Group",
     "description": "Get resources from Chef by grouping them by roles",
     "type": "YAML",
-    "yamlPath": "src/partials/sections/dashboard/services/files/service8.yaml"
+    "yamlPath": "src/partials/sections/dashboard/design/files/service8.yaml"
   }
 ]

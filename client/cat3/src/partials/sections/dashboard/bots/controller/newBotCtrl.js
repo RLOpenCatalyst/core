@@ -57,7 +57,8 @@
                     'chef':{name:'Chef'},
                     'blueprint':{name:'Blueprint'},
                     'script':{name:'Script'},
-                    'jenkins':{name:'Jenkins'}
+                    'jenkins':{name:'Jenkins'},
+                    'meta':{name:'Meta'}
                 },
                 updateCookbook : function() {
                     genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
@@ -208,6 +209,9 @@
                                 }
                                 botsData.scriptDetails.push(obj);
                             }
+                        }
+                    } else if($scope.botType === 'meta') {
+                        if($scope.zipfile) {
                         }
                     }
                     botsCreateService.postCreateBots(reqbody).then(function(){

@@ -348,3 +348,280 @@ fieldset#compBlueprint legend {
 .layersClassComposite {
     margin-left: 10px;
 }
+
+#serviceLibraryPage , #newServicePage, #servicesDescriptionPage {
+    .page-name {
+       font-size: 18px;
+       margin: 5px 0 5px 36px;
+    }
+
+    .refresh-btn {
+       margin: 2px 10px 0 0;
+    }
+
+    .btn-xs {
+       padding: 1px 5px;
+       font-size: 12px;
+    }
+
+    .servicesLabel {
+      font-weight: 400;
+    }
+
+    .gridHeightServices {
+      height: 518px;
+    }
+
+    .tableactionbutton {
+      border-radius: 50%;
+      padding: 2px 8px;
+    }
+
+    .nav-tabs {
+      border-bottom: 0px;
+      margin-bottom: 15px;
+    }
+
+    .nav-tabs > li.active > a,
+    .nav-tabs > li.active > a:focus,
+    .nav-tabs > li.active > a:hover {
+      border-width: 0;
+    }
+
+    .nav-tabs > li > a {
+      border: none;
+      color: #666;
+      cursor: pointer;
+    }
+
+    .nav-tabs > li.active > a {
+      border: none;
+      color: #4285F4 !important;
+      background: transparent;
+      i {
+          color: #40baf1;
+      }
+    }
+
+    .nav-tabs > li > a::after {
+      content: "";
+      background: #4285F4;
+      height: 2px;
+      position: absolute;
+      width: 100%;
+      left: 0px;
+      bottom: -1px;
+      transition: all 250ms ease 0s;
+      transform: scale(0);
+      i {
+          color: #40baf1;
+      }
+    }
+
+    .nav-tabs > li.active > a::after {
+      transform: scale(1);
+    }
+
+    .summary-container {
+       width: 96%;
+    }
+
+    .gridResourceHeight {
+        height: 460px;
+    }
+
+    .marginright20 {
+        margin-right: 20px;
+    }
+
+    .text-green {
+      color: #4CAF50;
+    }
+
+    .text-red {
+      color: red;
+    }
+
+    .text-gray {
+      color: grey
+    }
+
+    .text-black {
+      color: black
+    }
+
+    .marginTopRightForHistory {
+      margin-top: -3px;
+      margin-right: 20px;
+    }
+
+    /* numbered buttons */
+    #status-buttons a { 
+      color:#FFF; 
+      display:inline-block; 
+      font-size:12px; 
+      margin-right:10px; 
+      text-align:center; 
+      text-transform:uppercase; 
+    }
+
+    #status-buttons a:hover { 
+      text-decoration:none; 
+    }
+
+    #status-buttons span.backGroundClass { 
+       background:#080808; 
+       display:block; 
+       height:28px; 
+       margin:0 auto 10px; 
+       padding-top:5px; 
+       width:30px; 
+       border-radius:50%; 
+    }
+
+    /* active buttons */
+    #status-buttons span.active { 
+      background:#00BC8C!important;
+      display:block; 
+       height:28px; 
+       margin:0 auto 10px; 
+       padding-top:5px; 
+       width:30px; 
+       border-radius:50%; 
+    }
+
+    .textColor {
+      color: #4e5964!important;
+    }
+
+    .dashboard-stats__item {
+        /*padding: 30px 8px;*/
+        margin-bottom: 8px;
+        border: 1px solid lightgray;
+        box-shadow: 0 0px 0px rgba(0, 0, 0, .12), 0 2px 1px rgba(0, 0, 0, .24)
+        /*box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24)*/
+    }
+
+    .lineHeight {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      line-height: 1.9;
+    }
+
+    .serviceTemplateSelected {
+        border: 1.5px solid #000;
+        border-radius: 4px;
+    }
+
+    .disableTemplateSelected {
+      background: #E0E0E0;
+      color: #757575;
+      font-weight: bold;
+    }
+
+    .servicesHeader {
+      background-color: #dcd9d9;
+      border-bottom: 1px solid #D8D7D4;
+      border-top: 1px solid #FFFFFF;
+      height: 56px;
+    }
+
+    .top_nav_c {
+      height: 36px;
+      float: left;    
+      font-family: 'Ruda',sans-serif;
+      padding-left: 25px;
+      width: 385px;
+      margin-top: 8px;
+      padding-top: 4px;
+    }
+
+    div::-webkit-scrollbar-thumb, ul::-webkit-scrollbar-thumb
+    {
+        background-color: #c1c1c1!important;
+        background-image: none!important;
+    }
+
+
+      
+    .top_nav_c_border {
+      border-left: 1px solid #c6c2ba;
+    }
+
+    .top_nav_c_digit {
+      color: #aeaeae;
+      font-weight: 400;
+      font-size: 36px;
+      font-family: 'Ubuntu', sans-serif;
+      float: left;
+      margin-right: 6px;
+      margin-top: -8px;
+    }
+
+    .top_nav_c_digit.off {
+      color: #ccc;
+    }
+
+    .top_nav_c_main {
+      /*color: rgba(0,0,0,0.64);*/
+      color: #757575;
+      font-size: 18px;
+      font-weight: normal;
+      font-family: Ruda, sans-serif;
+      font-weight: bold;
+      line-height: 18px;
+    }
+
+    .top_nav_c_sub {
+      color: #85827c;
+      font-size: 12px;
+      font-weight: strong;
+      line-height: 12px;
+    }
+
+    .top_nav_c_main.off, .top_nav_c_sub.off {
+      color: #bfbdb8;
+    }
+
+    .marginleft-15 {
+      margin-left: -15px;
+    }
+
+    .heightForServiceYamlTemplate {
+      height : 90px;
+    }
+
+    .heightForServiceTemplate {
+      height : 350px;
+      overflow-y: auto!important;
+    }
+
+    .ace_editor  {
+      height : 300px;
+      overflow-y:auto;
+      border: 1px solid black;
+    }
+
+    pre {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid black;
+    }
+
+    .preWrap {
+      white-space: pre-wrap;
+    }
+
+    .filterClear  {
+      float: right;
+      margin-top: -25px;
+      margin-right: 6px;
+    }
+
+    @media (min-width : 1550px){
+        .gridHeightServices {
+          height: 800px;
+        }
+    }
+}

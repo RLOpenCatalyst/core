@@ -73,7 +73,7 @@
 
 			serviceCreate.getTemplates = function() {
 				var params = {
-					url: 'src/partials/sections/dashboard/services/template.json',
+					url: 'src/partials/sections/dashboard/design/template.json',
 					inlineLoader: true
 				}
 				return genericServices.promiseGet(params); 	
