@@ -159,7 +159,8 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                     bot_id:botId,
                     botId:auditTrail.auditId,
                     auditType: auditTrail.auditType,
-                    actionLogId:auditTrail.actionId
+                    actionLogId:auditTrail.actionId,
+                    serviceCheckFlag:reqBody.serviceCheckFlag?reqBody.serviceCheckFlag:true
                 },next);
 
             }else{

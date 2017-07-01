@@ -1,7 +1,7 @@
 <style>
-input[type="file"] { 
+  input[type="file"] {
     display: none;
-}
+  }
 </style>
 
 <div class="row">
@@ -15,8 +15,8 @@ input[type="file"] {
           <div>
             <!--new button for adding a new item-->
             <a href="#modalForTrackEdit" type="reset" data-backdrop="false" data-toggle="modal" class="btn btn-minier btn-primary addDashboardItem">
-            <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;New
-            </a>                                                                                                            
+              <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;New
+            </a>
           </div>
         </div>
       </div>
@@ -25,17 +25,16 @@ input[type="file"] {
           <div class="col-md-12 table-responsive tablePadding">
             <table id="monitorTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
               <thead>
-                <tr class="rowCustomStyle">
-                  <td>Name</td>
-                  <td>Organization</td>
-                  <td>Type</td>
-                  <td>Server Url</td>
-                  <td>Protocol Type</td>
-                  <td>Host</td>
-                  <td>Port</td>
-                  <td>Default</td>
-                  <td>Action</td>
-                </tr>
+              <tr class="rowCustomStyle">
+                <td>Name</td>
+                <td>Organization</td>
+                <td>Type</td>
+                <td>Server Url</td>
+                <td>Protocol Type</td>
+                <td>Host</td>
+                <td>Port</td>
+                <td>Action</td>
+              </tr>
               </thead>
               <tbody id="monitorTableInput">
               </tbody>
@@ -46,11 +45,11 @@ input[type="file"] {
       </div>
       <!--widget body ends here-->
     </div>
-    <!--widget box ends here-->  
+    <!--widget box ends here-->
   </div>
   <!-- col-lg-12 ends here-->
 </div>
-<!--row ends here-->     
+<!--row ends here-->
 
 <!--modal for ItemList-->
 <div class="modal fade" id="modalForTrackEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -86,10 +85,10 @@ input[type="file"] {
               </div>
             </div>
             <div class="col-lg-6 col-md-6 margintop15 serverType hidden">
-                <label for="serverUrl">Server URL:<span class="control-label redSpan">&nbsp;*</span></label>
-                <div class="input-groups">
-                  <input type="url" name="serverUrl" class="required serverUrl form-control" id="serverUrl"/> 
-                </div>
+              <label for="serverUrl">Server URL:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <input type="url" name="serverUrl" class="required serverUrl form-control" id="serverUrl"/>
+              </div>
             </div>
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 serverType hidden">
               <label for="">Protocol Type:<span class="control-label redSpan">&nbsp;*</span></label>
@@ -131,26 +130,26 @@ input[type="file"] {
                 <input type="text" name="protocolVhost" class=" protocolVhost form-control" id="protocolVhost">
               </div>
             </div>
-            
+
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
               <label for="certificateFile">Certificate File:</label>
               <div class="input-groups">
                 <input type="file" extension="pem" name="certificateFile" id="certificateFile" class="form-control form-controls" onchange="setFileNameCertificate(this.value);"/>
               </div>
-                <span class="pull-left">
+              <span class="pull-left">
                     <label title="Please choose a Certificate file" class="choose-file cursor" for="certificateFile">Choose File</label>
                 </span>
-                <div id="certificateFileNameDisplay" class="file-name"></div>
+              <div id="certificateFileNameDisplay" class="file-name"></div>
             </div>
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
               <label for="privateFile">Private File:</label>
               <div class="input-groups">
                 <input type="file" extension="pem" name="privateFile" id="privateFile" class="form-control form-controls" onchange="setFileNamePrivate(this.value);"/>
               </div>
-                <span class="pull-left">
+              <span class="pull-left">
                     <label title="Please choose a Private file" class="choose-file cursor" for="privateFile">Choose File</label>
                 </span>
-                <div id="privateFileNameDisplay" class="file-name"></div>
+              <div id="privateFileNameDisplay" class="file-name"></div>
             </div>
             <input type="hidden" id="monitorEditHiddenInputId">
             <input type="hidden" id="monitorEditHiddenInput">
@@ -170,576 +169,522 @@ input[type="file"] {
 
 
 <script>
-//initialising the datatable...
-if (!$.fn.dataTable.isDataTable('#monitorTable')) {
-    var $monitorDatatable = $('#monitorTable').DataTable({
-        "pagingType": "full_numbers",
-        "bInfo": false,
-        "bLengthChange": false,
-        "paging": true,
-        "bFilter": false,
-        "aoColumns": [{
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }, {
-            "bSortable": false
-        },{
-            "bSortable": false
-        },{
-            "bSortable": false
-        },{
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }]
+    //initialising the datatable...
+    if (!$.fn.dataTable.isDataTable('#monitorTable')) {
+        var $monitorDatatable = $('#monitorTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": true,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            },{
+                "bSortable": false
+            },{
+                "bSortable": false
+            },{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
 
+        });
+    }
+
+    //calling the global track functionality when track params are available..
+    $(document).ready(function(e) {
+        getGlobalMonitorServers();
     });
-}
 
-//calling the global track functionality when track params are available..
-$(document).ready(function(e) {
-    getGlobalMonitorServers();
-});
-
-function setFileNameCertificate(val){
-    $('#certificateFileNameDisplay').empty();
-    var fileNameCertificate = val.substr(val.lastIndexOf("\\")+1, val.length);
-    $("#certificateFileNameDisplay").append(fileNameCertificate);
-}
-
-function setFileNamePrivate(val){
-    $('#privateFileNameDisplay').empty();
-    var fileNamePrivate = val.substr(val.lastIndexOf("\\")+1, val.length);
-    $("#privateFileNameDisplay").append(fileNamePrivate);
-}
-
-var serverTypeValue = $('#serverType').val();
-$('#serverType').change(function(e){
-    var val = $(this).val();
-    if(val === 'sensu') {
-      $('.serverType').removeClass('hidden');
-    }else {
-      $('.serverType').addClass('hidden');
-      $('.showForRabbit').addClass('hidden');
-      $('#protocolType').val('');
+    function setFileNameCertificate(val){
+        $('#certificateFileNameDisplay').empty();
+        var fileNameCertificate = val.substr(val.lastIndexOf("\\")+1, val.length);
+        $("#certificateFileNameDisplay").append(fileNameCertificate);
     }
-});
 
-$('#protocolType').change(function(e){
-    var val = $(this).val();
-    if (val === 'rabbitmq') {
-        $('.showForRabbit').removeClass('hidden');
-    } else {
-        $('.showForRabbit').addClass('hidden');
+    function setFileNamePrivate(val){
+        $('#privateFileNameDisplay').empty();
+        var fileNamePrivate = val.substr(val.lastIndexOf("\\")+1, val.length);
+        $("#privateFileNameDisplay").append(fileNamePrivate);
     }
-});
 
-//when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
-$('.addDashboardItem').click(function(e) {
-    $('#monitorServerForm').trigger('reset');
-    $('.modal-header').find('.modal-title').html('Create New Monitoring Server');
-    $('#monitorEditHiddenInput').val('new');
-    getOrganizationList();
-    $('#orgName,#protocolType').removeAttr('disabled');
-    $('#protocolType').change();
-    $('#monitorEditHiddenInputId,#monitorHiddenCertificateFile,#monitorHiddenPrivateFile').val('');
-    $('#certificateFileNameDisplay').empty();
-    $('#privateFileNameDisplay').empty();
-});
-
-//to list down the organization for creating the monitoring server item.
-function getOrganizationList() {
-    $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
-        var str = ' <option value="">Select Organization</option>',
-        len = data.length;
-        for (var i = 0; i < data.length; i++) {
-            str = str + '<option value="' + data[i].rowid + '">' + data[i].orgname + '</option>';
+    var serverTypeValue = $('#serverType').val();
+    $('#serverType').change(function(e){
+        var val = $(this).val();
+        if(val === 'sensu') {
+            $('.serverType').removeClass('hidden');
+        }else {
+            $('.serverType').addClass('hidden');
+            $('.showForRabbit').addClass('hidden');
+            $('#protocolType').val('');
         }
-        $('#orgName').html(str);
-    })
-}
+    });
 
-
-//to show the focus on first input ....
-$(document).on('shown.bs.modal', function(e) {
-    $('[autofocus]', e.target).focus();
-});
-
-//form validation for dashboard save
-var validator = $('#monitorServerForm').validate({
-    ignore: [],
-    rules: {
-        serverUrl: {
-            url: true
-        },
-        protocolPassword : {
-          required: true
-        },
-        certificateFile: {
-            extension: "pem"
-        },
-        privateFile: {
-            extension: "pem"
-        },
-        monitorName: {
-            maxlength: 15
-        }
-    },
-    messages: {
-        certificateFile: {
-            extension: "Only .pem files"
-        },
-        privateFile: {
-            extension: "Only .pem files"
-        },
-        monitorName: {
-            maxlength: "Limited to 15 chars"
-        }
-    },
-    onkeyup: false,
-    errorClass: "error",
-
-    //put error message behind each form element
-    errorPlacement: function(error, element) {
-        console.log(error, element);
-        var elem = $(element);
-        if (element.parent('.input-groups').length) {
-            error.insertBefore(element.parent());
+    $('#protocolType').change(function(e){
+        var val = $(this).val();
+        if (val === 'rabbitmq') {
+            $('.showForRabbit').removeClass('hidden');
         } else {
-            if (element.parent('div.inputGroups')) {
-                console.log(element);
-                console.log(element.parent);
-                error.insertBefore('div.inputGroups');
+            $('.showForRabbit').addClass('hidden');
+        }
+    });
+
+    //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
+    $('.addDashboardItem').click(function(e) {
+        $('#monitorServerForm').trigger('reset');
+        $('.modal-header').find('.modal-title').html('Create New Monitoring Server');
+        $('#monitorEditHiddenInput').val('new');
+        getOrganizationList();
+        $('#orgName,#protocolType').removeAttr('disabled');
+        $('#protocolType').change();
+        $('#monitorEditHiddenInputId,#monitorHiddenCertificateFile,#monitorHiddenPrivateFile').val('');
+        $('#certificateFileNameDisplay').empty();
+        $('#privateFileNameDisplay').empty();
+    });
+
+    //to list down the organization for creating the monitoring server item.
+    function getOrganizationList() {
+        $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+            var str = ' <option value="">Select Organization</option>',
+                len = data.length;
+            for (var i = 0; i < data.length; i++) {
+                str = str + '<option value="' + data[i].rowid + '">' + data[i].orgname + '</option>';
+            }
+            $('#orgName').html(str);
+        })
+    }
+
+
+    //to show the focus on first input ....
+    $(document).on('shown.bs.modal', function(e) {
+        $('[autofocus]', e.target).focus();
+    });
+
+    //form validation for dashboard save
+    var validator = $('#monitorServerForm').validate({
+        ignore: [],
+        rules: {
+            serverUrl: {
+                url: true
+            },
+            protocolPassword : {
+                required: true
+            },
+            certificateFile: {
+                extension: "pem"
+            },
+            privateFile: {
+                extension: "pem"
+            },
+            monitorName: {
+                maxlength: 15
+            }
+        },
+        messages: {
+            certificateFile: {
+                extension: "Only .pem files"
+            },
+            privateFile: {
+                extension: "Only .pem files"
+            },
+            monitorName: {
+                maxlength: "Limited to 15 chars"
+            }
+        },
+        onkeyup: false,
+        errorClass: "error",
+
+        //put error message behind each form element
+        errorPlacement: function(error, element) {
+            console.log(error, element);
+            var elem = $(element);
+            if (element.parent('.input-groups').length) {
+                error.insertBefore(element.parent());
+            } else {
+                if (element.parent('div.inputGroups')) {
+                    console.log(element);
+                    console.log(element.parent);
+                    error.insertBefore('div.inputGroups');
+                }
+
+                $("select.select2-me").each(function(index, el) {
+
+                    if ($(this).is("[data-rule-required]") &&
+                        $(this).attr("data-rule-required") == "true") {
+                        $(this).on('select2-close', function(e) {
+                            $(this).valid()
+                        });
+                    }
+                });
+            }
+        },
+
+        //When there is an error normally you just add the class to the element.
+        // But in the case of select2s you must add it to a UL to make it visible.
+        // The select element, which would otherwise get the class, is hidden from
+        // view.
+        highlight: function(element, errorClass, validClass) {
+            var elem = $(element);
+            if (elem.hasClass("select2-offscreen")) {
+                $("#s2id_" + elem.attr("id") + " ul").addClass(errorClass);
+            } else {
+                elem.addClass(errorClass);
+            }
+        },
+
+        //When removing make the same adjustments as when adding
+        unhighlight: function(element, errorClass, validClass) {
+            var elem = $(element);
+            if (elem.hasClass("select2-offscreen")) {
+                $("#s2id_" + elem.attr("id") + " ul").removeClass(errorClass);
+            } else {
+                elem.removeClass(errorClass);
+            }
+        }
+    });
+    $('a.addDashboardItem[type="reset"]').on('click', function(e) {
+        validator.resetForm();
+    });
+
+    //this is a functionality to get the list of global track items that have been created....
+    function getGlobalMonitorServers() {
+        //for getting the list of monitors
+        var trackUrlDetails = '../monitors';
+        $.get(trackUrlDetails, function(data) {
+            if (data && data.length) {
+                for (var kk = 0; kk < data.length; kk++) {
+                    createTableForMonitorList(data[kk]);
+                }
             }
 
-            $("select.select2-me").each(function(index, el) {
 
-                if ($(this).is("[data-rule-required]") &&
-                    $(this).attr("data-rule-required") == "true") {
-                    $(this).on('select2-close', function(e) {
-                        $(this).valid()
-                    });
+        }).fail(function(jxhr) {
+            var msg = "Server Behaved Unexpectedly";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+        });
+    };
+
+
+    //creating a table for showcasing the list of track items on the dashboard page..
+    function createTableForMonitorList(monitorData) {
+        var $monitorList = $('#monitorTable tbody');
+        var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name);
+        $tr.data('monitorData', monitorData);
+
+        var $tdName = $('<td class="monitorName">' + monitorData.name + '</td>');
+
+        var $tdOrganization = $('<td class="monitorOrg">' + monitorData.organization.name + '</td>');
+
+        var $tdServerType = $('<td class="monitorServerType">' + monitorData.type + '</td>');
+
+        var $tdServerURL = $('<td class="monitorServerURL">' + monitorData.parameters.url + '</td>');
+
+        var $tdProtocolType = $('<td class="monitorProtocolType">' + monitorData.parameters.transportProtocol + '</td>');
+
+        var $tdProtocolHost = $('<td class="monitorProtocolHost">' + monitorData.parameters.transportProtocolParameters.host + '</td>');
+
+        var $tdProtocolPort = $('<td class="monitorProtocolPort">' + monitorData.parameters.transportProtocolParameters.port + '</td>');
+
+        var $tdAction = $('<td/>');
+
+        $tdAction.append('<div class="btn-group">').append('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalMonitorRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+        //for editing track items from the table...
+      /*$tdAction.find('button.editMonitorRow').click(function() {
+       var $this = $(this);
+       var $tr = $this.parents('tr.monitorItemRow');
+       var monitorData = $tr.data('monitorData');
+       var monitorId = monitorData._id;
+       var $editModal = $('#modalForTrackEdit');
+       $editModal.modal('show');
+       $editModal.find('#monitorEditHiddenInput').val('edit');
+       $editModal.find('h4.modal-title').html('Edit Monitor Item &nbsp;-&nbsp;&nbsp;' + monitorData.name);
+       $editModal.find('#monitorName').val(monitorData.name);
+       $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
+       $editModal.find('#serverType').val(monitorData.type);
+       $editModal.find('.serverUrl').val(monitorData.parameters.url);
+       $editModal.find('#protocolType').val(monitorData.parameters.transportProtocol).change().attr('disabled','disabled');
+       $editModal.find('.protocolHost').val(monitorData.parameters.transportProtocolParameters.host);
+       $editModal.find('.protocolPort').val(monitorData.parameters.transportProtocolParameters.port);
+       $editModal.find('.protocolPassword').val('').rules('remove', 'required');
+       $editModal.find('.protocolVhost').val(monitorData.parameters.transportProtocolParameters.vhost);
+       $editModal.find('.protocolUser').val(monitorData.parameters.transportProtocolParameters.user);
+       $editModal.find('#monitorEditHiddenInputId').val(monitorData._id);
+       if(monitorData.parameters.transportProtocolParameters.ssl) {
+       $editModal.find('#monitorHiddenCertificateFile').val(monitorData.parameters.transportProtocolParameters.ssl.certChainFile.id);
+       $editModal.find('#certificateFileNameDisplay').empty().append(monitorData.parameters.transportProtocolParameters.ssl.certChainFile.name);
+       $editModal.find('#monitorHiddenPrivateFile').val(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFile.id);
+       $editModal.find('#privateFileNameDisplay').empty().append(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFile.name);
+       }
+       return false;
+       });*/
+
+        //for deletion of track items from the table..
+        $tdAction.find('button.globalMonitorRemove').click(function() {
+
+            var $this = $(this);
+            var $tr = $this.parents('tr.monitorItemRow');
+            var monitorId = monitorData._id;
+            bootbox.confirm({
+                message: 'Are you sure you want to Delete Monitor Item -&nbsp;' + monitorData.name,
+                title: "Warning",
+                callback: function(result) {
+                    if (result) {
+                        $.ajax({
+                            url: '../monitors/' + monitorId,
+                            method: 'DELETE',
+                            success: function() {
+                                $monitorDatatable.row($tr).remove().draw(false);
+
+                            },
+                            error: function(jxhr) {
+                                bootbox.alert(result);
+                                var msg = "Unable to Delete URL please try again later";
+                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                    msg = jxhr.responseJSON.message;
+                                } else if (jxhr.responseText) {
+                                    msg = jxhr.responseText;
+                                }
+                                bootbox.alert(msg);
+                            }
+                        });
+                    } else {
+                        return;
+                    }
                 }
             });
-        }
-    },
+            return false;
+        });
 
-    //When there is an error normally you just add the class to the element.
-    // But in the case of select2s you must add it to a UL to make it visible.
-    // The select element, which would otherwise get the class, is hidden from
-    // view.
-    highlight: function(element, errorClass, validClass) {
-        var elem = $(element);
-        if (elem.hasClass("select2-offscreen")) {
-            $("#s2id_" + elem.attr("id") + " ul").addClass(errorClass);
-        } else {
-            elem.addClass(errorClass);
-        }
-    },
+        $tr.append($tdName).append($tdOrganization).append($tdServerType).append($tdServerURL).append($tdProtocolType).append($tdProtocolHost).append($tdProtocolPort).append($tdAction);
+        $monitorList.append($tr);
+        $monitorDatatable.row.add($tr).draw();
+    };
 
-    //When removing make the same adjustments as when adding
-    unhighlight: function(element, errorClass, validClass) {
-        var elem = $(element);
-        if (elem.hasClass("select2-offscreen")) {
-            $("#s2id_" + elem.attr("id") + " ul").removeClass(errorClass);
-        } else {
-            elem.removeClass(errorClass);
-        }
-    }
-});
-$('a.addDashboardItem[type="reset"]').on('click', function(e) {
-    validator.resetForm();
-});
+    function saveForm(methodName,url,reqBody,createNewEdit,monitorId,parameters,name,serverType) {
+        $.ajax({
+            method: methodName,
+            url: url,
+            async:false,
+            data: reqBody,
+            success: function(data, success) {
+                $('#modalForTrackEdit').modal('hide');
+                $('#saveItemSpinner').addClass('hidden');
+                $('#saveBtnTrack').removeAttr('disabled');
+                if (createNewEdit === 'new') {
+                    $monitorDatatable.clear().draw();
+                    getGlobalMonitorServers();
+                    $('#saveBtnTrack').removeAttr('disabled');
+                } else {
+                    var $tr = $('tr[data-monitorId="' + monitorId + '"]');
+                    $tr.find('.monitorName').html(reqBody.name);
+                    $tr.find('.monitorServerType').html(reqBody.type);
+                    $tr.find('.monitorServerURL').html(reqBody.parameters.url);
+                    $tr.find('.monitorProtocolHost').html(reqBody.parameters.transportProtocolParameters.host);
+                    $tr.find('.monitorProtocolPort').html(reqBody.parameters.transportProtocolParameters.port);
+                    $tr.data('monitorData', {
+                        name:name,
+                        _id: monitorId,
+                        type: serverType,
+                        parameters:parameters
+                    });
+                }
+            },
+            error: function(jxhr) {
+                console.log(jxhr);
+                var msg = "Server Behaved Unexpectedly";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
 
-//this is a functionality to get the list of global track items that have been created....
-function getGlobalMonitorServers() {
-    //for getting the list of monitors
-    var trackUrlDetails = '../monitors';
-    $.get(trackUrlDetails, function(data) {
-        if (data && data.length) {
-            for (var kk = 0; kk < data.length; kk++) {
-                createTableForMonitorList(data[kk]);
+                $('#saveItemSpinner').addClass('hidden');
+                $('#saveBtnTrack').removeAttr('disabled');
             }
-        }
+        });
+    }
 
-
-    }).fail(function(jxhr) {
-        var msg = "Server Behaved Unexpectedly";
-        if (jxhr.responseJSON && jxhr.responseJSON.message) {
-            msg = jxhr.responseJSON.message;
-        } else if (jxhr.responseText) {
-            msg = jxhr.responseText;
-        }
-        bootbox.alert(msg);
-    });
-};
-
-
-//creating a table for showcasing the list of track items on the dashboard page..
-function createTableForMonitorList(monitorData) { 
-  var $monitorList = $('#monitorTable tbody');
-  var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name);
-  $tr.data('monitorData', monitorData);
-  var isDefault='';
-
-  if(monitorData.isDefault){
-    isDefault='Default';
-  } else {
-    isDefault='<span class="monitorIsDefault">Set as Default</span>';
-   }
-
-  var $tdName = $('<td class="monitorName">' + monitorData.name + '</td>');
-
-  var $tdOrganization = $('<td class="monitorOrg">' + monitorData.organization.name + '</td>');
-
-  var $tdServerType = $('<td class="monitorServerType">' + monitorData.type + '</td>');
-
-  var $tdServerURL = $('<td class="monitorServerURL">' + monitorData.parameters.url + '</td>');
-  
-  var $tdProtocolType = $('<td class="monitorProtocolType">' + monitorData.parameters.transportProtocol + '</td>');
-
-  var $tdProtocolHost = $('<td class="monitorProtocolHost">' + monitorData.parameters.transportProtocolParameters.host + '</td>');
-
-  var $tdProtocolPort = $('<td class="monitorProtocolPort">' + monitorData.parameters.transportProtocolParameters.port + '</td>');
-
-  var $tdIsDefault = $('<td id="isDefault">' + isDefault + '</td>');
-
-  var $tdAction = $('<td/>');
-
-  $tdAction.append('<div class="btn-group">').append('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalMonitorRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
-
-  //for editing track items from the table...
-  /*$tdAction.find('button.editMonitorRow').click(function() {
-      var $this = $(this);
-      var $tr = $this.parents('tr.monitorItemRow');
-      var monitorData = $tr.data('monitorData');
-      var monitorId = monitorData._id;
-      var $editModal = $('#modalForTrackEdit');
-      $editModal.modal('show');
-      $editModal.find('#monitorEditHiddenInput').val('edit');
-      $editModal.find('h4.modal-title').html('Edit Monitor Item &nbsp;-&nbsp;&nbsp;' + monitorData.name);
-      $editModal.find('#monitorName').val(monitorData.name);
-      $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
-      $editModal.find('#serverType').val(monitorData.type);
-      $editModal.find('.serverUrl').val(monitorData.parameters.url);
-      $editModal.find('#protocolType').val(monitorData.parameters.transportProtocol).change().attr('disabled','disabled');
-      $editModal.find('.protocolHost').val(monitorData.parameters.transportProtocolParameters.host);
-      $editModal.find('.protocolPort').val(monitorData.parameters.transportProtocolParameters.port);
-      $editModal.find('.protocolPassword').val('').rules('remove', 'required');
-      $editModal.find('.protocolVhost').val(monitorData.parameters.transportProtocolParameters.vhost);
-      $editModal.find('.protocolUser').val(monitorData.parameters.transportProtocolParameters.user);
-      $editModal.find('#monitorEditHiddenInputId').val(monitorData._id);
-      if(monitorData.parameters.transportProtocolParameters.ssl) {
-          $editModal.find('#monitorHiddenCertificateFile').val(monitorData.parameters.transportProtocolParameters.ssl.certChainFile.id);
-          $editModal.find('#certificateFileNameDisplay').empty().append(monitorData.parameters.transportProtocolParameters.ssl.certChainFile.name);
-          $editModal.find('#monitorHiddenPrivateFile').val(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFile.id);
-          $editModal.find('#privateFileNameDisplay').empty().append(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFile.name);
-      }
-      return false;
-  });*/
-
-  //for deletion of track items from the table..
-  $tdIsDefault.click(function() {
-      var $this = $(this);
-      //var $tr = $this.parents('tr.monitorItemRow');
-      var monitorId = monitorData._id;
-      var orgId = monitorData.organization.id;
-      var monitorName = monitorData.name;
-      bootbox.confirm({
-          message: 'Do you want to set this Monitor Item as Default?',
-          title: monitorName,
-          callback: function(result) {
-              if (result) {
-                  $.ajax({
-                      url: '../monitors/' + monitorId + '/org/' + orgId + '/setdefault',
-                      method: 'PUT',
-                      success: function() {
-                        $monitorDatatable.clear().draw();
-                        getGlobalMonitorServers();
-                      },
-                      error: function(jxhr) {
-                          bootbox.alert(result);
-                          var msg = "Unable to Set as Default please try again later";
-                          if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                              msg = jxhr.responseJSON.message;
-                          } else if (jxhr.responseText) {
-                              msg = jxhr.responseText;
-                          }
-                          bootbox.alert(msg);
-                      }
-                  });
-              } else {
-                  return;
-              }
-          }
-      });
-      return false;
-  });
-
-
-  $tdAction.find('button.globalMonitorRemove').click(function() {
-
-      var $this = $(this);
-      var $tr = $this.parents('tr.monitorItemRow');
-      var monitorId = monitorData._id;
-      bootbox.confirm({
-          message: 'Are you sure you want to Delete Monitor Item -&nbsp;' + monitorData.name,
-          title: "Warning",
-          callback: function(result) {
-              if (result) {
-                  $.ajax({
-                      url: '../monitors/' + monitorId,
-                      method: 'DELETE',
-                      success: function() {
-                          $monitorDatatable.row($tr).remove().draw(false);
-
-                      },
-                      error: function(jxhr) {
-                          bootbox.alert(result);
-                          var msg = "Unable to Delete URL please try again later";
-                          if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                              msg = jxhr.responseJSON.message;
-                          } else if (jxhr.responseText) {
-                              msg = jxhr.responseText;
-                          }
-                          bootbox.alert(msg);
-                      }
-                  });
-              } else {
-                  return;
-              }
-          }
-      });
-      return false;
-  });
-
-  $tr.append($tdName).append($tdOrganization).append($tdServerType).append($tdServerURL).append($tdProtocolType).append($tdProtocolHost).append($tdProtocolPort).append($tdIsDefault).append($tdAction);
-  $monitorList.append($tr);
-  $monitorDatatable.row.add($tr).draw();
-};
-
-function saveForm(methodName,url,reqBody,createNewEdit,monitorId,parameters,name,serverType) {
-  $.ajax({
-  method: methodName,
-  url: url,
-  async:false,
-  data: reqBody,
-  success: function(data, success) {
-      $('#modalForTrackEdit').modal('hide');
-      $('#saveItemSpinner').addClass('hidden');
-      $('#saveBtnTrack').removeAttr('disabled');  
-      if (createNewEdit === 'new') {
-          $monitorDatatable.clear().draw(); 
-          getGlobalMonitorServers();
-          $('#saveBtnTrack').removeAttr('disabled');
-      } else {
-          var $tr = $('tr[data-monitorId="' + monitorId + '"]');
-          $tr.find('.monitorName').html(reqBody.name);
-          $tr.find('.monitorServerType').html(reqBody.type);
-          $tr.find('.monitorServerURL').html(reqBody.parameters.url);
-          $tr.find('.monitorProtocolHost').html(reqBody.parameters.transportProtocolParameters.host);
-          $tr.find('.monitorProtocolPort').html(reqBody.parameters.transportProtocolParameters.port);
-          $tr.data('monitorData', {
-              name:name,
-              _id: monitorId,
-              type: serverType,
-              parameters:parameters
-          });
-      }
-  },
-  error: function(jxhr) {
-      console.log(jxhr);
-      var msg = "Server Behaved Unexpectedly";
-      if (jxhr.responseJSON && jxhr.responseJSON.message) {
-          msg = jxhr.responseJSON.message;
-      } else if (jxhr.responseText) {
-          msg = jxhr.responseText;
-      }
-      bootbox.alert(msg);
-
-      $('#saveItemSpinner').addClass('hidden');
-      $('#saveBtnTrack').removeAttr('disabled');
-  }
-});
-}
-
-//save form for creating a new monitor item and updation of the monitor server details.
-$('#monitorServerForm').submit(function(e) {
-    var isValidator = $('#monitorServerForm').valid();
-    if (!isValidator) {
-        e.preventDefault();
-        return false;
-    } else {
-        e.preventDefault();
-        $('#saveItemSpinner').removeClass('hidden');
-        var $form = $('#monitorServerForm');
-        $this = $(this);
-        var name, orgValue, serverType, serverUrl, protocolType, host, port, passwordName, vhost, user, certChainFileId, privateKeyFileId;
-
-        name = $this.find('.monitorName').val().trim();
-        orgValue = $this.find('#orgName').val();
-        serverType = $this.find('#serverType').val();
-        serverUrl = $this.find('.serverUrl').val().trim();
-        protocolType = $this.find('#protocolType').val();
-        host = $this.find('.protocolHost').val().trim();
-        port = $this.find('.protocolPort').val().trim();
-        passwordName = $this.find('.protocolPassword').val().trim();
-        vhost = $this.find('.protocolVhost').val().trim();
-        user = $this.find('.protocolUser').val().trim();
-        certChainFileId = $this.find('#monitorHiddenCertificateFile').val();
-        privateKeyFileId = $this.find('#monitorHiddenPrivateFile').val();
-
-        var dashboardEditNew = $this.find('#monitorEditHiddenInput').val();
-        var monitorId = $form.find('input#monitorEditHiddenInputId').val();
-        var parameters = {};
-        var url;
-        var reqBody = {};
-        var methodName;
-        //for edit of form.
-        var fileCertificate = $('#certificateFile').get(0).files[0];
-        var filePrivate = $('#privateFile').get(0).files[0];
-        var formData = new FormData();
-        formData.append('file', fileCertificate);
-        var newFormData = new FormData();
-        newFormData.append('file', filePrivate);
-        if (dashboardEditNew === 'edit') {
-            url = '../monitors/' + monitorId;
-            methodName = 'PUT';
+    //save form for creating a new monitor item and updation of the monitor server details.
+    $('#monitorServerForm').submit(function(e) {
+        var isValidator = $('#monitorServerForm').valid();
+        if (!isValidator) {
+            e.preventDefault();
+            return false;
         } else {
-            methodName = 'POST';
-            url = '../monitors';
-        }
-        if (protocolType === 'rabbitmq') {
-          if(certChainFileId === '' && privateKeyFileId === ''){
-            $.ajax({
-                method: "POST",
-                url: '../fileUpload?fileId=' + certChainFileId,
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function(dataCertificate, success) {
+            e.preventDefault();
+            $('#saveItemSpinner').removeClass('hidden');
+            var $form = $('#monitorServerForm');
+            $this = $(this);
+            var name, orgValue, serverType, serverUrl, protocolType, host, port, passwordName, vhost, user, certChainFileId, privateKeyFileId;
+
+            name = $this.find('.monitorName').val().trim();
+            orgValue = $this.find('#orgName').val();
+            serverType = $this.find('#serverType').val();
+            serverUrl = $this.find('.serverUrl').val().trim();
+            protocolType = $this.find('#protocolType').val();
+            host = $this.find('.protocolHost').val().trim();
+            port = $this.find('.protocolPort').val().trim();
+            passwordName = $this.find('.protocolPassword').val().trim();
+            vhost = $this.find('.protocolVhost').val().trim();
+            user = $this.find('.protocolUser').val().trim();
+            certChainFileId = $this.find('#monitorHiddenCertificateFile').val();
+            privateKeyFileId = $this.find('#monitorHiddenPrivateFile').val();
+
+            var dashboardEditNew = $this.find('#monitorEditHiddenInput').val();
+            var monitorId = $form.find('input#monitorEditHiddenInputId').val();
+            var parameters = {};
+            var url;
+            var reqBody = {};
+            var methodName;
+            //for edit of form.
+            var fileCertificate = $('#certificateFile').get(0).files[0];
+            var filePrivate = $('#privateFile').get(0).files[0];
+            var formData = new FormData();
+            formData.append('file', fileCertificate);
+            var newFormData = new FormData();
+            newFormData.append('file', filePrivate);
+            if (dashboardEditNew === 'edit') {
+                url = '../monitors/' + monitorId;
+                methodName = 'PUT';
+            } else {
+                methodName = 'POST';
+                url = '../monitors';
+            }
+            if (protocolType === 'rabbitmq') {
+                if(certChainFileId === '' && privateKeyFileId === ''){
                     $.ajax({
                         method: "POST",
-                        url: '../fileUpload?fileId=' + privateKeyFileId,
-                        data: newFormData,
+                        url: '../fileUpload?fileId=' + certChainFileId,
+                        data: formData,
                         cache: false,
                         contentType: false,
                         processData: false,
-                        success: function(dataPrivate, success) {
-                            parameters = {
-                                url: serverUrl,
-                                transportProtocol: protocolType,
-                                transportProtocolParameters: {
-                                    host: host,
-                                    port: port,
-                                    vhost: vhost,
-                                    user: user,
-                                    password: passwordName,
-                                    heartbeat: 30,
-                                    prefetch: 50,
-                                    ssl: {
-                                        certChainFileId: dataCertificate.fileId,
-                                        privateKeyFileId: dataPrivate.fileId
+                        success: function(dataCertificate, success) {
+                            $.ajax({
+                                method: "POST",
+                                url: '../fileUpload?fileId=' + privateKeyFileId,
+                                data: newFormData,
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                success: function(dataPrivate, success) {
+                                    parameters = {
+                                        url: serverUrl,
+                                        transportProtocol: protocolType,
+                                        transportProtocolParameters: {
+                                            host: host,
+                                            port: port,
+                                            vhost: vhost,
+                                            user: user,
+                                            password: passwordName,
+                                            heartbeat: 30,
+                                            prefetch: 50,
+                                            ssl: {
+                                                certChainFileId: dataCertificate.fileId,
+                                                privateKeyFileId: dataPrivate.fileId
+                                            }
+                                        }
+                                    };
+                                    reqBody = {
+                                        "name": name,
+                                        "orgId": orgValue,
+                                        "type": serverType,
+                                        "parameters": parameters
                                     }
+                                    saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
                                 }
-                            };
-                            reqBody = {
-                                "name": name,
-                                "orgId": orgValue,
-                                "type": serverType,
-                                "parameters": parameters
-                            }
-                            saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
+                            });
                         }
                     });
+                } else {
+                    if (passwordName !== '') {
+                        parameters = {
+                            url: serverUrl,
+                            transportProtocol: protocolType,
+                            transportProtocolParameters: {
+                                host: host,
+                                port: port,
+                                vhost: vhost,
+                                user: user,
+                                password: passwordName,
+                                heartbeat: 30,
+                                prefetch: 50,
+                                ssl: {
+                                    certChainFileId: certChainFileId,
+                                    privateKeyFileId: privateKeyFileId
+                                }
+                            }
+                        };
+                    } else {
+                        parameters = {
+                            url: serverUrl,
+                            transportProtocol: protocolType,
+                            transportProtocolParameters: {
+                                host: host,
+                                port: port,
+                                vhost: vhost,
+                                user: user,
+                                heartbeat: 30,
+                                prefetch: 50,
+                                ssl: {
+                                    certChainFileId: certChainFileId,
+                                    privateKeyFileId: privateKeyFileId
+                                }
+                            }
+                        };
+                    }
+                    reqBody = {
+                        "name": name,
+                        "orgId": orgValue,
+                        "type": serverType,
+                        "parameters": parameters
+                    }
+                    saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
                 }
-            });
-          } else {
-            if (passwordName !== '') {
-              parameters = {
-                  url: serverUrl,
-                  transportProtocol: protocolType,
-                  transportProtocolParameters: {
-                      host: host,
-                      port: port,
-                      vhost: vhost,
-                      user: user,
-                      password: passwordName,
-                      heartbeat: 30,
-                      prefetch: 50,
-                      ssl: {
-                          certChainFileId: certChainFileId,
-                          privateKeyFileId: privateKeyFileId
-                      }
-                  }
-              };
-            } else {
-              parameters = {
-                  url: serverUrl,
-                  transportProtocol: protocolType,
-                  transportProtocolParameters: {
-                      host: host,
-                      port: port,
-                      vhost: vhost,
-                      user: user,
-                      heartbeat: 30,
-                      prefetch: 50,
-                      ssl: {
-                          certChainFileId: certChainFileId,
-                          privateKeyFileId: privateKeyFileId
-                      }
-                  }
-              };
+            } else if (protocolType === 'redis') {
+                if (passwordName !== '') {
+                    parameters = {
+                        url: serverUrl,
+                        transportProtocol: protocolType,
+                        transportProtocolParameters: {
+                            host: host,
+                            port: port,
+                            password: passwordName
+                        }
+                    };
+                } else {
+                    parameters = {
+                        url: serverUrl,
+                        transportProtocol: protocolType,
+                        transportProtocolParameters: {
+                            host: host,
+                            port: port
+                        }
+                    };
+                }
+                reqBody = {
+                    "name": name,
+                    "orgId": orgValue,
+                    "type": serverType,
+                    "parameters": parameters
+                }
+                saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
             }
-            reqBody = {
-                "name": name,
-                "orgId": orgValue,
-                "type": serverType,
-                "parameters": parameters
-            }
-            saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
-          }
-        } else if (protocolType === 'redis') {
-            if (passwordName !== '') {
-                parameters = {
-                    url: serverUrl,
-                    transportProtocol: protocolType,
-                    transportProtocolParameters: {
-                        host: host,
-                        port: port,
-                        password: passwordName
-                    }
-                };
-            } else {
-                parameters = {
-                    url: serverUrl,
-                    transportProtocol: protocolType,
-                    transportProtocolParameters: {
-                        host: host,
-                        port: port
-                    }
-                };
-            }
-            reqBody = {
-                "name": name,
-                "orgId": orgValue,
-                "type": serverType,
-                "parameters": parameters
-            }
-            saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
+            return false;
         }
-        return false;
-    }
-});
+    });
 </script>
-
-<style>
-  .monitorIsDefault {
-    color: #005384;
-    cursor: pointer;
-  }
-</style>                             

@@ -50,25 +50,50 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
                             if (err) {
                                 next(err, null);
                             } else {
-                                var response = {
-                                    docs: filterData,
-                                    total: data.length,
-                                    limit: queryObj.options.limit,
-                                    page: queryObj.options.page,
-                                    pages: Math.ceil(data.length / queryObj.options.limit)
-                                };
-                                next(null, response);
+                                var pages = Math.ceil(data.length / queryObj.options.limit);
+                                if(queryObj.options.page > pages){
+                                    var response = {
+                                        docs: [],
+                                        total: data.length,
+                                        limit: queryObj.options.limit,
+                                        page: queryObj.options.page,
+                                        pages:pages
+                                    };
+                                    next(null, response);
+                                }else{
+                                    var response = {
+                                        docs: filterData,
+                                        total: data.length,
+                                        limit: queryObj.options.limit,
+                                        page: queryObj.options.page,
+                                        pages:pages
+                                    };
+                                    next(null, response);
+                                }
+
                             }
                         });
                     } else {
-                        var response = {
-                            docs: data,
-                            total: data.length,
-                            limit: queryObj.options.limit,
-                            page: queryObj.options.page,
-                            pages: Math.ceil(data.length / queryObj.options.limit)
-                        };
-                        next(null, response);
+                        var pages = Math.ceil(data.length / queryObj.options.limit);
+                        if(queryObj.options.page > pages){
+                            var response = {
+                                docs: [],
+                                total: data.length,
+                                limit: queryObj.options.limit,
+                                page: queryObj.options.page,
+                                pages:pages
+                            };
+                            next(null, response);
+                        }else{
+                            var response = {
+                                docs: filterData,
+                                total: data.length,
+                                limit: queryObj.options.limit,
+                                page: queryObj.options.page,
+                                pages:pages
+                            };
+                            next(null, response);
+                        }
                     }
                 })
             }else{
@@ -463,47 +488,41 @@ serviceMapService.getAllServiceResourcesByName = function getAllServiceResources
             }
             if(filterQuery.version && filterQuery.version === 'latest'){
                 services.getLastVersionOfEachService(queryObj,next);
-            }else if(filterQuery.version){
-                queryObj.version = parseFloat(filterQuery.version);
-                services.getServices(queryObj,next);
             }else{
+                queryObj.version = parseFloat(filterQuery.version);
                 services.getServices(queryObj,next);
             }
         },
         function(serviceList,next) {
             if (serviceList.length > 0) {
-                var filterResourceList = [];
-                serviceList.forEach(function(service){
-                    var filterObj = {
-                        version:filterQuery.version?filterQuery.version:service.version.toFixed(1),
-                        state:service.state,
-                        resources:[]
-                    }
-                    service.resources.forEach(function (resource) {
-                        if(Object.keys(filterQuery).length > 1){
-                            Object.keys(filterQuery).forEach(function(key){
-                                if(key === 'groups'){
-                                   var groupValList =  resource[key];
-                                   if(groupValList.indexOf(filterQuery[key]) !== -1){
-                                       filterObj.resources.push(resource);
-                                   }
-                                }else {
-                                    if(filterQuery[key] === resource[key]){
-                                        filterObj.resources.push(resource);
-                                    }else{
-                                        filterObj.resources.push(resource);
-                                    }
+                var filterObj = {
+                    version:filterQuery.version?filterQuery.version:serviceList[0].version.toFixed(1),
+                    state:serviceList[0].state,
+                    resources:[]
+                }
+                serviceList[0].resources.forEach(function (resource) {
+                    if (Object.keys(filterQuery).length > 1) {
+                        Object.keys(filterQuery).forEach(function (key) {
+                            if (key === 'groups') {
+                                var groupValList = resource[key];
+                                if (groupValList.indexOf(filterQuery[key]) !== -1) {
+                                    filterObj.resources.push(resource);
                                 }
-                            })
-                        }else{
-                            filterObj.resources.push(resource);
-                        }
-                    });
-                    filterResourceList.push(filterObj);
+                            } else {
+                                if (filterQuery[key] === resource[key]) {
+                                    filterObj.resources.push(resource);
+                                } else {
+                                    filterObj.resources.push(resource);
+                                }
+                            }
+                        })
+                    } else {
+                        filterObj.resources.push(resource);
+                    }
                 });
-                next(null, filterResourceList);
+                next(null, filterObj);
             } else {
-                next(null, []);
+                next(null, {});
             }
         }
     ],function(err,results){
@@ -580,7 +599,7 @@ function formattedServiceResponse(service,callback){
         state:service.state,
         createdOn:service.createdOn,
         updatedOn:service.updatedOn,
-        version:service.version.toFixed(1)
+        version:service.version
     }
     getMasterDetails(service.masterDetails,function(err,data){
             if(err){

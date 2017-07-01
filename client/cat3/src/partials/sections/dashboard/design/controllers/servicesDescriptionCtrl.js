@@ -50,7 +50,7 @@
                         $scope.serviceResourceData.data = [];
                         if($scope.serviceSelected.name) {
                             servicesCreateService.getResources($scope.serviceSelected.name).then(function(response){
-                                $scope.serviceResourceData.data = response[0].resources;
+                                $scope.serviceResourceData.data = response.resources;
                                 var bpcolumnDefs = [];
                                 var resourceGrid = [
                                     {

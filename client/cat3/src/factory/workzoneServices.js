@@ -536,15 +536,15 @@
 					return $http.post(fullUrl(url),reqBody, Auth.getHeaderObject());
 				},
 				getManagedInstances:function (providerId) {
-					var url ='/providers/'+providerId+'/managedInstances';
+                    var url = '/resources?filterBy=providerDetails.id:'+providerId+',resourceType:EC2,category:managed';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getAssignedInstances:function (providerId) {
-					var url ='/providers/'+providerId+'/unmanagedInstances';
+					var url = '/resources?filterBy=providerDetails.id:'+providerId+',resourceType:EC2,category:assigned';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getUnassignedInstances:function (providerId) {
-					var url ='/providers/'+providerId+'/unassigned-instances';
+                    var url = '/resources?filterBy=providerDetails.id:'+providerId+',resourceType:EC2,category:unassigned';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getBotTypeList:function () {
