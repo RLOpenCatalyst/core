@@ -177,6 +177,7 @@
 		
 			$scope.postSyncBots = function() {
 				var reqBody = $scope.botId;
+				console.log($scope.botId);
 				botsCreateService.postBotSync(botsSyncCtrl.newEnt.gitHubId,$scope.botId).then(function(response){
 					toastr.success('GitHub Sync Successfull');
 					$state.go('dashboard.bots.library');

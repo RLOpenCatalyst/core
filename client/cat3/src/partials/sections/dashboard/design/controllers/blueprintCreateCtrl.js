@@ -6,6 +6,7 @@
             //$rootScope.state = $state;
             //to get the templates listing.
             $rootScope.filterhide= $state.params.filterhide;
+            $rootScope.showForDesign= $state.params.showForDesign;
             if($state.params &&  $state.params.templateObj){
                 $scope.providerType = $state.params.providerName.toUpperCase();
                 $scope.bpTypeName = $state.params.templateObj.templatetypename;

@@ -1,12 +1,12 @@
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.design', ['design.BpList','design.bpCreate']).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
+	angular.module('dashboard.design', ['design.BpList','design.bpCreate','services.paramsServices']).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
 			var modulePerms = modulePermissionProvider.$get();
 			$stateProvider.state('dashboard.design.list', {
 				url: "/:providerName/list",
 				templateUrl: "src/partials/sections/dashboard/design/view/designListView.html",
 				controller: "blueprintListCtrl as bpList",
-				params:{filterhide: false, templateObj:{}},
+				params:{filterhide: false, showForDesign:false, templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -24,7 +24,7 @@
 				url: "/:providerName/new",
 				templateUrl: "src/partials/sections/dashboard/design/view/blueprintCreate.html",
 				controller: "blueprintCreateCtrl as bpCreate",
-				params:{filterhide:true, templateObj:{}},
+				params:{filterhide:true, showForDesign:false, templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -42,7 +42,7 @@
 				url: "/:providerName/composite",
 				templateUrl: "src/partials/sections/dashboard/design/view/createComposite.html",
 				controller: "createCompositeCtrl as createCBP",
-				params:{filterhide:true, templateObj:{}},
+				params:{filterhide:true, showForDesign:false, templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -56,7 +56,64 @@
 						return deferred.promise;
 					}]
 				}
-			});
+			}).state('dashboard.design.servicesList', {
+				url: "/servicesList",
+				templateUrl: "src/partials/sections/dashboard/design/view/servicesList.html",
+				controller: "servicesListCtrl",
+				params:{filterhide:true, showForDesign:true, templateObj:{}},
+				//parameters:{actServiceMenu:true},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
+			}).state('dashboard.design.servicesCreate', {
+	            url: "/servicesCreate",
+	            templateUrl: "src/partials/sections/dashboard/design/view/servicesCreate.html",
+	            controller: "servicesCreateCtrl",
+	            params:{filterhide:true, showForDesign:true, templateObj:{}},
+	            parameters:{actServiceMenu:true,filterView:{servicesCreate:true}},
+	            resolve: {
+	                auth: ["$q", function ($q) {
+	                    var deferred = $q.defer();
+	                    // instead, go to a different page
+	                    if (modulePerms.analyticsBool()) {
+	                        // everything is fine, proceed
+	                        deferred.resolve();
+	                    } else {
+	                        deferred.reject({redirectTo: 'dashboard'});
+	                    }
+	                    return deferred.promise;
+	                }]
+	            }
+	        }).state('dashboard.design.servicesDescription', {
+	            url: "/serviceDescription",
+	            templateUrl: "src/partials/sections/dashboard/design/view/servicesDescription.html",
+	            controller: "serviceDescriptionCtrl",
+	            parameters:{actServiceMenu:true,filterView:{serviceDescription:true}},
+	            params:{serviceDetail:[],listType:0,filterhide:true, showForDesign:true,},
+	            resolve: {
+	                auth: ["$q", function ($q) {
+	                    var deferred = $q.defer();
+	                    // instead, go to a different page
+	                    if (modulePerms.analyticsBool()) {
+	                        // everything is fine, proceed
+	                        deferred.resolve();
+	                    } else {
+	                        deferred.reject({redirectTo: 'dashboard'});
+	                    }
+	                    return deferred.promise;
+	                }]
+	            }
+	        });
 		}]).filter('inArray',['$filter', function($filter){
 			return function(list, arrayFilter, element){
 				if(arrayFilter){
@@ -70,6 +127,7 @@
 		var design= this;
 		$scope.isTreeOpen = false;
 		$rootScope.state = $state;
+		$rootScope.stateItems = $state.params;
 		design.providersList= function () {
 			var params = {
 				url: 'src/partials/sections/dashboard/design/data/providers.json'

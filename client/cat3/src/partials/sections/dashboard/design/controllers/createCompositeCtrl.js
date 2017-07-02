@@ -5,6 +5,7 @@
             var createCBP = this;
 
             $rootScope.filterhide= $state.params.filterhide;
+            $rootScope.showForDesign= $state.params.showForDesign;
             createCBP.ExBlueprintList=[];
             createCBP.SelectedBPList=[];
             createCBP.selectBlueprintId='';

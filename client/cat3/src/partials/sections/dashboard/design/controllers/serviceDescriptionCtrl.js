@@ -7,9 +7,11 @@
 (function(angular) {
         "use strict";
         angular.module('dashboard.design')
-            .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
-                var treeNames = ['Services', 'Service Description'];
+            .controller('serviceDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
+                var treeNames = ['Design','Services', 'Service Description'];
                 $rootScope.$emit('treeNameUpdate', treeNames);
+                $rootScope.filterhide= $state.params.filterhide;
+                $rootScope.showForDesign= $state.params.showForDesign;
                 $scope.serviceSelected = $state.params.serviceDetail;
 
                 var serviceInfoUIGridDefaults = uiGridOptionsService.options();
@@ -132,15 +134,15 @@
                     templates: {
                         readme: {
                             "title": "ReadMe",
-                            "url": "src/partials/sections/dashboard/services/tabs/serviceReadme.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/serviceReadme.html"
                         },
                         resources: {
                             "title": "Resources",
-                            "url": "src/partials/sections/dashboard/services/tabs/resources.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/resources.html"
                         },
                         info: {
                             "title": "Service Info",
-                            "url": "src/partials/sections/dashboard/services/tabs/serviceInfo.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/serviceInfo.html"
                         }
                     }
                 };

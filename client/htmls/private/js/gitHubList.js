@@ -1,4 +1,28 @@
 
+//initialising the datatable...
+if (!$.fn.dataTable.isDataTable('#gitTable')) {
+    var $gitDatatable = $('#gitTable').DataTable({
+        "pagingType": "full_numbers",
+        "bInfo": false,
+        "bLengthChange": false,
+        "paging": true,
+        "bFilter": false,
+        "aoColumns": [{
+            "bSortable": false
+        }, {
+            "bSortable": false
+        }, {
+            "bSortable": false
+        }, {
+            "bSortable": false
+        }, {
+            "bSortable": false
+        }]
+
+    });
+}
+
+//calling the global track functionality when track params are available..
 $(document).ready(function(e) {
     getGlobalGitServers();
 
@@ -167,22 +191,7 @@ function getGlobalGitServers() {
                 "repositoryBranch": data.repositoryBranch
             });
         },
-        "ajax": {
-            "url": "/git-hub",
-            "data": function( result ) {
-                var columnIndex = parseInt(result.order[0].column);
-                var newResult = {
-                    draw:result.draw,
-                    page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
-                    pageSize:result.length,
-                    sortOrder:result.order[0].dir,
-                    sortBy:result.columns[columnIndex].data,
-                    filterBy:result.filterBy,
-                    search:result.search.value
-                }
-                return newResult;
-            }
-        },
+        "ajax": '/git-hub',
         "columns": [
             {"data": "repositoryName", "orderable" : true},
             {"data": "orgName","orderable" : false  },
@@ -191,8 +200,12 @@ function getGlobalGitServers() {
             {"data": "repositoryBranch" ,"orderable" : false},
             {"data": "","orderable" : true,
                 "render": function (data) {
-                    var $tdAction = 
-                        '<div class="btn-group">' +
+                    var $tdAction = /*'<div class="btn-group">' +
+                        '<button class="btn btn-info pull-left btn-sg tableactionbutton syncGitRepo" data-placement="top" value="Sync" title="Sync">' +
+                        '<i class="ace-icon fa fa-refresh bigger-120"></i>' +
+                        '</button>' +
+                        '</div>' +*/
+                        '<div style="margin-left:14px;" class="btn-group">' +
                         '<button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit">' +
                         '<i class="ace-icon fa fa-pencil bigger-120"></i>' +
                         '</button>' +
@@ -289,7 +302,7 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
                         } else if (jxhr.responseText) {
                             msg = jxhr.responseText;
                         }
-                        toastr.error(msg);
+                        bootbox.alert(msg);
                     }
                 });
             } else {
@@ -299,6 +312,104 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
     });
     return false;
 });
+
+$('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
+    $('#selectAllCheckbox').removeAttr('checked',false);
+    $('#importBotsList').empty();
+    $('#gitImportTable').hide();
+    $('#noDataAvailable').hide();
+    $('#gitCloneImportSave').hide();
+    $('#modalForGitSync').modal('show');
+    var $this = $(this);
+    var id = $this.parents('tr').attr('githubId');
+    $('#gitImpLoader').show();
+    $('#importBotsList').html();
+    var actionStatus = 'cancel';
+    $.ajax({
+        url: '../git-hub/' + id + '/sync?action=' + actionStatus,
+        method: 'GET',
+        success: function(data) {
+            actionStatus = 'sync';
+            $.ajax({
+                method: "GET",
+                url: '../git-hub/' + id + '/sync?action=' + actionStatus,
+                success: function(data) {
+                    $('#gitCloneImportSave').show();
+                    $('#gitImpLoader').hide();
+                    $('#gitImportTable').show();
+                    if(data.githubsync && data.githubsync.length > 0) {
+                        for(var i=0;i<data.githubsync.length; i++) {
+                            html = $('<tr><td>' + data.githubsync[i].name + '</td><td>' + data.githubsync[i].id + '</td><td><input value="'+ data.githubsync[i].id+'" type="checkbox" class="selectCheckboxForImport"></td></tr>')
+                            .attr({'botId':data.githubsync[i].id});
+                            $('#gitEditImportHiddenInputId').val(data.githubsync[i].gitHubId);
+                            $('#importBotsList').append(html);
+                        }
+                    } else {
+                        $('#gitImportTable').addClass('hidden');
+                        $('#gitCloneImportSave').hide();
+                        $('#noDataAvailable').show();
+                    }
+                }
+            });
+        },
+        error: function(jxhr) {
+            console.log(jxhr);
+            var msg = "Unable to Fetch GitRepo please try again later";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                var msgCheck = JSON.parse(jxhr.responseText);
+                msg = msgCheck.msg;
+            }
+            bootbox.alert(msg);
+            $('#gitHubListLoader').hide();
+        }
+    });
+    return false;
+});
+
+$('#gitSyncForBots').submit(function(){
+    var $importBotsList = $('tbody#importBotsList');
+    var checkbox = $importBotsList.find('input[type="checkbox"]:checked');
+    var $this = $(this);
+    var reqBody = [];
+    var gitHubId = $('#gitEditImportHiddenInputId').val();
+    $.each(checkbox,function(key,val){
+        reqBody.push(val.value);
+    });
+    if (!reqBody.length) {
+        bootbox.alert('Please choose a BOT to import');
+        return;
+    }
+    $.ajax({
+        method: 'POST',
+        url: '/git-hub/' + gitHubId + '/copy',
+        contentType: 'application/json',
+        data: JSON.stringify(reqBody),
+        success: function(data, success) {
+            toastr.success('Import Successful');
+            $('#modalForGitSync').modal('hide');
+            $('#saveItemSpinner').addClass('hidden');
+            $('#gitCloneImport').removeAttr('disabled');
+        },
+        error: function(jxhr) {
+            console.log(jxhr);
+            var msg = "Server Behaved Unexpectedly";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+
+            $('#saveItemSpinner').addClass('hidden');
+            $('#gitCloneImport').removeAttr('disabled');
+        }
+    });
+    
+    return false;
+});
+
 
 function saveForm(methodName,url,reqBody) {
     $.ajax({
@@ -321,7 +432,7 @@ function saveForm(methodName,url,reqBody) {
             } else if (jxhr.responseText) {
                 msg = jxhr.responseText;
             }
-            toastr.error(msg);
+            bootbox.alert(msg);
 
             $('#saveItemSpinner').addClass('hidden');
             $('#saveBtnTrack').removeAttr('disabled');

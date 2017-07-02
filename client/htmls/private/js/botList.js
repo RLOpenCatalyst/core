@@ -74,7 +74,6 @@ function getGlobalBots(orgId) {
     $('#botsTable').DataTable( {
         "processing": true,
         "serverSide": true,
-        "pageLength": 25,
         "destroy":true,
         "createdRow": function( row, data ) {
             $( row ).attr({"botName": data.name,"botId" : data.id,"category":data.category,
@@ -175,8 +174,11 @@ $('.botTeamList').on('change',function(){
 
 $('#botsTable tbody').on( 'click', 'tr', function () {
     $(this).toggleClass('active');
-    if($(this).hasClass('active')) {
+    var activeRows = $('#botsTable').DataTable().rows('.active').count();
+    if(activeRows > 0) {
         $('#botTeamSync').show();
+    } else {
+        $('#botTeamSync').hide();
     }
 }); 
 

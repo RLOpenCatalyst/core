@@ -1,0 +1,5 @@
+---
+aws:
+  ami:
+  - ami-sample11
+  - ami-sample12
