@@ -97,7 +97,7 @@
 	        }).state('dashboard.design.servicesDescription', {
 	            url: "/serviceDescription",
 	            templateUrl: "src/partials/sections/dashboard/design/view/servicesDescription.html",
-	            controller: "servicesDescriptionCtrl",
+	            controller: "serviceDescriptionCtrl",
 	            parameters:{actServiceMenu:true,filterView:{serviceDescription:true}},
 	            params:{serviceDetail:[],listType:0,filterhide:true, showForDesign:true,},
 	            resolve: {

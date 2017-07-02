@@ -7,7 +7,7 @@
 (function(angular) {
         "use strict";
         angular.module('dashboard.design')
-            .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
+            .controller('serviceDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
                 var treeNames = ['Design','Services', 'Service Description'];
                 $rootScope.$emit('treeNameUpdate', treeNames);
                 $rootScope.filterhide= $state.params.filterhide;
