@@ -10,7 +10,6 @@
             .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
                 var treeNames = ['Design','Services', 'Service Description'];
                 $rootScope.$emit('treeNameUpdate', treeNames);
-                console.log($state.params);
                 $rootScope.filterhide= $state.params.filterhide;
                 $rootScope.showForDesign= $state.params.showForDesign;
                 $scope.serviceSelected = $state.params.serviceDetail;
