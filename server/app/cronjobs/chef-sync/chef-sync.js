@@ -7,7 +7,6 @@ var Chef = require('_pr/lib/chef');
 var chefDao = require('_pr/model/dao/chefDao.js');
 var appConfig = require('_pr/config');
 var resources = require('_pr/model/resources/resources.js');
-var instanceModel = require('_pr/model/resources/instance-resource');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var serviceMapService = require('_pr/services/serviceMapService.js');
 var ChefSync = Object.create(CatalystCronJob);
@@ -153,7 +152,7 @@ function chefSyncWithChefNodes(nodeDetailList,callback){
                                                 }],
                                             isDeleted:false
                                         }
-                                        instanceModel.getInstanceData(query,function(err,data){
+                                        resources.getResources(query,function(err,data){
                                             if(err){
                                                 logger.error(err);
                                                 callback(err,null);
@@ -238,12 +237,12 @@ function chefSyncWithChefNodes(nodeDetailList,callback){
                                     }],
                                 isDeleted:false
                             }
-                            instanceModel.getInstanceData(query,function(err,instances){
+                            resources.getResources(query,function(err,instances){
                                 if(err){
                                     logger.error("Error in fetching Resource Details in DB:",err);
                                     callback(err,null);
                                 }else if(instances.length > 0){
-                                    instanceModel.updateInstanceData(instances[0]._id,{'configDetails.id':nodeDetail.serverId,'configDetails.run_list':nodeDetail.run_list,'configDetails.override':nodeDetail.override},function(err,data){
+                                    resources.updateResourceById(instances[0]._id,{'configDetails.id':nodeDetail.serverId,'configDetails.run_list':nodeDetail.run_list,'configDetails.override':nodeDetail.override},function(err,data){
                                         if (err) {
                                             logger.error("Error in updating Resource Details in DB:",err);
                                             callback(err,null);
@@ -342,7 +341,7 @@ function chefSyncWithTerminatedNodes(chefObj,orgId,callback){
                                     })
                                 },
                                 updateServerDeletedCheck: function (callback) {
-                                    instanceModel.updateInstanceData(terminateNode.id,{serverDeletedCheck:true}, function (err, data) {
+                                    resources.updateResourceById(terminateNode.id,{serverDeletedCheck:true}, function (err, data) {
                                         if (err) {
                                             logger.error("Error in updating Server Delete check for Resource: ", err);
                                         }

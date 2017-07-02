@@ -35,7 +35,6 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Docker = require('_pr/model/docker.js');
-var instanceModel = require('_pr/model/resources/instance-resource');
 var resourceModel = require('_pr/model/resources/resources');
 var services = require('_pr/model/services/services.js');
 var saeService = require('_pr/services/saeService.js');
@@ -199,7 +198,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                     'resourceDetails.credentials': instance.credentials,
                                     'category': 'managed'
                                 }
-                                instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                     if (err) {
                                         logger.error("Error in updating Resource Authentication : " + err)
                                     }
@@ -326,7 +325,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                 'resourceDetails.credentials': instance.credentials,
                                                 'category': 'managed'
                                             }
-                                            instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                            resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                 if (err) {
                                                     logger.error("Error in updating Resource Authentication : " + err)
                                                 }
@@ -389,7 +388,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                 'resourceDetails.credentials': instance.credentials,
                                                 'category': 'managed'
                                             }
-                                            instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                            resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                 if (err) {
                                                     logger.error("Error in updating Resource Authentication : " + err)
                                                 }
@@ -457,7 +456,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                             var queryObj = {
                                                                 'resourceDetails.hardware': hardwareData
                                                             }
-                                                            instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                                            resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                                 if (err) {
                                                                     logger.error("Error in updating Resource Authentication : " + err)
                                                                 }
@@ -500,7 +499,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                     var queryObj = {
                                                         'resourceDetails.hardware': hardwareData
                                                     }
-                                                    instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                                    resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in updating Resource Authentication : " + err)
                                                         }
@@ -530,7 +529,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                     var queryObj = {
                                                         'resourceDetails.dockerEngineState': 'success'
                                                     }
-                                                    instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                                    resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in updating Resource Authentication : " + err)
                                                         }
@@ -560,7 +559,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                 'resourceDetails.credentials': instance.credentials,
                                                 'category': 'managed'
                                             }
-                                            instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                            resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                 if (err) {
                                                     logger.error("Error in updating Resource Authentication : " + err)
                                                 }
@@ -760,7 +759,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                 'resourceDetails.credentials': encryptedCredentials,
                                 'category': 'managed'
                             }
-                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                            resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                 if (err) {
                                     logger.error("Error in updating Resource Authentication : " + err)
                                 }
@@ -887,7 +886,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'resourceDetails.credentials': encryptedCredentials,
                                             'category': 'managed'
                                         }
-                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                        resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                             if (err) {
                                                 logger.error("Error in updating Resource Authentication : " + err)
                                             }
@@ -960,7 +959,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'resourceDetails.credentials': encryptedCredentials,
                                             'category': 'managed'
                                         }
-                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                        resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                             if (err) {
                                                 logger.error("Error in updating Resource Authentication : " + err)
                                             }
@@ -1028,7 +1027,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                                         var queryObj = {
                                                             'resourceDetails.hardware': hardwareData
                                                         }
-                                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                        resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Error in updating Resource Authentication : " + err)
                                                             }
@@ -1071,7 +1070,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                                 var queryObj = {
                                                     'resourceDetails.hardware': hardwareData
                                                 }
-                                                instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                                     if (err) {
                                                         logger.error("Error in updating Resource Authentication : " + err)
                                                     }
@@ -1101,7 +1100,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                                 var queryObj = {
                                                     'resourceDetails.dockerEngineState': 'success'
                                                 }
-                                                instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                                     if (err) {
                                                         logger.error("Error in updating Resource Authentication : " + err)
                                                     }
@@ -1141,7 +1140,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'resourceDetails.credentials': encryptedCredentials,
                                             'category': 'managed'
                                         }
-                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                        resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                             if (err) {
                                                 logger.error("Error in updating Resource Authentication : " + err)
                                             }
@@ -1239,7 +1238,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                         'resourceDetails.credentials': encryptedCredentials,
                         'category': 'managed'
                     }
-                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                    resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                         if (err) {
                             logger.error("Error in updating Resource Authentication : " + err)
                         }
@@ -1263,7 +1262,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                             var queryObj = {
                                 'resourceDetails.dockerEngineState': 'success'
                             }
-                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                            resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                 if (err) {
                                     logger.error("Error in updating Resource Authentication : " + err)
                                 }
@@ -1593,7 +1592,7 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
         authentication: 'failed'
     }
     resourceObj.createdOn = new Date().getTime();
-    instanceModel.createNew(resourceObj, function (err, data) {
+    resourceModel.createNew(resourceObj, function (err, data) {
         if (err) {
             logger.error("Error in creating Resources>>>>:", err);
             return callback(err, null);
@@ -1657,7 +1656,7 @@ commonService.startResource = function startResource(resource,callback) {
                             }
                             return;
                         });
-                        instanceModel.updateInstanceData(resource._id, {'resourceDetails.publicIp':instanceData.Reservations[0].Instances[0].PublicIpAddress,'resourceDetails.state':'running'}, function (err, updateCount) {
+                        resourceModel.updateResourceById(resource._id, {'resourceDetails.publicIp':instanceData.Reservations[0].Instances[0].PublicIpAddress,'resourceDetails.state':'running'}, function (err, updateCount) {
                             if (err) {
                                 logger.error("update resource ip err ==>", err);
                                 return callback(err, null);

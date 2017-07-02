@@ -15,15 +15,11 @@
  */
 
 
-var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
-var BaseResourcesSchema = require('./base-resources');
-var Resources = require('./resources');
-var ObjectId = require('mongoose').Types.ObjectId;
 var Schema = mongoose.Schema;
 
-var InstanceResourcesSchema = new BaseResourcesSchema({
-    resourceDetails: {
+var InstanceResourcesSchema = new Schema({
+        _id:false,
         platformId: {
             type: String,
             required: true,
@@ -91,43 +87,15 @@ var InstanceResourcesSchema = new BaseResourcesSchema({
             required: false,
             trim: true
         }
-    }
 });
 
-InstanceResourcesSchema.statics.createNew = function(instanceData,callback){
-    var instanceResource = new instanceResources(instanceData);
-    instanceResource.save(function(err, data) {
-        if (err) {
-            logger.error("createNew Failed", err, data);
-            return callback(err,null);
-        }else{
-            return callback(null,data);
-        }
-    });
-};
-
-InstanceResourcesSchema.statics.updateInstanceData = function(instanceId,instanceData,callback){
-    instanceResources.update({_id:new ObjectId(instanceId)}, {$set: instanceData}, {multi: true},
-        function(err, data) {
-        if (err) {
-            logger.error("Failed to updateInstanceData", err);
-            callback(err, null);
-        }
-        callback(null, data);
-    });
-};
-
-InstanceResourcesSchema.statics.getInstanceData = function(filterBy,callback){
-    instanceResources.find(filterBy,
-        function(err, data) {
-            if (err) {
-                logger.error("Failed to updateInstanceData", err);
-                callback(err, null);
-            }
-            callback(null, data);
-        });
+InstanceResourcesSchema.statics.createNew = function(instanceData){
+    var self = this;
+    var instanceResources = new self(instanceData);
+    return instanceResources;
 };
 
 
-var instanceResources = Resources.discriminator('instanceResources', InstanceResourcesSchema);
+
+var instanceResources = mongoose.model('instanceResources', InstanceResourcesSchema);
 module.exports = instanceResources;

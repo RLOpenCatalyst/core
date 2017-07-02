@@ -2005,16 +2005,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         var queryObj = {
             instanceId:req.params.instanceId
         }
-        if (req.query.timestamp) {
+        console.log(JSON.stringify(req.query));
+        if (req.query.timestamp && req.query.timestamp !== 'undefined') {
             queryObj.timestamp = {
                 "$gt": parseInt(req.query.timestamp)
             }
         }
-        if (req.query.timestampEnded) {
+        if (req.query.timestampEnded && req.query.timestampEnded !== 'undefined') {
             queryObj.timestamp = {
                 "$lte": parseInt(req.query.timestampEnded)
             }
         }
+        console.log(JSON.stringify(queryObj));
         logsDao.getLogsDetails(queryObj, function (err, data) {
             if (err) {
                 logger.error("Found error to fetch Logs: ", err);

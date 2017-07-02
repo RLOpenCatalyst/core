@@ -102,7 +102,10 @@ function getResourcesForTagAggregation(provider,next){
     var resourcesList=[];
     async.waterfall([
         function(next){
-            resources.getResourcesByProviderId(provider._id, next);
+            var queryObj = {
+                'providerDetails.id':provider._id
+            };
+            resources.getResources(queryObj, next);
         }
     ],function(err,results){
         if(err){

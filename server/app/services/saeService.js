@@ -18,7 +18,6 @@ const logger = require('_pr/logger')(module);
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var chefDao = require('_pr/model/dao/chefDao.js');
-var ec2Model = require('_pr/model/resources/instance-resource');
 var services = require('_pr/model/services/services.js');
 var resourceModel = require('_pr/model/resources/resources');
 var saeService = module.exports = {};
@@ -106,6 +105,8 @@ function saeAnalysis(service,callback) {
                         }
                     });
                     function awsGroupResources(groupKey, query, callback) {
+                        console.log(JSON.stringify(groupKey));
+                        console.log(JSON.stringify(query));
                         resourceModel.getResources(query, function (err, resource) {
                             if (err) {
                                 logger.error("Error in fetching Resources for Query:", query, err);
@@ -225,12 +226,12 @@ function saeAnalysis(service,callback) {
                                             }],
                                         isDeleted: false
                                     }
-                                    ec2Model.getInstanceData(query, function (err, data) {
+                                    resourceModel.getResources(query, function (err, data) {
                                         if (err) {
                                             logger.error("Error in finding Resource Details for Query : ", query, err);
                                         }
                                         if (data.length > 0) {
-                                            ec2Model.updateInstanceData(data[0]._id, {
+                                            resourceModel.updateResourceById(data[0]._id, {
                                                 'resourceDetails.bootStrapState': 'success',
                                                 'resourceDetails.hardware': chefNode.hardware
                                             }, function (err, data) {
@@ -302,12 +303,12 @@ function saeAnalysis(service,callback) {
                                         }],
                                     isDeleted: false
                                 }
-                                ec2Model.getInstanceData(query, function (err, data) {
+                                resourceModel.getResources(query, function (err, data) {
                                     if (err) {
                                         logger.error("Error in finding Resource Details for Query : ", query, err);
                                     }
                                     if (data.length > 0) {
-                                        ec2Model.updateInstanceData(data[0]._id, {
+                                        resourceModel.updateResourceById(data[0]._id, {
                                             'resourceDetails.bootStrapState': 'success',
                                             'resourceDetails.hardware': chefNode.hardware
                                         }, function (err, data) {
@@ -500,18 +501,21 @@ function serviceMapVersion(service,resources,instanceStateList){
             var serviceState = getServiceState(instanceStateList);
             var checkEqualFlag = false;
             if(service.resources.length === filterObj.length){
-                service.resources.forEach(function(resource){
-                    checkEqualFlag = false;
-                    filterObj.forEach(function(filterResource){
-                        if(JSON.stringify(resource.id) === JSON.stringify(filterResource.id)){
-                            checkEqualFlag = true;
-                        }
+                if(service.resources.length > 0 && filterObj.length > 0) {
+                    service.resources.forEach(function (resource) {
+                        checkEqualFlag = false;
+                        filterObj.forEach(function (filterResource) {
+                            if (JSON.stringify(resource.id) === JSON.stringify(filterResource.id)) {
+                                checkEqualFlag = true;
+                            }
+                        })
                     })
-                })
+                }else{
+                    checkEqualFlag = true;
+                }
             }
             if(checkEqualFlag){
-                service.updatedOn = new Date().getTime();
-                services.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
+                services.updateServiceById(service.id,{state:serviceState,resources:filterObj,updatedOn : new Date().getTime()},function(err,data){
                     if(err){
                         logger.error("Error in updating Service:",err);
                         next(err,null);

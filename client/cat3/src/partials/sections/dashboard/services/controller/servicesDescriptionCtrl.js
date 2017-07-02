@@ -81,7 +81,7 @@
                                         name: 'Bootstrap',
                                         cellTooltip: true,
                                         cellTemplate: '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.bootStrapState === \'success\'"></i>' +
-                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>',
+                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>'
                                     }
                                 ];
                                 bpcolumnDefs = resourceGrid;                                
