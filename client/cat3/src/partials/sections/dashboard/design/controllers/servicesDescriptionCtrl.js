@@ -77,13 +77,13 @@
                                         name: 'Authentication',
                                         cellTooltip: true,
                                         cellTemplate:'<i title="{{row.entity.authentication}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.authentication === \'success\'"></i>' +
-                                        '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'pending\'"></i>' + '<i style="cursor:pointer;color:#d25353!important" title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="grid.appScope.changeAuthenticationType(row.entity)"></i>'
+                                        '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'authenticating\'"></i>' + '<i title="{{row.entity.authentication}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.authentication === \'pending\'"></i>' + '<i style="cursor:pointer;" title="{{row.entity.authentication}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.authentication === \'failed\'" ng-click="grid.appScope.changeAuthenticationType(row.entity)"></i>'
                                     },
                                     {
                                         name: 'Bootstrap',
                                         cellTooltip: true,
                                         cellTemplate: '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.bootStrapState === \'success\'"></i>' +
-                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" style="color:#d25353!important" ng-show="row.entity.bootStrapState === \'failed\'"></i>',
+                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>'
                                     }
                                 ];
                                 bpcolumnDefs = resourceGrid;                                
@@ -102,7 +102,7 @@
                 $scope.changeAuthenticationType = function(serviceObject) {
                     $modal.open({
                         animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/design/view/popups/serviceAuthentication.html',
+                        templateUrl: 'src/partials/sections/dashboard/services/popups/serviceAuthentication.html',
                         controller: 'servicesAuthenticationCtrl',
                         backdrop: 'static',
                         keyboard: false,
