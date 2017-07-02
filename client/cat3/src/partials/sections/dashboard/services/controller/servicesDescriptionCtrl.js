@@ -6,7 +6,7 @@
  */
 (function(angular) {
         "use strict";
-        angular.module('dashboard.services')
+        angular.module('dashboard.design')
             .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
                 var treeNames = ['Services', 'Service Description'];
                 $rootScope.$emit('treeNameUpdate', treeNames);
