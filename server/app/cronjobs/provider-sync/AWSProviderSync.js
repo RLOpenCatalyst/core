@@ -808,7 +808,11 @@ function tagMappingSyncForResources(resources,provider,category,next){
             }
         } else if (category === 'assigned') {
             logger.info("There is no Tag Mapping");
-            resourceModel.removeResourcesByProviderId(provider._id, function (err, data) {
+            var queryObj = {
+                category : 'assigned',
+                'providerDetails.id':provider._id
+            }
+            resourceModel.removeResources(queryObj, function (err, data) {
                 if (err) {
                     logger.error("Unable to remove assigned Resource", err);
                     next(err);

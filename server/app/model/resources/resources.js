@@ -368,9 +368,7 @@ ResourceSchema.statics.deleteResourcesById = function(resourceId,callback) {
 };
 
 
-ResourceSchema.statics.removeResourcesByProviderId = function(providerId,callback) {
-    var queryObj={};
-    queryObj['providerDetails.id'] =providerId;
+ResourceSchema.statics.removeResources = function(queryObj,callback) {
     Resources.remove(queryObj, function(err, data) {
         if (err) {
             return callback(err, null);
@@ -391,8 +389,6 @@ ResourceSchema.statics.updateResourceById = function(resourceId, fields, callbac
         }
     });
 };
-
-
 
 ResourceSchema.statics.getResourcesWithPagination=function(dataBaseQueryObj,callback){
     dataBaseQueryObj.queryObj.isDeleted = false;

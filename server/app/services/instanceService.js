@@ -1039,7 +1039,10 @@ function removeInstancesByProviderId(providerId, callback) {
             instancesModel.removeInstancesByProviderId(providerId, callback);
         },
         resources: function (callback) {
-            resources.removeResourcesByProviderId(providerId, callback);
+            var queryObj = {
+                'providerDetails.id':providerId
+            }
+            resources.removeResources(queryObj, callback);
         },
         resourcesCost: function (callback) {
             resourceCost.removeResourceCostByProviderId(providerId, callback);
