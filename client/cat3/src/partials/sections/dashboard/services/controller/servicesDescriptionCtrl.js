@@ -100,7 +100,7 @@
                 $scope.changeAuthenticationType = function(serviceObject) {
                     $modal.open({
                         animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/services/popups/serviceAuthentication.html',
+                        templateUrl: 'src/partials/sections/dashboard/design/view/popups/serviceAuthentication.html',
                         controller: 'servicesAuthenticationCtrl',
                         backdrop: 'static',
                         keyboard: false,
@@ -132,15 +132,15 @@
                     templates: {
                         readme: {
                             "title": "ReadMe",
-                            "url": "src/partials/sections/dashboard/services/tabs/serviceReadme.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/serviceReadme.html"
                         },
                         resources: {
                             "title": "Resources",
-                            "url": "src/partials/sections/dashboard/services/tabs/resources.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/resources.html"
                         },
                         info: {
                             "title": "Service Info",
-                            "url": "src/partials/sections/dashboard/services/tabs/serviceInfo.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/serviceInfo.html"
                         }
                     }
                 };
