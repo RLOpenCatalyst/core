@@ -102,7 +102,7 @@
                 $scope.changeAuthenticationType = function(serviceObject) {
                     $modal.open({
                         animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/services/popups/serviceAuthentication.html',
+                        templateUrl: 'src/partials/sections/dashboard/design/view/popups/serviceAuthentication.html',
                         controller: 'servicesAuthenticationCtrl',
                         backdrop: 'static',
                         keyboard: false,

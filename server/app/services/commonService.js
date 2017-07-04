@@ -235,10 +235,10 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                     instanceOS: instance.hardware.os
                                 };
                                 if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                    var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                    var sensuCookBooks = masterUtil.getSensuCookbooks();
                                     var runlist = sensuCookBooks;
                                     var jsonAttributes = {};
-                                    jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                    jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, instance.id);
                                     bootstrapOption['runlist'] = runlist;
                                     bootstrapOption['jsonAttributes'] = jsonAttributes;
                                 }
@@ -654,7 +654,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                 vpcId: resource.resourceDetails.vpcId,
                 privateIpAddress: resource.resourceDetails.privateIp,
                 hostName: resource.resourceDetails.hostName,
-                monitor: serviceDetails.monitor,
+                monitor: serviceDetails.masterDetails.monitor,
                 bootStrapStatus: 'waiting',
                 hardware: {
                     platform: 'unknown',
@@ -796,10 +796,10 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                 instanceOS: instance.hardware.os
                             };
                             if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                var sensuCookBooks = masterUtil.getSensuCookbooks();
                                 var runlist = sensuCookBooks;
                                 var jsonAttributes = {};
-                                jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, instance.id);
                                 bootstrapOption['runlist'] = runlist;
                                 bootstrapOption['jsonAttributes'] = jsonAttributes;
                             }
@@ -956,6 +956,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'configDetails.nodeName': serviceDetails.masterDetails.configName,
                                             'resourceDetails.bootStrapState': 'success',
                                             'resourceDetails.state': 'running',
+                                            'monitor': serviceDetails.masterDetails.monitor?serviceDetails.masterDetails.monitor:null,
                                             'resourceDetails.credentials': encryptedCredentials,
                                             'category': 'managed'
                                         }
@@ -1135,6 +1136,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'masterDetails.envName': serviceDetails.masterDetails.envName,
                                             'configDetails.id': serviceDetails.masterDetails.configId,
                                             'configDetails.nodeName': serviceDetails.masterDetails.configName,
+                                            'monitor': serviceDetails.masterDetails.monitor?serviceDetails.masterDetails.monitor:null,
                                             'resourceDetails.bootStrapState': 'failed',
                                             'resourceDetails.state': 'failed',
                                             'resourceDetails.credentials': encryptedCredentials,
@@ -1233,6 +1235,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                         'masterDetails.envName': serviceDetails.masterDetails.envName,
                         'configDetails.id': serviceDetails.masterDetails.configId,
                         'configDetails.nodeName': serviceDetails.masterDetails.configName,
+                        'monitor': serviceDetails.masterDetails.monitor?serviceDetails.masterDetails.monitor:null,
                         'resourceDetails.bootStrapState': 'success',
                         'resourceDetails.state': 'running',
                         'resourceDetails.credentials': encryptedCredentials,

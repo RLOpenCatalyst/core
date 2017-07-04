@@ -73,7 +73,8 @@ module.exports.decryptCredential = function(credentials, callback) {
                 callback(err, null);
                 return;
             }else{
-                decryptedCredentials.fileData = data;
+                decryptedCredentials.fileData = data.base64Data;
+                decryptedCredentials.decryptedData = data.decryptedData;
                 callback(null,decryptedCredentials);
                 return
             }

@@ -808,7 +808,11 @@ function tagMappingSyncForResources(resources,provider,category,next){
             }
         } else if (category === 'assigned') {
             logger.info("There is no Tag Mapping");
-            resourceModel.removeResourcesByProviderId(provider._id, function (err, data) {
+            var queryObj = {
+                category : 'assigned',
+                'providerDetails.id':provider._id
+            }
+            resourceModel.removeResources(queryObj, function (err, data) {
                 if (err) {
                     logger.error("Unable to remove assigned Resource", err);
                     next(err);
@@ -979,7 +983,7 @@ function createOrUpdateResource(instance,callback){
             resourceObj.tags = instance.tags;
             resourceObj.resourceType = 'EC2'
         } else {
-            resourceObj.resourceType = 'instance'
+            resourceObj.resourceType = 'Instance'
         }
         var filterBy = {
             'resourceDetails.platformId': instance.platformId,
@@ -1032,7 +1036,7 @@ function instanceSync(instances,callback){
                 if (decryptedCredentials.fileData) {
                     credentials = {
                         "username": decryptedCredentials.username,
-                        "pemFileData": decryptedCredentials.fileData,
+                        "pemFileData": decryptedCredentials.decryptedData,
                         "pemFileLocation": instance.credentials.pemFileLocation
                     }
                 } else {

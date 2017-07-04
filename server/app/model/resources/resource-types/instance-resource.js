@@ -1,5 +1,5 @@
 /*
- Copyright [2016] [Relevance Lab]
+ Copyright [2017] [Relevance Lab]
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,78 +18,78 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var InstanceResourcesSchema = new Schema({
-        _id:false,
-        platformId: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        publicIp: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        privateIp:{
-            type:String,
-            required:false,
-            trim:true
-        },
-        os:{
-            type:String,
-            required:false,
-            trim:true
-        },
-        type:{
-            type:String,
-            required:false,
-            trim:true
-        },
-        launchTime:{
-            type:Number,
-            required:false
-        },
-        state:{
-            type:String,
-            required:false,
-            trim:true
-        },
-        hostName:{
-            type:String,
-            required:false,
-            trim:true
-        },
-        subnetId: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        amiId: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        vpcId: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        bootStrapState:{
-            type: String,
-            required: false,
-            trim: true
-        },
-        credentials:Schema.Types.Mixed,
-        route53HostedParams:[Schema.Types.Mixed],
-        hardware:Schema.Types.Mixed,
-        dockerEngineState: {
-            type: String,
-            required: false,
-            trim: true
-        }
+var instanceResourceSchema = new Schema({
+    _id:false,
+    platformId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    publicIp: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    privateIp:{
+        type:String,
+        required:false,
+        trim:true
+    },
+    os:{
+        type:String,
+        required:false,
+        trim:true
+    },
+    type:{
+        type:String,
+        required:false,
+        trim:true
+    },
+    launchTime:{
+        type:Number,
+        required:false
+    },
+    state:{
+        type:String,
+        required:false,
+        trim:true
+    },
+    hostName:{
+        type:String,
+        required:false,
+        trim:true
+    },
+    subnetId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    amiId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    vpcId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    bootStrapState:{
+        type: String,
+        required: false,
+        trim: true
+    },
+    credentials:Schema.Types.Mixed,
+    route53HostedParams:[Schema.Types.Mixed],
+    hardware:Schema.Types.Mixed,
+    dockerEngineState: {
+        type: String,
+        required: false,
+        trim: true
+    }
 });
 
-InstanceResourcesSchema.statics.createNew = function(instanceData){
+instanceResourceSchema.statics.createNew = function(instanceData){
     var self = this;
     var instanceResources = new self(instanceData);
     return instanceResources;
@@ -97,5 +97,5 @@ InstanceResourcesSchema.statics.createNew = function(instanceData){
 
 
 
-var instanceResources = mongoose.model('instanceResources', InstanceResourcesSchema);
+var instanceResources = mongoose.model('instanceResources', instanceResourceSchema);
 module.exports = instanceResources;

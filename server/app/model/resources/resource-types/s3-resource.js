@@ -1,5 +1,5 @@
 /*
- Copyright [2016] [Relevance Lab]
+ Copyright [2017] [Relevance Lab]
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,39 +18,39 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var S3ResourcesSchema = new Schema({
-        bucketName: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        bucketSize: {
-            type: Number,
-            required: false,
-            trim: true
-        },
-        bucketOwnerName:{
-            type:String,
-            required:false,
-            trim:true
-        },
-        bucketOwnerID:{
-            type:String,
-            required:false,
-            trim:true
-        },
-        bucketCreatedOn:{
-            type:Number,
-            required:false,
-        },
-        bucketSizeUnit:{
-            type:String,
-            required:false,
-            trim:true
-        }
+var s3ResourceSchema = new Schema({
+    bucketName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    bucketSize: {
+        type: Number,
+        required: false,
+        trim: true
+    },
+    bucketOwnerName:{
+        type:String,
+        required:false,
+        trim:true
+    },
+    bucketOwnerID:{
+        type:String,
+        required:false,
+        trim:true
+    },
+    bucketCreatedOn:{
+        type:Number,
+        required:false,
+    },
+    bucketSizeUnit:{
+        type:String,
+        required:false,
+        trim:true
+    }
 });
 
-S3ResourcesSchema.statics.createNew = function(s3Data){
+s3ResourceSchema.statics.createNew = function(s3Data){
     var self = this;
     var s3Resources = new self(s3Data);
     return s3Resources;
@@ -58,5 +58,5 @@ S3ResourcesSchema.statics.createNew = function(s3Data){
 
 
 
-var S3Resources = mongoose.model('s3Resources', S3ResourcesSchema);
-module.exports = S3Resources;
+var s3Resources = mongoose.model('s3Resources', s3ResourceSchema);
+module.exports = s3Resources;

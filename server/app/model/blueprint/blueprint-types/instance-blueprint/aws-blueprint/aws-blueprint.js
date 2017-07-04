@@ -767,8 +767,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 if (instance.hardware.os != 'windows')
                                                     return;
                                             }
-
-
                                             var repoData = {};
                                             repoData['projectId'] = launchParams.blueprintData.projectId;
                                             if (launchParams.blueprintData.nexus.repoName) {
