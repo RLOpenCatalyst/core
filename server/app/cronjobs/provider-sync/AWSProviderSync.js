@@ -983,7 +983,7 @@ function createOrUpdateResource(instance,callback){
             resourceObj.tags = instance.tags;
             resourceObj.resourceType = 'EC2'
         } else {
-            resourceObj.resourceType = 'instance'
+            resourceObj.resourceType = 'Instance'
         }
         var filterBy = {
             'resourceDetails.platformId': instance.platformId,
@@ -1036,7 +1036,7 @@ function instanceSync(instances,callback){
                 if (decryptedCredentials.fileData) {
                     credentials = {
                         "username": decryptedCredentials.username,
-                        "pemFileData": decryptedCredentials.fileData,
+                        "pemFileData": decryptedCredentials.decryptedData,
                         "pemFileLocation": instance.credentials.pemFileLocation
                     }
                 } else {
