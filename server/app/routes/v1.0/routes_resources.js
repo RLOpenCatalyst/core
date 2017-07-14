@@ -65,7 +65,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         });
                     },
                     function(queryObj, next) {
-                        queryObj.isDeleted = false;
+                        if(req.query.monitor) {
+                                if (req.query.monitor === 'true') {
+                                    queryObj.queryObj.monitor = {$ne: null};
+                                } else {
+                                    queryObj.queryObj.monitor = null
+                                }
+                        }
                         resourceService.getResources(queryObj,true, next);
                     },
                     function(resources,next){
@@ -153,7 +159,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     app.patch('/resources', updateUnassignedResourcesTags);
-    
+
     function updateUnassignedResourcesTags(req,res,next){
         async.waterfall(
             [

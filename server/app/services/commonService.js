@@ -238,7 +238,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                     var sensuCookBooks = masterUtil.getSensuCookbooks();
                                     var runlist = sensuCookBooks;
                                     var jsonAttributes = {};
-                                    jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                    jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, resourceId);
                                     bootstrapOption['runlist'] = runlist;
                                     bootstrapOption['jsonAttributes'] = jsonAttributes;
                                 }
@@ -799,7 +799,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                 var sensuCookBooks = masterUtil.getSensuCookbooks();
                                 var runlist = sensuCookBooks;
                                 var jsonAttributes = {};
-                                jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, resourceId);
                                 bootstrapOption['runlist'] = runlist;
                                 bootstrapOption['jsonAttributes'] = jsonAttributes;
                             }
@@ -1768,6 +1768,3 @@ function uploadFilesOnBotEngine(orgId,callback){
     });
 
 }
-
-
-
