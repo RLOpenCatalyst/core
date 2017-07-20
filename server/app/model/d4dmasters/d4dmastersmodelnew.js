@@ -766,6 +766,10 @@ var d4dMastersTemplatesList = new mongoose.Schema({
         type: String,
         trim: true
     },
+    template_filePath: {
+        type: String,
+        trim: true
+    },
     active: {
         type: Boolean,
         trim: true,
