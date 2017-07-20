@@ -38,14 +38,13 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.paginationRequest(reqQueryObj, 'services', next);
         },
         function(paginationReq,next){
+            if(paginationReq.isDeleted){
+               paginationReq.isDeleted = paginationReq.isDeleted === 'true' ? true : false;
+            }
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
         function (queryObj, next) {
-            queryObj.queryObj.isDeleted = true;
-            if(reqQueryObj.isDeleted && reqQueryObj.isDeleted ==='false') {
-                queryObj.queryObj.isDeleted = false;
-            }
             if(reqQueryObj.version && reqQueryObj.version === 'latest'){
                 services.getLastVersionOfEachService(queryObj.queryObj, function (err, data) {
                     if (err) {
