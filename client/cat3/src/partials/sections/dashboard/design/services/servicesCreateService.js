@@ -49,7 +49,7 @@
 
 			serviceCreate.getServices = function(page, pageSize, sortBy, sortOrder) {
 				var params = {
-					url: '/services?version=latest&page=' + page +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder,
+					url: '/services?version=latest&page=' + page +'&pageSize=' + pageSize +'&sortBy=' + sortBy +'&sortOrder=' + sortOrder + '&filterBy=isDeleted:false',
 					inlineLoader: true
 				}
 				return genericServices.promiseGet(params); 	

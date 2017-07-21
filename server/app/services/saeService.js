@@ -20,6 +20,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var chefDao = require('_pr/model/dao/chefDao.js');
 var services = require('_pr/model/services/services.js');
 var resourceModel = require('_pr/model/resources/resources');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var saeService = module.exports = {};
 
 
@@ -474,6 +475,50 @@ function serviceMapVersion(service,resources,instanceStateList){
                         }
                         if (findCheck === false) {
                             filterResourceList.push(resourceObj);
+                        }
+                        if(service.masterDetails.monitor && service.masterDetails.monitor !== null
+                            && service.masterDetails.monitor.parameters.transportProtocol === 'rabbitmq'){
+                            if(node.result.monitor === null || (node.result.monitor !== null && node.result.monitor.name !==service.masterDetails.monitor.name)){
+                                var senSuCookBooks = masterUtil.getSensuCookbooks();
+                                var run_list = senSuCookBooks;
+                                var jsonAttributes = {};
+                                jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(service.masterDetails.monitor, resourceObj.id);
+                                var reqBody = {
+                                    run_list:run_list,
+                                    attributes:jsonAttributes
+                                }
+                                commonService.executeCookBookOnResource(resourceObj.id,reqBody,function(err,data){
+                                    if(err){
+                                        logger.error(err);
+                                    }
+                                    resourceModel.updateResourceById(resourceObj.id,{monitor:service.masterDetails.monitor},function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                        }
+                                        var instancesDao = require('_pr/model/classes/instance/instance');
+                                        var query = {
+                                            $or: [{
+                                                instanceIP: node.result.resourceDetails.publicIp
+                                            },
+                                                {
+                                                    privateIpAddress: node.result.resourceDetails.privateIp
+                                                },
+                                                {
+                                                    chefNodeName: node.result.configDetails.nodeName
+                                                },
+                                                {
+                                                    platformId: node.result.resourceDetails.platformId
+                                                }],
+                                            isDeleted:false
+                                        }
+                                        instancesDao.updateInstanceByFilter(query,{monitor:service.masterDetails.monitor},function(err,data){
+                                            if(err){
+                                                logger.error(err);
+                                            }
+                                        })
+                                    });
+                                })
+                            }
                         }
                         count++;
                         if(count === resources.length){
