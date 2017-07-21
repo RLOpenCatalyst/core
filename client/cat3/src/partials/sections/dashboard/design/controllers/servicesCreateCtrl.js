@@ -255,6 +255,7 @@
                     if(response) {
                         var yamlfileId = response.data.fileId;
                         reqBody.fileId = yamlfileId;
+                        reqBody.source = 'file';
                         servicesCreateService.postCreateService(reqBody).then(function(response){
                             toastr.success('Service created successfully');
                             $state.go('dashboard.design.servicesList');

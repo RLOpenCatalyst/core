@@ -39,8 +39,9 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.paginationRequest(reqQueryObj, 'services', next);
         },
         function(paginationReq,next){
-            if(paginationReq.isDeleted){
-                paginationReq.isDeleted = paginationReq.isDeleted === 'true' ? true : false;
+            paginationReq['filterBy.isDeleted'] =  false;
+            if(paginationReq.filterBy && paginationReq.filterBy.isDeleted){
+               paginationReq.filterBy.isDeleted = paginationReq.filterBy.isDeleted === 'true' ? true : false;
             }
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
