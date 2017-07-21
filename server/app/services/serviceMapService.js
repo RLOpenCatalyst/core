@@ -41,10 +41,6 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
         function(paginationReq,next){
             if(paginationReq.filterBy && paginationReq.filterBy.isDeleted){
                paginationReq.filterBy.isDeleted = paginationReq.filterBy.isDeleted === 'true' ? true : false;
-            }else{
-                paginationReq.filterBy = {
-                    isDeleted:false
-                }
             }
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
