@@ -27,15 +27,15 @@ saeService.serviceMapSync = function serviceMapSync(callback){
     logger.debug("ServiceMap is Started");
     async.waterfall([
         function(next){
-            services.getLastVersionOfEachService({},next);
+            services.getLastVersionOfEachService({isDeleted:false},next);
         },
-        function(services,next){
-            if(services.length >0){
+        function(serviceList,next){
+            if(serviceList.length >0){
                 var saeAnalysisList = [];
-                services.forEach(function(service){
+                serviceList.forEach(function(service){
                     saeAnalysisList.push(function(callback){saeAnalysis(service,callback);});
                 });
-                if(saeAnalysisList.length === services.length) {
+                if(saeAnalysisList.length === serviceList.length) {
                     async.parallel(saeAnalysisList, function (err, results) {
                         if (err) {
                             next(err, null);
@@ -45,7 +45,7 @@ saeService.serviceMapSync = function serviceMapSync(callback){
                     })
                 }
             }else{
-                next(null,services);
+                next(null,serviceList);
             }
         }
     ],function(err,data){
@@ -105,8 +105,6 @@ function saeAnalysis(service,callback) {
                         }
                     });
                     function awsGroupResources(groupKey, query, callback) {
-                        console.log(JSON.stringify(groupKey));
-                        console.log(JSON.stringify(query));
                         resourceModel.getResources(query, function (err, resource) {
                             if (err) {
                                 logger.error("Error in fetching Resources for Query:", query, err);
@@ -588,7 +586,7 @@ saeService.updateServiceVersion = function updateServiceVersion(resource,authent
     }
     async.waterfall([
         function(next){
-            services.getServices({resources:{$elemMatch:{id:resource._id+''}}},next);
+            services.getServices({resources:{$elemMatch:{id:resource._id+''}},isDeleted:false},next);
         },
         function(serviceList,next){
             async.parallel({

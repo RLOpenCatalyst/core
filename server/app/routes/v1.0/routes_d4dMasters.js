@@ -50,24 +50,7 @@ var request = require('request');
 module.exports.setRoutes = function (app, sessionVerification) {
 
     app.all('/d4dMasters/*', sessionVerification);
-
-    // New implementation for docker authentication: Relevance Lab
     app.post('/d4dmasters/docker/validate_old', function (req, res) {
-        // dockerHubAPI.login(req.body.userName, req.body.password,function(info){
-        //     logger.debug('Info:',info);
-        //     res.send('200');
-        // });
-        // var options_auth = {
-        //     user: req.body.username,
-        //     password: req.body.password
-        // }
-        // client = new Client();
-        // var dockerUrl = 'https://index.docker.io/v1/user';
-        // var reqSubmit = client.get(dockerUrl,options_auth,function(info,data){
-        //     console.log(info.toString());
-        //     res.send('200');
-        // });
-
         var curl = new Curl();
         curl.executecurl('curl --raw -L --user ' + req.body.username + ':' + req.body.password + ' https://index.docker.io/v1/users', function (err, resp) {
             var loggedin = false;
@@ -89,33 +72,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 return;
             }
         });
-
-        // var userName = req.body.userName;
-        // var password = req.body.password;
-
-        // var options_auth = {
-        //     user: userName,
-        //     password: password
-        // };
-        // client = new Client(options_auth);
-        // var dockerUrl = 'https://index.docker.io/api/v1.1/users';
-        // var reqSubmit = client.get(dockerUrl,function(data, response){
-        //     logger.debug("data: ", data.toString());
-        // });
-
-        //client.registerMethod("jsonMethod", dockerUrl, "GET");
-        // var reqSubmit = client.methods.jsonMethod(function(data, response) {
-        //   logger.debug("response: ", response.statusCode);
-        //  //   logger.debug("data: ", data.toString());
-        //     res.send('200');
-        //     return;
-        // });
-
-        // Handling Exception for nexus req.
-        // reqSubmit.on('error', function(err) {
-        //     logger.debug('Something went wrong on req!!', err.request.options);
-        //     res.send('402');
-        // });
     });
 
     app.post('/d4dmasters/docker/validate', function (req, res) {

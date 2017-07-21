@@ -19,6 +19,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var services = require('_pr/model/services/services.js');
 var fileUpload = require('_pr/model/file-upload/file-upload');
+var fileIo = require('_pr/lib/utils/fileio');
 var monitors = require('_pr/model/monitors/monitors');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
@@ -37,6 +38,9 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.paginationRequest(reqQueryObj, 'services', next);
         },
         function(paginationReq,next){
+            if(paginationReq.isDeleted){
+               paginationReq.isDeleted = paginationReq.isDeleted === 'true' ? true : false;
+            }
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
@@ -131,7 +135,7 @@ serviceMapService.deleteServiceById = function deleteServiceById(serviceId,callb
         },
         function(servicesData,next){
             if(servicesData.length > 0){
-                services.updateService({name:servicesData[0].name},{isDeleted:true},next);
+                services.updateService({name:servicesData[0].name},{isDeleted:true,state:'Deleted'},next);
             }else{
                 var err =  new Error();
                 err.code = 500;
@@ -209,7 +213,7 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                 return callback(err, null);
             } else if (data.length > 0) {
                 return callback({code: 400, message: "Service Name is already associated with other Services.Please enter unique Service Name."}, null);
-            } else {
+            } else if(servicesObj.source ==='file') {
                 fileUpload.getReadStreamFileByFileId(servicesObj.fileId, function (err, fileDetail) {
                     if (err) {
                         logger.error("Error in reading YML File.");
@@ -259,6 +263,74 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                         }
                     }
                 });
+            }else{
+                try {
+                    var result = jsYml.safeLoad(servicesObj.fileData);
+                    if (result !== null) {
+                        var fileId = uuid.v4();
+                        var ymlFolderName = appConfig.tempDir;
+                        var ymlFileName = fileId + '.yaml'
+                        var path = require('path');
+                        var mkdirp = require('mkdirp');
+                        var ymlFolder = path.normalize(ymlFolderName);
+                        mkdirp.sync(ymlFolder);
+                        async.waterfall([
+                            function (next) {
+                                fileIo.writeFile(ymlFolder + '/' + ymlFileName, servicesObj.fileData, null, next);
+                            },
+                            function (next) {
+                                fileUpload.uploadFile(ymlFileName, ymlFolder + '/' + ymlFileName, null, next);
+                            }
+                        ], function (err, results) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
+                                    if (err) {
+                                        logger.error(err);
+                                        logger.debug("Successfully remove YML file");
+                                        return callback(err,null);
+                                    }
+                                });
+                            } else {
+                                servicesObj.identifiers = result;
+                                servicesObj.type = 'Service';
+                                servicesObj.ymlFileId = results;
+                                servicesObj.createdOn = new Date().getTime();
+                                getMasterDetails(servicesObj.masterDetails, function (err, result) {
+                                    if (err) {
+                                        logger.error("Unable to Master Details");
+                                        callback(err, null);
+                                        return;
+                                    } else {
+                                        monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
+                                            servicesObj.masterDetails = result;
+                                            servicesObj.masterDetails.monitor = monitor;
+                                            servicesObj.state = 'Initializing';
+                                            servicesObj.version = 1.0;
+                                            services.createNew(servicesObj, function (err, servicesData) {
+                                                if (err) {
+                                                    logger.error("services.createNew is Failed ==>", err);
+                                                    callback(err, null);
+                                                    return;
+                                                } else {
+                                                    callback(null, servicesData);
+                                                    return;
+                                                }
+                                            });
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        var err = new Error("There is no data present YML.")
+                        err.code = 403;
+                        callback(err, null);
+                    }
+                } catch(err){
+                    return callback({code:500,message:'Invalid YAML : '+err.message}, null);
+                }
             }
         });
     }
@@ -275,30 +347,6 @@ serviceMapService.updateServiceById = function updateServiceById(serviceId,data,
             }else{
                 logger.debug("No Service is available in DB against serviceId");
                 next(null,null);
-            }
-        }
-    ],function(err,results){
-        if(err){
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-    })
-}
-
-serviceMapService.getLastVersionOfEachService = function getLastVersionOfEachService(filterBy,callback){
-    async.waterfall([
-        function(next){
-            services.getLastVersionOfEachService(filterBy,next);
-        },
-        function(servicesData,next){
-            if(servicesData.length > 0){
-                next(null,servicesData);
-            }else{
-                logger.debug("No Service is available in DB: ");
-                next(null,servicesData);
             }
         }
     ],function(err,results){
