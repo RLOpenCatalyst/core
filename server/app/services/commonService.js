@@ -41,7 +41,8 @@ var saeService = require('_pr/services/saeService.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var EC2 = require('_pr/lib/ec2.js');
-
+var utils = require('_pr/model/classes/utils/utils.js');
+var Puppet = require('_pr/lib/puppet.js');
 
 const errorType = 'commonService';
 
@@ -1603,6 +1604,163 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
             return callback(null, data);
         }
     })
+}
+
+commonService.executeCookBookOnResource = function executeCookBookOnResource(resourceId,reqBody,callback) {
+    async.waterfall([
+        function(next){
+           resourceModel.getResourceById(resourceId,next);
+        },
+        function(resource,next){
+            if(resource !== null){
+                masterUtil.getCongifMgmtsById(resource.configDetails.id,function(err,serverDetails){
+                    if(err){
+                        next({message:"Server Details is not present in DB"},null);
+                    }else{
+                        next(resource,serverDetails);
+                    }
+                });
+            }else{
+                next({message:"Resource is not present in DB"},null);
+            }
+        },
+        function(resource,serverDetails,next) {
+            credentialCryptography.decryptCredential(resource.resourceDetails.credentials, function (err, decryptedCredentials) {
+                if (err) {
+                    next(err, null);
+                } else {
+                    var infraManager;
+                    var runOptions;
+                    if (resource.configDetails.type === 'chef' && resource.configDetails.id) {
+                        infraManager = new Chef({
+                            userChefRepoLocation: serverDetails.chefRepoLocation,
+                            chefUserName: serverDetails.loginname,
+                            chefUserPemFile: serverDetails.userpemfile,
+                            chefValidationPemFile: serverDetails.validatorpemfile,
+                            hostedChefUrl: serverDetails.url,
+                        });
+                        runOptions = {
+                            privateKey: decryptedCredentials.pemFileLocation,
+                            username: decryptedCredentials.username,
+                            host: resource.resourceDetails.publicIp,
+                            instanceOS: resource.resourceDetails.os,
+                            port: 22,
+                            runlist: reqBody.run_list,
+                            overrideRunlist: false,
+                            jsonAttributes: reqBody.attributes
+                        }
+                        logger.debug('decryptCredentials ==>', decryptedCredentials);
+                        if (decryptedCredentials.pemFileLocation) {
+                            runOptions.privateKey = decryptedCredentials.pemFileLocation;
+                        } else {
+                            runOptions.password = decryptedCredentials.password;
+                        }
+
+                    } else {
+                        var puppetSettings = {
+                            host: serverDetails.hostname,
+                            username: serverDetails.username,
+                        };
+                        if (serverDetails.pemFileLocation) {
+                            puppetSettings.pemFileLocation = serverDetails.pemFileLocation;
+                        } else {
+                            puppetSettings.password = serverDetails.puppetpassword;
+                        }
+                        logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
+                        infraManager = new Puppet(puppetSettings);
+                        var runOptions = {
+                            username: decryptedCredentials.username,
+                            host: resource.resourceDetails.publicIp,
+                            port: 22,
+                        }
+                        if (decryptedCredentials.pemFileLocation) {
+                            runOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
+                        } else {
+                            runOptions.password = decryptedCredentials.password;
+                        }
+                    }
+                    infraManager.runClient(runOptions, function (err, retCode) {
+                        if (decryptedCredentials.pemFileLocation) {
+                            fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
+                                if (err) {
+                                    logger.debug("Unable to delete temp pem file =>", err);
+                                } else {
+                                    logger.debug("temp pem file deleted =>", err);
+                                }
+                            });
+                        }
+                        if (err) {
+                            next(err, null);
+                        }
+                        logger.debug("knife ret code", retCode);
+                        if (retCode == 0) {
+                            if (resource.resourceDetails.type === 'chef' && resource.resourceDetails.id) {
+                                var run_list = resource.configDetails.run_list,
+                                    attributes = resource.configDetails.attributes;
+                                if (run_list.indexOf(reqBody.run_list) === -1) {
+                                    run_list.push(reqBody.run_list);
+                                }
+                                if (attributes.length > 0) {
+                                    attributes.push(reqBody.attributes);
+                                } else {
+                                    attributes = [reqBody.attributes];
+                                }
+                                next(null,null);
+                                resourceModel.updateResourceById(resourceId, {
+                                    'configDetails.run_list': run_list,
+                                    'configDetails.attributes': attributes
+                                }, function (err, updateCount) {
+                                    if (err) {
+                                        next(err, null);
+                                    }
+                                    var query = {
+                                        $or: [{
+                                            instanceIP: resource.resourceDetails.publicIp
+                                        },
+                                            {
+                                                privateIpAddress: resource.resourceDetails.privateIp
+                                            },
+                                            {
+                                                chefNodeName: resource.configDetails.nodeName
+                                            },
+                                            {
+                                                platformId: resource.resourceDetails.platformId
+                                            }],
+                                        isDeleted:false
+                                    }
+                                    instancesDao.updateInstanceByFilter(query,{
+                                        runlist: run_list,
+                                        attributes: attributes
+                                    },function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                        }
+                                    });
+                                });
+                            } else {
+                                next(null, {message: 'Puppet client ran successfully'})
+                            }
+                        } else {
+                            if (retCode === -5000) {
+                                next({message: "Host Unreachable"}, null);
+                            } else if (retCode === -5001) {
+                                next({message: "Invalid credentials"}, null);
+                            } else {
+                                next({message: 'Unknown error occurred. ret code = ' + retCode}, null);
+                            }
+                        }
+                    });
+                }
+
+            })
+        }
+    ],function(err,results){
+        if(err){
+            return callback(err,null);
+        }else{
+            return callback(null,results);
+        }
+    });
 }
 
 commonService.startResource = function startResource(resource,callback) {
