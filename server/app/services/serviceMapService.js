@@ -27,6 +27,7 @@ const jsYml= require('js-yaml');
 var uuid = require('node-uuid');
 var resourceModel = require('_pr/model/resources/resources');
 var commonService = require('_pr/services/commonService');
+var appConfig = require('_pr/config');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 var serviceMapService = module.exports = {};
@@ -38,14 +39,13 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.paginationRequest(reqQueryObj, 'services', next);
         },
         function(paginationReq,next){
+            if(paginationReq.isDeleted){
+                paginationReq.isDeleted = paginationReq.isDeleted === 'true' ? true : false;
+            }
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
         function (queryObj, next) {
-            queryObj.queryObj.isDeleted = true;
-            if(reqQueryObj.isDeleted && reqQueryObj.isDeleted ==='false') {
-                queryObj.queryObj.isDeleted = false;
-            }
             if(reqQueryObj.version && reqQueryObj.version === 'latest'){
                 services.getLastVersionOfEachService(queryObj.queryObj, function (err, data) {
                     if (err) {
@@ -585,10 +585,23 @@ serviceMapService.getAllServiceResourcesByName = function getAllServiceResources
     })
 }
 
-serviceMapService.getServiceById = function getServiceById(serviceId,callback){
+serviceMapService.getServiceByName = function getServiceByName(serviceName,queryParam,callback){
     async.waterfall([
         function(next){
-            services.getServiceById(serviceId,next);
+            var query = {
+                name:serviceName
+            };
+            if(queryParam.isDeleted){
+                query.isDeleted = queryParam.isDeleted ==='true'? true : false;
+            }
+            if(queryParam.version && queryParam.version === 'latest'){
+                services.getLastVersionOfEachService(query,next);
+            }else if(queryParam.version){
+                query.version = parseFloat(queryParam.version);
+                services.getServices(query,next);
+            }else{
+                services.getServices(query,next);
+            }
         },
         function(serviceList,next){
             changeServiceResponse(serviceList,next);
@@ -598,7 +611,7 @@ serviceMapService.getServiceById = function getServiceById(serviceId,callback){
             callback(err,null);
             return;
         }else{
-            callback(null,results[0]);
+            callback(null,results);
             return;
         }
     })
