@@ -787,6 +787,7 @@ var InstancesDao = function () {
                 }, {
                     'puppet.puppetNodeName': nodeName
                 }],
+            isDeleted:false
         }
         Instances.find(queryObj, function (err, data) {
             if (err) {
