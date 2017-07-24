@@ -487,6 +487,7 @@ function serviceMapVersion(service,resources,instanceStateList){
                                     run_list:run_list,
                                     attributes:jsonAttributes
                                 }
+                                var commonService = require('_pr/services/commonService');
                                 commonService.executeCookBookOnResource(resourceObj.id,reqBody,function(err,data){
                                     if(err){
                                         logger.error(err);
