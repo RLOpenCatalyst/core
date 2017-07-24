@@ -986,7 +986,19 @@ function createOrUpdateResource(instance,callback){
             resourceObj.resourceType = 'Instance'
         }
         var filterBy = {
-            'resourceDetails.platformId': instance.platformId,
+            $or: [
+                {
+                    'resourceDetails.publicIp':instance.instanceIP
+                },
+                {
+                    'resourceDetails.privateIp':instance.privateIpAddress
+                },
+                {
+                    'configDetails.nodeName':instance.chefNodeName
+                },
+                {
+                    'resourceDetails.platformId':instance.platformId
+                }],
             'isDeleted':false
         }
         resourceModel.getResources(filterBy, function (err, data) {
