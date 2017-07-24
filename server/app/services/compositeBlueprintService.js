@@ -85,10 +85,7 @@ compositeBlueprintService.checkCompositeBlueprintsAccess
         if (err) {
             return callback(err);
         }
-
-        console.log(compositeBlueprintsCount);
         var authorized = (compositeBlueprintsCount == compositeBlueprintIds.length);
-
         if (!authorized) {
             var err = new Error('Forbidden. Access denied to delete all composite blueprints specified');
             err.status = 403;

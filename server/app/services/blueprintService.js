@@ -553,7 +553,6 @@ blueprintService.getTemplateById = function getTemplateById(templateId, callback
             err.status = 500;
             return callback(err);
         }
-        console.log('templates ==>', templateId, templates)
         if (templates && templates.length) {
             callback(null, templates[0]);
         } else {

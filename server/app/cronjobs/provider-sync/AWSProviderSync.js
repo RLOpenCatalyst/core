@@ -925,20 +925,6 @@ function createOrUpdateResource(instance,callback){
                 envId: instance.envId,
                 envName: instance.environmentName
             },
-            resourceDetails: {
-                platformId: instance.platformId,
-                vpcId: instance.vpcId ? instance.vpcId : null,
-                subnetId: instance.subnetId ? instance.subnetId : null,
-                hostName: instance.hostName ? instance.hostName : null,
-                publicIp: instance.instanceIP,
-                privateIp: instance.privateIpAddress,
-                state: instance.instanceState,
-                bootStrapState: instance.bootStrapStatus === 'waiting' || instance.bootStrapStatus === 'pending'?'bootStrapping':instance.bootStrapStatus,
-                credentials: instance.credentials,
-                route53HostedParams: instance.route53HostedParams,
-                hardware: instance.hardware,
-                dockerEngineState: instance.docker.dockerEngineStatus
-            },
             configDetails: {
                 id: instance.chef.serverId,
                 nodeName: instance.chef.chefNodeName,
@@ -986,26 +972,34 @@ function createOrUpdateResource(instance,callback){
             resourceObj.resourceType = 'Instance'
         }
         var filterBy = {
-            $or: [
-                {
+            $or: [{
                     'resourceDetails.publicIp':instance.instanceIP
                 },
                 {
-                    'resourceDetails.privateIp':instance.privateIpAddress
+                    'resourceDetails.privateIp': instance.instanceIP
                 },
                 {
-                    'configDetails.nodeName':instance.chefNodeName
+                    'configDetails.nodeName': instance.chef.chefNodeName
                 },
                 {
                     'resourceDetails.platformId':instance.platformId
                 }],
-            'isDeleted':false
+            isDeleted:false
         }
         resourceModel.getResources(filterBy, function (err, data) {
             if (err) {
                 logger.error("Error in fetching Resources>>>>:", err);
                 return callback(err, null);
             } else if (data.length > 0) {
+                if(data[0].providerDetails.type && data[0].providerDetails.type === 'AWS'){
+                    delete resourceObj.name;
+                    resourceObj.resourceType = 'EC2'
+                    resourceObj['resourceDetails.bootStrapState'] = instance.bootStrapStatus === 'waiting' || instance.bootStrapStatus === 'pending'?'bootStrapping':instance.bootStrapStatus;
+                    resourceObj['resourceDetails.credentials'] = instance.credentials;
+                    resourceObj['resourceDetails.route53HostedParams'] = instance.route53HostedParams;
+                    resourceObj['resourceDetails.hardware'] = instance.hardware;
+                    resourceObj['resourceDetails.dockerEngineState'] = instance.docker.dockerEngineStatus;
+                }
                 resourceModel.updateResourceById(data[0]._id, resourceObj, function (err, data) {
                     if (err) {
                         logger.error("Error in updating Resources>>>>:", err);
@@ -1015,6 +1009,20 @@ function createOrUpdateResource(instance,callback){
                     }
                 })
             } else {
+                resourceObj.resourceDetails = {
+                    platformId: instance.platformId,
+                    vpcId: instance.vpcId ? instance.vpcId : null,
+                    subnetId: instance.subnetId ? instance.subnetId : null,
+                    hostName: instance.hostName ? instance.hostName : null,
+                    publicIp: instance.instanceIP,
+                    privateIp: instance.privateIpAddress,
+                    state: instance.instanceState,
+                    bootStrapState: instance.bootStrapStatus === 'waiting' || instance.bootStrapStatus === 'pending'?'bootStrapping':instance.bootStrapStatus,
+                    credentials: instance.credentials,
+                    route53HostedParams: instance.route53HostedParams,
+                    hardware: instance.hardware,
+                    dockerEngineState: instance.docker.dockerEngineStatus
+                },
                 resourceObj.createdOn = new Date().getTime();
                 resourceModel.createNew(resourceObj, function (err, data) {
                     if (err) {

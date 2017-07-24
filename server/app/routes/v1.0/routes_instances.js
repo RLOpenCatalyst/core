@@ -727,7 +727,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             logger.error("Error hits to fetch docker details", stdOutErr);
             res.send(500);
         });
-        console.log(stdOut);
         logger.debug("Exit get() for /instances/dockercontainerdetails/%s", req.params.instanceid);
 
     });
