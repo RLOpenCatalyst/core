@@ -585,9 +585,6 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
                 Object.assign(parentBlueprint, blueprintData);
                 delete parentBlueprint._id;
                 delete parentBlueprint.__v;
-
-                console.log('pb==>', parentBlueprint);
-
                 next(null, parentBlueprint);
 
             },

@@ -104,9 +104,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
             username: jenkinsData.jenkinsusername,
             password: jenkinsData.jenkinspassword
         });
-        /*jenkins.buildJob(req.params.jobName, function(err, job) {
-            console.log("Job=======>"+job);
-        });*/
         jenkins.getJobInfo(req.params.jobName, function(err, job) {
             if (err) {
                 logger.error('jenkins jobs fetch error', err);

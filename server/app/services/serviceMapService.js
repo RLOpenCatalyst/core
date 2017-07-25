@@ -46,8 +46,6 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.databaseUtil(paginationReq, next);
         },
         function (queryObj, next) {
-            console.log(reqData);
-            console.log(JSON.stringify(queryObj));
             if(reqQueryObj.version && reqQueryObj.version === 'latest'){
                 services.getLastVersionOfEachService(queryObj.queryObj, function (err, data) {
                     if (err) {
@@ -800,11 +798,9 @@ function checkCredentialsForResource(resource,resourceId,credentials,callback) {
                             resourceModel.updateResourceById(resourceId, queryObj, callback)
                         },
                         serviceSync: function (callback) {
-                            console.log(serviceList.length);
                             if (serviceList.length > 0) {
                                 var count = 0;
                                 serviceList.forEach(function (service) {
-                                    console.log(service);
                                     var authenticationFailedCount = 0,serviceState = 'Initializing', awsCheck = false;
                                     if (service.identifiers.aws && service.identifiers.aws !== null) {
                                         awsCheck = true;
@@ -823,8 +819,6 @@ function checkCredentialsForResource(resource,resourceId,credentials,callback) {
                                     } else {
                                         serviceState = 'Initializing';
                                     }
-                                    console.log(authenticationFailedCount);
-                                    console.log(serviceState);
                                     serviceMapService.updateService({
                                         '_id': ObjectId(service._id),
                                         'resources': {$elemMatch: {id: resource._id + ''}}

@@ -51,7 +51,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             var data = '';
             httpsRes.on('data', function(chunk) {
                 data = data + chunk
-                console.log('Response: ' + chunk);
             });
             httpsRes.on('end', function(chunk) {
                 res.status(200).send(data);

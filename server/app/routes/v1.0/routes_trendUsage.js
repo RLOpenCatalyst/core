@@ -443,7 +443,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             if(err) {
             	next(err);
             } else {
-            	// console.log("Usage Metrics: "+JSON.stringify(usageMetrics, null, 4));
                 res.status(200).send(usageMetrics);
             }
         });
