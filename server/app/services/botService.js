@@ -178,7 +178,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                             actionStatus: 'success',
                             'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
                             isDeleted:false,
-                            'masterDetails.ordId': {$in:orgIds}
+                            'masterDetails.orgId': {$in:orgIds}
                         };
                         auditTrail.getAuditTrailList(queryObj, next);
                     }else{
