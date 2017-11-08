@@ -45,11 +45,10 @@ var MongoStore = require('connect-mongo')(expressSession);
 var mongoDbConnect = require('_pr/lib/mongodb');
 var mongoose = require('mongoose');
 
-
-
-
 logger.debug('Starting Catalyst');
 logger.debug('Logger Initialized');
+logger.info('Welcome to RLCatalyst');
+logger.info('Welcome to RLCatalyst');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 LDAPUser.getLdapUser(function(err, ldapData) {
