@@ -45,9 +45,7 @@ var MongoStore = require('connect-mongo')(expressSession);
 var mongoDbConnect = require('_pr/lib/mongodb');
 var mongoose = require('mongoose');
 
-
-
-
+logger.info('Welcome to RLCatalyst');
 logger.debug('Starting Catalyst');
 logger.debug('Logger Initialized');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
