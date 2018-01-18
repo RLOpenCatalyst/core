@@ -27,6 +27,7 @@ var fs = require('fs');
 var request = require('request');
 var path = require('path');
 var mkdirp = require('mkdirp');
+var decompress = require('decompress');
 var SSHExec = require('_pr/lib/utils/sshexec');
 var waitForPort = require('wait-for-port');
 var credentialCryptography = require('_pr/lib/credentialcryptography');
@@ -41,6 +42,11 @@ var saeService = require('_pr/services/saeService.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var EC2 = require('_pr/lib/ec2.js');
+var OS = require('os');
+var jsyaml = require('js-yaml');
+var promisify = require("promisify-node");
+var fse = promisify(require("fs-extra"));
+
 var utils = require('_pr/model/classes/utils/utils.js');
 var Puppet = require('_pr/lib/puppet.js');
 
@@ -1558,6 +1564,67 @@ commonService.convertJson2Yml = function convertJson2Yml(reqBody,callback) {
     }
 }
 
+commonService.getYmlFromTar = function getYmlFromTar(file, bots, callback) {
+    var local = appConfig.botFactoryDir + 'local/'
+    mkdirp(local, function (err, made) { 
+        if (err)
+            logger.error("Unable to create local folder", err);
+    })
+    decompress(file.file.path, path.join(OS.tmpdir())).then(function (files) { 
+        var yamlFile = files.filter(function (value) { return value.path.split(".")[1] === 'yaml' })[0];
+        var yamlData = yamlFile.data.toString();
+        try {
+            jsyaml.safeLoadAll(yamlData, function (result) {
+                result.input = result.input[0].form;
+                result.category = result.category||result.functionality
+                result.orgId = bots.orgId;
+                result.orgName = bots.orgName;
+                result.source = "Catalyst";
+                var ymlFolderName = local + result.id;
+                async.waterfall([
+                    function (next) { 
+                        fse.remove(ymlFolderName, next);
+                    },
+                    function (next) { 
+                        fs.rename(path.join(OS.tmpdir(), files[0].path), ymlFolderName, next);
+                    }
+                ], function (err) { 
+                    if (err) {
+                        fs.unlinkSync(file.file.path);
+                        fse.remove(path.join(OS.tmpdir(), files[0].path));
+                        callback(err, null);
+                    } else
+                    { 
+                        fs.unlinkSync(file.file.path);
+                        fse.remove(path.join(OS.tmpdir(), files[0].path));
+                        async.parallel([
+                            function (callback1) { 
+                                fileUpload.uploadFile(result.id + '.yaml', ymlFolderName + '/' + result.id + '.yaml', null, callback1);
+                            },
+                            function (callback1) { 
+                                uploadFilesOnBotEngine(bots.orgId, callback1);
+                            }
+                        ], function (err, data) { 
+                            if (err)
+                                callback(err, null);
+                            else { 
+                                result.ymlDocFileId = data[0];
+                                callback(null, result);
+                            }       
+                        })
+                    }
+                })
+            })
+        } catch(error){
+            fs.unlinkSync(file.file.path);
+            fse.remove(path.join(OS.tmpdir(), files[0].path));
+            callback(error, null);
+        }
+    }).catch(function (err) {
+        fs.unlinkSync(file.file.path);
+        callback(err, null);
+    })
+}
 commonService.syncChefNodeWithResources = function syncChefNodeWithResources(chefNodeDetails,serviceDetails,callback) {
     var resourceObj = {
         name: chefNodeDetails.name,

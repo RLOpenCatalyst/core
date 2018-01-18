@@ -120,7 +120,6 @@
 		            }, function(error) {
 	                	$scope.isBotSyncPageLoading = false;
 	                	$scope.isBotSyncDetailsLoading = false;
-	                	toastr.error(error);
 	                	$scope.errorMessage = "No Records found";
 	            	})
 				} else {

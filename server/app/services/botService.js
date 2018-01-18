@@ -31,6 +31,9 @@ var jenkinsExecutor = require('_pr/engine/bots/jenkinsExecutor.js');
 var apiExecutor = require('_pr/engine/bots/apiExecutor.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
+var promisify = require("promisify-node");
+var fse = promisify(require("fs-extra"));
+var formidable = require('formidable');
 var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
 
@@ -45,23 +48,29 @@ const errorType = 'botService';
 var botService = module.exports = {};
 
 botService.createNew = function createNew(reqBody, callback) {
-    commonService.convertJson2Yml(reqBody, function (err, ymlData) {
+    var bots = {};
+    if (typeof reqBody.body.bots === 'string')
+        bots = JSON.parse(reqBody.body.bots);
+    else
+        bots = reqBody.body.bots;
+    async.waterfall([
+        function (next) { 
+            if (bots.type === 'meta')
+                commonService.getYmlFromTar(reqBody.files,bots, next);
+            else
+                commonService.convertJson2Yml(bots, next);
+        }, function (ymlData, next) { 
+            botDao.createNew(ymlData, next);
+        }
+    ], function (err, data) {
         if (err) {
             logger.error(err);
             callback(err, null);
             return;
         } else {
-            botDao.createNew(ymlData, function (err, data) {
-                if (err) {
-                    logger.error(err);
-                    callback(err, null);
-                    return;
-                } else {
-                    callback(null, data);
-                    return;
-                }
-            });
-        }
+            callback(null, data);
+            return;
+         }
     })
 }
 
@@ -109,16 +118,25 @@ botService.removeBotsById = function removeBotsById(id, callback) {
                     botDao.removeBotsById(id, callback);
                 },
                 orgResourcePerm: function (callback) {
-                    orgResourcePermission.deleteResource(botId, 'bots', callback);
+                    orgResourcePermission.deleteResource(id, 'bots', callback);
                 },
                 dir: function (callback) {
-                    var gitHubService = require('_pr/services/gitHubService.js');
-                    gitHubService.deleteBot(bots[0].id, function (err) {
-                        if (err)
-                            callback(err, null);
-                        else
-                            callback(null, true);
-                    })
+                    if (bots[0].source === 'GitHub') {
+                        var gitHubService = require('_pr/services/gitHubService.js');
+                        gitHubService.deleteBot(bots[0].id, function (err) {
+                            if (err)
+                                callback(err, null);
+                            else
+                                callback(null, true);
+                        })
+                    } else { 
+                        fse.remove(appConfig.botFactoryDir + 'local/' + bots[0].id, function (err) { 
+                            if (err)
+                                callback(err, null);
+                            else
+                                callback(null, true);
+                        })
+                    }
                 }
             }, function (err, resutls) {
                 if (err) {
@@ -462,16 +480,15 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
-                            callback(err, null);
-                            return;
+                            next(err, null);
                         } else if (botServerDetails !== null) {
                             botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                             botRemoteServerDetails.hostPort = botServerDetails.hostPort;
                             next(null, bots);
                         } else {
                             var error = new Error();
-                            error.message = 'BOTs Remote Engine is not configured or not in running mode';
-                            error.status = 403;
+                            error.message = 'Remote BOTs Engine is not configured or not in running mode';
+                            error.status = 503;
                             next(error, null);
                         }
                     });
