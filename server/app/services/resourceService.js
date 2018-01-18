@@ -17,9 +17,6 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
-var S3Resource = require('_pr/model/resources/s3-resource');
-var RDSResource = require('_pr/model/resources/rds-resource');
-var EC2Resource = require('_pr/model/resources/instance-resource')
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
 var EC2 = require('_pr/lib/ec2.js');
@@ -61,7 +58,10 @@ function getAllResourcesForProvider(provider, next) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             function(callback) {
-                resources.getResourcesByProviderId(provider._id, callback);
+                var queryObj = {
+                    'providerDetails.id':provider._id
+                };
+                resources.getResources(queryObj, callback);
             }
         ],
         function(err, results) {
@@ -77,16 +77,13 @@ function getAllResourcesForProvider(provider, next) {
                     } else if('resourceType' in current) {
                         switch(current.resourceType) {
                             case 'RDS':
-                                var tempInstance = new RDSResource(current);
-                                temp[tempInstance.resourceDetails.dbInstanceIdentifier] = current;
+                                temp[current.resourceDetails.dbInstanceIdentifier] = current;
                                 break;
                             case 'S3':
-                                var tempInstance = new S3Resource(current);
-                                temp[tempInstance.resourceDetails.bucketName] = current;
+                                temp[current.resourceDetails.bucketName] = current;
                                 break;
                             case 'EC2':
-                                var tempInstance = new EC2Resource(current);
-                                temp[tempInstance.resourceDetails.platformId] = current;
+                                temp[current.resourceDetails.platformId] = current;
                                 break;
                             default:
                                 break;
@@ -115,9 +112,6 @@ function updateAWSResourceCostsFromCSV(provider, resources, downloadedCSVPath, u
             resourceCost.remove(provider.orgId, provider._id, billIntervalId, next)
         },
         function(count, next) {
-            /*var lineNumber = (count == 0)?0:count
-            var startingLineNumber = (count == 0)?1:(count+2)*/
-
             var stream = fs.createReadStream(downloadedCSVPath)
             csv.fromStream(stream).on('data', function(data) {
                 if(data[awsBillIndexes.totalCost] == 'LineItem') {
@@ -271,7 +265,6 @@ function getEC2ResourceUsageMetrics(provider, instances, startTime, endTime, per
     if(instances.length == 0)
         callback(null, instanceUsageMetrics);
 
-    // @TODO Create promise for creating cw client
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var amazonConfig;
@@ -295,9 +288,6 @@ function getEC2ResourceUsageMetrics(provider, instances, startTime, endTime, per
             "secret_key": decryptedSecretKey
         };
     }
-
-    /*var endTime = new Date();
-     var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
             if(instances[j].providerDetails && instances[j].providerDetails.region && instances[j].providerDetails.region !== null) {
@@ -324,15 +314,6 @@ function getEC2ResourceUsageMetrics(provider, instances, startTime, endTime, per
                         if(err) {
                             logger.error(err)
                         } else {
-                            /* TODO: To split up into different entries.*/
-                            /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-
-                            /* Currently modifying the start time and end time with the period.
-                             * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                             * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                             * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                             * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                             */
                             var dbEndTime = startTime;
                             var dbStartTime = getStartTime(dbEndTime, period);
 
@@ -372,8 +353,6 @@ function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, per
 
     if(instances.length == 0)
         callback(null, instanceUsageMetrics);
-
-    // @TODO Create promise for creating cw client
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var amazonConfig;
@@ -397,9 +376,6 @@ function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, per
             "secret_key": decryptedSecretKey
         };
     }
-
-    /*var endTime = new Date();
-     var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
             if(('providerData' in instances[j]) && (typeof instances[j].providerData !== undefined)
@@ -428,15 +404,6 @@ function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, per
                         if(err) {
                             logger.error(err)
                         } else {
-                            /* TODO: To split up into different entries.*/
-                            /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-
-                            /* Currently modifying the start time and end time with the period.
-                             * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                             * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                             * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                             * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                             */
                             var dbEndTime = startTime;
                             var dbStartTime = getStartTime(dbEndTime, period);
 
@@ -522,15 +489,6 @@ function getS3BucketsMetrics(provider, buckets, startTime, endTime, period, call
                     if(err) {
                         logger.error(err)
                     } else {
-                        /* TODO: To split up into different entries.*/
-                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-
-                        /* Currently modifying the start time and end time with the period.
-                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                         */
                         var dbEndTime = startTime;
                         var dbStartTime = getStartTime(dbEndTime, period);
 
@@ -587,8 +545,6 @@ function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, peri
             "region":"us-east-1"
         };
     }
-    /*var endTime= new Date();
-     var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
     for(var i = 0; i < dbInstances.length; i++) {
         (function(rds) {
             cw = new CW(amazonConfig);
@@ -652,16 +608,6 @@ function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, peri
                     if(err) {
                         logger.error(err)
                     } else {
-
-                        /* TODO: To split up into different entries.*/
-                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-
-                        /* Currently modifying the start time and end time with the period.
-                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                         */
                         var dbEndTime = startTime;
                         var dbStartTime = getStartTime(dbEndTime, period);
 
@@ -697,39 +643,40 @@ function getBucketsInfo(provider,orgName,callback) {
     var s3Config = {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey,
-        region: "us-east-1"
+        region:'us-west-1'
     };
     var s3 = new S3(s3Config);
-    s3.getBucketList(function(err,data){
-        if(err){
+    s3.getBucketList(function (err, data) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
-        }else{
-            var results=[];
-            if(data.Buckets.length === 0){
-                callback(null,results);
-            }else{
-                for(var i = 0; i < data.Buckets.length; i++){
-                    (function(bucket) {
+            callback(err, null);
+        } else {
+            var results = [];
+            if (data.Buckets.length === 0) {
+                callback(null, results);
+            } else {
+                for (var i = 0; i < data.Buckets.length; i++) {
+                    (function (bucket) {
                         var bucketObj = {
-                            name:bucket.Name,
-                            masterDetails:{
-                                orgId:provider.orgId[0],
-                                orgName:orgName
+                            name: bucket.Name,
+                            masterDetails: {
+                                orgId: provider.orgId[0],
+                                orgName: orgName
                             },
-                            providerDetails:{
+                            providerDetails: {
                                 id: provider._id,
                                 type: provider.providerType,
+                                region: 'us-west-1'
                             },
-                            resourceType:"S3",
-                            category:"unassigned",
-                            resourceDetails:{
+                            resourceType: "S3",
+                            category: "unassigned",
+                            resourceDetails: {
                                 bucketName: bucket.Name,
                                 bucketCreatedOn: Date.parse(bucket.CreationDate),
                                 bucketOwnerName: data.Owner.DisplayName,
                                 bucketOwnerID: data.Owner.ID,
-                                bucketSize:0,
-                                bucketSizeUnit:'MegaBytes'
+                                bucketSize: 0,
+                                bucketSizeUnit: 'MegaBytes'
                             }
                         };
                         s3.getBucketSize(bucket.Name, function (err, bucketSize) {
@@ -738,14 +685,13 @@ function getBucketsInfo(provider,orgName,callback) {
                                 callback(err, null);
                             } else {
                                 bucketObj.resourceDetails.bucketSize = Math.round(bucketSize);
-                                s3.getBucketTag(bucket.Name, function(err,bucketTag){
+                                s3.getBucketTag(bucket.Name, function (err, bucketTag) {
                                     if (err) {
                                         logger.error(err);
                                         callback(err, null);
                                     } else {
                                         bucketObj.tags = bucketTag;
                                         results.push(bucketObj);
-                                        bucketObj={};
                                         if (results.length === data.Buckets.length) {
                                             callback(null, results);
                                         }
@@ -757,7 +703,7 @@ function getBucketsInfo(provider,orgName,callback) {
                 }
             }
         }
-    })
+    });
 };
 
 function getEC2InstancesInfo(provider,orgName,callback) {
@@ -771,21 +717,18 @@ function getEC2InstancesInfo(provider,orgName,callback) {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey
     };
-    var regionCount = 0;
     var regions = appConfig.aws.regions;
-    var awsInstanceList=[];
-    for (var i = 0; i < regions.length; i++) {
-        (function (region) {
-            ec2Config.region = region.region;
-            var ec2 = new EC2(ec2Config);
-            ec2.describeInstances(null, function(err, awsRes) {
-                if (err) {
-                    logger.error("Unable to fetch instances from aws", err);
-                    return;
-                }
+    function getEC2InstanceDetails(region,callback){
+        var awsInstanceList=[];
+        ec2Config.region = region.region;
+        var ec2 = new EC2(ec2Config);
+        ec2.describeInstances(null, function(err, awsRes) {
+            if (err) {
+                logger.error("Unable to fetch instances from aws", err);
+                callback(err,null);
+            }else {
                 var reservations = awsRes.Reservations;
-                if(reservations.length >0) {
-                    regionCount++;
+                if (reservations.length > 0) {
                     for (var j = 0; j < reservations.length; j++) {
                         if (reservations[j].Instances && reservations[j].Instances.length) {
                             var awsInstances = reservations[j].Instances;
@@ -806,8 +749,9 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                     providerDetails: {
                                         region: region,
                                         id: provider._id,
-                                        type: 'aws',
-                                        keyPairName: instance.KeyName
+                                        type: provider.providerType,
+                                        keyPairName: instance.KeyName,
+                                        region:region
                                     },
                                     resourceDetails: {
                                         platformId: instance.InstanceId,
@@ -832,17 +776,36 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                             }
                         }
                     }
-                    if (regionCount === regions.length) {
-                        callback(null, awsInstanceList);
-                    }
-                }else{
-                    regionCount++;
-                    if (regionCount === regions.length) {
-                        callback(null, awsInstanceList);
+                    callback(null,awsInstanceList);
+                } else {
+                    callback(null,reservations);
+                }
+            }
+        });
+    }
+    var resultList =[];
+    regions.forEach(function(region){
+       resultList.push(function(callback){getEC2InstanceDetails(region,callback);});
+    });
+    if(regions.length === resultList.length){
+        async.parallel(resultList,function(err,results){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }else{
+                var ec2InstanceList = [];
+                for(var i = 0; i < results.length; i++){
+                    if(results[i].length && results[i].length > 0){
+                        for(var j = 0; j < results[i].length; j++){
+                            ec2InstanceList.push(results[i][j]);
+                        }
                     }
                 }
-            });
-        })(regions[i]);
+                callback(null,ec2InstanceList);
+                return;
+            }
+        })
     }
 };
 
@@ -855,88 +818,115 @@ function getRDSInstancesInfo(provider,orgName,callback) {
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
     var rdsConfig = {
         access_key: decryptedAccessKey,
-        secret_key: decryptedSecretKey,
-        region: "us-west-1"
+        secret_key: decryptedSecretKey
     };
-    var rds = new RDS(rdsConfig);
-    rds.getRDSDBInstances(function(err,dbInstances){
-        if(err){
-            logger.error(err);
-            callback(err,null);
-            return;
-        }else{
-            var results=[];
-            if(dbInstances.length === 0){
-                callback(null,results);
+    var regions = appConfig.aws.regions;
+    var resultList = [];
+    regions.forEach(function(region){
+        resultList.push(function(callback){getRDSDBInstanceDetails(region,callback);});
+    });
+    if(regions.length === resultList.length){
+        async.parallel(resultList,function(err,results){
+            if(err){
+                logger.error(err);
+                callback(err,null);
                 return;
             }else{
-                var sysDate=new Date();
-                for(var i = 0; i < dbInstances.length; i++){
-                    (function(dbInstance) {
-                        var rdsDbInstanceObj = {
-                            name:dbInstance.DBInstanceIdentifier,
-                            masterDetails:{
-                                orgId:provider.orgId[0],
-                                orgName:orgName
-                            },
-                            providerDetails:{
-                                id: provider._id,
-                                type: provider.providerType
-                            },
-                            resourceType:"RDS",
-                            category:"unassigned",
-                            isDeleted:false,
-                            resourceDetails: {
-                                dbInstanceIdentifier: dbInstance.DBInstanceIdentifier,
-                                dbName: dbInstance.DBName,
-                                dbInstanceClass: dbInstance.DBInstanceClass,
-                                dbEngine: dbInstance.Engine,
-                                dbInstanceStatus: dbInstance.DBInstanceStatus,
-                                dbMasterUserName: dbInstance.MasterUsername,
-                                dbEndpoint: dbInstance.Endpoint,
-                                dbAllocatedStorage: dbInstance.AllocatedStorage,
-                                dbInstanceCreatedOn: dbInstance.InstanceCreateTime ? Date.parse(dbInstance.InstanceCreateTime) : Date.parse(sysDate),
-                                preferredBackupWindow: dbInstance.PreferredBackupWindow,
-                                backupRetentionPeriod: dbInstance.BackupRetentionPeriod,
-                                vpcSecurityGroups: dbInstance.VpcSecurityGroups,
-                                dbParameterGroups: dbInstance.DBParameterGroups,
-                                preferredMaintenanceWindow: dbInstance.PreferredMaintenanceWindow,
-                                region: dbInstance.AvailabilityZone,
-                                dbSubnetGroup: dbInstance.DBSubnetGroup,
-                                latestRestorableTime: dbInstance.LatestRestorableTime ? Date.parse(dbInstance.LatestRestorableTime) : Date.parse(sysDate),
-                                multiAZ: dbInstance.MultiAZ,
-                                engineVersion: dbInstance.EngineVersion,
-                                autoMinorVersionUpgrade: dbInstance.AutoMinorVersionUpgrade,
-                                licenseModel: dbInstance.LicenseModel,
-                                optionGroupMemberships: dbInstance.OptionGroupMemberships,
-                                publiclyAccessible: dbInstance.PubliclyAccessible,
-                                storageType: dbInstance.StorageType,
-                                storageEncrypted: dbInstance.StorageEncrypted,
-                                dbiResourceId: dbInstance.DbiResourceId,
-                                accountNumber: appConfig.aws.s3AccountNumber,
-                                caCertificateIdentifier: dbInstance.CACertificateIdentifier
-                            }
-                        };
-                        var params ={
-                            ResourceName:'arn:aws:rds:us-west-1:'+appConfig.aws.s3AccountNumber+':db:'+dbInstance.DBInstanceIdentifier
-                        };
-                        rds.getRDSDBInstanceTag(params,function(err,rdsTags){
-                            if(err){
-                                logger.error(err);
-                            }
-                            rdsDbInstanceObj.tags = rdsTags;
-                            results.push(rdsDbInstanceObj);
-                            rdsDbInstanceObj={};
-                            if(dbInstances.length === results.length){
-                                callback(null,results);
-                            }
-                        })
+                var rdsDBInstanceList = [];
+                for(var i = 0; i < results.length; i++){
+                    if(results[i].length && results[i].length > 0){
+                        for(var j = 0; j < results[i].length; j++){
+                            rdsDBInstanceList.push(results[i][j]);
+                        }
+                    }
+                }
+                callback(null,rdsDBInstanceList);
+                return;
+            }
+        })
+    }
+    function getRDSDBInstanceDetails(region,callback) {
+        rdsConfig.region = region.region;
+        var rds = new RDS(rdsConfig);
+        rds.getRDSDBInstances(function (err, dbInstances) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+            } else {
+                var results = [];
+                if (dbInstances.length === 0) {
+                    callback(null, results);
+                    return;
+                } else {
+                    var sysDate = new Date();
+                    for (var i = 0; i < dbInstances.length; i++) {
+                        (function (dbInstance) {
+                            var rdsDbInstanceObj = {
+                                name: dbInstance.DBInstanceIdentifier,
+                                masterDetails: {
+                                    orgId: provider.orgId[0],
+                                    orgName: orgName
+                                },
+                                providerDetails: {
+                                    id: provider._id,
+                                    type: provider.providerType,
+                                    region:region
+                                },
+                                resourceType: "RDS",
+                                category: "unassigned",
+                                isDeleted: false,
+                                resourceDetails: {
+                                    dbInstanceIdentifier: dbInstance.DBInstanceIdentifier,
+                                    dbName: dbInstance.DBName,
+                                    dbInstanceClass: dbInstance.DBInstanceClass,
+                                    dbEngine: dbInstance.Engine,
+                                    dbInstanceStatus: dbInstance.DBInstanceStatus,
+                                    dbMasterUserName: dbInstance.MasterUsername,
+                                    dbEndpoint: dbInstance.Endpoint,
+                                    dbAllocatedStorage: dbInstance.AllocatedStorage,
+                                    dbInstanceCreatedOn: dbInstance.InstanceCreateTime ? Date.parse(dbInstance.InstanceCreateTime) : Date.parse(sysDate),
+                                    preferredBackupWindow: dbInstance.PreferredBackupWindow,
+                                    backupRetentionPeriod: dbInstance.BackupRetentionPeriod,
+                                    vpcSecurityGroups: dbInstance.VpcSecurityGroups,
+                                    dbParameterGroups: dbInstance.DBParameterGroups,
+                                    preferredMaintenanceWindow: dbInstance.PreferredMaintenanceWindow,
+                                    region: dbInstance.AvailabilityZone,
+                                    dbSubnetGroup: dbInstance.DBSubnetGroup,
+                                    latestRestorableTime: dbInstance.LatestRestorableTime ? Date.parse(dbInstance.LatestRestorableTime) : Date.parse(sysDate),
+                                    multiAZ: dbInstance.MultiAZ,
+                                    engineVersion: dbInstance.EngineVersion,
+                                    autoMinorVersionUpgrade: dbInstance.AutoMinorVersionUpgrade,
+                                    licenseModel: dbInstance.LicenseModel,
+                                    optionGroupMemberships: dbInstance.OptionGroupMemberships,
+                                    publiclyAccessible: dbInstance.PubliclyAccessible,
+                                    storageType: dbInstance.StorageType,
+                                    storageEncrypted: dbInstance.StorageEncrypted,
+                                    dbiResourceId: dbInstance.DbiResourceId,
+                                    accountNumber: appConfig.aws.s3AccountNumber,
+                                    caCertificateIdentifier: dbInstance.CACertificateIdentifier
+                                }
+                            };
+                            var params = {
+                                ResourceName: 'arn:aws:rds:'+region.region+':' + appConfig.aws.s3AccountNumber + ':db:' + dbInstance.DBInstanceIdentifier
+                            };
+                            rds.getRDSDBInstanceTag(params, function (err, rdsTags) {
+                                if (err) {
+                                    logger.error(err);
+                                }
+                                rdsDbInstanceObj.tags = rdsTags;
+                                results.push(rdsDbInstanceObj);
+                                if (dbInstances.length === results.length) {
+                                    callback(null, results);
+                                }
+                            })
 
-                    })(dbInstances[i]);
+                        })(dbInstances[i]);
+                    }
                 }
             }
-        }
-    })
+        })
+    }
 };
 
 function getResources(query,paginationCheck, next) {
@@ -1013,7 +1003,7 @@ function bulkUpdateUnassignedResourceTags(bulkResources, callback){
             var fields = {
                 'tags': bulkResources[j].tags
             }
-            resources.updateResourceTag(params, fields,
+            resources.updateResource(params, fields,
                 function(err, resourceUpdated) {
                     if (err) {
                         logger.error(err);

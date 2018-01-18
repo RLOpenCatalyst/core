@@ -36,26 +36,22 @@ var CloudFormationSchema = new Schema({
     orgId: {
         type: String,
         required: true,
-        trim: true,
-        validate: schemaValidator.orgIdValidator
+        trim: true
     },
     bgId: {
         type: String,
         required: true,
-        trim: true,
-        validate: schemaValidator.bgIdValidator
+        trim: true
     },
     projectId: {
         type: String,
         required: true,
-        trim: true,
-        validate: schemaValidator.projIdValidator
+        trim: true
     },
     envId: {
         type: String,
         required: true,
-        trim: true,
-        validate: schemaValidator.envIdValidator
+        trim: true
     },
     stackParameters: [{
         _id: false,

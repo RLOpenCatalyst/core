@@ -1,6 +1,6 @@
 {
   "name": "Catalyst",
-  "version": "4.2.0",
+  "version": "6.11.0",
   "description": "DevOps Platform for DevOps",
   "main": "app/app.js",
   "config": {
@@ -52,8 +52,8 @@
     "lodash.topairs": "4.1.0",
     "mkdirp": "^0.5.0",
     "mocha": "2.4.5",
-    "moment": "2.14.1",
-    "mongodb": "^2.1.4",
+    "moment": "2.18.1",
+    "mongodb": "^2.2.29",
     "mongoose": "4.9.6",
     "mongoose-double": "0.0.1",
     "mongoose-paginate": "5.0.3",

@@ -1,0 +1,18 @@
+--- 
+chef: 
+  groups: 
+    - 
+      identifiers: 
+        roles: 
+          - "ROLE11 ROLE12"
+      name: Nginx
+    - 
+      identifiers: 
+        roles: 
+          - ROLE2
+      name: Application
+    - 
+      identifiers: 
+        roles: 
+          - ROLE3
+      name: DataStore

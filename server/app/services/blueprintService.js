@@ -309,7 +309,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             auditTrailId: data._id,
                             botId:data.auditId,
                             auditType:data.auditType,
-                            actionLogId:auditTrail.actionId
+                            actionLogId:auditTrail.actionId,
+                            serviceCheckFlag:reqBody.serviceCheckFlag?reqBody.serviceCheckFlag:true
                         },next);
                     });
                 }else{
@@ -324,7 +325,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         auditTrailId: null,
                         botId:null,
                         auditType:null,
-                        actionLogId:null
+                        actionLogId:null,
+                        serviceCheckFlag:reqBody.serviceCheckFlag?reqBody.serviceCheckFlag:true
                     },next);
                 }
             }else{
@@ -551,7 +553,6 @@ blueprintService.getTemplateById = function getTemplateById(templateId, callback
             err.status = 500;
             return callback(err);
         }
-        console.log('templates ==>', templateId, templates)
         if (templates && templates.length) {
             callback(null, templates[0]);
         } else {

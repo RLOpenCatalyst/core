@@ -35,8 +35,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
-    app.get('/services/:serviceId', function(req, res) {
-        serviceMapService.getServiceById(req.params.serviceId,function(err,result){
+    app.get('/services/:serviceName', function(req, res) {
+        serviceMapService.getServiceByName(req.params.serviceName,req.query,function(err,result){
             if(err){
                 res.send(500,err);
                 return;

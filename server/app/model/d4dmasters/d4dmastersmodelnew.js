@@ -766,6 +766,10 @@ var d4dMastersTemplatesList = new mongoose.Schema({
         type: String,
         trim: true
     },
+    template_filePath: {
+        type: String,
+        trim: true
+    },
     active: {
         type: Boolean,
         trim: true,
@@ -1666,7 +1670,7 @@ var d4dMastersRemoteBotServer = new mongoose.Schema({
     },
     active: {
         type: Boolean,
-        default: false
+        default: true
     },
     orgname: {
         type: String,

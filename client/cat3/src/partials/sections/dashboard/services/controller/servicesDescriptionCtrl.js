@@ -6,7 +6,7 @@
  */
 (function(angular) {
         "use strict";
-        angular.module('dashboard.services')
+        angular.module('dashboard.design')
             .controller('servicesDescriptionCtrl', ['$scope', '$rootScope', 'uiGridOptionsService','$modal', '$state', 'servicesCreateService', function($scope, $rootScope, uiGridOptionsService,$modal, $state, servicesCreateService) {
                 var treeNames = ['Services', 'Service Description'];
                 $rootScope.$emit('treeNameUpdate', treeNames);
@@ -47,7 +47,7 @@
                         $scope.serviceResourceData.data = [];
                         if($scope.serviceSelected.name) {
                             servicesCreateService.getResources($scope.serviceSelected.name).then(function(response){
-                                $scope.serviceResourceData.data = response[0].resources;
+                                $scope.serviceResourceData.data = response.resources;
                                 var bpcolumnDefs = [];
                                 var resourceGrid = [
                                     {
@@ -81,7 +81,7 @@
                                         name: 'Bootstrap',
                                         cellTooltip: true,
                                         cellTemplate: '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-check-circle fa-2x" ng-show="row.entity.bootStrapState === \'success\'"></i>' +
-                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>',
+                                        '<i title="{{row.entity.bootStrapState}}" class="text-gray fa fa-fw fa-circle-o fa-2x" ng-show="row.entity.bootStrapState === \'bootStrapping\'"></i>' + '<i title="{{row.entity.bootStrapState}}" class="fa fa-fw fa-repeat fa-2x" ng-show="row.entity.bootStrapState === \'failed\'"></i>'
                                     }
                                 ];
                                 bpcolumnDefs = resourceGrid;                                
@@ -100,7 +100,7 @@
                 $scope.changeAuthenticationType = function(serviceObject) {
                     $modal.open({
                         animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/services/popups/serviceAuthentication.html',
+                        templateUrl: 'src/partials/sections/dashboard/design/view/popups/serviceAuthentication.html',
                         controller: 'servicesAuthenticationCtrl',
                         backdrop: 'static',
                         keyboard: false,
@@ -132,15 +132,15 @@
                     templates: {
                         readme: {
                             "title": "ReadMe",
-                            "url": "src/partials/sections/dashboard/services/tabs/serviceReadme.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/serviceReadme.html"
                         },
                         resources: {
                             "title": "Resources",
-                            "url": "src/partials/sections/dashboard/services/tabs/resources.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/resources.html"
                         },
                         info: {
                             "title": "Service Info",
-                            "url": "src/partials/sections/dashboard/services/tabs/serviceInfo.html"
+                            "url": "src/partials/sections/dashboard/design/tabs/serviceInfo.html"
                         }
                     }
                 };

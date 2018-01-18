@@ -727,7 +727,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             logger.error("Error hits to fetch docker details", stdOutErr);
             res.send(500);
         });
-        console.log(stdOut);
         logger.debug("Exit get() for /instances/dockercontainerdetails/%s", req.params.instanceid);
 
     });
@@ -2005,12 +2004,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         var queryObj = {
             instanceId:req.params.instanceId
         }
-        if (req.query.timestamp) {
+        if (req.query.timestamp && req.query.timestamp !== 'undefined') {
             queryObj.timestamp = {
                 "$gt": parseInt(req.query.timestamp)
             }
         }
-        if (req.query.timestampEnded) {
+        if (req.query.timestampEnded && req.query.timestampEnded !== 'undefined') {
             queryObj.timestamp = {
                 "$lte": parseInt(req.query.timestampEnded)
             }

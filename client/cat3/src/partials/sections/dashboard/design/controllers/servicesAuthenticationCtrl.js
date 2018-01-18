@@ -6,7 +6,7 @@
  */
 (function(angular) {
         "use strict";
-        angular.module('dashboard.services')
+        angular.module('dashboard.design')
         .controller('servicesAuthenticationCtrl', ['$scope', '$rootScope', 'items', '$state', 'servicesCreateService','$modalInstance', 'toastr', function($scope, $rootScope, items, $state, servicesCreateService, $modalInstance, toastr) {
             $scope.getItems = items;
             $scope.IMGNewEnt={

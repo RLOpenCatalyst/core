@@ -232,7 +232,6 @@ awsProviderSchema.statics.updateAWSProviderById = function (providerId, provider
 };
 
 awsProviderSchema.statics.updateLastBillUpdateTime = function (providerId, billUpdateTime, callback) {
-    console.log(providerId)
     this.update({
         "_id": new ObjectId(providerId)
     }, {

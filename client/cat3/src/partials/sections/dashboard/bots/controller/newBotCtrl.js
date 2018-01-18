@@ -60,8 +60,8 @@
                     'chef':{name:'Chef'},
                     'blueprint':{name:'Blueprint'},
                     'script':{name:'Script'},
-                    'jenkins': { name: 'Jenkins' },
-                    'meta': { name: 'Meta' }
+                    'jenkins':{name:'Jenkins'},
+                    'meta':{name:'Meta'}
                 },
                 updateCookbook : function() {
                     genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);

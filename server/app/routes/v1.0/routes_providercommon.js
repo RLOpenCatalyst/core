@@ -255,9 +255,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         }
 
                         function addAndBootstrapInstances() {
-
                             var ids = req.body.instanceIds;
-
                             resources.getResourceByIds(ids, function (err, assignedInstances) {
                                 if (err) {
                                     res.status(500).send(assignedInstances);
@@ -269,13 +267,10 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     });
                                     return;
                                 }
-
                                 var appUrls = [];
-
                                 if (appConfig.appUrls && appConfig.appUrls.length) {
                                     appUrls = appUrls.concat(appConfig.appUrls);
                                 }
-
                                 credentialCryptography.encryptCredential(credentials, function (err, encryptedCredentials) {
                                     if (err) {
                                         logger.error("unable to encrypt credentials", err);
@@ -286,7 +281,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     }
                                     var taskStatusObj = null;
                                     var count = 0;
-
                                     function updateTaskStatusNode(nodeName, msg, err, i) {
                                         count++;
                                         var status = {};

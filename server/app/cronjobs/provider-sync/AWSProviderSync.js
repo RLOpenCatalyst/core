@@ -5,9 +5,6 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var async = require('async');
 var resourceService = require('_pr/services/resourceService');
-var s3Model = require('_pr/model/resources/s3-resource');
-var ec2Model = require('_pr/model/resources/instance-resource');
-var rdsModel = require('_pr/model/resources/rds-resource');
 var resourceModel = require('_pr/model/resources/resources');
 var tagsModel = require('_pr/model/tags');
 var instancesDao = require('_pr/model/classes/instance/instance');
@@ -40,15 +37,20 @@ function awsRDSS3ProviderSync() {
                             logger.error(err);
                             return;
                         } else if(providers.length > 0){
-                            var count = 0;
-                            for(var j = 0; j < providers.length; j++){
-                                (function(provider){
-                                    count++;
-                                    awsRDSS3ProviderSyncForProvider(provider,org.orgname)
-                                })(providers[j]);
-                            }
-                            if(count === providers.length){
-                                return;
+                            var providerDetailList = [];
+                            providers.forEach(function(provider){
+                                providerDetailList.push(function(callback){awsRDSS3ProviderSyncForProvider(provider,org.orgname,callback);});
+                            });
+                            if(providerDetailList.length === providers.length) {
+                                async.parallel(providerDetailList, function (err, results) {
+                                    if (err) {
+                                        logger.error(err);
+                                        return;
+                                    } else {
+                                        logger.debug("Provider Sync is Completed");
+                                        return;
+                                    }
+                                })
                             }
                         }else{
                             logger.info("Please configure Provider in Organization " +org.orgname+" for EC2/S3/RDS Provider Sync");
@@ -64,7 +66,7 @@ function awsRDSS3ProviderSync() {
     });
 }
 
-function awsRDSS3ProviderSyncForProvider(provider,orgName) {
+function awsRDSS3ProviderSyncForProvider(provider,orgName,callback) {
     logger.info("EC2/S3/RDS Data Fetching started for Provider "+provider.providerName);
     async.waterfall([
         function (next) {
@@ -135,9 +137,11 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
         }],function (err, results) {
         if (err) {
             logger.error(err);
+            callback(err,null);
             return;
         } else {
-            logger.info("EC2/S3/RDS Data Successfully ended for Provider "+provider.providerName);
+            logger.info("EC2/S3/RDS Data Successfully ended for Provider " +provider.providerName);
+            callback(null,results);
             return;
         }
     });
@@ -152,10 +156,9 @@ function saveS3Data(s3Info, callback) {
                 var queryObj = {
                     'masterDetails.orgId':s3.masterDetails.orgId,
                     'providerDetails.id':s3.providerDetails.id,
-                    'resourceDetails.bucketName':s3.resourceDetails.bucketName,
-                    'isDeleted':false
+                    'resourceDetails.bucketName':s3.resourceDetails.bucketName
                 }
-                s3Model.getS3BucketData(queryObj, function (err, responseBucketData) {
+                resourceModel.getResources(queryObj, function (err, responseBucketData) {
                     if (err) {
                         logger.error("Error in getting Instance : ",s3.resourceDetails.bucketName);
                         count++;
@@ -167,7 +170,7 @@ function saveS3Data(s3Info, callback) {
                             name:s3.name,
                             resourceDetails:s3.resourceDetails
                         }
-                        s3Model.updateS3BucketData(responseBucketData[0]._id,resourceObj, function (err, bucketUpdatedData) {
+                        resourceModel.updateResourceById(responseBucketData[0]._id,resourceObj, function (err, bucketUpdatedData) {
                             if (err) {
                                 logger.error("Error in updating S3 Bucket : ",s3.resourceDetails.bucketName);
                             }
@@ -178,7 +181,7 @@ function saveS3Data(s3Info, callback) {
                         });
                     } else {
                         s3.createdOn = new Date().getTime();
-                        s3Model.createNew(s3, function (err, bucketSavedData) {
+                        resourceModel.createNew(s3, function (err, bucketSavedData) {
                             if (err) {
                                 logger.error("Error in creating S3 Bucket : ",s3.resourceDetails.bucketName);
                             }
@@ -215,10 +218,9 @@ function saveEC2Data(ec2Info,provider, callback) {
                     var queryObj = {
                         'masterDetails.orgId': ec2.masterDetails.orgId,
                         'providerDetails.id': ec2.providerDetails.id,
-                        'resourceDetails.platformId': ec2.resourceDetails.platformId,
-                        'isDeleted':false
+                        'resourceDetails.platformId': ec2.resourceDetails.platformId
                     }
-                    ec2Model.getInstanceData(queryObj, function (err, responseInstanceData) {
+                    resourceModel.getResources(queryObj, function (err, responseInstanceData) {
                         if (err) {
                             logger.error("Error in getting Instance : ", ec2.resourceDetails.platformId);
                             count++;
@@ -248,7 +250,7 @@ function saveEC2Data(ec2Info,provider, callback) {
                                     'resourceDetails.state':ec2.resourceDetails.state
                                 }
                             }
-                            ec2Model.updateInstanceData(responseInstanceData[0]._id, resourceObj, function (err, instanceUpdatedData) {
+                            resourceModel.updateResourceById(responseInstanceData[0]._id, resourceObj, function (err, instanceUpdatedData) {
                                 if (err) {
                                     logger.error("Error in updating Instance : ", ec2.resourceDetails.platformId);
                                 }
@@ -259,7 +261,7 @@ function saveEC2Data(ec2Info,provider, callback) {
                             });
                         } else {
                             ec2.createdOn = new Date().getTime();
-                            ec2Model.createNew(ec2, function (err, instanceSavedData) {
+                            resourceModel.createNew(ec2, function (err, instanceSavedData) {
                                 if (err) {
                                     logger.error("Error in creating Instance : ", ec2.resourceDetails.platformId);
                                 }
@@ -286,10 +288,9 @@ function saveRDSData(rdsInfo, callback) {
                 var queryObj = {
                     'masterDetails.orgId':rds.masterDetails.orgId,
                     'providerDetails.id':rds.providerDetails.id,
-                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId,
-                    'isDeleted':false
+                    'resourceDetails.dbiResourceId':rds.resourceDetails.dbiResourceId
                 }
-                rdsModel.getRDSData(queryObj, function (err, responseRDSData) {
+                resourceModel.getResources(queryObj, function (err, responseRDSData) {
                     if (err) {
                         logger.error("Error in getting RDS DBName : ",rds.resourceDetails.dbiResourceId);
                         count++;
@@ -302,7 +303,7 @@ function saveRDSData(rdsInfo, callback) {
                             name:rds.name,
                             resourceDetails:rds.resourceDetails,
                         }
-                        rdsModel.updateRDSData(responseRDSData[0]._id,resourceObj, function (err, rdsUpdatedData) {
+                        resourceModel.updateResourceById(responseRDSData[0]._id,resourceObj, function (err, rdsUpdatedData) {
                             if (err) {
                                 logger.error("Error in updating RDS DBName : ",rds.resourceDetails.dbiResourceId);
                             }
@@ -313,7 +314,7 @@ function saveRDSData(rdsInfo, callback) {
                         });
                     } else {
                         rds.createdOn = new Date().getTime();
-                        rdsModel.createNew(rds, function (err, rdsSavedData) {
+                        resourceModel.createNew(rds, function (err, rdsSavedData) {
                             if (err) {
                                 logger.error("Error in creating RDS DBName : ",rds.resourceDetails.dbiResourceId);
                             }
@@ -346,7 +347,11 @@ function deleteS3ResourceData(s3Info,providerId, callback) {
                 bucketNameList(s3Info, next);
             },
             function (bucketNames, next) {
-                resourceModel.getResourcesByProviderResourceType(providerId, 'S3', function (err, s3data) {
+                var queryObj = {
+                    'providerDetails.id':providerId,
+                    'resourceType': 'S3'
+                };
+                resourceModel.getResources(queryObj, function (err, s3data) {
                     if (err) {
                         next(err);
                     } else {
@@ -365,8 +370,8 @@ function deleteS3ResourceData(s3Info,providerId, callback) {
                                         logger.error("Error in deleting S3 Bucket :",s3.resourceDetails.bucketName)
                                     }
                                     count++;
-                                    if (count === ec2data.length) {
-                                        next(null, ec2data);
+                                    if (count === s3Data.length) {
+                                        next(null, s3Data);
                                     }
                                 })
                             } else {
@@ -495,7 +500,11 @@ function deleteEC2ResourceData(ec2Info,providerId, callback) {
                         });
                     },
                     resources: function (callback) {
-                        resourceModel.getResourcesByProviderResourceType(providerId, 'EC2', function (err, ec2data) {
+                        var queryObj = {
+                            'providerDetails.id':providerId,
+                            'resourceType': 'EC2'
+                        };
+                        resourceModel.getResources(queryObj, function (err, ec2data) {
                             if (err) {
                                 return callback(err, null);
                             } else if (ec2data.length > 0) {
@@ -559,7 +568,11 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
                 rdsDBResourceIdList(rdsInfo, next);
             },
             function (rdsDBResourceIds, next) {
-                resourceModel.getResourcesByProviderResourceType(providerId, 'RDS', function (err, rdsData) {
+                var queryObj = {
+                    'providerDetails.id':providerId,
+                    'resourceType': 'RDS'
+                };
+                resourceModel.getResources(queryObj, function (err, rdsData) {
                     if (err) {
                         next(err);
                     } else {
@@ -608,13 +621,21 @@ function resourceTagMapping(provider,callback){
     logger.debug("Tag Mapping is started");
     async.waterfall([
         function (next) {
-            resourceModel.getAllResourcesByCategory(provider._id, 'unassigned', next);
+            var queryObj = {
+                'providerDetails.id':provider._id,
+                'category':'unassigned'
+            };
+            resourceModel.getResources(queryObj, next);
         },
         function (resources, next) {
             tagMappingSyncForResources(resources, provider, 'unassigned', next);
         },
         function (resources, next) {
-            resourceModel.getAllResourcesByCategory(provider._id, 'assigned', next);
+            var queryObj = {
+                'providerDetails.id':provider._id,
+                'category':'assigned'
+            };
+            resourceModel.getResources(queryObj, next);
         },
         function (assignedResources, next) {
             tagMappingSyncForResources(assignedResources, provider, 'assigned', next);
@@ -648,8 +669,11 @@ function tagMappingSyncForResources(resources,provider,category,next){
                     bgTag = tagDetails[i];
                 }
             }
-            var count = 0;
-            if (resources.length > 0) {
+            if(projectTag === null && environmentTag === null && bgTag === null){
+                logger.info("There is no Tag Mapping");
+                next(null,tagDetails);
+            }else if (resources.length > 0) {
+                var count = 0;
                 for (var j = 0; j < resources.length; j++) {
                     (function (resource) {
                         if (resource.tags) {
@@ -711,17 +735,20 @@ function tagMappingSyncForResources(resources,provider,category,next){
                                 }
                             }
                             if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category ==='unassigned') {
-                                var masterDetails = {
-                                    orgId: resource.masterDetails.orgId,
-                                    orgName: resource.masterDetails.orgName,
-                                    bgId: catalystBgId,
-                                    bgName: catalystBgName,
-                                    projectId: catalystProjectId,
-                                    projectName: catalystProjectName,
-                                    envId: catalystEnvironmentId,
-                                    envName: catalystEnvironmentName
+                                var fields = {
+                                    masterDetails: {
+                                        orgId: resource.masterDetails.orgId,
+                                        orgName: resource.masterDetails.orgName,
+                                        bgId: catalystBgId,
+                                        bgName: catalystBgName,
+                                        projectId: catalystProjectId,
+                                        projectName: catalystProjectName,
+                                        envId: catalystEnvironmentId,
+                                        envName: catalystEnvironmentName
+                                    },
+                                    category:'assigned'
                                 }
-                                resourceModel.updateResourcesForAssigned(resource._id, masterDetails, function (err, data) {
+                                resourceModel.updateResourceById(resource._id, fields, function (err, data) {
                                     if (err) {
                                         logger.error(err);
                                     }
@@ -740,7 +767,7 @@ function tagMappingSyncForResources(resources,provider,category,next){
                                     "masterDetails.envId": catalystEnvironmentId,
                                     "masterDetails.envName": catalystEnvironmentName
                                 };
-                                resourceModel.updateResourceMasterDetails(resource._id,masterDetails,function(err,data){
+                                resourceModel.updateResourceById(resource._id,masterDetails,function(err,data){
                                     if(err){
                                         logger.error("Unable to update master details of assigned Resource", err);
                                     }
@@ -781,7 +808,11 @@ function tagMappingSyncForResources(resources,provider,category,next){
             }
         } else if (category === 'assigned') {
             logger.info("There is no Tag Mapping");
-            resourceModel.removeResourcesByProviderId(provider._id, function (err, data) {
+            var queryObj = {
+                category : 'assigned',
+                'providerDetails.id':provider._id
+            }
+            resourceModel.removeResources(queryObj, function (err, data) {
                 if (err) {
                     logger.error("Unable to remove assigned Resource", err);
                     next(err);
@@ -894,20 +925,6 @@ function createOrUpdateResource(instance,callback){
                 envId: instance.envId,
                 envName: instance.environmentName
             },
-            resourceDetails: {
-                platformId: instance.platformId,
-                vpcId: instance.vpcId ? instance.vpcId : null,
-                subnetId: instance.subnetId ? instance.subnetId : null,
-                hostName: instance.hostName ? instance.hostName : null,
-                publicIp: instance.instanceIP,
-                privateIp: instance.privateIpAddress,
-                state: instance.instanceState,
-                bootStrapState: instance.bootStrapStatus,
-                credentials: instance.credentials,
-                route53HostedParams: instance.route53HostedParams,
-                hardware: instance.hardware,
-                dockerEngineState: instance.docker.dockerEngineStatus
-            },
             configDetails: {
                 id: instance.chef.serverId,
                 nodeName: instance.chef.chefNodeName,
@@ -925,6 +942,7 @@ function createOrUpdateResource(instance,callback){
             cronJobIds: instance.cronJobIds,
             startScheduler: instance.instanceStartScheduler,
             stopScheduler: instance.instanceStopScheduler,
+            authentication:'success',
             interval: instance.interval,
             stackName: instance.domainName && instance.domainName !== null ? instance.domainName : instance.stackName,
             tagServer: instance.tagServer,
@@ -951,18 +969,38 @@ function createOrUpdateResource(instance,callback){
             resourceObj.tags = instance.tags;
             resourceObj.resourceType = 'EC2'
         } else {
-            resourceObj.resourceType = 'instance'
+            resourceObj.resourceType = 'Instance'
         }
         var filterBy = {
-            'resourceDetails.platformId': instance.platformId,
-            'category': 'managed'
+            $or: [{
+                    'resourceDetails.publicIp':instance.instanceIP
+                },
+                {
+                    'resourceDetails.privateIp': instance.instanceIP
+                },
+                {
+                    'configDetails.nodeName': instance.chef.chefNodeName
+                },
+                {
+                    'resourceDetails.platformId':instance.platformId
+                }],
+            isDeleted:false
         }
-        ec2Model.getInstanceData(filterBy, function (err, data) {
+        resourceModel.getResources(filterBy, function (err, data) {
             if (err) {
                 logger.error("Error in fetching Resources>>>>:", err);
                 return callback(err, null);
             } else if (data.length > 0) {
-                ec2Model.updateInstanceData(data[0]._id, resourceObj, function (err, data) {
+                if(data[0].providerDetails.type && data[0].providerDetails.type === 'AWS'){
+                    delete resourceObj.name;
+                    resourceObj.resourceType = 'EC2'
+                    resourceObj['resourceDetails.bootStrapState'] = instance.bootStrapStatus === 'waiting' || instance.bootStrapStatus === 'pending'?'bootStrapping':instance.bootStrapStatus;
+                    resourceObj['resourceDetails.credentials'] = instance.credentials;
+                    resourceObj['resourceDetails.route53HostedParams'] = instance.route53HostedParams;
+                    resourceObj['resourceDetails.hardware'] = instance.hardware;
+                    resourceObj['resourceDetails.dockerEngineState'] = instance.docker.dockerEngineStatus;
+                }
+                resourceModel.updateResourceById(data[0]._id, resourceObj, function (err, data) {
                     if (err) {
                         logger.error("Error in updating Resources>>>>:", err);
                         return callback(err, null);
@@ -971,8 +1009,22 @@ function createOrUpdateResource(instance,callback){
                     }
                 })
             } else {
+                resourceObj.resourceDetails = {
+                    platformId: instance.platformId,
+                    vpcId: instance.vpcId ? instance.vpcId : null,
+                    subnetId: instance.subnetId ? instance.subnetId : null,
+                    hostName: instance.hostName ? instance.hostName : null,
+                    publicIp: instance.instanceIP,
+                    privateIp: instance.privateIpAddress,
+                    state: instance.instanceState,
+                    bootStrapState: instance.bootStrapStatus === 'waiting' || instance.bootStrapStatus === 'pending'?'bootStrapping':instance.bootStrapStatus,
+                    credentials: instance.credentials,
+                    route53HostedParams: instance.route53HostedParams,
+                    hardware: instance.hardware,
+                    dockerEngineState: instance.docker.dockerEngineStatus
+                },
                 resourceObj.createdOn = new Date().getTime();
-                ec2Model.createNew(resourceObj, function (err, data) {
+                resourceModel.createNew(resourceObj, function (err, data) {
                     if (err) {
                         logger.error("Error in creating Resources>>>>:", err);
                         return callback(err, null);
@@ -1004,7 +1056,7 @@ function instanceSync(instances,callback){
                 if (decryptedCredentials.fileData) {
                     credentials = {
                         "username": decryptedCredentials.username,
-                        "pemFileData": decryptedCredentials.fileData,
+                        "pemFileData": decryptedCredentials.decryptedData,
                         "pemFileLocation": instance.credentials.pemFileLocation
                     }
                 } else {

@@ -24,8 +24,6 @@ AWSCapacityAggregation.execute = aggregateAWSCapacity;
 var date = new Date();
 AWSCapacityAggregation.currentCronRunTime = dateUtil.getDateInUTC(date);
 
-// AWSCapacityAggregation.execute()
-
 module.exports = AWSCapacityAggregation;
 
 AWSCapacityAggregation.aggregateEntityCapacityByOrg = aggregateEntityCapacityByOrg;

@@ -536,16 +536,28 @@
 					return $http.post(fullUrl(url),reqBody, Auth.getHeaderObject());
 				},
 				getManagedInstances:function (providerId) {
-					var url ='/providers/'+providerId+'/managedInstances';
-					return $http.get(fullUrl(url),Auth.getHeaderObject());
+                    if(typeof providerId !== undefined || providerId !== null) {
+                        var url = '/resources?filterBy=providerDetails.id:' + providerId + ',resourceType:EC2,category:managed';
+                        return $http.get(fullUrl(url), Auth.getHeaderObject());
+                    }else{
+                        return false
+                    }
 				},
 				getAssignedInstances:function (providerId) {
-					var url ='/providers/'+providerId+'/unmanagedInstances';
-					return $http.get(fullUrl(url),Auth.getHeaderObject());
+                    if(typeof providerId !== undefined  || providerId !== null) {
+                        var url = '/resources?filterBy=providerDetails.id:' + providerId + ',resourceType:EC2,category:assigned';
+                        return $http.get(fullUrl(url), Auth.getHeaderObject());
+                    }else{
+                        return false
+                    }
 				},
 				getUnassignedInstances:function (providerId) {
-					var url ='/providers/'+providerId+'/unassigned-instances';
-					return $http.get(fullUrl(url),Auth.getHeaderObject());
+					if(typeof providerId !== undefined || providerId !== null) {
+                        var url = '/resources?filterBy=providerDetails.id:' + providerId + ',resourceType:EC2,category:unassigned';
+                        return $http.get(fullUrl(url), Auth.getHeaderObject());
+                    }else{
+						return false
+					}
 				},
 				getBotTypeList:function () {
 					var url ='/config-data/bots-type';

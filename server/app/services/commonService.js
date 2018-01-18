@@ -36,7 +36,6 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Docker = require('_pr/model/docker.js');
-var instanceModel = require('_pr/model/resources/instance-resource');
 var resourceModel = require('_pr/model/resources/resources');
 var services = require('_pr/model/services/services.js');
 var saeService = require('_pr/services/saeService.js');
@@ -48,6 +47,8 @@ var jsyaml = require('js-yaml');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
 
+var utils = require('_pr/model/classes/utils/utils.js');
+var Puppet = require('_pr/lib/puppet.js');
 
 const errorType = 'commonService';
 
@@ -204,7 +205,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                     'resourceDetails.credentials': instance.credentials,
                                     'category': 'managed'
                                 }
-                                instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                     if (err) {
                                         logger.error("Error in updating Resource Authentication : " + err)
                                     }
@@ -241,10 +242,10 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                     instanceOS: instance.hardware.os
                                 };
                                 if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                    var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                    var sensuCookBooks = masterUtil.getSensuCookbooks();
                                     var runlist = sensuCookBooks;
                                     var jsonAttributes = {};
-                                    jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                    jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, resourceId);
                                     bootstrapOption['runlist'] = runlist;
                                     bootstrapOption['jsonAttributes'] = jsonAttributes;
                                 }
@@ -331,7 +332,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                 'resourceDetails.credentials': instance.credentials,
                                                 'category': 'managed'
                                             }
-                                            instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                            resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                 if (err) {
                                                     logger.error("Error in updating Resource Authentication : " + err)
                                                 }
@@ -394,7 +395,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                 'resourceDetails.credentials': instance.credentials,
                                                 'category': 'managed'
                                             }
-                                            instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                            resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                 if (err) {
                                                     logger.error("Error in updating Resource Authentication : " + err)
                                                 }
@@ -462,7 +463,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                             var queryObj = {
                                                                 'resourceDetails.hardware': hardwareData
                                                             }
-                                                            instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                                            resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                                 if (err) {
                                                                     logger.error("Error in updating Resource Authentication : " + err)
                                                                 }
@@ -505,7 +506,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                     var queryObj = {
                                                         'resourceDetails.hardware': hardwareData
                                                     }
-                                                    instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                                    resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in updating Resource Authentication : " + err)
                                                         }
@@ -535,7 +536,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                     var queryObj = {
                                                         'resourceDetails.dockerEngineState': 'success'
                                                     }
-                                                    instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                                    resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in updating Resource Authentication : " + err)
                                                         }
@@ -565,7 +566,7 @@ commonService.bootStrappingResource = function bootStrappingResource(resourceId,
                                                 'resourceDetails.credentials': instance.credentials,
                                                 'category': 'managed'
                                             }
-                                            instanceModel.updateInstanceData(resourceId, queryObj, function (err, data) {
+                                            resourceModel.updateResourceById(resourceId, queryObj, function (err, data) {
                                                 if (err) {
                                                     logger.error("Error in updating Resource Authentication : " + err)
                                                 }
@@ -660,7 +661,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                 vpcId: resource.resourceDetails.vpcId,
                 privateIpAddress: resource.resourceDetails.privateIp,
                 hostName: resource.resourceDetails.hostName,
-                monitor: serviceDetails.monitor,
+                monitor: serviceDetails.masterDetails.monitor,
                 bootStrapStatus: 'waiting',
                 hardware: {
                     platform: 'unknown',
@@ -765,7 +766,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                 'resourceDetails.credentials': encryptedCredentials,
                                 'category': 'managed'
                             }
-                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                            resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                 if (err) {
                                     logger.error("Error in updating Resource Authentication : " + err)
                                 }
@@ -802,10 +803,10 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                 instanceOS: instance.hardware.os
                             };
                             if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                var sensuCookBooks = masterUtil.getSensuCookbooks();
                                 var runlist = sensuCookBooks;
                                 var jsonAttributes = {};
-                                jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, resourceId);
                                 bootstrapOption['runlist'] = runlist;
                                 bootstrapOption['jsonAttributes'] = jsonAttributes;
                             }
@@ -892,7 +893,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'resourceDetails.credentials': encryptedCredentials,
                                             'category': 'managed'
                                         }
-                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                        resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                             if (err) {
                                                 logger.error("Error in updating Resource Authentication : " + err)
                                             }
@@ -962,10 +963,11 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'configDetails.nodeName': serviceDetails.masterDetails.configName,
                                             'resourceDetails.bootStrapState': 'success',
                                             'resourceDetails.state': 'running',
+                                            'monitor': serviceDetails.masterDetails.monitor?serviceDetails.masterDetails.monitor:null,
                                             'resourceDetails.credentials': encryptedCredentials,
                                             'category': 'managed'
                                         }
-                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                        resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                             if (err) {
                                                 logger.error("Error in updating Resource Authentication : " + err)
                                             }
@@ -1033,7 +1035,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                                         var queryObj = {
                                                             'resourceDetails.hardware': hardwareData
                                                         }
-                                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                        resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Error in updating Resource Authentication : " + err)
                                                             }
@@ -1076,7 +1078,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                                 var queryObj = {
                                                     'resourceDetails.hardware': hardwareData
                                                 }
-                                                instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                                     if (err) {
                                                         logger.error("Error in updating Resource Authentication : " + err)
                                                     }
@@ -1106,7 +1108,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                                 var queryObj = {
                                                     'resourceDetails.dockerEngineState': 'success'
                                                 }
-                                                instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                                resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                                     if (err) {
                                                         logger.error("Error in updating Resource Authentication : " + err)
                                                     }
@@ -1141,12 +1143,13 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                                             'masterDetails.envName': serviceDetails.masterDetails.envName,
                                             'configDetails.id': serviceDetails.masterDetails.configId,
                                             'configDetails.nodeName': serviceDetails.masterDetails.configName,
+                                            'monitor': serviceDetails.masterDetails.monitor?serviceDetails.masterDetails.monitor:null,
                                             'resourceDetails.bootStrapState': 'failed',
                                             'resourceDetails.state': 'failed',
                                             'resourceDetails.credentials': encryptedCredentials,
                                             'category': 'managed'
                                         }
-                                        instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                                        resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                             if (err) {
                                                 logger.error("Error in updating Resource Authentication : " + err)
                                             }
@@ -1239,12 +1242,13 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                         'masterDetails.envName': serviceDetails.masterDetails.envName,
                         'configDetails.id': serviceDetails.masterDetails.configId,
                         'configDetails.nodeName': serviceDetails.masterDetails.configName,
+                        'monitor': serviceDetails.masterDetails.monitor?serviceDetails.masterDetails.monitor:null,
                         'resourceDetails.bootStrapState': 'success',
                         'resourceDetails.state': 'running',
                         'resourceDetails.credentials': encryptedCredentials,
                         'category': 'managed'
                     }
-                    instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                    resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                         if (err) {
                             logger.error("Error in updating Resource Authentication : " + err)
                         }
@@ -1268,7 +1272,7 @@ commonService.bootstrapInstance = function bootstrapInstance(resource,resourceId
                             var queryObj = {
                                 'resourceDetails.dockerEngineState': 'success'
                             }
-                            instanceModel.updateInstanceData(resource._id, queryObj, function (err, data) {
+                            resourceModel.updateResourceById(resource._id, queryObj, function (err, data) {
                                 if (err) {
                                     logger.error("Error in updating Resource Authentication : " + err)
                                 }
@@ -1659,7 +1663,7 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
         authentication: 'failed'
     }
     resourceObj.createdOn = new Date().getTime();
-    instanceModel.createNew(resourceObj, function (err, data) {
+    resourceModel.createNew(resourceObj, function (err, data) {
         if (err) {
             logger.error("Error in creating Resources>>>>:", err);
             return callback(err, null);
@@ -1667,6 +1671,163 @@ commonService.syncChefNodeWithResources = function syncChefNodeWithResources(che
             return callback(null, data);
         }
     })
+}
+
+commonService.executeCookBookOnResource = function executeCookBookOnResource(resourceId,reqBody,callback) {
+    async.waterfall([
+        function(next){
+           resourceModel.getResourceById(resourceId,next);
+        },
+        function(resource,next){
+            if(resource !== null){
+                masterUtil.getCongifMgmtsById(resource.configDetails.id,function(err,serverDetails){
+                    if(err){
+                        next({message:"Server Details is not present in DB"},null);
+                    }else{
+                        next(resource,serverDetails);
+                    }
+                });
+            }else{
+                next({message:"Resource is not present in DB"},null);
+            }
+        },
+        function(resource,serverDetails,next) {
+            credentialCryptography.decryptCredential(resource.resourceDetails.credentials, function (err, decryptedCredentials) {
+                if (err) {
+                    next(err, null);
+                } else {
+                    var infraManager;
+                    var runOptions;
+                    if (resource.configDetails.type === 'chef' && resource.configDetails.id) {
+                        infraManager = new Chef({
+                            userChefRepoLocation: serverDetails.chefRepoLocation,
+                            chefUserName: serverDetails.loginname,
+                            chefUserPemFile: serverDetails.userpemfile,
+                            chefValidationPemFile: serverDetails.validatorpemfile,
+                            hostedChefUrl: serverDetails.url,
+                        });
+                        runOptions = {
+                            privateKey: decryptedCredentials.pemFileLocation,
+                            username: decryptedCredentials.username,
+                            host: resource.resourceDetails.publicIp,
+                            instanceOS: resource.resourceDetails.os,
+                            port: 22,
+                            runlist: reqBody.run_list,
+                            overrideRunlist: false,
+                            jsonAttributes: reqBody.attributes
+                        }
+                        logger.debug('decryptCredentials ==>', decryptedCredentials);
+                        if (decryptedCredentials.pemFileLocation) {
+                            runOptions.privateKey = decryptedCredentials.pemFileLocation;
+                        } else {
+                            runOptions.password = decryptedCredentials.password;
+                        }
+
+                    } else {
+                        var puppetSettings = {
+                            host: serverDetails.hostname,
+                            username: serverDetails.username,
+                        };
+                        if (serverDetails.pemFileLocation) {
+                            puppetSettings.pemFileLocation = serverDetails.pemFileLocation;
+                        } else {
+                            puppetSettings.password = serverDetails.puppetpassword;
+                        }
+                        logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
+                        infraManager = new Puppet(puppetSettings);
+                        var runOptions = {
+                            username: decryptedCredentials.username,
+                            host: resource.resourceDetails.publicIp,
+                            port: 22,
+                        }
+                        if (decryptedCredentials.pemFileLocation) {
+                            runOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
+                        } else {
+                            runOptions.password = decryptedCredentials.password;
+                        }
+                    }
+                    infraManager.runClient(runOptions, function (err, retCode) {
+                        if (decryptedCredentials.pemFileLocation) {
+                            fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
+                                if (err) {
+                                    logger.debug("Unable to delete temp pem file =>", err);
+                                } else {
+                                    logger.debug("temp pem file deleted =>", err);
+                                }
+                            });
+                        }
+                        if (err) {
+                            next(err, null);
+                        }
+                        logger.debug("knife ret code", retCode);
+                        if (retCode == 0) {
+                            if (resource.resourceDetails.type === 'chef' && resource.resourceDetails.id) {
+                                var run_list = resource.configDetails.run_list,
+                                    attributes = resource.configDetails.attributes;
+                                if (run_list.indexOf(reqBody.run_list) === -1) {
+                                    run_list.push(reqBody.run_list);
+                                }
+                                if (attributes.length > 0) {
+                                    attributes.push(reqBody.attributes);
+                                } else {
+                                    attributes = [reqBody.attributes];
+                                }
+                                next(null,null);
+                                resourceModel.updateResourceById(resourceId, {
+                                    'configDetails.run_list': run_list,
+                                    'configDetails.attributes': attributes
+                                }, function (err, updateCount) {
+                                    if (err) {
+                                        next(err, null);
+                                    }
+                                    var query = {
+                                        $or: [{
+                                            instanceIP: resource.resourceDetails.publicIp
+                                        },
+                                            {
+                                                privateIpAddress: resource.resourceDetails.privateIp
+                                            },
+                                            {
+                                                chefNodeName: resource.configDetails.nodeName
+                                            },
+                                            {
+                                                platformId: resource.resourceDetails.platformId
+                                            }],
+                                        isDeleted:false
+                                    }
+                                    instancesDao.updateInstanceByFilter(query,{
+                                        runlist: run_list,
+                                        attributes: attributes
+                                    },function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                        }
+                                    });
+                                });
+                            } else {
+                                next(null, {message: 'Puppet client ran successfully'})
+                            }
+                        } else {
+                            if (retCode === -5000) {
+                                next({message: "Host Unreachable"}, null);
+                            } else if (retCode === -5001) {
+                                next({message: "Invalid credentials"}, null);
+                            } else {
+                                next({message: 'Unknown error occurred. ret code = ' + retCode}, null);
+                            }
+                        }
+                    });
+                }
+
+            })
+        }
+    ],function(err,results){
+        if(err){
+            return callback(err,null);
+        }else{
+            return callback(null,results);
+        }
+    });
 }
 
 commonService.startResource = function startResource(resource,callback) {
@@ -1723,7 +1884,7 @@ commonService.startResource = function startResource(resource,callback) {
                             }
                             return;
                         });
-                        instanceModel.updateInstanceData(resource._id, {'resourceDetails.publicIp':instanceData.Reservations[0].Instances[0].PublicIpAddress,'resourceDetails.state':'running'}, function (err, updateCount) {
+                        resourceModel.updateResourceById(resource._id, {'resourceDetails.publicIp':instanceData.Reservations[0].Instances[0].PublicIpAddress,'resourceDetails.state':'running'}, function (err, updateCount) {
                             if (err) {
                                 logger.error("update resource ip err ==>", err);
                                 return callback(err, null);
@@ -1832,6 +1993,3 @@ function uploadFilesOnBotEngine(orgId,callback){
     });
 
 }
-
-
-

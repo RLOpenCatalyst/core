@@ -3,13 +3,8 @@
     angular.module('dashboard.analytics')
         .controller('capacityReportCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout','$location', '$anchorScroll','$modal',function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout,$location, $anchorScroll,$modal){
             $rootScope.stateItems = $state.params;
-            //analyticsServices.initFilter();
             $scope.gototab = function(id) {
-                // set the location.hash to the id of
-                // the element you wish to scroll to.
                 $location.hash(id);
-
-                // call $anchorScroll()
                 $anchorScroll();
             };
             var capRept =this;
@@ -33,7 +28,6 @@
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 },500);
             };
-            // new e###################################
             $scope.openChart=function (id) {
                 $modal.open({
                     animation: true,
@@ -63,25 +57,37 @@
                 capRept.filterValue='';
                 capRept.listGrid=[];
                 var fltrObj=$rootScope.filterNewEnt;
-
-               // for(var value in capRept.serviceCapacity) {
                 var value=capRept.serviceType;
                     capRept.listGrid[value]=[];
                     capRept.listGrid[value].data=[];
                     capRept.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capRept.listGrid[value].paginationPageSize=25;
-                    $scope.colArray=['resourceDetails.platformId','resourceDetails.state','resourceDetails.privateIp','resourceDetails.os'];
+                    $scope.colArray=['platformId','state','ip','os'];
                     if(capRept.serviceType === 'EC2') {
                         capRept.listGrid[value].columnDefs = [
-                            {name: 'Instance Id', field: 'resourceDetails.platformId', cellTooltip: true},
-                            {name: 'os', enableFiltering: true, displayName: 'OS', field: 'os', cellTooltip: true},
+                            {
+                                name: 'Instance Id',
+                                field: 'platformId',
+                                cellTooltip: true},
+                            {
+                                name: 'os',
+                                enableFiltering: true,
+                                displayName: 'OS',
+                                field: 'os',
+                                cellTooltip: true
+                            },
                             {
                                 name: 'privateIpAddress',
                                 displayName: 'IP Address',
-                                field: 'resourceDetails.privateIp',
+                                field: 'ip',
                                 cellTooltip: true
                             },
-                            {name: 'state', displayName: 'State', cellTooltip: true},
+                            {
+                                name: 'state',
+                                displayName: 'State',
+                                field: 'state',
+                                cellTooltip: true
+                            },
                             {
                                 name: 'Region', displayName: 'Region',
                                 field: 'region',
@@ -98,7 +104,6 @@
                                 cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
                                 "&nbsp;&nbsp; <span ng-show='row.entity.showSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
                             }
-                            // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
                         ];
                     }
                     if(capRept.serviceType === 'RDS') {
@@ -129,7 +134,6 @@
                                 cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
                                 "&nbsp;&nbsp; <span ng-show='row.entity.showSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
                             }
-                            // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
                         ];
                     }
                     if(capRept.serviceType === 'S3') {
@@ -165,23 +169,23 @@
                             inlineLoader: true
                         };
                         if ($rootScope.organNewEnt.instanceType === 'Managed'  || $rootScope.organNewEnt.instanceType === 'Assigned') {
-                            $scope.colArray.push('masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName');
+                            $scope.colArray.push('bgName', 'projectName', 'envName');
                             capRept.listGrid[value].columnDefs.splice(5, 0, {
                                 name: 'bgName',
                                 displayName: 'Bg Name',
-                                field: 'masterDetails.bgName',
+                                field: 'bgName',
                                 cellTooltip: true
                             });
                             capRept.listGrid[value].columnDefs.splice(6, 0, {
                                 name: 'projectName',
                                 displayName: 'Project Name',
-                                field: 'masterDetails.projectName',
+                                field: 'projectName',
                                 cellTooltip: true
                             });
                             capRept.listGrid[value].columnDefs.splice(7, 0, {
                                 name: 'envName',
                                 displayName: 'Env Name',
-                                field: 'masterDetails.envName',
+                                field: 'envName',
                                 cellTooltip: true
                             });
                             param.url = '/resources?filterBy=providerDetails.id:' + fltrObj.provider.id + ',resourceType:' + capRept.serviceType + ',category:' + $rootScope.organNewEnt.instanceType.toLowerCase();
@@ -194,26 +198,17 @@
                             angular.forEach(capRept.listGrid[value].data, function (rs, k) {
                                 if ($rootScope.organNewEnt.instanceType === 'Managed') {
                                     capRept.listGrid[value].data[k].showSchedule = true;
-                                    if (rs.hardware && rs.hardware.os) {
-                                        capRept.listGrid[value].data[k].os = rs.resourceDetails.hardware.os;
-                                    }
-                                    if (rs.providerData && rs.providerData.region) {
-                                        capRept.listGrid[value].data[k].region = rs.providerDetails.region.region;
-                                    }
-                                    if (rs.instanceState) {
-                                        capRept.listGrid[value].data[k].state = rs.resourceDetails.state;
-                                    }
-                                } else {
-                                    capRept.listGrid[value].data[k].platformId = rs.resourceDetails.platformId;
-                                    capRept.listGrid[value].data[k].os = rs.resourceDetails.os;
-                                    capRept.listGrid[value].data[k].state = rs.resourceDetails.state;
-                                    capRept.listGrid[value].data[k].privateIpAddress = rs.resourceDetails.privateIp;
-                                    capRept.listGrid[value].data[k].region = rs.providerDetails.region.region;
-                                    capRept.listGrid[value].data[k].bgName = rs.masterDetails.bgName;
-                                    capRept.listGrid[value].data[k].projectName = rs.masterDetails.projectName;
-                                    capRept.listGrid[value].data[k].envName = rs.masterDetails.envName;
+                                }else{
                                     capRept.listGrid[value].data[k].showSchedule = false;
                                 }
+                                capRept.listGrid[value].data[k].platformId = rs.resourceDetails.platformId;
+                                capRept.listGrid[value].data[k].os = rs.resourceDetails.os;
+                                capRept.listGrid[value].data[k].ip = rs.resourceDetails.privateIp;
+                                capRept.listGrid[value].data[k].state = rs.resourceDetails.state;
+                                capRept.listGrid[value].data[k].region = rs.providerDetails.region.region;
+                                capRept.listGrid[value].data[k].bgName = rs.masterDetails.bgName?rs.masterDetails.bgName:'-';
+                                capRept.listGrid[value].data[k].projectName = rs.masterDetails.projectName?rs.masterDetails.projectName:'-';
+                                capRept.listGrid[value].data[k].envName = rs.masterDetails.envName?rs.masterDetails.envName:'-';
 
                             });
                             if (capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0) {
@@ -226,10 +221,8 @@
                         var paramResources = {
                             inlineLoader: true,
                             url: '/resources?filterBy=providerDetails.id:' + fltrObj.provider.id + ',resourceType:' + capRept.serviceType + ',category:' + $rootScope.organNewEnt.instanceType.toLowerCase()
-                            // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                         };
                         genSevs.promiseGet(paramResources).then(function (instResult) {
-                            /////
                             capRept.listGrid[value].data = instResult.data;
                             if (capRept.serviceType === 'RDS') {
                                 angular.forEach(instResult.data, function (va, ke) {
@@ -253,9 +246,6 @@
                                 });
 
                             }
-                            ///
-
-
                             if (capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0) {
                                 capRept.listGrid[value].nodataFound = true;
                             } else {
@@ -263,8 +253,6 @@
                             }
                         });
                     }
-
-                //}
             };
             $scope.$watch('capRept.serviceType',function () {
                 capRept.createList();
@@ -368,7 +356,6 @@
                 $yesterdayA.setDate($todayA.getDate() - 1);
                     var param = {
                         url: '/analytics/trend/usage?resource=' + items._id + '&fromTimeStamp=' + $yesterdayA + '&toTimeStamp=' + $todayA + '&interval=3600'
-                        //url:'src/partials/sections/dashboard/analytics/data/usage.json'
                     };
                     genSevs.promiseGet(param).then(function (result) {
                         angular.forEach(result,function (val,ke) {

@@ -152,7 +152,15 @@ $(document).ready(function() {
         },
         "columns": [
             {"data": "resourceDetails.bucketName", "orderable" : true},
-            {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
+            {"data": "resourceDetails.bucketOwnerName","orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
             {"data": "masterDetails.orgName","orderable" : false,
                 "render": function (data) {
                     if(data !== null){
@@ -224,7 +232,15 @@ $(document).ready(function() {
             },
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
-                {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
+                {"data": "resourceDetails.bucketOwnerName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
                 {"data": "masterDetails.orgName","orderable" : false,
                     "render": function (data) {
                         if(data !== null){
@@ -319,7 +335,15 @@ $(document).ready(function() {
             },
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
-                {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
+                {"data": "resourceDetails.bucketOwnerName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
                 {"data": "resourceDetails.bucketSize","orderable" : true  },
                 {"data": "resourceDetails.bucketCreatedOn","orderable" : true,
                     "render": function (data) {

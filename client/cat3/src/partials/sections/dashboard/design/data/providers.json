@@ -1,27 +1,27 @@
 [
   {
-    "name": "AWS",
+    "name": "Aws",
     "parent": "design",
     "abstract": true,
     "icon":"aws.png",
     "filterArray":["arm"]
   },
   {
-    "name": "AZURE",
+    "name": "Azure",
     "parent": "design",
     "abstract": true,
     "icon":"openstak.png",
     "filterArray":["cft","composite"]
   },
   {
-    "name": "OPENSTACK",
+    "name": "OpenStack",
     "parent": "design",
     "abstract": true,
     "icon":"azure-card.png",
     "filterArray":["cft","arm","composite"]
   },
   {
-    "name": "VMWARE",
+    "name": "VmWare",
     "parent": "design",
     "abstract": true,
     "icon":"vmware-card.png",

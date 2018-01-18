@@ -19,6 +19,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var services = require('_pr/model/services/services.js');
 var fileUpload = require('_pr/model/file-upload/file-upload');
+var fileIo = require('_pr/lib/utils/fileio');
 var monitors = require('_pr/model/monitors/monitors');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
@@ -26,6 +27,7 @@ const jsYml= require('js-yaml');
 var uuid = require('node-uuid');
 var resourceModel = require('_pr/model/resources/resources');
 var commonService = require('_pr/services/commonService');
+var appConfig = require('_pr/config');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 var serviceMapService = module.exports = {};
@@ -37,6 +39,9 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
             apiUtil.paginationRequest(reqQueryObj, 'services', next);
         },
         function(paginationReq,next){
+            if(paginationReq.filterBy && paginationReq.filterBy.isDeleted){
+               paginationReq.filterBy.isDeleted = paginationReq.filterBy.isDeleted === 'true' ? true : false;
+            }
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
@@ -50,25 +55,50 @@ serviceMapService.getAllServicesByFilter = function getAllServicesByFilter(reqQu
                             if (err) {
                                 next(err, null);
                             } else {
-                                var response = {
-                                    docs: filterData,
-                                    total: data.length,
-                                    limit: queryObj.options.limit,
-                                    page: queryObj.options.page,
-                                    pages: Math.ceil(data.length / queryObj.options.limit)
-                                };
-                                next(null, response);
+                                var pages = Math.ceil(data.length / queryObj.options.limit);
+                                if(queryObj.options.page > pages){
+                                    var response = {
+                                        docs: [],
+                                        total: data.length,
+                                        limit: queryObj.options.limit,
+                                        page: queryObj.options.page,
+                                        pages:pages
+                                    };
+                                    next(null, response);
+                                }else{
+                                    var response = {
+                                        docs: filterData,
+                                        total: data.length,
+                                        limit: queryObj.options.limit,
+                                        page: queryObj.options.page,
+                                        pages:pages
+                                    };
+                                    next(null, response);
+                                }
+
                             }
                         });
                     } else {
-                        var response = {
-                            docs: data,
-                            total: data.length,
-                            limit: queryObj.options.limit,
-                            page: queryObj.options.page,
-                            pages: Math.ceil(data.length / queryObj.options.limit)
-                        };
-                        next(null, response);
+                        var pages = Math.ceil(data.length / queryObj.options.limit);
+                        if(queryObj.options.page > pages){
+                            var response = {
+                                docs: [],
+                                total: data.length,
+                                limit: queryObj.options.limit,
+                                page: queryObj.options.page,
+                                pages:pages
+                            };
+                            next(null, response);
+                        }else{
+                            var response = {
+                                docs: filterData,
+                                total: data.length,
+                                limit: queryObj.options.limit,
+                                page: queryObj.options.page,
+                                pages:pages
+                            };
+                            next(null, response);
+                        }
                     }
                 })
             }else{
@@ -106,7 +136,7 @@ serviceMapService.deleteServiceById = function deleteServiceById(serviceId,callb
         },
         function(servicesData,next){
             if(servicesData.length > 0){
-                services.updateService({name:servicesData[0].name},{isDeleted:true},next);
+                services.updateService({name:servicesData[0].name},{isDeleted:true,state:'Deleted'},next);
             }else{
                 var err =  new Error();
                 err.code = 500;
@@ -184,7 +214,7 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                 return callback(err, null);
             } else if (data.length > 0) {
                 return callback({code: 400, message: "Service Name is already associated with other Services.Please enter unique Service Name."}, null);
-            } else {
+            } else if(servicesObj.source ==='file') {
                 fileUpload.getReadStreamFileByFileId(servicesObj.fileId, function (err, fileDetail) {
                     if (err) {
                         logger.error("Error in reading YML File.");
@@ -234,6 +264,74 @@ serviceMapService.createNewService = function createNewService(servicesObj,callb
                         }
                     }
                 });
+            }else{
+                try {
+                    var result = jsYml.safeLoad(servicesObj.fileData);
+                    if (result !== null) {
+                        var fileId = uuid.v4();
+                        var ymlFolderName = appConfig.tempDir;
+                        var ymlFileName = fileId + '.yaml'
+                        var path = require('path');
+                        var mkdirp = require('mkdirp');
+                        var ymlFolder = path.normalize(ymlFolderName);
+                        mkdirp.sync(ymlFolder);
+                        async.waterfall([
+                            function (next) {
+                                fileIo.writeFile(ymlFolder + '/' + ymlFileName, servicesObj.fileData, null, next);
+                            },
+                            function (next) {
+                                fileUpload.uploadFile(ymlFileName, ymlFolder + '/' + ymlFileName, null, next);
+                            }
+                        ], function (err, results) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                fileIo.removeFile(ymlFolder + '/' + ymlFileName, function (err, removeCheck) {
+                                    if (err) {
+                                        logger.error(err);
+                                        logger.debug("Successfully remove YML file");
+                                        return callback(err,null);
+                                    }
+                                });
+                            } else {
+                                servicesObj.identifiers = result;
+                                servicesObj.type = 'Service';
+                                servicesObj.ymlFileId = results;
+                                servicesObj.createdOn = new Date().getTime();
+                                getMasterDetails(servicesObj.masterDetails, function (err, result) {
+                                    if (err) {
+                                        logger.error("Unable to Master Details");
+                                        callback(err, null);
+                                        return;
+                                    } else {
+                                        monitorsModel.getById(servicesObj.monitorId, function (err, monitor) {
+                                            servicesObj.masterDetails = result;
+                                            servicesObj.masterDetails.monitor = monitor;
+                                            servicesObj.state = 'Initializing';
+                                            servicesObj.version = 1.0;
+                                            services.createNew(servicesObj, function (err, servicesData) {
+                                                if (err) {
+                                                    logger.error("services.createNew is Failed ==>", err);
+                                                    callback(err, null);
+                                                    return;
+                                                } else {
+                                                    callback(null, servicesData);
+                                                    return;
+                                                }
+                                            });
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        var err = new Error("There is no data present YML.")
+                        err.code = 403;
+                        callback(err, null);
+                    }
+                } catch(err){
+                    return callback({code:500,message:'Invalid YAML : '+err.message}, null);
+                }
             }
         });
     }
@@ -250,30 +348,6 @@ serviceMapService.updateServiceById = function updateServiceById(serviceId,data,
             }else{
                 logger.debug("No Service is available in DB against serviceId");
                 next(null,null);
-            }
-        }
-    ],function(err,results){
-        if(err){
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-    })
-}
-
-serviceMapService.getLastVersionOfEachService = function getLastVersionOfEachService(filterBy,callback){
-    async.waterfall([
-        function(next){
-            services.getLastVersionOfEachService(filterBy,next);
-        },
-        function(servicesData,next){
-            if(servicesData.length > 0){
-                next(null,servicesData);
-            }else{
-                logger.debug("No Service is available in DB: ");
-                next(null,servicesData);
             }
         }
     ],function(err,results){
@@ -463,47 +537,41 @@ serviceMapService.getAllServiceResourcesByName = function getAllServiceResources
             }
             if(filterQuery.version && filterQuery.version === 'latest'){
                 services.getLastVersionOfEachService(queryObj,next);
-            }else if(filterQuery.version){
-                queryObj.version = parseFloat(filterQuery.version);
-                services.getServices(queryObj,next);
             }else{
+                queryObj.version = parseFloat(filterQuery.version);
                 services.getServices(queryObj,next);
             }
         },
         function(serviceList,next) {
             if (serviceList.length > 0) {
-                var filterResourceList = [];
-                serviceList.forEach(function(service){
-                    var filterObj = {
-                        version:filterQuery.version?filterQuery.version:service.version.toFixed(1),
-                        state:service.state,
-                        resources:[]
-                    }
-                    service.resources.forEach(function (resource) {
-                        if(Object.keys(filterQuery).length > 1){
-                            Object.keys(filterQuery).forEach(function(key){
-                                if(key === 'groups'){
-                                   var groupValList =  resource[key];
-                                   if(groupValList.indexOf(filterQuery[key]) !== -1){
-                                       filterObj.resources.push(resource);
-                                   }
-                                }else {
-                                    if(filterQuery[key] === resource[key]){
-                                        filterObj.resources.push(resource);
-                                    }else{
-                                        filterObj.resources.push(resource);
-                                    }
+                var filterObj = {
+                    version:filterQuery.version?filterQuery.version:serviceList[0].version.toFixed(1),
+                    state:serviceList[0].state,
+                    resources:[]
+                }
+                serviceList[0].resources.forEach(function (resource) {
+                    if (Object.keys(filterQuery).length > 1) {
+                        Object.keys(filterQuery).forEach(function (key) {
+                            if (key === 'groups') {
+                                var groupValList = resource[key];
+                                if (groupValList.indexOf(filterQuery[key]) !== -1) {
+                                    filterObj.resources.push(resource);
                                 }
-                            })
-                        }else{
-                            filterObj.resources.push(resource);
-                        }
-                    });
-                    filterResourceList.push(filterObj);
+                            } else {
+                                if (filterQuery[key] === resource[key]) {
+                                    filterObj.resources.push(resource);
+                                } else {
+                                    filterObj.resources.push(resource);
+                                }
+                            }
+                        })
+                    } else {
+                        filterObj.resources.push(resource);
+                    }
                 });
-                next(null, filterResourceList);
+                next(null, filterObj);
             } else {
-                next(null, []);
+                next(null, {});
             }
         }
     ],function(err,results){
@@ -517,10 +585,23 @@ serviceMapService.getAllServiceResourcesByName = function getAllServiceResources
     })
 }
 
-serviceMapService.getServiceById = function getServiceById(serviceId,callback){
+serviceMapService.getServiceByName = function getServiceByName(serviceName,queryParam,callback){
     async.waterfall([
         function(next){
-            services.getServiceById(serviceId,next);
+            var query = {
+                name:serviceName
+            };
+            if(queryParam.isDeleted){
+                query.isDeleted = queryParam.isDeleted ==='true'? true : false;
+            }
+            if(queryParam.version && queryParam.version === 'latest'){
+                services.getLastVersionOfEachService(query,next);
+            }else if(queryParam.version){
+                query.version = parseFloat(queryParam.version);
+                services.getServices(query,next);
+            }else{
+                services.getServices(query,next);
+            }
         },
         function(serviceList,next){
             changeServiceResponse(serviceList,next);
@@ -530,7 +611,7 @@ serviceMapService.getServiceById = function getServiceById(serviceId,callback){
             callback(err,null);
             return;
         }else{
-            callback(null,results[0]);
+            callback(null,results);
             return;
         }
     })
@@ -580,7 +661,7 @@ function formattedServiceResponse(service,callback){
         state:service.state,
         createdOn:service.createdOn,
         updatedOn:service.updatedOn,
-        version:service.version.toFixed(1)
+        version:service.version
     }
     getMasterDetails(service.masterDetails,function(err,data){
             if(err){
@@ -717,11 +798,9 @@ function checkCredentialsForResource(resource,resourceId,credentials,callback) {
                             resourceModel.updateResourceById(resourceId, queryObj, callback)
                         },
                         serviceSync: function (callback) {
-                            console.log(serviceList.length);
                             if (serviceList.length > 0) {
                                 var count = 0;
                                 serviceList.forEach(function (service) {
-                                    console.log(service);
                                     var authenticationFailedCount = 0,serviceState = 'Initializing', awsCheck = false;
                                     if (service.identifiers.aws && service.identifiers.aws !== null) {
                                         awsCheck = true;
@@ -740,8 +819,6 @@ function checkCredentialsForResource(resource,resourceId,credentials,callback) {
                                     } else {
                                         serviceState = 'Initializing';
                                     }
-                                    console.log(authenticationFailedCount);
-                                    console.log(serviceState);
                                     serviceMapService.updateService({
                                         '_id': ObjectId(service._id),
                                         'resources': {$elemMatch: {id: resource._id + ''}}

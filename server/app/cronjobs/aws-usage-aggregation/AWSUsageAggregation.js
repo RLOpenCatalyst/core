@@ -176,7 +176,11 @@ function generateEC2UsageMetricsForProvider(provider, instances, startTime, endT
     if(instances === null) {
         async.waterfall([
             function (next) {
-                resources.getResourcesByProviderResourceType(provider._id, 'EC2', next);
+                var queryObj = {
+                    'providerDetails.id':provider._id,
+                    'resourceType': 'EC2'
+                };
+                resources.getResources(queryObj, next);
             },
             function (ec2Instance,next) {
                 resourceService.getEC2ResourceUsageMetrics(provider, ec2Instance, startTime, endTime, period, next);
@@ -212,7 +216,11 @@ function generateEC2UsageMetricsForProvider(provider, instances, startTime, endT
 function generateS3UsageMetricsForProvider(provider, startTime, endTime, period, callback) {
     async.waterfall([
         function(next){
-            resources.getResourcesByProviderResourceType(provider._id,'S3',next);
+            var queryObj = {
+                'providerDetails.id':provider._id,
+                'resourceType': 's3'
+            };
+            resources.getResources(queryObj,next);
         },
         function(bucketData,next){
             resourceService.getS3BucketsMetrics(provider, bucketData, startTime, endTime, period, next);
@@ -232,7 +240,11 @@ function generateS3UsageMetricsForProvider(provider, startTime, endTime, period,
 function generateRDSUsageMetricsForProvider(provider, startTime, endTime, period, callback) {
     async.waterfall([
         function(next){
-            resources.getResourcesByProviderResourceType(provider._id,'RDS',next);
+            var queryObj = {
+                'providerDetails.id':provider._id,
+                'resourceType': 'RDS'
+            };
+            resources.getResources(queryObj,next);
         },
         function(dbInstances,next){
             resourceService.getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, period, next);
@@ -322,7 +334,7 @@ function updateResourceUsage(resourcesUsageMetrics,next){
                     if (err) {
                         next(err);
                     } else {
-                        resources.updateResourceUsage(formattedUsageMetrics.resourceId,
+                        resources.updateResourceById(formattedUsageMetrics.resourceId,
                             formattedUsageMetrics.metrics, function (err, result) {
                                 if (err)
                                     next(err);

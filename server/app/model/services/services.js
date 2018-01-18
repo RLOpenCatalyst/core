@@ -117,6 +117,11 @@ var serviceSchema = new Schema({
         type: Number,
         required: false
     },
+    source:{
+        type: String,
+        required: false,
+        trim:true
+    },
     isDeleted:{
         type: Boolean,
         required: false,
@@ -163,7 +168,6 @@ serviceSchema.statics.updateService = function updateService(filterQuery,service
 };
 
 serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEachService(filterBy,callback){
-    filterBy.isDeleted = false;
     services.aggregate([
             {
                 $match:filterBy
@@ -204,8 +208,6 @@ serviceSchema.statics.getLastVersionOfEachService = function getLastVersionOfEac
 }
 
 serviceSchema.statics.getServices = function getServices(filterBy,callback) {
-    filterBy.isDeleted = false;
-    filterBy.state = {$ne:'Error'};
     services.find(filterBy,function (err, data) {
         if (err) {
             logger.error(err);
@@ -217,8 +219,6 @@ serviceSchema.statics.getServices = function getServices(filterBy,callback) {
 };
 
 serviceSchema.statics.getServicesWithPagination = function getServicesWithPagination(filterBy,callback) {
-    filterBy.queryObj.isDeleted = false;
-    filterBy.queryObj.state = {$ne:'Error'};
     services.paginate(filterBy.queryObj,filterBy.options,function (err, data) {
         if (err) {
             logger.error(err);
@@ -231,7 +231,6 @@ serviceSchema.statics.getServicesWithPagination = function getServicesWithPagina
 
 
 serviceSchema.statics.getAllServicesByFilter = function getAllServicesByFilter(filterQueryObj, callback) {
-    filterQueryObj.queryObj.isDeleted = false;
     services.aggregate([
             {
                 $match:filterQueryObj.queryObj

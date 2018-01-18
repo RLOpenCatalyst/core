@@ -4,7 +4,7 @@
    |&nbsp;<span><i class="text-black fa fa-fw fa-circle-o"></i><span>terminated</span>|&nbsp;<span><i class="text-red fa fa-fw fa-circle-o"></i><span>deleted</span></span></span>
    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Authentication:<span><i class="fa fa-fw fa-check-circle"></i>success</span>
    |&nbsp;<span><i class="text-gray fa fa-fw fa-circle-o"></i><span >pending</span></span>
-   |&nbsp;<span><i class="text-gray fa fa-fw fa-circle-o"></i><span >authenticating</span>&nbsp;|&nbsp;<span><i class="fa fa-fw fa-repeat"></i>&nbsp;failed</span>
+   |&nbsp;<span><i class="text-gray fa fa-fw fa-circle-o"></i><span >authenticating</span>&nbsp;|&nbsp;<span><i style="color:#d25353!important" class="fa fa-fw fa-repeat"></i>&nbsp;failed</span>
 	<button type="button" title="Refresh" class="marginTopRightForHistory btn btn-xs cat-btn-update pull-right" ng-click="refreshResources();">
 	   <i class="fa fa-refresh white"></i>
 	</button>
@@ -12,9 +12,9 @@
       <section>
          <!--This table will get use when bot job type will be chef -->
          <loading size="large" name="isResourceListLoading" type="block" align="center"></loading>
-            <div id="grid1" ng-if="serviceResourceData.data.length > 0" ui-grid="serviceResourceData" ui-grid-pagination ui-grid-auto-resize class="grid gridResourceHeight"></div>
+            <div id="grid1" ng-if="serviceResourceData.data.length > 0 && !isResourceListLoading" ui-grid="serviceResourceData" ui-grid-pagination ui-grid-auto-resize class="grid gridResourceHeight"></div>
          <!--This table will get use when bot job type will be jenkins -->
-         <div class="alert alert-info text-center" ng-if="serviceResourceData.data.length <= 0" align="center">No Resources Found</div>
+         <div class="alert alert-info text-center" ng-if="serviceResourceData.data.length <= 0 && !isResourceListLoading" align="center">No Resources Found</div>
       </section>
    </div>
 </div>

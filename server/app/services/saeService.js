@@ -18,9 +18,9 @@ const logger = require('_pr/logger')(module);
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var chefDao = require('_pr/model/dao/chefDao.js');
-var ec2Model = require('_pr/model/resources/instance-resource');
 var services = require('_pr/model/services/services.js');
 var resourceModel = require('_pr/model/resources/resources');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var saeService = module.exports = {};
 
 
@@ -28,15 +28,15 @@ saeService.serviceMapSync = function serviceMapSync(callback){
     logger.debug("ServiceMap is Started");
     async.waterfall([
         function(next){
-            services.getLastVersionOfEachService({},next);
+            services.getLastVersionOfEachService({isDeleted:false},next);
         },
-        function(services,next){
-            if(services.length >0){
+        function(serviceList,next){
+            if(serviceList.length >0){
                 var saeAnalysisList = [];
-                services.forEach(function(service){
+                serviceList.forEach(function(service){
                     saeAnalysisList.push(function(callback){saeAnalysis(service,callback);});
                 });
-                if(saeAnalysisList.length === services.length) {
+                if(saeAnalysisList.length === serviceList.length) {
                     async.parallel(saeAnalysisList, function (err, results) {
                         if (err) {
                             next(err, null);
@@ -46,7 +46,7 @@ saeService.serviceMapSync = function serviceMapSync(callback){
                     })
                 }
             }else{
-                next(null,services);
+                next(null,serviceList);
             }
         }
     ],function(err,data){
@@ -182,7 +182,6 @@ function saeAnalysis(service,callback) {
                         queryObj[groupKey]['orgId'] = service.masterDetails.orgId;
                         queryObj[groupKey]['serverId'] = service.masterDetails.configId;
                         queryObj[groupKey]['isDeleted'] = false;
-                        console.log(JSON.stringify(queryObj[groupKey]));
                         groupKeyList.push(function (callback) {
                             chefGroupResources(groupKey, queryObj[groupKey], callback);
                         });
@@ -226,12 +225,12 @@ function saeAnalysis(service,callback) {
                                             }],
                                         isDeleted: false
                                     }
-                                    ec2Model.getInstanceData(query, function (err, data) {
+                                    resourceModel.getResources(query, function (err, data) {
                                         if (err) {
                                             logger.error("Error in finding Resource Details for Query : ", query, err);
                                         }
                                         if (data.length > 0) {
-                                            ec2Model.updateInstanceData(data[0]._id, {
+                                            resourceModel.updateResourceById(data[0]._id, {
                                                 'resourceDetails.bootStrapState': 'success',
                                                 'resourceDetails.hardware': chefNode.hardware
                                             }, function (err, data) {
@@ -303,12 +302,12 @@ function saeAnalysis(service,callback) {
                                         }],
                                     isDeleted: false
                                 }
-                                ec2Model.getInstanceData(query, function (err, data) {
+                                resourceModel.getResources(query, function (err, data) {
                                     if (err) {
                                         logger.error("Error in finding Resource Details for Query : ", query, err);
                                     }
                                     if (data.length > 0) {
-                                        ec2Model.updateInstanceData(data[0]._id, {
+                                        resourceModel.updateResourceById(data[0]._id, {
                                             'resourceDetails.bootStrapState': 'success',
                                             'resourceDetails.hardware': chefNode.hardware
                                         }, function (err, data) {
@@ -477,6 +476,51 @@ function serviceMapVersion(service,resources,instanceStateList){
                         if (findCheck === false) {
                             filterResourceList.push(resourceObj);
                         }
+                        if(service.masterDetails.monitor && service.masterDetails.monitor !== null
+                            && service.masterDetails.monitor.parameters.transportProtocol === 'rabbitmq'){
+                            if(node.result.monitor === null || (node.result.monitor !== null && node.result.monitor.name !==service.masterDetails.monitor.name)){
+                                var senSuCookBooks = masterUtil.getSensuCookbooks();
+                                var run_list = senSuCookBooks;
+                                var jsonAttributes = {};
+                                jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(service.masterDetails.monitor, resourceObj.id);
+                                var reqBody = {
+                                    run_list:run_list,
+                                    attributes:jsonAttributes
+                                }
+                                var commonService = require('_pr/services/commonService');
+                                commonService.executeCookBookOnResource(resourceObj.id,reqBody,function(err,data){
+                                    if(err){
+                                        logger.error(err);
+                                    }
+                                    resourceModel.updateResourceById(resourceObj.id,{monitor:service.masterDetails.monitor},function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                        }
+                                        var instancesDao = require('_pr/model/classes/instance/instance');
+                                        var query = {
+                                            $or: [{
+                                                instanceIP: node.result.resourceDetails.publicIp
+                                            },
+                                                {
+                                                    privateIpAddress: node.result.resourceDetails.privateIp
+                                                },
+                                                {
+                                                    chefNodeName: node.result.configDetails.nodeName
+                                                },
+                                                {
+                                                    platformId: node.result.resourceDetails.platformId
+                                                }],
+                                            isDeleted:false
+                                        }
+                                        instancesDao.updateInstanceByFilter(query,{monitor:service.masterDetails.monitor},function(err,data){
+                                            if(err){
+                                                logger.error(err);
+                                            }
+                                        })
+                                    });
+                                })
+                            }
+                        }
                         count++;
                         if(count === resources.length){
                             next(null, filterResourceList);
@@ -501,18 +545,21 @@ function serviceMapVersion(service,resources,instanceStateList){
             var serviceState = getServiceState(instanceStateList);
             var checkEqualFlag = false;
             if(service.resources.length === filterObj.length){
-                service.resources.forEach(function(resource){
-                    checkEqualFlag = false;
-                    filterObj.forEach(function(filterResource){
-                        if(JSON.stringify(resource.id) === JSON.stringify(filterResource.id)){
-                            checkEqualFlag = true;
-                        }
+                if(service.resources.length > 0 && filterObj.length > 0) {
+                    service.resources.forEach(function (resource) {
+                        checkEqualFlag = false;
+                        filterObj.forEach(function (filterResource) {
+                            if (JSON.stringify(resource.id) === JSON.stringify(filterResource.id)) {
+                                checkEqualFlag = true;
+                            }
+                        })
                     })
-                })
+                }else{
+                    checkEqualFlag = true;
+                }
             }
             if(checkEqualFlag){
-                service.updatedOn = new Date().getTime();
-                services.updateServiceById(service.id,{state:serviceState,resources:filterObj},function(err,data){
+                services.updateServiceById(service.id,{state:serviceState,resources:filterObj,updatedOn : new Date().getTime()},function(err,data){
                     if(err){
                         logger.error("Error in updating Service:",err);
                         next(err,null);
@@ -585,7 +632,7 @@ saeService.updateServiceVersion = function updateServiceVersion(resource,authent
     }
     async.waterfall([
         function(next){
-            services.getServices({resources:{$elemMatch:{id:resource._id+''}}},next);
+            services.getServices({resources:{$elemMatch:{id:resource._id+''}},isDeleted:false},next);
         },
         function(serviceList,next){
             async.parallel({
