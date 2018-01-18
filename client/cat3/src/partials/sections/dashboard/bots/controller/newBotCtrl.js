@@ -8,8 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('newBotCtrl',['$scope', '$rootScope', '$state', '$timeout', 'genericServices', 'botsCreateService', 'responseFormatter', 'toastr','$modal',
-        function($scope, $rootScope, $state, $timeout, genericServices, botsCreateService, responseFormatter, toastr,$modal){
+    .controller('newBotCtrl',['$scope', '$rootScope', '$state', '$timeout','$http', 'genericServices', 'botsCreateService', 'responseFormatter', 'toastr','$modal',
+        function($scope, $rootScope, $state, $timeout,$http, genericServices, botsCreateService, responseFormatter, toastr,$modal){
             var treeNames = ['BOTs','BOTs Create'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             var botsData = {};
@@ -51,13 +51,17 @@
                     $scope.scriptParamsObj[$scope.scriptObject.scriptId] = $scope.scriptParamsObj[$scope.scriptObject.scriptId].concat(reqParams);
                 }
             });
+            $scope.clearFile = function () {
+                angular.element("input[type='file']").val(null);
 
+            };
             angular.extend($scope, {    
                 botTypes: {
                     'chef':{name:'Chef'},
                     'blueprint':{name:'Blueprint'},
                     'script':{name:'Script'},
-                    'jenkins':{name:'Jenkins'}
+                    'jenkins': { name: 'Jenkins' },
+                    'meta': { name: 'Meta' }
                 },
                 updateCookbook : function() {
                     genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
@@ -174,46 +178,58 @@
                     var reqbody = {
                         bots: botsData
                     };
-                    if($scope.botType === 'chef') {
-                        botsData.runlist=[];
-                        botsData.attributes = [];
-                        if($scope.chefrunlist){
-                            botsData.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);    
-                            botsData.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
+                    if ($scope.botType === 'meta') {
+                        if ($scope.zipfile) {
+                            var fd = new FormData();
+                            fd.append('file', $scope.zipfile);
+                            fd.append('bots', JSON.stringify(botsData));
+                            $http.post('/bot', fd, { transformRequest: angular.identity, headers: { 'Content-Type': undefined } }).then(function (response) {
+                                toastr.success('BOT created successfully');
+                                $state.go('dashboard.bots.library');
+                            });
                         }
-                    } else if($scope.botType === 'jenkins') {
-                        botsData.jenkinsServerId = $scope.jenkinsServer.id;
-                        botsData.jenkinsServerName = $scope.jenkinsServer.name
-                        botsData.jobName = $scope.jenkinsJobSelected;
-                        botsData.isParameterized = $scope.isParameterized.flag;
-                        botsData.parameterized = $scope.jenkinsParamsList;
-                        botsData.autoSyncFlag = true;
-                        botsData.jobURL = $scope.jobURL;
-                    } else if($scope.botType === 'blueprint') {
-                        botsData.blueprintType = $scope.blueprintType;
-                        botsData.blueprintId = $scope.blueprintDetails._id;
-                        botsData.blueprintName = $scope.blueprintDetails.name;
-                    } else if($scope.botType === 'script') {
-                        botsData.scriptDetails = [];
-                        botsData.scriptTypeName = $scope.scriptType;
-                        for (var k = 0; k < $scope.scriptTaskList.length; k++) {
-                            if ($scope.scriptTaskList[k]._isScriptSelected) {
-                                var scriptId = $scope.scriptTaskList[k].scriptId;
-                                var obj = {
-                                    scriptId: scriptId,
-                                    scriptParameters:[]
-                                };
-                                if($scope.scriptParamsObj[scriptId]){
-                                    obj.scriptParameters = $scope.scriptParamsObj[scriptId];
-                                }
-                                botsData.scriptDetails.push(obj);
+                    } else {
+                        if ($scope.botType === 'chef') {
+                            botsData.runlist = [];
+                            botsData.attributes = [];
+                            if ($scope.chefrunlist) {
+                                botsData.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
+                                botsData.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
                             }
-                        }
-                    }
-                    botsCreateService.postCreateBots(reqbody).then(function(){
-                        toastr.success('BOT created successfully');
-                        $state.go('dashboard.bots.library');
-                    });
+                        } else if ($scope.botType === 'jenkins') {
+                            botsData.jenkinsServerId = $scope.jenkinsServer.id;
+                            botsData.jenkinsServerName = $scope.jenkinsServer.name
+                            botsData.jobName = $scope.jenkinsJobSelected;
+                            botsData.isParameterized = $scope.isParameterized.flag;
+                            botsData.parameterized = $scope.jenkinsParamsList;
+                            botsData.autoSyncFlag = true;
+                            botsData.jobURL = $scope.jobURL;
+                        } else if ($scope.botType === 'blueprint') {
+                            botsData.blueprintType = $scope.blueprintType;
+                            botsData.blueprintId = $scope.blueprintDetails._id;
+                            botsData.blueprintName = $scope.blueprintDetails.name;
+                        } else if ($scope.botType === 'script') {
+                            botsData.scriptDetails = [];
+                            botsData.scriptTypeName = $scope.scriptType;
+                            for (var k = 0; k < $scope.scriptTaskList.length; k++) {
+                                if ($scope.scriptTaskList[k]._isScriptSelected) {
+                                    var scriptId = $scope.scriptTaskList[k].scriptId;
+                                    var obj = {
+                                        scriptId: scriptId,
+                                        scriptParameters: []
+                                    };
+                                    if ($scope.scriptParamsObj[scriptId]) {
+                                        obj.scriptParameters = $scope.scriptParamsObj[scriptId];
+                                    }
+                                    botsData.scriptDetails.push(obj);
+                                }
+                            }
+                        } 
+                        botsCreateService.postCreateBots(reqbody).then(function () {
+                            toastr.success('BOT created successfully');
+                            $state.go('dashboard.bots.library');
+                        });
+                     }
                 }
             });
         }
