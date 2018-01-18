@@ -85,7 +85,6 @@
                   <br/>
                   <input type="text" name="manualExecutionTime" placeholder="Enter the Manual Execution Time" class="form-control" ng-required="checkBotStatus" autofocus ng-model="manualExecutionTime" maxlength="10" />
                </div>
-<<<<<<< HEAD
                 <div class="col-lg-6 col-md-6 col-xs-6 margintop15" ng-if="botType ==='meta'">
                         <label class="botsLabel">Upload Zip File<span class="control-label red"> *</span></label>
                         <div class="input-groups">
@@ -94,14 +93,6 @@
                                     ng-click="clearFile()">×</span>
                         </div>
                 </div>
-=======
-               <div class="col-lg-6 col-md-6 col-xs-6 margintop15" ng-if="botType ==='meta'">
-                   <label class="botsLabel">Upload Zip File<span class="control-label red">&nbsp;*</span></label>
-                     <div class="input-groups">
-                        <input type="file" name="zipfile" class="form-control form-controls" ngf-select="" ng-model="$parent.zipfile" name="file" accept=".tar" onchange="angular.element(this).scope().setFile(this)"><span title="Clear" class="zipClear cursor" ng-click="clearFile()">×</span>
-                     </div>
-               </div>
->>>>>>> 0e838a3a54b73037cfeeaa49c89691e2feb87a53
                <div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="botType==='blueprint'">
                   <label class="control-label botsLabel">Blueprint Type
                      <span class="control-label red">&nbsp;*</span>
