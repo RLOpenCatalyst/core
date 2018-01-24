@@ -84,17 +84,10 @@ CMDBConfigSchema.statics.getCMDBServerById = function(serverId, callback) {
 }
 CMDBConfigSchema.statics.getConfigItems = function(tableName,srnDetails,callback) {
     logger.debug("START :: getConfigItems");
-    var basic_auth = {
-        user: srnDetails.username,
-        password: srnDetails.password
-    };
-    var tmp = srnDetails.host;
-    var host = tmp.replace(/.*?:\/\//g, "");
+    var host = srnDetails.host.replace(/.*?:\/\//g, "");
     var serviceNowURL = null;
     if(srnDetails.ticketNo && srnDetails.ticketNo !== null) {
-        serviceNowURL = 'https://' + srnDetails.username + ':' + srnDetails.password + '@' + host + '/api/now/table/' + tableName+"?number="+srnDetails.ticketNo;
-    }else{
-        serviceNowURL = 'https://' + srnDetails.username + ':' + srnDetails.password + '@' + host + '/api/now/table/' + tableName;
+        serviceNowURL = 'https://' + srnDetails.username + ':' + srnDetails.password + '@' + host + '/api/now/table/' + tableName+"/"+srnDetails.ticketNo;
     }
     var options = {
         url: serviceNowURL,
@@ -103,8 +96,7 @@ CMDBConfigSchema.statics.getConfigItems = function(tableName,srnDetails,callback
             'Accept': 'application/json'
         }
     };
-    logger.debug("options", options);
-    request(options, function(error, response, body) {
+    request.get(options, function(error, response, body) {
         if (!error && response.statusCode == 200) {
             logger.debug("success");
             var info = JSON.parse(body);
