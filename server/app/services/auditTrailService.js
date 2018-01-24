@@ -252,48 +252,33 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
                             } else {
                                 var serviceNowObj = {
                                     ticketNo: srnTicketNo,
-                                    ticketLink: srnServerDetails[0].url + '/api/now/table/' + tableName + "?number=" + srnTicketNo,
-                                    shortDesc: ticketData.result[0].short_description,
-                                    desc: ticketData.result[0].description,
-                                    openedAt: toTimestamp(ticketData.result[0].opened_at),
-                                    createdOn: toTimestamp(ticketData.result[0].sys_created_on),
-                                    closedAt: toTimestamp(ticketData.result[0].closed_at),
-                                    updatedOn: toTimestamp(ticketData.result[0].sys_updated_on),
-                                    resolvedAt: toTimestamp(ticketData.result[0].resolved_at),
-                                    state: checkServiceNowTicketState(ticketData.result[0].state),
-                                    priority: checkServiceNowTicketPriority(ticketData.result[0].priority),
-                                    category: ticketData.result[0].category
+                                    number: ticketData.result.number,
+                                    ticketLink: srnServerDetails[0].url + '/' + tableName + ".do?sys_id=" + srnTicketNo,
+                                    shortDesc: ticketData.result.short_description,
+                                    desc: ticketData.result.description,
+                                    openedAt: toTimestamp(ticketData.result.opened_at),
+                                    createdOn: toTimestamp(ticketData.result.sys_created_on),
+                                    closedAt: toTimestamp(ticketData.result.closed_at),
+                                    updatedOn: toTimestamp(ticketData.result.sys_updated_on),
+                                    resolvedAt: toTimestamp(ticketData.result.resolved_at),
+                                    state: checkServiceNowTicketState(ticketData.result.incident_state),
+                                    priority: checkServiceNowTicketPriority(ticketData.result.priority),
+                                    category: ticketData.result.category,
+                                    resolvedBy:ticketData.result.resolved_by
                                 };
-                                var request = require('request');
-                                var host = ticketData.result[0].resolved_by.link.replace(/.*?:\/\//g, "");
-                                var serviceNowURL = 'https://' + config.username + ':' + config.password + '@' + host;
-                                var options = {
-                                    url: serviceNowURL,
-                                    headers: {
-                                        'User-Agent': 'request',
-                                        'Accept': 'application/json'
-                                    }
-                                };
-                                request(options, function (error, response, body) {
-                                    if (!error && response.statusCode == 200) {
-                                        var info = JSON.parse(body);
-                                        serviceNowObj.resolvedBy = info.result.user_name;
+                                var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
+                                botAuditTrail.updateBotAuditTrail(auditTrailId, {
+                                    'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj
+                                }, function (err, data) {
+                                    if (err) {
+                                        logger.error(err);
+                                        next(err, null);
+                                        return;
                                     } else {
-                                        serviceNowObj.resolvedBy = "admin";
+                                        next(null, data);
+                                        return;
                                     }
-                                    botAuditTrail.updateBotAuditTrail(auditTrailId, {
-                                        'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj
-                                    }, function (err, data) {
-                                        if (err) {
-                                            logger.error(err);
-                                            next(err, null);
-                                            return;
-                                        } else {
-                                            next(null, data);
-                                            return;
-                                        }
-                                    })
-                                });
+                                })
                             }
                         });
                     } else {
@@ -555,16 +540,16 @@ function checkServiceNowTicketState(state){
             status = "New";
             break;
         case 2:
-            status = "Opened";
+            status = "Active";
             break;
         case 3:
-            status = "In Progress";
+            status = "Work In Progress";
             break;
         case 4:
-            status = "Awaiting User Info";
+            status = "Awaiting Problem Resolution";
             break;
         case 5:
-            status = "Awaiting Evidence";
+            status = "Awaiting User Info";
             break;
         case 6:
             status = "Resolved";
@@ -573,10 +558,10 @@ function checkServiceNowTicketState(state){
             status = "Closed";
             break;
         case 8:
-            status = "Failed";
+            status = "Cancelled";
             break;
         default:
-            status = "Failed";
+            status = "New";
             break;
     }
     return status;
@@ -585,6 +570,9 @@ function checkServiceNowTicketState(state){
 function checkServiceNowTicketPriority(priority){
     var priorityState = '';
     switch (parseInt(priority)) {
+        case 0:
+            priorityState = "VIP";
+            break;
         case 1:
             priorityState = "1-Critical";
             break;
@@ -592,13 +580,13 @@ function checkServiceNowTicketPriority(priority){
             priorityState = "2-High";
             break;
         case 3:
-            priorityState = "3-Moderate";
+            priorityState = "3-Medium";
             break;
         case 4:
             priorityState = "4-Low";
             break;
         case 5:
-            priorityState = "5-Planning";
+            priorityState = "5-Very Low";
             break;
         default:
             priorityState = "1-Critical";
