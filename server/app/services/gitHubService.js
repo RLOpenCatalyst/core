@@ -137,27 +137,33 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, query, callback) 
                 err.status = 404;
                 return callback(err);
             } else {
-                formatGitHubResponse(gitHub, function (formattedGitHub) {
-                    var cmd;
-                    if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
-                        cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryToken + ' -L ';
-                    } else if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
-                        cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryPassword + ' -L ';
-                    } else if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
-                        cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryPassword + ' -L ';
-                    } else {
-                        cmd = 'curl -L ';
+                botEngineStatus(gitHub.orgId, (err) => {
+                    if (err)
+                        callback(err)
+                    else {
+                        formatGitHubResponse(gitHub, function (formattedGitHub) {
+                            var cmd;
+                            if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
+                                cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryToken + ' -L ';
+                            } else if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
+                                cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryPassword + ' -L ';
+                            } else if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
+                                cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryPassword + ' -L ';
+                            } else {
+                                cmd = 'curl -L ';
+                            }
+                            cmd += 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/tarball/' + formattedGitHub.repositoryBranch + ' > ' + appConfig.botFactoryDir + formattedGitHub.repositoryName + '.tgz';
+                            gitHubCloning(formattedGitHub, cmd, function (err, res) {
+                                if (err) {
+                                    logger.error("Unable to Clone the Repo " + err);
+                                    return callback(err, null);
+                                } else {
+                                    globalData.setGit(gitHubId);
+                                    getSyncedBots(gitHubId, query, callback)
+                                }
+                            });
+                        })
                     }
-                    cmd += 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/tarball/' + formattedGitHub.repositoryBranch + ' > ' + appConfig.botFactoryDir + formattedGitHub.repositoryName + '.tgz';
-                    gitHubCloning(formattedGitHub, cmd, function (err, res) {
-                        if (err) {
-                            logger.error("Unable to Clone the Repo " + err);
-                            return callback(err, null);
-                        } else {
-                            globalData.setGit(gitHubId);
-                            getSyncedBots(gitHubId, query, callback)
-                        }
-                    });
                 })
             }
         });
@@ -280,7 +286,7 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody, userName, call
                                             if (err)
                                                 callback(err);
                                             else {
-                                                copyToCurrent(sourceCode, source, destPath, upload, 1, botdata.id, callback);
+                                                copyToCurrent(sourceCode, source, destPath, upload, 0, botdata.id, callback);
                                             }
                                         })
                                     } else {
@@ -397,110 +403,116 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId, us
             err.status = 404;
             return callback(err);
         } else {
-            callback(null);
-            formatGitHubResponse(result.gitHub, function (formattedGitHub) {
-                var cmd;
-                if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
-                    cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryToken + ' -L ';
-                } else if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
-                    cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryPassword + ' -L ';
-                } else if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
-                    cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryPassword + ' -L ';
-                } else {
-                    cmd = 'curl -L '
-                }
-                async.parallel([
-                    function (callback) {
-                        if (result.botsDetails[0].type === 'script' || result.botsDetails[0].type === 'meta') {
-                            var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/' + result.botsDetails[0].type + '_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
-                            gitHubSingleSync(formattedGitHub, botId, cmdFull, cmd, function (response) {
-                                if (response != null && !("message" in response))
-                                    callback(response);
-                                else
+            botEngineStatus(result.gitHub.orgId, (err) => {
+                if (err)
+                    callback(err)
+                else {
+                    callback(null);
+                    formatGitHubResponse(result.gitHub, function (formattedGitHub) {
+                        var cmd;
+                        if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
+                            cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryToken + ' -L ';
+                        } else if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
+                            cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryPassword + ' -L ';
+                        } else if (formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
+                            cmd = 'curl -u ' + formattedGitHub.repositoryUserName + ':' + formattedGitHub.repositoryPassword + ' -L ';
+                        } else {
+                            cmd = 'curl -L '
+                        }
+                        async.parallel([
+                            function (callback) {
+                                if (result.botsDetails[0].type === 'script' || result.botsDetails[0].type === 'meta') {
+                                    var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/' + result.botsDetails[0].type + '_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
+                                    gitHubSingleSync(formattedGitHub, botId, cmdFull, cmd, function (response) {
+                                        if (response != null && !("message" in response))
+                                            callback(response);
+                                        else
+                                            callback(null);
+                                    });
+                                } else
                                     callback(null);
-                            });
-                        } else
-                            callback(null);
-                    },
-                    function (callback) {
-                        var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/YAML/' + result.botsDetails[0].id + '.yaml?ref=' + formattedGitHub.repositoryBranch;
-                        gitHubSingleSync(formattedGitHub, botId, cmdFull, cmd, callback);
-                    }
-                ], function (err) {
-                    if (err) {
-                        logger.error('Github single sync: ' + err);
-                        message(botId + ' is sync unsuccessful', 'error');
-                    } else {
-                        var options = {
-                            compareContent: true,
-                            excludeFilter: '*.md',
-                            skipSymlinks: true,
-                            compareDate: false,
-                            compareSize: false
-                        };
-                        var temp = appConfig.botFactoryDir + 'gitHub/' + botId + '/temp';
-                        var botPath = appConfig.botFactoryDir + 'gitHub/' + botId;
-                        fs.readlink(botPath + '/current', (err, curretDir) => {
+                            },
+                            function (callback) {
+                                var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/YAML/' + result.botsDetails[0].id + '.yaml?ref=' + formattedGitHub.repositoryBranch;
+                                gitHubSingleSync(formattedGitHub, botId, cmdFull, cmd, callback);
+                            }
+                        ], function (err) {
                             if (err) {
                                 logger.error('Github single sync: ' + err);
                                 message(botId + ' is sync unsuccessful', 'error');
                             } else {
-                                compare(curretDir, temp, options, (err, status) => {
-                                    if (status === 'modified') {
-                                        getMaxVersion(botPath, (maxNum) => {
-                                            copy(temp, botPath + '/ver_' + maxNum, (err) => {
-                                                if (err)
-                                                    message(botId + ' is sync unsuccessful', 'error');
-                                                else {
-                                                    if (fs.existsSync(botPath + '/current'))
-                                                        fs.unlinkSync(botPath + '/current');
-                                                    fs.symlink(botPath + '/ver_' + maxNum, botPath + '/current', function (err) {
+                                var options = {
+                                    compareContent: true,
+                                    excludeFilter: '*.md',
+                                    skipSymlinks: true,
+                                    compareDate: false,
+                                    compareSize: false
+                                };
+                                var temp = appConfig.botFactoryDir + 'gitHub/' + botId + '/temp';
+                                var botPath = appConfig.botFactoryDir + 'gitHub/' + botId;
+                                fs.readlink(botPath + '/current', (err, curretDir) => {
+                                    if (err) {
+                                        logger.error('Github single sync: ' + err);
+                                        message(botId + ' is sync unsuccessful', 'error');
+                                    } else {
+                                        compare(curretDir, temp, options, (err, status) => {
+                                            if (status === 'modified') {
+                                                getMaxVersion(botPath, (maxNum) => {
+                                                    copy(temp, botPath + '/ver_' + maxNum, (err) => {
                                                         if (err)
                                                             message(botId + ' is sync unsuccessful', 'error');
-                                                    });
-                                                    copy(botPath + '/ver_' + maxNum, appConfig.botFactoryDir + '/upload/' + botId, (err) => {
-                                                        if (err) {
-                                                            logger.error('Github single sync: ' + err);
-                                                            message(botId + ' is sync unsuccessful', 'error');
-                                                        } else {
-                                                            async.parallel([
-                                                                function (parallelCallback) {
-                                                                    botService.syncSingleBotsWithGitHub(botId, function (err, data) {
-                                                                        if (err) {
-                                                                            logger.error("Error in Syncing GIT-Hub.", err);
-                                                                            parallelCallback(err);
-                                                                        } else {
-                                                                            logger.debug("Git Hub importing is Done.");
-                                                                            parallelCallback(null);
-                                                                        }
-                                                                    });
-                                                                },
-                                                                function (parallelCallback) {
-                                                                    uploadToBotEngine(gitHubId, parallelCallback);
-                                                                }
-                                                            ], function (err) {
-                                                                fse.remove(temp)
+                                                        else {
+                                                            if (fs.existsSync(botPath + '/current'))
+                                                                fs.unlinkSync(botPath + '/current');
+                                                            fs.symlink(botPath + '/ver_' + maxNum, botPath + '/current', function (err) {
+                                                                if (err)
+                                                                    message(botId + ' is sync unsuccessful', 'error');
+                                                            });
+                                                            copy(botPath + '/ver_' + maxNum, appConfig.botFactoryDir + '/upload/' + botId, (err) => {
                                                                 if (err) {
                                                                     logger.error('Github single sync: ' + err);
                                                                     message(botId + ' is sync unsuccessful', 'error');
                                                                 } else {
-                                                                    message(botId + ' is sync successful', 'success');
+                                                                    async.parallel([
+                                                                        function (parallelCallback) {
+                                                                            botService.syncSingleBotsWithGitHub(botId, function (err, data) {
+                                                                                if (err) {
+                                                                                    logger.error("Error in Syncing GIT-Hub.", err);
+                                                                                    parallelCallback(err);
+                                                                                } else {
+                                                                                    logger.debug("Git Hub importing is Done.");
+                                                                                    parallelCallback(null);
+                                                                                }
+                                                                            });
+                                                                        },
+                                                                        function (parallelCallback) {
+                                                                            uploadToBotEngine(gitHubId, parallelCallback);
+                                                                        }
+                                                                    ], function (err) {
+                                                                        fse.remove(temp)
+                                                                        if (err) {
+                                                                            logger.error('Github single sync: ' + err);
+                                                                            message(botId + ' is sync unsuccessful', 'error');
+                                                                        } else {
+                                                                            message(botId + ' is sync successful', 'success');
+                                                                        }
+                                                                    })
                                                                 }
                                                             })
                                                         }
                                                     })
-                                                }
-                                            })
+                                                })
+                                            } else {
+                                                message(botId + ' has no changes', 'success');
+                                                fse.remove(temp)
+                                            }
                                         })
-                                    } else {
-                                        message(botId + ' has no changes', 'success');
-                                        fse.remove(temp)
                                     }
-                                })
+                                });
                             }
                         });
-                    }
-                });
+                    })
+                }
             })
         }
     })
@@ -1217,4 +1229,20 @@ function uploadToBotEngine(gitHubId, callback) {
             });
         }
     })
+}
+
+function botEngineStatus(orgId,callback) { 
+    masterUtil.getBotRemoteServerDetailByOrgId(orgId, function (err, botServerDetails) {
+        if (err) {
+            logger.error("Error while fetching BOTs Server Details");
+            return callback(err);
+        } else if (botServerDetails !== null) {
+            return callback(null);
+        } else {
+            var error = new Error();
+            error.message = 'Remote BOTs Engine is not configured or not in running mode';
+            error.status = 503;
+            return callback(error);
+        }
+    });
 }

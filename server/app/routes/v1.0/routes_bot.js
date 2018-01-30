@@ -79,7 +79,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.post('/bot',function(req,res){
-        botService.createNew(req.body.bots, function(err,data){
+        botService.createNew(req, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
