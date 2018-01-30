@@ -91,7 +91,8 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
 			track: modulePerms.trackAccess(),
 			analyticsBool: modulePerms.analyticsBool(),
 			serviceBool: modulePerms.serviceBool(),
-			servicesBool: modulePerms.servicesBool()
+			servicesBool: modulePerms.servicesBool(),
+			workFlowBool: true
 		};
 		$rootScope.workZoneBool = _permSet.workzone;
 		$rootScope.designBool = _permSet.design;
@@ -100,6 +101,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
 		$rootScope.analyticsBool = _permSet.analyticsBool;
 		$rootScope.serviceBool = _permSet.serviceBool;
 		$rootScope.servicesBool = _permSet.servicesBool;
+		$rootScope.workFlowBool = _permSet.workFlowBool;
 	});
 	$scope.$watch(function() {
 		$rootScope.moduleSelection = $state.params;
