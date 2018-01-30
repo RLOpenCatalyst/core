@@ -1,0 +1,209 @@
+<script type="text/javascript">
+    var orgIdForSetup
+    $(document).ready(function() {
+        $('#wizardActionListLoader').show();
+        $("#content").attr('style', 'height: 96%!important')
+        if (isAngularIntegration) {
+            $('#workZoneNew').attr('href', '#');
+            $('#workZoneNew').removeClass('active');
+            $('#Workspace1').addClass('hidden');
+            $('#Settings_nav').show();
+            $('#settingsNew').addClass('active');
+            $("#ribbon ol.breadcrumb").empty();
+            $("#ribbon ol.breadcrumb").append($("<li>Workflow</li>"));
+        }
+        var hasCreatePermissionOrg = false;
+        if (haspermission('organization', 'create')) {
+            hasCreatePermissionOrg = true;
+        }
+
+        if (!hasCreatePermissionOrg) {
+            $('#createNew').addClass('hidden');
+        }
+        isUserTypeSuperAdmin();
+    });
+
+    function isUserTypeSuperAdmin() {
+        $.get('/d4dMasters/loggedInUser', function(data) {
+            if (!data.isSuperAdmin) {
+                $('#createNew').attr('disabled', 'disabled');
+            }
+        });
+    }
+    var serviceURL = "/d4dMasters/";
+    window.selectedOrgName = 'Workflow';
+    var clicked = true;
+
+    drawBreadCrumb1();
+    //on click of button (top menu butons)
+    $('.btn-1 a').click(function(e) {
+        e.preventDefault();
+        if($(this).attr('href')){
+            clicked = true;
+            $('.wizardFlow').empty();
+            $(this).addClass('wizardActiveBtn').attr('href');
+            $(this).removeClass('process-btn');
+            //$(this).removeClass('green-btn').removeClass('active');
+            $('.contentSetting').load(this.getAttribute('href'));
+        }
+    });
+
+    function clearActiveClasses() {
+        //check for active one's
+        $('a.btn').removeClass('wizardActiveBtn').addClass('process-btn');
+        //check for already created one's
+        $('a.btn').removeClass('green-btn').addClass('process-btn');
+        $('.wizardFlow').empty();
+    }
+
+    //on click of new button to create a new wizard..
+    $('#createNew').click(function(e) {
+        $('#wizardActionListLoader').show();
+        clearActiveClasses();
+        $('#orgDropdown option:selected').val('');
+        $('.providerSelect').addClass('hidden');
+        $('#cancelWizard').removeClass('hidden');
+        $('#createNew').addClass('hidden');
+        $('#startConfig a').addClass('green-btn').removeClass('process-btn');
+        $('#orgConfiguration a').addClass('wizardActiveBtn').removeClass('process-btn');
+        $('#orgConfiguration a').attr('href','ajax/Settings/settingsWizard.html');
+        $('#orgConfiguration a').trigger('click');
+        $('#wizardActionListLoader').hide();
+    });
+    $('#orgConfiguration a').trigger('click');
+    var firstOrgValue,currentOrgValue;
+    $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+        $("#orgDropdown").empty();
+        for (var i = 0; i < data.length; i++) {
+            firstOrgValue = data[0].rowid
+            var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
+            $('#orgDropdown').append($option);
+        }
+        $('#orgDropdown').change(function(e) {
+            $('#wizardActionListLoader').show();
+            clearActiveClasses();
+            orgIdForSetup = $("#orgDropdown").val();
+            changeWizardStatus(orgIdForSetup);
+            e.preventDefault();
+            $('#wizardActionListLoader').hide();
+        });
+        $("#orgDropdown").trigger("change");
+
+        $('#cancelWizard').click(function(e) {
+            $('#cancelWizard').addClass('hidden');
+            $('.providerSelect').removeClass('hidden');
+            $('#createNew').removeClass('hidden');
+            changeWizardStatus(firstOrgValue);
+        });
+    });
+    var selectedDropdownValue, lastDropdownValue;
+    selectedDropdownValue = $('#orgDropdown option:selected').val();
+    orgForBg = $('#orgDropdown option:selected').text();
+    $('#orgConfiguration a').click(function(e) {
+        //  $(this).removeClass('green-btn').removeClass('active');
+        $('#wizardActionListLoader').show();
+        selectedDropdownValue = $('#orgDropdown option:selected').val();
+        orgForBg = $('#orgDropdown option:selected').text();
+        if (selectedDropdownValue) {
+            $('#wizardActionListLoader').hide();
+        } else {
+            $('.wizardFlow').empty();
+            lastDropdownValue = $('#orgDropdown option:last').val();
+            $('#wizardActionListLoader').hide();
+        }
+    });
+
+    $('#configManagement a').click(function(e) {
+        // $(this).removeClass('green-btn').removeClass('active');
+
+        selectedDropdownValue = $('#orgDropdown option:selected').val();
+        orgForBg = $('#orgDropdown option:selected').text();
+    });
+
+    $('#providerConfiguration a').click(function(e) {
+        //  $(this).removeClass('green-btn').removeClass('active');
+
+        selectedDropdownValue = $('#orgDropdown option:selected').val();
+        orgForBg = $('#orgDropdown option:selected').text();
+    });
+
+    $('#userConfiguration a').click(function(e) {
+//    $(this).removeClass('green-btn').removeClass('active');
+
+        selectedDropdownValue = $('#orgDropdown option:selected').val();
+        orgForBg = $('#orgDropdown option:selected').text();
+    });
+
+    $('#galleryConfiguration a').click(function(e) {
+        //   $(this).removeClass('green-btn').removeClass('active');
+        $('#startConfig a,#orgConfiguration a,#providerConfiguration a, #configManagement a,#userConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
+        selectedDropdownValue = $('#orgDropdown option:selected').val();
+        orgForBg = $('#orgDropdown option:selected').text();
+    });
+
+    $('#devopsConfiguration a').click(function(e) {
+        // $(this).removeClass('green-btn').removeClass('active');
+        $('#startConfig a,#orgConfiguration a,#providerConfiguration a, #configManagement a,#userConfiguration a,#galleryConfiguration a').removeClass('active').addClass('green-btn');
+        selectedDropdownValue = $('#orgDropdown option:selected').val();
+        orgForBg = $('#orgDropdown option:selected').text();
+    });
+
+
+    function changeWizardStatus(orgIdForSetup) {
+        $('#wizardActionListLoader').show();
+        $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+            if (data.length === 0) {
+                $('a.btn').addClass('wizardActiveBtn');
+                $('#wizardActionListLoader').hide();
+            } else {
+                var isCompleted = data.previousStep.isCompleted;
+                if (isCompleted === true) {
+                    if (data.previousStep.name === 'Introduction') {
+                        $('#orgConfiguration a').attr('href','ajax/Settings/settingsWizard.html');
+                        $('#orgConfiguration a').trigger('click');
+                        $('#startConfig a').addClass('green-btn').removeClass('process-btn');
+                        $('#orgConfiguration a').addClass('wizardActiveBtn').removeClass('process-btn');
+                        $('#configManagement a,#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a,#userConfiguration a').removeAttr('href');
+                    } else if (data.previousStep.name === 'Org Configuration') {
+                        $('#configManagement a').attr('href','ajax/Settings/configManagementWizard.html');
+                        $('#configManagement a').trigger('click');
+                        $('.providerSelect').removeClass('hidden');
+                        $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
+                        $('#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a,#userConfiguration a').removeAttr('href');
+                    } else if (data.previousStep.name === 'Config Management') {
+                        $('#userConfiguration a').attr('href','ajax/Settings/userManagementWizard.html');
+                        $('#userConfiguration a').trigger('click');
+                        $('#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
+                        $('#startConfig a,#orgConfiguration a,#configManagement a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
+                    } else if (data.previousStep.name === 'User Configuration') {
+                        $('#providerConfiguration a').attr('href','ajax/Settings/providerWizard.html');
+                        $('#providerConfiguration a').trigger('click');
+                        $('#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
+                        $('#startConfig a,#orgConfiguration a,#configManagement a,#userConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
+                    } else if (data.previousStep.name === 'Provider Configuration') {
+                        $('#galleryConfiguration a').attr('href','ajax/Settings/galleryWizard.html');
+                        $('#galleryConfiguration a').trigger('click');
+                        $('#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
+                        $('#startConfig a, #orgConfiguration a,#configManagement a,#userConfiguration a,#providerConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
+                    } else if (data.previousStep.name === 'Gallery Setup') {
+                        $('#devopsConfiguration a').attr('href','ajax/Settings/devopsRolesWizard.html');
+                        $('#devopsConfiguration a').trigger('click');
+                        $('#startConfig a, #orgConfiguration a,#configManagement a,#userConfiguration a,#providerConfiguration a,#galleryConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
+                        $('#cmdbConfiguration a').removeAttr('href');
+                    } else if (data.previousStep.name === 'Devops Roles') {
+                        $('#startConfig a, #orgConfiguration a,#configManagement a,#userConfiguration a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
+                        $('#devopsConfiguration a').attr('href','ajax/Settings/devopsRolesWizard.html');
+                        $('#devopsConfiguration a').trigger('click');
+                    }
+                }
+            }
+            $('#wizardActionListLoader').hide();
+        }).error(function(jqXHR) {
+            $('#wizardActionListLoader').hide();
+        });
+    }
+</script>
+
+<div class="row">
+    <iframe src="http://localhost:4200/" width="100%" height="800" frameborder="0"></iframe>
+</div>

@@ -53,6 +53,12 @@
               </a>
             </li>
 
+            <li class="left-projects-links" id="workflowStyle" data-target="Workflow" navigation="Workflow">
+              <a class="navigationTab" id="workflow" href="#ajax/Workflow/workflow.html"  onclick="setleftnavigation(this,'workflow');" >
+                <i class="fa fa-history white"></i>&nbsp; WORKFLOW
+              </a>
+            </li>
+
             <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
               <a class="active navigationTab" id="workZoneNew" href="#" onclick="setleftnavigation(this,'org');">
               <i class="fa fa-credit-card"></i>&nbsp;WORKZONE 
@@ -66,7 +72,8 @@
             </li>
             <!--track-->
             <li class="left-projects-links hidden" id="trackStyle" data-target="#Track" navigation="Track">
-              <a class="dropdown-toggle navigationTab" href="#ajax/trackSettings.html" id="trackNew"  onclick="setleftnavigation(this,'Track');"><i class="fa fa-anchor"></i>&nbsp;TRACK</a>
+              <a class="dropdown-toggle navigationTab" href="#ajax/trackSettings.html" id="trackNew"  onclick="setleftnavigation(this,'Track');">
+                <i class="fa fa-anchor"></i>&nbsp;TRACK</a>
             </li>
             <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
               <a class="navigationTab" id="analytics" href="#"  onclick="setleftnavigation(this,'analytics');" >
@@ -941,6 +948,20 @@ function setleftnavigation(toplink, breadcrumbHeader) {
         $('#Workspace1').hide();
         $('#Settings_nav').hide();
         $('#trackShow').show();
+    } else if (TabID === "workflow") {
+        if(isAngularIntegration){
+            var checkUrl = window.location.href;
+            if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+                console.log('here');
+            }else{
+                window.location.href = "#/ajax/Workflow/workflow.html";
+                return false;
+            }
+        }
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+
     }
 
     if ($(toplink).hasClass('active')) {
