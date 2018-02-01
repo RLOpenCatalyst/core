@@ -13,16 +13,15 @@
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav header-content">
+				<li class="dropdown" title="Workflow">
+					<a  href="/private/index.html#ajax/Workflow/workflow.html" style="color: white;">
+						<i class="fa fa-history white"></i> WORKFLOW</a>
+				</li>
 				<li>
 					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.bots' ui-sref-active='activeSection'>
 						<i class="fa fa-delicious white" ng-class="{'header-selected-item':moduleSelection.filterView.bots}"></i> BOTS
 					</div>
 				</li>
-				<li class="dropdown" title="Workflow">
-								<a  href="/private/index.html#ajax/Workflow/workflow.html" style="color: white;">
-										<i class="fa fa-history white"></i>WORKFLOW
-								</a>
-							</li>
 				<li>
 					<div id="workzone" class="headNavigItem" ng-if="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
 						<!--<a href="../../../../#ajax/Dev.html">-->
