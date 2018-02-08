@@ -43,7 +43,7 @@ var CatLogger = function(logger, calling_module){
     function change_args(args){
         var label = '';
         if(calling_module && calling_module.filename){
-            label = "[" + path.basename(calling_module.filename) + "] ";
+            label = new Date().toISOString()+" [" + path.basename(calling_module.filename) + "] ";
             args[0]=label+args[0];
         }
         return args;
