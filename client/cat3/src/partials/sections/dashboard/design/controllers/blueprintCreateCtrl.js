@@ -834,7 +834,7 @@
                         });
                         blueprintCreateJSON.blueprintType = 'azure_arm';
                         blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
-                        var instanceObj = null;
+                        var instanceObj = {};
                         for(var i =0;i<blueprintCreation.getAzureVMDetails.length;i++){
                         if($scope.runlistWithKey){
                             instanceObj[blueprintCreation.getAzureVMDetails[i].name]= {
