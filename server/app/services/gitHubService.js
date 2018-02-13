@@ -148,57 +148,59 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
 };
 
 gitGubService.getGitHubList = function getGitHubList(query,userName, callback) {
-    var reqData = {};
+       var reqData = {};
     async.waterfall([
-        function(next) {
+        function (next) {
             apiUtil.changeRequestForJqueryPagination(query, next);
         },
-        function(filterQuery,next) {
+        function (filterQuery, next) {
             reqData = filterQuery;
             apiUtil.paginationRequest(filterQuery, 'gitHub', next);
         },
-        function(paginationReq, next) {
+        function (paginationReq, next) {
             paginationReq['searchColumns'] = ['name', 'repositoryType', 'repositoryURL'];
             apiUtil.databaseUtil(paginationReq, next);
         },
-        function(queryObj, next) {
-            settingService.getOrgUserFilter(userName,function(err,orgIds){
-                if(err){
-                    next(err,null);
-                }else if(orgIds.length > 0){
-                    queryObj.queryObj['orgId'] = {$in:orgIds};
+        function (queryObj, next) {
+            settingService.getOrgUserFilter(userName, function (err, orgIds) {
+                if (err) {
+                    next(err, null);
+                } else if (orgIds.length > 0) {
+                    queryObj.queryObj['orgId'] = {
+                        $in: orgIds
+                    };
                     gitHubModel.getGitHubList(queryObj, next);
-                }else{
+                } else {
                     gitHubModel.getGitHubList(queryObj, next);
                 }
             });
         },
-        function(gitHubList, next) {
+        function (gitHubList, next) {
             if (gitHubList.docs.length > 0) {
                 var formattedResponseList = [];
                 for (var i = 0; i < gitHubList.docs.length; i++) {
-                    formatGitHubResponse(gitHubList.docs[i],function(formattedData){
+                    formatGitHubResponse(gitHubList.docs[i], function (formattedData) {
                         formattedResponseList.push(formattedData);
                         if (formattedResponseList.length === gitHubList.docs.length) {
                             gitHubList.docs = formattedResponseList;
-                            next(null,gitHubList);
+                            next(null, gitHubList);
                         }
                     });
                 }
             } else {
-                next(null,gitHubList);
+                next(null, gitHubList);
             }
         },
-        function(formattedGitHubResponseList, next) {
+        function (formattedGitHubResponseList, next) {
             apiUtil.changeResponseForJqueryPagination(formattedGitHubResponseList, reqData, next);
         }
-    ],function(err, results) {
-        if (err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
         }
-        callback(null,results)
+        callback(null, results)
         return;
     });
 };
