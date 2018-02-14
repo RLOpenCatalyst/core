@@ -73,6 +73,15 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
+        dboardConfig: {
+          baseURl: "http://dboard.rlcatalyst.com",
+          authPath: "/user/login",
+          servicePath: "/business_service",
+          username: "VimalMis",
+          password: "Relevance2017",
+          interval: "Minutes",
+          repeat_every: 1
+        },
         settingWizardSteps:[{name :'Introduction',isCompleted:true},
             {name :'Org Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Organization',isCompleted:false,mandatoryCheck:true},
                 {name :'BusinessGroup',isCompleted:false,mandatoryCheck:true},{name:'Project',isCompleted:false,mandatoryCheck:true}]},
