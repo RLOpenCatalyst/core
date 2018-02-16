@@ -39,7 +39,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var resourceMapService = require('_pr/services/resourceMapService.js');
-
+var instancesDao = require('_pr/model/classes/instance/instance');
 
 
 const errorType = 'blueprint';
@@ -332,8 +332,104 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
             callback(err, null);
             return;
         }
-        callback(null, results);
-        return;
+        else{
+          if(Array.isArray(results.id))
+          {
+          async.each(results.id, (instId, cbx)=> {
+            var jobDone = false
+            var instancePollObject = setInterval(()=> {
+            instancesDao.getInstanceById(instId, (err, result)=> {
+              if(err) cbx(err)
+              else{
+                if(result.instanceState === 'running' && !jobDone)
+                {
+                  logger.info('Blueprint succesfully launched and bootstrapped')
+                  jobDone = true
+                  clearInterval(instancePollObject)
+                async.each(result.appUrls, (urlObj, cb)=> {
+                  var hcUrl = urlObj.url
+                  var hcMod = hcUrl.replace('$host',result.instanceIP)
+                  logger.info('HEALTH CHECK URL '+ hcMod)
+                  var intervalBusService = setInterval(()=> {
+                  commandCentre.createBusinessService(hcMod, result.chefNodeName, result.chefNodeName, result.chefNodeName, (error, res) => {
+                      if(!error){
+                        clearInterval(intervalBusService)
+                        logger.info('Business service event in DBoard triggered successfully for '+ result.instanceIP)
+                        cb()
+                      }
+                      else{
+                        logger.info(JSON.stringify(error))
+                        cb(error)
+                      }
+                    })
+                  }, 3000)
+                }, (err)=> {
+                  err ? cbx(err) : cbx()
+                })
+              }
+              else if (result.instanceState === 'failed' || result.bootStrapStatus === 'failed'){
+                jobDone = true
+                logger.info('Blueprint launch failed')
+                logger.info(result.body)
+                clearInterval(instancePollObject)
+                cbx()
+              }
+              }
+          })
+          }, 10000)
+          }, (err)=> {
+            if(!err){
+              logger.info('Business Services set created successfully')
+            }
+          })
+      }
+      else{
+        var jobDone = false
+        var instancePollObject = setInterval(()=> {
+        instancesDao.getInstanceById(instId, (err, result)=> {
+          if(err) cbx(err)
+          else{
+            if(result.instanceState === 'running' && !jobDone)
+            {
+              logger.info('Blueprint succesfully launched and bootstrapped')
+              jobDone = true
+              clearInterval(instancePollObject)
+            async.each(result.appUrls, (urlObj, cb)=> {
+              var hcUrl = urlObj.url
+              var hcMod = hcUrl.replace('$host',result.instanceIP)
+              logger.info('HEALTH CHECK URL '+ hcMod)
+              var intervalBusService = setInterval(()=> {
+              commandCentre.createBusinessService(hcMod, result.chefNodeName, result.chefNodeName, result.chefNodeName, (error, res) => {
+                  if(!error){
+                    clearInterval(intervalBusService)
+                    logger.info('Business service event in DBoard triggered successfully for '+ result.instanceIP)
+                    cb()
+                  }
+                  else{
+                    logger.info(JSON.stringify(error))
+                    cb(error)
+                  }
+                })
+              }, 3000)
+            }, (err)=> {
+              if(!err){
+                logger.info('Business Services set created successfully')
+              }
+            })
+          }
+          else if (result.instanceState === 'failed' || result.bootStrapStatus === 'failed'){
+            jobDone = true
+            logger.info('Blueprint launch failed')
+            logger.info(result.body)
+            clearInterval(instancePollObject)
+          }
+          }
+      })
+      }, 10000)
+      }
+          callback(null, results);
+          return;
+        }
     });
 };
 

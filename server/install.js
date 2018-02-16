@@ -73,6 +73,17 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
+        dboardConfig: {
+          baseURl: "http://dboard.rlcatalyst.com",
+          authPath: "/user/login",
+          servicePath: "/business_service",
+          interval: "Minutes",
+          repeat_every: 1
+        },
+         newRelic:{
+         appName: "New Catalyst App",
+         licenseKey: "bd20baf865971e73848ee1f4e827ab4c43077786"
+        },
         settingWizardSteps:[{name :'Introduction',isCompleted:true},
             {name :'Org Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Organization',isCompleted:false,mandatoryCheck:true},
                 {name :'BusinessGroup',isCompleted:false,mandatoryCheck:true},{name:'Project',isCompleted:false,mandatoryCheck:true}]},
