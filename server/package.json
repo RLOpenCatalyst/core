@@ -82,7 +82,8 @@
     "xml": "1.0.0",
     "xml2json": "0.9.0",
     "yamljs": "0.2.9",
-    "path-extra": "0.3.0"
+    "path-extra": "0.3.0",
+    "newrelic": "2.7.1"
   },
   "devDependencies": {
     "grunt": "0.4.5",
