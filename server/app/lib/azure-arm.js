@@ -295,13 +295,24 @@ var ARM = function(options) {
                     return callback(404,null);
                 }
                 if (response.statusCode == '200' || response.statusCode ==
-                    '202' || response.statusCode == 204) {
+                    '202') {
                     callback(null, null);
                     return;
                 } else {
+                    var message = "";
+                    if(!body.error && response.statusCode == 204)
+                    {
+                        //based on new response. if 204 the resource is deleted outside.
+                        message = "Done";
+                    }
+                    else{
+                        if(body.error){
+                            message = body.error.details[0].message;
+                        }
+                    }
                     callback({
-                        code:response.statusCode,
-                        message: body.error.details[0].message
+                        code:response.statusCode.toString(),
+                        message: message
                     }, null);
                     return;
                 }
