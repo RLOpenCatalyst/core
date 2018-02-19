@@ -938,7 +938,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                                         source: botDetails[0].source,
                                         execution:botDetails[0].execution,
                                         lastExecutionStatus: botDetails[0].lastExecutionStatus,
-                                        srnTicketNo: bot.auditTrailConfig.serviceNowTicketRefObj.ticketNo,
+                                        srnTicketNo: bot.auditTrailConfig.serviceNowTicketRefObj.number,
                                         srnTicketLink: bot.auditTrailConfig.serviceNowTicketRefObj.ticketLink,
                                         srnTicketShortDesc: bot.auditTrailConfig.serviceNowTicketRefObj.shortDesc,
                                         srnTicketDesc: bot.auditTrailConfig.serviceNowTicketRefObj.desc,
