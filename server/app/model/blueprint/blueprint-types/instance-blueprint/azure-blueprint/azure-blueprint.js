@@ -192,7 +192,8 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                             password: decryptedCredentials.password,
                             sshPort: "22",
                             endpoints: self.securityGroupIds,
-                            os: self.instanceOS
+                            os: self.instanceOS,
+                            providerdata:providerdata
                         }
 
                         logger.debug("blueprint.blueprintConfig.instanceOS >>>", self.instanceOS);
@@ -236,7 +237,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                 var azureCloud = new AzureCloud(options);
 
-                                azureCloud.createServer(launchparamsazure, function(err, instanceData) {
+                                azureCloud.createServerClassic(launchparamsazure, function(err, instanceData) {
                                     if (err) {
                                         logger.error('azure createServer error', err);
                                         callback({

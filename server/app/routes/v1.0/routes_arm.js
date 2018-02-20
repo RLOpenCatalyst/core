@@ -144,6 +144,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             apiUtil.removeFile(decryptedKeyFile);
                             return;
                         }else {
+                            body = JSON.parse(body);
+                            body.value.splice(0,0,{
+                                "id": "",
+                                "name": "Create New",
+                                "location": "",
+                                "properties": {
+                                    "provisioningState": ""
+                                }
+                            })
                             apiUtil.removeFile(decryptedPemFile);
                             apiUtil.removeFile(decryptedKeyFile);
                             res.status(200).send(body);

@@ -573,11 +573,11 @@
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6">
-                              <label for="resourceGroup">Resource Group:<span class="red">&nbsp;*</span>
-                                 <span ng-show="newBlueprintForm.resourceGroup.$touched && newBlueprintForm.resourceGroup.$invalid" class="inputValidationMsg">Required</span>
+                              <label for="resourceGroup">Resource Group:
+                                 <!--<span ng-show="newBlueprintForm.resourceGroup.$touched && newBlueprintForm.resourceGroup.$invalid" class="inputValidationMsg">Required</span>-->
                                  <loading size="small" name="isResourceGroupLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.resourceGroup" name="resourceGroup" class="width-100 form-control" required>
+                              <select ng-model="bpCreate.newEnt.resourceGroup" name="resourceGroup" class="width-100 form-control">
                                  <option value="">Select Resource Group</option>
                                  <option ng-repeat="resourceName in bpCreate.resourceGroupListing" value="{{resourceName.name}}">{{resourceName.name}}</option>
                               </select>

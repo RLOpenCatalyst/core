@@ -39,6 +39,7 @@ var ARM = function(options) {
 
     var token = options.token;
 
+    var that = this;
 
     function getToken(callback) {
         if (!token) {
@@ -172,46 +173,67 @@ var ARM = function(options) {
                 callback(err, null);
                 return;
             }
-            var opts = {
-                uri: 'https://management.azure.com/subscriptions/' + options.subscriptionId +
-                '/resourcegroups/' + deployParams.resourceGroup +
-                '/providers/microsoft.resources/deployments/' +
-                deployParams.name + '?api-version=2015-01-01',
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token
-                },
-                body: {
-                    "properties": {
-                        "mode": "Incremental",
-                        "template": deployParams.template,
-                        "parameters": deployParams.parameters
+            if(deployParams.resourceGroup == "Create New"){
+                //creating a resource group
+               that.createResourceGroup(deployParams.name,function(errrg,respBody){
+                    if(errrg){
+                        callback(errrg,null);
+                        return;
                     }
-                },
-                json: true
-            };
-            request.put(opts, function(err, response, body) {
+                    else{
+                        deployParams.resourceGroup = respBody.name;
+                        deploy();
+                    }
+                })
+            }
+            else{
+                //use the resource group provided in the blueprint
+                deploy();
+            }
+            var deploy = function(){
+                var opts = {
+                    uri: 'https://management.azure.com/subscriptions/' + options.subscriptionId +
+                    '/resourcegroups/' + deployParams.resourceGroup +
+                    '/providers/microsoft.resources/deployments/' +
+                    deployParams.name + '?api-version=2015-01-01',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: {
+                        "properties": {
+                            "mode": "Incremental",
+                            "template": deployParams.template,
+                            "parameters": deployParams.parameters
+                        }
+                    },
+                    json: true
+                };
+                request.put(opts, function(err, response, body) {
 
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    }
 
-                logger.debug("response.statusCode: ", response.statusCode);
-                if (response.statusCode == '200' || response.statusCode ==
-                    '201') {
-                    callback(null, body);
-                    return;
-                } else {
-                    callback({
-                        code:response.statusCode,
-                        message: body.error.details[0].message
-                    }, null);
-                    return;
-                }
+                    logger.debug("response.statusCode: ", response.statusCode);
+                    logger.debug("Create response body: ", JSON.stringify(body));
+                    if (response.statusCode == '200' || response.statusCode ==
+                        '201') {
+                        //setting the resrouce group for request handling
+                        body.resourceGroup = deployParams.resourceGroup;
+                        callback(null, body);
+                        return;
+                    } else {
+                        callback({
+                            code:response.statusCode,
+                            message: body.error.details[0].message
+                        }, null);
+                        return;
+                    }
 
-            });
-
+                });
+            }
 
 
         });
@@ -235,6 +257,7 @@ var ARM = function(options) {
                 },
             };
 
+            logger.info(JSON.stringify(opts));
             request.get(opts, function(err, response, body) {
 
                 if (err) {
@@ -335,6 +358,7 @@ var ARM = function(options) {
                     callback(null, deployedTemplate);
                     break;
                 case 'Failed':
+                    logger.error(JSON.stringify(deployedTemplate));
                     callback({
                         status: deployedTemplate.properties.provisioningState
                     }, null);
@@ -376,7 +400,7 @@ var ARM = function(options) {
             }
             uri = uri + '?api-version=2015-06-15';
 
-
+            logger.info(uri);
             var opts = {
                 uri: uri,
                 headers: {

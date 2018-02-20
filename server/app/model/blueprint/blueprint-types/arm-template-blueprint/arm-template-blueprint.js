@@ -767,13 +767,16 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                 }
                 arm.getDeployedTemplate({
                     name: launchParams.stackName,
-                    resourceGroup: self.resourceGroup
+                    resourceGroup: stackData.resourceGroup
                 }, function(err, deployedTemplateData) {
                     if (err) {
                         logger.error("Unable to get arm deployed template", err);
                         callback(err,null);
                         return;
                     }
+                    //setting the default resource group
+                    self.resourceGroup = stackData.resourceGroup;
+
                     AzureARM.createNew({
                         orgId: launchParams.orgId,
                         bgId: launchParams.bgId,
@@ -789,7 +792,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         deploymentId: deployedTemplateData.id,
                         status: deployedTemplateData.properties.provisioningState,
                         users: launchParams.users,
-                        resourceGroup: self.resourceGroup,
+                        resourceGroup: stackData.resourceGroup,
 
                     }, function(err, azureArmDeployement) {
                         if (err) {
@@ -814,7 +817,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             }
                             arm.waitForDeploymentCompleteStatus({
                                 name: launchParams.stackName,
-                                resourceGroup: self.resourceGroup
+                                resourceGroup: stackData.resourceGroup
                             }, function (err, deployedTemplateData) {
                                 if (err) {
                                     logger.error('Unable to wait for deployed template status', err);
