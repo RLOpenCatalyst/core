@@ -69,8 +69,8 @@
                 { name: 'Description',field:'srnTicketDesc',cellTooltip: true},
                 { name: 'Status',field:'srnTicketStatus',cellTooltip: true},
                 { name: 'Priority',field:'srnTicketPriority',cellTooltip: true},
-                { name: 'Created',field:'srnTicketCreatedOn ',cellTemplate:'<span title="{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}">{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'Resolved',field:'srnTicketResolvedAt', cellTemplate:'<span title="{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}">{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                { name: 'Created At',field:'srnTicketCreatedOn ',cellTemplate:'<span title="{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}">{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                { name: 'Resolved At',field:'srnTicketResolvedAt', cellTemplate:'<span title="{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}">{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'Resolved By',field:'srnTicketResolvedBy'}
             ];
             $scope.botServiceNowLibGridOptions.data=[];
@@ -499,7 +499,6 @@
         $scope.RefreshBotsLibrary = function() {
             $scope.isBotDetailsLoading = true;
             $scope.noShowForServiceNow = true;
-            $scope.isBotLibraryPageLoading = true;
             $scope.showLoadMore = false;
             $scope.showRecords = false;
             $scope.botLibGridOptions.data = [];
