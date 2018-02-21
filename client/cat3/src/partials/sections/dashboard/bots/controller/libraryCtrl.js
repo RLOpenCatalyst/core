@@ -66,12 +66,11 @@
                 { name:'Ticket No.',displayName: 'Ticket No.',field:'srnTicketNo',cellTemplate:'<a target="_blank" href="{{row.entity.srnTicketLink}}">{{row.entity.srnTicketNo}}</a>',cellTooltip: true},
                 { name: 'Category',displayName: 'Category',field:'srnTicketCategory',cellTooltip: true},
                 { name: 'botName',displayName: 'BOT Name',field:'name',cellTemplate:'<a ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})">{{row.entity.name}}</a>',cellTooltip: true},
-                { name: 'Description',field:'srnTicketDesc',cellTooltip: true},
+                { name: 'Description', field:'srnTicketShortDesc',cellTooltip: true},
                 { name: 'Status',field:'srnTicketStatus',cellTooltip: true},
                 { name: 'Priority',field:'srnTicketPriority',cellTooltip: true},
                 { name: 'Created At',field:'srnTicketCreatedOn ',cellTemplate:'<span title="{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}">{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'Resolved At',field:'srnTicketResolvedAt', cellTemplate:'<span title="{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}">{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'Resolved By',field:'srnTicketResolvedBy'}
+                { name: 'Resolved At',field:'srnTicketResolvedAt', cellTemplate:'<span title="{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}">{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}</span>', cellTooltip: true}
             ];
             $scope.botServiceNowLibGridOptions.data=[];
             angular.extend($scope.botServiceNowLibGridOptions,botLibraryUIGridDefaults.gridOption);
