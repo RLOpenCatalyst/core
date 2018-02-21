@@ -725,8 +725,8 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         var instances = self.instances;
 
                         if (instances) {
-                            password = instances[vmName].password;
-                            runlist = instances[vmName].runlist;
+                            password = instances[vmData.properties.osProfile.computerName].password;
+                            runlist = instances[vmData.properties.osProfile.computerName].runlist;
                         }
                         addAndBootstrapInstance({
                             name: vmName,
