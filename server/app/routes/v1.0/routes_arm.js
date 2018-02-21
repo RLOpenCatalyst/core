@@ -282,7 +282,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         resourceGroup: azureArm.resourceGroup
                     }, function(error, body) {
                         //based on updated document https://docs.microsoft.com/en-us/rest/api/resources/deployments/delete
-                        if (error.code != '202' && error.code != '204') {
+                        if (error.code != '202' && error.code != '204' && error.code != '404') {
                             res.send(error);
                             return;
                         }else {

@@ -384,6 +384,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
           })
       }
       else{
+              logger.info('Result ' + JSON.stringify(results));
         var jobDone = false
         var instancePollObject = setInterval(()=> {
         instancesDao.getInstanceById(instId, (err, result)=> {

@@ -24,7 +24,7 @@ var appConfig = require('_pr/config');
 var path = require('path');
 var fs = require('fs');
 var request = require('request');
-
+var uuid = require('node-uuid');
 var waitForPort = require('wait-for-port');
 var adal = require('adal-node');
 
@@ -190,6 +190,15 @@ var ARM = function(options) {
                 //use the resource group provided in the blueprint
                 deploy();
             }
+            //setting the vmname variable
+            if(deployParams.template.resources){
+                deployParams.template.resources.forEach(function (resource) {
+                    if(resource.type=="Microsoft.Compute/virtualMachines"){
+                           resource.name = "D4D-" + uuid.v4().split('-')[0];
+                    }
+                })
+            }
+
             var deploy = function(){
                 var opts = {
                     uri: 'https://management.azure.com/subscriptions/' + options.subscriptionId +
@@ -272,7 +281,7 @@ var ARM = function(options) {
                     if (typeof body === 'string') {
                         body = JSON.parse(body)
                     }
-                    callback(null, body);
+                    callback(null, body,response);
                     return;
                 } else {
                     callback({
@@ -315,11 +324,15 @@ var ARM = function(options) {
 
                 logger.debug("response.statusCode: ", response.statusCode);
                 if(response.statusCode == '404'){
-                    return callback(404,null);
+                    return callback({code:404},null);
                 }
                 if (response.statusCode == '200' || response.statusCode ==
                     '202') {
-                    callback(null, null);
+                    //callback(null, null);
+                    callback({
+                        code:response.statusCode.toString(),
+                        message: "Done"
+                    }, null);
                     return;
                 } else {
                     var message = "";
