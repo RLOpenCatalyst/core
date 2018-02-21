@@ -30,6 +30,7 @@ var xml = require('xml');
 var xml2json = require('xml2json');
 
 var waitForPort = require('wait-for-port');
+var AZUREARM = require('./azure-arm');
 
 function execute(cmd, isJsonResponse, callback) {
     var output = '';
@@ -217,10 +218,10 @@ function constructXmlInputBody(params) {
     /*start of template for vm role definition */
     var roleTemplate = {
         Role: [{
-                RoleName: ""
-            }, {
-                RoleType: ""
-            },
+            RoleName: ""
+        }, {
+            RoleType: ""
+        },
             configurationSets, {
                 VMImageName: ""
             }, {
@@ -710,7 +711,7 @@ var AzureCloud = function(options) {
 
     }
 
-    this.createServer = function(params, callback) {
+    this.createServerClassic = function(params, callback) {
         if (params.os === 'windows') {
             params.remoteCon = '-r';
             params.port = '3389';
@@ -746,6 +747,33 @@ var AzureCloud = function(options) {
                 callback(err, null);
             }
         });
+
+    }
+
+    this.createServer = function (params, callback) {
+        logger.debug("create server:", params);
+        //create a token
+
+        var options = {
+            subscriptionId: params.providerdata.subscriptionId,
+            clientId: params.providerdata.clientId,
+            clientSecret: params.providerdata.clientSecret,
+            tenant: params.providerdata.tenant
+        };
+        var azurearm = new AZUREARM(options);
+        azurearm.getResourceGroups(function (err1,rgroups) {
+            if(err1){
+                logger.error("Get Resource Group Error: " + err1);
+                callback(err1,null);
+            }
+            else{
+                logger.info("Resource Groups ");
+                logger.info(rgroups);
+            }
+        })
+
+
+
 
     }
 
@@ -1021,7 +1049,7 @@ var AzureCloud = function(options) {
                 }
                 logger.debug("keyFile loaded");
 
-                console.log('params ==> ',params);                
+                console.log('params ==> ',params);
                 var opts = {
                     url: 'https://management.core.windows.net/'+options.subscriptionId+'/services/hostedservices/'+params.cloudServiceName+'/deployments/'+params.deploymentName+'/roles/'+params.name,
                     agentOptions: {

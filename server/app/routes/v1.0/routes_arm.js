@@ -144,6 +144,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             apiUtil.removeFile(decryptedKeyFile);
                             return;
                         }else {
+                            body = JSON.parse(body);
+                            body.value.splice(0,0,{
+                                "id": "",
+                                "name": "Create New",
+                                "location": "",
+                                "properties": {
+                                    "provisioningState": ""
+                                }
+                            })
                             apiUtil.removeFile(decryptedPemFile);
                             apiUtil.removeFile(decryptedKeyFile);
                             res.status(200).send(body);
@@ -272,7 +281,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         name: azureArm.deploymentName,
                         resourceGroup: azureArm.resourceGroup
                     }, function(error, body) {
-                        if (error.code !== 409 || error.code !== '409') {
+                        //based on updated document https://docs.microsoft.com/en-us/rest/api/resources/deployments/delete
+                        if (error.code != '202' && error.code != '204' && error.code != '404') {
                             res.send(error);
                             return;
                         }else {
