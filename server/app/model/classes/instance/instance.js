@@ -825,17 +825,17 @@ var InstancesDao = function () {
     };
 
     this.getInstancesByARMId = function (armId, callback) {
-        logger.debug("Enter getInstancesByCloudformationId (%s)", armId);
+        logger.debug("Enter getInstancesByARMId (%s)", armId);
         var queryObj = {
             armId: armId
         }
         Instances.find(queryObj, function (err, data) {
             if (err) {
-                logger.debug("Failed to getInstancesByCloudformationId (%s)", armId, err);
+                logger.debug("Failed to getInstancesByARMId (%s)", armId, err);
                 callback(err, null);
                 return;
             }
-            logger.debug("Exit getInstancesByCloudformationId (%s)", armId);
+            logger.debug("Exit getInstancesByARMId (%s)", armId);
             callback(null, data);
         });
 

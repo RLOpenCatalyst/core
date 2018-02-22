@@ -40,6 +40,7 @@ var uuid = require('node-uuid');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var resourceMapService = require('_pr/services/resourceMapService.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
+var commandCentre = require('_pr/model/blueprint/commandCentre.js');
 
 
 const errorType = 'blueprint';
@@ -333,103 +334,121 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
             return;
         }
         else{
-          if(Array.isArray(results.id))
-          {
-          async.each(results.id, (instId, cbx)=> {
-            var jobDone = false
-            var instancePollObject = setInterval(()=> {
-            instancesDao.getInstanceById(instId, (err, result)=> {
-              if(err) cbx(err)
+              if(results.armId){
+                  logger.info('Result ' + JSON.stringify(results));
+
+                    var jobDone = false;
+                    var runcount = 0;
+                    var instancePollObject = setInterval(()=> {
+                        runcount++;
+                        if(runcount >= 180){//approx 30 mins
+                            logger.info('stopping poll for business service entry');
+                            clearInterval(instancePollObject);
+                        }
+                        logger.info('Run count : ' + runcount);
+                        instancesDao.getInstancesByARMId(results.armId.toString(), (err, instances)=> {
+                          if(!err)
+                  {
+                      //to be handled for multi-instance type
+                      var doneInstances = [];
+                      logger.info('Found instances ' + JSON.stringify(instances));
+                      if(instances.length > 0){
+                              async.each(instances, function (instance, cb) {
+                                  if (instance.instanceIP && instance.instanceState == "running" && instance.bootStrapStatus == "success") {
+                                      doneInstances.push({"ip": instance.instanceIP, "name": instance.chefNodeName});
+                                  }
+                                  cb();
+
+                              }, function (err1) {
+                                  if (!err1) {
+                                      if (doneInstances.length == instances.length) {
+                                          //all instances are done
+                                          clearInterval(instancePollObject);
+                                          async.each(doneInstances, function (de, cb1) {
+                                              var url = "http://" + de.ip + ":8080/petclinic";
+                                              commandCentre.createBusinessService(url, de.name, de.name, de.name, function (err3, res) {
+                                                  if (!err3) {
+                                                      logger.info('Business service event in DBoard triggered successfully for ' + url);
+                                                  }
+                                                  cb1();
+                                              });
+                                          }, function (err2) {
+                                              if (!err2) {
+                                                  logger.info('All done into Business service event');
+
+
+                                              }
+                                          })
+                                      }
+                                      else {
+                                          //do nothing
+                                          logger.info('Not all instances are done..');
+                                      }
+                                  }
+                              });
+                        }
+                          }
+                        })
+                      }, 10000)
+                  callback(null, results);
+                  return;
+              } //end of arm else would be for cft
               else{
-                if(result.instanceState === 'running' && !jobDone)
-                {
-                  logger.info('Blueprint succesfully launched and bootstrapped')
-                  jobDone = true
-                  clearInterval(instancePollObject)
-                async.each(result.appUrls, (urlObj, cb)=> {
-                  var hcUrl = urlObj.url
-                  var hcMod = hcUrl.replace('$host',result.instanceIP)
-                  logger.info('HEALTH CHECK URL '+ hcMod)
-                  var intervalBusService = setInterval(()=> {
-                  commandCentre.createBusinessService(hcMod, result.chefNodeName, result.chefNodeName, result.chefNodeName, (error, res) => {
-                      if(!error){
-                        clearInterval(intervalBusService)
-                        logger.info('Business service event in DBoard triggered successfully for '+ result.instanceIP)
-                        cb()
-                      }
+                  var jobDone = false
+                  var instId = results.id
+                  logger.info('Getting to fetch instances');
+                  var instanceXId = null
+                  Array.isArray(instId) ? instanceXId = instId[0] : instanceXId=result.id
+                  var instancePollObject = setInterval(()=> {
+                      instancesDao.getInstanceById(instanceXId, (err, resultx)=> {
+                      if(err) cbx(err)
                       else{
-                        logger.info(JSON.stringify(error))
-                        cb(error)
-                      }
-                    })
-                  }, 3000)
-                }, (err)=> {
-                  err ? cbx(err) : cbx()
-                })
-              }
-              else if (result.instanceState === 'failed' || result.bootStrapStatus === 'failed'){
-                jobDone = true
-                logger.info('Blueprint launch failed')
-                logger.info(result.body)
-                clearInterval(instancePollObject)
-                cbx()
-              }
-              }
-          })
-          }, 10000)
-          }, (err)=> {
-            if(!err){
-              logger.info('Business Services set created successfully')
-            }
-          })
-      }
-      else{
-              logger.info('Result ' + JSON.stringify(results));
-        var jobDone = false
-        var instancePollObject = setInterval(()=> {
-        instancesDao.getInstanceById(instId, (err, result)=> {
-          if(err) cbx(err)
-          else{
-            if(result.instanceState === 'running' && !jobDone)
-            {
-              logger.info('Blueprint succesfully launched and bootstrapped')
-              jobDone = true
-              clearInterval(instancePollObject)
-            async.each(result.appUrls, (urlObj, cb)=> {
-              var hcUrl = urlObj.url
-              var hcMod = hcUrl.replace('$host',result.instanceIP)
-              logger.info('HEALTH CHECK URL '+ hcMod)
-              var intervalBusService = setInterval(()=> {
-              commandCentre.createBusinessService(hcMod, result.chefNodeName, result.chefNodeName, result.chefNodeName, (error, res) => {
-                  if(!error){
-                    clearInterval(intervalBusService)
-                    logger.info('Business service event in DBoard triggered successfully for '+ result.instanceIP)
-                    cb()
+                          var result = resultx[0]
+                          if(result.instanceState === 'running' && !jobDone)
+                  {
+                      logger.info('Blueprint succesfully launched and bootstrapped')
+                      jobDone = true
+                      clearInterval(instancePollObject)
+                      async.each(result.appUrls, (urlObj, cb)=> {
+                          var hcUrl = urlObj.url
+                          var hcMod = hcUrl.replace('$host',result.instanceIP)
+                          logger.info('HEALTH CHECK URL '+ hcMod)
+                      var intervalBusService = setInterval(()=> {
+                          commandCentre.createBusinessService(hcMod, result.chefNodeName, result.chefNodeName, result.chefNodeName, (error, res) => {
+
+                          if(!error){
+                      clearInterval(intervalBusService)
+                      logger.info('Business service event in DBoard triggered successfully for '+ result.instanceIP)
+                      cb()
                   }
                   else{
-                    logger.info(JSON.stringify(error))
-                    cb(error)
+                      logger.info(JSON.stringify(error))
                   }
-                })
-              }, 3000)
-            }, (err)=> {
-              if(!err){
-                logger.info('Business Services set created successfully')
+                  })
+                  }, 3000, 5)
+                  }, (err)=> {
+                      if(!err){
+                          logger.info('Business Services set created successfully')
+                      }
+                      else{
+                          logger.info('No response from Command Center. Giving Up')
+                      }
+                  })
+                  }
+              else if (result.instanceState === 'failed'){
+                      jobDone = true
+                      logger.info('Blueprint launch failed')
+                      logger.info(result.body)
+                      clearInterval(instancePollObject)
+                  }
               }
-            })
-          }
-          else if (result.instanceState === 'failed' || result.bootStrapStatus === 'failed'){
-            jobDone = true
-            logger.info('Blueprint launch failed')
-            logger.info(result.body)
-            clearInterval(instancePollObject)
-          }
-          }
-      })
-      }, 10000)
-      }
-          callback(null, results);
-          return;
+              })
+              }, 10000)
+                  callback(null, results);
+                  return;
+              }
+
+
         }
     });
 };
