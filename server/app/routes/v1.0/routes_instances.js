@@ -244,6 +244,19 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             });
     });
 
+
+    app.get('/instances/armid/:armid',function(req, res){
+        instancesDao.getInstancesByARMId(req.params.armid,function (err,instances) {
+            if(!err){
+                res.status(200).send(instances);
+            }
+            else{
+                res.status(400).send(err);
+            }
+
+        })
+    })
+
     app.get('/instances', getInstanceList);
 
     function getInstanceList(req, res, next) {
