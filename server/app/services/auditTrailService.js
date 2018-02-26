@@ -318,7 +318,7 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
     });
 }
 
-auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,userName,callback){
+auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema, userName, callback) {
     async.waterfall([
         function(next){
             apiUtil.queryFilterBy(queryParam,next);
@@ -341,7 +341,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
-                        filterQuery['orgId'] = {$in:orgIds};
+                        filterQuery['orgId'] = { $in: orgIds };
                         botDao.getAllBots(filterQuery, next);
                     }else{
                         botDao.getAllBots(filterQuery, next);
@@ -370,12 +370,12 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditId:{$in:auditIds}
                     };
                     var botsIds = [];
-                    auditTrail.getAuditTrails(query, function (err, botsAudits) {
+                    auditTrail.getAuditTrailsCount(query, function (err, botsAuditsCount) {
                         if (err) {
                             callback(err, null);
                             return;
                         } else{
-                            callback(null, botsAudits.length);
+                            callback(null, botsAuditsCount);
                             return;
                         }
                     });
@@ -385,13 +385,14 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditType:BOTSchema,
                         actionStatus:'success',
                         isDeleted:false,
-                        'auditTrailConfig.serviceNowTicketRefObj':{$ne:null}
+                        'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
+                        auditId: { $in: auditIds }
                     };
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    auditTrail.getAuditTrailsCount(query, function(err,botsAuditsCount){
                         if(err){
                             callback(err,null);
                         }else {
-                            callback(null,botsAudits.length);
+                            callback(null, botsAuditsCount);
                         }
                     });
                 },
@@ -403,7 +404,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditId:{$in:auditIds}
                     };
                     var botsIds = [];
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    auditTrail.getAuditTrails(query, function (err, botsAudits){
                         if(err){
                             callback(err,null);
                         }else if (botsAudits.length > 0) {
@@ -419,7 +420,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     });
                 },
                 totalSavedTimeForBots: function(callback){
-                    var hours = 0, minutes = 0;
+                    var days =0,hours = 0, minutes = 0;
                     if(botsList.length > 0) {
                         for (var k = 0; k < botsList.length; k++) {
                             if(botsList[k].savedTime && botsList[k].savedTime.hours) {
@@ -434,7 +435,12 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         hours = hours + Math.floor(minutes / 60);
                         minutes = minutes % 60;
                     }
+                    if (hours >= 24) { 
+                        days = days + Math.floor(hours / 24);
+                        hours = hours % 24;
+                    }
                     var result = {
+                        days:days,
                         hours:hours,
                         minutes:minutes
                     }

@@ -11,12 +11,58 @@
     .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', 'moment','botsCreateService', '$rootScope', '$location', 'toastr', 'confirmbox', '$state', 'genericServices',
     function ($scope, uiGridOptionsClient, moment,botsCreateService, $rootScope, $location, toastr,confirmbox, $state, genSevs) {
             var treeNames = ['BOTs','BOTs Description'];
-            $rootScope.$emit('treeNameUpdate', treeNames);
-            $scope.templateSelected=$state.params.botDetail;
+        $rootScope.$emit('treeNameUpdate', treeNames);
+        var botsTab = {
+            tab: "Execute",
+            setTab: function (tabId) {
+                botsTab.tab = tabId;
+            },
+            isSet: function (tabId) {
+                return botsTab.tab === tabId;
+            },
+            templates: {
+                readme: {
+                    "title": "ReadMe",
+                    "url": "src/partials/sections/dashboard/bots/tabs/readme.html"
+                },
+                param: {
+                    "title": "Param",
+                    "url": "src/partials/sections/dashboard/bots/tabs/param.html"
+                },
+                execute: {
+                    "title": "Execute",
+                    "url": "src/partials/sections/dashboard/bots/tabs/editParams.html"
+                },
+                report: {
+                    "title": "Report",
+                    "url": "src/partials/sections/dashboard/bots/tabs/report.html"
+                },
+                schedule: {
+                    "title": "Schedule",
+                    "url": "src/partials/sections/dashboard/bots/tabs/schedule.html"
+                },
+                settings: {
+                    "title": "Settings",
+                    "url": "src/partials/sections/dashboard/bots/tabs/settings.html"
+                }/*,
+                    help: {
+                        "title": "Help",
+                        "url": "src/partials/sections/dashboard/bots/tabs/help.html"
+                    }*/
+            }
+        };
+        var param = {
+            inlineLoader: true,
+            url: '/bot/' + $state.params.botDetail.id,
+        };
+        genSevs.promiseGet(param).then(function (result) {
+            $scope.templateSelected = result;
+        
             $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
-                $scope.templateSelected = reqParams;
+               // $scope.templateSelected = reqParams;
             });
             //refresh of bots History for current implementation.
+        
             if($scope.templateSelected){
                 if($scope.templateSelected.category === 'Active Directory' || $scope.templateSelected.category === 'Database Management') {
                     $scope.botIcon = 'images/bots/activeDirectory.png';
@@ -36,6 +82,11 @@
                     $scope.botIcon = 'images/bots/applicationDeployment.png';
                 }
             }
+            $scope.tab = botsTab;
+        }, function (error) {
+            toastr.error(error);
+            $scope.errorMessage = "No Records found";
+        });
             $scope.launchInstance = function(launch){
                 genSevs.executeTask(launch);
             };
@@ -71,45 +122,5 @@
                     $scope.activeClass = {};
                 });
             };
-            var botsTab = {
-                tab : "Execute",
-                setTab : function (tabId) {
-                    botsTab.tab = tabId;   
-                },
-                isSet : function (tabId) {
-                    return botsTab.tab === tabId;
-                },
-                templates:   {
-                    readme: {
-                        "title": "ReadMe",
-                        "url": "src/partials/sections/dashboard/bots/tabs/readme.html"
-                    }, 
-                    param: {
-                        "title": "Param",
-                        "url": "src/partials/sections/dashboard/bots/tabs/param.html"
-                    },
-                    execute: {
-                        "title": "Execute",
-                        "url": "src/partials/sections/dashboard/bots/tabs/editParams.html"
-                    }, 
-                    report: {
-                        "title": "Report",
-                        "url": "src/partials/sections/dashboard/bots/tabs/report.html"
-                    },
-                    schedule: {
-                        "title": "Schedule",
-                        "url": "src/partials/sections/dashboard/bots/tabs/schedule.html"
-                    }, 
-                    settings: {
-                        "title": "Settings",
-                        "url": "src/partials/sections/dashboard/bots/tabs/settings.html"
-                    }/*,
-                    help: {
-                        "title": "Help",
-                        "url": "src/partials/sections/dashboard/bots/tabs/help.html"
-                    }*/
-                }
-            };
-            $scope.tab = botsTab;
     }]);
 })(angular);
