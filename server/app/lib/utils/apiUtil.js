@@ -196,6 +196,8 @@ var ApiUtil = function() {
             page: jsonData.page > 0 ? jsonData.page : 1 ,
             limit: jsonData.pageSize
         };
+        if (jsonData.select)
+            options.select = jsonData.select;  
         databaseCall['queryObj']=queryObj;
         databaseCall['options']=options;
         callback(null, databaseCall);

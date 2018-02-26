@@ -49,7 +49,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.get('/audit-trail/bots-summary', function(req,res){
         var loggedUser = req.session.user.cn;
-        auditTrailService.getBOTsSummary(req.query,'BOTOLD',loggedUser,function(err,botSummary){
+        auditTrailService.getBOTsSummary(req.query,'BOT',loggedUser,function(err,botSummary){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);

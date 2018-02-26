@@ -37,6 +37,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
+    app.get('/bot/:botId', function (req, res) {
+        botService.getBotById(req.params.botId, function (err, data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
 
     app.delete('/bot/:botId',function(req,res){
         botService.removeBotsById(req.params.botId, function(err,data){

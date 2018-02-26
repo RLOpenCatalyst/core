@@ -318,7 +318,7 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
     });
 }
 
-auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,userName,callback){
+auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema, userName, callback) {
     async.waterfall([
         function(next){
             apiUtil.queryFilterBy(queryParam,next);
@@ -341,7 +341,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
-                        filterQuery['orgId'] = {$in:orgIds};
+                        filterQuery['orgId'] = { $in: orgIds };
                         botDao.getAllBots(filterQuery, next);
                     }else{
                         botDao.getAllBots(filterQuery, next);
@@ -370,12 +370,12 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditId:{$in:auditIds}
                     };
                     var botsIds = [];
-                    auditTrail.getAuditTrails(query, function (err, botsAudits) {
+                    auditTrail.getAuditTrailsCount(query, function (err, botsAuditsCount) {
                         if (err) {
                             callback(err, null);
                             return;
                         } else{
-                            callback(null, botsAudits.length);
+                            callback(null, botsAuditsCount);
                             return;
                         }
                     });
@@ -385,13 +385,14 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditType:BOTSchema,
                         actionStatus:'success',
                         isDeleted:false,
-                        'auditTrailConfig.serviceNowTicketRefObj':{$ne:null}
+                        'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
+                        auditId: { $in: auditIds }
                     };
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    auditTrail.getAuditTrailsCount(query, function(err,botsAuditsCount){
                         if(err){
                             callback(err,null);
                         }else {
-                            callback(null,botsAudits.length);
+                            callback(null, botsAuditsCount);
                         }
                     });
                 },
@@ -403,7 +404,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditId:{$in:auditIds}
                     };
                     var botsIds = [];
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    auditTrail.getAuditTrails(query, function (err, botsAudits){
                         if(err){
                             callback(err,null);
                         }else if (botsAudits.length > 0) {
