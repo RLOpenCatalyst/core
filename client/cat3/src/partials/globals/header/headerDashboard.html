@@ -18,7 +18,7 @@
 						<i class="fa fa-history white"></i> WORKFLOW</a>
 				</li>
 				<li>
-					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.bots' ui-sref-active='activeSection'>
+					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.bots.library' ui-sref-active='activeSection'>
 						<i class="fa fa-delicious white" ng-class="{'header-selected-item':moduleSelection.filterView.bots}"></i> BOTS
 					</div>
 				</li>
@@ -49,6 +49,7 @@
 				</li>
 
 				<li class="navbar-right" id="rightMenu" >
+
 					<ul  class="nav navbar-top-links">
 
 					<li class="dropdown" title="Notifications" ng-click="notificationCheck();">

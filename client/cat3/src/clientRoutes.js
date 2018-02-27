@@ -90,9 +90,10 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 			}]
 		}
 	}).state('dashboard.bots', {
-		url: "/bots",
+		url: "/bots/library",
 		templateUrl: "src/partials/sections/dashboard/bots/bots.html",
 		controller: "botsCtrl as bts",
+        abstract: true,
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();
