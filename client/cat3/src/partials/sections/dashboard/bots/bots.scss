@@ -1,5 +1,10 @@
 @import '../../../theme';
 
+.tableactionbutton {
+  border-radius: 50%;
+  padding: 2px 8px;
+}
+
 .font-size-15{
   font-size: 15px !important;
 }
@@ -12,8 +17,28 @@
   margin-left: 23px;
 }
 
+.marginleft-15 {
+  margin-left: -15px;
+}
+
+.marginleft-12 {
+  margin-left: -12px;
+}
+
+.marginleft-18 {
+  margin-left: -18px!important;
+}
+
+.marginleft-8 {
+  margin-left: -8px; 
+}
+
 .marginleft10 {
   margin-left:10px
+}
+
+.marginleft4 {
+  margin-left: 4px;
 }
 
 .marginleft20 {
@@ -24,24 +49,25 @@
   margin-left:35px
 }
 
+.marginleft17 {
+  margin-left: 17px;
+}
+
 .marginbottom15 {
   margin-bottom: 15px;
+}
+
+.marginright29 {
+  margin-right: 29px;
 }
 
 .paddingbottom10 {
   padding-bottom: 10px;
 }
 
-.marginbottom15 {
-  margin-bottom: 15px;
-}
 
 .paddingbottom20 {
   padding-bottom: 20px;
-}
-
-.margintop8 {
-  margin-top: 8px;
 }
 
 .margintop6 {
@@ -87,7 +113,7 @@
   overflow-y: auto;
 }
 
-#botLibraryPage, #botAuditTrailPage, #botsDescriptionPage {
+#botLibraryPage, #botAuditTrailPage, #botsDescriptionPage, #newBotPage {
   .page-name {
     font-size: 18px;
     margin: 5px 0 5px 36px;
@@ -142,8 +168,8 @@
 
   .section-bottom-glyph {
     position: absolute;
-    top: 141px; /*140*/
-    left: 118px; /*97*/
+    top: 105px; /*140*/
+    left: 125px; /*97*/
     font-size: 22px;
     display: none;
   }
@@ -200,15 +226,7 @@
   }
 
   .green-glyph {
-    color: #00a65a;
-  }
-
-  .green {
-    background-color: #00a65a;
-  }
-
-  .orange {
-    background-color: #f39c12;
+    color: #66bb6a;
   }
 
   .redcard {
@@ -216,7 +234,7 @@
   }
 
   .redcard-glyph {
-    color: #e74c3c;
+    color: #ef5350;
   }
 
   .bg-blue {
@@ -308,21 +326,6 @@
   box-shadow: 0 1px 1px rgba(0,0,0,0.1);
   border-radius: 2px;
   margin-bottom: 15px;
-}
-
-.bg-aqua {
-  background-color: #00c0ef!important;
-  color: #fff !important;
-}
-
-.bg-green {
-  background-color: #00a65a !important;
-  color: #fff !important; 
-}
-
-.bg-red {
-  background-color: #dd4b39 !important;
-  color: #fff !important; 
 }
 
 .info-box-icon {
@@ -477,6 +480,13 @@
   margin-top: 5px;
 }
 
+.info-cell .publisherDesc {
+  font-size: 14px;
+  color: #999999;
+  margin-top: 5px;
+  margin-left: 35px;
+}
+
 .info-cell {
   display: inline-block;
   vertical-align: top;
@@ -487,14 +497,16 @@
   float: left;
   vertical-align: top;
   padding-right: 15px;
-  padding-left: 12px;
+  /*padding-left: 12px;*/
+  margin-top: 10px;
   width: 220px;
+  opacity: 0.6
 }
 
 body {
-  background : rgba(0, 0, 0, 0.04);
+ /* background : rgba(0, 0, 0, 0.04);*/
   /*background:#F7F7F7;ecf0f5*/
-  overflow-y:auto!important;
+  background: #F7F7F7;
 }
 
 
@@ -608,9 +620,9 @@ body .botDescriptionPage {
   .badge {
     margin-right: 2px; 
     background: #40baf1; 
-    padding: .2em 1.5em .3em;
-    font-size: 15px;
-    margin-top: -5px;
+    padding: .2em 0.9em .2em;
+    font-size: 14px;
+    margin-top: -3px;
   }
 }
 
@@ -636,7 +648,7 @@ body .botDescriptionPage {
   position:relative;
   cursor:pointer;
   float: right;
-  right: -9px;
+  right: -6px;
 }
 
 .bot-card-hero {
@@ -673,6 +685,8 @@ body .botDescriptionPage {
 .bot-card-hero ul {
   white-space: nowrap;
   text-overflow: ellipsis;
+  overflow:hidden;
+  width:90%;
 }
 
 .bot-card-hero .image-cell {
@@ -687,9 +701,10 @@ body .botDescriptionPage {
 
 .ul-vert-bar li {
   display: inline;
-  padding-left: 3ex;
-  padding-right: 3ex;
+  padding-left: 1ex;
+  padding-right: 1ex;
   border-left: 1px solid #999999!important;
+  opacity: 0.6
 }
 
 .ul-vert-bar li:first-child {
@@ -713,12 +728,77 @@ body .botDescriptionPage {
 
 .containerBox {
   margin-left: 19px;
-  margin-top:-7px;
+  margin-top:2px;
 }
 
 .margin10 {
   margin-left:10px;
   margin-right:10px;
+}
+
+.scheduleBorder {
+  border: 1px solid #ddd;
+}
+
+.backColor {
+  background: #fff;
+}
+
+.botsExecution {
+  margin-left: 12px;
+  margin-top: 6px;
+}
+
+#botsPage {
+  height: 600px;
+  overflow-y: auto!important;
+}
+
+.scriptExecution {
+  overflow-y: auto!important;
+  margin-top: 10px;
+}
+
+.width100 {
+  width: 100%;
+}
+
+.chefExecution {
+  overflow-y: auto!important;
+}
+
+.btnDescription {
+  padding:4px 10px;font-size:13px;margin-right:10px;
+}
+
+.paddingForScreen {
+  padding-left: 2.4%;
+}
+
+fieldset#editParamPage{
+    border: 1px solid #ddd;
+    padding: 0 1.4em 1.4em 1.4em;
+    margin: 0.5em 0 1.5em 0;
+    -webkit-box-shadow:  0px 0px 0px 0px #000;
+    box-shadow:  0px 0px 0px 0px #000;
+}
+
+fieldset#editParamPage legend {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+    border:none;
+    width:170px;
+    color: #3a87ad;
+    margin: 0;
+}
+
+#editParamPage legend {
+    display: block;
+    -webkit-padding-start: 2px;
+    -webkit-padding-end: 2px;
+    border: none;
+    width: auto !important;
 }
 
 @-moz-document url-prefix() {
@@ -746,6 +826,121 @@ body .botDescriptionPage {
     width: 20%
   }
 
+}
+
+.dashboard-stats__item {
+    position: relative;
+    overflow: hidden;
+    padding: 30px 20px;
+    margin-bottom: 15px; /*30px*/
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24)
+}
+
+.dashboard-stats__item>.fa {
+    position: absolute;
+    bottom: -14%; /*-20*/
+    left: 0%; /*-5*/
+    font-size: 100px;
+    color: hsla(0, 0%, 100%, .15);
+}
+
+.dashboard-stats__item.dashboard-stats__item_blue {
+    background-color: #00c0ef
+}
+
+.dashboard-stats__item.dashboard-stats__item_red {
+    background-color: #ef5350
+}
+
+.dashboard-stats__item.dashboard-stats__item_orange {
+    background-color: #ffa726
+}
+
+.dashboard-stats__item.dashboard-stats__item_green {
+    background-color: #66bb6a
+}
+
+.dashboard-stats__item.dashboard-stats__item_bg-blue {
+    background-color: #2980b9
+}
+
+.dashboard-stats__title {
+    margin: 0;
+    text-align: right;
+    font-size: 34px;
+    font-weight: 300;
+    color: #fff
+}
+
+.dashboard-stats__title>small {
+    display: block;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.botsLabel {
+  font-weight: 400;
+}
+
+.bpvicon {
+    width: 25px;
+    padding: 0px 5px;
+    margin: 3px 5px;
+    border-radius: 11px !important;
+}
+
+.botsBadge .badge {
+    min-width: 25px;
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 14px;
+}
+
+.dropdownSelect{
+    font-size: 11px !important;
+    height: 28px !important;
+    display: inline !important;
+    width: 19% !important;
+}
+
+.list-group-item {
+  padding: 2px 15px!important;
+}
+
+#botEditFooter.pager {
+    margin-top: -5px!important;
+}
+
+.margintop-2 {
+  margin-top: -2px;
+}
+
+.margintop-7 {
+  margin-top: -7px;
+}
+
+.margintopBottom {
+    margin-top: -10px;
+    margin-bottom: -23px;
+}
+
+.botsLabel {
+  font-weight: 400;
+}
+
+.marginTopRightForHistory {
+  margin-top: -38px;
+  margin-right: 18px;
+}
+
+.margintop28 {
+  margin-top:28px;
+}
+
+.gridHeightBots {
+  height: 370px;
 }
 
 @media (min-width : 1550px){
@@ -776,8 +971,47 @@ body .botDescriptionPage {
       left: 170px;
       
     }
-}
-
-.botsLabel {
-  font-weight: 400;
+    .agent-card .info-cell, .agent-card .desc-cell {
+      width: 335px;
+    }
+    .agent-card .description {
+      width: 330px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    #botsPage {
+      height: 900px;
+      overflow-y: auto!important;
+    }
+    .btnDescription {
+      padding:4px 10px;font-size:13px;margin-right:12px;
+    }
+    .marginright14 {
+        margin-right: 14px;
+    }
+    .paddingForScreen {
+      padding-left: 1.7%;
+    }
+    .gridHeightBots {
+      height: 650px;
+    }
+    .dashboard-stats__title {
+      margin: 0;
+      text-align: right;
+      font-size: 42px;
+      font-weight: 300;
+      color: #fff
+    }
+    .marginTopRightForHistory {
+      margin-top: -38px;
+      margin-right: 43px;
+    }
+    #botLibraryPage .section-bottom-glyph {
+      position: absolute;
+      top: 114px; /*140*/
+      left: 178px; /*97*/
+      font-size: 22px;
+      display: none;
+    }
 }

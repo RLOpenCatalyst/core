@@ -30,7 +30,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all("/tracked-instances/*", sessionVerificationFunc);
+    app.all("/tracked-instances*", sessionVerificationFunc);
 
     /**
      * @api {get} /tracked-instances 	        Get tracked instances

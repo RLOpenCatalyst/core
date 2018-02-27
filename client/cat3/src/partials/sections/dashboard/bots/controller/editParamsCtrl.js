@@ -8,342 +8,322 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'blueprintCreateService', 'toastr', '$modalInstance', 'items', 'responseFormatter', '$modal', function ($scope, $rootScope,  genSevs, workzoneServices, blueprintCreateService,toastr, $modalInstance, items, responseFormatter, $modal) {
-        var appDeployCreate = this;
-        appDeployCreate={
-            newEnt:[],
-            serverRepos:[],
-            groupOptions:[],
-            repositoryOptions:[],
-            artifactsOptions:[],
-            versionsOptions:[],
-            tagOptions:[],
-            artifactsVersion:[],
-            errorMsg:{}
-        };
-        $scope.botName = items.botName;
-        $scope.taskType = items.botLinkedSubCategory;
-        $scope.botCategory = items.botCategory;
-        $scope.taggingServerList=[];
-        $scope.envOptions=[];
-        workzoneServices.getTaggingServer().then(function (topSer) {
-            $scope.taggingServerList=topSer.data;
-        });
-        $scope.chefAttributesFlag = false;
-        $scope.scriptParamsFlag = false;
-        if(items.botConfig && items.botConfig.runlist && items.botConfig.runlist.length) {
-            $scope.chefAttributesFlag = true;
-        }
-        if(items.botLinkedSubCategory === 'script' && items.botConfig) {
-            for (var i=0; i<items.botConfig.scriptDetails.length; i++) {
-                if(items.botConfig.scriptDetails[i].scriptParameters.length > 0) {
-                    $scope.scriptParamsFlag = true;
-                }
-            }
-        }
-        $scope.isChefattributesLoading = true;
+        .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'responseFormatter', 'genericServices', 'botsCreateService', 'toastr', '$modal', function ($scope, $rootScope, $state, responseFormatter, genSevs, botsCreateService, toastr, $modal) {
+            var items;
 
-        $scope.totalCount = 0;
-        $scope.countInit = function() {
-           return $scope.totalCount++;
-        };
-
-        if (items.botLinkedSubCategory === 'chef') {
-            $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.botConfig.runlist);
-            var nodesList = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
-            $scope.chefattributes = [];
-            $scope.chefattributes = responseFormatter.formatSavedCookbookAttributes(items.botConfig.attributes);
-            workzoneServices.getCookBookListForOrg(items.masterDetails.orgId).then(function(data){
-                var runlist = [];
-                for (var i = 0; i < nodesList.length; i++) {
-                    if (nodesList[i].className === "cookbook" || nodesList[i].className === "deploy") {
-                        runlist.push(nodesList[i].value);
-                    }
-                }
-                if (runlist.length > 0) {
-                    workzoneServices.getcookBookAttributes(runlist, data.data.serverId).then(function (response) {
-                        var data;
-                        if (response.data) {
-                            data = response.data;
-                        } else {
-                            data = response;
-                        }
-                        /*Scope apply done to force refresh screen after receiving the AJAX response*/
-                        $scope.$apply(function () {
-                            if ($scope.chefattributes) {
-                                for (var j = 0; j < data.length; j++) {
-                                    for (var attrItem in data[j].attributes) {
-                                        if ($scope.chefattributes[attrItem]) {
-                                            data[j].attributes[attrItem].default = $scope.chefattributes[attrItem];
-                                        }
-                                    }
-                                }
-                            }
-                            $scope.chefattributes = data;
-                            $scope.cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
-                            $scope.isChefattributesLoading = false;
-                        });
-                    });
-                }
+            $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
+                $scope.templateSelected = reqParams;
             });
-        }
-        if(items.botCategory === 'Application Deployment') {
-            
-            appDeployCreate.init = function () {
-                blueprintCreateService.getNexusServerList().then(function(data){
-                    appDeployCreate.serverRepos = data;
-                });
-                blueprintCreateService.getDockerList().then(function(data){
-                    appDeployCreate.serverRepos = appDeployCreate.serverRepos.concat(data);
-                });
-                workzoneServices.getInstanceDetails(items.botConfig.nodeIds[0]).then(function(response){
-                    appDeployCreate.newEnt.hostIP = response.data.instanceIP;
-                })
-            };
 
-            appDeployCreate.getRepository = function(){
-                if (appDeployCreate.newEnt.nexusDockerServer){
-                    appDeployCreate.newEnt.serverType = appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].configType;
-                } else {
-                    appDeployCreate.newEnt.serverType = '';
-                }
-                $scope.isLoadingNexus = true;
-                if(appDeployCreate.newEnt.serverType === 'nexus'){
-                    // create group select box options
-                    appDeployCreate.groupOptions = appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].groupid;
-                    blueprintCreateService.getNexusRepoList(appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].rowid,items.masterDetails.projectId).then(function (data) {
-                        appDeployCreate.repositoryOptions = data;
-                        $scope.isLoadingNexus = false;
-                    });
-                } /*else if(appDeployCreate.newEnt.serverType === 'docker'){
-                    blueprintCreateService.getRepoList(bpCreate.serverRepos[bpCreate.newEnt.nexusDockerServer].rowid).then(function (repositoryResult) {
-                        $scope.isLoadingNexus = false;
-                        blueprintCreation.repositoryOptions = repositoryResult.data[0].repositories.docker;
-                        if(blueprintCreation.repositoryOptions.length === 0){
-                            blueprintCreation.errorMsg= {
-                                text: "Repository is not defined",
-                                type: "warning",
-                                repository:true,
-                                role:"tooltip",
-                                positions:"bottom"
-                            };
-                        }
-                    });
-                }*/
-            };
+            if($scope.templateSelected) {
+                items = $scope.templateSelected;
+            }
 
-
-            appDeployCreate.changeRepository = function(){
-                if(appDeployCreate.newEnt.serverType === 'docker') {
-                    var repository=appDeployCreate.newEnt.repositoryIMG.split('/');
-                    appDeployCreate.newEnt.repository=appDeployCreate.newEnt.repositoryIMG;
-                    var tagRep='';
-                    if(appDeployCreate.newEnt.repositoryIMG && appDeployCreate.newEnt.repositoryIMG.indexOf('/') === -1){
-                        tagRep='library';
-                        appDeployCreate.newEnt.image=appDeployCreate.newEnt.repository;
-                    } else {
-                        tagRep=repository[0];
-                        appDeployCreate.newEnt.image=repository[1];
-                    }
-                    $scope.isLoadingDocTag=true;
-                    var requestObject={
-                        dockerId:appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].rowid,
-                        repository:tagRep,
-                        image:appDeployCreate.newEnt.image
-                    };
-                    workzoneServices.getDockerImageTags(requestObject).then(function(tagResult){
-                        appDeployCreate.tagOptions = tagResult.data;
-                        $scope.isLoadingDocTag=false;
-                    });
-                } else {
-                    appDeployCreate.newEnt.repository = appDeployCreate.repositoryOptions[appDeployCreate.newEnt.repositoryInd].id;
-                    appDeployCreate.newEnt.repositoryURL = appDeployCreate.repositoryOptions[appDeployCreate.newEnt.repositoryInd].resourceURI;
-                }
-            };
-
-            appDeployCreate.getArtifacts= function(){
-                $scope.isLoadingArtifacts = true;
-                appDeployCreate.requestData={
-                    nexus:appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].rowid,
-                    repositories:appDeployCreate.newEnt.repository,
-                    group:appDeployCreate.newEnt.groupId
+            if($rootScope.organObject) {
+                $scope.IMGNewEnt={
+                    org:$rootScope.organObject[0],
+                    buss:$rootScope.organObject[0].businessGroups[0],
+                    proj:$rootScope.organObject[0].businessGroups[0].projects[0],
+                    env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0],
+                    blueprintType:items.subType,
+                    blueprintName:items.execution.name
                 };
-                blueprintCreateService.getArtifacts(appDeployCreate.requestData).then(function (artifactsResult) {
-                    var artVerObj=[];
-                    appDeployCreate.atrifactForVersion = artifactsResult;
-                    $scope.artifactsVersion = artifactsResult;
-                    angular.forEach(artifactsResult,function(val){
-                        artVerObj[val.version]=val;
-                        appDeployCreate.artifactsVersion[val.artifactId]=artVerObj;
-                        if (appDeployCreate.artifactsOptions.indexOf(val.artifactId) === -1) {
-                            appDeployCreate.artifactsOptions.push(val.artifactId);
+            }
+
+            $scope.botName = items.name;
+            $scope.botParams = items.inputFormFields;
+            $scope.botEditParams = {};
+            $scope.botType = items.type;
+            $scope.subType = items.subType;
+            $scope.botInfo = $scope.templateSelected;
+            $scope.executionDetails = items.execution;
+            $scope.selectedInstanceList = [];
+            $scope.selectedInstanceIds = [];
+            $scope.originalInstanceList = [];
+            $scope.originalBlueprintList = [];
+            $scope.selectedBlueprintIds = [];
+            $scope.selectedBlueprintList = [];
+            $scope.jenkinsParamsList = [];
+            $scope.executeTaskForSave = false;
+            $scope.jenkinsServerSelect = '';
+            $scope.hideRightButton = true;
+            $scope.showAttributeList = false;
+            if($scope.botType === 'jenkins' && items.inputFormFields[1].default) {
+                $scope.jobName = items.inputFormFields[1].default;
+            }
+            $scope.scriptSelectForRemote = {
+                flag: false
+            };
+            $scope.jenkinsShowParam = {
+                flag: false
+            }
+
+            if($scope.botType === 'blueprints') {
+                $scope.botCheck = true;
+            } else if($scope.botType === 'script' || $scope.botType === 'chef') {
+                $scope.botCheck = false;
+            }
+
+            if($scope.botType ==='jenkins' && items.isParameterized === true) {
+                for(var i=0;i<items.execution.length;i++) {
+                    if('parameterized' in items.execution[i] && items.execution[i].parameterized !== null) {
+                        $scope.showParametersForJenkins = true;
+                        $scope.parameterList = items.execution[i].parameterized;
+                    }
+                }
+            }
+
+            $scope.selectValue = function(name,value){
+                var list=$scope.parameterList;
+                for(var i=0;i<list.length;i++){
+                    if(list[i].name===name){
+                        list[i].defaultValue=[value];
+                    }
+                }
+            }
+
+            if($scope.botType ==='chef') {
+                for(var i=0;i<items.execution.length;i++) {
+                    if('attributes' in items.execution[i] && items.execution[i].attributes !== null) {
+                        $scope.showAttributeList = true;
+                        $scope.attributeList = items.execution[i].attributes;
+                    }
+                }
+            }
+
+            $scope.getInstanceList = function() {
+                if($scope.IMGNewEnt){
+                    botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
+                        $scope.originalInstanceList=[];
+                        if(response.instances){
+                            angular.forEach(response.instances, function(value) {
+                                if($scope.selectedInstanceIds.indexOf(value._id) === -1) {
+                                    $scope.originalInstanceList.push(value);
+                                }
+                            });
                         }
                     });
-                    $scope.isLoadingArtifacts = false;
-                });
-            };
-            appDeployCreate.getVersions= function(){
-                $scope.isLoadingNexusVersion = true;
-                appDeployCreate.requestData.artifactId = appDeployCreate.newEnt.artifact;
-                    blueprintCreateService.getNexusVersions(appDeployCreate.requestData).then(function (versionsResult) {
-                    appDeployCreate.versionsOptions = versionsResult;
-                    $scope.isLoadingNexusVersion = false;
-                });
-            };
-            appDeployCreate.getResourceURI = function(){
-                $scope.isLoadingRepoVersion = true;
-                angular.forEach($scope.artifactsVersion,function(val){
-                    if(val.version === appDeployCreate.newEnt.version) {
-                        appDeployCreate.newEnt.resourceURI = val.resourceURI;
-                        $scope.isLoadingRepoVersion = false;
-                    }
-                });
-
-            };
-            appDeployCreate.init();
-        }
-        if (items.botConfig) {
-            $scope.jenkinsparams = items.botConfig.parameterized;
-            $scope.scriptparams = items.botConfig.scriptDetails;
-        }
-        $scope.parameters=[''];
-        var cookbookAttributes = [];
-        $scope.cookbookAttributes = [];
-        var scriptParams = [];
-        var choiceParam = {};
-        $scope.jenparams = {};
-
-        var helper = {
-            botLogModal: function(id,historyId,taskType) {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
-                    controller: 'botExecutionLogsCtrl as botExecLogCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return {
-                                taskId: id,
-                                historyId: historyId,
-                                taskType: taskType
-                            };
-                        }
-                    }
-                });
-            }
-        };
-
-        $scope.executeBot=function(){
-            if (items.botConfig && items.botConfig.taskType === 'script') {
-                /*for(var i = 0; i < $scope.scriptparams.length; i++){
-                    var scriptObj = {};
-                    var scriptParamList = [];
-                    if($scope.scriptparams[i].scriptParameters.length > 0){
-                        for(var j = 0; j<$scope.scriptparams[i].scriptParameters.length;j++){
-                            scriptParamList.push($scope.scriptparams[i].scriptParameters[j].paramVal);
-                        }
-                        if($scope.scriptparams[i].scriptParameters.length === scriptParamList.length){
-                            scriptObj[$scope.scriptparams[i].scriptId] = scriptParamList;
-                            scriptParams.push(scriptObj);
-                        }
-                    }else{
-                        scriptObj[$scope.scriptparams[i].scriptId] = [];
-                        scriptParams.push(scriptObj);
-                    }
-                }*/
-
-                scriptParams = $scope.scriptparams;
-            }
-            if (items.botConfig && items.botConfig.taskType === 'chef') {
-                if($scope.botCategory === 'Application Deployment' && items.botConfig.runlist[0] === 'recipe[deploy_catalyst_3]') {
-                    
-                    var appDeploy = [
-                        {
-                        "name": "Nexus Repo Url",
-                            "jsonObj": {
-                                "rlcatalyst": {
-                                    "nexusUrl": appDeployCreate.newEnt.resourceURI
-                                }
-                            }
-                        },{
-                            "name": "Version",
-                            "jsonObj": {
-                                "rlcatalyst": {
-                                    "version": appDeployCreate.newEnt.version
-                                }
-                            }
-                        },{
-                            "name": "Callback URL for app data ",
-                            "jsonObj": {
-                                "deploy_catalyst_3": {
-                                    "catalystCallbackUrl": "http://neocatalyst.rlcatalyst.com/app-deploy"
-                                }
-                            }
-                        }, {
-                            "name": "applicationNodeIP",
-                            "jsonObj": {
-                                "rlcatalyst": {
-                                    "applicationNodeIP": appDeployCreate.newEnt.hostIP
-                                }
-                            }
-                        }
-                    ]
-                    $scope.chefattributes = appDeploy
-                    cookbookAttributes = $scope.chefattributes;
-                } else {
-                    cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
                 }
-            }
-            if (items.botConfig && items.botConfig.taskType === 'jenkins') {
-                choiceParam = $scope.jenparams;
-            }
-            $scope.executeTask();
-        };
-
-        $scope.executeTask = function(){
-            var reqBody = {};
-            if (items.botConfig && items.botConfig.taskType === 'jenkins') {
-                reqBody.choiceParam = choiceParam;
-            } else if (items.botConfig && items.botConfig.taskType === 'chef'){
-                reqBody.tagServer = $scope.tagSerSelected;
-                if ($scope.chefAttributesFlag && items.botCategory !== 'Application Deployment') {
-                    reqBody.cookbookAttributes = cookbookAttributes;
-                }
-                if(items.botCategory === 'Application Deployment') {
-                    reqBody.cookbookAttributes = cookbookAttributes;   
-                }
-            } else  if (items.botConfig && items.botConfig.taskType === 'script') {
-                reqBody.tagServer = $scope.tagSerSelected;
-                if ($scope.scriptParamsFlag) {
-                    reqBody.scriptParams = scriptParams;
-                }
-            }
-            var param={
-                inlineLoader:true,
-                url:'/bots/' + items.botId + '/execute',
-                data: reqBody
             };
-            genSevs.promisePost(param).then(function (response) {
-                $modalInstance.close(response.data);
-                $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                helper.botLogModal(items.botId, response.historyId, response.taskType);
-            },
-            function (error) {
-                if(error) {
-                    error = error.responseText || error;
-                    if (error.message) {
-                        toastr.error(error.message);
+
+            $scope.getBlueprintList = function() {
+                if($scope.IMGNewEnt){
+                    botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType,$scope.IMGNewEnt.blueprintName).then(function(response){
+                        $scope.originalBlueprintList=[];
+                        if(response.blueprints){
+                            $scope.originalBlueprintList = response.blueprints;
+                        }
+                    });
+                }
+            };
+
+            $scope.botStatus = function() {
+                if($scope.scriptSelectForRemote.flag){
+                    $scope.botCheck = true;
+                    $scope.getInstanceList();
+                }else{
+                    $scope.botCheck = false;
+                }
+            };
+
+            //get jenkins server list 
+            $scope.getJenkinsList =  function() {
+                botsCreateService.getJenkinsServerDetails().then(function(response){
+                    var data;
+                    if (response.data) {
+                        data = response.data;
                     } else {
-                        toastr.error(error);
+                        data = response;
                     }
-                }
-            });
-        };
+                    $scope.jenkinsServerList = responseFormatter.formatJenkinsServerList(data);
+                });
+            };
+        
+            if(items.type === 'blueprints') {
+                $scope.getBlueprintList();
+            } else if(items.type === 'jenkins') {
+                $scope.getJenkinsList();
+            }
 
-        $scope.cancel= function() {
-            $modalInstance.dismiss('cancel');
-        };
-        return appDeployCreate;
-    }]);
+            //to check whether the job exists in jenkins server or not
+            $scope.checkForJenkinsServer = function() {
+                $scope.disableJenkinsExecute = false;
+                botsCreateService.getJenkinsServerJobList($scope.jenkinsServerSelect).then(function(response){
+                    if (response) {
+                        $scope.jenkinServerJobList = response;
+                        for(var i=0;i<$scope.jenkinServerJobList.length;i++) {
+                            if($scope.jenkinServerJobList[i].name === $scope.jobName) {
+                                return true;    
+                            }
+                        }
+                        $scope.disableJenkinsExecute = true;
+                        toastr.error('This Job is not associated to this Jenkins server. Please select a different Jenkins Server');
+                        return false;
+                    } 
+                },
+                function (error) {
+                    if(error) {
+                        error = error.responseText || error;
+                        if (error.message) {
+                            toastr.error(error.message);
+                        } else {
+                            toastr.error(error);
+                        }
+                    }
+                });
+            }
+
+            $scope.addInstanceBP = function (indexArr,type) {
+                if(type === 'instance') {
+                    $scope.selectedInstanceList.push($scope.originalInstanceList[indexArr]);
+                    $scope.selectedInstanceIds.push($scope.originalInstanceList[indexArr]._id);
+                    $scope.originalInstanceList.splice(indexArr,1);
+                } else if(type === 'blueprints') {
+                    $scope.selectedBlueprintList.push($scope.originalBlueprintList[indexArr]);
+                    if($scope.selectedBlueprintList.length > 0) {
+                        $scope.hideRightButton = false;
+                    }
+                    $scope.selectedBlueprintIds.push($scope.originalBlueprintList[indexArr]._id);
+                    $scope.originalBlueprintList.splice(indexArr,1);
+                }
+            };
+
+            $scope.instanceInfo = function($event,instanceDetails) {
+                botsCreateService.getInstanceDetails(instanceDetails._id).then(function(){
+                    $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/bots/view/instanceInfo.html',
+                        controller: 'intanceInfoCtrl',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return instanceDetails;
+                            }
+                        }
+                    }).result.then(function() {
+                    }, function() {
+                    });
+                });
+            };
+
+            $scope.selectBpInfo = function ($event,bpDetails,bpType){
+                $event.stopPropagation();
+                genSevs.moreInfo(bpDetails,bpType);
+            };
+
+            $scope.deSelectInstanceBP = function ($event,id,type){
+                $event.stopPropagation();
+                if(type === 'instance') {
+                    var ind = $scope.selectedInstanceIds.indexOf(id);
+                    $scope.selectedInstanceList.splice(ind,1);
+                    $scope.selectedInstanceIds.splice(ind,1);
+                    $scope.getInstanceList();
+                } else if(type === 'blueprints') {
+                    var indD = $scope.selectedBlueprintIds.indexOf(id);
+                    $scope.selectedBlueprintList.splice(indD,1);
+                    $scope.selectedBlueprintIds.splice(indD,1);
+                    if($scope.selectedBlueprintList.length === 0) {
+                        $scope.hideRightButton = true;
+                    }
+
+                    $scope.getBlueprintList();
+                }
+            };
+
+            $scope.botExecuteMethod = function(itemsId,reqBody) {
+                botsCreateService.botExecute(itemsId,reqBody).then(function (response) {
+                    if($scope.botType === 'jenkins') {
+                        genSevs.showLogsForJenkins(response);
+                    } else {
+                        genSevs.showLogsForBots(response);
+                    }
+                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                    botsCreateService.getBOTDetails(itemsId).then(function(response){
+                        for(var i=0;i<response.bots.length;i++) {
+                            var botObj = response.bots[i];
+                            $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);
+                        }
+                    });
+                },
+                function (error) {
+                    if(error) {
+                        error = error.responseText || error;
+                        if (error.message) {
+                            toastr.error(error.message);
+                        } else {
+                            toastr.error(error);
+                        }
+                    }
+                });
+            };
+
+            $scope.executeBot = function(type){
+                $scope.executeTaskForSave = true;
+                var reqBody = {};
+                reqBody.type = $scope.botType;
+                if(type === 'instance') {
+                    if($scope.botType === 'script') {
+                        reqBody.data = $scope.botEditParams;
+                        if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
+                            reqBody.nodeIds = $scope.selectedInstanceIds;
+                        }
+                    } else if($scope.botType === 'chef') {
+                        if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
+                            reqBody.nodeIds = $scope.selectedInstanceIds;
+                        }
+                        if($scope.attributeList) {
+                            reqBody.attributes = $scope.attributeList;
+                        }
+                    } else if($scope.botType === 'jenkins') {
+                        var jenkinsData = {
+                            jenkinsServerId:$scope.jenkinsServerSelect,
+                            jobName:items.inputFormFields[1].default,
+                            jobResultURL:items.inputFormFields[2].default
+                        };
+                        reqBody.data = jenkinsData;
+                        if($scope.parameterList) {
+                            angular.element('.choiceParam').each(function(){
+                                $scope.selectValue(this.name,this.value);
+                            });
+                            $scope.choiceParam = {};
+                            for (var i = 0; i < $scope.parameterList.length; i++) {
+                                $scope.choiceParam[$scope.parameterList[i].name] = $scope.parameterList[i].defaultValue[0];
+                            }
+                            reqBody.choiceParam =  $scope.choiceParam;
+                        }
+                    }
+                    $scope.botExecuteMethod(items.id,reqBody);
+                } else if (type === 'blueprints') {
+                    reqBody.blueprintIds = [$scope.originalBlueprintList[0]._id];
+                    botsCreateService.getBlueprintDetails($scope.originalBlueprintList[0]._id).then(function(response){
+                        $modal.open({
+                            animate: true,
+                            templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParams.html",
+                            controller: "blueprintLaunchParamsCtrl as bPLP",
+                            backdrop : 'static',
+                            keyboard: false,
+                            resolve: {
+                                items: function() {
+                                    return response;
+                                }
+                            }
+                        }).result.then(function(blueprintObj) {
+                            reqBody.monitorId = blueprintObj.monitorId;
+                            reqBody.domainName = blueprintObj.domainName;
+                            reqBody.envId = blueprintObj.launchEnv;
+                            reqBody.tagServer = blueprintObj.tagServer;
+                            reqBody.stackName = blueprintObj.stackName;
+                            $scope.botExecuteMethod(items.id,reqBody);
+                        }, function() {
+
+                        });
+                    })
+                }
+            };
+
+            $scope.cancel= function() {
+                $modalInstance.dismiss('cancel');
+            };
+        }]);
 })(angular);

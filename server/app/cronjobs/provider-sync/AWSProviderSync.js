@@ -12,6 +12,8 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var assignedInstancesDao = require('_pr/model/unmanaged-instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var noticeService = require('_pr/services/noticeService.js');
+
 
 
 var AWSProviderSync = Object.create(CatalystCronJob);
@@ -454,6 +456,14 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                                if (err) {
                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                               }
+                                           });
+                                           noticeService.notice("system", {
+                                               title: "AWS Instance : terminated",
+                                               body: "AWS Instance "+instance.platformId+" is Terminated."
+                                           }, "success",function(err,data){
+                                               if(err){
+                                                   logger.error("Error in Notification Service, ",err);
                                                }
                                            });
                                            var domainName = instance.domainName?instance.domainName:null;

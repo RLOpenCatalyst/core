@@ -121,6 +121,23 @@ function Configmgmt() {
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 callback(null, 'd4dModelFunctionalTestConfig');
                 break;
+            case "30":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersCICDDashboard');
+                break;
+            case "31":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelSonarqubeConfig');
+                break;
+            case "32":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersBOTsRemoteServer');
+                break;
+            case "33":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersAnsibleServer');
+                break;
+                
         }
     };
 
@@ -206,6 +223,22 @@ function Configmgmt() {
             case "29":
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 return ('fuctionaltestserver');
+                break;
+            case "30":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('cicddashboard');
+                break;
+            case "31":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('sonarqubeserver');
+                break;
+            case "32":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('botremoteserver');
+                break;
+            case "33":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('ansibleserver');
                 break;
 
         };
@@ -1131,6 +1164,33 @@ function Configmgmt() {
     };
 
     this.deactivateOrg = function(orgid, action, callback) {
+        logger.debug("Orgid:" + orgid + ' action: ' + action);
+        d4dModelNew.d4dModelMastersGeneric.update({
+            $or: [{
+                orgname_rowid: orgid
+            }, {
+                rowid: orgid
+            }]
+        }, {
+            $set: {
+                active: action
+            }
+        }, {
+            upsert: false,
+            multi: true
+        }, function(err, data) {
+            if (err) {
+                logger.debug(err);
+                callback(err, null);
+                return;
+            }
+            logger.debug('Deactivated ' + orgid + ' in masters. Count: ' + data);
+            callback(null, "done");
+            return;
+        });
+    };
+
+    this.deactivateBotEngine = function(orgid, action, callback) {
         logger.debug("Orgid:" + orgid + ' action: ' + action);
         d4dModelNew.d4dModelMastersGeneric.update({
             $or: [{

@@ -75,10 +75,14 @@ var fileUpload = require('./routes_fileUpload');
 var settingWizard = require('./routes_setting_wizard');
 var configData = require('./routes_config_data');
 var monitors = require('./routes_monitors');
-var bots = require('./routes_bots');
-var botsNew = require('./routes_botsNew');
+var botOld = require('./routes_botOld');
+var bot = require('./routes_bot');
 var gitHub = require('./routes_github');
 var routesCICD = require('./routes_d4dMastersCICD');
+var routesDashboardCICD = require('./routes_dashboardcicd');
+var routesCICDDashboardService = require('./routes_cicddashboardserver');
+var notice = require('./routes_notice');
+var clientAppAccess = require('./routes_clientAppAccess');
 var routesResourceMap = require('./routes_resourceMap');
 /*
  * @TODO
@@ -128,6 +132,7 @@ module.exports.setRoutes = function(app) {
     jira.setRoutes(app, sessionVerificationFunc);
 
     provider.setRoutes(app, sessionVerificationFunc);
+
     providerCommon.setRoutes(app, sessionVerificationFunc);
 
     vmimage.setRoutes(app, sessionVerificationFunc);
@@ -192,7 +197,7 @@ module.exports.setRoutes = function(app) {
 
     configData.setRoutes(app, sessionVerificationFunc);
 
-    bots.setRoutes(app, sessionVerificationFunc);
+    botOld.setRoutes(app, sessionVerificationFunc);
 
     gitHub.setRoutes(app, sessionVerificationFunc);
 
@@ -200,8 +205,14 @@ module.exports.setRoutes = function(app) {
 
     routesResourceMap.setRoutes(app, sessionVerificationFunc);
 
-    botsNew.setRoutes(app, sessionVerificationFunc);
+    bot.setRoutes(app, sessionVerificationFunc);
 
+    routesDashboardCICD.setRoutes(app,sessionVerificationFunc);
+
+    routesCICDDashboardService.setRoutes(app,sessionVerificationFunc);
+
+    notice.setRoutes(app,sessionVerificationFunc);
+    clientAppAccess.setRoutes(app,sessionVerificationFunc);
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');

@@ -126,5 +126,16 @@ resourceMapSchema.statics.deleteAllResourcesByFilter = function deleteAllResourc
 };
 
 
+resourceMapSchema.statics.deleteAllResourcesByFilter = function deleteAllResourcesByFilter(filterQueryObj, callback) {
+    resourceMap.remove(filterQueryObj,function (err, resourceMapObj) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        } else {
+            return callback(null, resourceMapObj);
+        }
+    });
+};
+
 var resourceMap = mongoose.model('resourceMap', resourceMapSchema);
 module.exports = resourceMap;

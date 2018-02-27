@@ -6,7 +6,8 @@ var logger = require('_pr/logger')(module);
 var gfs = null;
 var mongoDbClient = require('mongodb');
 var uuid = require('node-uuid');
-mongoDbClient.connect('mongodb://' + appConfig.db.host + ':' + appConfig.db.port + '/' + appConfig.db.dbName, function (err, db) {
+var dbHost = process.env.DB_HOST || appConfig.db.host;
+mongoDbClient.connect('mongodb://' + dbHost + ':' + appConfig.db.port + '/' + appConfig.db.dbName, function (err, db) {
     if (err) {
         throw "unable to connect to mongodb"
         return;
@@ -53,11 +54,11 @@ fileUpload.getReadStreamFileByFileId = function getReadStreamFileByFileId(fileId
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
-            return callback(err);
+            return callback(err,null);
         } else if (!file) {
             var err = new Error('File not found');
             err.status = 404;
-            return callback(err);
+            return callback(err,null);
         } else {
             var readStream = gfs.createReadStream({
                 _id: file._id

@@ -1,0 +1,259 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h5 class="widget-title" style="color:#4e5964;">
+                        <strong>BOT Executor</strong>
+                    </h5>
+                    <div class="widget-toolbar no-border">
+                        <div style="width:221px">
+                            Show: 
+                            <select id="filteractive" class="" onchange="filterColumn();" style="width:46%;margin-right:5px;">
+                                <option value="Active" selected>Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="">All</option>
+                            </select>
+                            <a id="newOrg" class="btn btn-minier btn-primary" href="#ajax/Settings/createBotEngine.html?new">
+                            <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                            New
+                            </a>                                                
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main widgetHeight">
+                        <div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
+                            <table id="tabletemplate" class="hidden" cellpadding="5px" width="100%">
+                                <thead>
+                                    <tr class="rowCustomStyle">
+                                        <td>Name</td>
+                                        <td>Organization</td>
+                                        <td>Host IP</td>
+                                        <td>Port</td>
+                                        <td>Status</td>
+                                        <td>Action</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hidden rowtemplate">
+                                        <td datafield="name"></td>
+                                        <td datafield="orgname"></td>
+                                        <td datafield="hostIP"></td>
+                                        <td datafield="hostPort"></td>
+                                        <td datafield="active"></td>
+                                        <td>
+                                            <div class="btn-group tableactionWidth">
+                                                <a class="btn btn-xs btn-info pull-left" title="Edit">
+                                                <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                                </a>
+                                                <button class="btn btn-xs btn-danger pull-left" value="Delete" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table id="envtable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                <thead>
+                                    <tr class="rowCustomStyle">
+                                        <td>Name</td>
+                                        <td>Organization</td>
+                                        <td>Host IP</td>
+                                        <td>Port</td>
+                                        <td>Status</td>
+                                        <td class="">Action</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <div id="envtable_tools1"></div>
+                            <div class="col-md-5"></div>
+                        </div>
+                    </div>
+                    <div class="widget-toolbox padding-8 clearfix dataTables_wrapper">
+                        <div id="tableFooterLeft" class="pull-left"></div>
+                        <div id="tableFooterRight" class="pull-right"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function() {
+    var hasCreatePermissionOrg = false;
+    if (haspermission('organization', 'create')) {
+        hasCreatePermissionOrg = true;
+    }
+
+    if (!hasCreatePermissionOrg) {
+        $('#newOrg').addClass('hidden');
+    }
+    isUserTypeSuperAdmin();
+});
+
+function isUserTypeSuperAdmin() {
+    $.get('/d4dMasters/loggedInUser', function(data) {
+        if (!data.isSuperAdmin) {
+            $('#newOrg').attr('disabled', 'disabled');
+            $('.tableactionWidth').find("[title='Delete']").attr('disabled', 'disabled');
+            $('.tableactionWidth').find("[title='Edit']").attr('disabled', 'disabled');
+        }
+    });
+}
+
+function filterColumn() {
+    var filter = $("#filteractive").val();
+    $('#envtable').DataTable().column(4).search(
+        filter,
+        false,
+        false,
+        false,
+        true,
+        false
+    ).draw();
+}
+
+function inLineReady() {
+    CreateTableFromJson(32, 'name', 'createBotEngine.html'); //32 is for BotEngine
+
+    var tab = 'envtable';
+    $('#envtable').dataTable({
+        "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
+        "pagingType": "full_numbers",
+        "retrieve": true,
+        "destroy":true,
+        "search": {
+            "caseInsensitive": false
+        }
+    });
+    filterColumn();
+    $("#filteractive").select2();
+    $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
+    $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');
+
+    //Force opening the left navigation menu
+    if ($('#navSettings').is(":visible") == false) {
+        $('#navSettings').css("display", '');
+        $('#navSettings > ul > li').first().addClass('open');
+        $('#navSettings > ul > li > ul').css("display", "none");
+        $('#navSettings > ul > li > ul').first().css("display", "block");
+    }
+    //redrawing the breadcrumb and selecting the tree
+    $('#Settings > ul > li').removeClass('active');
+    $('#Settings > ul > li').each(function() {
+        if ($(this).text().trim() == "Organizations")
+            $(this).addClass('active');
+    });
+
+    $("#content").css("opacity", "1 !important");
+
+}
+
+function deleteItem_todelete(docid, key, value) {
+    if (confirm('You are about to remove this list ' + docid + ':' + key + ':' + value)) {
+        $.ajax({
+            type: "get",
+            dataType: "text",
+            async: false,
+            url: serviceURL + "removeitem/" + docid + "/" + key + "/" + value,
+            success: function(data) {
+                $('#refreshpage').click();
+            },
+            failure: function(data) {}
+        });
+    }
+
+}
+
+function readMasterJson_todelete(id) {
+    $.ajax({
+        type: "get",
+        dataType: "text",
+
+        async: false,
+        url: serviceURL + "readmasterjson/" + id,
+        success: function(data) {
+            d4ddata = JSON.parse(data);
+        },
+        failure: function(data) {}
+    });
+
+}
+
+
+$.fn.getType = function() {
+    if ($(this).length) {
+        return this[0].tagName == "INPUT" ? this[0].type.toLowerCase() : this[0].tagName.toLowerCase();
+    } else {
+        return "undefined";
+    }
+}
+
+function CreateTableFromJson_todelete(formName) {
+    var formData = null;
+    readMasterJson(1);
+    formData = d4ddata.masterjson;
+    var formSchema = null;
+    $.each(eval(formData.rows.row), function(i, item) {
+        $.each(item.field, function(i, itm) {
+            var inputC = null;
+            var editButton = null;
+            var setOrgname = false;
+            $.each(itm, function(k, v) {
+                if (k == "name") {
+                    inputC = $('.rowtemplate').find("[datafield='" + v + "']");
+                    if (v == "orgname") {
+                        setOrgname = true;
+                    }
+                }
+            });
+            $.each(itm, function(k, v) {
+                if (k == "values") {
+                    if (inputC) {
+                        var tv = '';
+                        $.each(v, function(k1, v1) {
+                            if (tv == '')
+                                tv += v1;
+                            else
+                                tv += ",&nbsp;" + v1;
+                        });
+                        inputC.html(tv);
+                    }
+                    if (setOrgname == true) {
+                        editButton = $('.rowtemplate').find("[title='Update']");
+                        if (editButton) {
+                            var tv = '';
+                            $.each(v, function(k1, v1) {
+                                if (tv == '')
+                                    tv += v1;
+                                else
+                                    tv += ",&nbsp;" + v1;
+                            });
+
+                            editButton.attr("href", "#ajax/Settings/CreateProductGroup.html?" + tv);
+
+                            editButton.attr("href", "#ajax/Settings/CreateOrg.html?" + tv);
+
+                            var deletebutton = $('.rowtemplate').find("[title='Remove']");
+                            if (deletebutton) {
+                                deletebutton.attr('onClick', 'deleteItem(\"1\", \"orgname\",\"' + tv + '\");');
+                            }
+                        }
+                        setOrgname = false;
+                    }
+                }
+            });
+        });
+        var sRow = $(".rowtemplate").clone();
+        sRow.removeClass("hidden");
+        sRow.removeClass("rowtemplate");
+        $('#envtable').append(sRow);
+    });
+
+    $(".savespinner").hide();
+}
+inLineReady();
+isUserTypeSuperAdmin();
+</script>

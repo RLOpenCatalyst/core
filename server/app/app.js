@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
+//require('@risingstack/trace');
+require('newrelic')
 var express = require("express");
 var app = express();
 var path = require("path");
@@ -28,6 +29,7 @@ var expressLogger = require('_pr/logger').ExpressLogger();
 var passport = require('passport');
 var passportLdapStrategy = require('./lib/ldapPassportStrategy.js');
 var passportADStrategy = require('./lib/adPassportStrategy.js');
+var globalData = require('_pr/config/global-data.js');
 var Tail = require('tail').Tail;
 
 // express middleware
@@ -99,7 +101,7 @@ mongoDbConnect(dboptions, function(err) {
         logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
     }
 });
-
+globalData.init();
 var mongoStore = new MongoStore({
     mongooseConnection: mongoose.connection
 }, function() {
@@ -156,7 +158,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var server = http.createServer(app);
 
-
 //getting socket connection
 var io = socketIo.getInstance(server, {
     log: false,
@@ -204,16 +205,20 @@ io.set('log level', 1);
 io.sockets.on('connection', function(socket) {
     var dt = new Date();
     var month = dt.getMonth() + 1;
+    var currentDate = dt.getDate();
+    if(currentDate < 10){
+        currentDate = '0'+currentDate;
+    }
     if (month < 10)
         month = '0' + month;
-    logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate());
+    logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate);
     var tail;
-    if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'))
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'); //catalyst.log.2015-06-19
-    else if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'))
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'); //catalyst.log.2015-06-19
+    if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate + '.2'))
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate + '.2'); //catalyst.log.2015-06-19
+    else if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate + '.1'))
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate + '.1'); //catalyst.log.2015-06-19
     else
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate()); //catalyst.log.2015-06-19
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + currentDate); //catalyst.log.2015-06-19
     tail.on('line', function(line) {
         socket.emit('log', line);
     });
@@ -226,6 +231,10 @@ catalystSync.executeScheduledInstances();
 catalystSync.executeSerialScheduledTasks();
 catalystSync.executeParallelScheduledTasks();
 catalystSync.executeScheduledBots();
+catalystSync.executeNewScheduledBots();
+catalystSync.getBotAuditLogData();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
+    require('_pr/services/noticeService.js').init(io,server.address());
+    //require('_pr/services/noticeService.js').test();
 });

@@ -18,9 +18,9 @@ var GCP = require('_pr/lib/gcp.js');
 var blueprintModel = require('_pr/model/v2.0/blueprint/blueprint.js');
 var providerService = require('./providerService.js');
 var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instanceService = require('./instanceService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
-var instancesModel = require('_pr/model/classes/instance/instance');
 var fs = require('fs');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var gcpNetworkProfileModel = require('_pr/model/v2.0/network-profile/gcp-network-profiles');
@@ -33,13 +33,14 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var usersDao = require('_pr/model/users.js');
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/1.0/bots.js');
-var botsService = require('_pr/services/botsService.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botOldService = require('_pr/services/botOldService.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var resourceMapService = require('_pr/services/resourceMapService.js');
-
+var instancesDao = require('_pr/model/classes/instance/instance');
+var commandCentre = require('_pr/model/blueprint/commandCentre.js');
 
 
 const errorType = 'blueprint';
@@ -149,7 +150,7 @@ blueprintService.copyBlueprint = function copyBlueprint(blueprintId,masterDetail
                             blueprints.orgName = project[0].orgname;
                             blueprints.bgName = project[0].productgroupname;
                             blueprints.projectName = project[0].projectname;
-                            botsService.createOrUpdateBots(blueprints, 'Blueprint', blueprints.blueprintType,next);
+                            botOldService.createOrUpdateBots(blueprints, 'Blueprint', blueprints.blueprintType,next);
                         } else {
                             logger.debug("Unable to find Project Information from project id:");
                             next(null,blueprints);
@@ -250,7 +251,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                 }
                 if(blueprint.serviceDeliveryCheck === true){
                     var actionObj={
-                        auditType:'BOTs',
+                        auditType:'BOTOLD',
                         auditCategory:'Blueprint',
                         status:'running',
                         action:'BOTs Blueprint Execution',
@@ -267,7 +268,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         nodeIdsWithActionLog:[]
                     };
                     blueprint.envId= reqBody.envId;
-                    bots.getBotsById(blueprint._id,function(err,botData){
+                    botOld.getBotsById(blueprint._id,function(err,botData){
                         if(err){
                             logger.error(err);
                         }else if(botData.length > 0){
@@ -277,7 +278,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                                 lastRunTime:new Date().getTime(),
                                 runTimeParams:reqBody
                             }
-                            bots.updateBotsDetail(blueprint._id,botUpdateObj,function(err,data){
+                            botOld.updateBotsDetail(blueprint._id,botUpdateObj,function(err,data){
                                 if(err){
                                     logger.error("Error while updating Bots Configuration");
                                 }
@@ -290,6 +291,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         if(err){
                             logger.error(err);
                         }
+                        var uuid = require('node-uuid');
+                        auditTrail.actionId = uuid.v4();
                         blueprint.launch({
                             envId: reqBody.envId,
                             ver: reqBody.version,
@@ -298,7 +301,10 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             sessionUser: reqBody.userName,
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
-                            auditTrailId: data._id
+                            auditTrailId: data._id,
+                            botId:data.auditId,
+                            auditType:data.auditType,
+                            actionLogId:auditTrail.actionId
                         },next);
                     });
                 }else{
@@ -310,7 +316,10 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         sessionUser: reqBody.userName,
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
-                        auditTrailId: null
+                        auditTrailId: null,
+                        botId:null,
+                        auditType:null,
+                        actionLogId:null
                     },next);
                 }
             }else{
@@ -324,15 +333,130 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
             callback(err, null);
             return;
         }
-        callback(null, results);
-        return;
+        else{
+              if(results.armId){
+                  logger.info('Result ' + JSON.stringify(results));
+
+                    var jobDone = false;
+                    var runcount = 0;
+                    var instancePollObject = setInterval(()=> {
+                        runcount++;
+                        if(runcount >= 180){//approx 30 mins
+                            logger.info('stopping poll for business service entry');
+                            clearInterval(instancePollObject);
+                        }
+                        logger.info('Run count : ' + runcount);
+                        instancesDao.getInstancesByARMId(results.armId.toString(), (err, instances)=> {
+                          if(!err)
+                  {
+                      //to be handled for multi-instance type
+                      var doneInstances = [];
+                      logger.info('Found instances ' + JSON.stringify(instances));
+                      if(instances.length > 0){
+                              async.each(instances, function (instance, cb) {
+                                  if (instance.instanceIP && instance.instanceState == "running" && instance.bootStrapStatus == "success") {
+                                      doneInstances.push({"ip": instance.instanceIP, "name": instance.chefNodeName});
+                                  }
+                                  cb();
+
+                              }, function (err1) {
+                                  if (!err1) {
+                                      if (doneInstances.length == instances.length) {
+                                          //all instances are done
+                                          clearInterval(instancePollObject);
+                                          async.each(doneInstances, function (de, cb1) {
+                                              var url = "http://" + de.ip + ":8080/petclinic";
+                                              commandCentre.createBusinessService(url, de.name, de.name, de.name, function (err3, res) {
+                                                  if (!err3) {
+                                                      logger.info('Business service event in DBoard triggered successfully for ' + url);
+                                                  }
+                                                  cb1();
+                                              });
+                                          }, function (err2) {
+                                              if (!err2) {
+                                                  logger.info('All done into Business service event');
+
+
+                                              }
+                                          })
+                                      }
+                                      else {
+                                          //do nothing
+                                          logger.info('Not all instances are done..');
+                                      }
+                                  }
+                              });
+                        }
+                          }
+                        })
+                      }, 10000)
+                  callback(null, results);
+                  return;
+              } //end of arm else would be for cft
+              else{
+                  var jobDone = false
+                  var instId = results.id
+                  logger.info('Getting to fetch instances');
+                  var instanceXId = null
+                  Array.isArray(instId) ? instanceXId = instId[0] : instanceXId=result.id
+                  var instancePollObject = setInterval(()=> {
+                      instancesDao.getInstanceById(instanceXId, (err, resultx)=> {
+                      if(err) cbx(err)
+                      else{
+                          var result = resultx[0]
+                          if(result.instanceState === 'running' && !jobDone)
+                  {
+                      logger.info('Blueprint succesfully launched and bootstrapped')
+                      jobDone = true
+                      clearInterval(instancePollObject)
+                      async.each(result.appUrls, (urlObj, cb)=> {
+                          var hcUrl = urlObj.url
+                          var hcMod = hcUrl.replace('$host',result.instanceIP)
+                          logger.info('HEALTH CHECK URL '+ hcMod)
+                      var intervalBusService = setInterval(()=> {
+                          commandCentre.createBusinessService(hcMod, result.chefNodeName, result.chefNodeName, result.chefNodeName, (error, res) => {
+
+                          if(!error){
+                      clearInterval(intervalBusService)
+                      logger.info('Business service event in DBoard triggered successfully for '+ result.instanceIP)
+                      cb()
+                  }
+                  else{
+                      logger.info(JSON.stringify(error))
+                  }
+                  })
+                  }, 3000, 5)
+                  }, (err)=> {
+                      if(!err){
+                          logger.info('Business Services set created successfully')
+                      }
+                      else{
+                          logger.info('No response from Command Center. Giving Up')
+                      }
+                  })
+                  }
+              else if (result.instanceState === 'failed'){
+                      jobDone = true
+                      logger.info('Blueprint launch failed')
+                      logger.info(result.body)
+                      clearInterval(instancePollObject)
+                  }
+              }
+              })
+              }, 10000)
+                  callback(null, results);
+                  return;
+              }
+
+
+        }
     });
 };
 
 blueprintService.getAllServiceDeliveryBlueprint = function getAllServiceDeliveryBlueprint(queryObj, callback) {
     if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus && queryObj.actionStatus !== null) {
         var query = {
-            auditType: 'BOTs',
+            auditType: 'BOTOLD',
             actionStatus: queryObj.actionStatus,
             auditCategory: 'Blueprint'
         };
@@ -674,6 +798,33 @@ blueprintService.deleteBlueprint = function deleteBlueprint(blueprintId, callbac
             // @TODO response to be decided
             return callback(null, {});
         }
+    });
+};
+
+blueprintService.getAllBlueprintsWithFilter = function getAllBlueprintsWithFilter(queryParam,callback){
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(queryParam, 'blueprints', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['botName', 'botType', 'botCategory','botDesc', 'botLinkedCategory','botLinkedSubCategory', 'masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj,next);
+        },
+        function(filterBlueprintList, next) {
+            apiUtil.paginationResponse(filterBlueprintList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
     });
 };
 

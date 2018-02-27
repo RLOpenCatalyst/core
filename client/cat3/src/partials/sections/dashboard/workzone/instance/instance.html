@@ -107,6 +107,7 @@
 		</div>
         
         <section id="cardView" class="scrollContent" ng-show="isCardViewActive">
+			<!-- <div style="position: absolute;left: 10px;">All</div> -->
 			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
 				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :selectedInstanceId.indexOf(inst._id) !== -1}">
 					<div class="card-title">

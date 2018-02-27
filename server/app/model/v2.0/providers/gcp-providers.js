@@ -87,5 +87,5 @@ GCPProviderSchema.statics.updateById
     );
 };
 
-var GCPProvider = Providers.discriminator('Providers', GCPProviderSchema);
+var GCPProvider = Providers.discriminator('GCPProviders', GCPProviderSchema);
 module.exports = GCPProvider;

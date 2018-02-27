@@ -21,7 +21,7 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-var schemaValidator = require('../../../dao/schema-validator');
+var schemaValidator = require('_pr/model/dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
 var ProviderUtil = require('_pr/lib/utils/providerUtil.js');
 
@@ -136,20 +136,14 @@ openstackProviderSchema.statics.createNew = function(req, providerData, callback
 
         var pemId = aProvider['_id'] + req.files.openstackinstancepem.originalFilename;
 
-        var keyPair = {
-            _id: pemId
-        }
-
-        ProviderUtil.saveAwsPemFiles(keyPair, req.files.openstackinstancepem, function(err, flag) {
+        ProviderUtil.saveAwsPemFiles(pemId, req.files.openstackinstancepem, function(err, flag) {
             if (err) {
                 logger.debug("Unable to save pem files.");
-                res.status(500).send("Unable to save pem files.");
+                callback(err, null);
                 return;
             }
         });
         logger.debug("Exit createNew with provider present");
-
-
         callback(null, aProvider);
         return;
     });

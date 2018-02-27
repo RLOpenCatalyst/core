@@ -18,7 +18,7 @@
 var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
-var schemaValidator = require('./../../dao/schema-validator');
+var schemaValidator = require('_pr/model/dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var textSearch = require('mongoose-text-search');
@@ -544,7 +544,7 @@ var InstancesDao = function () {
                 callback(err, null);
                 return;
             }
-            logger.debug("Exit getInstances :: ", instanceIds);
+            logger.debug("Exit getInstances :: ", data.length);
             callback(null, data);
         });
 
@@ -825,17 +825,17 @@ var InstancesDao = function () {
     };
 
     this.getInstancesByARMId = function (armId, callback) {
-        logger.debug("Enter getInstancesByCloudformationId (%s)", armId);
+        logger.debug("Enter getInstancesByARMId (%s)", armId);
         var queryObj = {
             armId: armId
         }
         Instances.find(queryObj, function (err, data) {
             if (err) {
-                logger.debug("Failed to getInstancesByCloudformationId (%s)", armId, err);
+                logger.debug("Failed to getInstancesByARMId (%s)", armId, err);
                 callback(err, null);
                 return;
             }
-            logger.debug("Exit getInstancesByCloudformationId (%s)", armId);
+            logger.debug("Exit getInstancesByARMId (%s)", armId);
             callback(null, data);
         });
 
@@ -2359,6 +2359,26 @@ var InstancesDao = function () {
             callback(null, instances);
         })
     }
+
+    this.getInstancesByEnvId = function getInstancesByEnvId (envId,userName,callback) {
+        logger.debug("Enter getInstancesByEnvId(%s, %s)", envId, userName);
+        var queryObj = {
+            envId: envId,
+            users:userName,
+            isDeleted:false
+        }
+        Instances.find(queryObj, {
+            'actionLogs': false
+        }, function (err, data) {
+            if (err) {
+                logger.error("Failed to getInstancesByEnvId( %s, %s)", envId, userName, err);
+                callback(err, null);
+                return;
+            }
+            logger.debug("Exit getInstancesByEnvId(%s, %s)", envId, userName);
+            callback(null, data);
+        });
+    };
 
     this.updateScheduler = function (instanceIds, instanceScheduler, callback) {
         var instanceIdList = [];

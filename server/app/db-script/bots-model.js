@@ -6,13 +6,13 @@ var appConfig = require('_pr/config');
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
 var taskHistoryDao = require('_pr/model/classes/tasks/taskHistory.js');
 var blueprintDao = require('_pr/model/blueprint/blueprint.js');
-var botService = require('_pr/services/botsService.js');
+var botOldService = require('_pr/services/botOldService.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var async = require('async');
 
 var dbOptions = {
-    host: appConfig.db.host,
+    host: process.env.DB_HOST || appConfig.db.host,
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };
@@ -76,7 +76,7 @@ async.parallel({
                                 blueprint.orgName = project[0].orgname;
                                 blueprint.bgName = project[0].productgroupname;
                                 blueprint.projectName = project[0].projectname;
-                                botService.createOrUpdateBots(blueprint, 'Blueprint', blueprint.blueprintType, function (err, botsData) {
+                                botOldService.createOrUpdateBots(blueprint, 'Blueprint', blueprint.blueprintType, function (err, botsData) {
                                     if (err) {
                                         logger.error("Error in creating bots entry. " + err);
                                     }
@@ -132,7 +132,7 @@ async.parallel({
                                     (function(taskHistory){
                                         var auditTrailObj = {
                                             auditId: task._id,
-                                            auditType: 'BOTs',
+                                            auditType: 'BOTOLD',
                                             masterDetails:{
                                                 orgId: task.orgId,
                                                 orgName: task.orgName,

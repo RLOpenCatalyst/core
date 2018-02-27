@@ -27,20 +27,20 @@
                 { name: 'End Time',field:'endedOn',
                     cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'BOT Type',displayName: 'BOT Type',field:'auditTrailConfig.type'},
-                { name:'Task Type',field:'auditTrailConfig.executionType' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.auditTrailConfig.executionType==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
+               /* { name:'Task Type',field:'auditTrailConfig.executionType' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.auditTrailConfig.executionType==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
                     '<img src="images/orchestration/jenkins.png" ng-show="row.entity.auditTrailConfig.executionType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
                     '<img src="images/orchestration/script.jpg" ng-show="row.entity.auditTrailConfig.executionType==\'script\'" alt="row.entity.auditTrailConfig.executionType" title="Script" class="task-type-img" />'+
                     '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.action==\'BOTs Blueprint Execution\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name',cellTooltip: true},
+                */{ name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name',cellTooltip: true},
                 { name: 'Status',field:'status',
                   cellTemplate:'<img class="bot-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
                   '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
                   '<img class="bot-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
                   cellTooltip: true},
-                { name: 'Organization',field:'masterDetails.orgName'},
+                /*{ name: 'Organization',field:'masterDetails.orgName'},
                 { name: 'Business Group',field:'masterDetails.bgName'},
                 { name: 'Project',field:'masterDetails.projectName'},
-                { name: 'Environment',field:'masterDetails.envName'},
+                { name: 'Environment',field:'masterDetails.envName'},*/
                 { name: 'User',field:'user'},
                 { name: 'Logs',cellTemplate: '<span class="btn cat-btn-update control-panel-button" title="Logs" ng-click="grid.appScope.botAuditTrailLogs(row.entity);"><i class="fa fa-info white"></i></span>'}
             ];
@@ -49,7 +49,7 @@
         };
         $scope.initGrids();
 
-        var gridBottomSpace = 80;
+        var gridBottomSpace = 70;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botAuditTrailPage') - gridBottomSpace;
         
         //for server side(external) pagination.
@@ -76,7 +76,7 @@
             $scope.searchString = $scope.botAuditTrailSearch;
             $scope.botAuditTrailGridOptions.data=[];
                 var param={
-                    url:'/audit-trail?filterBy=auditType:BOTs&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/audit-trail?filterBy=auditType:BOT&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
             };
             genSevs.promiseGet(param).then(function (result) {
                 console.log(result);
@@ -121,7 +121,7 @@
             $scope.isBotAuditTrailPageLoading = true;
             $scope.botAuditTrailGridOptions.data=[];
             var param={
-                url:'/audit-trail?filterBy=auditType:BOTs&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/audit-trail?filterBy=auditType:BOT&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (response) {
                 $timeout(function() {

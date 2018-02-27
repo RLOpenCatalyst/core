@@ -548,6 +548,7 @@ var Chef = function(settings) {
             logger.debug('cleaning chef from remote host');
             var cmds = ["rm -rf /etc/chef/", "rm -rf /var/chef/"];
             var cmdString = cmds.join(' && sudo');
+
             var sudoCmd = 'sudo ';
             if (options.password) {
                 sudoCmd = 'echo \"' + options.password + '\" | sudo -S ';
@@ -603,6 +604,7 @@ var Chef = function(settings) {
         // fix for template runlist
         runlist = fixTemplateRunlist(runlist);
         runlist = chefDefaults.defaultChefClientRunCookbooks.concat(runlist);
+
         if (options.instanceOS != 'windows') {
 
             var lockFile = false;
@@ -639,6 +641,7 @@ var Chef = function(settings) {
 
             logger.debug("chef client cmd ==> " + cmd);
             cmd = sudoCmd + " " + cmd;
+
 
             var sshExec = new SSHExec(options);
             logger.debug('***********************', options);

@@ -32,6 +32,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 
 var scriptTaskSchema = taskTypeSchema.extend({
+    _id: false,
     nodeIds: [String],
     scriptTypeName: String,
     isSudo: {
@@ -263,6 +264,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 var scp = new SCP(sshOptions);
                 scp.upload(desPath, '/tmp', function (err) {
                     if (err) {
+                        logger.error(err);
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,

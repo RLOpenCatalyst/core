@@ -277,8 +277,10 @@ function readMasterJson(id) {
 function readMasterJsontv(id) {
 	// debugger;
 	//alert(url);
+
 	if ((url.indexOf('List') >= 0 || url.indexOf('Create') >= 0) && url.indexOf('OrgList.html') < 0) {
 		// alert('in 1');
+        console.log('readmasterjsonnew'+url);
 		$.ajax({
 			type: "get",
 			dataType: "text",
@@ -297,6 +299,7 @@ function readMasterJsontv(id) {
 		return (d4ddata);
 	}
 	if (url.indexOf('OrgList.html') > 0) {
+        console.log('readmasterjsonneworglist'+url);
 		//alert('in 1');
 		$.ajax({
 			type: "get",
@@ -315,7 +318,6 @@ function readMasterJsontv(id) {
 		});
 		return (d4ddata);
 	} else {
-
 		$.ajax({
 			type: "get",
 			dataType: "text",
@@ -572,6 +574,8 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 						if (inputC.attr('datatype') == 'list') {
 							v = v.replace(/,/g, "<br/>");
 							inputC.html('<a style="pointer:" data-toggle="popover" data-content="' + v + '" id="cellitem_' + i + '_' + k + '">View</a>');
+						}else if(inputC.attr('datatype') == 'link'){
+							inputC.html('<a target="new" href="' + v + '">Open</a>' );
 						} else {
 							inputC.html(v);
 						}
@@ -733,6 +737,14 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 					if (haspermission('puppetserver', 'modify')) {
 						hasEditPermission = true;
 					}
+				}else if (createFileName === 'CreateCICDDashboard.html') {
+					if (haspermission('services', 'modify')) {
+						hasEditPermission = true;
+					}
+				}else if (createFileName === 'createBotEngine.html') {
+					if (haspermission('services', 'modify')) {
+						hasEditPermission = true;
+					}
 				}
 				//user has no permission to edit
 				if (!hasEditPermission) {
@@ -851,6 +863,14 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 					}
 				} else if (createFileName === 'CreateNexusServer.html') {
 					if (haspermission('puppetserver', 'delete')) {
+						hasDeletePermission = true;
+					}
+				}else if (createFileName === 'CreateCICDDashboard.html') {
+					if (haspermission('services', 'delete')) {
+						hasDeletePermission = true;
+					}
+				}else if (createFileName === 'createBotEngine.html') {
+					if (haspermission('services', 'delete')) {
 						hasDeletePermission = true;
 					}
 				}
@@ -3419,6 +3439,14 @@ function isFormValid(formid) {
 					if (currCtrl.val().length < 6) {
 						isValid = false;
 						errormessageforInput(currCtrl.attr('id'), "Atleast 6 characters required.");
+						currCtrl.focus();
+					}
+					break;
+				case "ipAddressCheck":
+					var str = currCtrl.val();
+					if(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str) == false && str != '') {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "Please enter a valid IP Address");
 						currCtrl.focus();
 					}
 					break;

@@ -224,38 +224,41 @@
 					return t;
 				},
 				formatSelectedCookbookAttributes: function (list) {
-					var l = list.length, t = [];
-					for (var cb = 0; cb < l; cb++) {
-						var item = list[cb];
-						/*jslint forin: true */
-						for (var key in item.attributes) {
-							var attributeKey = key;
-							var attributeDisplay = item.attributes[key].display_name;
-							var attribValue = item.attributes[key].default;
-							if (attribValue && attribValue.length) {
-								/*Start: Code from Cat2.0. To create request data in format expected by API*/
-								var attribPathParts = attributeKey.split('/');
-								var attributeObj = {};
-								var currentObj = attributeObj;
-								for (var i = 0; i < attribPathParts.length; i++) {
-									if (!currentObj[attribPathParts[i]]) {
-										if (i === attribPathParts.length - 1) {
-											currentObj[attribPathParts[i]] = attribValue;
-											continue;
-										} else {
-											currentObj[attribPathParts[i]] = {};
-										}
-									}
-									currentObj = currentObj[attribPathParts[i]];
-								}
-								/*End: Code from Cat2.0*/
-								t.push({
-									name: attributeDisplay,
-									jsonObj: attributeObj
-								});
-							}
-						}
-					}
+					var t = [];
+					if(list) {
+                        var l = list.length;
+                        for (var cb = 0; cb < l; cb++) {
+                            var item = list[cb];
+                            /*jslint forin: true */
+                            for (var key in item.attributes) {
+                                var attributeKey = key;
+                                var attributeDisplay = item.attributes[key].display_name;
+                                var attribValue = item.attributes[key].default;
+                                if (attribValue && attribValue.length) {
+                                    /*Start: Code from Cat2.0. To create request data in format expected by API*/
+                                    var attribPathParts = attributeKey.split('/');
+                                    var attributeObj = {};
+                                    var currentObj = attributeObj;
+                                    for (var i = 0; i < attribPathParts.length; i++) {
+                                        if (!currentObj[attribPathParts[i]]) {
+                                            if (i === attribPathParts.length - 1) {
+                                                currentObj[attribPathParts[i]] = attribValue;
+                                                continue;
+                                            } else {
+                                                currentObj[attribPathParts[i]] = {};
+                                            }
+                                        }
+                                        currentObj = currentObj[attribPathParts[i]];
+                                    }
+                                    /*End: Code from Cat2.0*/
+                                    t.push({
+                                        name: attributeDisplay,
+                                        jsonObj: attributeObj
+                                    });
+                                }
+                            }
+                        }
+                    }
 					return t;
 				},
 				getVal: function (obj, currentKey) {

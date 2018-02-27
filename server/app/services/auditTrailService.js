@@ -19,8 +19,9 @@ var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js'
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var bots = require('_pr/model/bots/1.0/bots.js');
-var botsDao = require('_pr/model/bots/1.1/botsDao.js');;
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 const errorType = 'auditTrailService';
 
@@ -28,12 +29,15 @@ var auditTrailService = module.exports = {};
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
+var serviceNow = require('_pr/model/servicenow/servicenow.js');
+var settingService = require('_pr/services/settingsService');
 
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
     var auditTrailObj = {
         auditId: auditDetails._id,
         auditType: actionObj.auditType,
+        actionLogId:auditTrailConfig.actionLogId?auditTrailConfig.actionLogId:null,
         masterDetails:{
             orgId: auditDetails.orgId,
             orgName: auditDetails.orgName,
@@ -52,7 +56,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
         providerType: auditDetails.providerType,
         action: actionObj.action
     };
-    if(actionObj.auditType === 'BOTs'){
+    if(actionObj.auditType === 'BOTOLD' || actionObj.auditType === 'BOT'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
@@ -93,7 +97,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
 }
 
 auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId,auditObj,callback) {
-    if(auditType === 'BOTs'){
+    if(auditType === 'BOTOLD' || auditType === 'BOT'){
         botAuditTrail.updateBotAuditTrail(auditId,auditObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -101,7 +105,61 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                 return;
             }
             callback(null,data);
-            return;
+            async.parallel({
+                botServiceNowSync:function(callback){
+                    var botAuditTrailService = require('_pr/services/auditTrailService.js');
+                    botAuditTrailService.syncCatalystWithServiceNow(auditId,function(err,data){
+                        if(err){
+                            logger.error("Error in updating Service Now Ticket Details:");
+                            callback(err,null);
+                        }else{
+                            logger.debug("ServiceNow sync is Done.")
+                            callback(err,null);
+                        }
+                    });
+                },
+                botExecutionLastStatus:function(callback){
+                    async.waterfall([
+                        function(next){
+                            auditTrail.getAuditTrails({_id:new ObjectId(auditId)},next)
+                        },
+                        function(botAuditTrail,next){
+                            if(botAuditTrail.length > 0 && auditObj.status
+                                && (auditObj.status !== null || auditObj.status !== '')){
+                                var botService = require('_pr/services/botService.js');
+                                botService.updateLastBotExecutionStatus(botAuditTrail[0].auditId,auditObj.status,function(err,data){
+                                    if(err){
+                                        logger.error("Error in updating Last Execution Time Details:");
+                                        callback(err,null);
+                                    }else{
+                                        logger.debug("ServiceNow sync is Done.")
+                                        callback(err,null);
+                                    }
+                                });
+                            }else{
+                                next({code:400,message:"There is no records are available for BOTS Last Execution Status"},null);
+                            }
+                        },
+
+                    ],function(err,results){
+                        if(err){
+                            callback(err,null);
+                            return;
+                        }else{
+                            callback(null,results);
+                            return;
+                        }
+                    })
+                }
+            },function(err,results){
+                if(err){
+                    logger.error(JSON.stringify(err));
+                    return;
+                }else{
+                    logger.debug(results);
+                    return;
+                }
+            })
         })
     }else if(auditType === 'Instances'){
         instanceAuditTrail.updateInstanceAuditTrail(auditId,auditObj,function(err,data){
@@ -158,6 +216,93 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
     });
 }
 
+auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceNow(auditTrailId,callback){
+    var srnTicketNo = null;
+    async.waterfall([
+        function(next){
+            auditTrail.getAuditTrailsById(auditTrailId,next)
+        },
+        function(botAuditTrail,next){
+            if(botAuditTrail.length > 0 && botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj
+            && (botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== null || botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== '')){
+                srnTicketNo = botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
+                serviceNow.getCMDBList(function(err,srnServerDetails) {
+                    if (err) {
+                        next(err, null);
+                    } else if (srnServerDetails.length > 0) {
+                        var tableName = 'incident';
+                        var config = {
+                            username: srnServerDetails[0].servicenowusername,
+                            password: srnServerDetails[0].servicenowpassword,
+                            host: srnServerDetails[0].url,
+                            ticketNo: srnTicketNo
+                        };
+                        serviceNow.getConfigItems(tableName, config, function (err, ticketData) {
+                            if (err) {
+                                logger.error("Error in Getting Servicenow Config Items:", err);
+                                next(err, null);
+                                return;
+                            } else if (!ticketData.result) {
+                                logger.error("ServiceNow CI data fetch error");
+                                next({
+                                    code: 303,
+                                    message: "No Data is available in ServiceNow against ticketNo:" + srnTicketNo
+                                }, null);
+                                return;
+                            } else {
+                                var serviceNowObj = {
+                                    ticketNo: srnTicketNo,
+                                    number: ticketData.result.number,
+                                    ticketLink: srnServerDetails[0].url + '/' + tableName + ".do?sys_id=" + srnTicketNo,
+                                    shortDesc: ticketData.result.short_description,
+                                    desc: ticketData.result.description,
+                                    openedAt: toTimestamp(ticketData.result.opened_at),
+                                    createdOn: toTimestamp(ticketData.result.sys_created_on),
+                                    closedAt: toTimestamp(ticketData.result.closed_at),
+                                    updatedOn: toTimestamp(ticketData.result.sys_updated_on),
+                                    resolvedAt: toTimestamp(ticketData.result.resolved_at),
+                                    state: checkServiceNowTicketState(ticketData.result.incident_state),
+                                    priority: checkServiceNowTicketPriority(ticketData.result.priority),
+                                    category: ticketData.result.category,
+                                    resolvedBy:ticketData.result.resolved_by
+                                };
+                                var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
+                                botAuditTrail.updateBotAuditTrail(auditTrailId, {
+                                    'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj
+                                }, function (err, data) {
+                                    if (err) {
+                                        logger.error(err);
+                                        next(err, null);
+                                        return;
+                                    } else {
+                                        next(null, data);
+                                        return;
+                                    }
+                                })
+                            }
+                        });
+                    } else {
+                        logger.info("There is no Service Now Server details available. Please configure first for serviceNow Syncing");
+                        next(null,null);
+                    }
+                });
+            }else{
+                logger.info("There is no records are available for Service Now Ticket Sync");
+                next(null,null);
+            }
+        }
+
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+}
+
 auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(actionId,timeStamp,callback){
     if (timeStamp) {
         timeStamp = parseInt(timeStamp);
@@ -173,29 +318,51 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
     });
 }
 
-auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,callback){
+auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema, userName, callback) {
     async.waterfall([
         function(next){
             apiUtil.queryFilterBy(queryParam,next);
         },
         function(filterQuery,next) {
             filterQuery.isDeleted=false;
-            if(BOTSchema === 'BOTs') {
-                bots.getAllBots(filterQuery, next);
+            if(BOTSchema === 'BOTOLD') {
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        filterQuery['orgId'] = {$in:orgIds};
+                        botOld.getAllBots(filterQuery, next);
+                    }else{
+                        botOld.getAllBots(filterQuery, next);
+                    }
+                });
             }else{
-                botsDao.getAllBots(filterQuery, next);
+                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    if(err){
+                        next(err,null);
+                    }else if(orgIds.length > 0){
+                        filterQuery['orgId'] = { $in: orgIds };
+                        botDao.getAllBots(filterQuery, next);
+                    }else{
+                        botDao.getAllBots(filterQuery, next);
+                    }
+                });
             }
         },
         function(botsList,next){
             var auditIds = [];
             for(var i = 0; i < botsList.length; i++) {
-                auditIds.push(botsList[i].botId);
+                if(BOTSchema === 'BOTOLD') {
+                    auditIds.push(botsList[i].botId);
+                }else{
+                    auditIds.push(botsList[i]._id);
+                }
             }
             async.parallel({
                 totalNoOfBots: function(callback){
                             callback(null, botsList.length);
                 },
-               /* totalNoOfSuccessBots: function(callback){
+                totalNoOfSuccessBots: function(callback){
                     var query = {
                         auditType: BOTSchema,
                         actionStatus: 'success',
@@ -203,46 +370,29 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditId:{$in:auditIds}
                     };
                     var botsIds = [];
-                    auditTrail.getAuditTrails(query, function (err, botsAudits) {
+                    auditTrail.getAuditTrailsCount(query, function (err, botsAuditsCount) {
                         if (err) {
                             callback(err, null);
-                        } else if (botsAudits.length > 0) {
-                            for (var j = 0; j < botsAudits.length; j++) {
-                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
-                                    botsIds.push(botsAudits[j].auditId);
-                                }
-                            }
-                            callback(null, botsIds.length);
-                        } else {
-                            callback(null, botsIds.length);
+                            return;
+                        } else{
+                            callback(null, botsAuditsCount);
+                            return;
                         }
                     });
-                },*/
-                /*totalNoOfScheduledBots: function(callback){
-                    var scheduleBotsIds = [];
-                    if(botsList.length > 0) {
-                        for (var j = 0; j < botsList.length; j++) {
-                            if(botsList[j].isBotScheduled === true) {
-                                scheduleBotsIds.push(botsList[j]._id);
-                            }
-                        }
-                        callback(null,scheduleBotsIds.length);
-                    }else{
-                        callback(null,scheduleBotsIds.length);
-                    }
-                },*/
+                },
                 totalNoOfServiceNowTickets: function(callback){
                     var query={
                         auditType:BOTSchema,
                         actionStatus:'success',
                         isDeleted:false,
-                        user:'servicenow'
+                        'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
+                        auditId: { $in: auditIds }
                     };
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    auditTrail.getAuditTrailsCount(query, function(err,botsAuditsCount){
                         if(err){
                             callback(err,null);
                         }else {
-                            callback(null,botsAudits.length);
+                            callback(null, botsAuditsCount);
                         }
                     });
                 },
@@ -254,7 +404,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditId:{$in:auditIds}
                     };
                     var botsIds = [];
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    auditTrail.getAuditTrails(query, function (err, botsAudits){
                         if(err){
                             callback(err,null);
                         }else if (botsAudits.length > 0) {
@@ -270,7 +420,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     });
                 },
                 totalSavedTimeForBots: function(callback){
-                    var hours = 0, minutes = 0;
+                    var days =0,hours = 0, minutes = 0;
                     if(botsList.length > 0) {
                         for (var k = 0; k < botsList.length; k++) {
                             if(botsList[k].savedTime && botsList[k].savedTime.hours) {
@@ -285,7 +435,12 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         hours = hours + Math.floor(minutes / 60);
                         minutes = minutes % 60;
                     }
+                    if (hours >= 24) { 
+                        days = days + Math.floor(hours / 24);
+                        hours = hours % 24;
+                    }
                     var result = {
+                        days:days,
                         hours:hours,
                         minutes:minutes
                     }
@@ -336,7 +491,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
 
 auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){
     var query={
-        auditType:'BOTs',
+        auditType:'BOTOLD',
         auditId:botId,
         isDeleted:false
     };
@@ -379,9 +534,69 @@ auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,c
     });
 }
 
+function toTimestamp(strDate){
+    var datum = Date.parse(strDate);
+    return datum/1000;
+}
 
-function getExecutionTime(endTime,startTime){
-    var executionTimeInMS = endTime-startTime;
-    var totalSeconds = Math.floor(executionTimeInMS/1000);
-    return totalSeconds;
+function checkServiceNowTicketState(state){
+    var status = '';
+    switch (parseInt(state)) {
+        case 1:
+            status = "New";
+            break;
+        case 2:
+            status = "Active";
+            break;
+        case 3:
+            status = "Work In Progress";
+            break;
+        case 4:
+            status = "Awaiting Problem Resolution";
+            break;
+        case 5:
+            status = "Awaiting User Info";
+            break;
+        case 6:
+            status = "Resolved";
+            break;
+        case 7:
+            status = "Closed";
+            break;
+        case 8:
+            status = "Cancelled";
+            break;
+        default:
+            status = "New";
+            break;
+    }
+    return status;
+}
+
+function checkServiceNowTicketPriority(priority){
+    var priorityState = '';
+    switch (parseInt(priority)) {
+        case 0:
+            priorityState = "VIP";
+            break;
+        case 1:
+            priorityState = "1-Critical";
+            break;
+        case 2:
+            priorityState = "2-High";
+            break;
+        case 3:
+            priorityState = "3-Medium";
+            break;
+        case 4:
+            priorityState = "4-Low";
+            break;
+        case 5:
+            priorityState = "5-Very Low";
+            break;
+        default:
+            priorityState = "1-Critical";
+            break;
+    }
+    return priorityState;
 }

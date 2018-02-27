@@ -203,7 +203,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         });
     });
 
-    app.all('/instances/*', sessionVerificationFunc);
+    app.all('/instances*', sessionVerificationFunc);
 
 
     /*app.get('/instances', function(req, res) {
@@ -221,8 +221,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      });*/
 
     // Instance list for tagging server
-    app.get('/instancesList', function (req, res, next) {
-
+    app.get('/instances/list', function (req, res, next) {
         var reqData = {};
         async.waterfall(
             [
@@ -244,6 +243,19 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     return res.status(200).send(results);
             });
     });
+
+
+    app.get('/instances/armid/:armid',function(req, res){
+        instancesDao.getInstancesByARMId(req.params.armid,function (err,instances) {
+            if(!err){
+                res.status(200).send(instances);
+            }
+            else{
+                res.status(400).send(err);
+            }
+
+        })
+    })
 
     app.get('/instances', getInstanceList);
 
@@ -1203,8 +1215,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     });
     //Coposite Docker container launch 
     app.post('/instances/dockercompositeimagepull/:instanceid/:dockerreponame', function (req, res) {
-
-
         var generateDockerLaunchParams = function (runparams) {
             logger.debug('rcvd runparams --->', runparams);
             var launchparams = [];
@@ -1212,8 +1222,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             var startparams = '';
             var execparam = '';
             var containername = '';
-
-            //eliminating any exec portion.
             var _execp = runparams.split('-exec');
             if (_execp.length > 0 && typeof _execp != 'undefined') {
                 execparam = _execp[1];
@@ -1227,35 +1235,24 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     runparams = _startparm[0];
                 }
             }
-
             logger.debug('1 runparams: ' + runparams);
-
             var params = runparams.split(' -');
-
-
-
             for (var i = 0; i < params.length; i++) {
                 if (params[i] != '') {
                     var itms = params[i].split(' ');
                     if (itms.length > 0) {
                         logger.debug('itms[0]:' + itms[0] + ';itms[1]:' + itms[1]);
                         preparams += ' -' + params[i];
-
                         if (itms[0] == '-name') {
-
                             containername = itms[1];
                         }
-
                     }
-
                 }
             }
             logger.debug('execparam: ' + execparam);
             logger.debug('runparams: ' + runparams);
             logger.debug('preparams: ' + preparams);
             logger.debug('startparams: ' + startparams);
-
-
             launchparams[0] = preparams;
             launchparams[1] = startparams;
             launchparams[2] = execparam;
@@ -1275,7 +1272,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 res.send(500);
                 return;
             }
-            logger.debug(data.length + ' ' + JSON.stringify(data));
             if (data.length) {
                 var instance = data;
                 var instanceLog = {
@@ -1300,7 +1296,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     action: "Docker-Run",
                     logs: []
                 };
-
                 logger.debug(' Docker dockerEngineStatus : ' + data[0].docker.dockerEngineStatus);
                 if (data[0].docker.dockerEngineStatus) {
                     if (data[0].docker.dockerEngineStatus != "success") {
@@ -1311,16 +1306,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     res.end('No Docker Found');
                     return;
                 }
-
                 //Finding out a catalyst docker entry in compose json 
                 for (var cic = 0; cic < dockercomposejson.length; cic++) {
                     if (dockercomposejson[cic].dockerreponame) {
                         req.params.dockerreponame = dockercomposejson[cic].dockerreponame;
                     }
-
                 }
-
-
                 configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function (err, data) {
                     if (!err) {
                         var dock = null;
@@ -1331,7 +1322,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         } else {
                             logger.debug('No Docker Repo found. Would pull only public repos.')
                         }
-
                         var _docker = new Docker();
                         var stdmessages = '';
                         var imagecount = 0; //to count the no of images started.
@@ -1346,22 +1336,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             runparams = runparams.replace(/!!/g, "/");
                             startparams = startparams.replace(/!!/g, "/");
                             execcommand = execcommand.replace(/!!/g, "/");
-
                             cmd += 'sudo docker pull ' + decodeURIComponent(imagename);
                             logger.debug('Intermediate cmd: ', cmd);
                             if (tagname != null) {
                                 cmd += ':' + tagname;
                             }
-
                             if (runparams != 'null') {
                                 runparams = decodeURIComponent(runparams);
                             }
-
-                            if (startparams != 'null') {
+                            if (startparams != 'null')
                                 startparams = decodeURIComponent(startparams);
-                            } else
+                            else
                                 startparams = ''; //startparams = '/bin/bash';
-
                             cmd += ' && sudo docker run -i -t -d ' + runparams + ' ' + decodeURIComponent(imagename) + ':' + tagname + ' ' + startparams;
                             logger.debug('Docker command to be executed : ', cmd);
                             if (imagecount == 1) {

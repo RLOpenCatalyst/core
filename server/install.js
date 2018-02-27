@@ -36,14 +36,19 @@ function getDefaultsConfig() {
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
+        currentDir:currentDirectory,
         javaLibDir: currentDirectory + '/app',
-        gitHubDir: currentDirectory + '/gitHub/',
+        gitHubDirName: 'gitHub',
+        botLogDir: currentDirectory + '/app/logs/',
+        botFactory: '.botsfactory',
+        botCurrentFactory: '.botsfactory/current',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
         scriptDirName :'scriptDir',
         staticUploadDir: '/var/chef/cache/uploads',
         app_run_secure_port: 443,
+        botEngineTimeOut:180,
         cryptoSettings: {
             algorithm: "aes192",
             password: "pass@!@#",
@@ -67,6 +72,17 @@ function getDefaultsConfig() {
             get cookbooksDir() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
+        },
+        dboardConfig: {
+          baseURl: "http://dboard.rlcatalyst.com",
+          authPath: "/user/login",
+          servicePath: "/business_service",
+          interval: "Minutes",
+          repeat_every: 1
+        },
+         newRelic:{
+         appName: "New Catalyst App",
+         licenseKey: "bd20baf865971e73848ee1f4e827ab4c43077786"
         },
         settingWizardSteps:[{name :'Introduction',isCompleted:true},
             {name :'Org Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Organization',isCompleted:false,mandatoryCheck:true},
@@ -119,6 +135,7 @@ function getDefaultsConfig() {
                 "containerLogs":"createdOn",
                 "bots":"createdOn",
                 "gitHub":"createdOn",
+                "notice":"createdOn",
                 "resourceMap":"createdOn"
             },
             skip_Records : 1,
@@ -529,6 +546,15 @@ function getDefaultsConfig() {
         },
         get scriptDir() {
             return this.catalystHome + this.scriptDirName + "/";
+        },
+        get gitHubDir() {
+            return this.catalystHome + this.gitHubDirName + "/";
+        },
+        get botFactoryDir() {
+            return this.catalystHome + this.botFactory + "/";
+        },
+        get botCurrentFactoryDir() {
+            return this.catalystHome + this.botCurrentFactory + "/";
         }
     };
     return config;
@@ -745,6 +771,10 @@ proc.on('close', function(code) {
         mkdirp.sync(config.catalystHome);
         mkdirp.sync(config.instancePemFilesDir);
         mkdirp.sync(config.tempDir);
+        mkdirp.sync(config.scriptDir);
+        mkdirp.sync(config.gitHubDir);
+        mkdirp.sync(config.botFactoryDir);
+        mkdirp.sync(config.botCurrentFactoryDir);
         mkdirp.sync(config.chef.chefReposLocation);
         mkdirp.sync(config.chef.cookbooksDir);
         mkdirp.sync(config.puppet.puppetReposLocation);

@@ -18,7 +18,7 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-
+var auditTrailService = require('_pr/services/auditTrailService');
 
 var instancesDao = require('_pr/model/classes/instance/instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
@@ -46,13 +46,13 @@ var INFRA_MANAGER_TYPE = {
 
 
 var ARMTemplateBlueprintSchema = new Schema({
+    _id:false,
     cloudProviderId: String,
     infraMangerType: String,
     infraManagerId: String,
     templateFile: String,
     parameters: Object,
     instances: Object,
-    //stackName: String,
     resourceGroup: String,
 });
 
@@ -302,6 +302,25 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
                                 });
+                                if (launchParams.auditTrailId !== null) {
+                                    var resultTaskExecution = {
+                                        "actionLogId": launchParams.actionLogId,
+                                        "auditTrailConfig.nodeIdsWithActionLog": [{nodeId:logsReferenceIds[0],actionLogId:logsReferenceIds[1]}],
+                                        "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                        "masterDetails.orgName": launchParams.orgName,
+                                        "masterDetails.bgName": launchParams.bgName,
+                                        "masterDetails.projectName": launchParams.projectName,
+                                        "masterDetails.envName": launchParams.envName,
+                                        "actionStatus": "failed",
+                                        "status": "failed",
+                                        "endedOn": new Date().getTime()
+                                    }
+                                    auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                        if (err) {
+                                            logger.error("Failed to create or update bots Log: ", err);
+                                        }
+                                    });
+                                }
                                 if (instance.hardware.os != 'windows')
                                     return;
                             }
@@ -357,6 +376,33 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
                                             }
                                         });
+                                        if (launchParams.auditTrailId !== null) {
+                                            var resultTaskExecution = {
+                                                "actionLogId": launchParams.actionLogId,
+                                                "auditTrailConfig.nodeIdsWithActionLog": [{nodeId:logsReferenceIds[0],actionLogId:logsReferenceIds[1]}],
+                                                "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                "masterDetails.orgName": launchParams.orgName,
+                                                "masterDetails.bgName": launchParams.bgName,
+                                                "masterDetails.projectName": launchParams.projectName,
+                                                "masterDetails.envName": launchParams.envName,
+                                                "actionStatus": "failed",
+                                                "status": "failed",
+                                                "endedOn": new Date().getTime()
+                                            }
+                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update bots Log: ", err);
+                                                }
+                                                if(launchParams.bot_id !== null) {
+                                                    logsDao.insertLog({
+                                                        referenceId: logsReferenceIds,
+                                                        err: true,
+                                                        log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
+                                                        timestamp: new Date().getTime()
+                                                    });
+                                                }
+                                            });
+                                        }
 
                                     } else {
                                         if (code == 0) {
@@ -383,6 +429,33 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             };
                                             instanceLog.actionStatus = "success";
                                             instanceLog.endedOn = new Date().getTime();
+                                            if (launchParams.auditTrailId !== null) {
+                                                var resultTaskExecution = {
+                                                    "actionLogId": launchParams.actionLogId,
+                                                    "auditTrailConfig.nodeIdsWithActionLog": [{nodeId:logsReferenceIds[0],actionLogId:logsReferenceIds[1]}],
+                                                    "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                    "masterDetails.orgName": launchParams.orgName,
+                                                    "masterDetails.bgName": launchParams.bgName,
+                                                    "masterDetails.projectName": launchParams.projectName,
+                                                    "masterDetails.envName": launchParams.envName,
+                                                    "actionStatus": "success",
+                                                    "status": "success",
+                                                    "endedOn": new Date().getTime()
+                                                }
+                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                    }
+                                                    if(launchParams.bot_id !== null) {
+                                                        logsDao.insertLog({
+                                                            referenceId: logsReferenceIds,
+                                                            err: false,
+                                                            log: 'BOT has been executed successfully for Blueprint BOT:' + launchParams.bot_id,
+                                                            timestamp: new Date().getTime()
+                                                        });
+                                                    }
+                                                });
+                                            }
                                             instancesDao.getInstancesByARMId(instanceData.armId,function(err,armInstanceList){
                                                 if(err){
                                                     logger.error("Error in getting ARM Instances ",err);
@@ -488,6 +561,34 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
                                             });
+
+                                            if (launchParams.auditTrailId !== null) {
+                                                var resultTaskExecution = {
+                                                    "actionLogId": launchParams.actionLogId,
+                                                    "auditTrailConfig.nodeIdsWithActionLog": [{nodeId:logsReferenceIds[0],actionLogId:logsReferenceIds[1]}],
+                                                    "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                    "masterDetails.orgName": launchParams.orgName,
+                                                    "masterDetails.bgName": launchParams.bgName,
+                                                    "masterDetails.projectName": launchParams.projectName,
+                                                    "masterDetails.envName": launchParams.envName,
+                                                    "actionStatus": "failed",
+                                                    "status": "failed",
+                                                    "endedOn": new Date().getTime()
+                                                }
+                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                    }
+                                                    if(launchParams.bot_id !== null) {
+                                                        logsDao.insertLog({
+                                                            referenceId: logsReferenceIds,
+                                                            err: true,
+                                                            log: 'BOT execution is failed for Blueprint BOT:' + launchParams.bot_id,
+                                                            timestamp: new Date().getTime()
+                                                        });
+                                                    }
+                                                });
+                                            }
                                         }
                                     }
                                 }, function(stdOutData) {
@@ -624,8 +725,8 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         var instances = self.instances;
 
                         if (instances) {
-                            password = instances[vmName].password;
-                            runlist = instances[vmName].runlist;
+                            password = instances[vmData.properties.osProfile.computerName].password;
+                            runlist = instances[vmData.properties.osProfile.computerName].runlist;
                         }
                         addAndBootstrapInstance({
                             name: vmName,
@@ -650,15 +751,32 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                     callback(err,null);
                     return;
                 }
+                if(launchParams.actionLogId !== null) {
+                    logsDao.insertLog({
+                        referenceId: [launchParams.actionLogId],
+                        err: false,
+                        log: "BOT Execution is started for Blueprint BOT :"+launchParams.bot_id,
+                        timestamp: new Date().getTime()
+                    });
+                    logsDao.insertLog({
+                        referenceId: [launchParams.actionLogId],
+                        err: false,
+                        log: "ARM Template is created : " + launchParams.stackName,
+                        timestamp: new Date().getTime()
+                    });
+                }
                 arm.getDeployedTemplate({
                     name: launchParams.stackName,
-                    resourceGroup: self.resourceGroup
+                    resourceGroup: stackData.resourceGroup
                 }, function(err, deployedTemplateData) {
                     if (err) {
                         logger.error("Unable to get arm deployed template", err);
                         callback(err,null);
                         return;
                     }
+                    //setting the default resource group
+                    self.resourceGroup = stackData.resourceGroup;
+
                     AzureARM.createNew({
                         orgId: launchParams.orgId,
                         bgId: launchParams.bgId,
@@ -674,7 +792,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         deploymentId: deployedTemplateData.id,
                         status: deployedTemplateData.properties.provisioningState,
                         users: launchParams.users,
-                        resourceGroup: self.resourceGroup,
+                        resourceGroup: stackData.resourceGroup,
 
                     }, function(err, azureArmDeployement) {
                         if (err) {
@@ -699,7 +817,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             }
                             arm.waitForDeploymentCompleteStatus({
                                 name: launchParams.stackName,
-                                resourceGroup: self.resourceGroup
+                                resourceGroup: stackData.resourceGroup
                             }, function (err, deployedTemplateData) {
                                 if (err) {
                                     logger.error('Unable to wait for deployed template status', err);

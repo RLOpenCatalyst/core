@@ -6,9 +6,15 @@ var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var commons=appConfig.constantData;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
+var formatMessage = require('format-message')
 var fileIo = require('_pr/lib/utils/fileio');
 
 var ApiUtil = function() {
+
+    this.messageFormatter=function(formattedMessage,replaceTextObj,callback){
+        var resultMessage = formatMessage(formattedMessage,replaceTextObj);
+        callback(null,resultMessage);
+    }
     this.errorResponse=function(code,field){
         var errObj={};
         if(code==400){
@@ -42,6 +48,21 @@ var ApiUtil = function() {
             }
         })
     };
+
+    this.writeFile = function(filePath,data,callback){
+        fileIo.writeFile(filePath, JSON.stringify(data), false, function (err) {
+            if (err) {
+                logger.error("Unable to write file");
+                callback(err,null);
+                return;
+            } else {
+                logger.debug("getTreeForNew is Done");
+                callback(null,true);
+                return;
+            }
+        })
+    };
+
     this.createCronJobPattern= function(scheduler){
         scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery);
         var startOn = null,endOn = null;
@@ -175,6 +196,8 @@ var ApiUtil = function() {
             page: jsonData.page > 0 ? jsonData.page : 1 ,
             limit: jsonData.pageSize
         };
+        if (jsonData.select)
+            options.select = jsonData.select;  
         databaseCall['queryObj']=queryObj;
         databaseCall['options']=options;
         callback(null, databaseCall);
@@ -193,7 +216,7 @@ var ApiUtil = function() {
             }
         }
         if(('search' in req) && (req.search !== '' || req.search !== null)){
-            reqObj['search'] =   req.search;
+         reqObj['search'] =   req.search;
         }
         if('filterBy' in req){
             reqObj['filterBy'] =   req.filterBy;
@@ -280,6 +303,39 @@ var ApiUtil = function() {
         }else{
             callback(null, filterByObj);
         }
+    }
+
+    this.writeLogFile = function(desPath,data,callback){
+        fileIo.exists(desPath,function(err,existFlag){
+            if(err){
+                logger.error("Error in checking File Exists or not.",err);
+                callback(err,null);
+                return;
+            }else if(existFlag === true){
+                fileIo.appendToFile(desPath,data,function(err,dataAppend){
+                    if(err){
+                        logger.error("Error in Appending Data in exist File.",err);
+                        callback(err,null);
+                        return;
+                    }else{
+                        callback(null,dataAppend);
+                        return;
+                    }
+                })
+            }else{
+                fileIo.writeFile(desPath, data, false, function (err, fileWrite) {
+                    if (err) {
+                        logger.error("Error in Writing File.", err);
+                        callback(err, null);
+                        return;
+                    } else {
+                        callback(null, fileWrite);
+                        return;
+                    }
+                });
+            }
+
+        })
     }
 
 

@@ -25,7 +25,7 @@ var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/audit-trail/*', sessionVerificationFunc);
+    app.all('/audit-trail*', sessionVerificationFunc);
 
     app.get('/audit-trail', function(req,res){
         auditTrailService.getAuditTrailList(req.query,function(err,auditTrailList){
@@ -48,12 +48,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/audit-trail/bots-summary', function(req,res){
-        auditTrailService.getBOTsSummary(req.query,'BOTs',function(err,botSummary){
+        var loggedUser = req.session.user.cn;
+        auditTrailService.getBOTsSummary(req.query,'BOT',loggedUser,function(err,botSummary){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
             }
             return res.status(200).send(botSummary);
+        })
+    });
+
+    app.get('/audit-trail/:auditId/srnTicketSync', function(req,res){
+        auditTrailService.syncCatalystWithServiceNow(req.params.auditId,function(err,srnTicketSync){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(srnTicketSync);
         })
     });
 

@@ -37,7 +37,7 @@ var async = require('async');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-    app.all('/cloudformation/*', sessionVerificationFunc);
+    app.all('/cloudformation*', sessionVerificationFunc);
 
     app.get('/cloudformation', function(req, res) {
         async.waterfall([

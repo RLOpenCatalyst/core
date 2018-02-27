@@ -64,6 +64,28 @@ resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(re
 
 };
 
+resourceMapService.deleteAllResourcesByFilter = function deleteAllResourcesByFilter(reqQueryObj,callback){
+    var reqData = {};
+    async.waterfall([
+        function (next) {
+            apiUtil.queryFilterBy(reqQueryObj, next);
+        },
+        function (queryObj, next) {
+            resourceMap.deleteAllResourcesByFilter(queryObj, next);
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+
+};
+
 resourceMapService.createNewResourceMap = function createNewResourceMap(resourceMapObj,callback){
     resourceMapObj.createdOn = new Date().getTime();
     resourceMap.createNew(resourceMapObj,function(err,resourceMapData){

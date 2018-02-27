@@ -21,7 +21,7 @@ var fs = require('fs');
 var Buffer = require('buffer');
 var logger = require('_pr/logger')(module);
 var util = require('util');
-var YAML = require('yamljs');
+var YAML = require('js-yaml');
 var SCP = require('_pr/lib/utils/scp');
 var Process = require("_pr/lib/utils/process");
 var Cryptography = require('_pr/lib/utils/cryptography');
@@ -73,7 +73,7 @@ var Puppet = function(settings) {
         var stdErrStr = '';
         var puppetConfig = {};
         var line = '';
-        runSSHCmdOnMaster('puppet config print', function(err, retCode) {
+        runSSHCmdOnMaster('puppet config print --section master', function(err, retCode) {
             if (err) {
                 callback(err, null);
                 return;
@@ -367,6 +367,7 @@ var Puppet = function(settings) {
     this.getMasterHostName = function(callback) {
         var hostNamePuppetMaster = '';
         runSSHCmdOnMaster('hostname -f', function(err, retCode) {
+            console.log(err);
             if (err) {
                 callback({
                     message: "Unable to get hostname of puppet-master. Unable to ssh into puppet master",
@@ -547,8 +548,9 @@ var Puppet = function(settings) {
                     }, null);
                     return;
                 }
-                stdOutStr = stdOutStr.replace(/!/g, '#!');
-                var node = YAML.parse(stdOutStr);
+                stdOutStr = stdOutStr.replace("!ruby/object:Puppet::Node", '');
+              
+                var node = YAML.load(stdOutStr);
                 callback(null, node);
 
             }, function(stdOut) {

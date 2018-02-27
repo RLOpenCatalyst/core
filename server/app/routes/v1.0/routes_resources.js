@@ -21,7 +21,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all("/resources/*", sessionVerificationFunc);
+    app.all("/resources*", sessionVerificationFunc);
 
     app.get('/resources', getAllResources);
 

@@ -24,11 +24,11 @@ var credentialcryptography = require('_pr/lib/credentialcryptography');
 var fs = require('fs');
 var blueprintService = require('_pr/services/blueprintService.js');
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/1.0/bots.js');
-var botsService = require('_pr/services/botsService.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botOldService = require('_pr/services/botOldService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-	app.all('/blueprints/*', sessionVerificationFunc);
+	app.all('/blueprints*', sessionVerificationFunc);
 
 	app.get('/blueprints', function(req, res) {
 		var queryObj = {
@@ -43,6 +43,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 		})
 	});
+    app.get('/blueprints/list', function(req, res) {
+        blueprintService.getAllBlueprintsWithFilter(req.query, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
 	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
 		blueprintService.deleteServiceDeliveryBlueprint(req.params.blueprintId, function(err, data) {
 			if (err) {
@@ -237,13 +246,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							logger.error("Failed to get blueprint ", err);
 							return;
 						} else {
-							botsService.createNew(blueprintData, 'Blueprint', blueprintUpdateData.blueprintType, 'edit', function (err, data) {
+							botOldService.createNew(blueprintData, 'Blueprint', blueprintUpdateData.blueprintType, 'edit', function (err, data) {
 								logger.error("Error in creating bots entry." + err);
 							});
 						}
 					});
 				}else{
-					botsService.removeSoftBotsById(req.params.blueprintId, function (err, data) {
+					botOldService.removeSoftBotsById(req.params.blueprintId, function (err, data) {
 						if (err) {
 							logger.error("Error in updating bots entry." + err);
 						}
@@ -307,12 +316,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				res.send(500, errorResponses.db.error);
 				return;
 			}
-			bots.removeBotsById(req.params.blueprintId,function(err,botsData){
+			botOld.removeBotsById(req.params.blueprintId,function(err,botsData){
 				if(err){
 					logger.error("Failed to delete Bots ", err);
 				}
 			});
-			auditTrailService.removeAuditTrailById(req.params.taskId,function(err,auditTrailData){
+			auditTrailService.removeAuditTrailById(req.params.blueprintId,function(err,auditTrailData){
 				if(err){
 					logger.error("Failed to delete Audit Trail ", err);
 				}
@@ -326,17 +335,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.delete('/blueprints', function(req, res) {
 		var blueprintIds = req.body.blueprints;
 		logger.debug("Enter /blueprints/delete/%s", req.body.blueprints);
-		if(blueprintIds.length > 0)
-		Blueprints.removeByIds(blueprintIds, function(err, data) {
-			if (err) {
-				logger.error("Failed to delete blueprint ", err);
-				res.send(500, errorResponses.db.error);
-				return;
-			}
-			res.send(200, {
-				message: "deleted"
-			});
-		});
+		if(blueprintIds.length > 0) {
+            Blueprints.removeByIds(blueprintIds, function (err, data) {
+                if (err) {
+                    logger.error("Failed to delete blueprint ", err);
+                    res.send(500, errorResponses.db.error);
+                    return;
+                }
+                res.send(200, {
+                    message: "deleted"
+                });
+            });
+        }else{
+            res.send(400, {
+                message: "There is no Blueprint Ids in request Body"
+            })
+		}
 	});
 
 	app.post('/blueprints/copy',function(req,res){

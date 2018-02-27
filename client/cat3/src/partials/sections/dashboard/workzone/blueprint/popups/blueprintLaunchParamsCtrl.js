@@ -9,7 +9,6 @@
 	"use strict";
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'toastr',  'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, toastr, items,workzoneServices,genericServices,workzoneEnvironment) {
-			console.log(items);
 			$scope.showMonitor = true;
 			if(items.blueprintType === 'azure_arm' || items.blueprintType === 'azure_launch') {
 				$scope.showMonitor = false;

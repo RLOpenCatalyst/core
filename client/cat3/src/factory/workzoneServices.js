@@ -8,7 +8,21 @@
 (function (angular) {
 	"use strict";
 	angular.module('apis.workzone',['authentication', 'utility.pagination'])
-		.service('workzoneEnvironment', [function () {
+		.service('workzoneNode', [function () {
+			var selectedNode = null;
+			var env = {
+				setWorkzoneNode: function (node) {
+					selectedNode = node;
+				},
+				getWorkzoneNode: function () {
+					return selectedNode;
+				}
+			};
+			return {
+				setWorkzoneNode: env.setWorkzoneNode,
+				getWorkzoneNode: env.getWorkzoneNode
+			};
+		}]).service('workzoneEnvironment', [function () {
 			var requestParams;
 			var env = {
 				setParams: function (params) {
@@ -306,7 +320,7 @@
 					return $http.post(fullUrl(url), data, Auth.getHeaderObject());
 				},
 				getScriptList: function (scriptType) {
-					var url = '/scripts?filterBy=scriptType:'+scriptType;
+					var url = '/scripts?filterBy=type:'+scriptType;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				updateTask: function (data, id) {
@@ -454,7 +468,7 @@
 					var url='/app-deploy/new';
 					return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
 				},
-				putAppDeploy:function(RequestObject){
+				putAppDeploy:function(RequestObject) {
 					var url='/app-deploy/upgrade';
 					return $http.put(fullUrl(url),RequestObject,Auth.getHeaderObject());
 				},
@@ -462,7 +476,7 @@
 					var url='/d4dMasters/docker/'+requestObject.dockerId+'/repository/'+requestObject.repository+'/image/'+requestObject.image+'/tags';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
-				putAppPromote:function(RequestObject){
+				putAppPromote:function(RequestObject) {
 					var url='/app-deploy/promote';
 					return $http.put(fullUrl(url),RequestObject,Auth.getHeaderObject());
 				},
@@ -492,7 +506,9 @@
 				},
 				getAllCompsiteBlueprint:function () {
 					var p = workzoneEnvironment.getEnvParams();
-					var url ='/composite-blueprints?filterBy=organizationId:'+p.org+'+businessGroupId:'+p.bg+'+projectId:'+p.proj;
+					//var url ='/composite-blueprints?filterBy=organizationId:'+p.org+'+businessGroupId:'+p.bg+'+projectId:'+p.proj;
+					var url = '/organizations/' + p.org + '/businessgroups/' + p.bg + 
+					'/projects/' + p.proj + '/blueprintList?pagination=true&templateType=composite&providerType='
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getCompsiteBlueprintInfo:function (compositeBlueprintId) {

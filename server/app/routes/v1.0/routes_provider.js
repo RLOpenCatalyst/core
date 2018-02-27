@@ -41,6 +41,12 @@ var settingsService = require('_pr/services/settingsService');
 
 module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
+    app.all('/aws/*', sessionVerificationFunc);
+    app.all('/vmware/*', sessionVerificationFunc);
+    app.all('/azure/*', sessionVerificationFunc);
+    app.all('/openstack/*', sessionVerificationFunc);
+
+
 
     // Return AWS Provider respect to id.
     app.get('/aws/providers/list', function (req, res) {
