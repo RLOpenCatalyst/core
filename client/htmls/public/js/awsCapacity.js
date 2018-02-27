@@ -312,11 +312,7 @@ $(document).ready(function() {
             "serverSide": true,
             "destroy": true,
             "ajax": {
-<<<<<<< HEAD
-                "url": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
-=======
                 "url":  urlManagedNoProvider ? urlManagedNoProvider : urlManagedProvider,
->>>>>>> upstream/topic-v4.1.2-dev
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
@@ -419,11 +415,7 @@ $(document).ready(function() {
             "serverSide": true,
             "destroy": true,
             "ajax": {
-<<<<<<< HEAD
-                "url": url,
-=======
                 "url":  url,
->>>>>>> upstream/topic-v4.1.2-dev
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {

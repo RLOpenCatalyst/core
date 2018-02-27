@@ -442,11 +442,7 @@ $(document).ready(function () {
                 $(row).attr({"data-id": data._id})
             },
             "ajax": {
-<<<<<<< HEAD
-                "url":  '/providers/' + providerId + '/unassigned-instances',
-=======
                 "url":'/providers/' + providerId + '/unassigned-instances',
->>>>>>> upstream/topic-v4.1.2-dev
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
