@@ -63,15 +63,13 @@
 
             $scope.botServiceNowLibGridOptions = {};
             $scope.botServiceNowLibGridOptions.columnDefs = [
-                { name:'Ticket No.',displayName: 'Ticket No.',field:'srnTicketNo',cellTemplate:'<a target="_blank" href="{{row.entity.srnTicketLink}}">{{row.entity.srnTicketNo}}</a>',cellTooltip: true},
-                { name: 'Category',displayName: 'Category',field:'srnTicketCategory',cellTooltip: true},
-                { name: 'botName',displayName: 'BOT Name',field:'name',cellTemplate:'<a ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})">{{row.entity.name}}</a>',cellTooltip: true},
-                { name: 'Description',field:'srnTicketDesc',cellTooltip: true},
-                { name: 'Status',field:'srnTicketStatus',cellTooltip: true},
-                { name: 'Priority',field:'srnTicketPriority',cellTooltip: true},
-                { name: 'Created At',field:'srnTicketCreatedOn ',cellTemplate:'<span title="{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}">{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'Resolved At',field:'srnTicketResolvedAt', cellTemplate:'<span title="{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}">{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'Resolved By',field:'srnTicketResolvedBy'}
+                { name: 'Ticket No.', displayName: 'Ticket No.', field: 'auditTrailConfig.serviceNowTicketRefObj.number', cellTemplate:'<a target="_blank" href="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.number}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.number}}</a>',cellTooltip: true},
+                { name: 'Category', displayName: 'Category', field:'auditTrailConfig.serviceNowTicketRefObj.category',cellTooltip: true},
+                { name: 'Description', field:'auditTrailConfig.serviceNowTicketRefObj.shortDesc',cellTooltip: true},
+                { name: 'Status', field:'auditTrailConfig.serviceNowTicketRefObj.state',cellTooltip: true},
+                { name: 'Priority', field:'auditTrailConfig.serviceNowTicketRefObj.priority',cellTooltip: true},
+                { name: 'Created At', field: 'auditTrailConfig.serviceNowTicketRefObj.createdOn ', cellTemplate:'<span title="{{auditTrailConfig.serviceNowTicketRefObj.createdOn  | timestampToLocaleTime}}">{{auditTrailConfig.serviceNowTicketRefObj.createdOn}}</span>', cellTooltip: true},
+                { name: 'Resolved At', field: 'auditTrailConfig.serviceNowTicketRefObj.resolvedAt', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt  | timestampToLocaleTime}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt  | timestampToLocaleTime}}</span>', cellTooltip: true}
             ];
             $scope.botServiceNowLibGridOptions.data=[];
             angular.extend($scope.botServiceNowLibGridOptions,botLibraryUIGridDefaults.gridOption);
@@ -187,12 +185,10 @@
                 url:'/bot?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
-                $timeout(function() {
                     $scope.showLoadRecord();
                     $scope.botServiceNowLibGridOptions.data =  result.bots;
                     $scope.isBotServiceNowPageLoading = false;
                     $scope.isBotDetailsLoading = false;
-                }, 100);
             }, function(error) {
                 $scope.isBotServiceNowPageLoading = false;
                 $scope.isBotDetailsLoading = false;
@@ -253,8 +249,20 @@
                 });
             }
         }
-
-        $scope.botLibraryGridView = function() {
+        $scope.getBotSummary = function () {
+            var param = {
+                inlineLoader: true,
+                url: '/audit-trail/bots-summary',
+            };
+            genSevs.promiseGet(param).then(function (result) {
+                $scope.botSummary = result;
+            }, function (error) {
+                toastr.error(error);
+                $scope.errorMessage = "No Records found";
+            });
+        }
+        $scope.botLibraryGridView = function () {
+            $scope.getBotSummary();
             $rootScope.onBodyLoading = false;
             $scope.isBotDetailsLoading = true;
             lib.gridOptions=[];
@@ -263,10 +271,8 @@
                 url:'/bot?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
-                $timeout(function() {
                     $scope.showLoadRecord();
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botSummary = result.botSummary;
                     if(result.metaData.totalRecords >= 24) {
                         $scope.showLoadMore = true;
                         $scope.showRecords = true;
@@ -286,7 +292,6 @@
                     $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                     $scope.isBotLibraryPageLoading = false;
                     $scope.isBotDetailsLoading = false;
-                }, 100);
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
                 $scope.isBotDetailsLoading = false;
@@ -377,7 +382,8 @@
             $scope.botStatus();
         };
 
-        $rootScope.applyFilter = function() {
+        $rootScope.applyFilter = function () {
+            $scope.getBotSummary();
             var param={};
             if ($scope.botLibAction) {
                 param={
@@ -401,7 +407,6 @@
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){
                     $scope.botLibGridOptions.data = result.bots;
-                    $scope.botSummary = result.botSummary;
                     if(result.metaData.totalRecords >= 24) {
                         $scope.showLoadMore = true;
                         $scope.showRecords = true;

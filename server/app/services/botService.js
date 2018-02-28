@@ -113,7 +113,58 @@ botService.removeBotsById = function removeBotsById(botId,callback){
         }
     });
 }
-
+botService.getBotById = function getBotById(botId, callback) {
+    botDao.getBotsByBotId(botId, (err, bot) => {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        } else if (bot.length > 0) {
+            if (bot[0].ymlDocFileId && bot[0].ymlDocFileId !== null) {
+                fileUpload.getReadStreamFileByFileId(bot[0].ymlDocFileId, function (err, file) {
+                    if (err) {
+                        logger.error("Error in fetching YAML Documents for : " + bot[0].name + " " + err);
+                    }
+                    var botsObj = {
+                        _id: bot[0]._id,
+                        name: bot[0].name,
+                        gitHubId: bot[0].gitHubId,
+                        id: bot[0].id,
+                        desc: bot[0].desc,
+                        action: bot[0].action,
+                        category: bot[0].category,
+                        type: bot[0].type,
+                        subType: bot[0].subType,
+                        inputFormFields: bot[0].input,
+                        outputOptions: bot[0].output,
+                        ymlDocFileId: bot[0].ymlDocFileId,
+                        orgId: bot[0].orgId,
+                        orgName: bot[0].orgName,
+                        ymlFileName: file !== null ? file.fileName : file,
+                        ymlFileData: file !== null ? file.fileData : file,
+                        isScheduled: bot[0].isScheduled,
+                        manualExecutionTime: bot[0].manualExecutionTime,
+                        executionCount: bot[0].executionCount,
+                        scheduler: bot[0].scheduler,
+                        createdOn: bot[0].createdOn,
+                        lastRunTime: bot[0].lastRunTime,
+                        savedTime: bot[0].savedTime,
+                        source: bot[0].source,
+                        execution: bot[0].execution,
+                        lastExecutionStatus: bot[0].lastExecutionStatus
+                    }
+                    if (bot[0].type === 'jenkins') {
+                        botsObj.isParameterized = bot[0].isParameterized;
+                    }
+                    return callback(null, botsObj);
+                })
+            }
+        } else { 
+            callback(null, []);
+            return;
+        }
+    })
+ }
 botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
     var reqData = {};
     async.waterfall([
@@ -121,7 +172,8 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             apiUtil.paginationRequest(botsQuery, 'bots', next);
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
+            paginationReq['searchColumns'] = ['name', 'type', 'category', 'desc', 'orgName'];
+            paginationReq['select'] = ['name', 'type', 'category', 'desc', 'orgName', 'lastRunTime', 'executionCount','savedTime','id','_id']
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
@@ -204,24 +256,8 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                 });
             }
         },
-        function(botList, next) {
-            addYmlFileDetailsForBots(botList,reqData,next);
-        },
-        function(filterBotList, next) {
-           async.parallel({
-               botList:function(callback){
-                   apiUtil.paginationResponse(filterBotList, reqData, callback);
-               },
-               botSummary:function(callback){
-                   auditTrailService.getBOTsSummary(botsQuery,'BOT',userName,callback)
-               }
-           },function(err,data){
-               if(err){
-                   next(err);
-               }else{
-                   next(null,data);
-               }
-           })
+        function (filterBotList, next) {
+            apiUtil.paginationResponse(filterBotList, reqData, callback);
         }
     ],function(err, results) {
         if (err){
@@ -231,8 +267,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
         }
         var resultObj = {            
             bots : results.botList.bots,            
-            metaData : results.botList.metaData,            
-            botSummary: results.botSummary        
+            metaData : results.botList.metaData,     
         }        
         callback(null,resultObj);
         return;

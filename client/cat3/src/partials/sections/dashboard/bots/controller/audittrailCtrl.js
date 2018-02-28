@@ -34,7 +34,7 @@
                 */{ name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name',cellTooltip: true},
                 { name: 'Status',field:'status',
                   cellTemplate:'<img class="bot-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
-                  '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
+                  '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' +
                   '<img class="bot-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
                   cellTooltip: true},
                 /*{ name: 'Organization',field:'masterDetails.orgName'},
@@ -42,7 +42,7 @@
                 { name: 'Project',field:'masterDetails.projectName'},
                 { name: 'Environment',field:'masterDetails.envName'},*/
                 { name: 'User',field:'user'},
-                { name: 'Logs',cellTemplate: '<span class="btn cat-btn-update control-panel-button" title="Logs" ng-click="grid.appScope.botAuditTrailLogs(row.entity);"><i class="fa fa-info white"></i></span>'}
+                { name: 'Logs',cellTemplate: '<span class="btn cat-btn-update control-panel-button" title="Logs" ng-click="grid.appScope.historyLogsTrail(row.entity);"><i class="fa fa-info white"></i></span>'}
             ];
             $scope.botAuditTrailGridOptions.data=[];
             angular.extend($scope.botAuditTrailGridOptions,botAuditTrailUIGridDefaults.gridOption);
@@ -51,7 +51,7 @@
 
         var gridBottomSpace = 70;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botAuditTrailPage') - gridBottomSpace;
-        
+
         //for server side(external) pagination.
         angular.extend($scope.botAuditTrailGridOptions,botAuditTrailUIGridDefaults.gridOption, {
             onRegisterApi :function(gridApi) {
@@ -91,6 +91,28 @@
                 $scope.errorMessage = "No Records found";
             });
         };
+
+        $scope.historyLogsTrail=function(hist) {
+            if(hist.actionLogId){
+                var logDetails = {
+                    actionId : hist.actionLogId,
+                    botId: hist.auditId
+                }
+                var jenkinsLogDetails = {
+                    jenkinsServerId:hist.actionLogId,
+                    jobName: hist.auditTrailConfig.jenkinsJobName,
+                    buildNumber: hist.auditTrailConfig.jenkinsBuildNumber
+                }
+                if(hist.auditCategory === 'jenkins') {
+                    genSevs.showLogsForJenkins(jenkinsLogDetails);
+                } else {
+                    genSevs.showLogsForBots(logDetails);
+                }
+
+            } else {
+                toastr.error("Logs are getting generated. Please wait");
+            }
+        }
 
         $scope.botAuditTrailLogs=function(hist) {
             var modalInstance = $modal.open({
