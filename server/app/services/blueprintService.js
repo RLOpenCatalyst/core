@@ -398,7 +398,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                   var instId = results.id
                   logger.info('Getting to fetch instances');
                   var instanceXId = null
-                  Array.isArray(instId) ? instanceXId = instId[0] : instanceXId=result.id
+                  Array.isArray(instId) ? instanceXId = instId[0] : instanceXId=results.id
                   var instancePollObject = setInterval(()=> {
                       instancesDao.getInstanceById(instanceXId, (err, resultx)=> {
                       if(err) cbx(err)
