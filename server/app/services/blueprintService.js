@@ -357,6 +357,12 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                                   if (instance.instanceIP && instance.instanceState == "running" && instance.bootStrapStatus == "success") {
                                       doneInstances.push({"ip": instance.instanceIP, "name": instance.chefNodeName});
                                   }
+                                  if(instance.instanceState == "running" && instance.bootStrapStatus == "failed"){
+                                      logger.info('No point continuing...bootstrap failed.');
+                                      clearInterval(instancePollObject);
+
+                                  }
+
                                   cb();
 
                               }, function (err1) {

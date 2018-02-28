@@ -728,15 +728,42 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             password = instances[vmData.properties.osProfile.computerName].password;
                             runlist = instances[vmData.properties.osProfile.computerName].runlist;
                         }
-                        addAndBootstrapInstance({
-                            name: vmName,
-                            username: username,
-                            password: password,
-                            runlist: runlist,
-                            ip: ipAddress.ip,
-                            os: osType,
-                            armId: armId
-                        });
+
+
+
+
+
+
+                        //proceed after a delay.
+                        var retryCount = 0;
+                        var sshinterval = setInterval(function(){
+                            retryCount++;
+                            var proceed = false;
+                            if(retryCount >= 2){
+                                //exiting retries..proceeding to bootstrap.
+                                logger.info("in wait..." + retryCount);
+                                clearInterval(sshinterval);
+                                retData = 'ok';
+                                proceed = true;
+                            }
+                            if(proceed){
+                                //ssh sucessfull
+                                logger.info("Proceeding to Bootstrap");
+                                addAndBootstrapInstance({
+                                    name: vmName,
+                                    username: username,
+                                    password: password,
+                                    runlist: runlist,
+                                    ip: ipAddress.ip,
+                                    os: osType,
+                                    armId: armId
+                                });
+                            }
+
+
+                        },10000)
+
+
                     });
                 });
             }

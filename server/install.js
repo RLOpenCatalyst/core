@@ -74,7 +74,7 @@ function getDefaultsConfig() {
             }
         },
         dboardConfig: {
-          baseURl: "http://dboard.rlcatalyst.com",
+          baseURl: "http://cc.rlcatalyst.com",
           authPath: "/user/login",
           servicePath: "/business_service",
           interval: "Minutes",
