@@ -25,7 +25,7 @@ AuditTrailSchema.plugin(mongoosePaginate);
 
 AuditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
     auditTrailQuery.queryObj.isDeleted = false;
-    AuditTrail.paginate(auditTrailQuery.queryObj, auditTrailQuery.options, function(err, auditTrailList) {
+    AuditTrail.paginate(auditTrailQuery.queryObj, {}, function(err, auditTrailList) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');

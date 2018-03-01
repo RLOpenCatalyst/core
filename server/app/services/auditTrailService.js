@@ -250,6 +250,7 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
                                 }, null);
                                 return;
                             } else {
+                                logger.info(JSON.stringify(ticketData));
                                 var serviceNowObj = {
                                     ticketNo: srnTicketNo,
                                     number: ticketData.result.number,
@@ -266,6 +267,7 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
                                     category: ticketData.result.category,
                                     resolvedBy:ticketData.result.resolved_by
                                 };
+                                logger.info(JSON.stringify(serviceNowObj));
                                 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
                                 botAuditTrail.updateBotAuditTrail(auditTrailId, {
                                     'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj
@@ -536,7 +538,7 @@ auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,c
 
 function toTimestamp(strDate){
     var datum = Date.parse(strDate);
-    return datum/1000;
+    return datum;
 }
 
 function checkServiceNowTicketState(state){
