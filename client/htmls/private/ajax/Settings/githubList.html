@@ -88,14 +88,26 @@
                                 <input type="text" name="gitRepoOwner" class="required gitRepoOwner form-control" id="gitRepoOwner">
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 margintop15">
+                        <div class="col-lg-12 col-md-12 margintop15">
                             <label for="gitRepoOwner">Repository Branch:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
                                 <input type="text" name="gitRepoBranch" class="required gitRepoBranch form-control" id="gitRepoBranch">
                             </div>
                         </div>
                         <hr/>
-                        <div class="col-lg-12 col-md-12 col-xs-12 margintop15 isAuthenticated">
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 repoMode">
+                            <label for="">Repository Mode:</label>
+                            <div class="input-groups">
+                                <div class="radio radioInline">
+                                    <label><input type="radio" value="Git" checked="true" name="repoMode" >Git</label>
+                                </div>
+                                <div class="radio radioInline marginleft5 marginTop8">
+                                    <label><input type="radio"  value="Bitbucket" name="repoMode">Bitbucket</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 isAuthenticated">
                             <label for="">Repository Type:</label>
                             <div class="input-groups">
                                 <div class="radio radioInline">
@@ -106,6 +118,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-lg-12 col-lg-12 col-xs-12 margintop15 isAunthenticatedSection hidden">
                             <label for="authenticationType">Authentication Type:</label>
                             <select id="authenticationType" name="authenticationType" class="form-control width-100" style="vertical-align:central">

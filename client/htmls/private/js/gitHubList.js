@@ -164,7 +164,7 @@ function getGlobalGitServers() {
                 "repositoryUserName" : data.repositoryUserName,"repositoryPassword" : data.repositoryPassword,
                 "repositorySSHPublicKeyFileId" : data.repositorySSHPublicKeyFileId,"repositorySSHPrivateKeyFileId":data.repositorySSHPrivateKeyFileId,
                 "repositorySSHPublicKeyFileName": data.repositorySSHPublicKeyFileName,"repositorySSHPrivateKeyFileName": data.repositorySSHPrivateKeyFileName,
-                "repositoryBranch": data.repositoryBranch
+                "repositoryBranch": data.repositoryBranch,"repoMode":data.repoMode
             });
         },
         "ajax": {
@@ -232,6 +232,8 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
     $editModal.find('#gitRepoOwner').val($this.parents('tr').attr('repositoryOwner'));
     $editModal.find('#gitEditHiddenInputId').val($this.parents('tr').attr('githubId'));
     $editModal.find('#gitRepoBranch').val($this.parents('tr').attr('repositoryBranch'));
+    $editModal.find('input[value=' + $this.parents('tr').attr('repoMode') + ']').prop('checked', true);
+    $('input[value="Git"]')
     var repoType = $this.parents('tr').attr('repositoryType');
     var authType = $this.parents('tr').attr('authenticationType');
 
@@ -482,13 +484,14 @@ $('#gitHubRepoForn').submit(function(e) {
         $this = $(this);
         var repositoryName, orgValue, description, authenticationType, repositoryOwner, repositoryType,
             passwordName, userName, certChainFileId, privateKeyFileId, certChainFileName, privateKeyFileName,
-            repositoryToken, repositoryBranch;
+            repositoryToken, repositoryBranch,repoMode;
 
         repositoryName = $this.find('.gitName').val().trim();
         orgValue = $this.find('#orgName').val();
         description = $this.find('#gitDescription').val();
         repositoryOwner = $this.find('#gitRepoOwner').val();
         repositoryType= $('input[name=isAuthenticated]:checked').val();
+        repoMode= $('input[name=repoMode]:checked').val();
         authenticationType = $this.find('#authenticationType').val();
         userName = $this.find('#protocolUser').val().trim();
         repositoryToken = $this.find('#token').val().trim();
@@ -496,6 +499,7 @@ $('#gitHubRepoForn').submit(function(e) {
         repositoryBranch = $this.find('#gitRepoBranch').val().trim();
         certChainFileId = $this.find('#gitHiddenPublicFile').val();
         privateKeyFileId = $this.find('#gitHiddenPrivateFile').val();
+
         var dashboardEditNew = $this.find('#gitEditHiddenInput').val();
         var gitHubId = $form.find('input#gitEditHiddenInputId').val();
         var url;
@@ -540,6 +544,7 @@ $('#gitHubRepoForn').submit(function(e) {
                                     "repositoryOwner": repositoryOwner,
                                     "repositoryBranch": repositoryBranch,
                                     "repositoryType": repositoryType,
+                                    "repoMode": repoMode,
                                     "authenticationType": authenticationType,
                                     "repositorySSHPublicKeyFileId": dataCertificate.fileId,
                                     "repositorySSHPrivateKeyFileId": dataPrivate.fileId
@@ -558,6 +563,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "repositoryOwner": repositoryOwner,
                     "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
+                    "repoMode": repoMode,
                     "authenticationType": authenticationType,
                     "repositorySSHPublicKeyFileId": certChainFileId,
                     "repositorySSHPrivateKeyFileId": privateKeyFileId
@@ -573,6 +579,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "repositoryOwner": repositoryOwner,
                     "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
+                    "repoMode": repoMode,
                     "authenticationType": authenticationType,
                     "repositoryUserName": userName,
                     "repositoryPassword": passwordName
@@ -586,6 +593,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "repositoryOwner": repositoryOwner,
                     "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
+                    "repoMode": repoMode,
                     "authenticationType": authenticationType,
                     "repositoryUserName": userName,
                     "repositoryPassword": passwordName
@@ -601,6 +609,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "repositoryOwner": repositoryOwner,
                     "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
+                    "repoMode": repoMode,
                     "authenticationType": authenticationType,
                     "repositoryUserName": userName,
                     "repositoryToken": repositoryToken
@@ -614,6 +623,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "repositoryOwner": repositoryOwner,
                     "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
+                    "repoMode": repoMode,
                     "authenticationType": authenticationType,
                     "repositoryUserName": userName,
                     "repositoryToken": repositoryToken
@@ -628,7 +638,8 @@ $('#gitHubRepoForn').submit(function(e) {
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
                     "repositoryBranch": repositoryBranch,
-                    "repositoryType": repositoryType
+                    "repositoryType": repositoryType,
+                    "repoMode": repoMode,
                 }
             } else {
                 reqBody = {
@@ -638,7 +649,8 @@ $('#gitHubRepoForn').submit(function(e) {
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
                     "repositoryBranch": repositoryBranch,
-                    "repositoryType": repositoryType
+                    "repositoryType": repositoryType,
+                    "repoMode": repoMode,
                 }
             }
             saveForm(methodName,url,reqBody);

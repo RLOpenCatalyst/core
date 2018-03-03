@@ -124,14 +124,29 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
         } else{
             formatGitHubResponse(gitHub,function(formattedGitHub){
                 var cmd;
-                if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
-                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
-                }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
-                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
-                }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
-                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
-                }else{
-                    cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                if(!formattedGitHub.repoMode || formattedGitHub.repoMode == "Git"){
+                    if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
+                        cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                    }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
+                        cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                    }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
+                        cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                    }else{
+                        cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                    }
+                }
+                else{
+                    //should be bitbucket :)
+                    var burl = "https://bitbucket.org/";
+                    if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
+                        cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L ' + burl + formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/get/'+formattedGitHub.repositoryBranch + '.tar.gz > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                    }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
+                        cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L ' + burl +formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/get/'+formattedGitHub.repositoryBranch + '.tar.gz >  '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                    }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
+                        cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L ' + burl +formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/get/'+formattedGitHub.repositoryBranch + '.tar.gz > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                    }else{
+                        cmd = 'curl -L ' + burl  + '/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/archive?AT='+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/get/'+formattedGitHub.repositoryBranch + '.tar.gz >  '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
+                    }
                 }
                 gitHubCloning(formattedGitHub,task,cmd,function(err,res){
                     if(err){
@@ -517,7 +532,8 @@ function formatGitHubResponse(gitHub,callback) {
         repositoryDesc:gitHub.repositoryDesc,
         repositoryOwner:gitHub.repositoryOwner,
         repositoryType:gitHub.repositoryType,
-        repositoryBranch:gitHub.repositoryBranch
+        repositoryBranch:gitHub.repositoryBranch,
+        repoMode:gitHub.repoMode
     };
     if (gitHub.organization.length) {
         formatted.orgId = gitHub.organization[0].rowid;

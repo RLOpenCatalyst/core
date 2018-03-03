@@ -42,10 +42,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             })
         } else if(req.query.fileId !== '' && req.query.fileId !== null) {
             res.send({fileId:req.query.fileId});
-            apiUtil.removeFile(req.files.file.path);
+            if(req.files.file)
+                apiUtil.removeFile(req.files.file.path);
         } else{
             res.send({message: "Bad Request"});
-            apiUtil.removeFile(req.files.file.path);
+            if(req.files.file)
+                apiUtil.removeFile(req.files.file.path);
         }
     });
 

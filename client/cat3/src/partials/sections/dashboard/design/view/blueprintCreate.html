@@ -262,7 +262,8 @@
                                  <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.serviceDelivery_isChecked" ng-change="bpCreate.botTypes();"> Add to Service Delivery
                               </label>
                            </div>
-                           
+
+
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
                               <label for="">BOT Type:<span class="red">*</span>
                               </label>
@@ -301,6 +302,9 @@
                               <input ng-model="bpCreate.newEnt.manualExecutionTime" style="width: 70%;" name="" class=" width-100 form-control"> 
                               <span class="pull-right" style="margin: -30px 50px 0 0px;">mins</span>
                            </div>
+
+
+
                            <!-- Docker Image selection table -->
                            <div ng-if="templateSelected.templatetypename === 'Docker'" class="col-lg-12 col-md-12" style="margin-top:9px;">
                               <label for="category">Docker Images<span class="red">&nbsp;*</span>
