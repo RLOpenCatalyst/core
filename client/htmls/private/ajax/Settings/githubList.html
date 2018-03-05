@@ -12,7 +12,7 @@
         <div class="widget-box">
             <div class="widget-header">
                 <h5 class="widget-title widgetColor">
-                    <strong>List of GitHub Repo</strong>
+                    <strong>List of Git Repo</strong>
                 </h5>
                 <div class="widget-toolbar no-border">
                     <div>
@@ -64,13 +64,20 @@
                 </div>
                 <div class="modal-body">
                     <fieldset class="fieldsetCustom">
-                        <div class="col-lg-6 col-md-6 col-xs-6">
+                        <div class="col-lg-12 col-md-12 margintop15">
+                            <label for="gitUrl">Repository URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="gitUrl" class="required gitUrl form-control" id="gitUrl">
+                                <label for="gitUrl">Ex: https://user@service/organization/repository</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden">
                             <label for="gitName">Repository Name:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
                                 <input type="text" name="gitName" class="required gitName form-control" id="gitName">
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-xs-6">
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
                             <label for="gitDescription">Description:</label>
                             <div class="input-groups">
                                 <input type="text" name="gitDescription" class="gitDescription form-control" id="gitDescription">
@@ -82,24 +89,26 @@
                                 <select id="orgName" name="orgName" class="required form-control width-100" style="vertical-align:central"></select>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 margintop15">
+                        <div class="col-lg-6 col-md-6 margintop15 hidden">
                             <label for="gitRepoOwner">Repository User/Organization:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
                                 <input type="text" name="gitRepoOwner" class="required gitRepoOwner form-control" id="gitRepoOwner">
                             </div>
                         </div>
-                        <div class="col-lg-12 col-md-12 margintop15">
+
+
+                        <div class="col-lg-6 col-md-6 margintop15">
                             <label for="gitRepoOwner">Repository Branch:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
                                 <input type="text" name="gitRepoBranch" class="required gitRepoBranch form-control" id="gitRepoBranch">
                             </div>
                         </div>
                         <hr/>
-                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 repoMode">
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 repoMode hidden">
                             <label for="">Repository Mode:</label>
                             <div class="input-groups">
                                 <div class="radio radioInline">
-                                    <label><input type="radio" value="Git" checked="true" name="repoMode" >Git</label>
+                                    <label><input type="radio" value="Git" checked="true" name="repoMode" >Github</label>
                                 </div>
                                 <div class="radio radioInline marginleft5 marginTop8">
                                     <label><input type="radio"  value="Bitbucket" name="repoMode">Bitbucket</label>

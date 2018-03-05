@@ -77,7 +77,7 @@ $('#authenticationType').change(function(e) {
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
 $('.addGitHub').click(function(e) {
     $('#gitHubRepoForn').trigger('reset');
-    $('#gitHubRepoForn .modal-header').find('.modal-title').html('Create New GitHub Repository');
+    $('#gitHubRepoForn .modal-header').find('.modal-title').html('Create New Git Repository');
     $('#gitEditHiddenInput').val('new');
     getOrganizationList();
     $('#orgName,#authenticationType').removeAttr('disabled');
@@ -108,6 +108,13 @@ $(document).on('shown.bs.modal', function(e) {
 });
 
 //form validation for dashboard save
+$.validator.addMethod("validGitUrl",function (value,element,options) {
+    if($('#gitName').val() != "" || $('#gitRepoOwner').val() != ""){
+        return true;
+    }
+},"Not a valid git repository url");
+
+
 var validator = $('#gitHubRepoForn').validate({
     ignore: [],
     rules: {
@@ -119,6 +126,12 @@ var validator = $('#gitHubRepoForn').validate({
         },
         gitName: {
             maxlength: 30
+        },
+        gitUrl:{
+            validGitUrl: "#gitUrl",
+            url: true,
+            onkeyup: false,
+            onfocusout: false
         }
     },
     messages: {
@@ -133,6 +146,7 @@ var validator = $('#gitHubRepoForn').validate({
         }
     },
     onkeyup: false,
+    onfocusout: false,
     errorClass: "error",
 
     //put error message behind each form element
@@ -148,6 +162,10 @@ var validator = $('#gitHubRepoForn').validate({
         }
     }
 });
+
+
+
+
 $('a.addGitHub[type="reset"]').on('click', function(e) {
     validator.resetForm();
 });
@@ -225,7 +243,7 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
     var $editModal = $('#modalForGitEdit');
     $editModal.modal('show');
     $editModal.find('#gitEditHiddenInput').val('edit');
-    $editModal.find('#gitHubRepoForn h4.modal-title').html('Edit GitHub Repo &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('githubName'));
+    $editModal.find('#gitHubRepoForn h4.modal-title').html('Edit Git Repo &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('githubName'));
     $editModal.find('#gitName').val($this.parents('tr').attr('githubName'));
     $editModal.find('#gitDescription').val($this.parents('tr').attr('githubDescription'));
     $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
@@ -236,6 +254,7 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
     $('input[value="Git"]')
     var repoType = $this.parents('tr').attr('repositoryType');
     var authType = $this.parents('tr').attr('authenticationType');
+
 
     if(repoType === 'Private'){
         $('input:radio[name="isAuthenticated"][value="Public"]').attr('disabled', true);
@@ -276,6 +295,30 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
         $('.showForSSH').addClass('hidden');
         $('.showForToken').addClass('hidden');
     }
+
+    //reconstructing the Repo URL
+    var giturl = "https://";
+    if($this.parents('tr').attr('repositoryUserName'))
+        giturl+=$this.parents('tr').attr('repositoryUserName')+"@";
+
+    if($this.parents('tr').attr('repoMode').toLowerCase() == 'git'){
+        giturl+= "github.com/"
+    }
+
+    if($this.parents('tr').attr('repoMode').toLowerCase() == 'bitbucket'){
+        giturl+= "bitbucket.org/"
+    }
+
+   // "githubName": data.repositoryName,"githubId" : data._id,"repositoryOwner":data.repositoryOwner
+    if($this.parents('tr').attr('repositoryOwner') && $this.parents('tr').attr('githubName')){
+        giturl+= $this.parents('tr').attr('repositoryOwner') + "/" + $this.parents('tr').attr('githubName');
+    }
+
+
+
+
+
+    $editModal.find('#gitUrl').val(giturl);
 
     return false;
 });
@@ -473,6 +516,44 @@ function saveForm(methodName,url,reqBody) {
 
 //save form for creating a new gitHub item and updation of the gitHub details.
 $('#gitHubRepoForn').submit(function(e) {
+    //populating 1. username 2. mode 3. org / team 4. repository
+    $this = $(this);
+    if($("#gitUrl").val() == ""){
+        return false;
+    }
+    var giturl = document.createElement('a');
+    giturl.href = $("#gitUrl").val().toLowerCase();
+    if(giturl.hostname.indexOf('github') >= 0){
+        repoMode = "Git";
+    }
+    else{
+        repoMode = "Bitbucket";
+    }
+
+    if(giturl.username){
+        $this.find('#protocolUser').val(giturl.username);
+    }
+
+    $this.find('#gitRepoOwner').val(giturl.pathname.split('/')[1]);
+
+    $this.find('.gitName').val(giturl.pathname.split('/').splice(2,giturl.pathname.split('/').length).join('/'));
+
+
+    //clearing if .git extension found
+    $this.find('.gitName').val($this.find('.gitName').val().replace(/.git/g,''));
+
+
+    // var errlist = $('#gitHubRepoForn').validate();
+    // if(errlist.errorList.length > 0){
+    //     errlist.errorList.forEach(function(err){
+    //             if(err.name == "gitRepoOwner" || err.name == "gitName"){
+    //                 //should be a malformed repo url
+    //
+    //             }
+    //         })
+    // }
+
+
     var isValidator = $('#gitHubRepoForn').valid();
     if (!isValidator) {
         e.preventDefault();
@@ -491,7 +572,7 @@ $('#gitHubRepoForn').submit(function(e) {
         description = $this.find('#gitDescription').val();
         repositoryOwner = $this.find('#gitRepoOwner').val();
         repositoryType= $('input[name=isAuthenticated]:checked').val();
-        repoMode= $('input[name=repoMode]:checked').val();
+        //repoMode= $('input[name=repoMode]:checked').val();
         authenticationType = $this.find('#authenticationType').val();
         userName = $this.find('#protocolUser').val().trim();
         repositoryToken = $this.find('#token').val().trim();
