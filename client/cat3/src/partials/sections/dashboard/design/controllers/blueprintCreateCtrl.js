@@ -346,6 +346,14 @@
                 }
             };
 
+            blueprintCreation.enableDboardEndpoint = function() {
+                if(blueprintCreation.newEnt.dboardEndpoint_isChecked) {
+                    $scope.dboardEndpoint = true;
+                } else {
+                    $scope.dboardEndpoint = false;
+                }
+            };
+
             blueprintCreation.showRepoServers = function() {
                 $scope.showNexusDocker = true;
                 if(blueprintCreation.newEnt.appDeployCheck_isChecked) {
