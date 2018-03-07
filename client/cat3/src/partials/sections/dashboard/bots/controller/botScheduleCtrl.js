@@ -36,6 +36,13 @@
         $scope.scheduleDetails = items;
         $scope.validDateRange=false;
         $scope.botId = items._id;
+        $scope.botName = items.name;
+        $scope.botParams = items.inputFormFields;
+        $scope.botEditParams = {};
+        $scope.botType = items.type;
+        $scope.subType = items.subType;
+        $scope.botInfo = $scope.templateSelected;
+        $scope.executionDetails = items.execution;
 
         $scope.checkForScheduler = function() {
             if($scope.scheduleDetails.type === 'blueprints' && $scope.scheduleDetails.executionCount <=0) {
@@ -116,7 +123,8 @@
                 cronMinute: $scope.timeEventMinute,
                 cronWeekDay: $scope.weekOfTheDay,
                 cronDate: $scope.selectedDayOfTheMonth,
-                cronMonth: $scope.selectedMonth
+                cronMonth: $scope.selectedMonth,
+                cronInputParam: $scope.botEditParams
             };
             var reqBody = null;
             
