@@ -416,21 +416,25 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
         });
     }else{
         logger.debug("New Bots Scheduler has started for - "+bots.name);
+        logger.info('bots.scheduler.cronPattern',JSON.stringify(bots.scheduler.cronPattern));
         var cronJobId = cronTab.scheduleJob(bots.scheduler.cronPattern, function () {
             botDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
                 if(err){
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             });
-            botService.executeBots(bots.id,null,'system','bots-console',true,function (err, historyData) {
+            botService.executeBots(bots.id, null, 'system', 'bots-console', true, function (err, historyData) {
                 if (err) {
                     logger.error("Failed to execute New Bots.", err);
                     return;
                 }
-                logger.debug("New Bots Execution Success for - ", bots.name);
-                return;
+                else {
+                    logger.debug("New Bots Execution Success for - ", bots.name);
+                    return;
+                }
             });
         });
+        logger.info('cronJobId',cronJobId);
     }
 }
 
@@ -451,6 +455,7 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots,callb
         });
     }else{
         var cronJobId = cronTab.scheduleJob(bots.botScheduler.cronPattern, function () {
+            logger.info(JSON.stringify(bots));
             botOld.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
                 if(err){
                     logger.error("Error in updating cron job Ids. "+err);
@@ -567,6 +572,7 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
 
 function createCronJob(cronPattern,instanceId,catUser,action,callback){
     var schedulerService = require('_pr/services/schedulerService');
+    logger,info('cron pattern',cronPattern);
     var cronJobId = cronTab.scheduleJob(cronPattern, function () {
         instancesDao.updateCronJobIdByInstanceId(instanceId,cronJobId,function(err,data){
             if(err){

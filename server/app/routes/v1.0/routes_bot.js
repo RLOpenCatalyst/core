@@ -144,6 +144,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         }
         botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
+            logger.info(JSON.stringify(reqBody));
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -154,6 +155,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.put('/bot/:botId/scheduler',function(req,res){
         botService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
+
+    app.get('/botSchedulerList',function(req,res){
+        botService.getScheduledBotList(req.query.botId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

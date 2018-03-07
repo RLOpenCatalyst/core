@@ -1,0 +1,13 @@
+<div id="scheduledBotList" ng-controller="scheduledBotCtrl">
+    <button type="button" title="Refresh" class="marginTopRightForHistory btn btn-xs cat-btn-update pull-right" ng-click="refreshScheduledBots();">
+        <i class="fa fa-refresh white"></i>
+    </button>
+    <div class="container summary-container marginleft35 margintop28">
+        <section>
+            <loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
+            <div>
+                <div id="grid1" ui-grid="scheduledBotsData" ui-grid-pagination ui-grid-auto-resize class="grid gridHeightBots"></div>
+            </div>
+        </section>
+    </div>
+</div>

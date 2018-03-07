@@ -41,6 +41,10 @@
                     "title": "Schedule",
                     "url": "src/partials/sections/dashboard/bots/tabs/schedule.html"
                 },
+                scheduledBots: {
+                    "title": "Scheduled BOTs",
+                    "url": "src/partials/sections/dashboard/bots/tabs/scheduledBots.html"
+                },
                 settings: {
                     "title": "Settings",
                     "url": "src/partials/sections/dashboard/bots/tabs/settings.html"
