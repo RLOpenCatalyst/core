@@ -38,8 +38,8 @@ var crontab = require('node-crontab');
 
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
-const gitHubService = require('_pr/services/gitHubService.js');
-
+var gitHubService = require('_pr/services/gitHubService.js');
+var gitHubModel = require('_pr/model/github/github.js');
 const errorType = 'botService';
 
 var botService = module.exports = {};
@@ -203,7 +203,21 @@ botService.getBotById = function getBotById(botId, callback) {
                     if (bot[0].type === 'jenkins') {
                         botsObj.isParameterized = bot[0].isParameterized;
                     }
-                    return callback(null, botsObj);
+                    if(botsObj.gitHubId){
+                        //fetching github details
+
+
+                        gitHubModel.getById(botsObj.gitHubId,function(errgh,ghdata){
+                            if(errgh){
+                                logger.error("Error in fetching Github details for : " + botsObj.name + " " + errgh);
+                            }
+                            else{
+                                botsObj.repoMode = ghdata.repoMode;
+                            }
+                            return callback(null, botsObj);
+                        });
+                    }
+
                 })
             }
         } else { 
