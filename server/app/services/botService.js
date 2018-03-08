@@ -17,6 +17,7 @@
 
 var logger = require('_pr/logger')(module);
 var botDao = require('_pr/model/bots/1.1/bot.js');
+var scheduledBots = require('../model/scheduled-bots/scheduledBots');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
@@ -33,6 +34,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var settingService = require('_pr/services/settingsService');
 var commonService = require('_pr/services/commonService');
+var crontab = require('node-crontab');
 
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
@@ -63,10 +65,54 @@ botService.createNew = function createNew(reqBody,callback) {
     })
 }
 
+function createBotScheduler(botId, inputParam, schedulerPatternObj, callback) {
+    botDao.getBotsById(botId, function (err, data) {
+      if(err) callback(err, null);
+      else {
+          if(data.length > 0) {
+              var ifDeleted = crontab.cancelJob(data[0].cronJobId);
+              if(ifDeleted === true) logger.info('Cron Job', data[0].cronJobId, 'Deleted');
+              scheduledBots.update({botId : botId}, {$set: {
+                  botName : data[0].id,
+                  params : inputParam,
+                  botId : botId,
+                  scheduler : {
+                      cronStartOn: schedulerPatternObj.cronStartOn,
+                      cronEndOn: schedulerPatternObj.cronEndOn,
+                      cronPattern: schedulerPatternObj.cronPattern,
+                      cronRepeatEvery: schedulerPatternObj.cronRepeatEvery,
+                      cronFrequency: schedulerPatternObj.cronFrequency,
+                      cronMinute: schedulerPatternObj.cronMinute,
+                      cronHour: schedulerPatternObj.cronHour,
+                      cronWeekDay: schedulerPatternObj.cronWeekDay,
+                      cronDate: schedulerPatternObj.cronDate,
+                      cronMonth: schedulerPatternObj.cronMonth,
+                      cronYear: schedulerPatternObj.cronYear
+                  }
+                }
+              }, {upsert : true}, function (err) {
+                  if(err) callback(err);
+                  else {
+                      callback(null);
+                  }
+              });
+          } else {
+              callback('No Bot exists for this bot ID');
+          }
+      }
+    })
+}
+
 botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
     if(botObj.scheduler  && botObj.scheduler !== null && Object.keys(botObj.scheduler).length !== 0 && botObj.isScheduled && botObj.isScheduled === true) {
+        var inputParam = botObj.scheduler.cronInputParam;
         botObj.scheduler = apiUtil.createCronJobPattern(botObj.scheduler);
-        botObj.isScheduled =true;
+        createBotScheduler(botId, inputParam, botObj.scheduler, function (err) {
+            if(err) logger.error(err);
+            else {
+                botObj.isScheduled =true;
+            }
+        });
     }else{
         botObj.scheduler ={};
         botObj.isScheduled =false;
@@ -77,13 +123,13 @@ botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callb
             callback(err, null);
             return;
         } else {
-            callback(null, data);
             botDao.getBotsById(botId, function (err, botsList) {
                 if (err) {
                     logger.error("Error in fetching BOTs", err);
                 } else {
+                    callback(null, data);
                     var schedulerService = require('_pr/services/schedulerService.js');
-                    schedulerService.executeNewScheduledBots(botsList[0], function (err, data) {
+                    schedulerService.executeNewScheduledBots(botsList[0], function (err, schData) {
                         if (err) {
                             logger.error("Error in executing New BOTs Scheduler");
                         }
@@ -113,6 +159,7 @@ botService.removeBotsById = function removeBotsById(botId,callback){
         }
     });
 }
+
 botService.getBotById = function getBotById(botId, callback) {
     botDao.getBotsByBotId(botId, (err, bot) => {
         if (err) {
@@ -235,6 +282,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                 });
             }else if(serviceNowCheck === true){
                 delete queryObj.queryObj;
+                delete queryObj.options.select;
                 settingService.getOrgUserFilter(userName,function(err,orgIds){
                     if(err){
                         next(err,null);
@@ -288,17 +336,29 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
     });
 }
 
-botService.executeBots = function executeBots(botsId,reqBody,userName,executionType,schedulerCallCheck,callback){
+botService.executeBots = function executeBots(botsId, reqBody, userName, executionType, schedulerCallCheck, callback){
     var botId = null;
-    var botRemoteServerDetails = {}
+    var botRemoteServerDetails = {};
+    var bots = [];
     async.waterfall([
         function(next) {
             botDao.getBotsByBotId(botsId, next);
         },
-        function(bots,next){
+        function(botList, next) {
+            bots = botList;
+            if(schedulerCallCheck)
+                scheduledBots.getScheduledBotsByBotId(botsId, next);
+            else next(null, []);
+        },
+        function(scheduledBots, next){
             if(bots.length > 0) {
                 botId = bots[0]._id;
-                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false) {
+                if(scheduledBots.length > 0) {
+                    var scheduledRequestBody = bots[0].params;
+                    scheduledRequestBody.data = scheduledBots[0].params;
+                    reqBody = scheduledRequestBody;
+                }
+                if (bots[0].type === 'script' || bots[0].type === 'chef') {
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
@@ -316,8 +376,6 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
                         }
                     });
 
-                } else {
-                    next(null, reqBody);
                 }
             }else{
                 var error = new Error();
@@ -327,17 +385,13 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
             }
         },
         function(paramObj,next) {
-            if(schedulerCallCheck === false) {
-                var botObj = {
-                    params:paramObj
-                }
-                if(reqBody.nodeIds){
-                    botObj.params.nodeIds = reqBody.nodeIds;
-                }
-                botDao.updateBotsDetail(botId,botObj, next);
-            }else{
-                next(null,paramObj);
+            var botObj = {
+                params:paramObj
             }
+            if(reqBody.nodeIds){
+                botObj.params.nodeIds = reqBody.nodeIds;
+            }
+            botDao.updateBotsDetail(botId,botObj, next);
         },
         function(updateStatus,next) {
             botDao.getBotsById(botId, next);
@@ -875,6 +929,14 @@ botService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(b
     });
 }
 
+botService.getScheduledBotList = function getScheduledBotList(botId, callback) {
+    scheduledBots.find({
+        botId : botId
+    }, function (err, data) {
+        if(err) callback(err, null);
+        else callback(null, data);
+    })
+}
 
 function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;

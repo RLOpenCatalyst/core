@@ -53,6 +53,12 @@
                Schedule
                </a>
             </li>
+           <!-- <li ng-class="{active:tab.isSet('scheduledBots')}">
+               <a ng-click="tab.setTab('scheduledBots')">
+                  <i class="fa fa-calendar black"></i>&nbsp;
+                  Schedules
+               </a>
+            </li>-->
             <li ng-class="{active:tab.isSet('Settings')}">
                <a ng-click="tab.setTab('Settings')">
                <i class="fa fa-cog black"></i>&nbsp;
@@ -83,6 +89,9 @@
    <div class="{{tab.isSet('Schedule')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.schedule.url"></div>
    </div>
+   <!--<div class="{{tab.isSet('scheduledBots')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.scheduledBots.url"></div>
+   </div>-->
    <div class="{{tab.isSet('Settings')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.settings.url"></div>
    </div>
