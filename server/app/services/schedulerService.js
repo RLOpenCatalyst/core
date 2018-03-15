@@ -53,6 +53,7 @@ var botDao = require('_pr/model/bots/1.1/bot.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var botEngineTimeOut = appConfig.botEngineTimeOut || 180;
+var auditTrailObj = require('../model/audit-trail/audit-trail');
 
 
 
@@ -221,14 +222,18 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                                 if (err) {
                                     logger.error("Failed to update bots saved Time: ", err);
                                 }
-                                noticeService.notice(auditData.userName, {
-                                    title: "BOT Execution",
-                                    body: auditTrailDetail.state === 'terminated' ? auditTrailDetail.status.text : "BOT Execution is failed on local"
-                                }, auditTrailDetail.state === 'terminated' ? 'success' : 'error', function (err, data) {
-                                    if (err) {
-                                        logger.error("Error in Notification Service, ", err);
-                                    }
-                                });
+                                updateServiceNow(auditTrailDetail.bot_run_id, function (err, successData) {
+                                    if(err) logger.error("Error in Service Now update");
+                                    else logger.info("Service Now ticket updated successfully");
+                                    noticeService.notice(auditData.userName, {
+                                        title: "BOT Execution",
+                                        body: auditTrailDetail.state === 'terminated' ? auditTrailDetail.status.text : "BOT Execution is failed on local"
+                                    }, auditTrailDetail.state === 'terminated' ? 'success' : 'error', function (err, data) {
+                                        if (err) {
+                                            logger.error("Error in Notification Service, ", err);
+                                        }
+                                    });
+                                })
                             });
                         });
                     } else {
@@ -1078,6 +1083,47 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
         }
         callback(null,logData);
     });
+}
+
+function updateServiceNow(botInstanceId, callback) {
+    var obj = {
+        actionLogId : botInstanceId
+    }
+    auditTrailObj.getAuditTrails(obj, function (err, auditTrailData) {
+        if(err) callback(err, null)
+        else {
+            if(auditTrailData.length == 0) {
+                logger.info('No audit data found');
+                callback(null, auditTrailData);
+            } else if(auditTrailData[0].auditTrailConfig && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo) {
+                var instance = auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketLink.split('/')[3];
+                var url = instance +"/api/now/v1/table/incident/ "+ auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo + "?sysparam_exclude_ref_link=true";
+                var postData = {
+                    state: 9,
+                    work_notes: 'BOT failed to create account.A&C team please investigate.'
+                }
+                var options = {
+                    url: url,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'charset': 'utf-8'
+                    },
+                    json: true,
+                    body: postData
+                };
+                request.put(options, function (err, res) {
+                    if(err) callback(err, null);
+                    else {
+                        logger.info('Service Now ticket updated successfully');
+                        callback(null, res);
+                    }
+                });
+            } else {
+                logger.info('No service now ticket available for bot instance');
+                callback(null, '');
+            }
+        }
+    })
 }
 
 
