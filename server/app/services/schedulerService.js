@@ -293,7 +293,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                     var timestampEnded = new Date().getTime();
                     count++;
                     console.log(auditData.retryCount);
-                    if (auditData.retryCount === 5) {
+                    if (auditData.retryCount === botEngineTimeOut) {
                         logsDao.insertLog({
                             referenceId: auditData.logRefId,
                             err: auditTrailDetail.state === 'terminated' ? false : true,
