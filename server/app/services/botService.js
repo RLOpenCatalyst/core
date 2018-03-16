@@ -205,8 +205,6 @@ botService.getBotById = function getBotById(botId, callback) {
                     }
                     if(botsObj.gitHubId){
                         //fetching github details
-
-
                         gitHubModel.getById(botsObj.gitHubId,function(errgh,ghdata){
                             if(errgh){
                                 logger.error("Error in fetching Github details for : " + botsObj.name + " " + errgh);
@@ -216,6 +214,8 @@ botService.getBotById = function getBotById(botId, callback) {
                             }
                             return callback(null, botsObj);
                         });
+                    } else {
+                        return callback(null, botsObj);
                     }
 
                 })
@@ -420,7 +420,8 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                 };
                                 if(schedulerCallCheck === false && reqBody.ref && reqBody.ref !== null){
                                     auditTrailObj.serviceNowTicketRefObj =  {
-                                        ticketNo:reqBody.ref
+                                        ticketNo:reqBody.ref,
+                                        configName: reqBody.configName
                                     }
                                 }
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
