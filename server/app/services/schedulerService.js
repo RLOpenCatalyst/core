@@ -53,6 +53,8 @@ var botDao = require('_pr/model/bots/1.1/bot.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var botEngineTimeOut = appConfig.botEngineTimeOut || 180;
+var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
+var CMDBConfig = require('_pr/model/servicenow/servicenow.js');
 
 
 
@@ -286,7 +288,8 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                     if(count ===body.length){
                         callback(null,null);
                     }
-                }else if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'active' )) {
+                }
+                else if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'active' )) {
                     var timestampEnded = new Date().getTime();
                     count++;
                     console.log(auditData.retryCount);
@@ -313,13 +316,17 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                                     if (err) {
                                         logger.error("Failed to update bots saved Time: ", err);
                                     }
-                                    noticeService.notice(auditData.userName, {
-                                        title: "BOT Execution",
-                                        body: "BOT Execution is failed on local(Time-out)"
-                                    }, 'error', function (err, data) {
-                                        if (err) {
-                                            logger.error("Error in Notification Service, ", err);
-                                        }
+                                    updateServiceNow(auditData.bot_id, auditData.auditId, function (err, successData) {
+                                        if (err) logger.error("Error in Service Now update");
+                                        else logger.info("Service Now ticket updated successfully");
+                                        noticeService.notice(auditData.userName, {
+                                            title: "BOT Execution",
+                                            body: "BOT Execution is failed on local(Time-out)"
+                                        }, 'error', function (err, data) {
+                                            if (err) {
+                                                logger.error("Error in Notification Service, ", err);
+                                            }
+                                        });
                                     });
                                 });
                             });
@@ -1078,6 +1085,57 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
         }
         callback(null,logData);
     });
+}
+
+function updateServiceNow(botInstanceId, actionLogId, callback) {
+    var obj = {
+        auditType: 'BOT',
+        isDeleted: false,
+        auditId: botInstanceId,
+        actionLogId: actionLogId
+    }
+    botAuditTrail.find(obj, function (err, auditTrailData) {
+        if(err) callback(err, null)
+        else {
+            if(auditTrailData.length == 0) {
+                logger.info('No audit data found');
+                callback(null, auditTrailData);
+            } else if(auditTrailData[0].auditTrailConfig && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName) {
+                CMDBConfig.findOne({
+                    configname: auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName
+                }, function(err, data) {
+                    if(err || data == null) callback('Can not find service now config details', null);
+                    else {
+                        var url = "https://" + data.servicenowusername + ':' + data.servicenowpassword + '@' + data.url.substring(8, data.url.length) +"/api/now/v1/table/incident/"+ auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo + "?sysparam_exclude_ref_link=true";
+                        var postData = {
+                            work_notes: 'BOT failed to create account. A&C team please investigate.'
+                        }
+                        var options = {
+                            url: url,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'charset': 'utf-8'
+                            },
+                            json: true,
+                            body: postData
+                        };
+                        request.put(options, function (err, res) {
+                            if(err) callback(err, null);
+                            else {
+                                if(res.statusCode == 200)
+                                    logger.info('Service Now ticket updated successfully');
+                                else logger.info('Some error occurred during service now ticket update');
+                                callback(null, res);
+                            }
+                        });
+                    }
+                });
+            } else {
+                logger.info('No service now ticket available for bot instance');
+                callback(null, '');
+            }
+        }
+    })
 }
 
 
