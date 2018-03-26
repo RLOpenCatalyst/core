@@ -1087,6 +1087,85 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
     });
 }
 
+
+schedulerService.testUpdateServiceNow = function testUpdateServiceNow(ticketno,configname,callback){
+    CMDBConfig.findOne({
+        configname: configname
+    }, function(err, data) {
+        if(err || data == null) callback('Can not find service now config details', null);
+        else {
+            var snowticketupdate = function(tablename, callback){
+                var url = "https://" + data.servicenowusername + ':' + data.servicenowpassword + '@' + data.url.substring(8, data.url.length) +"/api/now/v1/table/" + tablename + "/"+ ticketno + "?sysparam_exclude_ref_link=true";
+                var postData = {
+                    work_notes: 'BOT failed to create account. A&C team please investigate.'
+                }
+                var options = {
+                    url: url,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'charset': 'utf-8'
+                    },
+                    json: true,
+                    body: postData
+                };
+                request.put(options, function (err, res) {
+                    if(err )
+                    {
+
+                        callback(err, null);
+                    }
+                    else {
+                        if(res.statusCode == 200) {
+                            logger.info('Service Now ticket updated successfully');
+                            callback(null,res);
+                        }
+
+                        else {
+                            logger.info('Some error occurred during service now ticket update');
+                            callback(null,res);
+                        }
+                    }
+                });
+            }
+            snowticketupdate("incident", function(err,res){
+                    if(err){
+                        callback(err,null);
+                    }
+                    else {
+                        if(res.statusCode == 200){
+                            callback(null,res);
+                        }
+                        else{
+                            if(res.body.error){
+                                if(res.body.error.message.indexOf('No Record found') >= 0){
+                                    logger.info('No Record found in incident for ' + ticketno);
+                                    //attempt to update next table
+                                    snowticketupdate("sc_task",function(err,res){
+                                        if(err){
+                                            callback(err,null);
+                                        }
+                                        else {
+                                            if (res.statusCode == 200) {
+                                                callback(null,res);
+                                            }
+                                            else{
+                                                logger.info('No Record found in task for ' + ticketno);
+                                                callback(res.body.error,null);
+
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+
+                          //  if(res.)
+                        }
+                    }
+            });
+        }
+    });
+}
+
 function updateServiceNow(botInstanceId, actionLogId, callback) {
     var obj = {
         auditType: 'BOT',
@@ -1102,30 +1181,76 @@ function updateServiceNow(botInstanceId, actionLogId, callback) {
                 callback(null, auditTrailData);
             } else if(auditTrailData[0].auditTrailConfig && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName) {
                 CMDBConfig.findOne({
-                    configname: auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName
+                    configname: configname
                 }, function(err, data) {
                     if(err || data == null) callback('Can not find service now config details', null);
                     else {
-                        var url = "https://" + data.servicenowusername + ':' + data.servicenowpassword + '@' + data.url.substring(8, data.url.length) +"/api/now/v1/table/incident/"+ auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo + "?sysparam_exclude_ref_link=true";
-                        var postData = {
-                            work_notes: 'BOT failed to create account. A&C team please investigate.'
+                        var snowticketupdate = function(tablename, callback){
+                            var url = "https://" + data.servicenowusername + ':' + data.servicenowpassword + '@' + data.url.substring(8, data.url.length) +"/api/now/v1/table/" + tablename + "/"+ ticketno + "?sysparam_exclude_ref_link=true";
+                            var postData = {
+                                work_notes: 'BOT failed to create account. A&C team please investigate.'
+                            }
+                            var options = {
+                                url: url,
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'charset': 'utf-8'
+                                },
+                                json: true,
+                                body: postData
+                            };
+                            request.put(options, function (err, res) {
+                                if(err )
+                                {
+
+                                    callback(err, null);
+                                }
+                                else {
+                                    if(res.statusCode == 200) {
+                                        logger.info('Service Now ticket updated successfully');
+                                        callback(null,res);
+                                    }
+
+                                    else {
+                                        logger.info('Some error occurred during service now ticket update');
+                                        callback(null,res);
+                                    }
+                                }
+                            });
                         }
-                        var options = {
-                            url: url,
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'charset': 'utf-8'
-                            },
-                            json: true,
-                            body: postData
-                        };
-                        request.put(options, function (err, res) {
-                            if(err) callback(err, null);
+                        snowticketupdate("incident", function(err,res){
+                            if(err){
+                                callback(err,null);
+                            }
                             else {
-                                if(res.statusCode == 200)
-                                    logger.info('Service Now ticket updated successfully');
-                                else logger.info('Some error occurred during service now ticket update');
-                                callback(null, res);
+                                if(res.statusCode == 200){
+                                    callback(null,res);
+                                }
+                                else{
+                                    if(res.body.error){
+                                        if(res.body.error.message.indexOf('No Record found') >= 0){
+                                            logger.info('No Record found in incident for ' + ticketno);
+                                            //attempt to update next table
+                                            snowticketupdate("sc_task",function(err,res){
+                                                if(err){
+                                                    callback(err,null);
+                                                }
+                                                else {
+                                                    if (res.statusCode == 200) {
+                                                        callback(null,res);
+                                                    }
+                                                    else{
+                                                        logger.info('No Record found in task for ' + ticketno);
+                                                        callback(res.body.error,null);
+
+                                                    }
+                                                }
+                                            })
+                                        }
+                                    }
+
+                                    //  if(res.)
+                                }
                             }
                         });
                     }
@@ -1137,6 +1262,7 @@ function updateServiceNow(botInstanceId, actionLogId, callback) {
         }
     })
 }
+
 
 
 
