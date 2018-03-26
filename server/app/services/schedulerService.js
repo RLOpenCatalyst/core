@@ -1181,7 +1181,7 @@ function updateServiceNow(botInstanceId, actionLogId, callback) {
                 callback(null, auditTrailData);
             } else if(auditTrailData[0].auditTrailConfig && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName) {
                 CMDBConfig.findOne({
-                    configname: configname
+                    configname: auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName
                 }, function(err, data) {
                     if(err || data == null) callback('Can not find service now config details', null);
                     else {
