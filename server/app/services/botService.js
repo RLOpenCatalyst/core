@@ -354,8 +354,10 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             if(bots.length > 0) {
                 botId = bots[0]._id;
                 if(scheduledBots.length > 0) {
-                    var scheduledRequestBody = bots[0].params;
-                    scheduledRequestBody.data = scheduledBots[0].params;
+                    //included check for params if empty. 
+                    var scheduledRequestBody = {};
+                    if(bots[0].params)
+                        scheduledRequestBody.data = scheduledBots[0].params;
                     reqBody = scheduledRequestBody;
                 }
                 if (bots[0].type === 'script' || bots[0].type === 'chef') {
