@@ -105,6 +105,7 @@
                                     if(auditType === 'chef' || auditType === 'script') {
                                         var chefGrid = [
                                             { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
+                                            { name:'Ticket Reference',cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.ticketLink}}"><a href="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.ticketLink}}" target="_blank">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.number}}</a></span>', sort:{ direction: 'desc'}, cellTooltip: true},
                                             { name:'User',field:'user',cellTooltip: true},
                                             { name:'Logs',width: 70,
                                                 cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
