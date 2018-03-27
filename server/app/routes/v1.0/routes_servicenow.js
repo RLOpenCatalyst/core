@@ -29,6 +29,7 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Chef = require('_pr/lib/chef.js');
 var taskStatusModule = require('_pr/model/taskstatus');
 var settingsService = require('_pr/services/settingsService');
+var schedulerservice = require('_pr/services/schedulerService.js')
 
 
 module.exports.setRoutes = function(app, verificationFunc) {
@@ -67,6 +68,12 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.send(data);
             });
         });
+    });
+
+    app.post('/servicenow/testupdate/:ticketno/:configname', function(req, res) {
+        schedulerservice.testUpdateServiceNow(req.params.ticketno,req.params.configname,function(err,data){
+            res.send(200);
+        })
     });
 
     app.post('/servicenow/:serverId/instances/import', function(req, res) {
