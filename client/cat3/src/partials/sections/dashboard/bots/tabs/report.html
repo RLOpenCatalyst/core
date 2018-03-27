@@ -7,6 +7,7 @@
          <!--This table will get use when bot job type will be chef -->
          <loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
          <div ng-show="!ischefTaskHistoryPageLoading">
+
             <div id="grid1" ng-if="taskHistoryData.totalItems > 0" ui-grid="taskHistoryData" ui-grid-pagination ui-grid-auto-resize class="grid gridHeightBots"></div>
          </div>
          <!--This table will get use when bot job type will be jenkins -->
