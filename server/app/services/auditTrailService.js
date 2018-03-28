@@ -231,6 +231,9 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
                         next(err, null);
                     } else if (srnServerDetails.length > 0) {
                         var tableName = 'incident';
+                        if(botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj.tableName){
+                            tableName = botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj.tableName
+                        }
                         var config = {
                             username: srnServerDetails[0].servicenowusername,
                             password: srnServerDetails[0].servicenowpassword,

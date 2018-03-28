@@ -354,7 +354,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             if(bots.length > 0) {
                 botId = bots[0]._id;
                 if(scheduledBots.length > 0) {
-                    //included check for params if empty. 
+                    //included check for params if empty.
                     var scheduledRequestBody = {};
                     if(bots[0].params)
                         scheduledRequestBody.data = scheduledBots[0].params;
@@ -422,8 +422,9 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                 };
                                 if(schedulerCallCheck === false && reqBody.ref && reqBody.ref !== null){
                                     auditTrailObj.serviceNowTicketRefObj =  {
-                                        ticketNo:reqBody.ref,
-                                        configName: reqBody.configName
+                                        ticketNo:reqBody.ref, //sys id , ticket number is stored in number
+                                        configName: reqBody.configName,
+                                        tableName: reqBody.tableName
                                     }
                                 }
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
