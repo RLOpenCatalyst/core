@@ -138,7 +138,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 parameterized: req.body.parameterized?req.body.parameterized:null,
                 src: req.body.src?req.body.src:null,
                 ref: req.body.ref?req.body.ref:null,
-                configName: req.body.configName ? req.body.configName:null
+                configName: req.body.configName ? req.body.configName:null,
+                tableName: req.body.tableName ? req.body.tableName:null
             }
             if(req.body.nodeIds){
                 reqBody.nodeIds =  req.body.nodeIds;
