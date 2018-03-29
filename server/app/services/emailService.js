@@ -1,6 +1,8 @@
 var logger = require('_pr/logger')(module);
 var nodeMailer = require('nodemailer');
 var authEmail = require('_pr/model/dao/authemaildao');
+var mongoDbConnect = require('_pr/lib/mongodb');
+var appConfig = require('_pr/config');
 
 var schedulerService = module.exports = {
     sendEmail: sendEmail
@@ -19,11 +21,11 @@ function sendEmail(msg) {
             });
 
             var mailOptions = {
-                from: config.email,
-                to: 'ritu.rai@relevancelab.com',
+                from: config.from,
+                to: config.to,
                 subject: config.subject,
-                text: config.body+msg,
-                html: config.body+msg
+                text: config.body,
+                html: config.body
             };
 
             transporter.sendMail(mailOptions, function(error, info) {
@@ -36,6 +38,3 @@ function sendEmail(msg) {
         }
     })
 }
-
-
-sendEmail();
