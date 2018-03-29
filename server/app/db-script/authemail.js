@@ -29,10 +29,14 @@ function parseArguments() {
         type: Boolean,
         description: "Help"
     }, {
-        name: "email",
+        name: "from",
         type: String,
         description: "From User Email ID"
     }, {
+            name: "to",
+            type: String,
+            description: "To User Email ID"
+        },{
         name: "password",
         type: String,
         description: "From User Password"
@@ -84,8 +88,13 @@ function parseArguments() {
 function getConfig(config, options) {
     //parsing arguments
     if(!options['help']){
-        if (!options['email'] ) {
-            logger.error("Email ID is required.")
+        if (!options['from'] ) {
+            logger.error("From ID is required.")
+            config = null;
+        }
+
+        if (!options['to'] ) {
+            logger.error("To ID is required.")
             config = null;
         }
 
@@ -123,7 +132,9 @@ function  run(callback) {
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     // if(!options.password)
     //     return callback("",null);
-    if(!options.email)
+    if(!options.from)
+        return callback("",null);
+    if(!options.to)
         return callback("",null);
     if(!options.smtpserver)
         return callback("",null);
@@ -145,7 +156,8 @@ function  run(callback) {
             else{
                 ae = ae[0]; //fetching the first one
             }
-            ae.email = options.email;
+            ae.from = options.from;
+            ae.to = options.to;
             if(options.password)
                 ae.password = cryptography.encryptText(options.password, cryptoConfig.encryptionEncoding,
                 cryptoConfig.decryptionEncoding);

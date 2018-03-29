@@ -55,6 +55,7 @@ var auditTrailService = require('_pr/services/auditTrailService.js');
 var botEngineTimeOut = appConfig.botEngineTimeOut || 180;
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var CMDBConfig = require('_pr/model/servicenow/servicenow.js');
+var emailService = require('./emailService');
 
 
 
@@ -319,6 +320,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                                     updateServiceNow(auditData.bot_id, auditData.auditId, function (err, successData) {
                                         if (err) logger.error("Error in Service Now update");
                                         else logger.info("Service Now ticket updated successfully");
+                                        emailService.sendEmail('BOT Execution failed on local(Time-out)');
                                         noticeService.notice(auditData.userName, {
                                             title: "BOT Execution",
                                             body: "BOT Execution is failed on local(Time-out)"
@@ -348,6 +350,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                                         if (err) {
                                             logger.error("Failed to update bots saved Time: ", err);
                                         }
+                                        emailService.sendEmail('BOT Execution failed on Remote(Time-out)');
                                         noticeService.notice(auditData.userName, {
                                             title: 'BOT Execution',
                                             body: 'BOT Execution is failed on Remote(Time-out)'
@@ -396,7 +399,8 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                 }
             });
         } else {
-            logger.debug('Bot Server is not responding')
+            logger.debug('Bot Server is not responding');
+            emailService.sendEmail('Bot Server is not responding');
             callback('Error in Bot Engine Server', null);
             return;
         }

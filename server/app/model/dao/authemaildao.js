@@ -24,7 +24,12 @@ var schemaValidator = require('./schema-validator');
 
 var Schema = mongoose.Schema;
 var authemailschema = new Schema({
-    email: {
+    from: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    to: {
         type: String,
         required: true,
         trim: true
