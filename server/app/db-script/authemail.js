@@ -4,25 +4,7 @@ var logger = require('_pr/logger')(module);
 var Cryptography = require('_pr/lib/utils/cryptography');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var authemailschema = new Schema({
-    email: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    password: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    smtpserver: {
-        type: String,
-        required: false,
-        trim: true
-    }
-});
-
-var AuthEmail = mongoose.model('authemail', authemailschema);
+var authemaildao = require('_pr/model/dao/authemaildao');
 
 
 var dboptions = {
@@ -58,6 +40,23 @@ function parseArguments() {
         name: "smtpserver",
         type: String,
         description: "SMTP Server address"
+    },
+        {
+            name: "category",
+            type: String,
+            description: "Email Category <failedbot,hostfailed>"
+        },{
+        name: "subject",
+        type: String,
+        description: "Subject Line for the email"
+    },{
+        name: "body",
+        type: String,
+        description: "Body for the email"
+    },{
+        name: "username",
+        type: String,
+        description: "Username for the addressing email"
     }]);
     var options;
     try {
@@ -90,11 +89,19 @@ function getConfig(config, options) {
             config = null;
         }
 
-        if (!options['password']) {
-            logger.error("password is required.")
+        if (!options['username']) {
+            logger.error("Username  is required.")
             config = null;
         }
 
+        if (!options['subject']) {
+            logger.error("Email subject is required.")
+            config = null;
+        }
+        if (!options['body']) {
+            logger.error("Email body is required.")
+            config = null;
+        }
         if (!options['smtpserver']) {
             logger.error("SMTP server is required.")
             config = null;
@@ -114,36 +121,47 @@ function  run(callback) {
 
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    if(!options.password)
-        return callback("",null);
+    // if(!options.password)
+    //     return callback("",null);
     if(!options.email)
         return callback("",null);
     if(!options.smtpserver)
         return callback("",null);
+    if(!options.username)
+        return callback("",null);
 
-    AuthEmail.find({},function(err,ae){
+    if(!options.category){
+        logger.info("No category flag found. Defaulting to 'failedbot'");
+        options.category = "failedbot";
+    }
+    authemaildao.find({"category":options.category},function(err,ae){
         if(!err){
            // logger.info(JSON.stringify(ae));
             if(ae.length <= 0){
                 //no record found
-                ae = new AuthEmail();
+                ae = new authemaildao();
 
             }
             else{
                 ae = ae[0]; //fetching the first one
             }
             ae.email = options.email;
-            ae.password = cryptography.encryptText(options.password, cryptoConfig.encryptionEncoding,
+            if(options.password)
+                ae.password = cryptography.encryptText(options.password, cryptoConfig.encryptionEncoding,
                 cryptoConfig.decryptionEncoding);
             ae.smtpserver = options.smtpserver;
+            ae.category = options.category;
+            ae.username = options.username;
+            ae.subject = options.subject;
+            ae.body = options.body;
             ae.save(function(err1,uprec){
                 if(!err1){
                     logger.info('Saved Successfully..Reading back');
-
-                    ae.password = cryptography.decryptText(ae.password, cryptoConfig.decryptionEncoding,
+                    if(options.password)
+                        uprec.password = cryptography.decryptText(uprec.password, cryptoConfig.decryptionEncoding,
                         cryptoConfig.encryptionEncoding);
-                    logger.info(JSON.stringify(ae));
-                    callback(null,ae);
+                    logger.info(JSON.stringify(uprec));
+                    callback(null,uprec);
                 }
                 else{
                     callback(err1,null);
