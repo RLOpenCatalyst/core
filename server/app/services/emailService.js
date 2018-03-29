@@ -11,6 +11,7 @@ function sendEmail(msg) {
         category: 'failedbot'
     }, function (err, config) {
         if(err) logger.error(err);
+        else if (config == null) logger.info('No email config found');
         else {
             var transporter = nodeMailer.createTransport({
                 host: config.smtpserver,
