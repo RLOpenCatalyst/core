@@ -20,8 +20,6 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var validate = require('mongoose-validator');
 var logger = require('_pr/logger')(module);
 var schemaValidator = require('./schema-validator');
-
-
 var Schema = mongoose.Schema;
 var authemailschema = new Schema({
     from: {
@@ -35,6 +33,26 @@ var authemailschema = new Schema({
         trim: true
     },
     password: {
+        type: String,
+
+        trim: true
+    },
+    accesskey: {
+        type: String,
+
+        trim: true
+    },
+    secretkey: {
+        type: String,
+
+        trim: true
+    },
+    region: {
+        type: String,
+
+        trim: true
+    },
+    accountno: {
         type: String,
 
         trim: true
