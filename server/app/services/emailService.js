@@ -4,65 +4,63 @@ var authEmail = require('_pr/model/dao/authemaildao');
 var mongoDbConnect = require('_pr/lib/mongodb');
 var appConfig = require('_pr/config');
 var AWS = require('aws-sdk');
+var Cryptography = require('_pr/lib/utils/cryptography.js');
 
 var schedulerService = module.exports = {
     sendEmail: sendEmail,
     verifyEmail: verifyEmail
 };
 
-var config = {
-    "aws": {
-    "accessKeyId": "AKIAIFYR6Q3YHS6SAEFQ",
-        "secretAccessKey": "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",
-        "region": "us-east-1",
-        "accountNumber": "549974527830"
-    },
-    "email": {
-        "from": "rlc.support@relevancelab.com",
-    }
-}
-
 function sendEmail(msg) {
-    var dboptions = {
-        host: process.env.DB_HOST || appConfig.db.host,
-        port: appConfig.db.port,
-        dbName: appConfig.db.dbName
-    };
-    mongoDbConnect(dboptions, function(err) {
-        if (err) {
-            logger.error("Unable to connect to mongo db >>" + err);
-            throw new Error(err);
-        } else {
-            logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-        }
-    });
-
     authEmail.findOne({
         category: 'failedbot'
-    }, function (err, config) {
+    }, function (err, data) {
         if(err) logger.error(err);
-        else if (config == null) logger.info('No email config found');
+        else if (data == null) logger.info('No email config found');
         else {
-            sendSns(config);
+            sendSns(data);
         }
     })
 }
 
 function verifyEmail(emailId, callback) {
-    var ses = new AWS.SES(config.aws);
-    ses.verifyEmailIdentity({EmailAddress: emailId}, function(err, data) {
-        if (err) {
-            callback(err, null);
-        }
+    authEmail.findOne({
+        category: 'failedbot'
+    }, function (err, data) {
+        if(err) console.log(err);
         else {
-            console.log(typeof callback);
-            callback(null, data);
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+            var secretKey = cryptography.decryptText(data.secretkey, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var ses = new AWS.SES({
+                "accessKeyId": data.accesskey,
+                "secretAccessKey": secretKey,
+                "region": data.region,
+                "accountNumber": data.accountno
+            });
+            ses.verifyEmailIdentity({EmailAddress: emailId}, function(err, data) {
+                if (err) {
+                    callback(err, null);
+                }
+                else {
+                    console.log(typeof callback);
+                    callback(null, data);
+                }
+            });
         }
-    });
+    })
 }
 
 function sendSns(data) {
-    var ses = new AWS.SES(config.aws);
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var secretKey = cryptography.decryptText(data.secretkey, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var ses = new AWS.SES({
+        "accessKeyId": data.accesskey,
+        "secretAccessKey": secretKey,
+        "region": data.region,
+        "accountNumber": data.accountno
+    });
     var params = {
         Destination: {
             ToAddresses: [
@@ -85,7 +83,7 @@ function sendSns(data) {
                 Data: data.subject
             }
         },
-        Source: 'vmishra-consultant@scholastic.com',
+        Source: data.from,
     };
     ses.sendEmail(params, function(err, data){
         if(err) console.log(err);
@@ -94,10 +92,3 @@ function sendSns(data) {
         }
     });
 }
-
-sendEmail('Err');
-/*
-verifyEmail('vmishra-consultant@scholastic.com', function (err, data) {
-    if(err) console.log(err);
-    else console.log(data);
-})*/

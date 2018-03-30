@@ -212,7 +212,7 @@ function  run(callback) {
                         else console.log(data);
                         emailService.verifyEmail(options.from, function (err, fData) {
                             if(err) console.log(err);
-                            else coonsole.log(fData);
+                            else console.log(fData);
                             callback(null,uprec);
                         })
                     });
