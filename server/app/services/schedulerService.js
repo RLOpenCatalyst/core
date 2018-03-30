@@ -224,6 +224,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                                 if (err) {
                                     logger.error("Failed to update bots saved Time: ", err);
                                 }
+                                emailService.sendEmail('BOT Execution failed on local');
                                 noticeService.notice(auditData.userName, {
                                     title: "BOT Execution",
                                     body: auditTrailDetail.state === 'terminated' ? auditTrailDetail.status.text : "BOT Execution is failed on local"
@@ -252,6 +253,8 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                                     if (err) {
                                         logger.error("Failed to update bots saved Time: ", err);
                                     }
+                                    if (!auditTrailDetail.state === 'terminated')
+                                        emailService.sendEmail("BOT Execution failed on Remote");
                                     noticeService.notice(auditData.userName, {
                                         title: "BOT Execution",
                                         body: auditTrailDetail.state === 'terminated' ? "BOT Execution is success on Remote" : "BOT Execution is failed on Remote"
@@ -276,6 +279,8 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
+                            if(!auditTrailDetail.state === 'terminated')
+                                emailService.sendEmail( "BOT Execution failed on Node " + auditData.instanceIP);
                             noticeService.notice(auditData.userName, {
                                 title: "BOT Execution",
                                 body: auditTrailDetail.state === 'terminated' ? auditTrailDetail.status.text : "BOT Execution is failed on Node " + auditData.instanceIP
@@ -375,6 +380,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
+                                emailService.sendEmail('BOT Execution is failed on Remote(Time-out)');
                                 noticeService.notice(auditData.userName, {
                                     title: "BOT Execution",
                                     body: 'BOT Execution is failed on Remote(Time-out)'
