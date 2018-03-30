@@ -16,10 +16,7 @@ limitations under the License.
 
 
 var mongoose = require('mongoose');
-var ObjectId = require('mongoose').Types.ObjectId;
-var validate = require('mongoose-validator');
-var logger = require('_pr/logger')(module);
-var schemaValidator = require('./schema-validator');
+
 var Schema = mongoose.Schema;
 var authemailschema = new Schema({
     from: {
