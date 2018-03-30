@@ -40,6 +40,22 @@ function parseArguments() {
         name: "password",
         type: String,
         description: "From User Password"
+    },{
+        name: "secretkey",
+        type: String,
+        description: "Secret Key for account"
+    },{
+        name: "accesskey",
+        type: String,
+        description: "Access key for account"
+    },{
+        name: "region",
+        type: String,
+        description: "Region for account <us-east-1>"
+    },{
+        name: "accountno",
+        type: String,
+        description: "No of account"
     }, {
         name: "smtpserver",
         type: String,
@@ -163,6 +179,13 @@ function  run(callback) {
                 cryptoConfig.decryptionEncoding);
             ae.smtpserver = options.smtpserver;
             ae.category = options.category;
+            ae.accesskey = options.accesskey;
+            if(options.secretkey)
+                ae.secretkey = cryptography.encryptText(options.secretkey, cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+
+            ae.region = options.region;
+            ae.accountno = options.accountno;
             ae.username = options.username;
             ae.subject = options.subject;
             ae.body = options.body;
@@ -171,6 +194,16 @@ function  run(callback) {
                     logger.info('Saved Successfully..Reading back');
                     if(options.password)
                         uprec.password = cryptography.decryptText(uprec.password, cryptoConfig.decryptionEncoding,
+                        cryptoConfig.encryptionEncoding);
+                    if(uprec.password == options.password){
+                        logger.info("Passwords matched...");
+                        uprec.password = "***";
+                    }
+                    else{
+                        logger.error("Warning: There could be a encryption error in password / key. Try again");
+                    }
+                    if(options.secretkey)
+                    uprec.secretkey = cryptography.decryptText(uprec.secretkey, cryptoConfig.decryptionEncoding,
                         cryptoConfig.encryptionEncoding);
                     logger.info(JSON.stringify(uprec));
                     callback(null,uprec);
