@@ -5,6 +5,7 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var authemaildao = require('_pr/model/dao/authemaildao');
+var emailService = require('_pr/services/emailService.js')
 
 
 var dboptions = {
@@ -206,7 +207,15 @@ function  run(callback) {
                     uprec.secretkey = cryptography.decryptText(uprec.secretkey, cryptoConfig.decryptionEncoding,
                         cryptoConfig.encryptionEncoding);
                     logger.info(JSON.stringify(uprec));
-                    callback(null,uprec);
+                    emailService.verifyEmail(options.to, function(err, data) {
+                        if(err) console.log(err);
+                        else console.log(data);
+                        emailService.verifyEmail(options.from, function (err, fData) {
+                            if(err) console.log(err);
+                            else coonsole.log(fData);
+                            callback(null,uprec);
+                        })
+                    });
                 }
                 else{
                     callback(err1,null);
@@ -229,5 +238,4 @@ run(function (err,done) {
     if(err)
         logger.error(JSON.stringify(err));
     process.exit();
-
 });
