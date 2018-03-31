@@ -18,7 +18,7 @@ function sendEmail(msg) {
         if(err) logger.error(err);
         else if (data == null) logger.info('No email config found');
         else {
-            sendSns(data);
+            sendSns(data, msg);
         }
     })
 }
@@ -51,7 +51,7 @@ function verifyEmail(emailId, callback) {
     })
 }
 
-function sendSns(data) {
+function sendSns(data, msg) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var secretKey = cryptography.decryptText(data.secretkey, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
@@ -80,7 +80,7 @@ function sendSns(data) {
             },
             Subject: {
                 Charset: "UTF-8",
-                Data: data.subject
+                Data: data.subject + ' - ' + msg
             }
         },
         Source: data.from,

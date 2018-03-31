@@ -48,7 +48,7 @@ function getDefaultsConfig() {
         scriptDirName :'scriptDir',
         staticUploadDir: '/var/chef/cache/uploads',
         app_run_secure_port: 443,
-        botEngineTimeOut:180,
+        botEngineTimeOut:440,
         cryptoSettings: {
             algorithm: "aes192",
             password: "pass@!@#",
