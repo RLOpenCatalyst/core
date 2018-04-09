@@ -64,6 +64,9 @@ var ApiUtil = function() {
     };
 
     this.createCronJobPattern= function(scheduler){
+        if(!scheduler.cronRepeatEvery){
+            scheduler.cronRepeatEvery = 0;
+        }
         scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery);
         var startOn = null,endOn = null;
         if(scheduler.cronStartOn === scheduler.cronEndOn){
@@ -76,9 +79,22 @@ var ApiUtil = function() {
             endOn = scheduler.cronEndOn;
         }
         if(scheduler.cronFrequency ==='Minutes'){
-            scheduler.pattern = '*/'+scheduler.cronRepeatEvery+' * * * *';
+            if(scheduler.cronRepeatEvery){
+                scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery)
+                if(scheduler.cronRepeatEvery > 30){
+                    scheduler.pattern = scheduler.cronRepeatEvery+' * * * *';
+                }
+                else{
+                    scheduler.pattern = '*/'+scheduler.cronRepeatEvery+' * * * *';
+                }
+            }
+
+
         }else if(scheduler.cronFrequency ==='Hourly'){
-            scheduler.pattern = '0 */'+scheduler.cronRepeatEvery+' * * *';
+            if(scheduler.cronMinute)
+                scheduler.pattern = parseInt(scheduler.cronMinute) + ' */'+scheduler.cronHour+' * * *';
+            else
+                scheduler.pattern = '0 */'+scheduler.cronRepeatEvery+' * * *';
         }else if(scheduler.cronFrequency ==='Daily'){
             scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' */'+scheduler.cronRepeatEvery+' * *';
         }else if(scheduler.cronFrequency ==='Weekly') {

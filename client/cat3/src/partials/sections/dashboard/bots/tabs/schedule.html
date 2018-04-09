@@ -27,20 +27,24 @@
                <label>Repeats: <span class="red">*</span></label>
                <select class="form-control-date" ng-model="repeatsType">
                   <option selected="selected" value="Minutes" title="Repeat in Minutes">Minutes</option>
+                  <option value="Hourly" title="Repeats Hourly">Hourly</option>
                   <option value="Daily" title="Repeats Daily">Daily</option>
                   <option value="Weekly" title="Repeats Weekly">Weekly</option>
                   <option value="Monthly" title="Repeats Monthly">Monthly</option>
                   <!-- <option value="Yearly" title="Repeats Yearly">Yearly</option> -->
                </select>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-               <label>Repeat By: <span class="red">*</span>
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-style="{'visibility': repeatsType != 'Hourly' ? 'visible' : 'hidden'}">
+               <label >Repeat By: <span class="red">*</span>
                 <span ng-show="newSchedule.repeatBy.$touched && newSchedule.repeatBy.$invalid" class="inputValidationMsg">
                </span>
                </label>
-               <select name="repeatBy" class="form-control-date" ng-model="repeatBy" required>
+               <select name="repeatBy" class="form-control-date" ng-model="repeatBy" ng-required="repeatsType!='Hourly'">
                   <option value="" selected="selected">Choose</option>
-                  <option ng-repeat="repeatBy in repeatCount(30)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
+                  <!--<option ng-if="repeatsType=='Hourly'" ng-repeat="repeatBy in repeatCount(24)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>-->
+                  <option ng-if="repeatsType!='Minutes'" ng-repeat="repeatBy in repeatCount(30)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
+                  <option ng-if="repeatsType=='Minutes'" ng-repeat="repeatBy in repeatCount(59)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
                </select>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType!=='Minutes'">
@@ -93,7 +97,7 @@
             <!--repeat on monthly & yearly ends-->
             <!--starts at dropdown ends here-->
             <!--dropdown ends here-->
-            {{botType}}
+
             <div ng-if="botType ==='jenkins'" class="param-table bot-info-wrapper marginbottom15">
                <div class="col-lg-6 col-md-6 col-sm-12 marginleft-8">
                   <label class="botsLabel" for="">Select Jenkins Server:&nbsp;</label>
