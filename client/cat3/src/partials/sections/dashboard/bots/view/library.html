@@ -146,6 +146,23 @@
          </span>
       </span>
          <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
+            <span class="bot-tickets-resolved-dates hidden">
+
+                    <label>&nbsp;
+                        <input id="ticket-resolve-start"  ng-change="dateChange()"   type="text"  ng-model="ticketsStartOn" placeholder="Start Date" class="form-control-date ticket-resolve-start"  >
+
+
+                    </label>&nbsp;&nbsp;
+                <label>&nbsp;
+                        <input id="ticket-resolve-end"  ng-change="dateChange()"   type="text"  ng-model="ticketsEndOn" placeholder="End Date" class="form-control-date ticket-resolve-end"  >
+
+
+                    </label>
+
+
+            </span>
+
+
             <span class="bot-library-search">
                <label>&nbsp;
                   <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" placeholder="Search">
@@ -219,3 +236,38 @@
    </div>
    <!--table section for serviceNow ends here -->
 </div>
+
+<script>
+    $(document).ready(function () {
+        $('#ticket-resolve-end').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY ',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        });
+        $('#ticket-resolve-start').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        }).on('change', function(e, date)
+        {
+            $('#ticket-resolve-end').bootstrapMaterialDatePicker('setMinDate', date);
+        });
+        $.material.init();
+        $(document).on('click', 'input.time', function(){
+            var $this = $(this);
+            setTimeout(function () {
+                $this.bootstrapMaterialDatePicker({
+                    format: 'HH:mm',
+                    date: false,
+                    switchOnClick : true,
+                });
+            },100);
+
+        });
+    });
+
+</script>
