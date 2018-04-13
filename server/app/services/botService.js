@@ -283,10 +283,12 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             }else if(serviceNowCheck === true){
                 delete queryObj.queryObj;
                 delete queryObj.options.select;
+
                 settingService.getOrgUserFilter(userName,function(err,orgIds){
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
+
                         queryObj.queryObj = {
                             auditType: 'BOT',
                             actionStatus: 'success',
@@ -294,6 +296,15 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                             isDeleted:false,
                             'masterDetails.orgId': {$in:orgIds}
                         };
+                        //adding filter by startdate and enddate
+                        if(botsQuery.ticketsdate && botsQuery.ticketedate){
+                            //queryObj.queryObj.auditTrailConfig.serviceNowTicketRefObj.
+                            var sdate = new Date(botsQuery.ticketsdate);
+                            sdate = Math.floor(sdate/1000);
+                            var edate = new Date(botsQuery.ticketedate);
+                            edate = Math.floor(edate/1000);
+                            queryObj.queryObj['auditTrailConfig.serviceNowTicketRefObj.createdOn'] = {$lte:edate,$gte:sdate};
+                        }
                         auditTrail.getAuditTrailList(queryObj, next);
                     }else{
                         queryObj.queryObj = {
