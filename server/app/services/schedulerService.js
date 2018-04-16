@@ -406,7 +406,7 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
             });
         } else {
             logger.debug('Bot Server is not responding');
-            emailService.sendEmail('Bot Server is not responding');
+            emailService.sendEmail('Bot Server is not responding :' + options.url + ' - ' + res.statusCode);
             callback('Error in Bot Engine Server', null);
             return;
         }
