@@ -96,30 +96,30 @@ input[type="file"] {
               <div class="input-groups">
                 <select id="protocolType" name="protocolType" class="required form-control width-100" style="vertical-align:central">
                   <option value="">Choose Protocol Type</option>
-                  <!-- <option value="redis">Redis</option> -->
+                   <option value="redis">Redis</option>
                   <option value="rabbitmq">RabbitMq</option>
                 </select>
               </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit showForRedis">
               <label for="protocolUser">User:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
                 <input type="text" name="protocolUser" class=" protocolUser form-control" id="protocolUser">
               </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit showForRedis">
               <label for="protocolPassword">Password:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
                 <input type="password" name="protocolPassword" class="protocolPassword form-control" id="protocolPassword">
               </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit showForRedis">
               <label for="protocolHost">Host:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
                 <input type="text" name="protocolHost" class="required protocolHost form-control" id="protocolHost">
               </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit showForRedis">
               <label for="protocolPort">Port:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
                 <input type="text" name="protocolPort" class="required protocolPort form-control" id="protocolPort">
@@ -224,6 +224,7 @@ $('#serverType').change(function(e){
     }else {
       $('.serverType').addClass('hidden');
       $('.showForRabbit').addClass('hidden');
+      $('.showForRedis').addClass('hidden');
       $('#protocolType').val('');
     }
 });
@@ -231,9 +232,15 @@ $('#serverType').change(function(e){
 $('#protocolType').change(function(e){
     var val = $(this).val();
     if (val === 'rabbitmq') {
+        $('.showForRedis').addClass('hidden');
         $('.showForRabbit').removeClass('hidden');
-    } else {
+    } else if(val === 'redis'){
         $('.showForRabbit').addClass('hidden');
+        $('.showForRedis').removeClass('hidden');
+    }
+    else{
+        $('.showForRabbit').addClass('hidden');
+        $('.showForRedis').addClass('hidden');
     }
 });
 
