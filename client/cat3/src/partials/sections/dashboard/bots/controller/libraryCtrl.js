@@ -68,8 +68,8 @@
                 { name: 'Description', field:'auditTrailConfig.serviceNowTicketRefObj.shortDesc',cellTooltip: true},
                 { name: 'Status', field:'auditTrailConfig.serviceNowTicketRefObj.state',cellTooltip: true},
                 { name: 'Priority', field:'auditTrailConfig.serviceNowTicketRefObj.priority',cellTooltip: true},
-                { name: 'Created At', field: 'auditTrailConfig.serviceNowTicketRefObj.createdOn ', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTimeWith}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTimeWith}}</span>', cellTooltip: true},
-                { name: 'Resolved At', field: 'auditTrailConfig.serviceNowTicketRefObj.resolvedAt', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt | timestampToLocaleTimeWith}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt  | timestampToLocaleTimeWith}}</span>', cellTooltip: true}
+                { name: 'Created At', field: 'auditTrailConfig.serviceNowTicketRefObj.createdOn ', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTime}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTimeWith}}</span>', cellTooltip: true},
+                { name: 'Resolved At', field: 'auditTrailConfig.serviceNowTicketRefObj.resolvedAt', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt | timestampToLocaleTime}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt  | timestampToLocaleTimeWith}}</span>', cellTooltip: true}
             ];
             $scope.botServiceNowLibGridOptions.data=[];
             angular.extend($scope.botServiceNowLibGridOptions,botLibraryUIGridDefaults.gridOption);
