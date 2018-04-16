@@ -146,24 +146,32 @@
          </span>
       </span>
          <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
-            <span class="bot-tickets-resolved-dates hidden">
+            <span class="bot-tickets-resolved-dates" ng-show="!noShowForServiceNow">
 
-                    <label>&nbsp;
-                        <input id="ticket-resolve-start"  ng-change="dateChange()"   type="text"  ng-model="ticketsStartOn" placeholder="Start Date" class="form-control-date ticket-resolve-start"  >
+                    <label>&nbsp;&nbsp;
+                        <input id="ticket-resolve-start"  ng-change="dateChange()"   type="text"  ng-model="ticketsResolveStartsOn" placeholder="Start Date" class="form-control-date ticket-resolve-start"  >
 
 
                     </label>&nbsp;&nbsp;
                 <label>&nbsp;
-                        <input id="ticket-resolve-end"  ng-change="dateChange()"   type="text"  ng-model="ticketsEndOn" placeholder="End Date" class="form-control-date ticket-resolve-end"  >
+                        <input id="ticket-resolve-end"  ng-change="dateChange()"   type="text"  ng-model="ticketsResolveEndsOn" placeholder="End Date" class="form-control-date ticket-resolve-end"  >
 
 
                     </label>
+                <button type="button" title="Filter" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="showScheduledBots('resetPage')">
+                           <i class="fa fa-check fa-2 white" aria-hidden="true"></i>&nbsp;
+                            </button>
+                <button type="button" title="Clear" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="ticketsResolveStartsOn='';ticketsResolveEndsOn='';showScheduledBots('resetPage')">
+                           <i class="fa fa-close fa-2 red" aria-hidden="true"></i>&nbsp;
+                            </button>
+                <label>&nbsp;
+                <a class="btn btn-xs ticket-resolve-btn-margin" ng-click="setResolveDates('today');$event.stopPropagation()">Today</a>&nbsp;<a class="btn btn-xs ticket-resolve-btn-margin" ng-click="setResolveDates('week');$event.stopPropagation()">This week</a>&nbsp;<a class="btn btn-xs ticket-resolve-btn-margin" ng-click="setResolveDates('month');$event.stopPropagation()">This month</a>
 
-
+                </label>
             </span>
 
 
-            <span class="bot-library-search">
+            <span class="bot-library-search" ng-show="noShowForServiceNow">
                <label>&nbsp;
                   <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" placeholder="Search">
                   <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
@@ -245,6 +253,8 @@
             time: false,
             switchOnClick : true,
             nowButton : true,
+            clearButton: true,
+            maxDate: new Date()
         });
         $('#ticket-resolve-start').bootstrapMaterialDatePicker({
             format: 'MM/DD/YYYY',
@@ -252,6 +262,7 @@
             time: false,
             switchOnClick : true,
             nowButton : true,
+            clearButton: true
         }).on('change', function(e, date)
         {
             $('#ticket-resolve-end').bootstrapMaterialDatePicker('setMinDate', date);

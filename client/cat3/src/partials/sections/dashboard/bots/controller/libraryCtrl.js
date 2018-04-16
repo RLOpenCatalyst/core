@@ -68,8 +68,8 @@
                 { name: 'Description', field:'auditTrailConfig.serviceNowTicketRefObj.shortDesc',cellTooltip: true},
                 { name: 'Status', field:'auditTrailConfig.serviceNowTicketRefObj.state',cellTooltip: true},
                 { name: 'Priority', field:'auditTrailConfig.serviceNowTicketRefObj.priority',cellTooltip: true},
-                { name: 'Created At', field: 'auditTrailConfig.serviceNowTicketRefObj.createdOn ', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn  | timestampToLocaleTime}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'Resolved At', field: 'auditTrailConfig.serviceNowTicketRefObj.resolvedAt', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt  | timestampToLocaleTime}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt  | timestampToLocaleTime}}</span>', cellTooltip: true}
+                { name: 'Created At', field: 'auditTrailConfig.serviceNowTicketRefObj.createdOn ', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTimeWith}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTimeWith}}</span>', cellTooltip: true},
+                { name: 'Resolved At', field: 'auditTrailConfig.serviceNowTicketRefObj.resolvedAt', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt | timestampToLocaleTimeWith}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt  | timestampToLocaleTimeWith}}</span>', cellTooltip: true}
             ];
             $scope.botServiceNowLibGridOptions.data=[];
             angular.extend($scope.botServiceNowLibGridOptions,botLibraryUIGridDefaults.gridOption);
@@ -180,9 +180,28 @@
         $scope.botServiceNowLibraryGridView = function() {
             $scope.isBotDetailsLoading = true;
             lib.gridOptions=[];
+            var datefilter = "";
+            if($scope.ticketsResolveStartsOn){
+                if(!$scope.ticketsResolveEndsOn){
+                    $scope.isBotServiceNowPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
+                    toastr.error('End Date not set','Error');
+                    return;
+                }
+                datefilter += '&ticketsdate=' + $scope.ticketsResolveStartsOn.toString("yyyyMMdd");
+            }
+            if($scope.ticketsResolveEndsOn){
+                if(!$scope.ticketsResolveStartsOn){
+                    $scope.isBotServiceNowPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
+                    toastr.error('Start Date not set','Error');
+                    return;
+                }
+                datefilter += '&ticketedate=' + $scope.ticketsResolveEndsOn.toString("yyyyMMdd");
+            }
             var param={
                 inlineLoader:true,
-                url:'/bot?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bot?serviceNowCheck=true' + datefilter + '&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                     $scope.showLoadRecord();
@@ -342,9 +361,16 @@
                     url:'/bot?actionStatus=running&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.scheduledBotsSelected) {
+                 var datefilter = "";
+                //  if($scope.ticketsResolveStartsOn){
+                //      datefilter += '&ticketsdate=' + $scope.ticketsResolveStartsOn.toString("yyyyMMdd");
+                //  }
+                // if($scope.ticketsResolveStartsOn){
+                //     datefilter += '&ticketedate=' + $scope.ticketsResolveEndsOn.toString("yyyyMMdd");
+                // }
                  param={
                     inlineLoader: true,
-                    url:'/bot?serviceNowCheck=true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/bot?serviceNowCheck=true' + datefilter + '&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.failedBotsselected) {
                  param={
@@ -436,6 +462,43 @@
                 $scope.activeClass = {};
             });
         };
+
+        $scope.setResolveDates = function(period){
+            var formatD = function(dt){
+
+                var dd = dt.getDate();
+                var mm = dt.getMonth()+1;
+                //January is 0!
+                var yyyy = dt.getFullYear();
+                if(dd<10){dd='0'+dd}
+                if(mm<10){mm='0'+mm}
+                return(mm+'/'+dd+'/'+yyyy);
+            }
+
+            var curr = new Date();
+            if(period == 'today'){
+                $scope.ticketsResolveStartsOn = formatD(curr);
+                $scope.ticketsResolveEndsOn = formatD(curr);
+            }
+            if(period == 'week'){
+                var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+                var last = first + 6; // last day is the first day + 6
+                $scope.ticketsResolveStartsOn = formatD(new Date(curr.setDate(first)));
+                $scope.ticketsResolveEndsOn = formatD(new Date(curr.setDate(last)));
+
+
+            }
+            if(period == 'month'){
+                var mon = curr.getMonth(),
+                    yr = curr.getFullYear();
+                $scope.ticketsResolveStartsOn = formatD(new Date(yr,mon,1));
+                $scope.ticketsResolveEndsOn = formatD(new Date(yr,mon + 1,0));
+
+
+            }
+            $scope.showScheduledBots();
+           // return(false);
+        }
         
         $scope.setCardView = function(pageReset) {
             $scope.isBotLibraryPageLoading = true;
@@ -612,6 +675,9 @@
             $scope.noShowForServiceNow = false;
             $scope.showForServiceNow = true;
             $scope.paginationParams.pageSize = 10;
+            //including date filter
+            // $scope.ticket-resolve-end =
+            // $scope.ticket-resolve-start =
             lib.gridOptions.data=[];
             $scope.botServiceNowLibraryGridView();
         };

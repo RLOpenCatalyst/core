@@ -24,6 +24,14 @@
 			return (new Date(timestamp).toLocaleString());
 		};
 	})
+        .filter('timestampToLocaleTimeWith',function(){
+            return function(timestamp){
+                if(!timestamp){
+                    return "";
+                }
+                return (new Date(timestamp*1000).toLocaleString());
+            };
+        })
 	.filter('timeStampTo2lines',function(){
 		/*	Input : string in the format with one comma eg: 2/17/2016, 7:29:10 AM 
 			Output: array eg: [2/17/2016, 7:29:10 AM] 
