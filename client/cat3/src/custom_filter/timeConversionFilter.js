@@ -29,7 +29,10 @@
                 if(!timestamp){
                     return "";
                 }
-                return (new Date(timestamp*1000).toLocaleString());
+                if(new Date(timestamp) < new Date('1/1/2016'))
+                	return (new Date(timestamp*1000).toLocaleString());
+                else
+                    return (new Date(timestamp).toLocaleString());
             };
         })
 	.filter('timeStampTo2lines',function(){
