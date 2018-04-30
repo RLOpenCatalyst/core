@@ -23,6 +23,8 @@
         var botLibraryUIGridDefaults = uiGridOptionsService.options();
         $scope.paginationParams = botLibraryUIGridDefaults.pagination;
         $scope.paginationParams=[];
+        $scope.displayRunBots = [];
+        $scope.tempData = [];
         $scope.numofCardPages = 0;
         $scope.paginationParams.page = 1;
         $scope.paginationParams.pageSize = 24;
@@ -31,10 +33,15 @@
         $scope.botLibrarySearch = '';
         $scope.showOriginalSpinner = true;
         $scope.noShowForServiceNow = true;
+        $scope.showForFailedRun = false;
         $scope.showLoadRecord = function() {
             $scope.showLoadMore = false;
             $scope.showRecords = false;
         };
+        $scope.resetDateFields = function(){
+            $scope.ticketsResolveStartsOn = '';
+            $scope.ticketsResolveEndsOn = '';
+        }
         $scope.showLoadRecord();
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
@@ -464,6 +471,7 @@
         };
 
         $scope.setResolveDates = function(period){
+            $scope.botLibGridOptions.data = $scope.tempData;
             var formatD = function(dt){
 
                 var dd = dt.getDate();
@@ -496,7 +504,16 @@
 
 
             }
-            $scope.showScheduledBots();
+
+            $scope.showScheduledBotsFilterDate();
+            console.log($scope.botLibGridOptions.data);
+            console.log($scope.botLibGridOptions.data.length);
+            //$scope.clearSearchString();
+            // $scope.isBotServiceNowPageLoading = true;
+            // $scope.showLoadRecord();
+            // lib.gridOptions.data=[];
+            // $scope.botServiceNowLibraryGridView();
+            //$scope.showScheduledBots();
            // return(false);
         }
         
@@ -586,6 +603,7 @@
         };
         $scope.showAllBots = function() {
             $scope.noShowForServiceNow = true;
+            $scope.showForFailedRun = false;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.botLibGridOptions.data = [];
@@ -600,6 +618,7 @@
         };
         $scope.showBotsRunning = function(resetPage) {
             $scope.noShowForServiceNow = true;
+            $scope.showForFailedRun = false;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
@@ -632,7 +651,9 @@
             });
         };
         $scope.showFailedBots = function(resetPage) {
+            $scope.resetDateFields();
             $scope.noShowForServiceNow = true;
+            $scope.showForFailedRun = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
@@ -654,6 +675,7 @@
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){
                     $scope.botLibGridOptions.data = $scope.botLibGridOptions.data.concat(result.bots);
+                    $scope.tempData = $scope.botLibGridOptions.data;
                     for(var i=0;i<result.bots.length;i++){
                         $scope.imageForCard(result.bots[i]);
                     }
@@ -663,10 +685,13 @@
                 $scope.botsDetails(result);
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
             });
+            $scope.botServiceNowLibraryGridView();
         };
         $scope.showScheduledBots = function(resetPage) {
+            $scope.resetDateFields();
             $scope.clearSearchString();
             $scope.isBotServiceNowPageLoading = true;
+            $scope.showForFailedRun = true;
             $scope.showLoadRecord();
             $scope.failedBotsselected = false;
             $scope.runningBotsselected = false;
@@ -681,7 +706,45 @@
             lib.gridOptions.data=[];
             $scope.botServiceNowLibraryGridView();
         };
-        
+        $scope.resetFields = function(){
+            $scope.resetDateFields();
+            $scope.botLibGridOptions.data = $scope.tempData;
+        }
+
+        $scope.showScheduledBotsFilterDate = function(resetPage) {
+            $scope.botLibGridOptions.data = $scope.tempData;
+            $scope.displayRunBots =[];
+            $scope.clearSearchString();
+            $scope.isBotServiceNowPageLoading = true;
+            $scope.botServiceNowLibraryGridView();
+            // $scope.showForFailedRun = true;
+            //$scope.showLoadRecord();
+            // $scope.failedBotsselected = false;
+            // $scope.runningBotsselected = false;
+            // $scope.totalBotsSelected = false;
+            // $scope.scheduledBotsSelected = true;
+            // $scope.noShowForServiceNow = true;
+            // $scope.showForServiceNow = true;
+            // $scope.paginationParams.pageSize = 10;
+            //including date filter
+            // $scope.ticket-resolve-end =
+            // $scope.ticket-resolve-start =
+            // lib.gridOptions.data=[];
+            // $scope.botServiceNowLibraryGridView();
+            var newDate1 = new Date($scope.ticketsResolveStartsOn).getTime();
+            console.log(newDate1);
+            var newDate2 = new Date($scope.ticketsResolveEndsOn).getTime();
+            console.log(newDate2);
+            for(var i=0; i<$scope.botLibGridOptions.data.length; i++){
+                if ($scope.botLibGridOptions.data[i].lastRunTime >= newDate1 && $scope.botLibGridOptions.data[i].lastRunTime < (newDate2+86400000)){
+                    $scope.displayRunBots.push($scope.botLibGridOptions.data[i]);
+                }else{
+                    console.log(" Out ");
+                }
+            }
+
+            $scope.botLibGridOptions.data = $scope.displayRunBots;
+        };
         $scope.setCardView();
     }]);
 })(angular);

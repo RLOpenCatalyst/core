@@ -114,7 +114,7 @@
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
                   <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfFailedBots}}</span> 
-                  <small>Failed BOTs</small>
+                  <small>Failed Runs</small>
                 </h3>
               </div>
               <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
@@ -146,7 +146,7 @@
          </span>
       </span>
          <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
-            <span class="bot-tickets-resolved-dates" ng-show="!noShowForServiceNow">
+            <span class="bot-tickets-resolved-dates" ng-show="showForFailedRun">
 
                     <label>&nbsp;&nbsp;
                         <input id="ticket-resolve-start"  ng-change="dateChange()"   type="text"  ng-model="ticketsResolveStartsOn" placeholder="Start Date" class="form-control-date ticket-resolve-start"  >
@@ -158,10 +158,10 @@
 
 
                     </label>
-                <button type="button" title="Filter" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="showScheduledBots('resetPage')">
+                <button type="button" title="Filter" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="showScheduledBotsFilterDate('resetPage')">
                            <i class="fa fa-check fa-2 white" aria-hidden="true"></i>&nbsp;
                             </button>
-                <button type="button" title="Clear" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="ticketsResolveStartsOn='';ticketsResolveEndsOn='';showScheduledBots('resetPage')">
+                <button type="button" title="Clear" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="resetFields()">
                            <i class="fa fa-close fa-2 red" aria-hidden="true"></i>&nbsp;
                             </button>
                 <label>&nbsp;
@@ -171,7 +171,7 @@
             </span>
 
 
-            <span class="bot-library-search" ng-show="noShowForServiceNow">
+            <span class="bot-library-search" ng-show="!showForFailedRun">
                <label>&nbsp;
                   <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" placeholder="Search">
                   <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
