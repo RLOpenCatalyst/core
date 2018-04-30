@@ -328,6 +328,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
         },
         function(filterQuery,next) {
             filterQuery.isDeleted=false;
+
             if(BOTSchema === 'BOTOLD') {
                 settingService.getOrgUserFilter(userName,function(err,orgIds){
                     if(err){
@@ -361,6 +362,9 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                     auditIds.push(botsList[i]._id);
                 }
             }
+            //fetching startedon date
+
+
             async.parallel({
                 totalNoOfBots: function(callback){
                             callback(null, botsList.length);
@@ -372,6 +376,16 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         isDeleted: false,
                         auditId:{$in:auditIds}
                     };
+                    if(queryParam.startdate){
+                        var sdt = new Date(queryParam.startdate).getTime();
+                        query.startedOn={};
+                        query.startedOn.$gte=sdt;
+                    }
+                    if(queryParam.enddate){
+                        var edt = new Date(queryParam.enddate).getTime();
+                        if(query.startedOn)
+                            query.startedOn.$lte=edt;
+                    }
                     var botsIds = [];
                     auditTrail.getAuditTrailsCount(query, function (err, botsAuditsCount) {
                         if (err) {
@@ -391,6 +405,16 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
                         auditId: { $in: auditIds }
                     };
+                    if(queryParam.startdate){
+                        var sdt = new Date(queryParam.startdate).getTime();
+                        query.startedOn={};
+                        query.startedOn.$gte=sdt;
+                    }
+                    if(queryParam.enddate){
+                        var edt = new Date(queryParam.enddate).getTime();
+                        if(query.startedOn)
+                            query.startedOn.$lte=edt;
+                    }
                     auditTrail.getAuditTrailsCount(query, function(err,botsAuditsCount){
                         if(err){
                             callback(err,null);
@@ -406,6 +430,17 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         isDeleted:false,
                         auditId:{$in:auditIds}
                     };
+
+                    if(queryParam.startdate){
+                        var sdt = new Date(queryParam.startdate).getTime();
+                        query.startedOn={};
+                        query.startedOn.$gte=sdt;
+                    }
+                    if(queryParam.enddate){
+                        var edt = new Date(queryParam.enddate).getTime();
+                        if(query.startedOn)
+                            query.startedOn.$lte=edt;
+                    }
                     var botsIds = [];
                     auditTrail.getAuditTrails(query, function (err, botsAudits){
                         if(err){
@@ -424,30 +459,82 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                 },
                 totalSavedTimeForBots: function(callback){
                     var days =0,hours = 0, minutes = 0;
-                    if(botsList.length > 0) {
-                        for (var k = 0; k < botsList.length; k++) {
-                            if(botsList[k].savedTime && botsList[k].savedTime.hours) {
-                                hours = hours + botsList[k].savedTime.hours;
-                            }
-                            if(botsList[k].savedTime && botsList[k].savedTime.minutes){
-                                minutes = minutes + botsList[k].savedTime.minutes;
+                    //
+                    var query = {
+                        auditType: BOTSchema,
+                        actionStatus: 'success',
+                        isDeleted: false,
+                        auditId:{$in:auditIds}
+                    };
+                    if(queryParam.startdate){
+                        var sdt = new Date(queryParam.startdate).getTime();
+                        query.startedOn={};
+                        query.startedOn.$gte=sdt;
+                    }
+                    if(queryParam.enddate){
+                        var edt = new Date(queryParam.enddate).getTime();
+                        if(query.startedOn)
+                            query.startedOn.$lte=edt;
+                    }
+                    var botssuccesslist = [];
+                    auditTrail.getAuditTrails(query, function (err, botal) {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        } else{
+                            // callback(null, botsAuditsCount);
+                            // return;
+                            botal.forEach(function(ba){
+                                if(botssuccesslist.indexOf(ba.auditId) < 0)
+                                    botssuccesslist.push(ba.auditId);
+                            })
+                            botsAuditList(botssuccesslist);
+                        }
+
+
+                    });
+
+
+                    var botsAuditList = function(botssuccesslist){
+                        var minutes =0;
+                        var hours = 0;
+                        var days = 0;
+                        if(botssuccesslist.length > 0) {
+                            for (var k = 0; k < botssuccesslist.length; k++) {
+
+                                botsList.forEach(function(bl){
+                                    var _botid = "";
+                                    if(BOTSchema === 'BOTOLD') {
+                                        _botid = bl.botId;
+                                    }else{
+                                        _botid = bl._id;
+                                    }
+                                    if(_botid == botssuccesslist[k]){
+                                        if(bl.savedTime && bl.savedTime.hours) {
+                                            hours = hours + bl.savedTime.hours;
+                                        }
+                                        if(bl.savedTime && bl.savedTime.minutes){
+                                            minutes = minutes + bl.savedTime.minutes;
+                                        }
+                                    }
+                                })
                             }
                         }
+                        if(minutes >= 60){
+                            hours = hours + Math.floor(minutes / 60);
+                            minutes = minutes % 60;
+                        }
+                        if (hours >= 24) {
+                            days = days + Math.floor(hours / 24);
+                            hours = hours % 24;
+                        }
+                        var result = {
+                            days:days,
+                            hours:hours,
+                            minutes:minutes
+                        }
+                        callback(null,result);
                     }
-                    if(minutes >= 60){
-                        hours = hours + Math.floor(minutes / 60);
-                        minutes = minutes % 60;
-                    }
-                    if (hours >= 24) { 
-                        days = days + Math.floor(hours / 24);
-                        hours = hours % 24;
-                    }
-                    var result = {
-                        days:days,
-                        hours:hours,
-                        minutes:minutes
-                    }
-                    callback(null,result);
                 },
                 totalNoOfFailedBots: function(callback){
                     var query={
