@@ -200,6 +200,28 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
+
+            //appending queryObj with auditTrailQuery
+            queryObj.auditTrailQuery = auditTrailQuery;
+            if(queryObj.queryObj.$and){
+                if(auditTrailQuery.startdate && auditTrailQuery.enddate){
+                    var sdt = new Date(auditTrailQuery.startdate).getTime();
+                    var edt = new Date(auditTrailQuery.enddate).getTime();
+                    queryObj.queryObj.$and.push({"startedOn":{$gte:sdt,$lte:edt}});
+                }
+                if(auditTrailQuery.startdate && !auditTrailQuery.enddate){
+                    var sdt = new Date(auditTrailQuery.startdate).getTime();
+
+                    queryObj.queryObj.$and.push({"startedOn":{$gte:sdt}});
+                }
+
+                if(auditTrailQuery.actionStatus){
+                    queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
+
+                }
+
+            }
+
             auditTrail.getAuditTrailList(queryObj, next);
         },
         function(auditTrailList, next) {
