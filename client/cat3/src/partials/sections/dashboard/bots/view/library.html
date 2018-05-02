@@ -146,7 +146,8 @@
          </span>
       </span>
          <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
-            <span class="bot-tickets-resolved-dates" ng-show="showForFailedRun">
+            <span class="bot-tickets-resolved-dates" ng-show="!noShowForServiceNow">
+             <!--<span class="bot-tickets-resolved-dates" ng-show="showForFailedRun">-->
 
                     <label>&nbsp;&nbsp;
                         <input id="ticket-resolve-start"  ng-change="dateChange()"   type="text"  ng-model="ticketsResolveStartsOn" placeholder="Start Date" class="form-control-date ticket-resolve-start"  >
@@ -170,8 +171,8 @@
                 </label>
             </span>
 
-
-            <span class="bot-library-search" ng-show="!showForFailedRun">
+             <span class="bot-library-search" ng-show="noShowForServiceNow">
+            <!--<span class="bot-library-search" ng-show="!showForFailedRun">-->
                <label>&nbsp;
                   <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" placeholder="Search">
                   <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
@@ -199,7 +200,7 @@
                 <ul class="ul-vert-bar pull-left botsExecution" ng-if="botsDetails.executionCount">
                   <li class="publisher" title="{{botsDetails.executionCount}}">Runs:&nbsp;{{botsDetails.executionCount}}</li>
                   <li class="publisher" title="{{botsDetails.lastRunTime | timestampToLocaleTime}}"><i class="fa fa-clock-o"></i>&nbsp;<span am-time-ago="botsDetails.lastRunTime">
-                      {{botsDetails.lastRunTime}} &nbsp;&nbsp;
+                      {{botsDetails.lastRunTime}} &nbsp;&nbsp;</span>
                 </ul>
                 <div class="pull-right" style="margin-top:8px;">
                   <a ng-if="botsDetails.type ==='blueprints'" class="margin10 cursor" title="Execute"><i class="fa fa-play font-size-16" ng-click="blueprintExecute(botsDetails)"></i></a>
@@ -208,7 +209,7 @@
             </a>
          </div>
       </div>
-      <div class="clearfix"></div>
+      <!--<div class="clearfix"></div>-->
 
         <div class="clearfix"></div>
         <div class="col-lg-5"></div>

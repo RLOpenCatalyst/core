@@ -8,13 +8,14 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('libraryCtrl',['$scope', '$rootScope', 'moment', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, moment, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
+    .controller('libraryCtrl',['$http', '$scope', '$rootScope', 'moment', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($http, $scope, $rootScope, moment, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
 
         var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
         $rootScope.templateSelected = {};
         $rootScope.isOpenSidebar = false;
+        $scope.temp = [];
         $scope.totalBotsSelected = true;
         $scope.botCategoryList = [];
         botsCreateService.getBotCategoryList().then(function (catList) {
@@ -33,7 +34,7 @@
         $scope.botLibrarySearch = '';
         $scope.showOriginalSpinner = true;
         $scope.noShowForServiceNow = true;
-        $scope.showForFailedRun = false;
+        //$scope.showForFailedRun = false;
         $scope.showLoadRecord = function() {
             $scope.showLoadMore = false;
             $scope.showRecords = false;
@@ -213,6 +214,7 @@
             genSevs.promiseGet(param).then(function (result) {
                     $scope.showLoadRecord();
                     $scope.botServiceNowLibGridOptions.data =  result.bots;
+                    //$scope.tempData = $scope.botServiceNowLibGridOptions.data;
                     $scope.isBotServiceNowPageLoading = false;
                     $scope.isBotDetailsLoading = false;
             }, function(error) {
@@ -603,7 +605,7 @@
         };
         $scope.showAllBots = function() {
             $scope.noShowForServiceNow = true;
-            $scope.showForFailedRun = false;
+            //$scope.showForFailedRun = false;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.botLibGridOptions.data = [];
@@ -618,7 +620,7 @@
         };
         $scope.showBotsRunning = function(resetPage) {
             $scope.noShowForServiceNow = true;
-            $scope.showForFailedRun = false;
+            //$scope.showForFailedRun = false;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
@@ -637,6 +639,8 @@
                 inlineLoader:true,
                 url:'/bot?actionStatus=running&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
+
+
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){
                     $scope.botLibGridOptions.data = $scope.botLibGridOptions.data.concat(result.bots);
@@ -652,46 +656,53 @@
         };
         $scope.showFailedBots = function(resetPage) {
             $scope.resetDateFields();
-            $scope.noShowForServiceNow = true;
-            $scope.showForFailedRun = true;
+            // $scope.noShowForServiceNow = true;
+            $scope.noShowForServiceNow = false;
+            //$scope.showForFailedRun = true;
             $scope.clearSearchString();
-            $scope.isBotLibraryPageLoading = true;
+            $scope.isBotLibraryPageLoading = false;
             $scope.showLoadRecord();
             $scope.failedBotsselected = true;
             $scope.runningBotsselected = false;
             $scope.totalBotsSelected = false;
             $scope.scheduledBotsSelected = false;
-            $scope.paginationParams.pageSize = 24;
+            $scope.showForServiceNow = true;
+            $scope.paginationParams.pageSize = 10;
             lib.gridOptions.data=[];
             if(resetPage){
-                $scope.botLibGridOptions.data = [];
+                $scope.botServiceNowLibGridOptions.data = [];
                 $scope.paginationParams.page = 1;
-                $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
+                $scope.botServiceNowLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             }
             var param={
                 inlineLoader:true,
-                url:'/bot?actionStatus=failed&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bot?actionStatus=failed&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
+            // $http.get('botlog.json').then(function (res) {
+            //     $scope.temp = res.data.bots;
+            //     console.log(res.data.bots);
+            // });
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){
-                    $scope.botLibGridOptions.data = $scope.botLibGridOptions.data.concat(result.bots);
-                    $scope.tempData = $scope.botLibGridOptions.data;
+                    $scope.botServiceNowLibGridOptions.data = $scope.botServiceNowLibGridOptions.data.concat(result.bots);
+                    $scope.botServiceNowLibGridOptions.data = $scope.temp;
+                    $scope.tempData = $scope.botServiceNowLibGridOptions.data;
                     for(var i=0;i<result.bots.length;i++){
                         $scope.imageForCard(result.bots[i]);
                     }
                 } else {
-                    $scope.botLibGridOptions.data = result.bots;
+                    $scope.botServiceNowLibGridOptions.data = result.bots;
                 }
                 $scope.botsDetails(result);
-                $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
+                $scope.statusBar = "Showing " + ($scope.botServiceNowLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botServiceNowLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
             });
-            $scope.botServiceNowLibraryGridView();
+            //$scope.botServiceNowLibraryGridView();
         };
         $scope.showScheduledBots = function(resetPage) {
             $scope.resetDateFields();
             $scope.clearSearchString();
-            $scope.isBotServiceNowPageLoading = true;
-            $scope.showForFailedRun = true;
+            $scope.isBotServiceNowPageLoading = false;
+            // $scope.showForFailedRun = true;
             $scope.showLoadRecord();
             $scope.failedBotsselected = false;
             $scope.runningBotsselected = false;
@@ -708,11 +719,11 @@
         };
         $scope.resetFields = function(){
             $scope.resetDateFields();
-            $scope.botLibGridOptions.data = $scope.tempData;
+            $scope.botServiceNowLibGridOptions.data = $scope.tempData;
         }
 
-        $scope.showScheduledBotsFilterDate = function(resetPage) {
-            $scope.botLibGridOptions.data = $scope.tempData;
+        $scope.showScheduledBotsFilterDate = function() {
+            $scope.botServiceNowLibGridOptions.data = $scope.tempData;
             $scope.displayRunBots =[];
             $scope.clearSearchString();
             $scope.isBotServiceNowPageLoading = true;
@@ -735,15 +746,19 @@
             console.log(newDate1);
             var newDate2 = new Date($scope.ticketsResolveEndsOn).getTime();
             console.log(newDate2);
-            for(var i=0; i<$scope.botLibGridOptions.data.length; i++){
-                if ($scope.botLibGridOptions.data[i].lastRunTime >= newDate1 && $scope.botLibGridOptions.data[i].lastRunTime < (newDate2+86400000)){
-                    $scope.displayRunBots.push($scope.botLibGridOptions.data[i]);
-                }else{
-                    console.log(" Out ");
-                }
-            }
+            console.log(newDate2+86400000);
+            for(var i=0; i<$scope.botServiceNowLibGridOptions.data.length; i++){
+                if ($scope.botServiceNowLibGridOptions.data[i].startedOn >= newDate1 && $scope.botServiceNowLibGridOptions.data[i].startedOn < (newDate2+86400000)){
+                    $scope.displayRunBots.push($scope.botServiceNowLibGridOptions.data[i]);
 
-            $scope.botLibGridOptions.data = $scope.displayRunBots;
+                }
+                // else{
+                //     console.log(" Out ");
+                // }
+            }
+            //console.log($scope.displayRunBots);
+            $scope.botServiceNowLibGridOptions.data = $scope.displayRunBots;
+            //console.log($scope.botServiceNowLibGridOptions.data);
         };
         $scope.setCardView();
     }]);
