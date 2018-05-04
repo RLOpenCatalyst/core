@@ -148,6 +148,7 @@
 		"totalNoOfServiceNowTickets": 2,
 		"totalNoOfSuccessBots": 2,
 		"totalNoOfRunningBots": 0,
-		"totalNoOfFailedBots": 0
+		"totalNoOfFailedBots": 0,
+		"totalNoOfFailedServiceNowTickets": 0
 	}
 }
