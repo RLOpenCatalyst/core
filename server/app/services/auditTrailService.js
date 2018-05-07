@@ -419,7 +419,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         }
                     });
                 },
-                totalNoOfServiceNowTickets: function(callback){
+                    totalNoOfServiceNowTickets: function(callback){
                     var query={
                         auditType:BOTSchema,
                         actionStatus:'success',
@@ -580,8 +580,35 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                             callback(null,botsIds.length);
                         }
                     });
-                }
+                },
 
+                totalNoOfFailedServiceNowTickets: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'failed',
+                        isDeleted:false,
+                        'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
+                        auditId: { $in: auditIds }
+                    };
+                    if(queryParam.startdate){
+                        var sdt = new Date(queryParam.startdate).getTime();
+                        query.startedOn={};
+                        query.startedOn.$gte=sdt;
+                    }
+                    if(queryParam.enddate){
+                        var edt = new Date(queryParam.enddate).getTime();
+                        if(query.startedOn)
+                            query.startedOn.$lte=edt;
+                    }
+                    auditTrail.getAuditTrailsCount(query, function(err,botsAuditsCount){
+                        if(err){
+                            callback(err,null);
+                        }else {
+                            callback(null, botsAuditsCount);
+                        }
+                    });
+                }
+                
             },function(err,data){
                 if(err){
                     logger.error(err);

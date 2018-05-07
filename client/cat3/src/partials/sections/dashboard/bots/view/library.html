@@ -113,7 +113,7 @@
                 <i class="fa fa-remove"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfFailedBots}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfFailedServiceNowTickets}}</span> 
                   <small>Failed Runs</small>
                 </h3>
               </div>
@@ -159,7 +159,7 @@
 
 
                     </label>
-                <button type="button" title="Filter" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="showScheduledBotsFilterDate('resetPage')">
+                <button type="button" title="Filter" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="showScheduledBotsFilterDate()">
                            <i class="fa fa-check fa-2 white" aria-hidden="true"></i>&nbsp;
                             </button>
                 <button type="button" title="Clear" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="resetFields()">
