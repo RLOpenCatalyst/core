@@ -594,6 +594,7 @@
             $scope.botStatus();
         };
         $scope.showAllBots = function() {
+            $scope.isCardViewActive = true;
             $scope.noShowForServiceNow = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
@@ -694,18 +695,48 @@
                 inlineLoader:true,
                 url:'/audit-trail?actionStatus=failed&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
+            //need to move the below to a UI selection. stop gap fix.
 
             genSevs.promiseGet(param).then(function (result) {
                 // if($scope.isCardViewActive){
+
+                $scope.isCardViewActive = false;
+                if($scope.isCardViewActive){
                     $scope.botServiceNowLibGridOptions.data = $scope.botServiceNowLibGridOptions.data.concat(result.auditTrails);
                     $scope.tempData = $scope.botServiceNowLibGridOptions.data;
                     console.log($scope.botServiceNowLibGridOptions.data);
                     // for(var i=0;i<result.auditTrails.length;i++){
                     //     $scope.imageForCard(result.auditTrails[  i]);
                     // }
+
                 // } else {
                 //     $scope.botServiceNowLibGridOptions.data = result.auditTrails;
                 // }
+                } else {
+                        //remapping for failed records
+                    for(var i=0;i<result.auditTrails.length;i++){
+
+                        if(!result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj) {
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj={
+                                ticketNo:"-"
+                            }
+                        }
+                        if(result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo)
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.number = result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.category = result.auditTrails[i].auditTrailConfig.category;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.shortDesc = result.auditTrails[i].auditTrailConfig.description;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.state = result.auditTrails[i].status;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.priority = "-";
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.createdOn = result.auditTrails[i].startedOn;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.resolvedAt = result.auditTrails[i].endedOn;
+                        }
+
+
+//                    console.log(result.auditTrails);
+
+                    $scope.botServiceNowLibGridOptions.data = result.auditTrails;
+                }
+                //console.log(result);
                 $scope.botsDetails(result);
                 console.log(result);
                 $scope.statusBar = "Showing " + ($scope.botServiceNowLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botServiceNowLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
@@ -742,7 +773,7 @@
             $scope.clearSearchString();
             var newDate1 = new Date($scope.ticketsResolveStartsOn).getTime();
             var newDate2 = new Date($scope.ticketsResolveEndsOn).getTime();
-            console.log($scope.botServiceNowLibGridOptions.data);
+            //console.log($scope.botServiceNowLibGridOptions.data);
             for(var i=0; i<$scope.botServiceNowLibGridOptions.data.length; i++){
                 //console.log($scope.botServiceNowLibGridOptions.data[i].auditTrailConfig.serviceNowTicketRefObj);
                 if($scope.botServiceNowLibGridOptions.data[i].auditTrailConfig.serviceNowTicketRefObj.openedAt === "undefined") {
