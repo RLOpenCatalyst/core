@@ -203,6 +203,7 @@
                </table>
             </div>
             <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
+            <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef'"><input type="checkbox" ng-model="scheduleAlternate.flag" ng-click="botStatus()"/><span>&nbsp;Skip alternate runs?</span></div>
             <div ng-if="botType ==='chef' || botType === 'script'" ng-show="botCheck" class="chefExecution">
                <fieldset id="editParamPage">
                   <legend>Remote Machine</legend><br>

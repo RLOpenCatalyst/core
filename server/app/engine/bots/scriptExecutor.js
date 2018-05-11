@@ -126,10 +126,17 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     }
     callback(null, botAuditTrailObj);
     if (botsScriptDetails.params && botsScriptDetails.params.data) {
-        Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-            var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            replaceTextObj[key] = decryptedText;
-        });
+        //condition introduced based on encryption botservice -> encryptedParam
+        if(botsScriptDetails.params.category){
+            if(botsScriptDetails.params.category === 'script'){
+                Object.keys(botsScriptDetails.params.data).forEach(function (key) {
+                    var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                    replaceTextObj[key] = decryptedText;
+                });
+            }
+        }
+
+
     } else {
         for (var j = 0; j < botsScriptDetails.input.length; j++) {
             replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;

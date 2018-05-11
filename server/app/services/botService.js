@@ -127,6 +127,7 @@ botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callb
                 if (err) {
                     logger.error("Error in fetching BOTs", err);
                 } else {
+                    //if unschedule check if removed...
                     callback(null, data);
                     var schedulerService = require('_pr/services/schedulerService.js');
                     schedulerService.executeNewScheduledBots(botsList[0], function (err, schData) {
