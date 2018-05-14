@@ -353,6 +353,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
 
             if(BOTSchema === 'BOTOLD') {
                 settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    logger.info('Exiting Org user filter');
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
@@ -364,6 +365,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                 });
             }else{
                 settingService.getOrgUserFilter(userName,function(err,orgIds){
+                    logger.info('Exiting Org user filter');
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
@@ -377,6 +379,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
         },
         function(botsList,next){
             var auditIds = [];
+            logger.info('Entering Seggregation');
             for(var i = 0; i < botsList.length; i++) {
                 if(BOTSchema === 'BOTOLD') {
                     auditIds.push(botsList[i].botId);
@@ -385,7 +388,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                 }
             }
             //fetching startedon date
-
+            logger.info('Exiting Seggregation');
 
             async.parallel({
                 totalNoOfBots: function(callback){
@@ -419,7 +422,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         }
                     });
                 },
-                    totalNoOfServiceNowTickets: function(callback){
+                totalNoOfServiceNowTickets: function(callback){
                     var query={
                         auditType:BOTSchema,
                         actionStatus:'success',
@@ -581,7 +584,6 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         }
                     });
                 },
-
                 totalNoOfFailedServiceNowTickets: function(callback){
                     var query={
                         auditType:BOTSchema,
@@ -614,6 +616,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                     logger.error(err);
                     next(err,null);
                 }
+                logger.info("Exiting all counts.")
                 next(null,data);
             })
         }
@@ -623,6 +626,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
             callback(err,null);
             return;
         }
+        logger.info("Exiting all counts final.")
         callback(null,results);
         return;
     })

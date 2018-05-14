@@ -262,6 +262,7 @@ BotOldSchema.statics.getAllBots = function(queryParam,callback){
             error.status = 500;
             return callback(error);
         }else if(bots.length > 0){
+            logger.info('Exiting getAllBots old');
             return callback(null, bots);
         }else{
             return callback(null, []);

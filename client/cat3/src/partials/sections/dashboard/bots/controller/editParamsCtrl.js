@@ -48,6 +48,9 @@
             $scope.jenkinsServerSelect = '';
             $scope.hideRightButton = true;
             $scope.showAttributeList = false;
+            $scope.scheduleAlternate = {flag:false};
+
+
             if($scope.botType === 'jenkins' && items.inputFormFields[1].default) {
                 $scope.jobName = items.inputFormFields[1].default;
             }
@@ -124,6 +127,12 @@
                 }else{
                     $scope.botCheck = false;
                 }
+
+            };
+
+            $scope.settingalternative = function() {
+                $scope.scheduleAlternate = true
+
             };
 
             //get jenkins server list 

@@ -56,7 +56,7 @@ var botEngineTimeOut = appConfig.botEngineTimeOut || 180;
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var CMDBConfig = require('_pr/model/servicenow/servicenow.js');
 var emailService = require('./emailService');
-
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
@@ -413,6 +413,8 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
     });
 }
 
+
+
 schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots,callback) {
     var currentDate = new Date().getTime();
     if(bots.isScheduled === false && bots.cronJobId){        
@@ -441,17 +443,27 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
                 }
             });
             //Pre-condition check before execution. Alternative logic
-
-            botService.executeBots(bots.id, null, 'system', 'bots-console', true, function (err, historyData) {
-                if (err) {
-                    logger.error("Failed to execute New Bots.", err);
-                    return;
-                }
-                else {
-                    logger.debug("New Bots Execution Success for - ", bots.name);
-                    return;
-                }
-            });
+            var skip = false;
+            if(bots.scheduler.cronFrequency === "Weekly" && bots.scheduler.cronAlternateExecute){
+                var tod = new Date();
+               if((apiUtil.getWeekOfMonth(tod) % 2) == 0)
+                   skip = true;
+            }
+            if(!skip){
+                botService.executeBots(bots.id, null, 'system', 'bots-console', true, function (err, historyData) {
+                    if (err) {
+                        logger.error("Failed to execute New Bots.", err);
+                        return;
+                    }
+                    else {
+                        logger.debug("New Bots Execution Success for - ", bots.name);
+                        return;
+                    }
+                });
+            }
+            else{
+                logger.info("Skipped ")
+            }
         });
         logger.info('cronJobId',cronJobId);
     }

@@ -127,7 +127,8 @@ var ApiUtil = function() {
             "cronDate":scheduler.cronDate ? parseInt(scheduler.cronDate):0,
             "cronWeekDay":scheduler.cronWeekDay ? parseInt(scheduler.cronWeekDay):0,
             "cronMonth":scheduler.cronMonth ? scheduler.cronMonth: null,
-            "cronYear":scheduler.cronYear ? scheduler.cronYear: null
+            "cronYear":scheduler.cronYear ? scheduler.cronYear: null,
+            "cronAlternateExecute": scheduler.cronAlternateExecute ? scheduler.cronAlternateExecute: false
         }
         return cronScheduler;
     }
@@ -351,6 +352,12 @@ var ApiUtil = function() {
             }
 
         })
+    }
+
+    this.getWeekOfMonth = function (date) {
+        let adjustedDate = date.getDate()+date.getDay();
+        let prefixes = ['0', '1', '2', '3', '4', '5'];
+        return (parseInt(prefixes[0 | adjustedDate / 7])+1);
     }
 
 

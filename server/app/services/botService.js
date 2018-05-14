@@ -87,7 +87,8 @@ function createBotScheduler(botId, inputParam, schedulerPatternObj, callback) {
                       cronWeekDay: schedulerPatternObj.cronWeekDay,
                       cronDate: schedulerPatternObj.cronDate,
                       cronMonth: schedulerPatternObj.cronMonth,
-                      cronYear: schedulerPatternObj.cronYear
+                      cronYear: schedulerPatternObj.cronYear,
+                      cronAlternateExecute: schedulerPatternObj.cronAlternateExecute
                   }
                 }
               }, {upsert : true}, function (err) {
