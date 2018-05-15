@@ -56,6 +56,11 @@ var ScheduledBotSchema = new Schema ({
             required: false,
             trim: true
         },
+        cronAlternateExecute: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
         cronMinute:{
             type: Number,
             required: false,

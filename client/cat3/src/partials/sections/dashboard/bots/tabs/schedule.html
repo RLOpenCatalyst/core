@@ -203,6 +203,7 @@
                </table>
             </div>
             <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
+            <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef'"><input type="checkbox" ng-model="scheduleAlternate.flag" ng-click="setscheduleAlternative()"/><span>&nbsp;Skip alternate runs?</span></div>
             <div ng-if="botType ==='chef' || botType === 'script'" ng-show="botCheck" class="chefExecution">
                <fieldset id="editParamPage">
                   <legend>Remote Machine</legend><br>
@@ -225,7 +226,6 @@
                                  <li class="list-group-item" ng-repeat="instanceDetails in originalInstanceList | filter :searchText">
                                     <span title="Add to Right" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalInstanceList.indexOf(instanceDetails),'instance')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
                                     <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,instanceDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
-
                                     <img src="./images/global/chef-import.png" alt="{{instanceDetails.name}}"> &nbsp;{{instanceDetails.name}}
                                  </li>
                               </ul>

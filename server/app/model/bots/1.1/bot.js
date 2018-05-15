@@ -155,6 +155,11 @@ var BotSchema = new Schema ({
             type: Number,
             required: false
         },
+        cronAlternateExecute: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
         cronFrequency: {
             type: String,
             required: false,
@@ -305,6 +310,7 @@ BotSchema.statics.getAllBots = function(queryParam,callback){
             error.status = 500;
             return callback(error);
         }else if(bots.length > 0){
+            logger.info('Exiting getAllBots');
             return callback(null, bots);
         }else{
             return callback(null, []);
