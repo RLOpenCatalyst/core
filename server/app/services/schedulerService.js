@@ -446,7 +446,7 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
             var skip = false;
             if(bots.scheduler.cronFrequency === "Weekly" && bots.scheduler.cronAlternateExecute){
                 var tod = new Date();
-               if((apiUtil.getWeekOfMonth(tod) % 2) == 0)
+               if(apiUtil.getWeekNumber(tod) % 2 != 0)
                    skip = true;
             }
             if(!skip){
