@@ -16,6 +16,12 @@
             $scope.templateSelected = reqParams;
         });
         $scope.showForScheduled = false;
+        //$scope.scheduleAlternate = {flag:false}
+        $scope.scheduleAlternate = {
+            flag: false
+        }
+
+
 
         if($scope.templateSelected) {
             items = $scope.templateSelected;
@@ -82,7 +88,13 @@
             $scope.selectedDayOfTheMonth = items.scheduler.selectedDayOfTheMonth || (items.scheduler.cronDate && items.scheduler.cronDate !==null) ?items.scheduler.cronDate.toString() : '';
             $scope.selectedMonth =  items.scheduler.selectedMonth || (items.scheduler.cronMonth && items.scheduler.cronMonth !==null)  ? items.scheduler.cronMonth.toString() : '';
             /*$scope.currentDate = items.scheduler.startDate;*/
+            $scope.scheduleAlternate = {
+                flag: items.scheduler.cronAlternateExecute
+            }
         } else {
+            $scope.scheduleAlternate = {
+                flag: false
+            }
             $scope.showForScheduled = false;
             $scope.defaultSelection();
         }
@@ -124,7 +136,8 @@
                 cronWeekDay: $scope.weekOfTheDay,
                 cronDate: $scope.selectedDayOfTheMonth,
                 cronMonth: $scope.selectedMonth,
-                cronInputParam: $scope.botEditParams
+                cronInputParam: $scope.botEditParams,
+                cronAlternateExecute: $scope.scheduleAlternate.flag
             };
             var reqBody = null;
             

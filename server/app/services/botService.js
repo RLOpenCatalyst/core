@@ -87,7 +87,8 @@ function createBotScheduler(botId, inputParam, schedulerPatternObj, callback) {
                       cronWeekDay: schedulerPatternObj.cronWeekDay,
                       cronDate: schedulerPatternObj.cronDate,
                       cronMonth: schedulerPatternObj.cronMonth,
-                      cronYear: schedulerPatternObj.cronYear
+                      cronYear: schedulerPatternObj.cronYear,
+                      cronAlternateExecute: schedulerPatternObj.cronAlternateExecute
                   }
                 }
               }, {upsert : true}, function (err) {
@@ -127,6 +128,7 @@ botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callb
                 if (err) {
                     logger.error("Error in fetching BOTs", err);
                 } else {
+                    //if unschedule check if removed...
                     callback(null, data);
                     var schedulerService = require('_pr/services/schedulerService.js');
                     schedulerService.executeNewScheduledBots(botsList[0], function (err, schData) {

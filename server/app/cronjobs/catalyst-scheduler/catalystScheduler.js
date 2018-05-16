@@ -218,6 +218,7 @@ catalystSync.executeNewScheduledBots = function executeNewScheduledBots() {
 
 catalystSync.getBotAuditLogData = function getBotAuditLogData(){
     logger.debug("Get Bot Audit log Data updating.....")
+    var limitLogdisplay = 1;
     setInterval( function () {
         var logQueue = auditQueue.getAudit();
         if(logQueue.length > 0){
@@ -242,7 +243,11 @@ catalystSync.getBotAuditLogData = function getBotAuditLogData(){
                 return;
             }
         }else{
-            logger.debug("There is no Audit Trails Data");
+            if(limitLogdisplay % 10 == 0){
+                logger.debug("There is no Audit Trails Data");
+                limitLogdisplay = 1;
+            }
+            limitLogdisplay++;
             return;
         }
     },5000)
