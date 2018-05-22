@@ -207,7 +207,13 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
                 if(auditTrailQuery.startdate && auditTrailQuery.enddate){
                     var sdt = new Date(auditTrailQuery.startdate).getTime();
                     var edt = new Date(auditTrailQuery.enddate).getTime();
-                    queryObj.queryObj.$and.push({"startedOn":{$gte:sdt,$lte:edt}});
+                    if(auditTrailQuery.startdate === auditTrailQuery.enddate){
+                        edt = edt+86400000;
+                        queryObj.queryObj.$and.push({"startedOn":{$gte:sdt,$lte:edt}});
+                    }
+                    else {
+                        queryObj.queryObj.$and.push({"startedOn": {$gte: sdt, $lte: edt}});
+                    }
                 }
                 if(auditTrailQuery.startdate && !auditTrailQuery.enddate){
                     var sdt = new Date(auditTrailQuery.startdate).getTime();
@@ -216,7 +222,10 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
                 }
 
                 if(auditTrailQuery.actionStatus){
-                    queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
+                    var actionStatusList= auditTrailQuery.actionStatus.split(',');
+                    if(actionStatusList.length > 1)
+                        queryObj.queryObj.$and.push({"actionStatus":{$in:actionStatusList}});
+                    else queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
 
                 }
 
@@ -427,7 +436,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         auditType:BOTSchema,
                         actionStatus:'success',
                         isDeleted:false,
-                        'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
+                        //'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
                         auditId: { $in: auditIds }
                     };
                     if(queryParam.startdate){
@@ -589,7 +598,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         auditType:BOTSchema,
                         actionStatus:'failed',
                         isDeleted:false,
-                        'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
+                        //'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
                         auditId: { $in: auditIds }
                     };
                     if(queryParam.startdate){

@@ -33,7 +33,9 @@
         $scope.botLibrarySearch = '';
         $scope.showOriginalSpinner = true;
         $scope.noShowForServiceNow = true;
-        //$scope.showForFailedRun = false;
+        $scope.ticketsResolveStartsOn = '';
+        $scope.ticketsResolveEndsOn = '';
+        $scope.botSummary = {};
         $scope.showLoadRecord = function() {
             $scope.showLoadMore = false;
             $scope.showRecords = false;
@@ -82,8 +84,10 @@
             angular.extend($scope.botServiceNowLibGridOptions,botLibraryUIGridDefaults.gridOption);
         };
         $scope.initGrids();
+
         /*APIs registered are triggered as ui-grid is configured 
         for server side(external) pagination.*/
+
         angular.extend($scope.botLibGridOptions,botLibraryUIGridDefaults.gridOption, {
             onRegisterApi :function(gridApi) {
                 $scope.gridApi = gridApi;
@@ -95,6 +99,7 @@
                     }
                 });
                 //Pagination for page and pageSize
+
                 gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
                     $scope.paginationParams.page = newPage;
                     $scope.paginationParams.pageSize = pageSize;
@@ -106,6 +111,7 @@
 
         /*APIs registered are triggered as ui-grid is configured 
         for server side(external) pagination.*/
+
         angular.extend($scope.botServiceNowLibGridOptions,botLibraryUIGridDefaults.gridOption, {
             onRegisterApi :function(gridApi) {
                 $scope.gridApi = gridApi;
@@ -113,7 +119,12 @@
                     if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
                         $scope.paginationParams.sortBy = sortColumns[0].field;
                         $scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
-                        $scope.botServiceNowLibraryGridView();
+                        if($scope.failedBotsselected)
+                            $scope.showFailedBots();
+                        if($scope.scheduledBotsSelected)
+                            $scope.botServiceNowLibraryGridView();
+                        if($scope.runningBotsselected)
+                            $scope.showBotsRunning();
                     }
                 });
                 //Pagination for page and pageSize
@@ -121,7 +132,12 @@
                     $scope.paginationParams.page = newPage;
                     $scope.paginationParams.pageSize = pageSize;
                     $scope.currentCardPage = newPage;
-                    $scope.botServiceNowLibraryGridView();
+                    if($scope.failedBotsselected)
+                        $scope.showFailedBots();
+                    if($scope.scheduledBotsSelected)
+                        $scope.botServiceNowLibraryGridView();
+                    if($scope.runningBotsselected)
+                        $scope.showBotsRunning();
                 });
             }
         });
@@ -185,34 +201,36 @@
         };
 
         $scope.botServiceNowLibraryGridView = function() {
+
             $scope.isBotDetailsLoading = true;
             lib.gridOptions=[];
-            var datefilter = "";
-            if($scope.ticketsResolveStartsOn){
-                if(!$scope.ticketsResolveEndsOn){
-                    $scope.isBotServiceNowPageLoading = false;
-                    $scope.isBotDetailsLoading = false;
-                    toastr.error('End Date not set','Error');
-                    return;
-                }
-                datefilter += '&ticketsdate=' + $scope.ticketsResolveStartsOn.toString("yyyyMMdd");
-            }
-            if($scope.ticketsResolveEndsOn){
-                if(!$scope.ticketsResolveStartsOn){
-                    $scope.isBotServiceNowPageLoading = false;
-                    $scope.isBotDetailsLoading = false;
-                    toastr.error('Start Date not set','Error');
-                    return;
-                }
-                datefilter += '&ticketedate=' + $scope.ticketsResolveEndsOn.toString("yyyyMMdd");
-            }
+            //var datefilter = "";
+
             var param={
                 inlineLoader:true,
-                url:'/bot?serviceNowCheck=true' + datefilter + '&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/audit-trail?actionStatus=success&startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
-                    $scope.showLoadRecord();
-                    $scope.botServiceNowLibGridOptions.data =  result.bots;
+                $scope.botServiceNowLibGridOptions.totalItems = result.metaData.totalRecords;
+
+                for(var i=0;i<result.auditTrails.length;i++){
+
+                    if(!result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj) {
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj = {
+                            ticketNo: "-"
+                        }
+                        if(result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo)
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.number = result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.category = result.auditTrails[i].auditTrailConfig.category;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.shortDesc = result.auditTrails[i].auditTrailConfig.description;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.state = result.auditTrails[i].status;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.priority = "-";
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.createdOn = result.auditTrails[i].startedOn;
+                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.resolvedAt = result.auditTrails[i].endedOn;
+                    }
+                }
+                    //$scope.showLoadRecord();
+                    $scope.botServiceNowLibGridOptions.data =  result.auditTrails;
                     $scope.tempData = $scope.botServiceNowLibGridOptions.data;
                     $scope.isBotServiceNowPageLoading = false;
                     $scope.isBotDetailsLoading = false;
@@ -283,7 +301,7 @@
             };
             genSevs.promiseGet(param).then(function (result) {
                 $scope.botSummary = result;
-                console.log($scope.botSummary);
+                console.log(result);
             }, function (error) {
                 toastr.error(error);
                 $scope.errorMessage = "No Records found";
@@ -367,10 +385,10 @@
             } else if($scope.runningBotsselected) {
                  param={
                     inlineLoader: true,
-                    url:'/bot?actionStatus=running&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/audit-trail?page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.scheduledBotsSelected) {
-                 var datefilter = "";
+                 //var datefilter = "";
                 //  if($scope.ticketsResolveStartsOn){
                 //      datefilter += '&ticketsdate=' + $scope.ticketsResolveStartsOn.toString("yyyyMMdd");
                 //  }
@@ -379,7 +397,7 @@
                 // }
                  param={
                     inlineLoader: true,
-                    url:'/bot?serviceNowCheck=true' + datefilter + '&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/audit-trail?actionStatus=success&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.failedBotsselected) {
                  param={
@@ -485,7 +503,27 @@
                 return(mm+'/'+dd+'/'+yyyy);
             }
 
+            if($scope.ticketsResolveStartsOn){
+                if(!$scope.ticketsResolveEndsOn){
+                    $scope.isBotServiceNowPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
+                    toastr.error('End Date not set','Error');
+                    return;
+                }
+                //datefilter += '&ticketsdate=' + $scope.ticketsResolveStartsOn.toString("yyyyMMdd");
+            }
+            if($scope.ticketsResolveEndsOn){
+                if(!$scope.ticketsResolveStartsOn){
+                    $scope.isBotServiceNowPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
+                    toastr.error('Start Date not set','Error');
+                    return;
+                }
+                //datefilter += '&ticketedate=' + $scope.ticketsResolveEndsOn.toString("yyyyMMdd");
+            }
+
             var curr = new Date();
+
             if(period == 'today'){
                 $scope.ticketsResolveStartsOn = formatD(curr);
                 $scope.ticketsResolveEndsOn = formatD(curr);
@@ -503,8 +541,6 @@
                     yr = curr.getFullYear();
                 $scope.ticketsResolveStartsOn = formatD(new Date(yr,mon,1));
                 $scope.ticketsResolveEndsOn = formatD(new Date(yr,mon + 1,0));
-
-
             }
 
             $scope.showScheduledBotsFilterDate();
@@ -529,7 +565,8 @@
             }
         };
 
-        $scope.botsTableView = function() {
+        $scope.botsTableView = function(pageReset) {
+            //$scope.isBotLibraryPageLoading = true;
             $scope.isCardViewActive = false;
             $scope.botsTableViewSelection = "bots-tab-active";
             $scope.botsCardViewSelection = "";
@@ -595,9 +632,8 @@
             $scope.botStatus();
         };
         $scope.showAllBots = function() {
-            $scope.isCardViewActive = true;
+            //$scope.isCardViewActive = true;
             $scope.noShowForServiceNow = true;
-            //$scope.showForFailedRun = false;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.botLibGridOptions.data = [];
@@ -610,50 +646,65 @@
             $scope.paginationParams.pageSize = 24;
             $scope.botLibraryGridView();
         };
+
+        //Transition from "Running Bots" to "Total Runs", Which shows total number of (bots running + bot succeed)
+
         $scope.showBotsRunning = function(resetPage) {
-            $scope.noShowForServiceNow = true;
-            //$scope.showForFailedRun = false;
+            $scope.noShowForServiceNow = false;
             $scope.clearSearchString();
-            $scope.isBotLibraryPageLoading = true;
+            $scope.isBotLibraryPageLoading = false;
+            $scope.showForServiceNow = true;
             $scope.showLoadRecord();
             $scope.runningBotsselected = true;
             $scope.totalBotsSelected = false;
             $scope.failedBotsselected = false;
             $scope.scheduledBotsSelected = false;
-            $scope.paginationParams.pageSize = 24;
-            lib.gridOptions.data=[];
+            $scope.paginationParams.pageSize = 10;
+            // lib.gridOptions.data=[];
             if(resetPage){
-                $scope.botLibGridOptions.data = [];
+                $scope.botServiceNowLibGridOptions.data = [];
                 $scope.paginationParams.page = 1;
-                $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
+                $scope.botServiceNowLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             }
             var param={
                 inlineLoader:true,
-                url:'/bot?actionStatus=running&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
 
-
             genSevs.promiseGet(param).then(function (result) {
-                if($scope.isCardViewActive){
-                    $scope.botLibGridOptions.data = $scope.botLibGridOptions.data.concat(result.bots);
-                    for(var i=0;i<result.bots.length;i++){
-                        $scope.imageForCard(result.bots[i]);
+                $scope.botServiceNowLibGridOptions.totalItems = result.metaData.totalRecords;
+                    for(var i=0;i<result.auditTrails.length;i++) {
+                        if(!result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj) {
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj = {
+                                ticketNo: "-"
+                            }
+                            if(result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo)
+                                result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.number = result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.category = result.auditTrails[i].auditTrailConfig.category;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.shortDesc = result.auditTrails[i].auditTrailConfig.description;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.state = result.auditTrails[i].status;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.priority = "-";
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.createdOn = result.auditTrails[i].startedOn;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.resolvedAt = result.auditTrails[i].endedOn;
+                        }
                     }
-                } else {
-                    $scope.botLibGridOptions.data = result.bots;
-                }
-                $scope.botsDetails(result);
-                $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
+                    $scope.botServiceNowLibGridOptions.data = result.auditTrails;
+                    $scope.tempData = $scope.botServiceNowLibGridOptions.data;
+
+                    $scope.isBotLibraryPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
+            }, function(error) {
+                $scope.isBotServiceNowPageLoading = false;
+                $scope.isBotDetailsLoading = false;
+                toastr.error(error);
+                $scope.errorMessage = "No Records found";
             });
         };
 
         // Transition from "Failed Bots" to "Failed Runs"- By RLE0534
 
         $scope.showFailedBots = function(resetPage) {
-            $scope.resetDateFields();
-            // $scope.noShowForServiceNow = true;
             $scope.noShowForServiceNow = false;
-            //$scope.showForFailedRun = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = false;
             $scope.showLoadRecord();
@@ -671,51 +722,42 @@
             }
             var param={
                 inlineLoader:true,
-                url:'/audit-trail?actionStatus=failed&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&actionStatus=failed&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             //need to move the below to a UI selection. stop gap fix.
 
             genSevs.promiseGet(param).then(function (result) {
-                $scope.isCardViewActive = false;
-                if($scope.isCardViewActive){
-
-
-                    $scope.botServiceNowLibGridOptions.data = $scope.botServiceNowLibGridOptions.data.concat(result.auditTrails);
-                    $scope.tempData = $scope.botServiceNowLibGridOptions.data;
-                    //console.log($scope.botServiceNowLibGridOptions.data);
-                    // for(var i=0;i<result.auditTrails.length;i++){
-                    //     $scope.imageForCard(result.auditTrails[i]);
-                    // }
-                } else {
-                        //remapping for failed records
-                    for(var i=0;i<result.auditTrails.length;i++){
+                $scope.botServiceNowLibGridOptions.totalItems = result.metaData.totalRecords;
+                    for(var i=0;i<result.auditTrails.length;i++) {
 
                         if(!result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj) {
-                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj={
-                                ticketNo:"-"
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj = {
+                                ticketNo: "-"
                             }
+                            if(result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo)
+                                result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.number = result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.category = result.auditTrails[i].auditTrailConfig.category;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.shortDesc = result.auditTrails[i].auditTrailConfig.description;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.state = result.auditTrails[i].status;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.priority = "-";
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.createdOn = result.auditTrails[i].startedOn;
+                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.resolvedAt = result.auditTrails[i].endedOn;
                         }
-                        if(result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo)
-                            result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.number = result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
-                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.category = result.auditTrails[i].auditTrailConfig.category;
-                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.shortDesc = result.auditTrails[i].auditTrailConfig.description;
-                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.state = result.auditTrails[i].status;
-                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.priority = "-";
-                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.createdOn = result.auditTrails[i].startedOn;
-                        result.auditTrails[i].auditTrailConfig.serviceNowTicketRefObj.resolvedAt = result.auditTrails[i].endedOn;
-                        }
 
-
-//                    console.log(result.auditTrails);
-
-                    $scope.botServiceNowLibGridOptions.data = result.auditTrails;
-                }
-                //console.log(result);
-                $scope.botsDetails(result);
-                $scope.statusBar = "Showing " + ($scope.botServiceNowLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botServiceNowLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
+                    }
+                    $scope.botServiceNowLibGridOptions.data =result.auditTrails;
+                    $scope.tempData = $scope.botServiceNowLibGridOptions.data;
+                    $scope.isBotLibraryPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
+            }, function(error) {
+                $scope.isBotServiceNowPageLoading = false;
+                $scope.isBotDetailsLoading = false;
+                toastr.error(error);
+                $scope.errorMessage = "No Records found";
             });
         };
         $scope.showScheduledBots = function(resetPage) {
+            $scope.getBotSummary();
             $scope.resetDateFields();
             $scope.clearSearchString();
             $scope.isBotServiceNowPageLoading = false;
@@ -727,6 +769,11 @@
             $scope.noShowForServiceNow = false;
             $scope.showForServiceNow = true;
             $scope.paginationParams.pageSize = 10;
+            if(resetPage){
+                $scope.botServiceNowLibGridOptions.data = [];
+                $scope.paginationParams.page = 1;
+                $scope.botServiceNowLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
+            }
             lib.gridOptions.data=[];
             $scope.botServiceNowLibraryGridView();
         };
@@ -735,22 +782,23 @@
 
         $scope.resetFields = function(){
             $scope.resetDateFields();
-            $scope.botServiceNowLibGridOptions.data = $scope.tempData;
+            if($scope.failedBotsselected)
+                $scope.showFailedBots();
+            else if($scope.scheduledBotsSelected)
+                $scope.botServiceNowLibraryGridView();
+            else if($scope.runningBotsselected)
+                $scope.showBotsRunning();
         }
 
         $scope.showScheduledBotsFilterDate = function() {
-            $scope.botServiceNowLibGridOptions.data = $scope.tempData;
-            $scope.displayRunBots =[];
-            $scope.clearSearchString();
-            var newDate1 = new Date($scope.ticketsResolveStartsOn).getTime();
-            var newDate2 = new Date($scope.ticketsResolveEndsOn).getTime();
-            //console.log($scope.botServiceNowLibGridOptions.data);
-            for(var i=0; i<$scope.botServiceNowLibGridOptions.data.length; i++){
-                if ($scope.botServiceNowLibGridOptions.data[i].auditTrailConfig.serviceNowTicketRefObj.openedAt >= newDate1 && $scope.botServiceNowLibGridOptions.data[i].auditTrailConfig.serviceNowTicketRefObj.openedAt < (newDate2+86400000)){
-                    $scope.displayRunBots.push($scope.botServiceNowLibGridOptions.data[i]);
-                }
-            }
-            $scope.botServiceNowLibGridOptions.data = $scope.displayRunBots;
+            $scope.tempData = $scope.botServiceNowLibGridOptions.data;
+            if($scope.failedBotsselected)
+                $scope.showFailedBots('resetPage');
+            else if($scope.scheduledBotsSelected)
+                $scope.botServiceNowLibraryGridView('resetPage');
+            else if($scope.runningBotsselected)
+                $scope.showBotsRunning('resetPage');
+
         };
         $scope.setCardView();
     }]);
