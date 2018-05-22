@@ -81,7 +81,7 @@
                 <i class="fa fa-cogs"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfRunningBots+botSummary.totalNoOfServiceNowTickets}}</span>
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfRunningBots+botSummary.totalNoOfServiceNowTickets+botSummary.totalNoOfFailedServiceNowTickets}}</span>
                   <small>Total Runs</small>
                 </h3>
               </div>
@@ -231,21 +231,32 @@
 
   <!--table section starts here-->
   <div class="col-lg-12 paddingForScreen" ng-show="noShowForServiceNow">
-    <div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
+    <div class="alert alert-info text-center"
+         ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
       No data Available
     </div>
-    <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions"
-      ui-grid-pagination ui-grid-auto-resize class="grid gridHeightBots"></div>
+    <div id="grid1"
+         ng-show="!isCardViewActive"
+         ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading"
+         ui-grid="botLibGridOptions"
+         ui-grid-pagination ui-grid-auto-resize
+         class="grid gridHeightBots"></div>
   </div>
   <!--table section ends here -->
 
    <!--table section for serviceNow starts here-->
     <loading size="large" name="isBotServiceNowPageLoading" type="block" align="center"></loading>
-   <div class="col-lg-12 paddingForScreen" ng-show="!noShowForServiceNow">
-     <div class="alert alert-info text-center" ng-if="!botServiceNowLibGridOptions.data.length > 0 && !isBotServiceNowPageLoading">
+   <div class="col-lg-12 paddingForScreen"
+        ng-show="!noShowForServiceNow">
+     <div class="alert alert-info text-center"
+          ng-if="!botServiceNowLibGridOptions.data.length > 0 && !isBotServiceNowPageLoading">
         No data Available
      </div>
-     <div id="grid2" ng-if="botServiceNowLibGridOptions.data.length >0 && !isBotServiceNowPageLoading" ui-grid="botServiceNowLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid gridHeightBots"></div>
+     <div id="grid2"
+          ng-if="botServiceNowLibGridOptions.data.length > 0 && !isBotServiceNowPageLoading"
+          ui-grid="botServiceNowLibGridOptions"
+          ui-grid-pagination ui-grid-auto-resize
+          class="grid gridHeightBots"></div>
    </div>
    <!--table section for serviceNow ends here -->
 </div>
