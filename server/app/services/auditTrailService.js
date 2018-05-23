@@ -408,7 +408,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         auditType: BOTSchema,
                         actionStatus: 'success',
                         isDeleted: false,
-                        auditId:{$in:auditIds}
+                        //auditId:{$in:auditIds}
                     };
                     if(queryParam.startdate){
                         var sdt = new Date(queryParam.startdate).getTime();
@@ -437,7 +437,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         actionStatus:'success',
                         isDeleted:false,
                         //'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
-                        auditId: { $in: auditIds }
+                        //auditId: { $in: auditIds }
                     };
                     if(queryParam.startdate){
                         var sdt = new Date(queryParam.startdate).getTime();
@@ -462,7 +462,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         auditType:BOTSchema,
                         actionStatus:'running',
                         isDeleted:false,
-                        auditId:{$in:auditIds}
+                        //auditId:{$in:auditIds}
                     };
 
                     if(queryParam.startdate){
@@ -498,7 +498,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         auditType: BOTSchema,
                         actionStatus: 'success',
                         isDeleted: false,
-                        auditId:{$in:auditIds}
+                        //auditId:{$in:auditIds}
                     };
                     if(queryParam.startdate){
                         var sdt = new Date(queryParam.startdate).getTime();
@@ -575,7 +575,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         auditType:BOTSchema,
                         actionStatus:'failed',
                         isDeleted:false,
-                        auditId:{$in:auditIds}
+                        //auditId:{$in:auditIds}
                     };
                     var botsIds = [];
                     auditTrail.getAuditTrails(query, function(err,botsAudits){
@@ -599,7 +599,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         actionStatus:'failed',
                         isDeleted:false,
                         //'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
-                        auditId: { $in: auditIds }
+                        //auditId: { $in: auditIds }
                     };
                     if(queryParam.startdate){
                         var sdt = new Date(queryParam.startdate).getTime();
