@@ -252,7 +252,6 @@
         };
 
         $scope.blueprintExecute = function(botsDetails) {
-            console.log("comming here");
             if(botsDetails){
                 botsCreateService.getBlueprintList(botsDetails.orgId,botsDetails.execution.subtype,botsDetails.execution.name).then(function(response){
                     $scope.originalBlueprintList=[];
@@ -311,7 +310,6 @@
             };
             genSevs.promiseGet(param).then(function (result) {
                 $scope.botSummary = result;
-                console.log(result);
             }, function (error) {
                 toastr.error(error);
                 $scope.errorMessage = "No Records found";
@@ -344,6 +342,8 @@
                         }
                     } else {
                         $scope.botLibGridOptions.data =  result.bots;
+                        $scope.showLoadMore = false;
+                        $scope.showRecords = false;
                     }
                     $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                     $scope.isBotLibraryPageLoading = false;
@@ -565,7 +565,12 @@
             $scope.isCardViewActive = false;
             $scope.botsTableViewSelection = "bots-tab-active";
             $scope.botsCardViewSelection = "";
-            $scope.paginationParams.pageSize = 10;
+            if(pageReset) {
+                $scope.botLibGridOptions.data = [];
+                $scope.paginationParams.page = 1;
+                $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
+            }
+            $scope.paginationParams.pageSize = $scope.pageSizeNew;
             if($scope.botLibrarySearch){
                 $scope.searchBotNameCategory();    
             } else {
@@ -713,7 +718,7 @@
 
         $scope.showScheduledBots = function(resetPage) {
             $scope.getBotSummary();
-            $scope.resetDateFields();
+            //$scope.resetDateFields();
             $scope.clearSearchString();
             $scope.isBotServiceNowPageLoading = true;
             $scope.showLoadRecord();

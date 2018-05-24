@@ -178,7 +178,7 @@
              <span class="bot-library-search" ng-show="noShowForServiceNow">
             <!--<span class="bot-library-search" ng-show="!showForFailedRun">-->
                <label>&nbsp;
-                  <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" placeholder="Search">
+                  <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" ng-keyup="$event.keyCode == 13 && searchBotNameCategory('pageNumber')" placeholder="Search">
                   <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
                   <i title="Clear Search" class="fa fa-close search-icon cancel-icon ng-hide" ng-show="searchText" ng-click="clearBotSearchText()"></i>
                </label>
