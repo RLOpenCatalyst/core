@@ -73,7 +73,7 @@
 
             $scope.botServiceNowLibGridOptions = {};
             $scope.botServiceNowLibGridOptions.columnDefs = [
-                { name: 'Ticket No.', displayName: 'Ticket No.', field: 'auditTrailConfig.serviceNowTicketRefObj.number', cellTemplate:'<a target="_blank" href="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.number}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.number}}</a>',cellTooltip: true},
+                { name: 'Ticket No.', displayName: 'Ticket No.', field: 'auditTrailConfig.serviceNowTicketRefObj.number', cellTemplate:'<a target="_blank" href="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.ticketLink}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.number}}</a>',cellTooltip: true},
                 { name: 'Category', displayName: 'Category', field:'auditTrailConfig.serviceNowTicketRefObj.category',cellTooltip: true},
                 { name: 'Description', field:'auditTrailConfig.serviceNowTicketRefObj.shortDesc',cellTooltip: true},
                 { name: 'Status', field:'auditTrailConfig.serviceNowTicketRefObj.state',cellTooltip: true},
