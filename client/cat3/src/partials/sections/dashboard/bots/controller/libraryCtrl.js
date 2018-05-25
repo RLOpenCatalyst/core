@@ -666,6 +666,7 @@
         //Transition from "Running Bots" to "Total Runs", Which shows total number of (bots running + bot succeed)
 
         $scope.showBotsRunning = function(resetPage) {
+            $scope.isOpenSidebar = false;
             $scope.noShowForServiceNow = false;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = false;
@@ -692,6 +693,7 @@
         // Transition from "Failed Bots" to "Failed Runs"- By RLE0534
 
         $scope.showFailedBots = function(resetPage) {
+            $scope.isOpenSidebar = false;
             $scope.noShowForServiceNow = false;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = false;
@@ -717,6 +719,7 @@
         };
 
         $scope.showScheduledBots = function(resetPage) {
+            $scope.isOpenSidebar = false;
             $scope.getBotSummary();
             //$scope.resetDateFields();
             $scope.clearSearchString();
