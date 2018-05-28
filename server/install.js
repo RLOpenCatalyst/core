@@ -464,6 +464,7 @@ function getDefaultsConfig() {
         features: {
             appcard: false
         },
+        licenseKey: '',
         maxInstanceCount: 0,
         catalystEntityTypes: ['ORGANIZATION', 'BUSINESS_UNIT', 'PROJECT', 'PROVIDER_TYPE',
             'PROVIDER', 'ENVIRONMENT', 'RESOURCE_TYPE', 'RESOURCE'],
@@ -603,7 +604,12 @@ function parseArguments() {
         name: "max-instance-count",
         type: Number,
         description: "Maximum number of instance allowed to be launch"
-    }]);
+    },{
+        name: "license-key",
+        type: String,
+        description: "Application license key"
+    }
+    ]);
 
     var options = cli.parse();
 
@@ -639,6 +645,9 @@ function getConfig(config, options) {
         if (maxInstanceCount) {
             config.maxInstanceCount = maxInstanceCount;
         }
+    }
+    if (options["license-key"]){
+        config.licenseKey = options["license-key"];
     }
     return config;
 }
