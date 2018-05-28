@@ -34,6 +34,7 @@ var AuthToken = require('_pr/model/auth-token');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 var aws = require('aws-sdk');
 var tempAuthToken = require('_pr/model/temp-auth-token');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 module.exports.setRoutes = function(app) {
     app.post('/auth/createldapUser', function(req, res) {
@@ -424,9 +425,42 @@ module.exports.setRoutes = function(app) {
 
     app.get('/auth/getpermissionset', verifySession, function(req, res) {
         logger.debug('hit permissionset ');
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm,
+            cryptoConfig.password);
         if (req && req.session && req.session.user && req.session.user.password)
             delete req.session.user.password;
         if (req && req.session && req.session.user) {
+            //Adding navbar items to be displayed
+            var topMenu = [];
+            if(appConfig.licenseKey){
+                var licenseKey = cryptography.decryptText(appConfig.licenseKey,cryptoConfig.decryptionEncoding,cryptoConfig.encryptionEncoding);
+
+                if(licenseKey){
+                    var _topMenu = licenseKey.split("-");
+
+                    if(_topMenu[0] == "navbar"){
+                        if(_topMenu.indexOf("b") >= 0){
+                            topMenu.push("bots")
+                        }
+                        if(_topMenu.indexOf("wz") >= 0){
+                            topMenu.push("workzone")
+                        }
+                        if(_topMenu.indexOf("wf") >= 0){
+                            topMenu.push("workflow")
+                        }
+                        if(_topMenu.indexOf("t") >= 0){
+                            topMenu.push("track")
+                        }
+                        if(_topMenu.indexOf("c") >= 0){
+                            topMenu.push("cloud")
+                        }
+
+
+                    }
+                }
+            }
+            req.session.user.topMenu = topMenu;
             res.send(JSON.stringify(req.session.user));
             return;
         } else {
