@@ -159,6 +159,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
 
 	$scope.notificationCheck = function() {
 		$scope.userClick();
+        $scope.notificationCount = 0;
 	};
 
 	$scope.checkForNotification();
