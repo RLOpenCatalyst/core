@@ -446,8 +446,15 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
             var skip = false;
             if(bots.scheduler.cronFrequency === "Weekly" && bots.scheduler.cronAlternateExecute){
                 var tod = new Date();
-               if(apiUtil.getWeekNumber(tod) % 2 != 0)
-                   skip = true;
+                //check for repeat every for odd and even weeks
+                if(bots.scheduler.cronRepeatEvery == 1){
+                    if(apiUtil.getWeekNumber(tod) % 2 == 0) //runs for odd
+                        skip = true;
+                }else{
+                    if(apiUtil.getWeekNumber(tod) % 2 != 0) //runs for even
+                        skip = true;
+                }
+
             }
             if(!skip){
                 botService.executeBots(bots.id, null, 'system', 'bots-console', true, function (err, historyData) {
