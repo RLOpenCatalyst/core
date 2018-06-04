@@ -18,6 +18,7 @@
         $scope.totalBotsSelected = true;
         $scope.isBotDetailsLoading = true;
         $scope.botCategoryList = [];
+        $scope.customSetDate = true;
         botsCreateService.getBotCategoryList().then(function (catList) {
             $scope.botCategoryList=catList.data;
         });
@@ -509,6 +510,7 @@
 
         $scope.setResolveDates = function(period){
             $scope.botLibGridOptions.data = $scope.tempData;
+            $scope.isBotServiceNowPageLoading = true;
             var formatD = function(dt){
 
                 var dd = dt.getDate();
@@ -742,6 +744,7 @@
         $scope.resetFields = function(){
             $scope.resetDateFields();
             $scope.botServiceNowLibraryGridView();
+            // $scope.customSetDate=!$scope.customSetDate;
         }
 
         $scope.showScheduledBotsFilterDate = function() {
