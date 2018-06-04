@@ -405,8 +405,20 @@ $imagePath : "../../../../../../cat3/images";
 .cat-btn-update, .cat-btn-save {
     color: #fff;
     border-color: #40BAF1 !important;
-    @include btn-theme; 
+    @include btn-theme;
 }
+
+//.cat-btn-update:hover {
+//    color: #333;
+//    background-color: #e6e6e6;
+//    border-color: #adadad;
+//}
+//
+//.cat-btn-update:active {
+//    color: #333;
+//    background-color: #e6e6e6;
+//    border-color: #adadad;
+//}
 
 .cat-btn-cancel, .cat-btn-close { 
     color: #333; 

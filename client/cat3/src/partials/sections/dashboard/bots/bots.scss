@@ -142,11 +142,47 @@
     font-size: 16px;
   }
 
-  .ticket-resolve-start, .ticket-resolve-end{
-    width:120px;
+  .ticket-resolve-date{
+    width:95px;
+    outline: 0;
+    border: 1px solid #101010 !important;
+    display: inline;
+    border-radius:5px 0px 0px 5px;
+    padding-bottom: 0px;
+  }
+
+  .ticket-resolve-date1{
+    width:95px;
+    outline: 0;
+    border: 2px solid #40BAF1 !important;
+    display: inline;
+    border-radius:8px 0px 0px 8px;
+    //padding-bottom: 0px;
+    //padding-top: 0px;
+    padding-left: 9px;
+  }
+
+  .ticket-resolve-date2{
+    width:95px;
+    outline: 0;
+    border: 2px solid #40BAF1 !important;
+    display: inline;
+    border-radius:0px 8px 8px 0px;
+    padding-left: 9px;
+    //padding-bottom: 0px;
+    //padding-top: 0px;
   }
 
 
+  .col-lg-4 {
+    //width: 33.333333%;
+    padding-left: 15px;
+    margin-right: -9px;
+  }
+
+  .no-data{
+    margin: 12px 32px 20px 1px;
+  }
 
   .borderTop {
     border-top: 1px dashed #ddd;
@@ -636,7 +672,7 @@ body .botDescriptionPage {
   margin-left:34px;
   margin-top:-10px;
   margin-bottom:20px;
-  margin-right:20px;   
+  margin-right:23px;
 }
 
 .font-size-16 {
@@ -948,6 +984,12 @@ fieldset#editParamPage legend {
 
 .gridHeightBots {
   height: 370px;
+  width: 97%;
+  margin-left: 2px;
+}
+#botLibraryPage .filter {
+  padding: 6px 6px !important;
+  width: 55px;
 }
 
 @media (min-width : 1550px){
