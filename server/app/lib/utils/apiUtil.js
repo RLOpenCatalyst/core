@@ -98,13 +98,20 @@ var ApiUtil = function() {
         }else if(scheduler.cronFrequency ==='Daily'){
             scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' */'+scheduler.cronRepeatEvery+' * *';
         }else if(scheduler.cronFrequency ==='Weekly') {
-            if(scheduler.cronRepeatEvery === 2) {
-                scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 8-14 * ' + parseInt(scheduler.cronWeekDay);
-            }else if(scheduler.cronRepeatEvery === 3) {
-                scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 15-21 * ' + parseInt(scheduler.cronWeekDay);
-            }else if(scheduler.cronRepeatEvery === 4) {
-                scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 22-28 * ' + parseInt(scheduler.cronWeekDay);
-            }else{
+            if(!scheduler.cronAlternateExecute){
+                if(scheduler.cronRepeatEvery === 2) {
+                    scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 8-14 * ' + parseInt(scheduler.cronWeekDay);
+                }else if(scheduler.cronRepeatEvery === 3) {
+                    scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 15-21 * ' + parseInt(scheduler.cronWeekDay);
+                }else if(scheduler.cronRepeatEvery === 4) {
+                    scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 22-28 * ' + parseInt(scheduler.cronWeekDay);
+                }else{
+                    scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' * * ' + parseInt(scheduler.cronWeekDay);
+                }
+            }
+            else{
+                //if repeatEvery = 1 then odd week, if repeatEvery = 2 then even week and ignoring repeat every
+                //logic handled during execution.
                 scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' * * ' + parseInt(scheduler.cronWeekDay);
             }
         }else if(scheduler.cronFrequency ==='Monthly') {
