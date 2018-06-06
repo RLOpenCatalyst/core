@@ -225,7 +225,14 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
                     var actionStatusList= auditTrailQuery.actionStatus.split(',');
                     if(actionStatusList.length > 1)
                         queryObj.queryObj.$and.push({"actionStatus":{$in:actionStatusList}});
-                    else queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
+                    else{
+                        if(auditTrailQuery.actionStatus === "success")
+                            queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
+                        else
+                            queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
+                    }
+
+                        // queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
 
                 }
 
@@ -434,9 +441,9 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                 totalNoOfServiceNowTickets: function(callback){
                     var query={
                         auditType:BOTSchema,
-                        actionStatus:'success',
+                        //actionStatus:'success',
                         isDeleted:false,
-                        //'auditTrailConfig.serviceNowTicketRefObj': { $ne: null },
+                        'auditTrailConfig.serviceNowTicketRefObj.state': 'Closed',
                         //auditId: { $in: auditIds }
                     };
                     if(queryParam.startdate){

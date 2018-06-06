@@ -316,7 +316,7 @@
             };
             genSevs.promiseGet(param).then(function (result) {
                 $scope.botSummary = result;
-                $scope.totalRuns = result.totalNoOfRunningBots+result.totalNoOfServiceNowTickets+result.totalNoOfFailedServiceNowTickets;
+                $scope.totalRuns = result.totalNoOfRunningBots+result.totalNoOfSuccessBots+result.totalNoOfFailedServiceNowTickets;
                 $scope.timeSaved = result.totalSavedTimeForBots;
             }, function (error) {
                 toastr.error(error);
