@@ -235,6 +235,7 @@
             //$scope.isBotDetailsLoading = true;
             //lib.gridOptions=[];
             //var datefilter = "";
+            $scope.getBotSummary();
             if(resetPage){
                 $scope.resetPageData();
             }
@@ -310,9 +311,10 @@
             }
         }
         $scope.getBotSummary = function () {
+            $scope.isBotDetailsLoading = true;
             var param = {
                 inlineLoader: true,
-                url: '/audit-trail/bots-summary',
+                url: '/audit-trail/bots-summary?startdate=' + $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn
             };
             genSevs.promiseGet(param).then(function (result) {
                 $scope.botSummary = result;
@@ -322,6 +324,7 @@
                 toastr.error(error);
                 $scope.errorMessage = "No Records found";
             });
+            $scope.isBotDetailsLoading = false;
         }
         $scope.botLibraryGridView = function () {
             $scope.getBotSummary();
@@ -748,7 +751,6 @@
         }
 
         $scope.showScheduledBotsFilterDate = function() {
-
             if(!$scope.ticketsResolveStartsOn){
                 if(!$scope.ticketsResolveEndsOn){
                     $scope.isBotServiceNowPageLoading = false;

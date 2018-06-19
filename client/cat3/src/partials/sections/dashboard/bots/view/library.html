@@ -69,7 +69,7 @@
                 <i class="fa fa-list"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfBots ? botSummary.totalNoOfBots:"..."}}</span>
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfBots ? botSummary.totalNoOfBots:0}}</span>
                   <small>Total BOTs</small>
                 </h3>
               </div>
@@ -81,7 +81,7 @@
                 <i class="fa fa-cogs"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to">{{totalRuns ? totalRuns:"..."}}</span>
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{totalRuns ? totalRuns:0}}</span>
                   <small>Total Runs</small>
                 </h3>
               </div>
@@ -93,7 +93,7 @@
                    <i class="fa fa-remove"></i>
                    <h3 class="dashboard-stats__title">
                        <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                       <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfFailedServiceNowTickets ? botSummary.totalNoOfFailedServiceNowTickets: "..."}}</span>
+                       <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfFailedServiceNowTickets ? botSummary.totalNoOfFailedServiceNowTickets: 0}}</span>
                        <small>Failed Runs</small>
                    </h3>
                </div>
@@ -105,7 +105,7 @@
                 <i class="fa fa-power-off"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfServiceNowTickets ? botSummary.totalNoOfServiceNowTickets:"..."}}</span>
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfServiceNowTickets ? botSummary.totalNoOfServiceNowTickets:0}}</span>
                   <small>Tickets Resolved</small>
                 </h3>
               </div>
