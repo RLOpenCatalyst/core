@@ -424,8 +424,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                     }
                     if(queryParam.enddate){
                         var edt = new Date(queryParam.enddate).getTime();
-                        if(query.startedOn)
-                            query.startedOn.$lte=edt;
+                        if(sdt === edt) edt = edt+86400000;
+                        if(query.startedOn) query.startedOn.$lte=edt;
                     }
                     var botsIds = [];
                     auditTrail.getAuditTrailsCount(query, function (err, botsAuditsCount) {
@@ -453,8 +453,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                     }
                     if(queryParam.enddate){
                         var edt = new Date(queryParam.enddate).getTime();
-                        if(query.startedOn)
-                            query.startedOn.$lte=edt;
+                        if(sdt === edt) edt = edt+86400000;
+                        if(query.startedOn) query.startedOn.$lte=edt;
                     }
                     auditTrail.getAuditTrailsCount(query, function(err,botsAuditsCount){
                         if(err){
@@ -479,8 +479,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                     }
                     if(queryParam.enddate){
                         var edt = new Date(queryParam.enddate).getTime();
-                        if(query.startedOn)
-                            query.startedOn.$lte=edt;
+                        if(sdt === edt) edt = edt+86400000;
+                        if(query.startedOn) query.startedOn.$lte=edt;
                     }
                     var botsIds = [];
                     auditTrail.getAuditTrails(query, function (err, botsAudits){
@@ -514,8 +514,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                     }
                     if(queryParam.enddate){
                         var edt = new Date(queryParam.enddate).getTime();
-                        if(query.startedOn)
-                            query.startedOn.$lte=edt;
+                        if(sdt === edt) edt = edt+86400000;
+                        if(query.startedOn) query.startedOn.$lte=edt;
                     }
                     var botssuccesslist = [];
                     auditTrail.getAuditTrails(query, function (err, botal) {
@@ -615,8 +615,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                     }
                     if(queryParam.enddate){
                         var edt = new Date(queryParam.enddate).getTime();
-                        if(query.startedOn)
-                            query.startedOn.$lte=edt;
+                        if(sdt === edt) edt = edt+86400000;
+                        if(query.startedOn) query.startedOn.$lte=edt;
                     }
                     auditTrail.getAuditTrailsCount(query, function(err,botsAuditsCount){
                         if(err){
