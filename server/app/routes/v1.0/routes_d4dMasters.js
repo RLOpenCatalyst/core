@@ -3418,20 +3418,20 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         request.get(options,function(err,response,body){
                                             if(err){
                                                 logger.error("Unable to connect remote server");
-                                                var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
+                                                //var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
                                                 var botServerObj = {
                                                     hostIP:bodyJson["hostIP"],
                                                     hostPort:bodyJson["hostPort"],
                                                     active:false,
                                                     name:bodyJson["name"]
                                                 };
-                                                remoteBotServerModel.find({rowid:bodyJson["rowid"],id:'32'},function(err,serverDetails){
+                                                d4dModelNew.find({rowid:bodyJson["rowid"],id:'32'},function(err,serverDetails){
                                                     if(err){
                                                         logger.error('Hit Save error', err);
                                                         res.send(500);
                                                         return;
                                                     }else if(serverDetails.length > 0){
-                                                        remoteBotServerModel.update({rowid:bodyJson["rowid"],id:'32'},
+                                                        serverDetails[0].update({rowid:bodyJson["rowid"],id:'32'},
                                                             {$set:botServerObj},
                                                             function (err, data) {
                                                             if (err) {
@@ -3450,20 +3450,20 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                     }
                                                 });
                                             }else{
-                                                var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
+                                                //var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
                                                 var botServerObj = {
                                                     hostIP:bodyJson["hostIP"],
                                                     hostPort:bodyJson["hostPort"],
                                                     active:true,
                                                     name:bodyJson["name"]
                                                 };
-                                                remoteBotServerModel.find({rowid:bodyJson["rowid"],id:'32'},function(err,serverDetails){
+                                                d4dModelNew.find({rowid:bodyJson["rowid"],id:'32'},function(err,serverDetails){
                                                     if(err){
                                                         logger.error('Hit Save error', err);
                                                         res.send(500);
                                                         return;
                                                     }else if(serverDetails.length > 0){
-                                                        remoteBotServerModel.update({rowid:bodyJson["rowid"],id:'32'},
+                                                        serverDetails[0].update({rowid:bodyJson["rowid"],id:'32'},
                                                             {$set:botServerObj},
                                                             function (err, data) {
                                                                 if (err) {

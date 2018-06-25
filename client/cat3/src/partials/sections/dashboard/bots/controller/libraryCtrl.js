@@ -76,6 +76,7 @@
             $scope.botServiceNowLibGridOptions = {};
             $scope.botServiceNowLibGridOptions.columnDefs = [
                 { name: 'Ticket No.', displayName: 'Ticket No.', field: 'auditTrailConfig.serviceNowTicketRefObj.number', cellTemplate:'<a target="_blank" href="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.ticketLink}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.number}}</a>',cellTooltip: true},
+                { name: 'Name', field:'auditTrailConfig.name',cellTooltip: true},
                 { name: 'Category', displayName: 'Category', field:'auditTrailConfig.serviceNowTicketRefObj.category',cellTooltip: true},
                 { name: 'Description', field:'auditTrailConfig.serviceNowTicketRefObj.shortDesc',cellTooltip: true},
                 { name: 'Status', field:'auditTrailConfig.serviceNowTicketRefObj.state',cellTooltip: true},
@@ -628,6 +629,24 @@
         }
 
         $scope.RefreshBotsLibrary = function() {
+            //Fixing the refresh button when a list is selected.
+            if($scope.failedBotsselected){
+                $scope.showFailedBots(true);
+                return;
+            }
+            if($scope.totalBotsSelected){
+                $scope.showAllBots();
+                return;
+            }
+            if($scope.runningBotsselected){
+                $scope.showBotsRunning(true);
+                return;
+            }
+            if($scope.scheduledBotsSelected){
+                $scope.showScheduledBots(true);
+                return;
+            }
+            //end fix.
             $scope.isBotDetailsLoading = true;
             $scope.noShowForServiceNow = true;
             $scope.showLoadMore = false;
