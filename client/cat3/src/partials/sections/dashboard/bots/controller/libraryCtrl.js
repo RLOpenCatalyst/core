@@ -79,7 +79,7 @@
                 { name: 'Name', field:'auditTrailConfig.name',cellTooltip: true},
                 { name: 'Category', displayName: 'Category', field:'auditTrailConfig.serviceNowTicketRefObj.category',cellTooltip: true},
                 { name: 'Description', field:'auditTrailConfig.serviceNowTicketRefObj.shortDesc',cellTooltip: true},
-                { name: 'Status', field:'auditTrailConfig.serviceNowTicketRefObj.state',cellTooltip: true},
+                { name: 'Status', field:'auditTrailConfig.serviceNowTicketRefObj.state',cellTemplate:'<span style="vertical-align: text-top;">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.state}}&nbsp;&nbsp;&nbsp;<i class="fa fa-info-circle cursor" style="vertical-align: bottom;" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></span>',cellTooltip: true},
                 { name: 'Priority', field:'auditTrailConfig.serviceNowTicketRefObj.priority',cellTooltip: true},
                 { name: 'Created At', field: 'auditTrailConfig.serviceNowTicketRefObj.createdOn ', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTimeWith}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.createdOn | timestampToLocaleTimeWith}}</span>', cellTooltip: true},
                 { name: 'Resolved At', field: 'auditTrailConfig.serviceNowTicketRefObj.resolvedAt', cellTemplate:'<span title="{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt | timestampToLocaleTimeWith}}">{{row.entity.auditTrailConfig.serviceNowTicketRefObj.resolvedAt  | timestampToLocaleTimeWith}}</span>', cellTooltip: true}
@@ -760,6 +760,28 @@
             $scope.botServiceNowLibraryGridView();
             //lib.gridOptions=[];
             //var datefilter = "";
+        }
+
+        $scope.historyLogs=function(hist) {
+            if(hist.actionLogId){
+                var logDetails = {
+                    actionId : hist.actionLogId,
+                    botId: hist.auditId
+                }
+                var jenkinsLogDetails = {
+                    jenkinsServerId:hist.actionLogId,
+                    jobName: hist.auditTrailConfig.jenkinsJobName,
+                    buildNumber: hist.auditTrailConfig.jenkinsBuildNumber
+                }
+                if(hist.auditCategory === 'jenkins') {
+                    genSevs.showLogsForJenkins(jenkinsLogDetails);
+                } else {
+                    genSevs.showLogsForBots(logDetails);
+                }
+
+            } else {
+                toastr.error("Logs are getting generated. Please wait");
+            }
         }
         // Filter function added for Ticket Resolved and Failed Runs - By RLE0534
 

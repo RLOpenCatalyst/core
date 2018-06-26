@@ -459,8 +459,17 @@ module.exports.setRoutes = function(app) {
 
                     }
                 }
+
             }
             req.session.user.topMenu = topMenu;
+            if(process.env.CATALYST_VERSION){
+                req.session.user.catalystversion = process.env.CATALYST_VERSION
+            }
+
+            if(process.env.CATALYST_ENV){
+                req.session.user.catalystenv = process.env.CATALYST_ENV
+            }
+
             res.send(JSON.stringify(req.session.user));
             return;
         } else {
