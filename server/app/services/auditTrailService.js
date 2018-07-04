@@ -31,7 +31,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var serviceNow = require('_pr/model/servicenow/servicenow.js');
 var settingService = require('_pr/services/settingsService');
-
+var topBotList = [];
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
     var auditTrailObj = {
@@ -190,7 +190,44 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
 
 auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery,callback) {
     var reqData = {};
+    var snowbotsid = [];
     async.waterfall([
+        function(next){
+
+            settingService.getOrgUserFilter(auditTrailQuery.user,function(err,orgIds){
+                logger.info('Exiting Org user filter');
+                if(err){
+                    next(err,null);
+                }else{
+                    var filterQuery = [];
+                    filterQuery['orgId'] = { $in: orgIds };
+                    botDao.getAllBots(filterQuery, function(errbots,topBotList){
+                        if(errbots){
+                            next(errbots)
+                        }
+                        else{
+                            for(var i = 0; i < topBotList.length;i++){
+                                if(topBotList[i].input){
+                                   // logger.info("Found one with input " + topBotList[i].input.length);
+                                    for(var j = 0; j < topBotList[i].input.length; j++){
+                                       // logger.info(topBotList[i].input[j]["name"]);
+                                        if(topBotList[i].input[j]["name"] == "sysid"){
+                                            snowbotsid.push(topBotList[i]._id);
+                                        }
+                                    }
+                                }
+                            }
+                           // logger.info("Fetched snowbots:" + snowbotsid);
+                            next();
+                            //snowbotsid.push(snowbots[i]._id);
+                        }
+                    });
+                }
+
+
+
+            });
+        },
         function(next) {
             apiUtil.paginationRequest(auditTrailQuery, 'auditTrails', next);
         },
@@ -226,18 +263,28 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
                     if(actionStatusList.length > 1)
                         queryObj.queryObj.$and.push({"actionStatus":{$in:actionStatusList}});
                     else{
-                        if(auditTrailQuery.actionStatus === "success")
-                            queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
+                        if(auditTrailQuery.actionStatus === "success"){
+                            //to fetch all tickets in success states
+                            //get all bots with sysid
+                            logger.info("in success query " + snowbotsid);
+
+                            //actionStatus:'success',
+
+                            queryObj.queryObj.$and.push({auditId : {$in:snowbotsid}});
+                            queryObj.queryObj.$and.push({"actionStatus" : "success"});
+
+                            //queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
+                        }
                         else
                             queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
                     }
 
-                        // queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
+                    // queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
 
                 }
 
             }
-
+            logger.info("Query obj build completed:"+JSON.stringify(queryObj));
             auditTrail.getAuditTrailList(queryObj, next);
         },
         function(auditTrailList, next) {
@@ -262,7 +309,7 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
         },
         function(botAuditTrail,next){
             if(botAuditTrail.length > 0 && botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj
-            && (botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== null || botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== '')){
+                && (botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== null || botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== '')){
                 srnTicketNo = botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
                 serviceNow.getCMDBList(function(err,srnServerDetails) {
                     if (err) {
@@ -405,10 +452,10 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
             }
             //fetching startedon date
             logger.info('Exiting Seggregation');
-
+            topBotList = botsList;
             async.parallel({
                 totalNoOfBots: function(callback){
-                            callback(null, botsList.length);
+                    callback(null, botsList.length);
                 },
                 totalNoOfSuccessBots: function(callback){
                     var query = {
@@ -439,13 +486,34 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                     });
                 },
                 totalNoOfServiceNowTickets: function(callback){
+                    //get the list of servicenow bots
+
+                    var snowbotsid = [];
+                    logger.info(topBotList.length);
+                    for(var i = 0; i < topBotList.length;i++){
+                        if(topBotList[i].input){
+                            //logger.info("Found one with input " + topBotList[i].input.length);
+                            for(var j = 0; j < topBotList[i].input.length; j++){
+                                //logger.info(topBotList[i].input[j]["name"]);
+                                if(topBotList[i].input[j]["name"] == "sysid"){
+                                    snowbotsid.push(topBotList[i]._id);
+                                }
+                            }
+                        }
+                        //snowbotsid.push(snowbots[i]._id);
+                    }
+                    logger.info("Exited snow bots filter")
+
                     var query={
                         auditType:BOTSchema,
+                        auditId : {$in:snowbotsid},
                         //actionStatus:'success',
-                        isDeleted:false,
-                        'auditTrailConfig.serviceNowTicketRefObj.state': 'Closed',
+                        "actionStatus" : "success"
                         //auditId: { $in: auditIds }
                     };
+                    //logger.info("servicenow query bot audit*******************");
+                    //logger.info(JSON.stringify(query));
+
                     if(queryParam.startdate){
                         var sdt = new Date(queryParam.startdate).getTime();
                         query.startedOn={};
@@ -626,7 +694,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                         }
                     });
                 }
-                
+
             },function(err,data){
                 if(err){
                     logger.error(err);
