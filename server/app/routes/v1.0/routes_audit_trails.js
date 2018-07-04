@@ -29,6 +29,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/audit-trail*', sessionVerificationFunc);
 
     app.get('/audit-trail', function(req,res){
+
+        //adding user to query
+        req.query.user = req.session.user.cn;
+        logger.info(req.query.user)
         auditTrailService.getAuditTrailList(req.query,function(err,auditTrailList){
             if(err){
                 logger.error(err);
@@ -56,7 +60,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             if(moment().diff(req.session.botcache.lastrequestdate,'minutes') < 5){
                 //read from cache if query matches
                 if(JSON.stringify(req.session.botcache.lastquery) === JSON.stringify(req.query) && req.session.botcache.botSummary){
-                    logger.info('Serving from cache..last request was sooner ')
+                    logger.info('Serving from cache..last request was sooner ');
                     logger.info('Exited - bots-summary');
                     return res.status(200).send(req.session.botcache.botSummary);
                 }
@@ -80,11 +84,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
             else
                 botSummary.lastrequestdate = new Date();
-                req.session.botcache = {
-                    lastrequestdate : moment(),
-                    lastquery : req.query,
-                    botSummary : botSummary
-                }
+            req.session.botcache = {
+                lastrequestdate : moment(),
+                lastquery : req.query,
+                botSummary : botSummary
+            }
             return res.status(200).send(botSummary);
         })
     });

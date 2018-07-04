@@ -12,7 +12,7 @@
     "adm-zip": "0.4.7",
     "alasql": "^0.3.7",
     "async": "v1.5.2",
-    "aws-sdk": "2.3.16",
+    "aws-sdk": "2.266.1",
     "bcryptjs": "2.2.0",
     "bluebird": "^3.5.0",
     "body-parser": "1.14.1",
