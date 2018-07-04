@@ -645,7 +645,7 @@ var MasterUtil = function () {
                 configmgmtDao.getRowids(function(err, rowidlist) {
                     for (var i = 0; i < remoteServerList.length; i++) {
                         if (remoteServerList[i].id === '32') {
-                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist) 
+                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist)
                             remoteServerList[i].orgname = names;
                             botRemoteServerList.push(remoteServerList[i]);
                         }
@@ -872,7 +872,7 @@ var MasterUtil = function () {
             }
         });
     }
-    
+
     this.getJira = function(orgList, callback) {
         var jiraList = [];
         var rowIds = [];
@@ -886,7 +886,7 @@ var MasterUtil = function () {
             }
         }, function(err, jira) {
             if (jira) {
-                
+
                 configmgmtDao.getRowids(function(err, rowidlist) {
                     for (var i = 0; i < jira.length; i++) {
                         logger.debug(jira[i].id);
@@ -1118,12 +1118,12 @@ var MasterUtil = function () {
         logger.debug("org rowids: ", rowIds);
         d4dModelNew.d4dModelMastersUsers.find({
             $or: [{
-                    orgname_rowid: {
-                        $in: rowIds
-                    }
-                }, {
-                    orgname_rowid: [""]
-                }]
+                orgname_rowid: {
+                    $in: rowIds
+                }
+            }, {
+                orgname_rowid: [""]
+            }]
         }, function (err, users) {
             if (users) {
                 configmgmtDao.getRowids(function (err, rowidlist) {
@@ -2618,9 +2618,9 @@ var MasterUtil = function () {
             return callback(null, templates);
         });
     };
-    
+
     this.getSensuCookbooks = function(){
-        var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]'];
+        var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]','recipe[consul-client]','recipe[consul-client-demo]'];
         return cookbooks;
     };
 
