@@ -1118,12 +1118,12 @@ var MasterUtil = function () {
         logger.debug("org rowids: ", rowIds);
         d4dModelNew.d4dModelMastersUsers.find({
             $or: [{
-                orgname_rowid: {
-                    $in: rowIds
-                }
-            }, {
-                orgname_rowid: [""]
-            }]
+                    orgname_rowid: {
+                        $in: rowIds
+                    }
+                }, {
+                    orgname_rowid: [""]
+                }]
         }, function (err, users) {
             if (users) {
                 configmgmtDao.getRowids(function (err, rowidlist) {
