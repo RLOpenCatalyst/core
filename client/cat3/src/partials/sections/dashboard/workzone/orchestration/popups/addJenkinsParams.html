@@ -1,0 +1,118 @@
+<div id='addJenkinsParamsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"><i class="fa fa-th-list"></i> Add Parameters</h4>
+	</div>
+
+	<div class="modal-body">
+		<!--dropdown for selecting the parameter type-->
+		<fieldset>
+			<div class="parameter-section">
+				<label class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-padding control-label">Select Parameter:</label>
+				<span class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+					<select id="parametersSelect" class="form-control ng-pristine ng-valid ng-touched" aria-invalid="false" ng-model="selectionType">
+						 <option value="" selected="selected">Choose Parameter</option>
+						 <option value="Boolean">Boolean Parameter</option>
+						 <option value="String">String Parameter</option>
+						 <option value="Choice">Choice Parameter</option>
+					</select>
+				 </span>
+				<!--dropdown ends here-->
+				<!--boolean starts here-->
+				<div class="col-lg-12 col-md-12 margintop15" ng-show="selectionType=='Boolean'">
+					<table id="booleanTable" class="table tableLength " cellpadding="5px" width="100%">
+						<thead>
+							<tr>
+								<th class="headParamTable">Boolean Parameter Definition</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="booleanParam"><label class="control-label" for="booleanName">Name:<span class="red">*</span></label></td>
+								<td><input id="booleanName" type="text" class="form-control" name="booleanName" ng-model="params.name"></td>
+							</tr>
+							<tr>
+								<td class="booleanParam">
+									<label class="control-label">Default Value:</label>
+								<span class="red">*</span></td>
+								<td>&nbsp;&nbsp;<input type="radio" id="booleanValueTrue" name="paramCheck" value="true" ng-model="params.defaultValue"> True&nbsp;
+									<input class="marginleft15" type="radio" id="booleanValueFalse" name="paramCheck" value="false" checked="checked" ng-model="params.defaultValue"> False</td>
+							</tr>
+							<tr>
+								<td class="booleanParam"><label class="control-label" for="booleanDescription">Description:<span class="red">*</span></label></td>
+								<td><input id="booleanDescription" type="text" class="form-control" name="booleanDescription" ng-model="params.description"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!--boolean parameters ends here-->
+				<!--string parameters-->
+				<div class="col-lg-12 col-md-12 margintop15" ng-show="selectionType=='String' ">
+					<table id="stringTable" class="table tableLength " cellpadding="5px" width="100%">
+						<thead>
+						<tr>
+							<th class="headStringTable">String Parameter Definition</th>
+							<th></th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td class="stringParam"><label class="control-label" for="stringName">Name:<span class="red">*</span></label></td>
+							<td><input id="stringName" type="text" class="form-control" name="stringName" ng-model="params.name"></td>
+						</tr>
+						<tr>
+							<td class="stringParam"><label class="control-label" for="stringValue">Default Value:<span class="red">*</span></label></td>
+							<td><input id="stringValue" type="text" class="form-control" name="stringValue" ng-model="params.defaultValue"></td>
+						</tr>
+						<tr>
+							<td class="stringParam"><label class="control-label" for="stringDescription">Description:<span class="red">*</span></label></td>
+							<td><input id="stringDescription" type="text" class="form-control" name="stringDescription" ng-model="params.description"></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+				<!--string parameters ends here-->
+
+				<!--Choice parameters-->
+				<div class="col-lg-12 col-md-12 margintop15" ng-show=" selectionType=='Choice' ">
+					<table id="choiceTable" class="table tableLength " cellpadding="5px" width="100%">
+						<thead>
+						<tr>
+							<th class="headStringTable">
+								Choice Parameter Definition</th>
+							<th></th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td class="choiceParam"><label class="control-label" for="choiceName">Name:<span class="red">*</span></label></td>
+							<td><input id="choiceName" type="text" class="form-control" name="choiceName" ng-model="params.name"></td>
+						</tr>
+						<tr>
+							<td class="choiceParam"><label class="control-label" for="choiceValue">Choices:<span class="red">*</span></label></td>
+							<td><input id="choiceValue" type="text" class="form-control" name="choiceValue" ng-model="params.defaultValue">
+								<i class="fa fa-question-circle" title="You can add multiple choices seperated by comma"></i>
+							</td>
+						</tr>
+						<tr>
+							<td class="choiceParam"><label class="control-label" for="choiceDescription">Description:<span class="red">*</span></label></td>
+							<td><input id="choiceDescription" type="text" class="form-control" name="choiceDescription" ng-model="params.description"></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			<!--string parameters ends here-->
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">
+			<i class="fa fa-check white"></i> Save
+		</button>		
+	</div>
+</div>

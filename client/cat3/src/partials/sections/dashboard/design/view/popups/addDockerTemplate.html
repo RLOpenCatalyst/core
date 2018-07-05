@@ -1,0 +1,47 @@
+<div id='addDockerTemplatePage'>
+    <form name="addTemplate" novalidate>
+        <div class="modal-header">
+            <span class="close" ng-click="cancel()">×</span>
+            <h4 class="modal-title">
+                Add a Docker Template
+            </h4>
+        </div>
+
+        <div class="modal-body">
+            <div class="row">
+                <fieldset>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label for="templateName">Choose Template
+                            <span class="control-label red">&nbsp;*</span>
+                            <span ng-show="addTemplate.templateName.$touched && addTemplate.templateName.$invalid" class="inputValidationMsg">Required</span>
+                        </label>
+                        <select ng-model="dockerTemplateForTag" name="templateName" class="width-100 form-control" required ng-change="selectDockerTemplateTag();">
+                            <option value="">Select Template</option>
+                            <option ng-repeat="name in dockerTemplateList" value="{{name._id}}">{{name.templatename}}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label for="templateTag">Select Tag
+                            <span class="control-label red">&nbsp;*</span>
+                            <span ng-show="addTemplate.templateTag.$touched && addTemplate.templateTag.$invalid" class="inputValidationMsg">Required</span>
+                            <loading size="small" name="isTagLoading" type="inline"></loading>
+                        </label>
+                        <select ng-model="dockerTemplatetag" name="templateTag" class="width-100 form-control" required>
+                            <option value="">Select Tags</option>
+                            <option ng-repeat="tagName in getDockerTags" value="{{tagName.name}}">{{tagName.name}}</option>
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+            <i class="fa fa-times black"></i> Cancel
+        </button>
+        <button type="button" class="btn cat-btn-update" ng-disabled="addTemplate.$invalid" ng-click="ok()">
+            <i class="fa fa-check white"></i> Add
+        </button>
+    </div>
+</div>
+

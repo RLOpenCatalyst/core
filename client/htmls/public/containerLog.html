@@ -1,0 +1,293 @@
+<html>
+
+<head>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../public/js/pagination.js"></script>
+	<link rel="stylesheet" href="../public/css/auditTrailLogs.css"></link>
+</head>
+
+<body>
+	<div id="containerActionListLoader" style="display: none">
+		<img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
+	</div>
+	<div class="tabContent table-responsive">
+		<h2 class="page-name">Container Audit Trail Logs</h2>
+		<div class="dataTables_filter">
+			<label>Search:&nbsp;
+				<input type="search" id="table_filter_text" class="search" placeholder="">
+				<img src="../private/img/search-icon.png" title="Search" style="margin-left: -26px; cursor: pointer" id="table_filter_text" />
+			</label>
+		</div>
+		<div class="dataTables_length">
+			<label>Show
+				<select id="table_length_sel">
+					<option value="10">10</option>
+					<option value="25">25</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select> entries
+			</label>
+			<button id="refreshBtn" type="button" title="Refresh" class="btn btn-xs btn-primary refresh-btn" ng-click="refreshCurrentPage()">
+				<i class="fa fa-refresh"></i>
+			</button>
+		</div>
+		<!--Table to show all the container actions for all the containers starts here-->
+		<table class="table table-hover table-bordered text-center" id="containerLogTable">
+			<thead>
+				<tr>
+					<th class="text-center table_sort sorting_desc" data-fieldname='createdOn'>Time
+					</th>
+					<th class="text-center">Container Name</th>
+					<th class="text-center">Container Status</th>
+					<th class="text-center">Host Instance</th>
+					<th class="text-center">Image</th>
+					<th class="text-center">User</th>
+					<th class="text-center">Org</th>
+					<th class="text-center">BU</th>
+					<th class="text-center">Project</th>
+					<th class="text-center">Env</th>
+					<th class="text-center">Action</th>
+					<th class="text-center">Action Status</th>
+					<th class="text-center">Log</th>
+				</tr>
+			</thead>
+			<tbody class="containerLogTrail"></tbody>
+		</table>
+		<div id="green"></div>
+	</div>
+	<!--Modal popup to show the logs for selected container action starts here-->
+	<div class="modal fade" id="containerLogsModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="myModalLabel">
+						<i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Logs
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="logsArea"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--Modal popup to show the logs for selected inst.ance action ends here-->
+	<script>
+		$(document).ready(function(e) {
+			var pageSetting = {
+				page: 1,
+				pageSize: 10,
+				sortBy: "createdOn",
+				sortOrder: "desc",
+				search: ""
+			};
+
+			var containerLogsHandler = function(e) {
+				var containerActionId = $(this).attr('data-id');
+				var timeout;
+				var $containerLogModalContainer = $('#containerLogsModalContainer');
+				$containerLogModalContainer.on('hidden.bs.modal', function(e) {
+					$containerLogModalContainer.off('hidden.bs.modal');
+					if (timeout) {
+						clearTimeout(timeout);
+					}
+				});
+				$containerLogModalContainer.find('.logsArea').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+				$containerLogModalContainer.modal('show');
+				var lastTimestamp;
+				//Showing the log for containers
+				function pollLogs(timestamp, delay, clearData) {
+					var url = '/audit-trail/container-action/' + containerActionId+'/logs';
+					url = url + '?timestamp=' + timestamp;
+					timeout = setTimeout(function() {
+						$.ajax({
+						  url: url,
+						  cache: false
+						}).done(function(data) {
+							var $modalBody = $containerLogModalContainer.find('.logsArea')
+							if (clearData) {
+								$modalBody.empty();
+							}
+							var $table = $('<table></table>');
+							var logsLength = 0;
+							if (data.length > 300) {
+								logsLength = 300;
+							} else {
+								logsLength = data.length;
+							}
+							for (var i = 0; i < logsLength; i++) {
+								var $rowDiv = $('<tr class="row rowSpacing"></tr>');
+								var timeString = new Date().setTime(data[i].timestamp);
+								var date = new Date(timeString).toLocaleString();
+								var logStr =data[i].log;
+								if (data[i].err) {
+									$rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:red;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + logStr + '</span>'));
+								} else {
+									$rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:DarkBlue;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + logStr + '</span>'));
+								}
+								$table.append($rowDiv);
+								lastTimestamp = data[i].timestamp;
+								$modalBody.append($table);
+								$modalBody.scrollTop($modalBody[0].scrollHeight + 100);
+							}
+							if ($containerLogModalContainer.data()['bs.modal'].isShown) {
+								pollLogs(lastTimestamp, 5000, false);
+							} else {
+								console.log('not polling again');
+							}
+						});
+					}, delay);
+				}
+				pollLogs(0, 0, true);
+			};
+
+			function getcontainers() {
+				$('#containerActionListLoader').show();
+				var url = '/audit-trail/container-action?page=' + pageSetting.page + '&pageSize=' + pageSetting.pageSize + '&sortBy=' + pageSetting.sortBy + '&sortOrder=' + pageSetting.sortOrder;
+				if (pageSetting.search != '') {
+					url += '&search=' + pageSetting.search;
+				}
+				$.get(url, function(containers) {
+					$('#containerActionListLoader').hide();
+					createcontainerLogTable(containers.containerLogs);
+					$('#green').smartpaginator({
+						totalrecords: containers.metaData.totalRecords,
+						recordsperpage: pageSetting.pageSize,
+						initval: pageSetting.page,
+						controlsalways: true,
+						length: 5,
+						onchange: function(newPage) {
+							pageSetting.page = newPage;
+							getcontainers();
+						}
+					});
+				}).fail(function(jxhr) {
+					$('#containerActionListLoader').show();
+					var msg = "Unable to fetch containers";
+					if (jxhr.responseJSON && jxhr.responseJSON.message) {
+						msg = jxhr.responseJSON.message;
+					} else if (jxhr.responseText) {
+						msg = jxhr.responseText;
+					}
+					bootbox.alert(msg);
+				});
+			}
+			getcontainers();
+
+			$("#refreshBtn").click(function() {
+				pageSetting.sortBy = "createdOn";
+				pageSetting.sortOrder = "desc";
+				pageSetting.search = "";
+				$('#table_filter_text').val('');
+				getcontainers();
+			});
+
+			$("#table_length_sel").change(function() {
+				pageSetting.pageSize = $(this).val();
+				getcontainers();
+			});
+
+			$("#table_filter_text").change(function() {
+				pageSetting.search = $(this).val();
+				getcontainers();
+			});
+
+			$(".table_sort").click(function() {
+				$(".sorting_desc").removeClass('sorting_desc');
+				$(".sorting_asc").removeClass('sorting_asc');
+				var sortBy = $(this).data('fieldname');
+				if (pageSetting.sortBy == sortBy) {
+					pageSetting.sortOrder = (pageSetting.sortOrder == 'desc') ? 'asc' : 'desc';
+				}
+				pageSetting.sortBy = sortBy;
+				$(this).addClass('sorting_' + pageSetting.sortOrder);
+				getcontainers();
+			});
+
+			function createcontainerLogTable(containerData) {
+				var managedData = containerData;
+				var $tbody = $('#containerLogTable tbody').empty();
+				if(managedData.length == 0) {
+					var $tbody = $('.containerLogTrail').append('<tr><td colspan="15"><span>No data available in table</span></td></tr>');
+				}
+				var $providerImg = '';
+				var $osImg = '';
+				for (var i = 0; i < managedData.length; i++) {
+					var containerId = "";
+					var $tr = $('<tr class="containerLogTrail"></tr>').attr('data-id', containerId);
+					var createdOn = new Date(managedData[i].createdOn).toLocaleString();
+					var $tdCreatedOn = $('<td></td>').append(createdOn);
+					$tr.append($tdCreatedOn);
+					var $tdcontainerName = $('<td></td>').append(managedData[i].containerName);
+					$tr.append($tdcontainerName);
+					var containerStatus = managedData[i].status;
+					switch (containerStatus) {
+		                case "Start":
+		                    $tdStatus = $("<img title='Start' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+		                    break;
+		                case "Unpause":
+		                    $tdStatus = $("<img title='Unpause' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+		                    break;
+		                case "Restart":
+		                    $tdStatus = $("<img title='Restart' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+		                    break;
+		                case "Stop":
+		                    $tdStatus = $("<img title='Stopped' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+		                    break;
+		                case "Pause":
+		                    $tdStatus = $("<img title='Pause' class ='statusIcon' src = '../private/img/aws_logo_inactive.png' alt='statusType'/>");
+		                    break;
+						case "Terminated":
+							$tdStatus = $("<img title='Terminated' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+							break;
+		                default:
+		                    $tdStatus = $("<img title='Start' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+		                    break;
+		            }
+					var $tdStatus = $('<td></td>').append($tdStatus);
+					$tr.append($tdStatus);
+					var $tdinstanceName = $('<td></td>').append(managedData[i].instanceIP);
+					$tr.append($tdinstanceName);
+					var $tdImage = $('<td></td>').append(managedData[i].Image);
+					$tr.append($tdImage);
+					var $tdUser = $('<td></td>').append(managedData[i].user);
+					$tr.append($tdUser);
+					var $tdOrg = $('<td></td>').append(managedData[i].orgName);
+					$tr.append($tdOrg);
+					var $tdBG = $('<td></td>').append(managedData[i].bgName);
+					$tr.append($tdBG);
+					var $projectName = $('<td></td>').append(managedData[i].projectName);
+					$tr.append($projectName);
+					var $environmentName = $('<td></td>').append(managedData[i].envName);
+					$tr.append($environmentName);
+					var $tdAction = $('<td></td>').append(managedData[i].action);
+					$tr.append($tdAction);
+					if (managedData[i].actionStatus == 'success') {
+						$tdActionStatus = $("<img title='success' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+					}else if (managedData[i].actionStatus == 'pending' || managedData[i].actionStatus == 'waiting') {
+						$tdActionStatus = $("<img title='pending' class ='statusIcon' src = '../private/img/aws_logo_paused.png' alt='statusType'/>");
+					}else if (managedData[i].actionStatus == 'failed') {
+						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					}else {
+						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					}
+					var $tdActionStatus = $('<td></td>').append($tdActionStatus);
+					$tr.append($tdActionStatus);
+					var $logIcon = $("<a data-original-title='MoreInfo' class='moreInfoLog' data-placement='top' rel='tooltip' href='javascript:void(0)' data-toggle='modal' data-id=" + managedData[i].actionId + "><img class='moreInfo' src = '../private/img/galleryIcons/moreinfo.png' alt='moreInfo'/></a>");
+					var $tdLog = $('<td></td>').append($logIcon);
+					$tr.append($tdLog);
+					$logIcon.click(containerLogsHandler);
+					$tbody.append($tr);
+				}
+			}
+		});
+	</script>
+</body>
+
+</html>

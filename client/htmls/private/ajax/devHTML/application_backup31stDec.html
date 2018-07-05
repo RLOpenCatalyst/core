@@ -1,0 +1,2165 @@
+<link rel="stylesheet" type="text/css" href="css/application.css">
+<style type="text/css">
+	@media (min-width: 320px) and (max-width: 767px) {
+	  .padding-left5-mobile{
+		padding-left: 5px !important;
+	  }
+	  .padding-right5-mobile{
+		padding-right: 5px !important;
+	  }
+	  .margin-left10Per-mobile{
+		margin-left: 10%;
+	  }
+	}
+	@media (min-width: 320px) and (max-width: 480px) {
+	  .margin-left10Per-mobile{
+		margin-left: 25% !important;
+	  }
+	}
+	.tableStyleColor{
+		color:#fff!important;
+		background-color: #2c3742!important;
+	}
+</style>
+<div class="tab-pane" id="l6">
+	<div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-application" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+		<div>
+			<div class="widget-body no-padding">
+				<div class="col-lg-6 col-md-6 availableApp hidden" style="padding-left: 0px; margin-bottom: 15px;margin-top:5px;">
+					<label for="chooseApplication">Choose Available Application:<span class="redSpan">*</span></label>
+					<div class="input-groups">
+						<select id="chooseApplication" name="chooseApplication" class="required chooseApplication width-100">
+						</select>
+					</div>
+				</div>
+				<div class="col-lg-6 col-md-6 hidden">
+					<div class="panel-heading">
+						<span class="pull-right swap-view">
+						<a class="btn btn-primary envAppDeployList" href="#modalAppCardTableDetails" data-toggle="modal" style="margin-top: 15px;">
+						<span style="font-weight: bold;">List of Application</span>
+						<i title="Add Application Details" class="fa fa-list fa-2x" style="color:#ffffff;cursor:pointer;font-size:13px;"></i>
+						</a>
+						<a class="btn btn-primary envAppDeployModal" href="#modalAppCardDetails" data-toggle="modal" style="margin-top: 15px;">
+						<span style="font-weight: bold;">Add Application</span>
+						<i title="Add Application Details" class="fa fa-plus fa-2x" style="color:#ffffff;cursor:pointer;font-size:13px;"></i>
+						</a>
+						</span>
+					</div>
+				</div>
+				<div class="row">
+					<article class="col-sm-12 col-md-12 col-lg-12">
+						<div class="widget-body font-size12" id="widgetAppDeploy" style="">
+							<div class="panel-group smart-accordion-default" id="accordion-AppDeploy">
+							</div>
+							<div id="nodataAppDeploy" style="display:none">
+							</div>
+						</div>
+					</article>
+				</div>
+				<div class="col-sm-4 col-md-3 col-lg-2 col-xs-12 envSpecificAppTemplate" style="display:none">
+					<div class="envSpecificAppname"><u></u></div>
+				</div>
+				<div class="col-sm-12 col-md-12 col-lg-12 col-xs-12 no-padding envSpecificAppInstanceUniqueCard padding-right5-mobile margin-left10Per-mobile" style="display:none">
+					<div class="panel panel-primary appCard-inner-panel role-Selectedcard-app">
+						<div class="panel-heading appCard-inner-panel-heading">
+							<div contenteditable="false" class="domain-roles-icon">
+								<img class="domain-roles-icon-image" src="img/app-store-icons/Docker.png">
+							</div>
+							<div class="appInstanceNameCard">
+								<span class="appInstanceNameCardSpan"></span>
+							</div>
+						</div>
+						<div class="appCardBody">
+							<div class="panel-body panel-primary appCardInfo">
+								<div class="">
+									<div class="col-lg-12 col-sm-12 col-xs-12 text-align-center">
+										<img src="img/rsz_logo.png">
+									</div>
+									<div class="col-lg-12 col-sm-12 col-xs-12 paddingtopbottom4 text-align-center">
+										<div class="font-size-10">
+											<span>Version :</span><span class="versionAppDeploy"></span>
+										</div>
+									</div>
+									<div class="col-lg-12 col-sm-12 col-xs-12 paddingtopbottom4 text-align-center paddingleftright0">
+										<div class="font-size-10">
+											<span>Last Deploy :</span><span class="lastdeployAppDeploy"></span>
+										</div>
+									</div>
+									<div class="col-lg-12 col-sm-12 col-xs-12" style="display:none">
+										<span class="applicationNamePipeline"></span>
+										<span class="hostNamePipeline"></span>  
+										<span class="applicationNodeIPPipeline"></span>  
+										<span class="containerIdPipeline"></span>  
+										<span class="applicationTypePipeline"></span>
+										<span class="applicationStatusPipeline"></span>
+									</div>
+								</div>
+							</div>
+							<div class="panel-footer clearfix appCard-inner-panel-footer">
+								<div class="col-lg-12 col-sm-12 col-xs-12 appCard-panel-foot-actiondiv">
+									<div class="col-lg-4 col-sm-4 col-xs-4 appCard-panel-foot-actionchildfirstDiv">
+									</div>
+									<div class="col-lg-4 col-sm-4 col-xs-4 appCard-panel-foot-actionchildsecondDiv">
+									</div>
+									<div class="col-lg-4 col-sm-4 col-xs-4 appCard-panel-foot-actionchildthirdDiv">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row loadingAppDeploySpinner">
+					<article class="col-sm-12 col-md-12 col-lg-12">
+						<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif"/>
+					</article>
+				</div>
+				<div class="accordianTemplateContainer" style="display:none">
+					<div class="panel panel-default accordianTemplate">
+						<div class="panel-heading"  style="border-bottom:1px solid rgb(221, 221, 221);height:40px;background-color:#fcfcfc;">
+							<h4 class="panel-title">
+								<span style="float:left;padding:0px !important;color:#666 !important;font-size:13px !important" class="envAppDeployName"></span>
+							</h4>
+							<span class="pull-right margintop2right8">   
+							<a  id="defaultViewButtonNewDeploy" class="btn btn-primary createNewDeploy" style="margin-right:5px;" data-toggle="modal" href="#modalUpgradeAppDeploy"> 
+							<i class="ace-icon fa fa-plus bigger-110" style="color:#fff;margin-right:4px;"></i>Deploy New App
+							</a>                                 
+							<a onclick="showHideControlApplication(this.id)" class="btn1" id="instanceviewAppCard" rel="tooltip" data-placement="top" data-original-title="History" title="History"> 
+							<i style="font-size:16px" class="fa fa-header fa-2x txt-color-deactive"></i>
+							</a>&nbsp;
+							<a onclick="showHideControlApplication(this.id)" id="defaultViewButtonAppCard" class="btn btn-primary" style="display:none"> 
+							<i class="ace-icon ace-icon fa fa-chevron-left bigger-110" style="color:#fff;margin-right:4px;"></i>Pipeline View
+							</a>
+							<a href="#modalappcardConfigure" data-toggle="modal" class="createAppConfigure" style="margin-top:-5px" title="Configure" rel="tooltip" data-placement="top" data-original-title="Configure">
+							<i class="fa fa-th fa-cogs" style="margin-right: 5px; color: rgb(64, 186, 241); font-size: 18px;"></i>
+							</a>
+							</span>
+						</div>
+						<div id="divapplicationtableview">
+							<div id="collapseAppEnv1" class="panel-collapse collapse in envAppDeployAccordian">
+								<div class="table-responsive table-div" style="padding: 5px;overflow-x: auto;min-height:300px">
+									<table id="tableappDeploydetails" class="table table-striped table-bordered table-hover dataTable envAppDeployTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;margin-top:45px;" width="100%" cellpadding="5px">
+										<thead>
+											<tr class="rowCustomStyle" style="font-weight:bold;">
+												<td class="tableStyleColor">App</td>
+												<td class="tableStyleColor">App-Instance</td>
+												<td class="tableStyleColor">Version</td>
+												<td class="tableStyleColor">Host</td>
+												<td class="tableStyleColor">Node IP</td>
+												<td class="tableStyleColor">Last Deploy</td>
+												<td class="tableStyleColor">Container Name/ID</td>
+												<td class="tableStyleColor">Application Type</td>
+												<td class="tableStyleColor">Status</td>
+												<td class="tableStyleColor">Logs</td>
+												<td class="tableStyleColor">Upgrade</td>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+								</div>
+								<div class="table-responsive table-div fornNoDataDiv" style="display:none">
+									<table id="tableappDeploydetailsforNoData" class="table table-striped table-bordered table-hover dataTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;margin-top:45px;" width="100%" cellpadding="5px">
+										<thead>
+											<tr class="rowCustomStyle">
+												<td class="tableStyleColor">App</td>
+												<td class="tableStyleColor">App-Instance</td>
+												<td class="tableStyleColor">Version</td>
+												<td class="tableStyleColor">Host</td>
+												<td class="tableStyleColor">Node IP</td>
+												<td class="tableStyleColor">Last Deploy</td>
+												<td class="tableStyleColor">Container Name/ID</td>
+												<td class="tableStyleColor">Application Type</td>
+												<td class="tableStyleColor">Status</td>
+												<td class="tableStyleColor">Logs</td>
+												<td class="tableStyleColor">Upgrade</td>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div id="divapplicationcardview">
+							<div class="col-sm-12 col-md-12 col-lg-12 stageContainer">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="modalappcardConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<form role="form" id="appCardForm" autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									X
+									</button>
+									<h4 class="modal-title">
+										<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Configure Application Pipeline View
+									</h4>
+								</div>
+								<div class="modal-body">
+							<form id="formconfigureapplication">
+							<table class="table table-bordered" cellpadding="5px" width="100%" id="tableconfigureapplication">
+							<thead>
+							<tr class="tableStyleColor">
+							<th>Stages/Environments</th>
+							<th>Active</th>
+							<th>UP/DOWN</th>
+							</tr>
+							</thead>
+							<tbody>
+							</tbody>
+							</table>
+							</form>
+							</div>
+							<div class="modal-footer">
+								<div class="btn-group" style="margin-left:200px;">  
+									<a class="btn btn-default" data-dismiss="modal">
+									<i class="ace-icon fa fa-times bigger-110"></i>
+									Cancel
+									</a>                               
+									<a class="btn btn-primary appdeployConfigureSaveBtn" style="margin-left:10px;">
+									<i class="ace-icon fa fa-save bigger-110"></i>
+									Save
+									</a>
+								</div>
+							</div>
+							</form>
+						</div>
+						<!-- /.modal-content -->
+					</div>
+					<!-- /.modal-dialog -->
+				</div>
+				<div class="modal fade" id="modalAppCardDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<form role="form" id="formAppDeploy" autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									X
+									</button>
+									<h4 class="modal-title">
+										<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Associate App Deploy<span class="redSpan font-size-12" id="errorParam"></span>
+									</h4>
+								</div>
+								<div class="modal-body">
+									<div class="addApptoAppend">
+										<div style="margin:5px 0px 0px;" class="row application4Params">
+											<div style="padding-left:0px;" class="col-lg-6 col-md-6 col-sm-6">
+												<label for="name">Application Name:<span class="redSpan">*</span>
+												</label>
+												<input type="text" autofocus="" style="height:36px;" class="form-control" id="appNameInput">
+											</div>
+											<div style="padding-left:0px;" class="col-lg-6 col-md-6 col-sm-6">
+												<label for="name">Description:
+												</label>
+												<input type="text" style="height:36px;" class="form-control" id="applicationDescriptionInput">
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<div class="btn-group" style="margin-left:200px;">
+										<a style="margin-left:10px;" class="btn btn-default cancelAppDeploy" data-dismiss="modal">
+										<i class="ace-icon fa fa-times bigger-110"></i> Cancel
+										</a>
+										<a class="btn btn-primary" id="parameterAppDeploySaveBtn">
+										<i class="ace-icon fa fa-save bigger-110"></i> Save
+										</a>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="modalAppCardTableDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<form role="form" id="formAppDeployTableHistory" autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									X
+									</button>
+									<h4 class="modal-title">
+										<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;List of Application
+									</h4>
+								</div>
+								<div class="modal-body">
+									<div class="table-responsive table-div">
+										<table id="tableappParamDeploy" class="table table-striped table-bordered table-hover dataTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;" width="100%" cellpadding="5px">
+											<thead>
+												<tr class="rowCustomStyle" style="font-weight:bold;">
+													<td class="tableStyleColor">S.No.</td>
+													<td class="tableStyleColor">Application Name</td>
+													<td class="tableStyleColor">Application Description</td>
+												</tr>
+											</thead>
+											<tbody>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<div class="btn-group" style="margin-left:200px;">
+										<a style="margin-left:10px;" class="btn btn-default" data-dismiss="modal">
+										<i class="ace-icon fa fa-times bigger-110"></i> Cancel
+										</a>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="modalDetailsAppDeploy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<form role="form" id="" autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									X
+									</button>
+									<h4 class="modal-title">
+										<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Details
+									</h4>
+								</div>
+								<div class="modal-body">
+									<div class="">
+										<table class="table table-bordered" cellpadding="5px" width="100%" id="">
+											<thead>
+												<tr class="tableStyleColor">
+													<th>Application Details</th>
+													<th>Application Values</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td>Application Name :</td>
+													<td class="appNameModal"></td>
+												</tr>
+												<tr>
+													<td>App-Instance Name :</td>
+													<td class="appInstanceNameModal"></td>
+												</tr>
+												<tr>
+													<td>Version :</td>
+													<td class="versionModal"></td>
+												</tr>
+												<tr>
+													<td>Host :</td>
+													<td class="hostNameModal"></td>
+												</tr>
+												<tr>
+													<td>Node IP :</td>
+													<td class="nodeIpModal"></td>
+												</tr>
+												<tr>
+													<td>Last Deploy :</td>
+													<td class="lastDeployModal"></td>
+												</tr>
+												<tr>
+													<td>Container Name/ID :</td>
+													<td class="containerIdModal"></td>
+												</tr>
+												<tr>
+													<td>Application Type :</td>
+													<td class="applicationTypeModal"></td>
+												</tr>
+												<tr>
+													<td>Status :</td>
+													<td class="statusModal"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<div class="btn-group" style="margin-left:200px;">                                
+										<a style="margin-left:10px;" class="btn btn-default" data-dismiss="modal">
+										<i class="ace-icon fa fa-times bigger-110"></i>
+										Cancel
+										</a>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- /.modal-content -->
+					</div>
+					<!-- /.modal-dialog -->
+				</div>
+				<div class="modal fade" id="modalAppCardLogDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<form role="form" id="formAppDeployLogs" autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									X
+									</button>
+									<h4 class="modal-title">
+										<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Logs
+									</h4>
+								</div>
+								<div class="modal-body">
+									<div class="logsForAppDeploy">
+									</div>
+								</div>
+								<div class="modal-footer">
+									<div class="btn-group" style="margin-left:200px;">
+										<a style="margin-left:10px;" class="btn btn-default cancelAppDeploy" data-dismiss="modal">
+										<i class="ace-icon fa fa-times bigger-110"></i> Cancel
+										</a>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="modalUpgradeAppDeploy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<form role="form" id="formUpgradeAppDeploy" autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									X
+									</button>
+									<h4 class="modal-title modaltitleforNewDeploy" style="display:none">
+										<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;New App Deployment
+									</h4>
+									<h4 class="modal-title modaltitleforupgradeDeploy">
+										<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Upgrade : <span id="upgradeAppName"></span> (<span id="upgradeNodeIp"></span>)
+									</h4>
+								</div>
+								<div class="modal-body">
+									<div class="upgradeForAppDeploy">
+										<input type="hidden" id="containerIdInput">
+										<fieldset class="fieldsetCustom">
+											<legend  class="legendCustom">Repository Details:</legend>
+											<div class="col-lg-6 col-md-6">
+												<label for="">Repository Server:<span class="redSpan">*</span>
+												<span>
+												<img class="reposerverspinner" src="img/select2-spinner.gif" style="display:none">
+												</img>
+												</span>
+												</label>
+												<div class="input-groups">
+													<select id="chooseNexusServer" name="" class="required width-100 form-control">
+														<option value="">Choose Server</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-lg-6 col-md-6">
+												<label for="">Repository:<span class="redSpan">*</span>
+												<span>
+												<img class="repospinner" src="img/select2-spinner.gif" style="display:none"></img>
+												</span>
+												</label>
+												<div class="input-groups">
+													<select id="chooseRepository" name="" class="required width-100 form-control">
+														<option value="">Choose Repositories</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-lg-12 col-md-12 margintop15 repoUrlClass">
+												<label>Repository URL:<span class="redSpan">*</span>
+												<span>
+												<img class="repourlspinner" src="img/select2-spinner.gif" style="display:none">
+												</img>
+												</span>
+												</label>
+												<input id="repositoryUrl" type="text" class="form-control" name="" disabled>
+											</div>
+											<div class="col-lg-12 col-md-12 margintop15 containerClass containerIdClass containerUpgradeDeploy">
+												<label>Container Name/ID:
+												<span>
+												<img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+												</img>
+												</span>
+												</label>
+												<input id="containerIdDiv" type="text" class="form-control" />
+											</div>
+											<div class="col-lg-12 col-md-12 margintop15 containerClass  containerPortClass containerUpgradeDeploy">
+												<label>Container Port:<span class="redSpan">*</span>
+												<span>
+												<img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+												</img>
+												</span>
+												</label>
+												<input id="containerPort" type="text" class="form-control" name="">
+											</div>
+											<input id="upgradeValue" type="hidden" />
+											<div class="col-lg-6 col-md-6 margintop15 artifactClass">
+												<label for="">Artifacts:<span class="redSpan">*</span>
+												<span>
+												<img class="artifactsspinner" src="img/select2-spinner.gif" style="display:none">
+												</img>
+												</span>
+												</label>
+												<div class="input-groups">
+													<select id="chooseArtifacts" name="" class="required width-100 form-control">
+														<option value="">Choose Artifacts</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-lg-6 col-md-6 margintop15 versionClass">
+												<label for="">Versions:<span class="redSpan">*</span>
+												<span>
+												<img class="versionspinner" src="img/select2-spinner.gif" style="display:none">
+												</img>
+												</span>
+												</label>
+												<div class="input-groups">
+													<select id="chooseVersions" name="" class="required width-100 form-control">
+														<option value="">Choose Versions</option>
+													</select>
+												</div>
+											</div>
+										</fieldset>
+										<fieldset class="fieldsetCustom"  style="margin-top: 20px ! important;">
+											<legend  class="legendCustom">Job Details:</legend>
+											<div class="col-lg-6 col-md-6 col-sm-6">
+												<label>Jobs:<span class="redSpan">*</span>
+												<span>
+												<img class="jobdetailsspinner" src="img/select2-spinner.gif" style="display:none">
+												</img>
+												</span>
+												</label>
+												<div class="input-groups">
+													<select id="chooseJobType" name="" class="required width-100 form-control">
+														<option value="">Choose Job</option>
+													</select>
+												</div>
+											</div>
+											<div class="col-lg-6 col-md-6" style="margin-top: 6px;">
+												<label>
+												<span></span>
+												</label>
+												<div class="input-groups">
+													<a class="btn btn-primary createTaskLinkUpgrade">
+													<i class="ace-icon fa fa-indent bigger-110"></i> Create New Job
+													</a>
+												</div>
+											</div>
+										</fieldset>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<div class="btn-group" style="margin-left:200px;">
+										<a style="margin-left:10px;" class="btn btn-default cancelUpgradeAppDeploy" data-dismiss="modal">
+										<i class="ace-icon fa fa-times bigger-110"></i> Cancel
+										</a>
+										<a style="margin-left:10px;" class="btn btn-primary saveNewAppDeploy" style="display:none">
+										<i class="ace-icon fa fa-location-arrow bigger-110"></i> Deploy
+										</a>
+										<a style="margin-left:10px;" class="btn btn-primary saveUpgradeAppDeploy">
+										<i class="ace-icon fa fa-save bigger-110"></i> Upgrade
+										</a>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalassignTaskUpgrade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<form role="form" id="" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-indent txt-color-blue"></i>&nbsp;&nbsp;Create New Job
+					</h4>
+				</div>
+				<div class="modal-body">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+// assignTaskUpgradeApp.html
+$(document).ready(function() {
+	getAllApplicationData();
+	getAllPipelineApplicationData();
+	$("#divapplicationtableview").hide();
+	if ($('#chooseNexusServer :selected').text() == 'Choose Server') {
+		$('.createTaskLinkUpgrade').attr('disabled', 'disabled');
+	} else {
+		$('.createTaskLinkUpgrade').removeAttr('disabled');
+	}
+
+	function newAppDeployClickHandler(e) {
+		$('#containerIdDiv').removeAttr('disabled');
+		$('#upgradeValue').val("");
+		$('.containerIdClass').hide();
+		$('.containerPortClass').hide();
+		$('.repoUrlClass').hide();
+		$('.artifactClass').hide();
+		$('.versionClass').hide();
+
+		$('#formUpgradeAppDeploy')[0].reset();
+		resetSpinners();
+		var $containerIdName = $('#containerIdInput').val('');
+		if ($('#chooseNexusServer :selected').text() == 'Choose Server') {
+			$('.createTaskLinkUpgrade').attr('disabled', 'disabled');
+		} else {
+			$('.createTaskLinkUpgrade').removeAttr('disabled');
+		}
+		$('.modaltitleforupgradeDeploy').hide();
+		$('.modaltitleforNewDeploy').show();
+		$('.saveUpgradeAppDeploy').hide();
+		$('.saveNewAppDeploy').show();
+		getNexusServer();
+		getDockerServer();
+		var $modal = $('#modalUpgradeAppDeploy');
+		$modal.modal('show');
+	}
+	$('#defaultViewButtonNewDeploy').on('click', newAppDeployClickHandler);
+});
+
+function getAllPipelineApplicationData() {
+	var projectId = urlParams.projid;
+	var envNameSelected = "";
+	$.get('/app/deploy/pipeline/project/' + projectId, function(dataPipeline) {
+		if (dataPipeline == null || dataPipeline == "undefined" || dataPipeline.length == 0) {
+			return false;
+		}
+		if (dataPipeline[0].envId.length > 0) {
+			getenvName(function(envName) {
+				envNameSelected = envName;
+				for (var i = 0; i < dataPipeline[0].envId.length; i++) {
+					var envUniqueText = dataPipeline[0].envId[i];
+					createPipelineArea(envUniqueText, envNameSelected, projectId);
+				}
+			});
+		} else {
+			$.get('/d4dMasters/project/' + projectId, function(dataforenvName) {
+				var individualenvName = dataforenvName[0].environmentname;
+				individualenvName = individualenvName.split(",");
+				getenvName(function(envName) {
+					envNameSelected = envName;
+					for (var i = 0; i < individualenvName.length; i++) {
+						var envUniqueText = individualenvName[i];
+						createPipelineArea(envUniqueText, envNameSelected, projectId);
+					}
+				});
+			});
+		}
+	}).fail(function() {});
+}
+
+function createAttribTableRowFromJson(attributes) {
+	var $chefRunModalContainer = $('#chefRunModalContainer')
+	var $tbody = $chefRunModalContainer.find('.attributesViewTableBody').empty();
+	for (var j = 0; j < attributes.length; j++) {
+		var attributeObj = attributes[j].jsonObj;
+
+		function getVal(obj, currentKey) {
+			var keys = Object.keys(obj);
+			for (var i = 0; i < keys.length; i++) {
+				if (typeof obj[keys[i]] === 'object') {
+					getVal(obj[keys[i]], currentKey + '/' + keys[i]);
+				} else {
+					var keyString = currentKey + '/' + keys[i];
+					keyString = keyString.substring(1);
+
+					var $tr = $('<tr/>').attr({
+						'data-attributeKey': keyString,
+						'data-attributeValue': obj[keys[i]],
+						'data-attributeName': attributes[j].name
+					}).data('jsonObj', attributes[j].jsonObj);;
+
+					var passwordField = false;
+					var passwordField = false;
+					var keyParts = keyString.split('/');
+					if (keyParts.length) {
+						var indexOfPassword = keyParts[keyParts.length - 1].indexOf('password_');
+						if (indexOfPassword !== -1) {
+							passwordField = true;
+						}
+					}
+
+					var $tdAttributeKey = $('<td/>').html(attributes[j].name);
+					if (passwordField) {
+						var $tdAttributeVal = $('<td/>').html("*****");
+					} else {
+						var $tdAttributeVal = $('<td/>').html(obj[keys[i]]);
+					}
+					$tr.append($tdAttributeKey).append($tdAttributeVal);
+					$tbody.append($tr);
+				}
+			}
+		}
+		getVal(attributeObj, '');
+	}
+}
+$('.createAppConfigure').click(function() {
+	var selectedEnvironments = [];
+	var allEnvironments = [];
+	var $tableconfigureapplication = $('#tableconfigureapplication');
+	var $tbody = $tableconfigureapplication.find('tbody').empty();
+	var projectId = urlParams.projid;
+	$.ajax({
+		url: '/app/deploy/pipeline/project/' + projectId,
+		type: "GET",
+		async: true,
+		success: function(dataPipeline) {
+			if (dataPipeline.length) {
+				for (var i = 0; i < dataPipeline[0].envId.length; i++) {
+					selectedEnvironments.push(dataPipeline[0].envId[i]);
+				}
+				for (var i = 0; i < dataPipeline[0].envSequence.length; i++) {
+					allEnvironments.push(dataPipeline[0].envSequence[i]);
+				}
+				if (selectedEnvironments.length == 0) {
+					$.get('/d4dMasters/project/' + projectId, function(dataforenvName) {
+						var individualenvName = dataforenvName[0].environmentname;
+						individualenvName = individualenvName.split(",");
+						for (var i = 0; i < individualenvName.length; i++) {
+							var checked = "";
+							if ($.inArray(individualenvName[i], individualenvName) > -1) {
+								checked = "checked";
+							}
+							var $tr = $('<tr/>').attr({
+								'data-configureApplication': individualenvName[i]
+							});
+							var $tdenvName = $('<td class="configAppDeployUniqueName"/>').html(individualenvName[i]);
+							var $tdActive = $('<td/>').html("<div class='iphone-toggle-buttons'><ul style='padding: 0px; margin: 0px;list-style-type: none;'><li><label for='checkbox-" + i + "'><input type='checkbox' class='appDeployCheckboxOrder' name='checkbox-" + i + "' id='checkbox-" + i + "' " + checked + " /><span></span></label></li></ul></div>");
+							var $tdupdown = $('<td/>').html("<a class='btn btn-default btn-primary up' style='border-radius:50%;height:27px;width:27px;padding-top:0px' type='button'><i style='font-size:12px;margin-left:-5px;margin-top:5px;' class='fa  fa-chevron-up'></i></a><a class='btn btn-default btn-primary down' style='border-radius:50%;height:27px;width:27px;padding-top:0px;margin-left:10px' type='button'><i style='font-size:12px;margin-left:-5px;margin-top:5px;' class='fa  fa-chevron-down'></i></a>");
+							$tr.append($tdenvName).append($tdActive).append($tdupdown);
+							$tbody.append($tr);
+						}
+						$tableconfigureapplication.append($tbody);
+						$tableconfigureapplication.find(".up,.down").click(function() {
+							var row = $(this).parents("tr:first");
+							if ($(this).is(".up")) {
+								row.insertBefore(row.prev());
+							} else {
+								row.insertAfter(row.next());
+							}
+						});
+					});
+				} else {
+					for (var i = 0; i < allEnvironments.length; i++) {
+						var checked = "";
+						if ($.inArray(allEnvironments[i], selectedEnvironments) > -1) {
+							checked = "checked";
+						}
+						var $tr = $('<tr/>').attr({
+							'data-configureApplication': allEnvironments[i]
+						});
+						var $tdenvName = $('<td class="configAppDeployUniqueName"/>').html(allEnvironments[i]);
+						var $tdActive = $('<td/>').html("<div class='iphone-toggle-buttons'><ul style='padding: 0px; margin: 0px;list-style-type: none;'><li><label for='checkbox-" + i + "'><input type='checkbox' class='appDeployCheckboxOrder' name='checkbox-" + i + "' id='checkbox-" + i + "' " + checked + " /><span></span></label></li></ul></div>");
+						var $tdupdown = $('<td/>').html("<a class='btn btn-default btn-primary up' style='border-radius:50%;height:27px;width:27px;padding-top:0px' type='button'><i style='font-size:12px;margin-left:-5px;margin-top:5px;' class='fa  fa-chevron-up'></i></a><a class='btn btn-default btn-primary down' style='border-radius:50%;height:27px;width:27px;padding-top:0px;margin-left:10px' type='button'><i style='font-size:12px;margin-left:-5px;margin-top:5px;' class='fa  fa-chevron-down'></i></a>");
+						$tr.append($tdenvName).append($tdActive).append($tdupdown);
+						$tbody.append($tr);
+					}
+					$tableconfigureapplication.append($tbody);
+					$tableconfigureapplication.find(".up,.down").click(function() {
+						var row = $(this).parents("tr:first");
+						if ($(this).is(".up")) {
+							row.insertBefore(row.prev());
+						} else {
+							row.insertAfter(row.next());
+						}
+					});
+				}
+			}
+		},
+		error: function() {}
+	});
+});
+
+function ConvertTimeformat(format, str, formatStr) {
+	var time = str;
+	var hours = Number(time.match(/^(\d+)/)[1]);
+	var minutes = Number(time.match(/:(\d+)/)[1]);
+	var seconds = time.split(' ')[0].split(':')[2];
+	var AMPM = formatStr;
+	if (AMPM == "PM" && hours < 12) hours = hours + 12;
+	if (AMPM == "AM" && hours == 12) hours = hours - 12;
+	var sHours = hours.toString();
+	var sMinutes = minutes.toString();
+	var sSeconds = seconds.toString();
+	if (hours < 10) sHours = "0" + sHours;
+	if (minutes < 10) sMinutes = "0" + sMinutes;
+	if (seconds < 10) sSeconds = "0" + sSeconds;
+	return (sHours + ":" + sMinutes + ":" + sSeconds);
+}
+
+function convertToDateObj(strInputDate) {
+	var timeStr = strInputDate.split(' ')[1];
+	var formatStr = strInputDate.split(' ')[2];
+	var str = ConvertTimeformat("24", timeStr, formatStr);
+	var year = strInputDate.substring(0, 2);
+	var month = strInputDate.substring(3, 5);
+	month = parseInt(month);
+	var day = strInputDate.substring(6, 8);
+	var hour = str.substring(0, 2);
+	var minute = str.substring(3, 5);
+	var second = str.substring(6, 8);
+	var dateConverted = new Date(year, month - 1, day, hour, minute, second);
+	return dateConverted;
+}
+
+function createPipelineArea(envName, selectedEnv, projectId) {
+	var $stageContainer = $('.stageContainer');
+	var $envSpecificAppTemplate = $('.envSpecificAppTemplate');
+
+	var $clonePipeline = $envSpecificAppTemplate.clone(true);
+	var id = envName + '_pipeLine';
+	$clonePipeline.attr('id', id);
+	$clonePipeline.css({
+		display: 'block'
+	});
+	$clonePipeline.addClass('newEnvSpecificAppTemplate').removeClass('envSpecificAppTemplate');
+
+	$clonePipeline.find('.envSpecificAppname u').html(envName);
+	$stageContainer.append($clonePipeline);
+	$.ajax({
+		url: '/app/deploy/env/' + envName + '/project/' + projectId + '/list',
+		type: "GET",
+		async: true,
+		success: function(data) {
+			var sortedDataList = [];
+			var sortedData = {};
+			if (data.length) {
+				for (var i = 0; i < data.length; i++) {
+					(function(i) {
+
+						if (!data[i].applicationInstanceName) {
+							if (data[i].hostName) {
+								data[i].applicationInstanceName = data[i].hostName;
+							} else {
+								data[i].applicationInstanceName = "NA";
+							}
+						}
+						if (!sortedData[data[i].applicationInstanceName]) {
+							sortedData[data[i].applicationInstanceName] = data[i];
+						} else {
+							var prevDate = convertToDateObj(sortedData[data[i].applicationInstanceName].applicationLastDeploy);
+
+							var newDate = convertToDateObj(data[i].applicationLastDeploy);
+							if (prevDate - newDate < 0) {
+								sortedData[data[i].applicationInstanceName] = data[i];
+							}
+						}
+						sortedDataList.push(sortedData);
+					})(i);
+				}
+			}
+			var keys = Object.keys(sortedData);
+			var newData = [];
+			for (var i = 0; i < keys.length; i++) {
+				newData.push(sortedData[keys[i]]);
+			}
+
+			constructPipelineUI(newData, id);
+			if (envName != selectedEnv) {
+				$('#' + id).children().css({
+					'opacity': '0.5'
+				});
+				$('#' + id).children().bind('click', function() {
+					return false;
+				});
+			}
+		},
+		error: function() {
+
+		}
+	});
+	return $clonePipeline;
+}
+
+function constructPipelineUI(data, $clonePipeline) {
+	$('.loadingAppDeploySpinner').hide();
+	for (var i = 0; i < data.length; i++) {
+		var $envSpecificAppInstanceUniqueCard = $('.envSpecificAppInstanceUniqueCard');
+
+		var $cloneAppInstanceUniqueCard = $envSpecificAppInstanceUniqueCard.clone(true);
+		$cloneAppInstanceUniqueCard.css({
+			display: 'block'
+		});
+		$cloneAppInstanceUniqueCard.addClass('newEnvSpecificAppInstanceUniqueCard').removeClass('envSpecificAppInstanceUniqueCard');
+
+		if (data[i].projectId) {
+			//Application Type as Image in Card.
+			if (!data[i].applicationType) {
+				data[i].applicationType = "NA";
+			}
+			if (data[i].applicationType == 'Package') {
+				var loc = 'img/package.png';
+				$cloneAppInstanceUniqueCard.find('.domain-roles-icon img').attr("src", loc);
+			} else if (data[i].applicationType == 'Docker') {
+				var loc = 'img/app-store-icons/Docker.png';
+				$cloneAppInstanceUniqueCard.find('.domain-roles-icon img').attr("src", loc);
+			} else if (data[i].applicationType == 'NA') {
+				var loc = 'img/blank.png';
+				$cloneAppInstanceUniqueCard.find('.domain-roles-icon img').attr("src", loc);
+			}
+
+			//Application Instance Name in Card.
+			if (!data[i].applicationInstanceName) {
+				if (data[i].hostName) {
+					data[i].applicationInstanceName = data[i].hostName;
+				} else {
+					data[i].applicationInstanceName = "NA";
+				}
+			}
+			var $appInstanceNameCardSpan = $cloneAppInstanceUniqueCard.find('.appInstanceNameCardSpan');
+			$appInstanceNameCardSpan.html(data[i].applicationInstanceName);
+
+			//Application Version in Card
+			if (!data[i].applicationVersion) {
+				data[i].applicationVersion = "NA";
+			}
+			var $appInstanceVersionCardSpan = $cloneAppInstanceUniqueCard.find('.versionAppDeploy');
+			$appInstanceVersionCardSpan.html(data[i].applicationVersion);
+
+
+			//Application Last Deploy in Card
+			if (!data[i].applicationLastDeploy) {
+				data[i].applicationLastDeploy = "NA";
+			}
+			var applicationLastDeployTime = data[i].applicationLastDeploy;
+			if ((applicationLastDeployTime.toLowerCase().indexOf("am") > -1) || (applicationLastDeployTime.toLowerCase().indexOf("pm") > -1)) {
+				applicationLastDeployTime = applicationLastDeployTime;
+			} else {
+				applicationLastDeployTime = getLocaleTime(applicationLastDeployTime);
+			}
+			var $appInstanceLastDeployCardSpan = $cloneAppInstanceUniqueCard.find('.lastdeployAppDeploy');
+			$appInstanceLastDeployCardSpan.html(applicationLastDeployTime);
+
+
+			//Application appName in Card
+			if (!data[i].applicationName) {
+				data[i].applicationName = "NA";
+			}
+			var $appInstanceApplicationNameCardSpan = $cloneAppInstanceUniqueCard.find('.applicationNamePipeline');
+			$appInstanceApplicationNameCardSpan.html(data[i].applicationName);
+
+			//Application Hostname in Card
+			if (!data[i].hostName) {
+				data[i].hostName = "NA";
+			}
+			var $appInstanceHostNameCardSpan = $cloneAppInstanceUniqueCard.find('.hostNamePipeline');
+			$appInstanceHostNameCardSpan.html(data[i].hostName);
+
+
+			//Application  Node IP in Card
+			if (!data[i].applicationNodeIP) {
+				data[i].applicationNodeIP = "NA";
+			}
+			var $appInstanceNodeIpCardSpan = $cloneAppInstanceUniqueCard.find('.applicationNodeIPPipeline');
+			$appInstanceNodeIpCardSpan.html(data[i].applicationNodeIP);
+
+
+			//Application ContainerId in Card
+			if (!data[i].containerId) {
+				data[i].containerId = "NA";
+			}
+			var $appInstanceContainerIdCardSpan = $cloneAppInstanceUniqueCard.find('.containerIdPipeline');
+			$appInstanceContainerIdCardSpan.html(data[i].containerId);
+
+
+			//Application type in Card
+			if (!data[i].applicationType) {
+				data[i].applicationType = "NA";
+			}
+			var $appInstanceApplicationTypeCardSpan = $cloneAppInstanceUniqueCard.find('.applicationTypePipeline');
+			$appInstanceApplicationTypeCardSpan.html(data[i].applicationType);
+
+
+			//Application Status in Card
+			if (!data[i].applicationStatus) {
+				data[i].applicationStatus = "NA";
+			}
+			var $appInstanceApplicationStatusCardSpan = $cloneAppInstanceUniqueCard.find('.applicationStatusPipeline');
+			$appInstanceApplicationStatusCardSpan.html(data[i].applicationStatus);
+
+			//Application Details in Card
+			var detailsAppDeploy;
+			if (!data[i]._id) {
+				detailsAppDeploy = "NA";
+			} else {
+				detailsAppDeploy = '<a class="btn btn-primary btn-sm width27borderradius50 moreinfoDetailsPipeline padding3"><i class="fa fa-th font-size-12"></i></a>';
+			}
+			var $appInstancelogsAppDeployCardSpan = $cloneAppInstanceUniqueCard.find('.appCard-panel-foot-actionchildfirstDiv');
+			$appInstancelogsAppDeployCardSpan.append(detailsAppDeploy);
+
+
+			//Application Logs Deploy in Card
+			var logsAppDeploy;
+			if (!data[i]._id) {
+				logsAppDeploy = "NA";
+			} else {
+				logsAppDeploy = '<a class="btn btn-primary btn-sm width27borderradius50 moreinfoAppDeployPipeline padding4" id=' + data[i]._id + ' title="Logs Info"><i class="fa fa-info font-size-14"></i></a>';
+			}
+			var $appInstancelogsAppDeployCardSpan = $cloneAppInstanceUniqueCard.find('.appCard-panel-foot-actionchildsecondDiv');
+			$appInstancelogsAppDeployCardSpan.append(logsAppDeploy);
+
+			//Application Upgrade in Card
+			var upgradeAppDeploy;
+			if (!data[i]._id) {
+				upgradeAppDeploy = "NA";
+			} else {
+				upgradeAppDeploy = '<a class="btn btn-primary btn-sg tableactionbutton width27borderradius50 moreinfoUpgradePipelineAppDeploy padding2" title="Upgrade"><i class="ace-icon fa fa-upload bigger-120"></i></a>';
+			}
+			var $appInstanceUpgardeCardSpan = $cloneAppInstanceUniqueCard.find('.appCard-panel-foot-actionchildthirdDiv');
+			$appInstanceUpgardeCardSpan.append(upgradeAppDeploy);
+		}
+		$('#' + $clonePipeline).append($cloneAppInstanceUniqueCard);
+	}
+}
+
+
+var $stageContainer = $('.stageContainer');
+$stageContainer.on('click', '.moreinfoDetailsPipeline', moreinfoDetailsPipelineClickHandler);
+$stageContainer.on('click', '.moreinfoAppDeployPipeline', moreInfoAppDeployPipelineClickHandler);
+$stageContainer.on('click', '.moreinfoUpgradePipelineAppDeploy', moreInfoUpgradeAppDeployPipelineClickHandler);
+$('.appdeployConfigureSaveBtn').click(function() {
+	var $tableconfigureapplication = $('#tableconfigureapplication');
+	var projectId = urlParams.projid;
+	var envNameSelected = "";
+	$('.stageContainer').empty();
+	var configureEnvArray = [];
+	var configureEnvArraySequence = [];
+
+	$tableconfigureapplication.find('tbody tr').each(function() {
+		$tr = $(this);
+		var envUniqueTextAllEnv = $tr.find('.configAppDeployUniqueName').text();
+		configureEnvArraySequence.push(envUniqueTextAllEnv);
+	});
+
+
+
+	$tableconfigureapplication.find('tbody tr').filter(':has(:checkbox:checked)').each(function() {
+		var $tr = $(this);
+		var envUniqueText = $tr.find('.configAppDeployUniqueName').text();
+		configureEnvArray.push(envUniqueText);
+	});
+
+
+	getenvName(function(envName) {
+		envNameSelected = envName;
+		if (configureEnvArray.length > 0) {
+			configureEnvArray.forEach(function(envUniqueText) {
+				createPipelineArea(envUniqueText, envNameSelected, projectId);
+			});
+		} else {
+			configureEnvArraySequence.forEach(function(envUniqueText) {
+				createPipelineArea(envUniqueText, envNameSelected, projectId);
+			});
+		}
+	});
+	var dataDeployPipeline = {
+		"appDeployPipelineData": {
+			"loggedInUser": "",
+		}
+	};
+	var projectId = urlParams.projid;
+	dataDeployPipeline.appDeployPipelineData.projectId = projectId;
+	dataDeployPipeline.appDeployPipelineData.envId = configureEnvArray;
+	dataDeployPipeline.appDeployPipelineData.envSequence = configureEnvArraySequence;
+	$.ajax({
+		url: '/app/deploy/data/pipeline/configure',
+		data: JSON.stringify(dataDeployPipeline),
+		type: 'POST',
+		contentType: "application/json",
+		success: function(data) {
+			$('#modalappcardConfigure').modal('hide');
+		},
+		error: function(jqxhr) {
+			$('#modalappcardConfigure').modal('hide');
+		}
+	});
+});
+$('#instanceviewAppCard').click(function() {
+	getenvName(function(envName) {
+		var dataenvAccordianName = "Application Deployment for : " + envName;
+		$('.envAppDeployName').html(dataenvAccordianName);
+	});
+});
+$('#defaultViewButtonAppCard').click(function() {
+	getprojectName(function(projectNameUrlParams) {
+		var dataprojectAccordianData = "Application Deployment for : " + projectNameUrlParams;
+		$('.envAppDeployName').html(dataprojectAccordianData);
+	});
+});
+
+function moreinfoDetailsPipelineClickHandler(e) {
+	var $modal = $('#modalDetailsAppDeploy');
+	var applicationNamePipelineText = $(this).parents().eq(5).find('.applicationNamePipeline').html();
+	$modal.find('.appNameModal').html(applicationNamePipelineText);
+
+	var appInstanceNameCardSpanText = $(this).parents().eq(5).find('.appInstanceNameCardSpan').html();
+	$modal.find('.appInstanceNameModal').html(appInstanceNameCardSpanText);
+
+	var versionAppDeployText = $(this).parents().eq(5).find('.versionAppDeploy').html();
+	$modal.find('.versionModal').html(versionAppDeployText);
+
+	var hostNamePipelineText = $(this).parents().eq(5).find('.hostNamePipeline').html();
+	$modal.find('.hostNameModal').html(hostNamePipelineText);
+
+	var applicationNodeIPPipelineText = $(this).parents().eq(5).find('.applicationNodeIPPipeline').html();
+	$modal.find('.nodeIpModal').html(applicationNodeIPPipelineText);
+
+	var lastdeployAppDeployText = $(this).parents().eq(5).find('.lastdeployAppDeploy').html();
+	$modal.find('.lastDeployModal').html(lastdeployAppDeployText);
+
+	var containerIdPipelineText = $(this).parents().eq(5).find('.containerIdPipeline').html();
+	$modal.find('.containerIdModal').html(containerIdPipelineText);
+
+	var applicationTypePipelineText = $(this).parents().eq(5).find('.applicationTypePipeline').html();
+	$modal.find('.applicationTypeModal').html(applicationTypePipelineText);
+
+	var applicationStatusPipelineText = $(this).parents().eq(5).find('.applicationStatusPipeline').html();
+	$modal.find('.statusModal').html(applicationStatusPipelineText);
+
+	$modal.modal('show');
+}
+
+function moreInfoAppDeployPipelineClickHandler(e) {
+	var $modal = $('#modalAppCardLogDetails');
+	var $logContainer = $modal.find('.logsForAppDeploy').show();
+	$logContainer.empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+	$.ajax({
+		url: '/app/deploy/' + this.id + '/logs',
+		type: 'GET',
+		contentType: "application/json",
+		success: function(data) {
+			var datahttp = data.indexOf("http://");
+			if (datahttp == 0) {
+				$logContainer.empty();
+				window.open(data, "_blank");
+			} else {
+				$logContainer.empty();
+				$modal.modal('show');
+				data = data.replace(/,/g, "<br />");
+				$logContainer.append(data);
+			}
+		},
+		error: function(jqxhr) {
+			$logContainer.empty();
+			$modal.modal('show');
+			$logContainer.append('No Logs Available');
+		},
+		failure: function(data) {
+
+		}
+	});
+}
+
+function moreInfoUpgradeAppDeployPipelineClickHandler(e) {
+	$('#formUpgradeAppDeploy')[0].reset();
+	$('.containerClass').hide();
+	resetSpinners();
+	$('.modaltitleforNewDeploy').hide();
+	$('.modaltitleforupgradeDeploy').show();
+	$('.saveNewAppDeploy').hide();
+	$('.saveUpgradeAppDeploy').show();
+	if ($('#chooseNexusServer :selected').text() == 'Choose Server') {
+		$('.createTaskLinkUpgrade').attr('disabled', 'disabled');
+	} else {
+		$('.createTaskLinkUpgrade').removeAttr('disabled');
+	}
+	var upgradeAppNameText = $(this).parents().eq(5).find('.applicationNamePipeline').html();
+	var upgradeNodeIpText = $(this).parents().eq(5).find('.applicationNodeIPPipeline').html();
+	var containerId = $(this).parents().eq(5).find('.containerIdPipeline').html();
+	if (!containerId) {
+		containerId = "NA";
+	}
+	$("#upgradeAppName").html(upgradeAppNameText);
+	$("#upgradeNodeIp").html(upgradeNodeIpText);
+	getNexusServer();
+	getDockerServer();
+	var $modal = $('#modalUpgradeAppDeploy');
+	$('#containerIdInput').val(containerId);
+	$modal.modal('show');
+}
+
+function getEnvNameforConfigure() {
+	var projectId = urlParams.projid;
+	$.get('/d4dMasters/project/' + projectId, function(dataforenvName) {
+		var individualenvName = dataforenvName[0].environmentname;
+		individualenvName = individualenvName.split(",");
+		alert(individualenvName.length);
+		for (var i = 0; i < individualenvName.length; i++) {
+			alert(individualenvName[i]);
+		}
+	});
+}
+
+function resetAllFields() {
+	var $chooseRepository = $('#chooseRepository');
+	$chooseRepository.empty();
+	$('#chooseRepository').append('<option value="">Choose Repositories</option>');
+	var $chooseArtifacts = $('#chooseArtifacts');
+	$chooseArtifacts.empty();
+	$('#chooseArtifacts').append('<option value="">Choose Artifacts</option>');
+	var $chooseVersions = $('#chooseVersions');
+	$chooseVersions.empty();
+	$('#chooseVersions').append('<option value="">Choose Versions</option>');
+	var $repositoryUrl = $('#repositoryUrl');
+	$repositoryUrl.val("");
+	var $containerId = $('#containerIdDiv');
+	$containerId.val("");
+	var $containerPort = $('#containerPort');
+	$containerPort.val("");
+}
+
+function resetSpinners() {
+	$('.reposerverspinner').css('display', 'none');
+	$('.repospinner').css('display', 'none');
+	$('.repourlspinner').css('display', 'none');
+	$('.artifactsspinner').css('display', 'none');
+	$('.versionspinner').css('display', 'none');
+	$('.jobdetailsspinner').css('display', 'none');
+}
+
+function getNexusServer() {
+	resetAllFields();
+	var $nexusServer = $('#chooseNexusServer');
+	$nexusServer.empty();
+	$('#chooseNexusServer').append('<option value="">Choose Server</option>');
+	var $chooseJobType = $('#chooseJobType');
+	$chooseJobType.empty();
+	$('#chooseJobType').append('<option value="">Choose Job</option>');
+	$('.reposerverspinner').css('display', 'inline-block');
+	$.get('/d4dMasters/readmasterjsonnew/26', function(nexus) {
+		$('.reposerverspinner').css('display', 'none');
+		if (nexus.length) {
+			for (var i = 0; i < nexus.length; i++) {
+				$('#chooseNexusServer').append('<option data-nexusUrl = "' + nexus[i].hostname + '" value=' + nexus[i].rowid + ' data-serverType = "' + nexus[i].configType + '">' + nexus[i].nexusservername + '</option>');
+			}
+		}
+	});
+}
+
+function getDockerServer() {
+	$.get('/d4dMasters/readmasterjsonnew/18', function(dockerData) {
+		if (dockerData.length) {
+			for (var i = 0; i < dockerData.length; i++) {
+				$('#chooseNexusServer').append('<option value=' + dockerData[i].rowid + ' data-serverType = "' + dockerData[i].configType + '">' + dockerData[i].dockerreponame + '</option>');
+			}
+		}
+	});
+}
+
+var $nexusServer = $('#chooseNexusServer');
+$nexusServer.change(function(e) {
+	var nexusServerType = $('#chooseNexusServer :selected').attr('data-serverType');
+	if ($('#chooseNexusServer :selected').text() == 'Choose Server') {
+		$('.containerIdClass').hide();
+		$('.containerPortClass').hide();
+		$('.repoUrlClass').hide();
+		$('.artifactClass').hide();
+		$('.versionClass').hide();
+		$('.createTaskLinkUpgrade').attr('disabled', 'disabled');
+
+		// Reset all values
+		resetAllFields();
+
+	} else if (nexusServerType == 'nexus') {
+		$('.containerUpgradeDeploy').hide();
+		$('.createTaskLinkUpgrade').removeAttr('disabled');
+		$('.repoUrlClass').show();
+		$('.artifactClass').show();
+		$('.versionClass').show();
+		$('.containerIdClass').hide();
+		$('.containerPortClass').hide();
+		resetAllFields();
+		getNexusServerRepo($(this).val());
+		getTasks();
+	} else { // It's Docker
+		resetAllFields();
+		$('.containerUpgradeDeploy').show();
+		$('.createTaskLinkUpgrade').removeAttr('disabled');
+
+		$('.repoUrlClass').hide();
+		$('.artifactClass').hide();
+		$('.versionClass').hide();
+		$('.containerIdClass').show();
+		$('.containerPortClass').show();
+		var containerId = $('#containerIdInput').val();
+		var upgrade = $('#upgradeValue').val();
+		if (containerId != "NA" && upgrade == "true") {
+			$('#containerIdDiv').val(containerId);
+			$('#containerIdDiv').attr('disabled', 'disabled');
+		}
+		getDockerRepoes();
+		getTasks();
+	}
+
+});
+
+function getDockerRepoes() {
+	$('.repospinner').css('display', 'inline-block');
+	var $chooseRepository = $('#chooseRepository');
+	var projectId = urlParams.projid;
+	if (projectId) {
+		$.get('/d4dMasters/project/' + projectId, function(anProject) {
+			$('.repospinner').css('display', 'none');
+			if (anProject.length) {
+				anProject = anProject[0];
+				if (anProject.repositories) {
+					var repositories = anProject.repositories.docker;
+					if (repositories.length) {
+						for (var x = 0; x < repositories.length; x++) {
+							$('#chooseRepository').append('<option value="' + repositories[x] + '">' + repositories[x] + '</option>');
+						}
+					}
+				}
+			}
+		});
+	} else {
+		$('.repospinner').css('display', 'none');
+	}
+}
+
+function getNexusServerRepo(nexusId) {
+	$('.repospinner').css('display', 'inline-block');
+	var $chooseRepository = $('#chooseRepository');
+	var projectId = urlParams.projid;
+	if (nexusId) {
+		$.get('/nexus/' + nexusId + '/repositories', function(nexusRepos) {
+			$('.repospinner').css('display', 'none');
+			if (nexusRepos.length) {
+
+				$.get('/d4dMasters/project/' + projectId, function(anProject) {
+					if (anProject.length) {
+						project = anProject[0];
+						if (project.repositories) {
+							var repositories = project.repositories.nexus;
+							if (repositories.length) {
+								for (var x = 0; x < repositories.length; x++) {
+									(function(x) {
+										for (var i = 0; i < nexusRepos.length; i++) {
+											if (repositories[x] === nexusRepos[i].name) {
+												$('#chooseRepository').append('<option data-repoName="' + nexusRepos[i].name + '" data-repoUrl="' + nexusRepos[i].resourceURI + '" value="' + nexusRepos[i].id + '">' + nexusRepos[i].name + '</option>');
+											}
+										}
+									})(x);
+								}
+							}
+						}
+					}
+				});
+			}
+		});
+	} else {
+		$('.repospinner').css('display', 'none');
+	}
+}
+
+var $chooseRepository = $('#chooseRepository');
+$chooseRepository.change(function(e) {
+	var nexusServerType = $('#chooseNexusServer :selected').attr('data-serverType');
+	if (nexusServerType === 'nexus') {
+		$('.containerIdClass').hide();
+		$('.containerPortClass').hide();
+		$('.repoUrlClass').show();
+		$('.artifactClass').show();
+		$('.versionClass').show();
+
+		var $repositoryUrl = $('#repositoryUrl');
+		$repositoryUrl.val("");
+		var $chooseArtifacts = $('#chooseArtifacts');
+		$chooseArtifacts.empty();
+		$('#chooseArtifacts').append('<option value="">Choose Artifacts</option>');
+		var $chooseVersions = $('#chooseVersions');
+		$chooseVersions.empty();
+		$('#chooseVersions').append('<option value="">Choose Versions</option>');
+		$('#repositoryUrl').val($(this).find('option:selected').attr('data-repoUrl'));
+
+		var repoName = $(this).find('option:selected').attr('data-repoName');
+		var nexusId = $('#chooseNexusServer').val();
+		getNexusServerRepoArtifact(nexusId, repoName);
+	} else {
+		$('.containerIdClass').show();
+		$('.containerPortClass').show();
+		$('.repoUrlClass').hide();
+		$('.artifactClass').hide();
+		$('.versionClass').hide();
+	}
+
+});
+
+function getNexusServerRepoArtifact(nexusId, repoName) {
+	$('.artifactsspinner').css('display', 'inline-block');
+	var $chooseArtifacts = $('#chooseArtifacts');
+	$chooseArtifacts.empty();
+	$('#chooseArtifacts').append('<option value="">Choose Artifacts</option>');
+	if (nexusId && repoName) {
+		$.get('/nexus/' + nexusId + '/repositories/' + repoName + '/artifact', function(artifacts) {
+			$('.artifactsspinner').css('display', 'none');
+			if (artifacts.length) {
+				var uniqueArtifacts = [];
+				var checker;
+				for (var i = 0; i < artifacts.length; i++) {
+					if (!checker || comparer(checker, artifacts[i]) != 0) {
+						checker = artifacts[i];
+						uniqueArtifacts.push(checker);
+					}
+				}
+				for (var j = 0; j < uniqueArtifacts.length; j++) {
+					$('#chooseArtifacts').append('<option data-groupId="' + uniqueArtifacts[j].groupId + '" value=' + uniqueArtifacts[j].artifactId + '>' + uniqueArtifacts[j].artifactId + '</option>');
+				}
+			}
+		});
+	} else {
+		$('.artifactsspinner').css('display', 'none');
+	}
+}
+var $chooseArtifacts = $('#chooseArtifacts');
+$chooseArtifacts.change(function(e) {
+	var $chooseVersions = $('#chooseVersions');
+	$chooseVersions.empty();
+	$('#chooseVersions').append('<option value="">Choose Versions</option>');
+	var repoName = $('#chooseRepository').find('option:selected').attr('data-repoName');
+	var nexusId = $('#chooseNexusServer').val();
+	var groupId = $(this).find('option:selected').attr('data-groupId');
+	var reqBody = {
+		"groupId": groupId,
+		"artifactId": $(this).val()
+	};
+	getNexusServerRepoArtifactVersions(nexusId, repoName, reqBody);
+});
+
+var comparer = function compareObject(a, b) {
+	if (a.artifactId === b.artifactId) {
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+function getNexusServerRepoArtifactVersions(nexusId, repoName, reqBody) {
+	$('.versionspinner').css('display', 'inline-block');
+	var $chooseVersions = $('#chooseVersions');
+	$chooseVersions.empty();
+	$('#chooseVersions').append('<option value="">Choose Versions</option>');
+	if (nexusId && repoName && reqBody.groupId && reqBody.artifactId) {
+		$.ajax({
+			url: '/nexus/' + nexusId + '/repositories/' + repoName + '/artifact/versions',
+			data: JSON.stringify(reqBody),
+			type: 'POST',
+			contentType: "application/json",
+			success: function(data) {
+				$('.versionspinner').css('display', 'none');
+				if (data) {
+					var versions = data.metadata.versioning[0].versions[0].version;
+					for (var i = 0; i < versions.length; i++) {
+						$('#chooseVersions').append('<option value=' + versions[i] + '>' + versions[i] + '</option>');
+					}
+				}
+			},
+			error: function(jqxhr) {
+				$('.versionspinner').css('display', 'none');
+				alert(jqxhr.responseText);
+			}
+		});
+	} else {
+		$('.versionspinner').css('display', 'none');
+	}
+}
+
+function getTasks() {
+	var orgId = urlParams.org;
+	var bgId = urlParams.bg;
+	var projectId = urlParams.projid;
+	var envId = urlParams.envid;
+	var $chooseJobType = $('#chooseJobType');
+	$chooseJobType.empty();
+	$('#chooseJobType').append('<option value="">Choose Job</option>');
+
+	$.get('/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/environments/' + envId + '/tasks', function(tasks) {
+		if (tasks.length) {
+			for (var i = 0; i < tasks.length; i++) {
+				$('#chooseJobType').append('<option value=' + tasks[i]._id + '>' + tasks[i].name + '</option>');
+			}
+		}
+	});
+}
+
+
+// on click of Upgrade button
+$('.saveUpgradeAppDeploy').on('click', function() {
+	var nexusServerType = $('#chooseNexusServer :selected').attr('data-serverType');
+	if (nexusServerType === 'nexus') {
+		upgradeOrDeploy();
+	} else {
+		deployNewForDocker();
+	}
+});
+
+$('.saveNewAppDeploy').on('click', function() {
+	var nexusServerType = $('#chooseNexusServer :selected').attr('data-serverType');
+	if (nexusServerType === 'nexus') {
+		upgradeOrDeploy();
+	} else {
+		$('#containerIdInput').val($('#containerIdDiv').val());
+		deployNewForDocker();
+	}
+});
+
+// Deploy New App for Docker Container
+function deployNewForDocker(){
+    var nexusId = $('#chooseNexusServer').find('option:selected').val();
+    if(!nexusId){
+        alert("Please select repository server.");
+        return false;
+    }
+    var repoId = $('#chooseRepository').find('option:selected').val();
+    if(!repoId){
+        alert("Please select repository.");
+        return false;
+    }
+    var containerId = $('#containerIdInput').val();
+    var containerPort = $('#containerPort').val();
+
+    if(!containerPort){
+        alert("Please specify port.");
+        return false;
+    }
+    var taskId = $('#chooseJobType').find('option:selected').val();
+    if(!taskId){
+        alert("Please select job.");
+        return false;
+    }
+    var orgId = urlParams.org;
+    var bgId = urlParams.bg;
+    var projectId = urlParams.projid;
+    var envId = urlParams.envid;
+    var appName = repoId.split("/")[1];
+    var upgrade = $('#upgradeValue').val();
+    var nexusData={
+        "nexusData":{
+            "nexusUrl": "",
+            "version": "",
+            "containerId": containerId,
+            "containerPort": containerPort,
+            "dockerRepo": repoId,
+            "upgrade": upgrade,
+            "projectId": projectId
+        }
+    };
+
+    $.get('/d4dMasters/project/'+projectId, function(projData) {
+        if(projData.length){
+                var reqBody = {
+                    "appName": appName,
+                    "description": appName+" deployed."
+                };
+                $.ajax({
+                    url: '/d4dMasters/project/'+projectId+'/appdeploy/appName/update',
+                    data: JSON.stringify(reqBody),
+                    type: 'POST',
+                    contentType: "application/json",
+                    success: function(data) { 
+                    },
+                    error: function(jqxhr) {
+                        //alert("Failed to update update appName in Project.")
+                    }
+                });
+        }
+    });
+        $('a[data-executetaskid='+taskId+']').trigger('click',nexusData);
+        $('#modalUpgradeAppDeploy').modal('hide');
+        var $containerIdName = $('#containerIdInput').val('');
+}
+
+function upgradeOrDeploy(){
+    var nexusId = $('#chooseNexusServer').find('option:selected').val();
+    if(!nexusId){
+        alert("Please select repository server.");
+        return false;
+    }
+    var repoId = $('#chooseRepository').find('option:selected').val();
+    if(!repoId){
+        alert("Please select repository.");
+        return false;
+    }
+    var artifactId = $('#chooseArtifacts').find('option:selected').val();
+    if(!artifactId){
+        alert("Please select artifact.");
+        return false;
+    }
+    var versionId = $('#chooseVersions').find('option:selected').val();
+    if(!versionId){
+        alert("Please select version.");
+        return false;
+    }
+    var taskId = $('#chooseJobType').find('option:selected').val();
+    if(!taskId){
+        alert("Please select job.");
+        return false;
+    }
+    var orgId = urlParams.org;
+    var bgId = urlParams.bg;
+    var projectId = urlParams.projid;
+    var envId = urlParams.envid;
+    var groupId = $('#chooseArtifacts').find('option:selected').attr('data-groupId').replace(/\./g, '/');
+    var nexusUrl = $('#chooseNexusServer').find('option:selected').attr('data-nexusUrl');
+    var nexusRepoUrl = "";
+    if(repoId === "petclinic"){
+        nexusRepoUrl = nexusUrl+"/service/local/repositories/"+repoId+"/content/"+groupId+"/"+artifactId+"/"+versionId+"/"+artifactId+"-"+versionId+".war";
+    }else{
+        nexusRepoUrl = nexusUrl+"/service/local/repositories/"+repoId+"/content/"+groupId+"/"+artifactId+"/"+versionId+"/"+artifactId+"-"+versionId+".zip";
+    }
+    
+    /*var containerId = $('#containerIdInput').val();
+    var containerPort = $('#containerPort').val();*/
+    //alert(containerPort);
+    var upgrade = $('#upgradeValue').val();
+    var nexusData={
+        "nexusData":{
+            "nexusUrl": nexusRepoUrl,
+            "version": versionId,
+            "containerId": "",
+            "containerPort": "",
+            "dockerRepo": "",
+            "upgrade": upgrade,
+            "projectId": projectId
+        }
+    };
+
+    /*if(containerId && containerId != "NA"){
+        nexusData.nexusData.containerId = containerId;
+        nexusData.nexusData.containerPort = containerPort;
+        nexusData.nexusData.dockerRepo = repoId;
+    }*/
+
+    $.get('/d4dMasters/project/'+projectId, function(projData) {
+        //alert(projData);
+        if(projData.length){
+            var reqBody = {
+                "appName": repoId,
+                "description": repoId+" deployed."
+                };
+                $.ajax({
+                    url: '/d4dMasters/project/'+projectId+'/appdeploy/appName/update',
+                    data: JSON.stringify(reqBody),
+                    type: 'POST',
+                    contentType: "application/json",
+                    success: function(data) { 
+            
+                    },
+                    error: function(jqxhr) {
+                        //alert("Failed to update update appName in Project.")
+                    }
+                });
+        }
+    });
+        //alert(JSON.stringify(nexusData));
+        $('a[data-executetaskid='+taskId+']').trigger('click',nexusData);
+        $('#modalUpgradeAppDeploy').modal('hide');
+        var $containerIdName = $('#containerIdInput').val('');
+}
+
+function saveRecord() {
+	var dataDeploy = {
+		"appDeployData": {
+			"applicationName": "",
+			"description": "",
+			"projectId": ""
+		}
+	};
+	var applicationName = $('#appNameInput').val();
+	var applicationDescription = $('#applicationDescriptionInput').val();
+	var projectId = urlParams.projid;
+	if (!applicationName) {
+		$('#errorParam').empty();
+		$('#errorParam').append('Application name should not be empty');
+		return;
+	} else {
+		dataDeploy.appDeployData.description = applicationDescription;
+		dataDeploy.appDeployData.projectId = projectId;
+		dataDeploy.appDeployData.applicationName = applicationName;
+		$.ajax({
+			url: '/app/deploy/data/create',
+			data: JSON.stringify(dataDeploy),
+			type: 'POST',
+			contentType: "application/json",
+			success: function(data) {
+				$('#modalAppCardDetails').modal("hide");
+				getDropdownList();
+			},
+			error: function(jqxhr) {
+				$("#errorParam").empty();
+				$("#errorParam").append("    " + jqxhr.responseText);
+			}
+		});
+	}
+}
+
+function getDropdownList() {
+	var projectId = urlParams.projid;
+	$.get('/d4dMasters/project/' + projectId, function(dataTotalList) {
+		var $chooseApplication = $('#chooseApplication');
+		$chooseApplication.empty();
+		$chooseApplication.append('<option value="All Application">All Application</option>');
+		$('#chooseApplication').select2();
+		var applicationNameArr = [];
+		var applicationDescArr = {};
+		$.each(dataTotalList[0].appdeploy, function(key, val) {
+			$option = $('<option value="' + val.applicationname + '">' + val.applicationname + '</option>');
+			$chooseApplication.append($option);
+		});
+
+		$chooseApplication.change();
+
+
+
+	}).fail(function() {
+		alert("getDropdownList Error");
+	});
+}
+
+function constructDataListTable() {
+	var $taskenvArrayTable = $('#tableappParamDeploy').DataTable();
+	$taskenvArrayTable.clear().draw(false);
+	$.get('/d4dMasters/readmasterjsonnew/4', function(dataTotalList) {
+		$.each(dataTotalList, function(key, val) {
+			var $taskenvArrayTable = $('#tableappParamDeploy');
+			var rowindex1 = $taskenvArrayTable.dataTable().fnGetData().length;
+			$taskenvArrayTable.dataTable().fnAddData([
+				rowindex1 + 1,
+				val.applicationname,
+				val.description
+			]);
+		});
+	}).fail(function() {});
+}
+
+function getenvName(callback) {
+	var envId = urlParams.envid;
+	$.ajax({
+		url: '/d4dMasters/env/' + envId,
+		type: 'GET',
+		async: true,
+		contentType: "application/json",
+		success: function(dataenvName) {
+			callback(dataenvName);
+		},
+		error: function(jqxhr) {
+
+		},
+		failure: function(data1) {
+
+		}
+	});
+}
+
+function getprojectName(callback) {
+	var projectId = urlParams.projid;
+	$.ajax({
+		url: '/d4dMasters/projectname/' + projectId,
+		type: 'GET',
+		async: true,
+		contentType: "application/json",
+		success: function(datarojectName) {
+			callback(datarojectName);
+		},
+		error: function(jqxhr) {
+
+		},
+		failure: function(data1) {
+
+		}
+	});
+}
+
+function getAllApplicationData() {
+	var projectId = urlParams.projid;
+	getenvName(function(envName) {
+		$.get('/app/deploy/env/' + envName + '/project/' + projectId + '/list', function(data) {
+			constructUI(data);
+		}).fail(function() {});
+	});
+};
+
+function getParticularApplicationData(selectedAppName) {
+	$("#accordion-AppDeploy").empty();
+	var projectId = urlParams.projid;
+	getenvName(function(envName) {
+		$.ajax({
+			url: '/app/deploy/data/env/' + envName + '/' + selectedAppName + '/project/' + projectId + '/list',
+			type: 'GET',
+			contentType: "application/json",
+			success: function(data) {
+				constructUI(data);
+			},
+			error: function(jqxhr) {
+
+			},
+			failure: function(data) {
+
+			}
+		});
+	});
+}
+
+function constructUI(data) {
+	$('.loadingAppDeploySpinner').hide();
+	$("#accordion-AppDeploy").empty();
+	if (data.length) {
+		var $chooseApplication = $('#chooseApplication');
+		var selectedAppName = $chooseApplication.val();
+		if (typeof selectedAppName != 'undefined') {
+			$('#appDeployName').append().text("  for '" + selectedAppName + "'");
+			$("#widgetAppDeploy").css({
+				"border-left": "1px solid rgb(221, 221, 221)",
+				"border-right": "1px solid rgb(221, 221, 221)",
+				"border-bottom": "1px solid rgb(221, 221, 221)"
+			});
+			$('#widgetAppDeploy').show();
+		} else {
+			$('#appDeployName').append().text("");
+			$('#widgetAppDeploy').hide();
+		}
+		$("#nodataAppDeploy").css({
+			"text-align": "center",
+			"margin-top": "0px",
+			"padding-top": "20px",
+			"display": "none"
+		});
+
+		var $accordianTemplate = $('.accordianTemplateContainer').find('.accordianTemplate');
+		var dataenvAccordianName;
+
+		function moreInfoAppDeployClickHandler(e) {
+			var $modal = $('#modalAppCardLogDetails');
+			var $logContainer = $modal.find('.logsForAppDeploy').show();
+			$logContainer.empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+			$.ajax({
+				url: '/app/deploy/' + this.id + '/logs',
+				type: 'GET',
+				contentType: "application/json",
+				success: function(data) {
+					var datahttp = data.indexOf("http://");
+					if (datahttp == 0) {
+						$logContainer.empty();
+						window.open(data, "_blank");
+					} else {
+						$logContainer.empty();
+						$modal.modal('show');
+						data = data.replace(/,/g, "<br />");
+						$logContainer.append(data);
+					}
+				},
+				error: function(jqxhr) {
+					$logContainer.empty();
+					$modal.modal('show');
+					$logContainer.append('No Logs Available');
+				},
+				failure: function(data) {
+
+				}
+			});
+		}
+
+		function moreInfoUpgradeAppDeployClickHandler(e) {
+			$('.repoUrlClass').hide();
+			$('.artifactClass').hide();
+			$('.versionClass').hide();
+			$('#upgradeValue').val("true");
+			$('#formUpgradeAppDeploy')[0].reset();
+			$('.containerClass').hide();
+			resetSpinners();
+			$('.modaltitleforNewDeploy').hide();
+			$('.modaltitleforupgradeDeploy').show();
+			$('.saveNewAppDeploy').hide();
+			$('.saveUpgradeAppDeploy').show();
+			if ($('#chooseNexusServer :selected').text() == 'Choose Server') {
+				$('.createTaskLinkUpgrade').attr('disabled', 'disabled');
+			} else {
+				$('.createTaskLinkUpgrade').removeAttr('disabled');
+			}
+			var tabletrIndex = $(".moreinfoUpgradeAppDeploy").index($(this));
+
+			var upgradeAppNameText = $('#tableappDeploydetails tbody tr:eq(' + tabletrIndex + ') td:first').html();
+			var upgradeNodeIpText = $('#tableappDeploydetails tbody tr:eq(' + tabletrIndex + ') td:nth-child(5)').html();
+			var containerId = $('#tableappDeploydetails tbody tr:eq(' + tabletrIndex + ') td:nth-child(7)').html();
+			containerId = containerId.split("</div>")[0].split(">")[1];
+			if (!containerId) {
+				containerId = "NA";
+			}
+			$("#upgradeAppName").html(upgradeAppNameText);
+			$("#upgradeNodeIp").html(upgradeNodeIpText);
+			getNexusServer();
+			getDockerServer();
+			var $modal = $('#modalUpgradeAppDeploy');
+			$('#containerIdInput').val(containerId);
+			$modal.modal('show');
+		}
+
+		$('#tableappDeploydetails').on('click', '.moreinfoAppDeploy', moreInfoAppDeployClickHandler);
+		$('#tableappDeploydetails').on('click', '.moreinfoUpgradeAppDeploy', moreInfoUpgradeAppDeployClickHandler);
+		if (data && data.length) {
+			var $clone = $accordianTemplate.clone(true);
+			for (var i = 0; i < data.length; i++) {
+				if (data[i].projectId) {
+					if ($('#' + data[i].projectId + data[i].applicationName + data[i].envId + '_parentAccordian').length == 0) {
+						if (typeof data[i].projectId + data[i].applicationName + data[i].envId == 'undefined') {
+							dataenvAccordianName = '';
+							$clone.find('.envAppDeployName').html(dataenvAccordianName);
+						} else {
+							getprojectName(function(projectNameUrlParams) {
+								var dataenvAccordianName = "Application Deployment for : " + projectNameUrlParams;
+								$clone.find('.envAppDeployName').html(dataenvAccordianName);
+							});
+						}
+						$clone.find('.panel-title').css({
+							"padding": "10px"
+						});
+						$('#accordion-AppDeploy').append($clone);
+						if (!$.fn.dataTable.isDataTable('#tableappDeploydetails')) {
+							$('#tableappDeploydetails').DataTable({
+								"pagingType": "full_numbers",
+								"iDisplayLength": 5,
+								"aLengthMenu": [
+									[5, 40, 100, -1],
+									[5, 40, 100, "All"]
+								],
+								"aaSorting": [
+									[5, 'desc']
+								],
+								"aoColumns": [{
+									"bSortable": true
+								}, {
+									"bSortable": true
+								}, {
+									"bSortable": true
+								}, {
+									"bSortable": true
+								}, {
+									"bSortable": true
+								}, {
+									"bSortable": true
+								}, {
+									"bSortable": true
+								}, {
+									"bSortable": true
+								}, {
+									"bSortable": true
+								}, {
+									"bSortable": false
+								}, {
+									"bSortable": false
+								}]
+							});
+						}
+					}
+					var $taskenvArray = $('#tableappDeploydetails');
+					var upgradeAppDeploy;
+					if (!data[i]._id) {
+						upgradeAppDeploy = "NA";
+					} else {
+						upgradeAppDeploy = '<a class="btn btn-primary btn-sg tableactionbutton moreinfoUpgradeAppDeploy" style="box-shadow: none ! important; height: 25px; width: 25px; padding: 2px; font-size: 12px;"><i class="ace-icon fa fa-upload bigger-120"></i></a>';
+					}
+
+
+
+					var logsAppDeploy;
+					if (!data[i]._id) {
+						logsAppDeploy = "NA";
+					} else {
+						logsAppDeploy = '<a class="moreinfoAppDeploy" id=' + data[i]._id + ' title="Logs Info" style="margin-left:27%"></a>';
+					}
+					if (!data[i].applicationName) {
+						data[i].applicationName = "NA";
+					}
+					if (!data[i].applicationInstanceName) {
+						if (data[i].hostName) {
+							data[i].applicationInstanceName = data[i].hostName;
+						} else {
+							data[i].applicationInstanceName = "NA";
+						}
+					}
+					if (!data[i].applicationVersion) {
+						data[i].applicationVersion = "NA";
+					}
+					if (!data[i].applicationType) {
+						data[i].applicationType = "NA";
+					}
+					if (!data[i].containerId) {
+						data[i].containerId = "NA";
+					} else {
+						data[i].containerId = '<div class="spanTextApplication" title="' + data[i].containerId + '">' + data[i].containerId + '</div>'
+					}
+					if (!data[i].hostName) {
+						data[i].hostName = "NA";
+					}
+					if (!data[i].applicationNodeIP) {
+						data[i].applicationNodeIP = "NA";
+					}
+					if (!data[i].applicationLastDeploy) {
+						data[i].applicationLastDeploy = "NA";
+					}
+					if (!data[i].applicationStatus) {
+						data[i].applicationStatus = "NA";
+					}
+					var applicationLastDeployTime = data[i].applicationLastDeploy;
+
+					if ((applicationLastDeployTime.toLowerCase().indexOf("am") > -1) || (applicationLastDeployTime.toLowerCase().indexOf("pm") > -1)) {
+						applicationLastDeployTime = applicationLastDeployTime;
+					} else {
+						applicationLastDeployTime = getLocaleTime(applicationLastDeployTime);
+					}
+
+					$taskenvArray.dataTable().fnAddData([
+						//rowindex + 1,
+						data[i].applicationName,
+						data[i].applicationInstanceName,
+						data[i].applicationVersion,
+						data[i].hostName,
+						data[i].applicationNodeIP,
+						applicationLastDeployTime,
+						data[i].containerId,
+						data[i].applicationType,
+						data[i].applicationStatus,
+						logsAppDeploy,
+						upgradeAppDeploy
+					]);
+				}
+				if (typeof data[i].envId == 'undefined') {
+					$('#' + data[i].projectId + data[i].applicationName + data[i].envId + '_parentAccordian').hide();
+				}
+			}
+		}
+	} else {
+		$("#nodataAppDeploy").empty();
+		$('.fornNoDataDiv').show();
+		if (!$.fn.dataTable.isDataTable('#tableappDeploydetailsforNoData')) {
+			$('#tableappDeploydetailsforNoData').DataTable({
+				"pagingType": "full_numbers",
+				"iDisplayLength": 5,
+				"aLengthMenu": [
+					[5, 40, 100, -1],
+					[5, 40, 100, "All"]
+				],
+				"aaSorting": [
+					[5, 'desc']
+				],
+				"aoColumns": [{
+					"bSortable": true
+				}, {
+					"bSortable": true
+				}, {
+					"bSortable": true
+				}, {
+					"bSortable": true
+				}, {
+					"bSortable": true
+				}, {
+					"bSortable": true
+				}, {
+					"bSortable": true
+				}, {
+					"bSortable": true
+				}, {
+					"bSortable": true
+				}, {
+					"bSortable": false
+				}, {
+					"bSortable": false
+				}]
+			});
+		}
+		var $accordianTemplatenoData = $('.accordianTemplateContainer').find('.accordianTemplate');
+		$accordianTemplatenoData.css({
+			"border-color": "#fff",
+			"margin-bottom": "0px"
+		});
+		$accordianTemplatenoData.find('.panel-title').css({
+			"padding": "0px"
+		});
+		$accordianTemplatenoData.find('.margintop2right8').css({
+			"margin-top": "-6px"
+		});
+		var $clonenoData = $accordianTemplatenoData.clone(true);
+		$clonenoData.find('#tableappDeploydetails').parent().hide();
+		getprojectName(function(projectNameUrlParams) {
+			var dataprojectAccordianNameforNoData = "Application Deployment for : " + projectNameUrlParams;
+			$clonenoData.find('.envAppDeployName').html(dataprojectAccordianNameforNoData);
+		});
+		$("#nodataAppDeploy").css({
+			"display": "block"
+		}).append($clonenoData);
+	}
+}
+$('#parameterAppDeploySaveBtn').on("click", function() {});
+
+$('.envAppDeployModal').click(function(e) {
+	$('#formAppDeploy').trigger("reset");
+	$("#errorParam").empty();
+});
+$('.envAppDeployList').click(function(e) {
+	constructDataListTable();
+});
+if (!$.fn.dataTable.isDataTable('#tableappParamDeploy')) {
+	$('#tableappParamDeploy').DataTable({
+		"pagingType": "full_numbers",
+		"iDisplayLength": 5,
+		"aLengthMenu": [
+			[5, 40, 100, -1],
+			[5, 40, 100, "All"]
+		],
+		"aoColumns": [{
+			"bSortable": true
+		}, {
+			"bSortable": true
+		}, {
+			"bSortable": true
+		}]
+	});
+}
+$("#tableappParamDeploy_length").hide();
+$("#tableappParamDeploy_filter").hide();
+var urlParams = {};
+(window.onpopstate = function() {
+	var url = window.location.href;
+	var indexOfQues = url.lastIndexOf("?");
+	if (indexOfQues != -1) {
+		var sub = url.substring(indexOfQues + 1);
+		var params = sub.split('&')
+		for (var i = 0; i < params.length; i++) {
+			var paramParts = params[i].split('=');
+			urlParams[paramParts[0]] = paramParts[1];
+		}
+	}
+})();
+
+function getLocaleTime(str) {
+	var findTimeStamp = function(x) {
+		x = x.replace(' +0000', '');
+		var temp = str.split(' ');
+		var date = temp[0].split('-');
+		var time = temp[1].split(":");
+		var ddate = new Date(Date.UTC(parseInt(date[0]), parseInt(date[1]) - 1, parseInt(date[2]), parseInt(time[0]), parseInt(time[1]), parseInt(time[2])));
+		return ddate.getTime();
+	}
+	var t = findTimeStamp(str);
+	if (t != undefined || t != null) {
+		try {
+			return new Date(findTimeStamp(str)).toLocaleString();
+		} catch (err) {
+			return applicationLastDeployTime.slice(0, -6);
+		}
+	} else {
+		return applicationLastDeployTime.slice(0, -6);
+	}
+}
+$('.createTaskLinkUpgrade').click(function(e) {
+	$('#modalassignTaskUpgrade').modal("show");
+	$("#modalassignTaskUpgrade .modal-body").empty();
+	$("#modalassignTaskUpgrade .modal-body").load("ajax/assignTaskUpgradeApp.html");
+});
+</script>
+<script src="js/dev/applicationUpgradeAssignTask.js"></script>

@@ -1,0 +1,54 @@
+<div id='dockerLaunchParamsPage'>
+   <div class="modal-header">
+         <span class="close" ng-click="cancel()">×</span>
+         <h4 class="modal-title">
+            Docker Launch Wizard -&nbsp;
+            <span ng-show="steps[0].isDisplayed">
+               {{steps[0].title}}
+            </span>
+            <span ng-show="steps[1].isDisplayed">
+               {{steps[1].title}}
+            </span>
+         </h4>
+   </div>
+
+   <div class="modal-body">
+      <div id="content">
+         <div next-text="Next" previous-text="Previous" submit-text="Submit" submit-action="testSubmit">
+            <form>
+               <div ng-show="steps[0].isDisplayed">
+                  <loading size="large" name="isdockerImagesPageLoading" type="block"></loading>
+                  <div ng-show="!isdockerImagesPageLoading">
+                     <div id="grid9" ng-if="dockerDetails.length >0" ui-grid="dockerImagesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+                  </div>
+               </div>
+               <div ng-show="steps[1].isDisplayed">
+                  <div class="control-group">
+                     <loading size="large" name="isDockerInstancesLoading" type="block"></loading>
+                     <div ng-show="!isDockerInstancesLoading">
+                        <div id="grid10" ng-if="dockerinstancesData.length >0"  ui-grid="dockerinstancesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+                     </div>
+
+                     <div class="errorMsg" align="center" ng-show="showNoDockerAvailable">
+                        <span>There was no docker found on {{instanceSelected.name}}</span>
+                     </div>
+                  </div>
+               </div>
+            </form>
+         </div>
+      </div>
+   </div>
+
+   <div class="modal-footer">
+      <button class="btn" ng-click="previous()" ng-disabled="!previousEnabled">
+         Previous
+      </button>
+      <button class="btn" ng-click="next()" ng-disabled="!nextEnabled">
+         Next
+      </button>
+      <button class="btn btn-success" ng-click="submit()" ng-disabled="checkBoxSelectLength.length==0">
+         Start
+      </button>
+      <loading size="small" name="isLogsLoading" type="inline"></loading>
+   </div>
+</div>

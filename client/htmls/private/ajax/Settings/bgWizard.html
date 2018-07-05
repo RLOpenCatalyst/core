@@ -1,0 +1,91 @@
+<form action="" id="myForm2">
+   <div class="widget-box">
+      <div class="widget-header">
+         <h4 class="widget-margin" style="color:black;">Create Business Group
+         <span class="widget-toolbar no-border">
+            <div class="wizardAdd">
+               <a href="ajax/Settings/bgWizard.html" id="createNewBG" style="margin-right:11px;" class="btn btn-primary"><i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;Add New BG</a>             
+            </div>
+        </span>
+        </h4>
+      </div>
+      <div class="widget-body">
+         <div class="widget-main" style="min-height:200px">
+            <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+               <div>
+                  <div class="col-lg-6 col-md-6">
+                    <label for="name">Business Group Name <span class="control-label redSpan">&nbsp;*</span></label><input autofocus name="productgroupname" value="" id="productgroupname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace" unique="true" uniqueconditionedby="productgroupname,orgname">
+                 </div>
+                  <div class="col-lg-6 col-md-6">
+                     <label for="">Organization<span class="control-label redSpan">&nbsp;*</span></label>
+                     <select id="orgname" class="chooseOrganization orgBgDropdown form-control width-100" cdata="catalyst" cat-validation="required">
+                     </select>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveBg" style="margin-right:11px;" class="saveFormWizard saveBgForm btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" disabled="disabled" name="next1" id="next1" class="bgWizard nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
+   </div>
+</form>
+<script>
+
+    $('.providerSelect').removeClass('hidden');
+    if (selectedDropdownValue) {
+        var $optionSelect = $('<option></option').val(orgForBg).attr('rowid', selectedDropdownValue).html(orgForBg);
+        $('#orgname').append($optionSelect);
+        $('.nextFormWizard').removeAttr('disabled');
+    } else {
+        $('#cancelWizard').addClass('hidden');
+        $('#orgname').empty();
+        $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+            $("#orgDropdown").empty();
+            for (var i = 0; i < data.length; i++) {
+                var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
+                $('#orgDropdown').append($option);
+            }
+            orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
+            orgIdForSetup = $('#orgDropdown option:last').val();
+            lastDropdownValue = $('#orgDropdown option:last').val();
+            $('#orgDropdown option:last').attr('selected', 'selected');
+            var $optionSelectOrgBG = $('<option></option').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+            $('.orgBgDropdown').append($optionSelectOrgBG);
+        });
+    }
+
+    enableUniqueCheckingForInputs(2);
+
+    $('#myForm2').submit(function() {
+        if ($(this).valid) {
+            if (!saveform('2'))
+              $('.btn-4 a').removeClass('not-activeAnchor');
+                return false;
+        } else {
+            toastr.error('invalid valid form submitted'); // for demo
+        }
+        return false; // for demo
+    });
+    var bgCreateClick = false;
+    $('#createNewBG').click(function(e){
+      e.preventDefault();
+      if(!bgCreateClick){
+        bgCreateClick =true;
+        $('.content').load(this.getAttribute('href'));
+      }
+    });
+
+    $(".nextFormWizard").click(function() {
+      if(selectedDropdownValue){
+        getProjValues();
+      }
+        $('.contentSetting').find('ol li#bgCreate').removeClass('active').addClass('green-btn');
+        $('.contentSetting').find('ol li#projectCreate').addClass('active');
+        $('.content').load("ajax/Settings/projWizard.html");
+    });
+    
+</script>

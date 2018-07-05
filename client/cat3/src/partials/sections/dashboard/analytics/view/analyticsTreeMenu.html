@@ -1,0 +1,123 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/analytics/view/analyticsTreeMenu.css"/>
+<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/treeComponent/treeDirective.css"/>
+
+<div id='analyticsTreeMenuPage' ng-controller="analyticsCtrl">
+	<!--<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTree}">-->
+		<!--<div id='navigPage-inner'>-->
+			<!--<div id="treeParent">-->
+				<!--<ul class="tree-ul">-->
+				    <!--<li>-->
+				        <!--<div class="liContents">-->
+				        	<!--<i class="icon fa fa-building label-spacing"></i>-->
+				        	<!--<span>Analytics</span>-->
+				            <!--<div data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">-->
+				                <!--<ul class="tree-ul">-->
+				                    <!--<li ui-sref="dashboard.analytics.cost" class="pointer-cursor" ui-sref-active='activeSection'>-->
+				                        <!--<div class="liContents">-->
+				                        	<!--<div class="liContents-wrapper">-->
+					                        	<!--<i class="icon fa fa-money label-spacing"></i>-->
+						                        <!--<span>Cost</span>-->
+						                        <!--<i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.cost"></i>-->
+						                    <!--</div>-->
+				                        <!--</div>-->
+				                    <!--</li>-->
+				                    <!--<li ui-sref="dashboard.analytics.capacity" class="pointer-cursor" ui-sref-active='activeSection'>-->
+				                        <!--<div class="liContents">-->
+				                        	<!--<div class="liContents-wrapper">-->
+					                        	<!--<i class="icon fa fa-pie-chart label-spacing"></i>-->
+						                        <!--<span>Capacity</span>-->
+						                        <!--<i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.capacity"></i>-->
+						                    <!--</div>-->
+				                        <!--</div>-->
+				                    <!--</li >-->
+				                    <!--<li ui-sref="dashboard.analytics.usage" class="pointer-cursor" ui-sref-active='activeSection'>-->
+				                        <!--<div class="liContents">-->
+				                        	<!--<div class="liContents-wrapper">-->
+					                        	<!--<i class="icon fa fa-line-chart label-spacing"></i>-->
+						                        <!--<span>Usage</span>-->
+						                        <!--<i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.usage"></i>-->
+						                    <!--</div>-->
+				                        <!--</div>-->
+				                    <!--</li>-->
+				                <!--</ul>-->
+				            <!--</div>-->
+				        <!--</div>-->
+				    <!--</li>-->
+				<!--</ul>-->
+			<!--</div>-->
+		<!--</div>-->
+	<!--</div>-->
+	<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTree}">
+		<div id='navigPage-inner'>
+			<div id="treeParent">
+				<ul class="tree-ul">
+					<li>
+						<div class="liContents">
+							<span class="cursor" ng-click="isTreeOpen = !isTreeOpen"><i class="fa fa-cc-discover white"></i> Discovery </span>
+							<div ng-class="{'show-providers':isTreeOpen === true}" data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
+								<ul class="tree-ul">
+									<li  ui-sref="dashboard.analytics.tagMapping" class="pointer-cursor" ui-sref-active='activeSection'  >
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<i class="icon fa fa-tags label-spacing"></i>
+												<span>Tag Mapping</span>
+
+											</div>
+										</div>
+									</li>
+									<li  ui-sref="dashboard.analytics.resources" class="pointer-cursor" ui-sref-active='activeSection' >
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<i class="icon fa fa-soundcloud label-spacing"></i>
+												<span>Resources</span>
+											</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="liContents">
+							<span class="cursor" ng-click="isTreeOpen = !isTreeOpen"><i class="fa fa-area-chart white"></i> ANALYTICS </span>
+							<div ng-class="{'show-providers':isTreeOpen === true}" data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
+								<ul class="tree-ul">
+									<li  class="pointer-cursor" ui-sref="dashboard.analytics.capacityReport" ui-sref-active='activeSection' >
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<i class="icon fa fa-pie-chart label-spacing"></i>
+												<span>Capacity</span>
+
+											</div>
+										</div>
+									</li>
+									<li  class="pointer-cursor" ui-sref="dashboard.analytics.cost"  ui-sref-active='activeSection'>
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<i class="icon fa fa-money label-spacing"></i>
+												<span>Cost</span>
+												<!--<i class="caret-spacing fa fa-caret-left pull-right"></i>-->
+											</div>
+										</div>
+									</li>
+
+									<li ui-sref="dashboard.analytics.usage" class="pointer-cursor" ui-sref-active='activeSection'  >
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<i class="icon fa fa-line-chart label-spacing"></i>
+												<span>Usage</span>
+
+											</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</li>
+
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+

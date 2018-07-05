@@ -1,0 +1,73 @@
+<form action="" id="myForm50">
+   <div class="widget-box">
+      <div class="widget-header">
+         <h4 class="widget-margin" style="color:black;">Create Jenkins</h4>
+      </div>
+      <div class="widget-body">
+         <div class="widget-main" style="min-height:200px">
+            <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+               <div>
+                                    <!-- widget content -->
+                                    <div class="widget-body no-padding">
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
+                                          </label>
+                                          <select id="orgname" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname']" onchange="$('#configname').change();">
+                                             
+                                          </select>
+                                       </div>
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="">Name<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="jenkinsname" class="form-control" type="text"  cdata="catalyst" unique="true"  uniqueconditionedby="jenkinsname"  cat-validation="required,max15">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                          <label for="">Jenkins URL<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="jenkinsurl" class="form-control" type="text"  cdata="catalyst"  cat-validation="urlcheck,required">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                          <label for="">User ID <span class="control-label redSpan">&nbsp;*</span>
+                                          </label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="jenkinsusername" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                          <label for="">Password <span class="control-label redSpan">&nbsp;*</span></label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="jenkinspassword" class="form-control" type="text"  cdata="catalyst" cat-validation="required" value="*********">
+                                       </div>
+                                    </div>
+                                    <!-- end widget content -->
+                                 </div>
+            </div>
+         </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveJenkinsWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
+      </div>
+   </div>
+</form>
+<script>
+$(document).ready(function(e){
+    getJenkinsOnEdit();
+});
+    var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($option);
+    $('#orgname').trigger('change');
+     $('#myForm50').submit(function() {
+     $(this).validate();
+
+     if ($(this).valid) {
+       if(!saveform('20'))return false;
+     } else {
+       bootbox.alert('invalid valid form submitted'); // for demo
+     }
+     return false; // for demo
+   });
+   
+
+     $(".nextFormWizard").click(function(){
+        toastr.success('Step 5 - Devops Roles Configuration Completed');
+        toastr.success('Wizard Has been successfully configured');
+    });
+</script>

@@ -1,0 +1,181 @@
+<script>
+//    $(".tree-view").hide();
+   
+</script>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
+            <form action="" id="myForm333">
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h4 class="widget-margin" style="color:black;">Design Template Type</h4>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main widgetHeight">
+                        <div>
+
+                            <section id="widget-grid" class="">
+                                <!-- START ROW -->
+                                <div class="row">
+                                    <!-- NEW COL START -->
+                                    
+                                                                                                    
+                                        <!-- Widget ID (each widget will need unique ID)-->
+                                        <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                                            
+                                            <!-- widget div-->
+                                            <div>
+
+                                                <!-- widget content -->
+                                                <div class="widget-body no-padding">
+                                                    
+                                                            <div class="col-lg-12 col-md-12">
+                                                            
+                                                                <div class="col-lg-6 col-md-6">
+                                                                    <label for="">Template Type Name<span class="control-label redSpan">&nbsp;*</span></label>
+                                                                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                                                   
+                                                                    <input name="ctl00$MainContent$orgname" value="" id="templatetypename" unique="true"  uniqueconditionedby="templatetypename" class="form-control" type="text"   cdata="catalyst" cat-validation="required,max15,nospace"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname"  unique="true" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                                                                    
+                                                                </div>
+                                                                <div class="col-lg-6 col-md-6">
+                                                                    <div class="smart-forms">
+                                                                    <label for="">Icon</label>
+                                                                    <label for="designtemplateicon" class="field file">
+                                                                    <div class="imgdiv" value="1"></div>
+                                                                    <span class="button btn-primary">Browse</span><input id="designtemplateicon" type="file" onchange="this.nextSibling.value = this.value"   cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                                                    </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div><!--col-lg-12 ends here-->  
+                                                          
+                                                            <div class="col-lg-12 col-md-12">
+                                                                 <div class="col-lg-6 col-md-6">
+
+                                                        <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
+                                                        </label>
+
+                                                        <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required">
+                                                            <option value="">Select an Organization</option>
+                                                        </select>
+
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6">
+
+                                                        <label for="category">Type:<span class="control-label redSpan">&nbsp;*</span>
+                                                        </label>
+
+                                                        <select id="templatetype" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required">
+                                                            <option value="">Select Type</option>
+                                                            <option value="chef">Chef</option>
+                                                            <option value="cft">CFT</option>
+                                                            <option value="arm">ARMTemplate</option>
+                                                            <option value="ami">OS Image</option>
+                                                            <option value="docker">Docker</option>
+                                                            <option value="composite">Composite</option>
+                                                        </select>
+
+                                                            </div>
+                                                        </div>
+
+
+                                                       
+                                                                
+                                                   
+
+                                                </div>
+                                                <!-- end widget content -->
+                                                
+                                            </div>
+                                            <!-- end widget div -->
+                                            
+                                        </div>
+                                        <!-- end widget -->             
+                                </div>
+                                <!-- END ROW -->
+                            </section>
+                            <!-- end widget grid -->
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-toolbox clearfix">
+                       <div class="btn-group pull-right">
+                           <a class="btn btn-default btn-mini" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                               <i class="ace-icon fa fa-times bigger-110"></i>
+                               Cancel
+                           </a>
+                           <button class="btn btn-primary btn-mini">
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                             Save
+                        </button>
+                        </div>
+                </div>
+
+            </div>
+             </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!--Popup for selecting a cloud provider before proceeding-->
+
+<script>
+    //Form Name
+    function cancelClicked() {
+        $("#popupSelectProvider").modal('hide');
+        $(".modal-backdrop.fade.in").detach();
+        $('#btncancel').click();
+    }
+
+    function inLineReady() {
+        $("input[type='text']").on("click", function () {
+            $(this).select();
+            $("#msgOrgName").hide();
+        });
+        $("#popupSelectProvider").modal({ keyboard: false, backdrop: "static" });
+        //debugger;
+        readformnew(16); //7 is for users
+        //
+       
+        //Force opening the left navigation menu
+        if ($('#navSettings').is(":visible") == false) {
+            $('#navSettings').css("display", '');
+            $('#navSettings > ul > li').first().addClass('open');
+            $('#navSettings > ul > li > ul').css("display", "none");
+            $('#navSettings > ul > li > ul').first().css("display", "block");
+        }
+        //redrawing the breadcrumb and selecting the tree
+        $('#ulsettingstree > li').removeClass('active');
+        $('#ulsettingstree > li').each(function () {
+            if ($(this).text().trim() == "Design Template Types")
+                $(this).addClass('active');
+        });
+        drawBreadCrumb1();
+        enableUniqueCheckingForInputs(16);
+    }
+
+    inLineReady();
+
+</script>
+<script>
+$(document).ready(function(){
+    $('select').select2();
+    $('#myForm333').submit(function() {
+//alert('here');
+    if($(this).valid){
+                /*alert('valid form submitted'); // for demo*/
+               if(!saveform('16'))return false;
+             
+           }else{
+                alert('invalid valid form submitted'); // for demo
+           }
+           return false; // for demo
+});
+});
+</script>

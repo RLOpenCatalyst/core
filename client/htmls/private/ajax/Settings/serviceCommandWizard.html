@@ -1,0 +1,250 @@
+<div class="content">
+   <form action="" id="myForm50">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">Create Services</h4>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main" style="min-height:300px">
+               <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                  <div>
+                     <!-- widget content -->
+                     <div class="widget-body no-padding">
+                        <div class="col-lg-6 col-md-6">
+                           <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <select id="orgname" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" cdata="catalyst" cat-validation="required">
+                           </select>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                           <label for="name">Name:
+                           <span class="control-label redSpan">&nbsp;*</span></label>
+                           <input type="text" id="servicename" class="form-control" cdata="catalyst" unique="true" uniqueconditionedby="servicename" cat-validation="required,max15,nospecial,nospace">
+                        </div>
+                        <div class="col-lg-5 CommandName hidden" style="padding-top:10px;">
+                           <label for="">Command Name</label>
+                           <input type="text" id="commandname" cdata="catalyst">
+                        </div>
+                        <div class="col-lg-6 col-md-6 margintop15">
+                           <label for="name">
+                           Service Command Type
+                           </label>
+                           <select class="form-control width-100" id="commandtype" cdata="catalyst">
+                              <option value="Chef Cookbook/Recipe">Chef Cookbook/Recipe</option>
+                              <option value="Service Command">Service Command</option>
+                           </select>
+                           <input type="text" class="hidden form-control" id="commandtype"/>
+                        </div>
+                        <div class="col-lg-6 col-md-6 chooseChefServer margintop15">
+                           <label class="">
+                           Select Chefserver<span class="control-label redSpan">&nbsp;*</span>
+                           </label>
+                           <select class="form-control chooseChefServerdropdown width-100" cdata="catalyst" id="configname" sourcepath="10" onchange="loadcookbooksinto('servicecookbook','configname');" datapath="masterjson.rows.row">
+                           </select>
+                           <input type="text" id="chefserverid" cdata="catalyst" style="display:none" />
+                        </div>
+                        <div class="col-lg-6 col-md-6 ServiceCookbooks margintop15">
+                           <label class="">
+                           Service Cookbooks <span class="control-label redSpan">&nbsp;*</span> <img class="servicecookbookspinner hidden" style="margin-left:5px" src="img/select2-spinner.gif">
+                           </label>
+                           <select class="form-control chooseServiceCookbooks width-100" id="servicecookbook" cdata="catalyst" onchange="$('#servicecookbookspinner').removeClass('hidden');loadreceipesinto(['servicestart','servicestop','servicerestart','servicekill','servicestatus'],$(this).val(),'configname','loadactioncheckboxes');">
+                           </select>
+                        </div>
+                        <!--choose operating system-->
+                        <div class="col-lg-6 col-md-6 CommandName margintop15">
+                           <label class="">Choose Operating System</label>
+                           <div class="inline-group">
+                              <select class="form-control chooseActiontype width-100" id="operatingsystem" cdata="catalyst">
+                                 <option value="linux">Linux</option>
+                                 <option value="windows">Windows</option>
+                              </select>
+                           </div>
+                        </div>
+                        <!--choose operating system ends here-->
+                        <div class="col-lg-6 col-md-6 CommandName margintop15">
+                           <label>Command</label>
+                           <input type="text" id="command" class="form-control" cdata="catalyst">
+                        </div>
+                        <div class="col-lg-12 col-md-12 smart-form" id="chefCookbook-dropdown">
+                           <label style="padding-left:15px;margin-top:20px;">Select Actions <img class="receipelistspinner hidden" style="margin-left:5px" src="img/select2-spinner.gif"></label>
+                           <div style="margin-left: 15px;" class="row">
+                              <div class="col-lg-6 col-md-6 col-sm-6">
+                                 <div class="col-sm-2">
+                                    <label class="checkbox actionTypeContainer">
+                                    <input type="checkbox" value="start" name="checkbox" id="servicestartcheckbox">
+                                    <i></i>Start
+                                    </label>
+                                 </div>
+                                 <div class="col-sm-4">
+                                    <select class="form-control chooseservicesCookBookRecipeList width-100" id="servicestart" cdata="catalyst">
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-6 col-md-6 col-sm-6">
+                                 <div class="col-sm-2">
+                                    <label class="checkbox actionTypeContainer">
+                                    <input type="checkbox" value="start" name="checkbox" id="servicestopcheckbox">
+                                    <i></i>Stop
+                                    </label>
+                                 </div>
+                                 <div class="col-sm-4">
+                                    <select class="form-control chooseservicesCookBookRecipeList width-100" id="servicestop" cdata="catalyst">
+                                    </select>
+                                 </div>
+                              </div>
+                           </div>
+                           <br>
+                           <div style="margin-left:15px;" class="row">
+                              <div class="col-lg-6 col-md-6 col-sm-6">
+                                 <div class="col-sm-2">
+                                    <label class="checkbox actionTypeContainer">
+                                    <input type="checkbox" value="start" name="checkbox" id="servicerestartcheckbox">
+                                    <i></i>Restart
+                                    </label>
+                                 </div>
+                                 <div class="col-sm-4">
+                                    <select class="form-control chooseservicesCookBookRecipeList width-100" id="servicerestart" cdata="catalyst">
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-6 col-md-6 col-sm-6">
+                                 <div class="col-sm-2">
+                                    <label class="checkbox actionTypeContainer">
+                                    <input type="checkbox" value="start" name="checkbox" id="servicestatuscheckbox">
+                                    <i></i>Status
+                                    </label>
+                                 </div>
+                                 <div class="col-sm-4">
+                                    <select class="form-control chooseservicesCookBookRecipeList width-100" id="servicestatus" cdata="catalyst">
+                                    </select>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-lg-12 smart-form" id="customScript-dropdown">
+                           <div class="col-lg-12" style="padding-top:14px;margin-left:15px;">
+                              <label class="">Select Action</label>
+                              <div class="row" cdata="catalyst" ctype="checkbox" id="commandaction">
+                                 <div class="col-lg-2 col-sm-2">
+                                    <label class="checkbox">
+                                    <input type="checkbox" name="checkbox" id="checkbox_start" value="start">
+                                    <i></i>Start</label>
+                                 </div>
+                                 <div class="col-sm-2">
+                                    <label class="checkbox">
+                                    <input type="checkbox" name="checkbox" id="checkbox_stop" value="stop">
+                                    <i></i>Stop</label>
+                                 </div>
+                                 <div class="col-sm-2">
+                                    <label class="checkbox">
+                                    <input type="checkbox" name="checkbox" id="checkbox_restart" value="restart">
+                                    <i></i>Restart</label>
+                                 </div>
+                                 <div class="col-sm-2">
+                                    <label class="checkbox">
+                                    <input type="checkbox" name="checkbox" id="checkbox_status" value="status">
+                                    <i></i>Status</label>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <!-- end widget content -->
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveServiceWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
+      </div>
+   </form>
+</div>
+<script>
+    
+    orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:selected').val();
+    var $optionOrgService = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($optionOrgService);
+    
+    
+    $('#commandtype').change(function(e) {
+        if (this.value == "Chef Cookbook/Recipe") {
+            $(".CommandName").hide();
+            $("#customScript-dropdown").hide();
+            $("#chefCookbook-dropdown").show();
+            $(".ServiceCookbooks").show();
+            $(".chooseChefServer").show();
+        } else {
+            $("#customScript-dropdown").show();
+            $("#chefCookbook-dropdown").hide();
+            $(".ServiceCookbooks").hide();
+
+            $(".CommandName").show();
+            $(".chooseChefServer").hide();
+        }
+    });
+    $("#commandtype").trigger('change');
+    //preprocess() -> will set the dropdown values to "none" if checkbox is not selected.
+    function preprocess() {
+        $('#commandname').val($('#servicename').val());
+        //Clearing off all options based on selection
+        if ($('#commandtype').val() === "Service Command") {
+            //clear all chef checkboxes
+            $('input[id*="service"][type="checkbox"]').removeAttr('checked');
+
+        } else {
+            //clear all service checkboxes
+            $('#commandaction').find('input[type="checkbox"]').removeAttr('checked');
+        }
+        //Removing kill for all options
+        $('#checkbox_kill').removeAttr('checked');
+        $('#servicekillcheckbox').removeAttr('checked');
+        $('select.chooseservicesCookBookRecipeList').each(function() {
+            var cb = $('#' + $(this).attr('id') + 'checkbox');
+            //console.log(cb.val());
+            var $sel = $(this);
+            if (!cb.is(":checked")) {
+                $sel.append('<option value="none"></option>');
+                $sel.val('none');
+            }
+
+        });
+    }
+
+    $("#orgname").on("change", function(e) {
+        $.get('/d4dMasters/readmasterjsonnew/10',function(data){
+            if(orgIdForSetup === data[0].orgname_rowid[0]){
+                var $optionChefServer = $('<option></option>').val(data[0].configname).attr('rowid',data[0].rowid).html(data[0].configname);
+                $('#configname').append($optionChefServer);
+            }
+            $("#configname").trigger('change');
+        });
+    });
+    $('#orgname').trigger('change');
+    function validateForm() {
+        //Check for required parameter
+        return (true);
+    }
+    $('#myForm50').submit(function() {
+        $(this).validate();
+        if ($(this).valid) {
+            if (validateForm()) {
+                preprocess();
+                if (!saveform('19'))
+                    return false;
+            };
+        } else {
+            alert('invalid valid form submitted'); // for demo
+        }
+        return false; // for demo
+    });
+    $(".nextFormWizard").click(function(){
+        $('.content').empty();
+        $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
+        $('.contentSetting').find('ol li#scriptCreate').addClass('active');
+        $('.content').load("ajax/Settings/scriptWizard.html");
+    });
+</script>

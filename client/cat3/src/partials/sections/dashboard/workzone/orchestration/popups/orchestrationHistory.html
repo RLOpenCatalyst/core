@@ -1,0 +1,65 @@
+<div id='orchestrationHistoryPage'>
+	<div class="modal-header">
+		<h4 class="modal-title">
+			<span class="close" ng-click="cancel()">×</span>
+			<span ng-show="task.taskType=='jenkins'">
+				<i class="fa fa-history"></i>&nbsp;
+				Jenkins Job History For - {{task.name}}
+			</span>
+			<span ng-show="task.taskType=='chef'">
+				<i class="fa fa-history"></i>&nbsp;
+				Chef History For - {{task.name}}
+			</span>
+			<span ng-show="task.taskType=='composite'">
+				<i class="fa fa-history"></i>&nbsp;
+				Composite History For - {{task.name}} 
+			</span>
+			<span ng-show="task.taskType=='puppet'">
+				<i class="fa fa-history"></i>&nbsp;
+				Puppet History For - {{task.name}} 
+			</span>
+			<span ng-show="task.taskType=='script'">
+				<i class="fa fa-history"></i>&nbsp;
+				Script History For - {{task.name}} 
+			</span>
+			<span></span>
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<section>
+			<!--This table will get use when job type will be chef -->
+			<loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
+			<div ng-show="!ischefTaskHistoryPageLoading">
+				<div id="grid5" ng-if="taskHistoryChefData.length >0 && task.taskType=='chef'" ui-grid="taskHistoryChefGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+			</div>
+			<!--This table will get use when job type will be puppet -->
+			<loading size="large" name="ispuppetTaskHistoryPageLoading" type="block" align="center"></loading>
+			<div ng-show="!ispuppetTaskHistoryPageLoading">
+				<div id="grid6" ng-if="taskHistoryPuppetData.length >0 && task.taskType=='puppet'" ui-grid="taskHistoryPuppetGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+			</div>
+			<!--This table will get use when job type will be jenkins -->
+			<loading size="large" name="isjenkinsTaskHistoryPageLoading" type="block" align="center"></loading>
+			<div ng-show="!isjenkinsTaskHistoryPageLoading">
+				<div id="grid7" ng-if="taskHistoryJenkinsData.length >0 && task.taskType=='jenkins'" ui-grid="taskHistoryJenkinsGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+			</div>
+			<!--This table will get use when job type will be composite -->
+			<loading size="large" name="iscompositeTaskHistoryPageLoading" type="block" align="center"></loading>
+			<div ng-show="!iscompositeTaskHistoryPageLoading">
+				<div id="grid8" ng-if="taskHistoryCompositeData.length >0 && task.taskType=='composite'" ui-grid="taskHistoryCompositeGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+			</div>
+			<!--This table will get use when job type will be script -->
+			<loading size="large" name="isscriptTaskHistoryPageLoading" type="block" align="center"></loading>
+			<div ng-show="!isscriptTaskHistoryPageLoading">
+				<div id="grid5" ng-if="taskHistoryScriptData.length >0 && task.taskType=='script'" ui-grid="taskHistoryScriptGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+			</div>
+			<div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !ispuppetTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !iscompositeTaskHistoryPageLoading && !isscriptTaskHistoryPageLoading" ng-if="taskHistoryChefData.length == 0 && taskHistoryPuppetData.length == 0 && taskHistoryJenkinsData.length == 0 && taskHistoryCompositeData.length == 0 && taskHistoryScriptData == 0" align="center">No Data Found</div>
+		</section>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

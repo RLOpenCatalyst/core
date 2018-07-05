@@ -1,0 +1,312 @@
+<div id='addEventsPage' ng-controller="botScheduleCtrl">
+   <form name="newSchedule" novalidate>
+      <div class="boxed-group schedulerZone container summary-container marginleft35 scheduleBorder">
+        <h3>Scheduler</h3>
+         <!--dropdown for selecting the repeat type-->
+         <div class="container summary-container marginleft35 alert alert-info text-center" ng-show="noSchedulerForBots" align="center">Under Construction</div> 
+         <div class="container summary-container marginleft35 alert alert-info text-center" ng-show="showForBlueprints" align="center">Execute the BOT atleast once for the Scheduler to activate(Applicable only for Blueprints)</div>
+
+         <div ng-show="showForAll">
+         <div class="col-lg-6 col-md-6 ">
+            <label>Starts on: <span class="red">*</span>
+            </label>
+            <input id="date-start"  ng-change="dateChange()" required  type="text"  ng-model="schedulerStartOn" class="form-control-date"  >
+            </div>
+            <div class="col-lg-6 col-md-6 ">
+            <label>Ends on: <span class="red">*</span>
+            </label>
+            <input ng-change="dateChange()" type="text"  id="date-end" ng-model="schedulerEndOn" class="form-control-date" required >
+            <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
+            </div>
+         <div class="clearfix margintop15 "></div>
+         <div class="clearfix margintop15"></div>
+          <div>
+         <fieldset class="repo-job-details-wrapper">
+            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Interval </legend>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+               <label>Repeats: <span class="red">*</span></label>
+               <select class="form-control-date" ng-model="repeatsType">
+                  <option selected="selected" value="Minutes" title="Repeat in Minutes">Minutes</option>
+                  <option value="Hourly" title="Repeats Hourly">Hourly</option>
+                  <option value="Daily" title="Repeats Daily">Daily</option>
+                  <option value="Weekly" title="Repeats Weekly">Weekly</option>
+                  <option value="Monthly" title="Repeats Monthly">Monthly</option>
+                  <!-- <option value="Yearly" title="Repeats Yearly">Yearly</option> -->
+               </select>
+            </div>
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-style="{'visibility': repeatsType != 'Hourly' ? 'visible' : 'hidden'}">
+               <label >Repeat By: <span class="red">*</span>
+                <span ng-show="newSchedule.repeatBy.$touched && newSchedule.repeatBy.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="repeatBy" class="form-control-date" ng-model="repeatBy" ng-required="repeatsType!='Hourly'">
+                  <option value="" selected="selected">Choose</option>
+                  <!--<option ng-if="repeatsType=='Hourly'" ng-repeat="repeatBy in repeatCount(24)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>-->
+                  <option ng-if="repeatsType!='Minutes'" ng-repeat="repeatBy in repeatCount(30)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
+                  <option ng-if="repeatsType=='Minutes'" ng-repeat="repeatBy in repeatCount(59)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
+               </select>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType!=='Minutes'">
+               <label>Time(Hrs):
+               <span class="red">&nbsp;*</span>
+               <span ng-show="newSchedule.timeEventHour.$touched && newSchedule.timeEventHour.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="timeEventHour" class="form-control-date" ng-model="timeEventType">
+                  <option value="" selected="selected">Choose Start Hour</option>
+                  <option ng-repeat="timeNumber in repeatCount(23)" value="{{timeNumber}}" title="Time Starts {{timeNumber}} {{repeatsType}}">{{timeNumber}}</option>
+               </select>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType!=='Minutes'">
+               <label>Time(Mins):
+               <span class="red">&nbsp;*</span>
+               <span ng-show="newSchedule.timeEventMinute.$touched && newSchedule.timeEventMinute.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="timeEventMinute" class="form-control-date" ng-model="timeEventMinute">
+                  <option value="" selected="selected">Choose Start Minute</option>
+                  <option ng-repeat="timeNumberMinutes in repeatCount(59)" value="{{timeNumberMinutes}}" title="Time Starts {{timeNumberMinutes}} {{repeatsType}}">{{timeNumberMinutes}}</option>
+               </select>
+            </div>
+            <!--repeat on weekly -->
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType==='Weekly'">
+               <label>Repeat On:
+               <span class="control-label red">&nbsp;*</span>
+               <span ng-show="newSchedule.weekOfTheDay.$touched && newSchedule.weekOfTheDay.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="weekOfTheDay" class="form-control-date" ng-model="weekOfTheDay">
+                  <option value="" selected="selected">Choose The Day</option>
+                  <option ng-repeat="(key,value) in daysOfWeek" value="{{key}}" title="Repeats every {{value}}">{{value}}</option>
+               </select>
+            </div>
+            <!--repeat on weekly ends--> 
+            <!--repeat on monthly & yearly starts -->
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType==='Monthly'">
+               <label>Choose Date:
+               <span class="control-label red">&nbsp;*</span>
+               <span ng-show="newSchedule.selectedDayOfTheMonth.$touched && newSchedule.selectedDayOfTheMonth.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="selectedDayOfTheMonth" class="form-control-date" ng-model="selectedDayOfTheMonth">
+                  <option value="" selected="selected">Choose the Date</option>
+                  <option ng-repeat="selectedDayOfTheMonth in repeatCount(31)" value="{{selectedDayOfTheMonth}}" title="Day of the Month selected {{selectedDayOfTheMonth}}">{{selectedDayOfTheMonth}}</option>
+               </select>
+            </div>
+            <!--repeat on monthly & yearly ends-->
+            <!--starts at dropdown ends here-->
+            <!--dropdown ends here-->
+
+            <div ng-if="botType ==='jenkins'" class="param-table bot-info-wrapper marginbottom15">
+               <div class="col-lg-6 col-md-6 col-sm-12 marginleft-8">
+                  <label class="botsLabel" for="">Select Jenkins Server:&nbsp;</label>
+                  <select class="form-controlSelect" name="serverName" ng-model="$parent.jenkinsServerSelect" ng-change="checkForJenkinsServer();" required>
+                     <option value="">Select Server</option>
+                     <option value="{{jeninsServer.id}}" ng-repeat="jeninsServer in jenkinsServerList">{{jeninsServer.name}}</option>
+                  </select>
+               </div>
+               <div class="col-lg-6 col-md-6 col-sm-12">
+                  <label class="botsLabel" for="">Job Name:&nbsp;</label>
+                  <input class="form-controlSelect" value="{{jobName}}" disabled/>
+               </div>
+               <div class="add-job-parameters margintop15 col-lg-12 col-md-12 marginleft-8" ng-show="showParametersForJenkins">
+                  <label class="pull-left botsLabel">Parameterized Build Data
+                  </label>
+                  <table class="table table-striped table-bordered table-hover dataTable no-footer">
+                     <thead>
+                     <tr class="paramRow" role="row">
+                        <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Name">Name</td>
+                        <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Description">Type
+                        </td>
+                        <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Links">Description</td>
+                        <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Execute">Default Value</td>
+                     </tr>
+                     </thead>
+                     <tbody>
+                     <tr ng-repeat="params in parameterList">
+                        <td>{{params.name}}</td>
+                        <td>{{params.parameterName}}</td>
+                        <td>{{params.description}}</td>
+                        <td ng-if=" params.parameterName !=='Choice' ">{{params.defaultValue[0]}}</td>
+                        <td ng-if=" params.parameterName =='Choice' ">
+                           <select class="choiceParam form-control" name="{{params.name}}">
+                              <option ng-repeat="val in params.defaultValue" value="{{val}}">{{val}}</option>
+                           </select>
+                        </td>
+                     </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+            <div ng-if="botType === 'blueprints' && originalBlueprintList.length>0" class="scriptExecution param-table bot-info-wrapper">
+               <table class="table table-bordered">
+                  <thead>
+                  <tr class="paramRow">
+                     <th class="th-parameters">Label</th>
+                     <th class="th-values">Value</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                     <td>Blueprint Name</td>
+                     <td>{{executionDetails.name}}</td>
+                  </tr>
+                  <tr>
+                     <td>Blueprint Type</td>
+                     <td>{{executionDetails.subtype}}</td>
+                  </tr>
+                  </tbody>
+               </table>
+            </div>
+            <div ng-if="botType === 'blueprints' && originalBlueprintList.length===0" class="alert alert-info padding6 text-center" align="center">
+               No Matching Blueprint Found in the Database
+            </div>
+            <div ng-if="botType ==='script'" class="scriptExecution param-table bot-info-wrapper">
+               <table class="table table-bordered">
+                  <thead>
+                  <tr class="paramRow">
+                     <th class="th-parameters">Label</th>
+                     <th class="th-values">Type</th>
+                     <th class="th-values">Default</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr ng-repeat = "(key,value) in botInfo.inputFormFields">
+                     <td>{{value.label}}</td>
+                     <td>{{value.type}}</td>
+                     <td ng-init="botEditParams[value.name] = value.default" style="text-align: left">
+                        <input ng-if="value.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
+                        <input ng-if="value.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
+                        <!-- <input ng-if="value.type==='restricted'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/> -->
+                     </td>
+                  </tr>
+                  </tbody>
+               </table>
+            </div>
+            <div ng-if="botType ==='chef'" ng-show="showAttributeList" class="param-table">
+               <label class="pull-left botsLabel">Chef Attributes</label>
+               <table class="table table-bordered">
+                  <thead>
+                  <tr class="paramRow">
+                     <th class="th-parameters">Label</th>
+                     <th class="th-values">Default</th>
+                  </tr>
+                  </thead>
+                  <tbody ng-repeat = "attributes in attributeList">
+                  <tr ng-repeat ="(key,value) in attributes">
+                     <td>{{key}}</td>
+                     <td><input type="text" class="width100 cookbook-edit-text" ng-model="attributes[key]"/>
+                     </td>
+                  </tr>
+                  </tbody>
+               </table>
+            </div>
+            <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
+            <div class="margintop-7" ng-if="botType ==='script' || botType ==='chef'"><input type="checkbox" ng-model="scheduleAlternate.flag" ng-click="setscheduleAlternative()"/><span>&nbsp;Skip alternate runs?</span></div>
+            <div ng-if="botType ==='chef' || botType === 'script'" ng-show="botCheck" class="chefExecution">
+               <fieldset id="editParamPage">
+                  <legend>Remote Machine</legend><br>
+                  <div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
+                     <div class="panel-group">
+                        <div class="panel panel-default form-group">
+                           <div class="panel-heading" style="height: 40px;">
+				            <span class="bot-library-search marginleft-12">
+                           <form class="firefoxForm" novalidate name="library-form">
+				               <label>&nbsp;
+				                  <input type="search" ng-model="searchText.name" class="search-text bot-search marginleft8" placeholder="Search">
+				                  <i class="fa fa-search search-icon" ng-show="!searchText"></i>
+				               </label>
+                           </form>
+				            </span>
+                           </div>
+                           <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
+                              <div class="alert alert-info padding6 text-center" ng-if="originalInstanceList.length === 0" align="center">No Instances Found</div>
+                              <ul ng-if="originalInstanceList.length > 0" class="list-group" ui-sortable>
+                                 <li class="list-group-item" ng-repeat="instanceDetails in originalInstanceList | filter :searchText">
+                                    <span title="Add to Right" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalInstanceList.indexOf(instanceDetails),'instance')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                                    <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,instanceDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                                    <img src="./images/global/chef-import.png" alt="{{instanceDetails.name}}"> &nbsp;{{instanceDetails.name}}
+                                 </li>
+                              </ul>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
+                     <div class="panel-group">
+                        <div class="panel panel-default">
+                           <div ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck" class="panel-heading" style="height: 40px;">
+                              <span>Selected Instances</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedInstanceList.length <= 0">Please select Instance.</span>
+                           </div>
+                           <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
+                              <div class="alert alert-info padding6 text-center" ng-if="selectedInstanceList.length === 0" align="center">No Instances Selected</div>
+                              <ul class="list-group" dnd-list="selectedInstanceList" >
+                                 <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedInstance in selectedInstanceList" dnd-draggable="selectedInstance"
+                                     dnd-moved="selectedInstanceList.splice($index, 1)"
+                                     dnd-effect-allowed="move"
+                                     dnd-selected="models.selected = selectedInstance"  ng-class=" {'activeLi':selectInstanceId === selectedInstance._id}">
+                                    <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,selectedInstance)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                                    <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstanceBP($event,selectedInstanceList._id,'instance')">X</span>
+                                    <span class="badge pull-left" >{{(+selectedInstanceList.indexOf(selectedInstance)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedInstance.name}}"/> &nbsp;{{selectedInstance.name}}
+                                 </li>
+                              </ul>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="clearfix"></div>
+               </fieldset>
+            </div>
+            <div class="alert alert-info text-center" ng-if="botType === 'UI'">
+               Under Construction
+            </div>
+         </fieldset>
+         <div class="modal-footer">
+           <button ng-show="showForScheduled" type="button" class="btn cat-btn-close" ng-click="unschedule()">
+           <i class="fa fa-undo black"></i> Unschedule
+           </button>
+           <button type="submit" class="btn cat-btn-update" ng-disabled="newSchedule.$invalid" ng-click="ok()">
+           <i class="fa fa-repeat white"></i> Schedule
+           </button>      
+        </div>
+      </div>
+      </div>
+      </div>
+   </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#date-end').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY ',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        });
+        $('#date-start').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        }).on('change', function(e, date)
+        {
+            $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
+        });
+        $.material.init();
+        $(document).on('click', 'input.time', function(){
+            var $this = $(this);
+            setTimeout(function () {
+                $this.bootstrapMaterialDatePicker({
+                    format: 'HH:mm',
+                    date: false,
+                    switchOnClick : true,
+                });
+            },100);
+
+        });
+    });
+
+</script>

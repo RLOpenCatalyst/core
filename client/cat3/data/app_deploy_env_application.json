@@ -1,0 +1,52 @@
+[
+  {
+    "applicationName": "catalyst",
+    "applicationVersion": "3.02.99",
+    "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+    "environments": {
+      "Prod": {
+        "applicationInstanceName" : "D4D",
+        "applicationNodeIP" : "52.33.234.94",
+        "applicationLastDeploy": "2016-02-17 01:59:10 +0000",
+        "applicationStatus": "Successful",
+        "containerId": "NA",
+        "hostName": "ip-172-31-7-140.us-west-2.compute.internal",
+        "appLogs": null
+      },
+      "Dev": {
+        "applicationInstanceName" : "D4DDD",
+        "applicationNodeIP" : "52.33.234.96",
+        "applicationLastDeploy": "2016-02-18 01:59:10 +0000",
+        "applicationStatus": "SuccessfulDev",
+        "containerId": "NAS",
+        "hostName": "ip-172-31-7-140.us-west-2.compute.internals",
+        "appLogs": null
+      }
+    }
+  },
+  {
+    "applicationName": "petclinic",
+    "applicationVersion": "3.02.99",
+    "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+    "environments": {
+      "Prod": {
+        "applicationInstanceName" : "D4Dpc",
+        "applicationNodeIP" : "52.33.234.94",
+        "applicationLastDeploy": "2016-02-21 01:59:10 +0000",
+        "applicationStatus": "Successful",
+        "containerId": "NA",
+        "hostName": "ip-172-31-7-140.us-west-2.compute.internal",
+        "appLogs": null
+      },
+      "Dev": {
+        "applicationInstanceName" : "D4DDDpc",
+        "applicationNodeIP" : "52.33.234.96",
+        "applicationLastDeploy": "2016-02-20 01:59:10 +0000",
+        "applicationStatus": "SuccessfulDev",
+        "containerId": "NAS",
+        "hostName": "ip-172-31-7-140.us-west-2.compute.pc",
+        "appLogs": null
+      }
+    }
+  }
+]

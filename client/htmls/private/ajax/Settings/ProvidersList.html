@@ -1,0 +1,774 @@
+
+<style>
+    .form-row{
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
+
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h5 class="widget-title" style="color:#4e5964;">
+                        <strong>Providers</strong>
+                    </h5>
+                    <div class="widget-toolbar no-border">
+                        <div>
+
+                            <a class="btn btn-minier btn-primary" id="refreshpage" href="#ajax/Settings/ProjectList.html" style="display:none">
+                                <i class="ace-icon ace-icon fa fa-refresh bigger-110"></i>
+                            </a>               
+                            <a class="btn btn-minier btn-primary" id="addnewitem" href="#ajax/Settings/CreateProviders.html?new">
+                                <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                                New
+                            </a>                                                
+                        </div>
+                    </div>
+
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main widgetHeight">
+                        <div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
+                            <table id="templateTable" class="hidden" cellpadding="5px" width="100%">
+                                <thead>
+                                    <tr class="rowCustomStyle">
+                                        <td>Name</td>
+                                        <td>Provider</td>
+                                        <td>Organization </td> 
+                                        <td class="">Action</td>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hidden rowtemplate">
+                                        <td datafield="providerName"></td>
+                                        <td datafield="providerType"></td>
+                                        <td datafield="orgName"></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <!--<a class="btn btn-xs btn-info pull-left" title="Sync Instances">
+                                                    <i class="ace-icon fa fa-refresh bigger-120"></i>
+                                                </a>-->
+                                                <a class="btn btn-xs btn-info pull-left" title="Edit">
+                                                    <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                                </a>
+                                                <a style="margin-left:12px;" class="btn btn-xs btn-danger pull-left" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></a>
+
+                                            </div>
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+                            <table id="envtable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                <thead>
+                                    <tr class="rowCustomStyle">
+                                        <td>Name</td>
+                                        <td>Provider</td>
+                                        <td>Organization </td> 
+                                        <td class="">Action</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+
+                            </table>
+
+
+
+                            <div class="col-md-5">
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="widget-toolbox padding-8 clearfix dataTables_wrapper">
+                        <div id="tableFooterLeft" class="pull-left"></div>
+                        <div id="tableFooterRight" class="pull-right"></div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal for ItemList-->
+
+<script>
+    $(document).ready(function () {
+
+        var hasCreateProviderPermission = false;
+        if (haspermission('provider', 'create')) {
+            hasCreateProviderPermission = true;
+        }
+        if (!hasCreateProviderPermission) {
+            $('#newProvider').addClass('hidden');
+        }
+        // isUserTypeSuperAdmin();
+        getProviderData();
+
+        var providerId = null;
+        function serializeRemove(thisArray, thisName) {
+            "use strict";
+            return thisArray.filter(function (item) {
+                return item.name != thisName;
+            });
+        }
+
+        //when the user closes the modal the form will be reset
+        $('#metric').change(function () {
+            var val = $(this).val();
+            if (val === 'usage') {
+                $('#type').val('trend');
+                $('#type').attr('disabled', 'disabled');
+                $("#interval option[value='86400']").remove();
+                $("#interval").append("<option value='3600'>1 Hour</option>")
+                $("#interval").val('3600');
+                $('#rowFromDate').slideDown();
+                $('#rowPeriod').slideUp();
+            } else {
+                $('#type').removeAttr('disabled');
+                $("#interval option[value='3600']").remove();
+                $("#interval").append("<option value='86400'>1 Day</option>")
+                $("#interval").val('86400');
+                $('#rowFromDate').slideUp();
+                $('#rowPeriod').slideDown();
+            }
+            $('#type').trigger('change');
+        });
+        $('#type').change(function () {
+            var val = $(this).val();
+            if (val === 'aggregate') {
+                $('#rowInterval').slideUp();
+            } else {
+                $('#rowInterval').slideDown();
+            }
+        });
+        $('#fromTimeStamp').datetimepicker(
+            {
+                timeFormat: 'HH:mm:ss',
+                changeMonth: true,
+                changeYear: true
+            }
+        );
+        $('#toTimeStamp').datetimepicker(
+            {
+                timeFormat: 'HH:mm:ss',
+                changeMonth: true,
+                changeYear: true
+            }
+        );
+        $('#metric').trigger('change');
+        $('#providerReport').submit(function (e) {
+            $('#fromTimeStamp-error').remove();
+            var isValidator = $('#providerReport').valid();
+            if (!isValidator) {
+                e.preventDefault();
+                return false;
+            } else {
+                e.preventDefault();
+                var formData = $(this).serializeArray();
+                var filterByObject = {
+                    name: "filterBy",
+                    value: "providerId:" + providerId
+                };
+
+                var toTimeStamp = $('#toTimeStamp').val();
+                var toTimeStampUTC = new Date(toTimeStamp).toISOString().slice(0, 19);
+                formData.push(filterByObject);
+                formData = serializeRemove(formData, 'fromTimeStamp');
+                formData = serializeRemove(formData, 'toTimeStamp');
+                formData = serializeRemove(formData, 'metric');
+                if ($('#metric').val() === 'usage') {
+                    var fromTimeStamp = $('#fromTimeStamp').val();
+                    var fromTimeStampUTC = new Date(fromTimeStamp).toISOString().slice(0, 19);
+                    formData = serializeRemove(formData, 'period');
+                    formData.push({
+                        name: "fromTimeStamp",
+                        value: fromTimeStampUTC
+                    });
+                    formData.push({
+                        name: "toTimeStamp",
+                        value: toTimeStampUTC
+                    });
+                } else {
+                    if ($('#type').val() === 'aggregate') {
+                        formData = serializeRemove(formData, 'interval');
+                    }
+                    formData.push({
+                        name: "toTimeStamp",
+                        value: toTimeStampUTC
+                    });
+                }
+                var url = '/reports/'+$('#metric').val();
+                var fileName = $('#metric').val()+ $('#type').val().capitalize()+'Report.csv';
+                $.ajax({
+                    method: "GET",
+                    url: url,
+                    data: formData,
+                    contentType: 'text/csv',
+                    success: function (data) {
+                        var a = document.createElement('a');
+                        a.href = 'data:attachment/csv,' + encodeURIComponent(data);
+                        a.target = '_blank';
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        $(a).remove();
+                    },
+                    error: function (jqxhr) {
+                        var data = JSON.parse(jqxhr.responseText);
+                        bootbox.alert(data.errors[0]);
+                    },
+                    failure: function (data) {
+                        bootbox.alert(data);
+                    }
+                });
+            }
+            return false;
+        });
+    });
+    function isUserTypeSuperAdmin() {
+        $.get('/d4dMasters/loggedInUser', function (data) {
+            if (!data.isSuperAdmin) {
+                $('#addnewitem').attr('disabled', 'disabled');
+            }
+            getProviderData();
+        });
+    }
+
+    function getOrganizationList(callback) {
+
+        $.get('/d4dMasters/readmasterjsonnew/1', function (data) {
+
+            // alert(d4ddata.length);
+            data = JSON.parse(JSON.stringify(data));
+            for (var i = 0; i < d4ddata.length; i++) {
+                for (var x = 0; x < data.length; x++) {
+                    //alert(d4ddata[i].orgId[0],JSON.stringify(data[x]));
+                    if (d4ddata[i].orgId[0] == data[x].rowid) {
+                        d4ddata[i].orgName = data[x].orgname;
+                        break;
+                    }
+
+                }
+
+            }
+            callback();
+        });
+    }
+
+    function getProviderData() {
+
+        var reqBody = {};
+        reqBody.name = ''
+        reqBody.accessKey = '';
+        reqBody.secretKey = '';
+        reqBody.providerType = '';
+        reqBody.regions = [];
+        //reqBody.instanceUserName='root';
+        $.ajax({
+            method: "GET",
+            url: "/aws/providers",
+            data: reqBody,
+            success: function (data, success) {
+                data = typeof data == "string" ? JSON.parse(data) : data;
+                d4ddata = data;
+                getProviderDataopenstack();
+            },
+            error: function (jqxhr) {
+                removeLoader();
+                bootbox.alert(jqxhr.status);
+            },
+            failure: function (data) {
+                bootbox.alert(data);
+            }
+        });
+    }
+
+    function getProviderDataopenstack() {
+
+        var reqBody = {};
+        reqBody.name = ''
+        reqBody.accessKey = '';
+        reqBody.secretKey = '';
+        reqBody.providerType = '';
+        reqBody.regions = [];
+        //reqBody.instanceUserName='root';
+        $.ajax({
+            method: "GET",
+            url: "/openstack/providers",
+            data: reqBody,
+            success: function (data, success) {
+                data = typeof data == "string" ? JSON.parse(data) : data;
+                for (var u = 0; u < data.length; u++) {
+                    d4ddata.push(data[u]);
+                }
+                getProviderDatahppubliccloud();
+                // getOrganizationList();
+
+            },
+            error: function (jqxhr) {
+                removeLoader();
+                bootbox.alert(jqxhr.status);
+            },
+            failure: function (data) {
+                bootbox.alert(data);
+            }
+        });
+    }
+
+    function getProviderDatahppubliccloud() {
+
+        var reqBody = {};
+        reqBody.name = ''
+        reqBody.accessKey = '';
+        reqBody.secretKey = '';
+        reqBody.providerType = '';
+        reqBody.regions = [];
+        //reqBody.instanceUserName='root';
+        $.ajax({
+            method: "GET",
+            url: "/hppubliccloud/providers",
+            data: reqBody,
+            success: function (data, success) {
+                data = typeof data == "string" ? JSON.parse(data) : data;
+                for (var u = 0; u < data.length; u++) {
+                    d4ddata.push(data[u]);
+                }
+
+                //getProviderDatavmware();
+                getProviderDataAzure();
+                // getOrganizationList();
+
+            },
+            error: function (jqxhr) {
+                removeLoader();
+                bootbox.alert(jqxhr.status);
+            },
+            failure: function (data) {
+                bootbox.alert(data);
+            }
+        });
+    }
+
+    function getProviderDatavmware() {
+
+        var reqBody = {};
+        reqBody.name = ''
+        reqBody.accessKey = '';
+        reqBody.secretKey = '';
+        reqBody.providerType = '';
+        reqBody.regions = [];
+        //reqBody.instanceUserName='root';
+        $.ajax({
+            method: "GET",
+            url: "/vmware/providers",
+            data: reqBody,
+            success: function (data, success) {
+                data = typeof data == "string" ? JSON.parse(data) : data;
+                for (var u = 0; u < data.length; u++) {
+                    d4ddata.push(data[u]);
+                }
+
+
+                getOrganizationList(function () {
+                    startup();
+                });
+            },
+            error: function (jqxhr) {
+                removeLoader();
+                bootbox.alert(jqxhr.status);
+            },
+            failure: function (data) {
+                bootbox.alert(data);
+            }
+        });
+    }
+
+    function getProviderDataAzure() {
+        var reqBody = {};
+        reqBody.name = ''
+        reqBody.accessKey = '';
+        reqBody.secretKey = '';
+        reqBody.providerType = '';
+        reqBody.regions = [];
+        //reqBody.instanceUserName='root';
+        $.ajax({
+            method: "GET",
+            url: "/azure/providers",
+            data: reqBody,
+            success: function (data, success) {
+                data = typeof data == "string" ? JSON.parse(data) : data;
+                for (var u = 0; u < data.length; u++) {
+                    d4ddata.push(data[u]);
+                }
+                getProviderDatavmware();
+                // getOrganizationList();
+                // getOrganizationList(function(){
+                //      startup();
+                //  });
+
+            },
+            error: function (jqxhr) {
+                removeLoader();
+                bootbox.alert(jqxhr.status);
+            },
+            failure: function (data) {
+                bootbox.alert(data);
+            }
+        });
+    }
+
+    function startup() {
+        //setting the addnew button to launch popup
+        $("#addnewitem").attr('data-toggle', 'modal');
+        CreateTableFromJsonForProvider(9, 'CreateProviders.html', true); //9 is for providers
+        var tab = 'envtable';
+        $('#envtable').dataTable({
+            "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
+            "pagingType": "full_numbers"
+        });
+        $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
+        $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');
+        $('#content').css("opacity", "1 !important");
+        //Force opening the left navigation menu
+        if ($('#navSettings').is(":visible") == false) {
+            $('#navSettings').css("display", '');
+            $('#navSettings > ul > li').first().addClass('open');
+            $('#navSettings > ul > li > ul').css("display", "none");
+            $('#navSettings > ul > li > ul').first().css("display", "block");
+        }
+        //redrawing the breadcrumb and selecting the tree
+        $('#Settings  li').removeClass('active');
+        $('#Settings  li').each(function () {
+            if ($(this).text().trim() == "Providers") {
+                $(this).addClass('active');
+            }
+        });
+    }
+
+    function CreateTableFromJsonForProvider(formID, createFileName, isEscapeMasterDirectory) {
+        var formData = null;
+        //force setting the idFieldName to "rowid"
+        var idFieldName = "_id";
+        var orgFieldName = "orgName";
+        formData = d4ddata;
+        //alert(JSON.stringify(formData));
+        var formSchema = null;
+        $.each(d4ddata, function (i, item) {
+            // console.log("Top Arabinda:" + JSON.stringify(item)); //rows
+            var editButton = null;
+            var idFieldValue = null;
+            var imageTD = null;
+            var providerType = null;
+            var orgName = null;
+            $.each(item, function (k, v) { //columns
+                // var inputC = null;
+                // console.log('k:' + k + ' v :' + JSON.stringify(v));
+                if (k == idFieldName) {
+                    idFieldValue = v;
+                }
+                if (k == 'providerType') {
+
+                    providerType = v;
+                }
+                if (k == orgFieldName) {
+                    orgName = v;
+                }
+
+                inputC = $('.rowtemplate').find("[datafield='" + k + "']");
+                if (inputC) {
+                    console.log('Inputc===>' + inputC.attr('datafield'));
+                    if (inputC.attr('datafield') == 'active') {
+                        if (v.toString() == 'false') {
+                            inputC.html('Inactive');
+                        } else
+                            inputC.html('Active');
+                    } else {
+                        if (inputC.attr('datatype')) {
+                            // inputC.attr('data-content',v);
+                            // inputC.attr('data-toggle',"popover");
+                            if (inputC.attr('datatype') == 'list') {
+                                v = v.replace(/,/g, "<br/>");
+                                inputC.html('<a style="pointer:" data-toggle="popover" data-content="' + v + '" id="cellitem_' + i + '_' + k + '">View</a>');
+                            } else
+                                inputC.html(v);
+                        } else
+                            inputC.html(v);
+                    }
+                }
+            });
+            var sRow = $(".rowtemplate").clone();
+            sRow.removeClass("hidden");
+            sRow.removeClass("rowtemplate");
+            // $('#envtable').append(sRow);
+            imageTD = $('.rowtemplate').find("[datatype='image']");
+            editButton = $('.rowtemplate').find("[title='Edit']");
+            if (idFieldValue) {
+                if (imageTD) {
+                    if (imageTD.length > 0) {
+                        console.log("Template Icon:" + idFieldValue);
+                        var imgpath = 'img/blank.png';
+                        if (imageTD.html().indexOf('<img') >= 0) {
+                            imageTD.html(''); //fix for image tag gettnig embedded. - Vinod
+                        } else
+                            imgpath = '/d4dMasters/image/' + idFieldValue + '__' + imageTD.attr('datafieldoriginal') + '__' + imageTD.html();
+                        imageTD.html('');
+                        imageTD.append($('<img src="' + imgpath + '" style="height:28px;width:auto"/>'));
+                    }
+
+                }
+
+                if (editButton) {
+                    editButton.attr("href", "#ajax/Settings/" + createFileName + "?" + idFieldValue);
+                    //checking for createfilename and checking for the resources as per the JSON
+                    var hasEditPermission = false;
+                    if (createFileName === 'CreateOrg.html') {
+                        if (haspermission('organization', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateProductGroup.html') {
+                        if (haspermission('businessgroups', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateProject.html') {
+                        if (haspermission('projects', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateEnvironment.html') {
+                        if (haspermission('environment', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateEnvironmentConcept.html') {
+                        if (haspermission('chefenvironment', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateConfigManagement.html') {
+                        if (haspermission('chefserver', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateUser.html') {
+                        if (haspermission('users', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateTeam.html') {
+                        if (haspermission('teams', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateTemplates.html') {
+                        if (haspermission('templates', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateServiceCommand.html') {
+                        if (haspermission('services', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateJiraConfig.html') {
+                        if (haspermission('services', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateProviders.html') {
+                        if (haspermission('services', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    } else if (createFileName === 'CreateImages.html') {
+                        if (haspermission('services', 'modify')) {
+                            hasEditPermission = true;
+                        }
+                    }
+                    //user has no permission to edit
+                    if (!hasEditPermission) {
+
+                        editButton.addClass('disabled');
+                    }
+                    editButton.addClass("tableactionbutton tableactionbuttonpadding");
+                    editButton.removeClass('btn-xs');
+                    editButton.addClass('btn-sg');
+                }
+                //importbutton will be present for config management screen.
+                var importbutton = $('.rowtemplate').find('a[title="Import Nodes"]');
+                // var tdorgname = $('.rowtemplate').find('td[datafield="orgname"]');
+                //&& tdorgname.length > 0
+                if (importbutton && importbutton.length > 0) {
+                    importbutton.attr("href", "#ajax/Settings/chefSync.html?" + idFieldValue);
+                    importbutton.removeClass('btn-xs');
+                    importbutton.addClass('btn-sg');
+                    importbutton.addClass('tableactionbutton');
+                }
+                var syncButton = $('.rowtemplate').find('a[title="Sync Instances"]');
+                if (syncButton && syncButton.length > 0) {
+                    if (providerType === 'AWS') {
+
+                        syncButton.attr("href", "#ajax/Settings/providerSync.html?provider=" + idFieldValue + "&org=" + orgName);
+                        syncButton.removeClass('btn-xs');
+                        syncButton.addClass('btn-sg');
+                        syncButton.addClass('tableactionbutton tableactionbuttonpadding');
+                    } else {
+                        syncButton.hide();
+                    }
+                }
+
+                var reportButton = $('.rowtemplate').find('a[title="Report"]');
+                if (reportButton && reportButton.length > 0) {
+                    if (providerType === 'AWS') {
+                        reportButton.attr("data-providerId", idFieldValue);
+                        reportButton.removeClass('btn-xs');
+                        reportButton.addClass('btn-sg');
+                        reportButton.addClass('tableactionbutton');
+                    } else {
+                        reportButton.hide();
+                    }
+                }
+
+                //setting the delete button
+
+                var deletebutton = $('.rowtemplate').find("[title='Delete']");
+                if (deletebutton) {
+                    deletebutton.attr('onClick', 'deleteItemFromProvider(\"' + formID + '\", \"' + idFieldName + '\",\"' + idFieldValue + '\",this);');
+                    var hasDeletePermission = false;
+                    //checking whether the user has the authentication to delete any entry
+                    if (createFileName === 'CreateOrg.html') {
+                        if (haspermission('organization', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+
+                    } else if (createFileName === 'CreateProductGroup.html') {
+                        if (haspermission('businessgroups', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateProject.html') {
+                        if (haspermission('projects', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateEnvironment.html') {
+                        if (haspermission('environment', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateEnvironmentConcept.html') {
+                        if (haspermission('chefenvironment', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateConfigManagement.html') {
+                        if (haspermission('chefserver', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateUser.html') {
+                        if (haspermission('users', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateTeam.html') {
+                        if (haspermission('teams', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateTemplates.html') {
+                        if (haspermission('templates', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateServiceCommand.html') {
+                        if (haspermission('services', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateJiraConfig.html') {
+                        if (haspermission('services', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateProviders.html') {
+                        if (haspermission('services', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    } else if (createFileName === 'CreateImages.html') {
+                        if (haspermission('services', 'delete')) {
+                            hasDeletePermission = true;
+                        }
+                    }
+
+                    if (!hasDeletePermission) {
+
+                        deletebutton.addClass('disabled');
+                    }
+                    deletebutton.removeClass('btn-xs');
+                    deletebutton.addClass('btn-sg');
+                    deletebutton.addClass('tableactionbutton');
+                }
+            }
+
+
+            console.log('-----------');
+            var sRow = $(".rowtemplate").clone();
+            sRow.removeClass("hidden");
+            sRow.removeClass("rowtemplate");
+            $('#envtable').append(sRow);
+        });
+        setPopOverForTableFields();
+        $(".savespinner").hide();
+    }
+
+    function deleteItemFromProvider(docid, key, value, button) {
+        //Determining the provider type before delete
+        var provname = 'aws';
+        if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "OPENSTACK") {
+            provname = 'openstack';
+        } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "AZURE") {
+            provname = 'azure';
+        } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "VMWARE") {
+            provname = 'vmware';
+        } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "HPPUBLICCLOUD") {
+            provname = 'hppubliccloud';
+        }
+
+        bootbox.confirm('You are about to remove this item \" ' + $(button).closest('tr').find('td').first().html() + ' \"', function (result) {
+            if (result) {
+                $.ajax({
+                    type: "delete",
+                    dataType: "text",
+                    async: false,
+                    url: "/" + provname + "/providers/" + value,
+                    success: function (data) {
+                        // $('#refreshpage').click();
+                        if (data != '401') {
+                            var $tr = $(button).closest('tr');
+                            //$tr.addClass('hidden').remove();
+                            var $table = $tr.parents('table');
+                            if ($.fn.DataTable.isDataTable($table)) {
+                                var $dataTable = $table.DataTable();
+                                $dataTable.row($tr).remove().draw(false);
+                            } else {
+
+                                $tr.fadeOut("slow");
+                                $tr.addClass('hidden').remove();
+                            }
+
+
+                            var tab = 'envtable';
+                            $('#' + tab).dataTable();
+                            if (parseInt(docid) < 5) {
+                                //adTreeFuncNew();
+                                //  alert('in saved');
+                                //   selectFirstEnv();
+                            }
+                            $('#refreshpage').click();
+                        } else {
+                            bootbox.alert('Insufficient permission to perform this operation.');
+                        }
+                    },
+                    failure: function (data) {
+                        // debugger;
+                        bootbox.alert(data.toString());
+                    },
+                    error: function (data) {
+                        bootbox.alert(data.responseText);
+                    }
+                });
+            }
+        });
+    }
+
+</script>

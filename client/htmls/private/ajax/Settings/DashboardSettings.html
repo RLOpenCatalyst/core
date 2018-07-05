@@ -1,0 +1,553 @@
+<style type="text/css">
+textarea{
+width:100%;
+}
+.wordBreak {
+    word-break:break-word;
+}
+</style>
+
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget-box">
+      <div class="widget-header">
+        <h5 class="widget-title widgetColor">
+          <strong>List of Dashboards</strong>
+        </h5>
+        <div class="widget-toolbar no-border">
+          <div>
+            <!--new button for adding a new item-->
+            <a href="#modalForTrackEdit" type="reset" data-backdrop="false" data-toggle="modal" class="btn btn-minier btn-primary addDashboardItem">
+            <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;New
+            </a>                                                                                                            
+          </div>
+        </div>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main widgetHeight">
+          <div class="col-md-12 table-responsive tablePadding">
+            <table id="trackTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+              <thead>
+                <tr class="rowCustomStyle">
+                  <td>Type</td>
+                  <td>Parent Name</td>
+                  <td>Child Name</td>
+                  <td>Description</td>
+                  <td>Action</td>
+                </tr>
+              </thead>
+              <tbody id="trackTableInput">
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!--widget main ends here-->
+      </div>
+      <!--widget body ends here-->
+    </div>
+    <!--widget box ends here-->  
+  </div>
+  <!-- col-lg-12 ends here-->
+</div>
+<!--row ends here-->     
+<div class="childContainer hidden" id="childItemSeries">
+  <div class="col-lg-6 col-md-6 margintop15">
+    <label for="">Child Name:</label>
+    <div class="input-groups" id="childNameLabel">
+      <input type="text" name="childName" class="childNameItem form-control" id="childName"/>
+    </div>
+  </div>
+  <div class="col-lg-6 col-md-6 margintop15">
+    <label for="">Child URL:</label>
+    <div class="input-groups" id="childUrlLabel">
+      <input type="url" name="childUrl" class="childUrlItem form-control" id="childUrl"/> 
+    </div>
+  </div>
+</div>
+<!--modal for ItemList-->
+<div class="modal fade" id="modalForTrackEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog " style="">
+    <div class="modal-content">
+      <form role="form" id="trackItemUrl">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">
+          </h4>
+        </div>
+        <div class="modal-body">
+          <fieldset class="fieldsetCustom">
+            <div class="col-lg-6 col-md-6">
+              <label for="">Type:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <select id="trackType" name="trackType" class="required form-control width-100" style="vertical-align:central">
+                  <option value="">Choose Type</option>
+                  <option value="Capacity">Capacity</option>
+                  <option value="Providers">Providers</option>
+                  <option value="Health">Health</option>
+                  <option value="Telemetry">Telemetry</option>
+                  <option value="CI/CD">CI/CD</option>
+                  <option value="Service Delivery">Service Delivery</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <label for="">Description:</label>
+              <input type="text" name="trackDescription" class="trackDescription form-control" id="trackDescription">
+            </div>
+            <div class="itemURLContainer" id="itemSeries">
+              <div class="col-lg-6 col-md-6 margintop15">
+                <label for="">Item Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                <div class="input-groups">
+                  <input type="text" name="trackName" class="required trackNameItem form-control" id="trackName"/>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                <label for="trackUrl">Item URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                <div class="input-groups">
+                  <input type="url" name="trackUrl" class="required trackUrlItem form-control" id="trackUrl"/> 
+                </div>
+              </div>
+            </div>
+            <div class="childAppendContainer">
+            </div>
+            <a href="javascript:void(0)" class="clearfix pull-right addChildItem" data-backdrop="false" data-toggle="modal">Add Child Item</a>
+            <input type="hidden" id="trackEditHiddenInputId">
+            <input type="hidden" id="trackEditHiddenInput">
+            <input type="hidden" id="trackItemHiddenInputNameUrl">
+          </fieldset>
+        </div>
+        <div class="modal-footer">
+          <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+          <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
+          <button type="submit" id="saveBtnTrack" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<script>
+//initialising the datatable...
+if (!$.fn.dataTable.isDataTable('#trackTable')) {
+    var $trackDatatable = $('#trackTable').DataTable({
+        "pagingType": "full_numbers",
+        "bInfo": false,
+        "bLengthChange": false,
+        "paging": true,
+        "bFilter": false,
+        "aoColumns": [{
+            "bSortable": false
+        }, {
+            "bSortable": false
+        }, {
+            "bSortable": false
+        }, {
+            "bSortable": false
+        }, {
+            "bSortable": false
+        }]
+
+    });
+}
+
+//calling the global track functionality when track params are available..
+$(document).ready(function(e) {
+    getGlobalTrack();
+});
+
+//when the user closes the modal the childContainer will be hidden..
+$('#modalForTrackEdit').on('hidden.bs.modal', function() {
+    $('.childContainer').addClass('hidden');
+    return false;
+});
+
+//when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
+$('.addDashboardItem').click(function(e) {
+    $('#trackItemUrl').trigger('reset');
+    $('.modal-header').find('.modal-title').html('Create New Dashboard Item');
+    $('#trackEditHiddenInput').val('new');
+});
+
+$('.addChildItem').click(function() {
+    $('#childItemSeries').clone().appendTo('.childAppendContainer').removeClass('hidden').removeAttr('id');
+});
+
+//to show the focus on first input ....
+$(document).on('shown.bs.modal', function(e) {
+    $('[autofocus]', e.target).focus();
+});
+
+
+//form validation for dashboard save
+var validator = $('#trackItemUrl').validate({
+    rules: {
+        trackUrl: {
+            url: true
+        }
+    },
+    onkeyup: false,
+    errorClass: "error",
+
+    //put error message behind each form element
+    errorPlacement: function(error, element) {
+        console.log(error, element);
+        var elem = $(element);
+        if (element.parent('.input-groups').length) {
+            error.insertBefore(element.parent());
+        } else {
+            if (element.parent('div.inputGroups')) {
+                console.log(element);
+                console.log(element.parent);
+                error.insertBefore('div.inputGroups');
+            }
+
+            $("select.select2-me").each(function(index, el) {
+
+                if ($(this).is("[data-rule-required]") &&
+                    $(this).attr("data-rule-required") == "true") {
+                    $(this).on('select2-close', function(e) {
+                        $(this).valid()
+                    });
+                }
+            });
+        }
+    },
+
+    //When there is an error normally you just add the class to the element.
+    // But in the case of select2s you must add it to a UL to make it visible.
+    // The select element, which would otherwise get the class, is hidden from
+    // view.
+    highlight: function(element, errorClass, validClass) {
+        var elem = $(element);
+        if (elem.hasClass("select2-offscreen")) {
+            $("#s2id_" + elem.attr("id") + " ul").addClass(errorClass);
+        } else {
+            elem.addClass(errorClass);
+        }
+    },
+
+    //When removing make the same adjustments as when adding
+    unhighlight: function(element, errorClass, validClass) {
+        var elem = $(element);
+        if (elem.hasClass("select2-offscreen")) {
+            $("#s2id_" + elem.attr("id") + " ul").removeClass(errorClass);
+        } else {
+            elem.removeClass(errorClass);
+        }
+    }
+});
+$('a.addDashboardItem[type="reset"]').on('click', function(e) {
+    validator.resetForm();
+});
+$(document).on('change', '.select2-offscreen', function() {
+    if (!$.isEmptyObject(validator.submitted)) {
+        validator.form();
+    }
+});
+$(document).on("select2-opening", function(arg) {
+    var elem = $(arg.target);
+    if ($("#s2id_" + elem.attr("id") + " ul").hasClass("myErrorClass")) {
+        //jquery checks if the class exists before adding.
+        $(".select2-drop ul").addClass("myErrorClass");
+    } else {
+        $(".select2-drop ul").removeClass("myErrorClass");
+    }
+});
+
+
+//this is a functionality to get the list of global track items that have been created....
+function getGlobalTrack() {
+    //for getting the list of tracks
+
+    var trackUrlDetails = '../track';
+    $.get(trackUrlDetails, function(data) {
+
+        console.log(data);
+        if (data && data.length) {
+            for (var kk = 0; kk < data.length; kk++) {
+                createTableForTrack(data[kk]);
+            }
+        }
+
+
+    }).fail(function(jxhr) {
+        var msg = "Server Behaved Unexpectedly";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+            msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+            msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+    });
+};
+
+
+//creating a table for showcasing the list of track items on the dashboard page..
+function createTableForTrack(trackData) {
+
+    if (trackData.itemUrls && trackData.itemUrls.length) {
+        for (var j = 0; j < trackData.itemUrls.length; j++) {
+            (function(j) {
+                var $trackNameList = $('#trackTableInput tbody');
+                var $tr = $('<tr class="trackItemRow"></tr>').attr('data-trackId', trackData._id).attr('data-itemUrlId', trackData.itemUrls[j]._id).attr('data-type', trackData.type);
+                $tr.data('trackData', trackData);
+
+
+                var $tdType = $('<td class="trackType">' + trackData.type + '</td>');
+                var $tdDescription = $('<td class="trackDescription">' + trackData.itemUrls[j].description + '</td>');
+
+                var $tdParent = $('<td class="trackParent"/>').append('<a title="' + trackData.itemUrls[j].url + '" target="_blank" href="' + trackData.itemUrls[j].url + '">' + trackData.itemUrls[j].name + '</a>');
+
+                var $child = $('<td class="trackChild wordBreak"/>');
+
+                if (trackData.itemUrls[j].childItem && trackData.itemUrls[j].childItem.length) {
+
+                    for (var k = 0; k < trackData.itemUrls[j].childItem.length; k++) {
+                        (function(k) {
+                        if(k  === trackData.itemUrls[j].childItem.length -1){
+                            $child.append('<a title="' + trackData.itemUrls[j].childItem[k].url + '" target="_blank" href="' + trackData.itemUrls[j].childItem[k].url + '">' + trackData.itemUrls[j].childItem[k].name + '</a>');
+                        } else {
+                            $child.append('<a title="' + trackData.itemUrls[j].childItem[k].url + '" target="_blank" href="' + trackData.itemUrls[j].childItem[k].url + '">' + trackData.itemUrls[j].childItem[k].name + '</a>').append('&#44;&nbsp;');
+                        }
+                        })(k);
+                    }
+                } else {
+                    $child = $('<td class="trackChild">-</td>');
+                }
+
+                var $tdAction = $('<td/>');
+
+                $tdAction.append('<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton editRowTrackUrl" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>').append('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+                //for editing track items from the table...
+                $tdAction.find('button.editRowTrackUrl').click(function() {
+                    var $this = $(this);
+                    var $tr = $this.parents('tr.trackItemRow');
+                    var trackData = $tr.data('trackData');
+                    var trackId = trackData._id;
+                    var itemUrlIdEdit = trackData.itemUrls[j]._id;
+                    var $editModal = $('#modalForTrackEdit');
+                    $editModal.modal('show');
+                    $editModal.find('#trackEditHiddenInput').val('edit');
+                    $editModal.find('h4.modal-title').html('Edit Dashboard Item &nbsp;-&nbsp;&nbsp;' + trackData.itemUrls[j].name);
+                    $editModal.find('.trackNameItem').val(trackData.itemUrls[j].name);
+                    $editModal.find('.trackUrlItem').val(trackData.itemUrls[j].url);
+                    $editModal.find('#trackDescription').val(trackData.itemUrls[j].description);
+
+                    $editModal.find('#trackType').val(trackData.type);
+                    if (trackData.itemUrls[j].childItem && trackData.itemUrls[j].childItem.length) {
+                        $('.childAppendContainer').empty();
+                        for (var p = 0; p < trackData.itemUrls[j].childItem.length; p++) {
+
+                            var $cloneChild = $('#childItemSeries').clone().removeClass('hidden').removeAttr('id');
+                            $cloneChild.find("input.childNameItem").val(trackData.itemUrls[j].childItem[p].name);
+                            $cloneChild.find("input.childUrlItem").val(trackData.itemUrls[j].childItem[p].url);
+                            $('.childAppendContainer').append($cloneChild);
+                        }
+                    }
+
+                    var id = $(this).parents('tr').attr('data-itemUrlId');
+                    $editModal.find('#trackEditHiddenInputId').val(trackData._id);
+                    $editModal.find('#trackItemHiddenInputNameUrl').val(id);
+                    return false;
+                });
+
+                //for deletion of track items from the table..
+                $tdAction.find('button.globalTrackUrlRemove').click(function() {
+
+                    var $this = $(this);
+                    var $tr = $this.parents('tr.trackItemRow');
+                    var trackId = trackData._id;
+                    var itemUrlId = $(this).parents('tr').attr('data-itemUrlId');
+                    bootbox.confirm({
+                        message: 'Are you sure you want to Delete Dashboard Item -&nbsp;' + trackData.itemUrls[j].name + '&nbsp;&nbsp;of Type-&nbsp;' + trackData.type,
+                        title: "Warning",
+                        callback: function(result) {
+                            if (result) {
+                                $.ajax({
+                                    url: '../track/' + trackId + '/' + itemUrlId,
+                                    method: 'DELETE',
+                                    success: function() {
+                                        $trackDatatable.row($tr).remove().draw(false);
+
+                                    },
+                                    error: function(jxhr) {
+                                        bootbox.alert(result);
+                                        var msg = "Unable to Delete URL please try again later";
+                                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                            msg = jxhr.responseJSON.message;
+                                        } else if (jxhr.responseText) {
+                                            msg = jxhr.responseText;
+                                        }
+                                        bootbox.alert(msg);
+                                    }
+                                });
+                            } else {
+                                return;
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+                $tr.append($tdType).append($tdParent).append($child).append($tdDescription).append($tdAction);
+                $trackNameList.append($tr);
+                $trackDatatable.row.add($tr).draw();
+            })(j);
+        }
+    }
+};
+
+
+
+//save form for creating a new Dashboard item and updation of the item(name,url & description)..
+$('#trackItemUrl').submit(function(e) {
+    var isValidator = $('#trackItemUrl').valid();
+    if (!isValidator) {
+        e.preventDefault();
+        return false;
+    } else {
+        e.preventDefault();
+        $('#saveItemSpinner').removeClass('hidden');
+        var $form = $('#trackItemUrl');
+        var trackData = {};
+        var itemUrls = [];
+        $this = $(this);
+
+        var itemName = $this.find('.trackNameItem').val().trim();
+        var itemURL = $this.find('.trackUrlItem').val().trim();
+        var $childURLContainers = $('.childContainer');
+        var itemDescription = $this.find('#trackDescription').val().trim();
+        var childItem = [];
+        if (itemName && itemURL) {
+            itemUrls.push({
+                name: itemName,
+                url: itemURL,
+                description: itemDescription,
+                childItem: childItem
+            });
+        }
+        $childURLContainers.each(function() {
+            $this = $(this);
+            var childItemName = $this.find('.childNameItem').val().trim();
+            var childItemURL = $this.find('.childUrlItem').val().trim();
+            if (childItemName && childItemURL) {
+                itemUrls[0].childItem.push({
+                    name: childItemName,
+                    url: childItemURL
+                });
+            }
+        });
+
+        trackData.itemUrls = itemUrls;
+        trackData.type = $form.find('#trackType').val();
+        var dashboardEditNew = $(this).find('#trackEditHiddenInput').val();
+        var trackId = $form.find('#trackEditHiddenInputId').val();
+        var itemIdNew = $form.find('#trackItemHiddenInputNameUrl').val();
+
+        var url;
+
+        var reqBody = {};
+
+        //for edit
+        if (dashboardEditNew === 'edit') {
+            console.log(dashboardEditNew);
+            console.log(trackData);
+            var itemId = $('#trackItemHiddenInputNameUrl').val();
+            trackData.itemUrls[0].itemId = itemId;
+            url = '../track/' + trackId + '/update';
+            reqBody = {
+                "itemUrls": trackData.itemUrls[0],
+                "type": trackData.type,
+            };
+        } else {
+            url = '../track';
+            reqBody = {
+                "itemUrls": trackData.itemUrls,
+                "type": trackData.type
+            };
+        }
+        console.log('====', reqBody);
+
+        $.ajax({
+            method: "POST",
+            url: url,
+            data: {
+                trackData: reqBody
+            },
+            success: function(data, success) {
+                $('#modalForTrackEdit').modal('hide');
+                $('#saveItemSpinner').addClass('hidden');
+                $('#saveBtnTrack').removeAttr('disabled');
+                console.log(dashboardEditNew);
+
+                if (dashboardEditNew === 'new') {
+                    //making itemUrls as an empty array
+                    var itemUrls = [];
+                    for (var j = 0; j < data.itemUrls.length; j++) {
+                        if (!$('tr[data-itemUrlId="' + data.itemUrls[j]._id + '"]').length) {
+                            itemUrls.push(data.itemUrls[j]);
+                        }
+                    }
+                    data.itemUrls = itemUrls;
+                    createTableForTrack(data);
+
+                    $('#saveBtnTrack').removeAttr('disabled');
+                } else {
+                    var $tr = $('tr[data-itemUrlId="' + itemId + '"]');
+                    $tr.find('.trackType').html(reqBody.type);
+                    $tr.find('.trackParent').html('<a style="word-break:break-word;" href="' + reqBody.itemUrls.url + '" target="_blank">' + reqBody.itemUrls.name + '</a> ');
+
+                    $tr.find('.trackDescription').html(reqBody.itemUrls.description);
+                    var $trChild = $tr.find('.trackChild').empty();
+                    if (reqBody.itemUrls.childItem && reqBody.itemUrls.childItem.length) {
+                        for (var q = 0; q < reqBody.itemUrls.childItem.length; q++) {
+                            if(q === reqBody.itemUrls.childItem.length -1){
+                            $trChild.append('<a href="' + reqBody.itemUrls.childItem[q].url + '" target="_blank">' + reqBody.itemUrls.childItem[q].name + '</a>');
+                            } else {
+                            $trChild.append('<a href="' + reqBody.itemUrls.childItem[q].url + '" target="_blank">' + reqBody.itemUrls.childItem[q].name + '</a>').append('&#44;&nbsp;');
+                            }
+                        }
+                    }
+                    $tr.data('trackData', {
+                        _id: trackId,
+                        itemUrls: trackData.itemUrls,
+                        type: trackData.type
+                    });
+                }
+            },
+            error: function(jxhr) {
+                console.log(jxhr);
+                var msg = "Server Behaved Unexpectedly";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+
+                $('#saveItemSpinner').addClass('hidden');
+                $('#saveBtnTrack').removeAttr('disabled');
+            },
+            failure: function(jxhr) {
+                console.log(jxhr);
+                var msg = "Server Behaved Unexpectedly";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+
+                $('#saveItemSpinner').addClass('hidden');
+                $('#saveBtnTrack').removeAttr('disabled');
+            }
+        });
+
+        return false;
+    }
+});
+</script>
+                             

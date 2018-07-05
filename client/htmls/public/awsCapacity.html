@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+      </link>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+      </link>
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+      <link rel="stylesheet" type="text/css" href="css/Dashboard.css">
+      <link rel="stylesheet" type="text/css" href="css/capacity.css">
+      <link rel="stylesheet" type="text/css" href="../private/css/toastr.min.css">
+      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+      <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+      <script type="text/javascript" src="../private/js/toastr.min.js"></script>
+   </head>
+   <body>
+      <div id="instanceActionListLoader" style="display: none">
+         <img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
+      </div>
+      <div id="capacityDashboard">
+        <div class="page-name">AWS Capacity Report&nbsp;
+           <span class="providerSelect providerValues hidden col-lg-4 col-md-4 col-xs-12">
+           <label class="orgClass" for="">Choose AWS Provider:&nbsp;</label>
+           <select class="form-controls orgWidth" id ="providerDropdown">
+              <option value="ALL">All</option>
+           </select>
+           </span>
+           <span class="providerSelect orgNames col-lg-4 col-md-4 col-xs-12">
+           <label class="orgClass" for="">Choose Organization:&nbsp;</label>
+           <select class="form-controls orgWidth" id ="orgDropdown">
+           </select>
+           </span>
+           <button id="refreshBtn" type="button" title="Refresh" class="btn btn-xs btn-primary refresh-btn">
+           <i class="fa fa-refresh"></i>
+           </button>
+        </div>
+        <div class="borderTop"></div>
+        <div class="row">
+        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Instances">
+           <div class="small-box bg-aqua">
+              <div class="inner">
+                 <h3 id="totalInstances">0</h3>
+                 <p>Total <br>No. of Instances</p>
+              </div>
+              <div class="icon">
+                 <i class="fa fa-laptop"></i>
+              </div>
+              <span class="small-box-footer managedUnmanagedCSS">
+              </span>
+           </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Managed Instances">
+           <div class="totalBox small-box bg-aqua">
+              <div class="inner">
+                 <h3 id="totalManagedInstances">0</h3>
+                 <p>Total <br>No. of Managed Instances</p>
+              </div>
+              <div class="icon">
+                 <i class="fa fa-cube"></i>
+              </div>
+              <span id="totalManagedInstancesMoreInfo" class="small-box-footer managedUnmanagedCSS">
+              View <i class="fa fa-arrow-circle-right"></i>
+              </span>
+           </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Assigned Instances">
+           <div class="assignedBox small-box bg-aqua">
+              <div class="inner">
+                 <h3 id="totalUnmanagedInstances">0</h3>
+                 <p>Total <br>No. of Assigned Instances</p>
+              </div>
+              <div class="icon">
+                 <i class="fa fa-external-link"></i>
+              </div>
+              <span id="totalUnManagedInstancesMoreInfo" class="small-box-footer managedUnmanagedCSS">
+              View <i class="fa fa-arrow-circle-right"></i>
+              </span>
+           </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total UnAssigned Instances">
+           <div class="unassignedBox small-box bg-aqua">
+              <div class="inner">
+                 <h3 id="totalUnAssignedInstances">0</h3>
+                 <p>Total <br>No. of UnAssigned Instances</p>
+              </div>
+              <div class="icon">
+                 <i class="fa fa-external-link"></i>
+              </div>
+              <span id="totalUnAssignedInstancesMoreInfo" class="small-box-footer managedUnmanagedCSS">
+              View <i class="fa fa-arrow-circle-right"></i>
+              </span>
+           </div>
+        </div>
+      </div>
+        <div class=" noProviderView" style="display:none">
+           <div id="noenvwarning" class="alert alert-warning noEnvWarning text-center">
+               <span>Please add the provider details in Settings to get the complete dashboard.</span>
+           </div>
+        </div>
+      <!--Table to show all the instance actions for all the instances starts here-->
+        <div id="instanceTableContainer" class="table-responsive table-responsiveCSS borderTop" style="display:none">
+           <div class="marginBottom15 headerTitle">List of Managed Instances&nbsp;
+           </div>
+           
+           <table style="width:100%" class="table table-hover table-bordered text-center" id="instanceListTable">
+              <thead>
+                 <tr>
+                    <th class="text-center">Instance Id</th>
+                    <th class="text-center">Org</th>
+                    <th class="text-center">Bg</th>
+                    <th class="text-center">Project</th>
+                    <th class="text-center">Env</th>
+                    <th class="text-center">Instance IP</th>
+                    <th class="text-center">Instance State</th>
+                 </tr>
+              </thead>
+              <tbody class="instanceListTable"></tbody>
+           </table>
+        </div>
+        <div id="instanceAssignedContainer" class="table-responsive table-responsiveCSS borderTop"  style="display:none">
+           <div class="marginBottom15 headerTitle">List of Assigned Instances&nbsp;
+           </div>
+           <table style="width:100%" class="table table-hover table-bordered text-center" id="instanceAssignedTable">
+              <thead>
+                 <tr>
+                    <th class="text-center">Instance Id</th>
+                    <th class="text-center">Org</th>
+                    <th class="text-center">Bg</th>
+                    <th class="text-center">Project</th>
+                    <th class="text-center">Env</th>
+                    <th class="text-center">Instance IP</th>
+                    <th class="text-center">Instance State</th>
+                 </tr>
+              </thead>
+              <tbody class="instanceAssignedTable"></tbody>
+           </table>
+        </div>
+        <div id="instanceUnAssignedContainer" class="table-responsive table-responsiveCSS borderTop" style="display:none">
+           <div class="marginBottom15 headerTitle">
+              List of UnAssigned Instances&nbsp;
+           </div>
+           <!-- <button type="button" title="Filters" class="btn btn-xs btn-primary" data-toggle="collapse" data-target="#filter-panel" id="unassignedFilter">
+              <i class="fa fa-fw fa-filter white"></i>
+              </button> -->
+           <!-- <div class="container">
+              <div id="filter-panel" class="collapse filter-panel">
+                 <div class="panel panel-default">
+                    <div class="panel-body">
+                       <form class="form-inline" role="form">
+                          <div class="col-lg-3 col-md-3 col-xs-3">
+                             <label  for="filterProjectId">Project:</label>
+                             <select class="filterProjectId form-controls">
+                             </select>                                
+                          </div>
+                          
+                          <div class="col-lg-3 col-md-6 col-xs-3">
+                             <label for="filterEnvId"> Environment:</label>
+                             <select class="filterEnvId form-controls">
+                             </select>
+                          </div>
+                          
+                       </form>
+                    </div>
+                 </div>
+              </div>
+           </div> -->
+           <table style="width:100%" class="table table-hover table-bordered text-center" id="instanceUnassignedTable">
+              <thead>
+                 <tr>
+                    <th class="text-center">Instance Id</th>
+                    <th class="text-center">OS</th>
+                    <th class="text-center">IP Address</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Bg Tag Value</th>
+                    <th class="text-center">Project Tag Value</th>
+                    <th class="text-center">Env. Tag Value</th>
+                    <th class="text-center">Action</th>
+                 </tr>
+              </thead>
+              <tbody class="instanceUnassignedTable"></tbody>
+           </table>
+        </div>
+        <footer class="footer hidden">
+           <div class="clearfix form-actions text-center marginleft200 marginbottom0">
+              <div>
+                 <input type="button" id="unassignedSyncBtn" value="Update Tags" class="btn btn-primary">
+              </div>
+           </div>
+        </footer>
+      </div>
+      <script src="js/awsCapacity.js"></script>
+   </body>
+</html>

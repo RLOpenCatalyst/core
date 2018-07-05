@@ -1,0 +1,255 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/card/card.css">
+
+<div class="instancePage" id='instancePage' ng-controller="instanceCtrl">
+	<loading size="large" name="isInstancePageLoading" type="block"></loading>
+	<div ng-show="!isInstancePageLoading">
+		<div class="panel-heading">
+			<span class="panel-title">
+				<span>Instances</span>
+			</span>	
+			<span>
+                <button type="button" class="btn btn-xs btn-link {{instanceCardViewSelection}}" title="Card View" ng-click="setCardView()"  >
+                    <i class="fa fa-th"></i>
+                    Grid
+                </button>
+                 <button type="button" class="btn btn-xs btn-link {{instanceTableViewSelection}}" title="Table View" ng-click="instanceTableView()">
+                 	<i class="fa fa-align-justify"></i>
+                    List
+                </button>
+            </span>
+			<span class="pull-right">
+				<span ng-show="selectedInstanceId.length >0">
+					<button type="button" title="Schedule" class="btn btn-xs cat-btn-update" ng-click="scheduleInt()">
+						<i class="fa fa-calendar white"></i>
+					</button>
+				</span>
+                <span ng-if="filterBy">
+                    <span ng-repeat="chip in filterChips" class="chip"><strong>{{chip.key}}:&nbsp;</strong>{{chip.value}}</span>
+                    <span class="chip"><i class="fa fa-fw fa-close black cursor" ng-click="resetFilter()"></i></span>
+                </span>
+                <button type="button" title="Filters" class="btn btn-xs cat-btn-update" ng-click="fnShowFilters()">
+					<i class="fa fa-fw fa-filter white"></i>
+				</button>
+                <button type="button" title="Import By Ip" class="btn btn-xs cat-btn-update" 
+				ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch">
+					<i class="fa fa-plus white"></i>
+					Import
+				</button>
+                <button type="button" title="Refresh" class="btn btn-xs cat-btn-update" ng-click="refreshCurrentPage()">
+					<i class="fa fa-refresh white"></i>
+				</button>
+			</span>
+		</div>
+        <div class="box box-default instance-filter" ng-class="{'active':showFilters}">
+            <div class="box-header with-border">
+                <h3 class="box-title"><i class="fa fa-fw fa-filter"></i>Filter By</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" ng-click="resetFilter()" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-fw fa-refresh"></i>Reset</button>
+
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body form-horizontal">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="selectProvider" class="col-sm-3 control-label">Provider:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="filter.providerId" ng-options="provider._id as provider.providerName for provider in providers" ng-change="fnProviderChange()">
+                                    <option value=''>All</option>
+                               </select>
+                            </div>
+                        </div>                                   
+                    </div>
+                    <div class="col-md-1 loader-container">
+                       <span ng-show="providerLoading">
+                        <i class="fa fa-spinner fa-pulse fa-fw black"></i> 
+                       </span>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="selectRegion" class="col-sm-3 control-label">Region:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
+                                    <option value=''>All</option>
+                                </select>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="col-md-1 loader-container">
+                       <span ng-show="regionLoading">
+                        <i class="fa fa-spinner fa-pulse fa-fw black"></i> 
+                       </span>
+                    </div>
+                    <div class="col-md-3">
+                       <div class="form-group">
+                            <label for="selectVPC" class="col-sm-3 control-label">VPC:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control select2 select2-hidden-accessible" id="selectVPC" ng-options="vpc.VpcId as vpc.VpcId +' ('+vpc.CidrBlock+')' for vpc in vpcs" ng-model="filter.vpcId">
+                                    <option value=''>All</option>
+                                </select>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="col-md-1">
+                       <button type="button" title="Search" class="btn btn-xs cat-btn-update" ng-click="fnSearchFilters()">
+							<i class="fa fa-fw fa-search white"></i>
+						</button>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+        </div>
+    
+		<div class="alert alert-info text-center" ng-show="instanceList.length===0">
+			No Instances Available
+		</div>
+        
+        <section id="cardView" class="scrollContent" ng-show="isCardViewActive">
+			<!-- <div style="position: absolute;left: 10px;">All</div> -->
+			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
+				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :selectedInstanceId.indexOf(inst._id) !== -1}">
+					<div class="card-title">
+						<div class="card-title-role">
+							<img class="instanceRoleLogo" ng-src="{{getRoleLogo(inst)}}" />
+						</div>
+						<div title="{{inst.name}}" class="card-title-name pull-left">{{inst.name}}</div>
+						<div class='card-title-edit'>
+							<span><i class="fa fa-pencil edit-instance-name cursor" ng-click="operationSet.editInstanceName(inst);" title="Edit Instance Name"></i></span>
+						</div>
+						<div class="card-title-osIcon">
+							<img ng-src="{{getOSLogo(inst)}}" />
+						</div>
+						<hr/>
+					</div>
+					<div class="card-status-state">
+						<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
+							<i class="fa fa-info-circle card-circle-info cursor" title="More Info" ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
+							<img class="docker-image dockerenabledinstacne" alt="Docker"
+							src="images/global/docker.png" ng-show="inst.docker && inst.docker.dockerEngineStatus === 'success'" ng-click="openContainersTab()"/>
+						</div>
+					</div>
+					<div class="instance-ip">
+						<strong ng-if="inst.instanceIP">{{inst.instanceIP}}</strong><strong ng-if="!inst.instanceIP && inst.privateIpAddress">{{inst.privateIpAddress}}</strong>
+					</div>
+					<div class="provider-id" title="{{getPlatformId(inst.providerType,inst.platformId)}}">
+						{{getPlatformId(inst.providerType,inst.platformId)}}
+						<i class="fa fa-line-chart cursor marginleft5" title="Usage" ng-show="inst.providerType" ng-click="showInstanceUsage(inst);"></i>
+					</div>
+					<div class="card-btns" ng-hide="hoverEdit">
+						<div ng-show="actionSet.isChefEnabled(inst) &amp;&amp; perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="operationSet.updateCookbook(inst);">
+						</div>
+						<div ng-show="actionSet.isChefDisabled(inst) &amp;&amp; perms.chefClientRun" class="btn-icons icon-chef-disabled">
+						</div>
+						<div ng-show="actionSet.isPuppetEnabled(inst) &amp;&amp; perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="operationSet.puppetRunClient(inst);">
+						</div>
+						<div ng-show="actionSet.isPuppetDisabled(inst) &amp;&amp; perms.puppet" class="btn-icons icon-puppet-disabled">
+						</div>
+						<div class='btn-icons icon-ssh' title="SSH" ng-click="operationSet.instanceSSH(inst)" ng-show="actionSet.isSSHEnabled(inst) &amp;&amp; perms.ssh"></div>
+						 <div class='btn-icons icon-ssh-disabled' ng-show="actionSet.isSSHDisabled(inst) &amp;&amp; perms.ssh"></div>
+						 <div ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp">
+						 	<a class='btn-icons icon-rdp' title="RDP" target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}"></a>
+						 </div>
+						 <div class='btn-icons icon-rdp-disabled' ng-show="actionSet.isRDPDisabled(inst) &amp;&amp; perms.rdp"></div>
+						 <div class="options-menu-wrapper">
+							<div class="btn-icons dropdown">
+								<button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+								<i class="fa fa-ellipsis-v"></i></button>
+								<ul class="dropdown-menu">
+									<li>
+										<span ng-click="instanceControlPanel(inst);">
+											<i class="fa fa-gears dropdown-icon"></i>
+											Control Panel
+										</span>
+									</li>
+									<li>
+										<span ng-click="operationSet.deleteInstance(inst, $index);">
+											<i class="fa fa-trash-o dropdown-icon"></i>
+											Delete Instance
+										</span>
+									</li>
+									<li class="edit-instance-bs">
+										<span ng-click="operationSet.editInstanceName(inst);">
+											<i class="fa fa-pencil dropdown-icon"></i>
+											Edit Instance Name
+										</span>
+									</li>
+										<li class="more-info-bs">
+											<span ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo">
+												<i class="fa fa-info-circle dropdown-icon"></i>
+												More Info
+											</span>
+										</li>
+										<li class="ssh-bs">
+											<span ng-click="operationSet.instanceSSH(inst)" ng-show="inst.hardware.os==='linux' || inst.hardware.os==='centos'">
+												<i class="fa fa-briefcase dropdown-icon"></i>
+												SSH
+											</span>
+										</li>
+										<li class="rdp-bs" ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp">
+										<span>
+											<a class="rdp-anchor" target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}">
+												<i class="fa fa-stack-overflow dropdown-icon"></i>
+												RDP
+											</a>
+										</span>
+									  </li>
+									<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
+									  && inst.instanceState === 'stopped' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
+										<span>
+											<i class="fa fa-play dropdown-icon"></i>
+											Start Instance
+										</span>
+									</li>
+									<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.stop && inst.instanceState === 'running' && inst.providerId" ng-disabled="instStartStopFlag"  ng-class="{'hideStartStopCur': instStartStopFlag}">
+										<span>
+											<i class="fa fa-stop dropdown-icon"></i>
+											Stop Instance
+										</span>
+									</li>
+									<li class="divider" ng-hide="inst.appUrls.length==0 && inst.tasks.length==0"></li>
+									<span ng-hide="inst.appUrls.length==0">
+										<li class="no-action">
+											<span>
+												<i class="fa fa-list-alt dropdown-icon"></i>
+												App Links
+											</span>
+										</li>
+										<ul class="paddingleft32 instanceTaskListUL">
+											<li ng-repeat="applink in inst.appUrls">
+												<a class="app-url cursor" target="_blank" ng-href="{{applink.url}}">
+													{{applink.name}}
+												</a>
+											</li>
+										</ul>
+									</span>
+									<span ng-hide="inst.tasks.length==0">
+										<li class="no-action">
+											<span class="menuTaskSpan">
+												<i class="fa fa-outdent dropdown-icon"></i>
+												Task Links
+											</span>
+										</li>
+										<ul class="paddingleft32 instanceTaskListUL">
+											<li class="cursor" ng-click="instanceExecute(taskDetail)" ng-repeat="taskDetail in inst.tasks">{{taskDetail.taskName}}</li>
+										</ul>
+									</span>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding" ng-show="cardsAvailable">
+				<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="10" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationChange()" class="paginationStyle"></pagination>
+			</div>
+		</section>
+		<section id="tableView" ng-show="!isCardViewActive">
+			<div class="instance-grid-wrapper">
+				<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>-->
+				<div id="grid2" ng-if="tabData.length >0" ui-grid="instancesGridOptions" ui-grid-selection ui-grid-pagination ui-grid-auto-resize class="grid instance-status" style="height: {{gridHeight}}px"></div>
+			</div>
+		</section>
+	</div>
+</div>

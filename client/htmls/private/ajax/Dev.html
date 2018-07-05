@@ -1,0 +1,2280 @@
+<!--tabs start here-->
+<div class="row">
+   <article class="col-sm-12 col-md-12 col-lg-12">
+      <div id="widget_body_container" class="widget-body" style="font-size:12px;">
+         <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+            <li class="dropdown active InfrastructureLocalStorage">
+               <a data-toggle="dropdown" class="dropdown-toggle" href="javascript:void(0);">Infrastructure<b class="caret"></b></a>
+               <ul class="dropdown-menu">
+                  <li class="active Instances">
+                     <a href="#l1" style="display:block!important" data-toggle="tab"><i class="fa fa-reorder"></i>&nbsp;Instances <label id="instanceSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label></a>
+                  </li>
+                  <li class="Blueprints">
+                     <a href="#l2" style="display:block!important" data-toggle="tab"><i class="fa fa-crosshairs"></i>&nbsp;Blueprints</a>
+                  </li>
+                  <li class="CloudFormation">
+                     <a href="#l5" style="display:block!important" data-toggle="tab"><i class="fa fa-indent"></i>&nbsp;CloudFormation</a>
+                  </li>
+                  <li class="AzureArmTab">
+                     <a href="#l7" style="display:block!important" data-toggle="tab"><i class="fa fa-indent"></i>&nbsp;AzureARM</a>
+                  </li>
+                  <li class="Containers">
+                     <a href="#l4" style="display:block!important" data-toggle="tab"><i class="fa fa-briefcase"></i>&nbsp;Containers</a>
+                  </li>
+               </ul>
+            </li>
+            <li class="pull-left Orchestration">
+               <a href="#l3" style="display:block!important" data-toggle="tab"><i class="fa fa-indent"></i>&nbsp;Orchestration</a>
+            </li>
+            <li class="pull-left Applications">
+               <a href="#l6" style="display:block!important" data-toggle="tab"><i class="fa fa-shield"></i>&nbsp;Applications</a>
+            </li>
+         </ul>
+         <div id="myTabContent3" class="nav tab-content">
+            <!-- instance start -->
+
+            <!--css styles-->
+<style>
+.bodyStyle{
+   padding:0px !important;
+}
+.tableInstance{
+   padding-left:0px; 
+   padding-right:0px;
+   padding-top:50px;
+}
+.tableBorderStyle{
+   border:1px solid #eeeeee !important;
+   text-align:center;
+}
+.ctrlBtn{
+   margin-left:200px!important;
+}
+</style>
+<!--css styles ends here-->
+
+<!--tab for instances-->
+<div class="tab-pane fade in active" id="l1">
+   <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+      <div>
+         <div class="widget-body no-padding">
+            <div class="panel-group smart-accordion-default" id="accordion-1" style="overflow-y: auto;">
+               <div class="panel panel-default">
+                  <div class="panel-heading">
+                     <h4 class="panel-title panelStyle font-size-12">
+                        <a data-toggle="collapse">Instances</a>
+                        <div class="instanceloaderspinner hidden"><img   src="img/select2-spinner.gif"> Loading Instances</div>
+                     </h4>
+                     <span class="pull-right swap-view">
+                     <span class="pull-right importButton">
+                     <a type="reset" id="ipaddressimport" data-original-title="Import Instance" data-placement="top" title="Import By IP" rel="tooltip" href="#modalContainerimportInstance" data-backdrop="false" data-toggle="modal">
+                     <i class="fa fa-th fa-2x fa-laptop"/>
+                     </a>
+                     </span>
+                     <a class="btn1" id="defaultViewButton" onclick="showHideControl(this.id)"> <i class="fa fa-th fa-2x txt-color-deactive font-size18" title="Card View"/></a>&nbsp;
+                     <a id="instanceview" class="btn1" onclick="showHideControl(this.id)"> <i class="fa fa-align-justify fa-2x txt-color-deactive font-size18" title="Table View"/></a></span>
+                  </div>
+                  <div id="collapseOne-1" class="panel-collapse collapse in">
+                     <div class="panel-body bodyStyle">
+                        <div class="widget-box" id="divinstancestableview">
+                           <div class="widget-body">
+                              <div class="widget-main widgetHeight">
+                                 <div class="col-md-12 tableInstance">
+                                    <div class="table-responsive table-div" >
+                                       <table id="tableinstanceview" class="table table-bordered dataTable tableBorderStyle" cellpadding="5px" width="100%">
+                                          <thead>
+                                             <tr class="rowCustomStyle">
+                                                <td>Logo</td>
+                                                <td>Name</td>
+                                                <td>IPAddress</td>
+                                                <td>Runlists</td>
+                                                <td>Status</td>
+                                                <td>Log Info</td>
+                                                <td>Chef Run</td>
+                                                <td class="widthAdjustment">Action</td>
+                                             </tr>
+                                          </thead>
+                                          <tbody class="customRow" id="customRow">
+                                          </tbody>
+                                       </table>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div id="divinstancescardview" class="carousel slide">
+                           <div class="carousel-inner">
+                              <!-- Slide 1 -->
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <footer class="footer">
+      <div class="clearfix form-actions textCenter">
+         <div class="btn-group">
+            <button class="btn btn-primary actionControlPanel ctrlBtn">
+            <i class="fa fa-gears"></i>
+            Control Panel
+            </button>
+         </div>
+         <a class="btn pull-right btn-danger right-button" title="Delete Instance" id="removeInstance" >
+         <i class="fa fa-trash-o"></i>
+         </a>
+      </div>
+   </footer>
+</div>
+<!--tab-pane l1 gets over-->
+<!--ssh container-->
+<!-- Modal SSH Shell-->
+<div class="modal fade" id="modalSSHShellContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">
+               <i class="fa fa-terminal txt-color-blue"></i>&nbsp;&nbsp;SSH Terminal
+            </h4>
+         </div>
+         <div class="modal-body modalbody-height">
+            <fieldset></fieldset>
+         </div>
+      </div>
+   </div>
+</div>
+<!--SSH container ends here-->
+<!-- Modal for Import By IP tab started-->
+<div class="modal fade" id="modalContainerimportInstance" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" class="cmxform" id="addInstanceForm" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               &times;
+               </button>
+               <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Import Instance By IP
+               </h4>
+            </div>
+            <div class="modal-body">
+               <fieldset>
+                  <span id="spanforshefserverfound">
+                  <div class="col-lg-6 col-md-6 col-sm-6">
+                     <label for="instanceFQDN">Enter IP Address<span class="control-label redSpan">&nbsp;*</span>
+                     </label>
+                     <div class="input-groups">
+                        <input type="text" name="instanceFQDN" class="form-control" id="instanceFQDN" autofocus/>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6">
+                     <label for="importinstanceOS">Choose Operating System<span class="redSpan">&nbsp;*</span></label>
+                     <div class="input-groups">
+                        <select id="importinstanceOS" name="importinstanceOS"  class="width-100 form-control" >
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                     <label for="instanceUsername">Username<span class="control-label redSpan">&nbsp;*</span></label>
+                     <div class="input-groups">
+                        <input type="text" name="instanceUsername" class="form-control" id="instanceUsername">
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                     <label for="">Config Management<span class="control-label redSpan">&nbsp;*</span></label>
+                     <select id="configManagementDropdown"  class="width-100 form-control" >
+                     </select>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                     <label for="">Choose Authentication Type<span class="control-label redSpan">&nbsp;*</span></label>
+                     <select id="pemFileDropdown"  class="authenticationType width-100 form-control">
+                        <option value="password">Password</option>
+                        <option value="pemFile">Pem File</option>
+                     </select>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 authPassword margintop15">
+                     <label for="instancePassword">Password<span class="control-label redSpan">&nbsp;*</span></label>
+                     <div class="input-groups">
+                        <input type="password" name="instancePassword" class="form-control" id="instancePassword" />
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 authPemFile margintop15">
+                     <label for="importPemfileInput">Pem File<span class="control-label redSpan">&nbsp;*</span><span class="redSpan hidden" id="requiredPemFile">&nbsp;Required</span></label>
+                     <div class="input-groups">
+                        <input id="importPemfileInput" class="required form-control form-controls" multiple extension="pem" name="importPemfileInput" type="file">
+                     </div>
+                  </div>
+                  <!--app series-->
+                  <div class="applicationURLContainer" id="appSeries12">
+                     <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                        <label for="">Application Name</label>
+                        <input placeholder="AppName" maxlength="8" type="text" name="appNameInput" class="form-control appName">
+                     </div>
+                     <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                        <label for="appNameURL">Application URL<span class="redSpan hidden" id="validURL">&nbsp;Please Enter a Valid URL</span></label>
+                        <div class="input-groups">
+                           <input type="text" id="appNameURL" name="appNameURL" class="form-control appURL" placeholder="http://$host[:port]/appname">
+                        </div>
+                     </div>
+                  </div>
+                  <a href="javascript:void(0)" class="clearfix pull-right addNewApp1 appDesignNew" data-backdrop="false" data-toggle="modal">Add Application URL</a>
+               </fieldset>
+            </div>
+            <div class="modal-footer">
+               <label id="nodeimportipspinner" class=" hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+               <label id="nodeimportipresultmsg" class=" hidden"></label>
+               <div class="marginForButtons">
+                  <a class="btn btn-default" type="submit" data-dismiss="modal">
+                  <i class="fa fa-times fa-1x"></i>&nbsp;Cancel
+                  </a>
+                  <button id="addInstanceBtn" class="btn btn-primary" type="submit">
+                  <i class="fa fa-upload fa-1x"></i>&nbsp;Import
+                  </button>
+               </div>
+            </div>
+         </form>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!-- /.modal for Import by IP ended-->
+
+<!--modal for showing the tasks-->
+<div class="modal fade" id="cloneRunlistContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">
+               <i class="fa fa-bar-chart-o txt-color-blue"></i>
+               List of Tasks
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div class="taskArea font-size-12"></div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+<!--running chef client-->
+<div class="modal fade bs-example-modal-lg" id="chefRunModalContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel"><i class="fa fa-pencil-square-o txt-color-blue"></i>Update Runlist</h4>
+         </div>
+         <div class="modal-body" style="padding:0px !important">
+            <div class="panel-group smart-accordion-default" id="chefRunAccordion" role="tablist" aria-multiselectable="true">
+               <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="headingOne">
+                     <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#chefRunAccordion" href="#chefRunAccordionRunlistArea"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Assign Runlist</a>
+                     </h4>
+                  </div>
+                  <div id="chefRunAccordionRunlistArea" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                     <div class="panel-body">
+                        <div class="chefRunlistContainer">
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="headingOne">
+                     <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#chefRunAccordion" href="#chefRunAccordionAttributeArea" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Cookbook Attributes</a>
+                     </h4>
+                  </div>
+                  <div id="chefRunAccordionAttributeArea" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                     <div class="panel-body">
+                        <div class="col-lg-12">
+                           <div class="smart-form margin15">
+                              <label class="marginbottom4">
+                              <img src="img/templateicons/Select-nodes---deployment.png">
+                              <strong>Cookbook Attributes 
+                              <a class="bpEditBtn btn btn-primary editAttributesBtnCSS editChefClientRunAttribBtn" rel="tooltip" data-placement="top" data-original-title="Edit">
+                              <i class="ace-icon fa fa-pencil"></i>
+                              </a>
+                              <span style="color:red" id="attrmessage"></span>
+                              </strong>
+                              </label>
+                              <div class="row">
+                                 <div class="col-lg-12">
+                                    <table  class="chefRunAttributesViewTable table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                                       <thead>
+                                          <tr>
+                                             <th>Attributes</th>
+                                             <th>Values</th>
+                                          </tr>
+                                       </thead>
+                                       <tbody class="attributesViewTableBody">
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="modal-footer">
+            <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+            <button type="button" class="btn btn-default btn-primary btnUpdateInstanceRunlist">Update</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!--execute modal-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="chefClientRunAttributesModal" class="modal fade" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+            x
+            </button>
+            <h4 class="modal-title">
+               <i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Edit Attributes
+            </h4>
+         </div>
+         <div class="modal-body no-padding">
+            <div class="loadingContainer">
+               <img class="center-block loadingContainerimageCSS" src="img/loading.gif" />
+            </div>
+            <div class="errorMsgContainer loadingerrorMsgContainerCSS"></div>
+            <form  class="attributesEditFormArea padding10" action="">
+               <table class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter attributesListTable" cellpadding="5px" width="100%">
+                  <thead>
+                     <tr>
+                        <th>Attributes</th>
+                        <th>Values</th>
+                     </tr>
+                  </thead>
+                  <tbody class="attributesEditTableBody">
+                  </tbody>
+               </table>
+            </form>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary btnSaveInstanceRunlistAttributes">Save</button>
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedExecute-->
+            
+           
+            <!-- instance end -->
+
+
+
+         <!-- blueprint start -->
+
+         <style>
+.accordionStyle{
+   height:444px!important;
+   overflow-y: auto!important;
+}
+.launchBtnMargin{
+   margin-left:200px!important;
+}
+</style>
+<!--blueprint tab-->
+<div class="tab-pane" id="l2">
+   <div class="panel-heading">
+      <h4 class="panel-title font-size-12">Blueprints</h4>
+   </div>
+   <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+      <div>
+         <div class="widget-body no-padding">
+            <div class="panel-group smart-accordion-default accordionStyle" id="accordion-2">
+               <div class="devopsRolePanel panel panel-default blueprintContainer">
+                  <div class="panel-heading">
+                     <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-2" href="#collapseOne-2"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Devop Roles</a></h4>
+                  </div>
+                  <div id="collapseOne-2" class="panel-collapse collapse">
+                     <div class="panel-body">
+                     </div>
+                  </div>
+               </div>
+               <!--App Factory Starts here-->
+               <div class="appFactoryPanel panel panel-default blueprintContainer">
+                  <div class="panel-heading">
+                     <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-2" href="#collapse2"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>App Factory</a></h4>
+                  </div>
+                  <div id="collapse2" class="panel-collapse collapse">
+                     <div class="panel-body">
+                     </div>
+                  </div>
+               </div>
+               <!--App Factory ends here-->
+               <div class="panel panel-default blueprintContainer">
+                  <div class="panel-heading ">
+                     <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-2" href="#collapse3" class="collapsed"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Cloud Formation</a></h4>
+                  </div>
+                  <div id="collapse3" class="panel-collapse collapse in">
+                     <div class="panel-body">
+                     </div>
+                  </div>
+               </div>
+               <div class="desktopProvisioningPanel panel panel-default blueprintContainer">
+                  <div class="panel-heading">
+                     <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-2" href="#collapse4"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Desktop Provisioning</a></h4>
+                  </div>
+                  <div id="collapse4" class="panel-collapse collapse">
+                     <div class="panel-body">
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <footer class="footer">
+      <div class="clearfix form-actions textCenter">
+         <div class="btn-group">
+            <a type="reset" class="btn pull-left btn-primary launchBtn launchBtnMargin">
+            <i class="ace-icon fa  fa-location-arrow bigger-110"></i>
+            Launch
+            </a>
+         </div>
+         <button class="btn pull-right btn-danger right-button" title="Delete Blueprint" onClick="removeSelectedBlueprint()" > <i class="fa fa-trash-o"></i></button>
+      </div>
+   </footer>
+   <!--Launch div ends here-->
+</div>
+<!--tab-pane l2 gets over -->
+
+<!--modal for blueprint edit-->
+<div class="modal fade bs-example-modal-lg" id="blueprintEditResultContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">Blueprint Edit</h4>
+         </div>
+         <div class="modal-body">
+         </div>
+         <div class="modal-footer">
+            <a type="button" class="btn btn-default btn-default" data-dismiss="modal">Close</a>
+            <button type="button" class="btn btn-default btn-primary blueprintUpdateBtn" data-dismiss="modal">Save Version</button>
+         </div>
+      </div>
+   </div>
+</div>
+<!--modal for blueprint edit read-->
+         
+
+         <!-- blueprint end -->
+         
+
+         <!-- orchestration start -->
+
+         <style>
+.noBorder{
+   border-top: 0px none;
+}
+.headingStyle{
+   border-bottom:1px solid rgb(221, 221, 221)!important;
+   height:40px!important;
+   background-color: #fcfcfc!important;
+}
+.titleWidth{
+   width:100%;
+}
+.btnStyle{
+   float:right;margin-top:-6px;
+}
+</style>
+<!--orchestration tab starts here-->
+<div class="tab-pane" id="l3">
+   <div class="jarviswidget jarviswidget-color-blueLight" id="orchestrationTable" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+      <div>
+         <div class="widget-body no-padding">
+            <div class="" >
+               <div class="panel panel-default noBorder">
+                  <div class="panel-heading headingStyle">
+                     <h4 class="panel-title titleWidth">
+                        <span class="font-size-12">
+                        List of Tasks
+                        </span>
+                        <span class="btnStyle">
+                        <button class="btn btn-minier btn-primary createTaskLink" href="javascript:void(0)">
+                        <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                        New
+                        </button>
+                        </span>
+                     </h4>
+                  </div>
+                  <div id="orchestrationTable_old" class="row">
+                     <div class="widget-body">
+                        <div class="widget-main widgetHeight">
+                           <div class="col-md-12 table-responsive" style=" padding-top: 40px;">
+                              <table id="tableOrchestration" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%">
+                                 <thead>
+                                    <tr class="rowCustomStyle">
+                                       <td style="width:64px;">Job Type</td>
+                                       <td>Name</td>
+                                       <td style="width:232px">Job Description</td>
+                                       <td style="width:90px;">Job Links</td>
+                                       <td>Execute</td>
+                                       <td>History</td>
+                                       <td style="width:80px;">Last Run</td>
+                                       <td>Action</td>
+                                    </tr>
+                                 </thead>
+                                 <tbody class="taskListArea">
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--jenkins job history start here-->
+   <div id="jenkinsJobHistory" class="row hidden">
+      <div class="col-md-12">
+         <div class="col-md-12">
+            <div class="widget-box">
+               <div class="widget-header">
+                  <h5 class="widget-title jenkinsTitle" style="color:#4e5964;">
+                     <strong></strong>
+                  </h5>
+                  <div class="widget-toolbar no-border">
+                     <div>
+                        <button class="btn btn-minier btn-primary hideJenkinsJob" href="javascript:void(0)">
+                           <i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>
+                           <!-- Close -->
+                           List of Tasks
+                        </button>
+                     </div>
+                  </div>
+               </div>
+               <div class="widget-body">
+                  <div class="widget-main widgetHeight">
+                     <div class="loadingContainer"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+                     <div class="errorMsgContainer" style="font-size: 14px;height: 100px;padding-top: 10px;text-align: center;"></div>
+                     <div class="outputArea">
+                        <div class="col-md-12 table-responsive">
+                           <table id="tablehistoryTaskForJenkins" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%">
+                              <thead>
+                                 <tr class="rowCustomStyle">
+                                    <td>Job Number</td>
+                                    <td>Job Output</td>
+                                    <td>Status</td>
+                                    <td>Start Time</td>
+                                    <td>End Time</td>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--jenkins job history ends here-->
+
+   <!--chef history starts here-->
+   <div id="chefJobHistory" class="row hidden">
+      <div class="col-md-12">
+         <div class="col-md-12">
+            <div class="widget-box">
+               <div class="widget-header">
+                  <h5 class="widget-title chefTitle" style="color:#4e5964;">
+                  </h5>
+                  <div class="widget-toolbar no-border">
+                     <div>
+                        <button class="btn btn-minier btn-primary hideChefJob" href="javascript:void(0)">
+                           <i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>
+                           <!-- Close -->
+                           List of Tasks
+                        </button>
+                     </div>
+                  </div>
+               </div>
+               <div class="widget-body">
+                  <div class="widget-main widgetHeight">
+                     <div class="loadingContainer"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+                     <div class="errorMsgContainer" style="font-size: 14px;height: 100px;padding-top: 10px;text-align: center;"></div>
+                     <div class="outputArea">
+                        <div class="col-md-12 table-responsive">
+                           <table id="tablehistoryTask" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%">
+                              <thead>
+                                 <tr class="rowCustomStyle">
+                                    <td>Start Time</td>
+                                    <td>End Time</td>
+                                    <td>Status</td>
+                                    <td style="width: 42%">Message</td>
+                                    <td>User</td>
+                                    <td>Logs</td>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--chef history ends here-->
+
+   <!--composite history starts here-->
+   <div id="compositeJobHistory" class="row hidden">
+      <div class="col-md-12">
+         <div class="col-md-12">
+            <div class="widget-box">
+               <div class="widget-header">
+                  <h5 class="widget-title compositeTitle" style="color:#4e5964;">
+                  </h5>
+                  <div class="widget-toolbar no-border">
+                     <div>
+                        <button class="btn btn-minier btn-primary hideCompositeJob" href="javascript:void(0)">
+                           <i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>
+                           <!-- Close -->
+                           List of Tasks
+                        </button>
+                     </div>
+                  </div>
+               </div>
+               <!--For composite history-->
+               <div class="widget-body">
+                  <div class="widget-main widgetHeight">
+                     <div class="loadingContainer"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+                     <div class="errorMsgContainer" style="font-size: 14px;height: 100px;padding-top: 10px;text-align: center;"></div>
+                     <div class="outputArea">
+                        <div class="col-md-12 table-responsive">
+                           <table id="compositeTablehistoryTask" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%">
+                              <thead>
+                                 <tr class="rowCustomStyle">
+                                    <td>Start Time</td>
+                                    <td>End Time</td>
+                                    <td>Status</td>
+                                    <td>User</td>
+                                    <td>Logs</td>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--composite job history start here-->
+</div>
+<!--l3 tab ends here-->
+<!--/.modal-assignedNode-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="assignedNode" class="modal fade" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+            x
+            </button>
+            <h4 class="modal-title">
+               <i class="fa fa-sitemap txt-color-blue"></i>&nbsp;&nbsp;Assigned Nodes
+            </h4>
+         </div>
+         <div class="modal-body no-padding">
+            <form class="smart-form" id="login-form" action="" novalidate="novalidate">
+               <fieldset style="padding-top:7px !important;">
+                  <section>
+                     <div class="">
+                        <table align="left" style="margin-left:20px;">
+                           <thead>
+                              <tr style="line-height:2.3">
+                                 <th style="width:100px" scope="col"><u class="font-size-12">Name</u>
+                                 </th>
+                                 <th style="width:100px" scope="col"> <u class="font-size-12">IP Address</u></th>
+                                 <th scope="col"> <u class="font-size-12">Status</u></th>
+                              </tr>
+                           </thead>
+                           <tbody class="taskNodeListContainer">
+                           </tbody>
+                        </table>
+                     </div>
+                  </section>
+               </fieldset>
+               <div>
+               </div>
+               <footer>
+                  <button class="btn btn-primary" type="button" data-dismiss="modal">
+                  &nbsp;Close
+                  </button>
+               </footer>
+            </form>
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedNode-->
+<!--/.modal-assignedRunlist-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="assignedRunlist" class="modal fade" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+            x
+            </button>
+            <h4 class="modal-title">
+               <i class="fa fa-list txt-color-blue"></i>&nbsp;&nbsp;Assigned Runlists
+            </h4>
+         </div>
+         <div class="modal-body no-padding">
+            <form class="smart-form" id="login-form" action="" novalidate="novalidate">
+               <fieldset style="padding-top:7px !important;">
+                  <section class="col col-6">
+                     <label class="label">
+                     <img src="img/templateicons/Order-run-list---deployment.png">
+                     <strong>RunLists</strong>
+                     </label>
+                     <div class="row">
+                        <div class="col col-10">
+                           <ul class="taskRunListContainer assignedRunlists">
+                           </ul>
+                        </div>
+                     </div>
+                  </section>
+               </fieldset>
+               <div>
+               </div>
+               <footer>
+                  <button class="btn btn-primary" type="button" data-dismiss="modal">
+                  &nbsp;Close
+                  </button>
+               </footer>
+            </form>
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedRunlist-->
+<!--execute modal-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="assignedExecute" class="modal fade" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+            x
+            </button>
+            <h4 class="modal-title">
+               <i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Execute Logs
+            </h4>
+         </div>
+         <div class="modal-body no-padding jenkinsChefModal">
+            <div class="loadingContainer"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+            <div class="errorMsgContainer" style="font-size: 14px;height: 100px;padding-top: 10px;text-align: center;"></div>
+            <form class="outputArea" action="">
+               <div role="content">
+                  <div class="widget-body">
+                     <ul id="taskExecuteTabsHeader" class="nav nav-tabs bordered">
+                     </ul>
+                     <div id="taskExecuteTabsContent" class="tab-content padding-10">
+                     </div>
+                  </div>
+               </div>
+            </form>
+         </div>
+         <div class="modal-footer" style="margin-top: 0px;">
+            <a type="button" class="btn btn-primary" data-dismiss="modal">Close</a>
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedExecute-->
+<!--execute modal-->
+<div class="modal fade" id="modalForSelect" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog " style="">
+      <div class="modal-content">
+         <form role="form"  id="executeJob">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+               <h4 class="modal-title">
+                  &nbsp;&nbsp;&nbsp;&nbsp;Select Choice Parameter &amp; Execute
+               </h4>
+            </div>
+            <div class="modal-body" style="height:auto;">
+               <table id="paramTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%">
+                  <thead>
+                     <tr class="rowCustomStyle">
+                        <td>Name</td>
+                        <td>Value</td>
+                     </tr>
+                  </thead>
+                  <tbody id="paramTableList">
+                  </tbody>
+               </table>
+            </div>
+            <div class="modal-footer">
+               <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+               <button type="submit" id="executeBtn" class="btn btn-primary" value="Ok">Ok</button>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+
+         
+         <!-- orchestration end -->
+         
+
+         <!-- cft start -->
+
+         <style>
+.overFlowSmart{
+    overflow-y:auto;
+}
+</style>
+<!--cloudformation tab-->
+<div class="tab-pane" id="l5">
+    <div class="panel-heading">
+        <h5 class="panel-title font-size-12">Cloud Formation</h5>
+    </div>
+    <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+        <div>
+            <div class="widget-body no-padding">
+                <div class="panel-group smart-accordion-default overFlowSmart">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse">Stacks</a>
+                            </h4>
+                        </div>
+                        <div class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <div id="cftStackContainer" class="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="clearfix form-actions textCenter">
+            <button class="btn pull-right btn-danger right-button" title="Delete Stack" onclick="removeStack()"> <i class="fa fa-trash-o"></i></button>
+        </div>
+    </footer>
+    <!--Launch div ends here-->
+</div>
+<!--tab-pane l5 gets over -->
+<!--cloudforamtion events area-->
+<div class="modal fade" id="cftEventModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">
+                    <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Event History
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="logsArea font-size-12">
+                </div>
+                <table class="templateTable table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%" style="display:none">
+                    <thead>
+                        <tr class="rowCustomStyle">
+                            <td>Timestamp</td>
+                            <td>Resource Name</td>
+                            <td>Resource Type</td>
+                            <td>Resource Status</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+         <!-- cft end -->
+         
+         <!-- azure arm start -->
+
+         <style>
+.overFlowSmart{
+   overflow-y:auto;
+}
+</style>
+<!--azure arm tab-->
+<div class="tab-pane" id="l7">
+   <div class="panel-heading">
+      <h5 class="panel-title font-size-12">Azure ARM</h5>
+   </div>
+   <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+      <div>
+         <div class="widget-body no-padding">
+            <div class="panel-group smart-accordion-default overFlowSmart">
+               <div class="panel panel-default">
+                  <div class="panel-heading">
+                     <h4 class="panel-title">
+                        <a data-toggle="collapse">Deployments</a>
+                     </h4>
+                  </div>
+                  <div class="panel-collapse collapse in">
+                     <div class="panel-body">
+                        <div id="azureDeploymentContainer" class="">
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <footer class="footer">
+      <div class="clearfix form-actions textCenter">
+         <button class="btn pull-right btn-danger right-button" title="Delete Stack" onclick="removeArmDeployment()"> <i class="fa fa-trash-o"></i></button>
+      </div>
+   </footer>
+   <!--Launch div ends here-->
+</div>
+<!--tab-pane l7 gets over -->
+
+<!--azure arm events area-->
+<div class="modal fade" id="cftEventModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title">
+               <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Event History
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div class="logsArea font-size-12">
+            </div>
+            <table class="templateTable table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%" style="display:none">
+               <thead>
+                  <tr class="rowCustomStyle">
+                     <td>Timestamp</td>
+                     <td>Resource Name</td>
+                     <td>Resource Type</td>
+                     <td>Resource Status</td>
+                  </tr>
+               </thead>
+               <tbody>
+               </tbody>
+            </table>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+<!--azure arm events area ends here-->
+
+
+
+         <!-- azure arm end -->
+         
+
+         <!-- application start -->
+
+         <link rel="stylesheet" type="text/css" href="css/application.css">
+<div class="tab-pane" id="l6">
+    <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-application" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+        <div>
+            <div class="widget-body no-padding">
+                <div class="col-lg-6 col-md-6 availableApp hidden">
+                    <label for="chooseApplication">Choose Available Application:<span class="redSpan">*</span></label>
+                    <div class="input-groups">
+                        <select id="chooseApplication" name="chooseApplication" class="required chooseApplication width-100">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 hidden">
+                    <div class="panel-heading">
+                        <span class="pull-right swap-view">
+                  <a class="btn btn-primary envAppDeployList margin-top-15" href="#modalAppCardTableDetails" data-toggle="modal">
+                  <span class="fontBold">List of Application</span>
+                        <i title="Add Application Details" class="fa fa-list fa-2x listApp"></i>
+                        </a>
+                        <a class="btn btn-primary envAppDeployModal margin-top-15" href="#modalAppCardDetails" data-toggle="modal">
+                            <span class="fontBold">Add Application</span>
+                            <i title="Add Application Details" class="fa fa-plus fa-2x listApp"></i>
+                        </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="row noAppEnvironment padding15" style="display:none">
+                  <div class="alert alert-warning text-center">
+                      <span class="font-size-13">Please activate environments from configure application to see the Pipeline View</span>
+                  </div>
+                </div>
+                <div class="row">
+                    <article class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="widget-body font-size12" id="widgetAppDeploy">
+                            <div class="panel-group smart-accordion-default" id="accordion-AppDeploy">
+                            </div>
+                            <div id="nodataAppDeploy" style="display:none">
+                            </div>
+                            <div class="mainCardTemplate" style="display:none">
+                             <span>
+                                <div class="col-sm-12 col-md-12 col-lg-12 col-xs-6 no-padding padding-right5-mobile maxminwidth130">
+                                    <div class="panel panel-primary appcard-role-inner bordercolorGrayMain mainCardHeight">
+                                        <div class="panel-heading-support-main">
+                                            
+                                            <span class="spanHeading">
+                                              <span class="applicationMainIP colorblack applicationCardHeadingTextoverflow"></span>
+                                            </span>
+                                    </div>
+                                    <div class="appCardBody">
+                                        <div class="panel-body panel-primary appCardInfo padding2">
+                                            <div>
+                                                <div class="col-lg-12 col-sm-12 col-xs-12 text-center margin-top-5">
+                                                    <img class="mainImageHeight" src="img/rsz_logo.png">
+                                                </div>
+                                                <div class="col-lg-12 col-sm-12 col-xs-12 paddingtopbottom4 text-center margin-top-5">
+                                                    <div class="font-size-10">
+                                                        <span>Version :</span><span class="versionMain"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                              </div>
+                           </div>
+                         </span>
+                     </div>
+                     <div class="childCardTemplate" style="display:none">
+                        <span class="firstChildSpanTemplate">
+                                <div class="col-sm-12 col-md-12 col-lg-12 col-xs-6 no-padding padding-right5-mobile maxminwidth130">
+                                    <div class="panel panel-primary appcard-role-inner borderrad12colorGray">
+                                        <div class="panel-heading panel-heading-support">
+                                            <span class="spanHeading"> 
+                                              <span class="applicationChildIP colorblack">
+                                                
+                                              </span>
+                                            </span>
+                                 </div>
+                                  <div class="appCardBody">
+                                      <div class="panel-body panel-primary appCardInfo padding2">
+                                          <div class="">
+                                              <div class="col-lg-12 col-sm-12 col-xs-12 text-center">
+                                                  <div class="imgHeight imgStatusSuccess"></div>
+                                                  <a class="btn btn-primary btn-sm width27borderradius50 applicationChildDetails margintop-45" title="Node Details">
+                                                      <i class="fa fa-th childCardNodeDetails"></i>
+                                                  </a>
+                                              </div>
+                                              <div class="col-lg-12 col-sm-12 col-xs-12 padding0 text-center ">
+                                                  <div class="font-size-10 margintop-12">
+                                                      <div>
+                                                          <span class="lastapplicationDeploy" title="Last Deploy"></span>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <div class="col-lg-12 col-sm-12 col-xs-12" style="display:none">
+                                          <span class="applicationEnvNamePipelineView"></span>
+                                          <span class="applicationInstanceNamePipelineView"></span>
+                                          <span class="hostNamePipelineView"></span>  
+                                          <span class="applicationNodeIPPipelineView"></span>  
+                                          <span class="containerIdPipelineView"></span>  
+                                          <span class="applicationStatusPipelineView"></span>
+                                       </div>
+                                      </div>
+                                  </div>
+                              </div>
+                           </div>
+                        </span>
+                        <div class="secondChildSpanTemplate marginAuto width100px">
+                           <div class="btn-group btn-grp-CSS">
+                                   <a class="btn btn-primary btn-approve marginleft10 borderRadius7" title="Approve">
+                                    <i class="ace-icon fa fa-check-square-o bigger-110 colorwhite"></i>
+                                    
+                                   </a>
+                                   <a class="btn btn-primary btn-promote marginleft10 borderRadius7" title="Promote" disabled>
+                                    <i class="ace-icon fa fa-line-chart bigger-110 colorwhite"></i>
+                                    
+                                   </a>
+                               </div>
+                        </div>
+                     </div>
+                     <div class="col-md-12 tablebordercolor paddingtop10leftright0" id="divapplicationcardview">
+                        <div class="row loadingPipelineView">
+                            <article class="col-sm-12 col-md-12 col-lg-12">
+                                <img class="center-block loaderImg" src="img/loading.gif" />
+                            </article>
+                        </div>
+                           <table class="tableClone dataTable table-custom table-condensed borderbtm1" cellpadding="5px" width="100%">
+                              <thead></thead>
+                              <tbody></tbody>
+
+                            </table>
+                            <div class="table-responsive table-div tableOverflow" id="tableContainer">
+                                
+                            </div>
+                        </div>
+                     
+                        </div>
+                    </article>
+                </div>
+                
+            <!-- <div class="row loadingAppDeploySpinner">
+                <article class="col-sm-12 col-md-12 col-lg-12">
+                    <img class="center-block loaderImg" src="img/loading.gif" />
+                </article>
+            </div> -->
+            <div class="accordianTemplateContainer" style="display:none">
+                <div class="panel panel-default accordianTemplate">
+                    <div class="panel-heading panelHeaderBackBorder">
+                        <h4 class="panel-title">
+                        <span class="envAppDeployName h4SpanCSS"></span>
+                     </h4>
+                        <span class="pull-right margintop2right8"> 
+                           <a id="syncAppPipelineView" class="btn btn-primary marginright5 hidden" title="Sync"> 
+                           <i class="ace-icon fa fa-refresh bigger-110 marginright4White"></i>
+                        </a>  
+                        <a id="syncAppTableView" class="btn btn-primary marginright5" style="display:none"> 
+                           <i class="ace-icon fa fa-refresh bigger-110 marginright4White"></i>
+                        </a>
+                        <a id="defaultViewButtonNewDeploy" class="btn btn-primary createNewDeploy marginright5" data-toggle="modal" href="#modalUpgradeAppDeploy"> 
+                        <i class="ace-icon fa fa-plus bigger-110 marginright4White"></i>Deploy New App
+                        </a>                                 
+                        <a onclick="showHideControlApplication(this.id)" class="btn1" id="instanceviewAppCard" title="History"> 
+                        <i class="fa fa-header fa-2x txt-color-deactive font-size-16"></i>
+                        </a>&nbsp;
+                        <a onclick="showHideControlApplication(this.id)" id="defaultViewButtonAppCard" class="btn btn-primary" style="display:none"> 
+                        <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 marginright4White"></i>Pipeline View
+                        </a>
+                        <a href="#modalappcardConfigure" data-toggle="modal" class="createAppConfigure margintop-5"  title="Configure">
+                        <i class="fa fa-th fa-cogs marginright5font18"></i>
+                        </a>
+                     </span>
+                    </div>
+                    <div id="divapplicationtableview">
+                        <div id="collapseAppEnv1" class="panel-collapse collapse in envAppDeployAccordian">
+                            <div class="table-responsive table-div table-responsive-CSS">
+                                <table id="tableappDeploydetails" class="table table-striped table-bordered table-hover dataTable envAppDeployTable tableAppDetailsCSS" width="100%" cellpadding="5px">
+                                    <thead>
+                                        <tr class="rowCustomStyle fontBold">
+                                            <td class="tableStyleColor">App</td>
+                                            <td class="tableStyleColor">App-Instance</td>
+                                            <td class="tableStyleColor">Version</td>
+                                            <td class="tableStyleColor">Host</td>
+                                            <td class="tableStyleColor">Node IP</td>
+                                            <td class="tableStyleColor">Last Deploy</td>
+                                            <td class="tableStyleColor">Container Name/ID</td>
+                                            <td class="tableStyleColor">Application Type</td>
+                                            <td class="tableStyleColor">Status</td>
+                                            <td class="tableStyleColor">Logs</td>
+                                            <td class="tableStyleColor">Upgrade</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="table-responsive table-div fornNoDataDiv" style="display:none">
+                                <table id="tableappDeploydetailsforNoData" class="table table-striped table-bordered table-hover dataTable tableAppDetailsCSS" width="100%" cellpadding="5px">
+                                    <thead>
+                                        <tr class="rowCustomStyle">
+                                            <td class="tableStyleColor">App</td>
+                                            <td class="tableStyleColor">App-Instance</td>
+                                            <td class="tableStyleColor">Version</td>
+                                            <td class="tableStyleColor">Host</td>
+                                            <td class="tableStyleColor">Node IP</td>
+                                            <td class="tableStyleColor">Last Deploy</td>
+                                            <td class="tableStyleColor">Container Name/ID</td>
+                                            <td class="tableStyleColor">Application Type</td>
+                                            <td class="tableStyleColor">Status</td>
+                                            <td class="tableStyleColor">Logs</td>
+                                            <td class="tableStyleColor">Upgrade</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modalapproveConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" id="" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               X
+               </button>
+               <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Approve to Promote App from "<span id="approvedEnvName"></span>"
+               </h4>
+            </div>
+            <div class="modal-body height150">
+               <div class="">
+                        <label class="font-size-13">Comments :</label>
+                        <textarea class="form-control height75widthFull" name="comments" id="approvalCommentsDesc"></textarea>
+                     </div>
+            </div>
+            <div class="modal-footer">
+               <div class="btn-group marginleft200">
+                    
+                  <a class="btn btn-default" data-dismiss="modal">
+                     <i class="ace-icon fa fa-times bigger-110"></i>
+                     Cancel
+                  </a>  
+                                              
+                  <a class="btn btn-primary approveSave marginleft10">
+                     <i class="ace-icon fa fa-check bigger-110"></i>
+                     Approve
+                  </a>
+                  <a class="btn btn-danger revokeSave marginleft10">
+                     <i class="ace-icon fa fa-times-circle bigger-110"></i>
+                     Revoke
+                  </a> 
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<div class="modal fade" id="modalpromoteConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" id="appPromoteForm" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               X
+               </button>
+               <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Promote for Pipeline View
+               </h4>
+            </div>
+            <div class="modal-body modal-height">
+               <div class="col-lg-6 col-md-6">
+                  <label for="">Source Environments:
+                     <span class="redSpan">*</span>
+                     <span>
+                        <img class="environmentspinner" src="img/select2-spinner.gif" style="display:none" />
+                     </span>
+                  </label>
+                  <div class="input-groups">
+                     <select id="chooseSourceEnvironments" name="" class="required width-100 form-control">
+                     </select>
+                  </div>
+               </div>
+               <div class="col-lg-6 col-md-6">
+                  <label for="">Target Environments:
+                     <span class="redSpan">*</span>
+                     <span>
+                        <img class="environmentspinner" src="img/select2-spinner.gif" style="display:none" />
+                     </span>
+                  </label>
+                  <div class="input-groups">
+                     <select id="chooseEnvironments" name="" class="required width-100 form-control">
+                     </select>
+                  </div>
+               </div>
+               
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label for="">Jobs:
+                     <span class="redSpan">*</span>
+                     <span>
+                        <img class="jobsspinner" src="img/select2-spinner.gif" style="display:none" />
+                     </span>
+                  </label>
+                  <div class="input-groups">
+                     <select id="chooseJobs" name="" class="required width-100 form-control">
+                        <option value="">Choose Jobs</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="col-lg-12 margintop15">
+                     <label for="">Nodes:<span class="redSpan">*</span></label>
+                     <div class="smart-form">
+                           <ul id="promoteNodesId" class="promoteNodesCSS paddingleftright0">
+                 
+                           </ul>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+               <div class="btn-group marginleft200">  
+                  <a class="btn btn-default" data-dismiss="modal">
+                     <i class="ace-icon fa fa-times bigger-110"></i>
+                     Cancel
+                  </a>                               
+                  <a class="btn btn-primary promoteSave marginleft10">
+                     <i class="ace-icon fa fa-check bigger-110"></i>
+                     Promote
+                  </a>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<div class="modal fade" id="modalappcardConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" id="appCardForm" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               X
+               </button>
+               <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Configure Application Pipeline View
+               </h4>
+            </div>
+            <div class="modal-body">
+               <form id="formconfigureapplication">
+                  <table class="table table-bordered" cellpadding="5px" width="100%" id="tableconfigureapplication">
+                     <thead>
+                        <tr class="tableStyleColor">
+                           <th>Stages/Environments</th>
+                           <th>Active</th>
+                           <th>UP/DOWN</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                     </tbody>
+                  </table>
+               </form>
+            </div>
+            <div class="modal-footer">
+               <div class="btn-group marginleft200">  
+                  <a class="btn btn-default" data-dismiss="modal">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+                  </a>                               
+                  <a class="btn btn-primary appdeployConfigureSaveBtn marginleft10">
+                  <i class="ace-icon fa fa-save bigger-110"></i>
+                  Save
+                  </a>
+               </div>
+            </div>
+         </form>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<div class="modal fade" id="modalAppCardDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" id="formAppDeploy" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               X
+               </button>
+               <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Associate App Deploy<span class="redSpan font-size-12" id="errorParam"></span>
+               </h4>
+            </div>
+            <div class="modal-body">
+               <div class="addApptoAppend">
+                  <div class="row application4Params margin5-0-0">
+                     <div class="col-lg-6 col-md-6 col-sm-6 paddingleft0">
+                        <label for="name">Application Name:<span class="redSpan">*</span>
+                        </label>
+                        <input type="text" autofocus="" class="form-control height36" id="appNameInput">
+                     </div>
+                     <div class="col-lg-6 col-md-6 col-sm-6 paddingleft0">
+                        <label for="name">Description:
+                        </label>
+                        <input type="text" class="form-control height36" id="applicationDescriptionInput">
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <div class="btn-group marginleft200">
+                  <a class="btn btn-default cancelAppDeploy marginleft10" data-dismiss="modal">
+                  <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                  </a>
+                  <a class="btn btn-primary" id="parameterAppDeploySaveBtn">
+                  <i class="ace-icon fa fa-save bigger-110"></i> Save
+                  </a>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<div class="modal fade" id="modalAppCardTableDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" id="formAppDeployTableHistory" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               X
+               </button>
+               <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;List of Application
+               </h4>
+            </div>
+            <div class="modal-body">
+               <div class="table-responsive table-div">
+                  <table id="tableappParamDeploy" class="table table-striped table-bordered table-hover dataTable tableModalAppDetails" width="100%" cellpadding="5px">
+                     <thead>
+                        <tr class="rowCustomStyle fontBold">
+                           <td class="tableStyleColor">S.No.</td>
+                           <td class="tableStyleColor">Application Name</td>
+                           <td class="tableStyleColor">Application Description</td>
+                        </tr>
+                     </thead>
+                     <tbody>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <div class="btn-group marginleft200">
+                  <a class="btn btn-default marginleft10" data-dismiss="modal">
+                  <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                  </a>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modalDetailsAppDeploy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" id="" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close logsClose" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                    <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Details
+               </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="">
+                        <table class="table table-bordered" cellpadding="5px" width="100%" id="envSpecificDataTable">
+                            <thead>
+                                <tr class="tableStyleColor">
+                                    <th>Node IP</th>
+                                    <th>Last Deploy</th>
+                                    <th>Status</th>
+                                    <th>Logs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group marginleft200">
+                        <a class="btn btn-default marginleft10 logsClose" data-dismiss="modal">
+                            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modallogsSpecificDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" id="" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                    <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Log Details
+               </h4>
+                </div>
+                <div class="modal-body modalHeightHelp">
+                    <div class="appLogsSpecific colorDarkBlue">
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group marginleft200">
+                        <a class="btn btn-default marginleft10" data-dismiss="modal">
+                            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAppCardLogDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" id="formAppDeployLogs" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               X
+               </button>
+               <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Logs
+               </h4>
+            </div>
+            <div class="modal-body">
+               <div class="logsForAppDeploy">
+               </div>
+               
+            </div>
+            <div class="modal-footer">
+               <div class="btn-group marginleft200">
+                  <a class="btn btn-default cancelAppDeploy marginleft10" data-dismiss="modal">
+                  <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                  </a>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<div class="modal fade" id="modalUpgradeAppDeploy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" id="formUpgradeAppDeploy" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               X
+               </button>
+               <h4 class="modal-title modaltitleforNewDeploy" style="display:none">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;New App Deployment
+               </h4>
+               <h4 class="modal-title modaltitleforupgradeDeploy">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Upgrade : <span id="upgradeAppName"></span> (<span id="upgradeNodeIp"></span>)
+               </h4>
+            </div>
+            <div class="modal-body">
+               <div class="upgradeForAppDeploy">
+                  <input type="hidden" id="containerIdInput">
+                  <fieldset class="fieldsetCustom">
+                     <legend  class="legendCustom">Repository Details:</legend>
+                     <div class="col-lg-6 col-md-6">
+                        <label for="">Repository Server:<span class="redSpan">*</span>
+                        <span>
+                        <img class="reposerverspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="chooseNexusServer" name="" class="required width-100 form-control">
+                              <option value="">Choose Server</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6">
+                        <label for="">Repository:<span class="redSpan">*</span>
+                        <span>
+                        <img class="repospinner" src="img/select2-spinner.gif" style="display:none"></img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="chooseRepository" name="" class="required width-100 form-control">
+                              <option value="">Choose Repositories</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop15 groupClass">
+                        <label for="">Group ID:<span class="redSpan">*</span>
+                        <span>
+                        <img class="repospinner" src="img/select2-spinner.gif" style="display:none"></img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="chooseGroupId" name="" class="required width-100 form-control">
+                              <option value="">Choose Group ID</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop15 artifactClass">
+                        <label for="">Artifacts:<span class="redSpan">*</span>
+                        <span>
+                        <img class="artifactsspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="chooseArtifacts" name="" class="required width-100 form-control">
+                              <option value="">Choose Artifacts</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop15 versionClass">
+                        <label for="">Versions:<span class="redSpan">*</span>
+                        <span>
+                        <img class="versionspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="chooseVersions" name="" class="required width-100 form-control">
+                              <option value="">Choose Versions</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-lg-12 col-md-12 margintop15 repoUrlClass">
+                        <label>Repository URL:<span class="redSpan">*</span>
+                        <span>
+                        <img class="repourlspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="repositoryUrl" type="text" class="form-control" name="" disabled>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop15 imageTagClass">
+                        <label for="">Tags:<span class="redSpan">*</span>
+                        <span>
+                        <img class="tagspinner hidden" src="img/select2-spinner.gif">
+                        </img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="imageTag" name="" class="required width-100 form-control">
+                              <option value="">Choose Tag</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass containerIdClass containerUpgradeDeploy">
+                        <label>Container Name/ID:
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="containerIdDiv" type="text" class="form-control" />
+                     </div>
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass  containerPortClass containerUpgradeDeploy">
+                        <label>Container Port:<span class="redSpan">*</span>
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="containerPort" type="text" class="form-control" name="">
+                     </div>
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass hostPortClass containerUpgradeDeploy">
+                        <label>Host Port:<span class="redSpan">*</span>
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="hostPort" type="text" class="form-control" />
+                     </div>
+
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass dockerUserClass containerUpgradeDeploy">
+                        <label>User Name:
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="dockerUser" type="text" class="form-control" />
+                     </div>
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass dockerPasswordClass containerUpgradeDeploy">
+                        <label>Password:
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="dockerPassword" type="text" class="form-control" />
+                     </div>
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass dockerEmailIdClass containerUpgradeDeploy">
+                        <label>Email ID:
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="dockerEmailId" type="text" class="form-control" />
+                     </div>
+
+                     <input id="upgradeValue" type="hidden" />
+                     
+                  </fieldset>
+                  <fieldset class="fieldsetCustom margintop20">
+                     <legend  class="legendCustom">Job Details:</legend>
+                     <div class="col-lg-6 col-md-6 col-sm-6">
+                        <label>Jobs:<span class="redSpan">*</span>
+                        <span>
+                        <img class="jobdetailsspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="chooseJobType" name="" class="required width-100 form-control">
+                              <option value="">Choose Job</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop6">
+                        <label>
+                        <span></span>
+                        </label>
+                        <div class="input-groups">
+                           <a class="btn btn-primary createTaskLinkUpgrade">
+                           <i class="ace-icon fa fa-indent bigger-110"></i> Create New Job
+                           </a>
+                        </div>
+                     </div>
+                  </fieldset>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <div class="btn-group marginleft200">
+                  <a class="btn btn-default cancelUpgradeAppDeploy marginleft10" data-dismiss="modal">
+                  <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                  </a>
+                  <a class="btn btn-primary saveNewAppDeploy marginleft10" style="display:none">
+                  <i class="ace-icon fa fa-location-arrow bigger-110"></i> Deploy
+                  </a>
+                  <a class="btn btn-primary saveUpgradeAppDeploy marginleft10">
+                  <i class="ace-icon fa fa-save bigger-110"></i> Upgrade
+                  </a>
+               </div>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+
+<div class="modal fade" id="modalassignTaskUpgrade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form role="form" id="" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                    <h4 class="modal-title">
+                  <i class="fa fa-indent txt-color-blue"></i>&nbsp;&nbsp;Create New Job
+               </h4>
+                </div>
+                <div class="modal-body">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="js/dev/application.js"></script>
+<script src="js/dev/applicationUpgradeAssignTask.js"></script>
+
+         <!-- application end -->
+        
+
+         <!-- docker start -->
+        
+
+        <style>
+.tableStylePadding{
+    padding-left:0px; padding-right:0px;
+}
+.inlineBlock{
+    display: inline-block!important;
+}
+.marginTop5{
+    margin-top: 5px;
+}
+.marginLeft{
+    margin-left:4px
+}
+</style>
+<!-- Container tab started  -->
+<div class="tab-pane" id="l4">
+    <div class="panel-heading">
+        <h5 class="panel-title font-size-12">Containers</h5>
+    </div>
+    <div class="spinnerDocker"><img class="center-block spinnerStyle" src="img/loading.gif" /></div>
+    <div class="widget-body dockerContainerBody hidden">
+        <div class="widget-main widgetHeight">
+            <div class="col-md-12 table-responsive tableStylePadding">
+                <div class="col-md-12"><a href="#" style="float:right" title="Refresh view" id="dockercontainertablerefreshbutton"><i class="fa fa-refresh fa-lg " id="dockercontainertablerefreshspinner"></i></a></div>
+                <table class="table table-striped table-bordered table-hover dataTable no-footer" id="dockercontainertable" cellpadding="5px" width="100%;">
+                    <thead>
+                        <tr class="rowCustomStyle">
+                            <td>Actions</td>
+                            <td>State</td>
+                            <td>Created</td>
+                            <td>Name</td>
+                            <td>Instance IP</td>
+                            <td>Container ID</td>
+                            <td>Image</td>
+                            <td>Info</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="dockercontainertabletemplatetr" class="hidden dockercontainertabletemplatetr">
+                            <td class="widthContainer">
+                                <div class="container1 inlineBlock">
+                                    <div id="card1">
+                                        <div class="card1 front1 flipper hidden stop"  title="Stop">
+                                            <div id="flip1" class="marginTop5">
+                                               
+                                                    <a href="javascript:void(0);" data-original-title="Stop" dockercontaineraction="2" data-placement="top" rel="tooltip"  class="dockeractionbutton" ><i class="fa fa-power-off fa-1x txt-color-white"></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="card1 front1 flipper start"  title="Start">
+                                            <div id="flip1" class="marginTop5">
+                                                
+                                                    <a href="javascript:void(0);" data-original-title="Start"  dockercontaineraction="1"  data-placement="top" rel="tooltip"  class="dockeractionbutton"><i class="fa fa-play fa-1x txt-color-white"></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container1 inlineBlock marginLeft">
+                                    <div id="card3">
+                                        <div class="card3 front3"  title="Restart" >
+                                            <div class="marginTop5">
+                                                
+                                                    <a href="javascript:void(0);" data-original-title="Restart"  dockercontaineraction="3"  data-placement="top" rel="tooltip" class="dockeractionbutton"><i class="fa fa-undo fa-16px txt-color-white"></i></a>
+                                               
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container1 inlineBlock marginLeft">
+                                    <div id="card2">
+                                        <div class="card2 front2  hidden pause"  title="Pause" >
+                                            <div id="flip3" class="marginTop5">
+                                                
+                                                    <a href="javascript:void(0);" data-original-title="Pause"  dockercontaineraction="4"  data-placement="top" rel="tooltip" class="dockeractionbutton"><i class="fa fa-pause fa-16px txt-color-white" ></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="card2 front2  unpause">
+                                            <div id="flip3" class="marginTop5"  title="UnPause" >
+                                                
+                                                    <a href="javascript:void(0)" data-original-title="Unpause"  dockercontaineraction="5"  data-placement="top" rel="tooltip" class="dockeractionbutton"><i class="fa fa-eject fa-1x txt-color-white" style="transform:rotate(90deg)"></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container1 inlineBlock marginLeft">
+                                    <div id="card3">
+                                        <div class="card3 frontTerminate"  title="Terminate" >
+                                            <div class="marginTop5">
+                                                
+                                                    <a href="javascript:void(0);" data-original-title="Terminate"  dockercontaineraction="6"  data-placement="top" rel="tooltip" class="dockeractionbutton"><i class="fa fa-sign-out fa-16px txt-color-white"></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container1 inlineBlock marginLeft">
+                                    <div id="card4">
+                                        <div class="card3 dockerSSHShell"  title="Shell" style="background-color:blue" >
+                                            <div class="marginTop5">
+                                                    <a href="javascript:void(0);" data-original-title="shell"  dockercontaineraction="6"  data-placement="top" rel="tooltip" class="dockeractionSSHbutton"><i class="fa fa-terminal fa-16px txt-color-white"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="" width="180px"><span class="dockercontainerstatus"></span></td>
+                            <td  class="dockercontainerstartedon"></td>
+                            <td  class="dockercontainername"></td>
+                            <td  class="dockercontainerhostip"></td>
+                            <td  class="dockercontainerid"></td>
+                            <td  class="dockercontainerimagename"></td>
+                            <td>
+                                <a href="#modalContainermoreInfo" class="moreInfo btn1 modelcontainermoreinfo" data-actiontype="start" dockercontaineraction="info"  rel="tooltip" data-placement="top" data-original-title="MoreInfo" data-toggle="modal">
+                                <img class="dockercontainerprogress hidden" style="margin-left:30px" src="img/select2-spinner.gif"></img>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="loadingimagefordockertable hidden">
+                    <img src="img/select2-spinner.gif">&nbsp; Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Container tab ended -->
+<!-- Modal -->
+<div class="modal fade" id="launchDockerInstanceSelector__" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" style="width:750px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="dockerInstanceSelectionTitle">Select Instances for </h4>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary dockerinstancestartold" style="margin-right:5px;">Start</button>
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--cadvisor modal-->
+<div aria-hidden="true" aria-labelledby="cadvisorpopup" role="dialog" tabindex="-1" id="cadvisorpopup" class="modal fade" data-backdrop="static">
+    <div class="modal-dialog"  style="width:80%;">
+        <div class="modal-content" style="height:500px">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+                X
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-line-chart fa-lg txt-color-blue"></i>&nbsp;&nbsp;Monitoring Container
+                </h4>
+            </div>
+            <div class="modal-body no-padding"  style="height:480px">
+                <form class="smart-form" id="login-form" action="" novalidate="novalidate">
+                    <fieldset style="padding-top:7px !important;height:366px;">
+                        <div id="cadvisorloadingicon" class="" style="text-align:center"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;margin-left:50%" src="img/loading.gif" /></div>
+                        <iframe id="cAdvisorPageFrame"  style="width:100%;height:100%;border:0px;">
+                        </iframe>
+                    </fieldset>
+                    <footer>
+                        <button class="btn btn-primary" type="submit" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close
+                        </button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedNode-->
+<!-- Modal for Container tab started-->
+<div class="modal fade" id="modalContainermoreInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                &times;
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Details of Container
+                </h4>
+            </div>
+            <div class="modal-body no-padding">
+                <form novalidate="novalidate" action="" id="login-form" class="smart-form">
+                    <fieldset style="padding-top:7px !important;">
+                        <section>
+                            <div class="widget-body">
+                                <ul id="myTab1" class="nav nav-tabs bordered">
+                                    <li class="active">
+                                        <a href="#s1" data-toggle="tab">General-Info</a>
+                                    </li>
+                                    <li class="">
+                                        <a href="#s2" data-toggle="tab">State</a>
+                                    </li>
+                                    <li class="">
+                                        <a href="#s3" data-toggle="tab">Image</a>
+                                    </li>
+                                </ul>
+                                <div id="myTabContent1" class="tab-content padding-10">
+                                    <div class="tab-pane fade active in" id="s1">
+                                        <div class="spinnerDockerInfo"><img class="center-block spinnerStyle" style="margin-left:256px;" src="img/loading.gif" /></div>
+                                        <div class="logsArea dockerLogsArea hidden">
+                                            <table class="table table-bordered" align="left">
+                                                <tbody>
+                                                    <tr class="trLineHeight">
+                                                        <td>Name&nbsp;:</td>
+                                                        <td containerdata="Config.Hostname"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>ContainerID&nbsp;:</td>
+                                                        <td containerdata="Id"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Created&nbsp;:</td>
+                                                        <td containerdata="Created"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Docker Repo&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Working Dir&nbsp;:</td>
+                                                        <td containerdata="Config.WorkingDir"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Entry Point&nbsp;:</td>
+                                                        <td containerdata="Config.Entrypoint">[&nbsp;]</td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Virtual Size&nbsp;:</td>
+                                                        <td containerdata="Config.Memory"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Port Specs&nbsp;:</td>
+                                                        <td containerdata="Config.ExposedPorts"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="s2">
+                                        <div class="logsArea dockerLogsArea hidden">
+                                            <table align="left" class="table table-bordered">
+                                                <tbody>
+                                                    <tr class="trLineHeight">
+                                                        <td>Running&nbsp;:</td>
+                                                        <td containerdata="State.Running"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>PID&nbsp;:</td>
+                                                        <td containerdata="State.Pid"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>ExitCode(If Stopped)&nbsp;:</td>
+                                                        <td containerdata="State.ExitCode"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Started At&nbsp;:</td>
+                                                        <td containerdata="State.StartedAt"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Finished At&nbsp;:</td>
+                                                        <td containerdata="State.FinishedAt">-</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="s3">
+                                        <div class="logsArea dockerLogsArea hidden">
+                                            <table align="left" class="table table-bordered">
+                                                <tbody>
+                                                    <tr class="trLineHeight">
+                                                        <td>ImageID&nbsp;:</td>
+                                                        <td containerdata="Image"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Storage Driver&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Execution Driver&nbsp;:</td>
+                                                        <td containerdata="ExecDriver"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Kernel Version&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Operating System&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Pool Name&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Pool Block Size&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="submit" data-dismiss="modal">
+                <i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal for Container tab ended-->
+<div class="modal fade bs-example-modal-lg" id="myModalLabelDockerContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="DockerLaunch">Launch Parameters-Docker Blueprints</h4>
+            </div>
+            <div class="modal-body dockerModalHeight">
+                <section>
+                    <form id="dockerparamsform" action="">
+                        <div style="margin:0px;">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <label for="category">Container Name<span style="color:red">*</span><span class="dockerparamrequired hidden" style="color:red">&nbsp;Required</span>
+                                </label>
+                                <input type="text" id="Containernamefield" name="namefield" class="required form-control" placeholder="" dockerparamkey="--name" onclick="$('.dockerparamrequired').addClass('hidden')">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <label for="category">Port Mappings
+                                </label>
+                                <input type="text" id="Portmappingfield" name="Portmappingfield" class=" form-control" placeholder="Map host ports to container ports" dockerparamkey="-p">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Volumes
+                                </label>
+                                <input type="text" id="Volumesfield" name="Volumesfield" class=" form-control" placeholder="Map host folders to container folders" dockerparamkey="-v">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Volumes-from
+                                </label>
+                                <input type="text" id="Volumes-fromfield" name="Volumes-fromfield" class=" form-control" placeholder="Comma separated container names" dockerparamkey="--volumes-from">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Linked Container
+                                </label>
+                                <input type="text" id="Linkedcontainerfield" name="Linkedcontainerfield" class=" form-control" placeholder="The name of a container this one links to" dockerparamkey="--link">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Environment Variables
+                                </label>
+                                <input type="text" id="Environmentvariablesfield" name="Environmentvariablesfield" class=" form-control" placeholder="" dockerparamkey="-e">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Startup Command
+                                </label>
+                                <input type="text" id="Startupcommandfield" name="Startupcommandfield" class=" form-control" placeholder="Optional startup command for the container" dockerparamkey="-c">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Additional Startup
+                                </label>
+                                <input type="text" id="additionalStartupcommandfield" name="additionalStartupcommandfield" class=" form-control" placeholder="Additional startup command for the container" dockerparamkey="-exec">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 hidden">
+                                <label for="category">Removed Linked Containers on Exit
+                                </label>
+                                <select class="chooseSelect width-100" id="Removelinkedcontainersonexitfield" placeholder="Should this &amp; linked containers be removed on exit">
+                                    <option>False</option>
+                                    <option>True</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal hidden">
+                                <label for="category">Remove on Exit
+                                </label>
+                                <select class="chooseSelectExit width-100 " id="Removeonexitfield" placeholder="Should this container be removed when it exits">
+                                    <option>False</option>
+                                    <option>True</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 hidden">
+                                <label for="">Startup Script</label>
+                                <label class="input input-file" for="file">
+                                    <div class="button">
+                                        <input type="file" id="Startupscriptfield" name="Startupscriptfield">Browse
+                                    </div>
+                                    <input type="text" readonly="">
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary btnaddDockerLaunchParams">
+                <i class="fa fa-save fa-1x"></i>&nbsp;Add</button>
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">
+                <i class="fa fa-undo fa-1x"></i>&nbsp;Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+         <!-- docker end -->
+      </div>
+      <!-- Modal for chef-Runlist -->
+      <div class="modal fade" id="modalTableRunlist" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  &times;
+                  </button>
+                  <h4 class="modal-title">
+                     Chef-Runlists
+                  </h4>
+               </div>
+               <div class="modal-body no-padding">
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+   </article>
+</div>
+<script>
+   /* fix for navigation to Jquery Workzone when user enters #ajax/Dev.html and angular Integration is set to true */
+   if (isAngularIntegration) {
+      var basePath = 'ajax/Dev.html/';
+      if (basePath) {
+         console.log(basePath);
+         loadTreeFuncNew();
+         selectEnv();
+      }
+   }
+   devCall();
+   
+</script>

@@ -1,0 +1,37 @@
+<!--<div id='navigPage'>-->
+    <!--<div id='navigPage-inner'>-->
+        <!--<nav  id="deisgn" ng-controller="designCtrl">-->
+        <!--<ul class="menu-item-parentdemo" >-->
+            <!--<li class="open active">-->
+                <!--<ul class="visibleClass" style="">-->
+                    <!--<li ng-class="{'active':stateItems.params.subItem === menuItem.name}"  ng-repeat="menuItem in providersMenu">-->
+                        <!--<a  ui-sref="dashboard.designSubView({subItem:menuItem.name,view:'list'})" class="devops_providers">-->
+                            <!--<div class="aws" title="AWS"><span class="menu-item-parent provider-images trackAlign">&nbsp;&nbsp;{{menuItem.name}}</span></div>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                <!--</ul>-->
+            <!--</li>-->
+        <!--</ul>-->
+        <!--</nav>-->
+    <!--</div>-->
+<!--</div>-->
+
+<ul class="nav nav-pills nav-stacked left-menu" id="stacked-menu" ng-controller="designCtrl">
+    <li ng-repeat="provider in providersMenu" >
+        <a ng-class="{'active':stateItems.params.subItem === provider.name}" data-target="#{{provider.name}}" data-toggle="collapse" data-parent="#stacked-menu">
+            <img src="./images/providers/{{provider.icon}}"> &nbsp;{{provider.name}}<span class="caret arrow"></span></a>
+        <ul class="nav nav-stacked collapse left-submenu" id="{{provider.name}}">
+            <li ng-repeat='tempType in templateTypes | inArray:provider.filterArray:"templatetype"'>
+                <a ng-class="{'active':stateItems.params.subItem === provider.name && stateItems.params.templateObj._id === tempType._id }" ui-sref="dashboard.designSubView({subItem:provider.name,view:'list',templateObj:tempType})" >
+                   <span ng-switch="tempType.templatetype" >
+                        <img ng-switch-when="chef" src="/d4dMasters/image/16ae9c94-19f6-485a-8c17-9af7a0f5f23d__designtemplateicon__Appfactory.png" />
+                        <img ng-switch-when="ami" src="/d4dMasters/image/9d14d362-493e-4d62-b029-a6761610b017__designtemplateicon__DevopsRoles.png" />
+                        <img ng-switch-when="docker" src="/d4dMasters/image/b02de7dd-6101-4f0e-a95e-68d74cec86c0__designtemplateicon__Docker.png" />
+                       <img ng-switch-when="cft" src="/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png" />
+                       <img ng-switch-when="arm" src="/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png" />
+                       <img ng-switch-when="composite" src="./images/composite.png" />
+                   </span>
+                    &nbsp;{{tempType.templatetypename}}</a></li>
+        </ul>
+    </li>
+</ul>

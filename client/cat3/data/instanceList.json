@@ -1,0 +1,227 @@
+{
+  "tasks": [],
+  "instances": [
+    {
+      "_id": "55ed7a58d4f7633f112aa917",
+      "name": "52.11.22.146",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "instanceIP": "52.11.22.146",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "blueprintData": {
+        "blueprintName": "52.11.22.146",
+        "templateId": "chef_import",
+        "iconPath": "../private/img/templateicons/chef_import.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "ubuntu",
+        "pemFileLocation": "/mnt/jenkins/workspace/Supercatalyst_Upgrade/server/catdata/catalyst/instance-pemfiles/92f8411c-a155-4d18-8cf3-cbc46ea8c9b9"
+      },
+      "software": [],
+      "puppet": {
+        "serverId": "e66509b0-0524-4ad4-a2b3-f400124e3c0e",
+        "puppetNodeName": "ip-172-31-13-33.us-west-2.compute.internal"
+      },
+      "hardware": {
+        "platform": "Ubuntu",
+        "platformVersion": "14.04",
+        "architecture": "x86_64",
+        "os": "linux",
+        "memory": {
+          "total": "992.44 MB",
+          "free": "814.36 MB"
+        }
+      },
+      "users": [
+        "Admin2"
+      ],
+      "appUrls": [],
+      "attributes": [],
+      "runlist": []
+    },
+    {
+      "_id": "55f12dd7d5b88bd278a2e205",
+      "name": "52.11.200.48",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "instanceIP": "52.11.200.48",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "blueprintData": {
+        "blueprintName": "52.11.200.48",
+        "templateId": "chef_import",
+        "iconPath": "../private/img/templateicons/chef_import.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "ubuntu",
+        "pemFileLocation": "/mnt/jenkins/workspace/Supercatalyst_Upgrade/server/catdata/catalyst/instance-pemfiles/50a69373-17a3-4c9a-a68e-6d796101b32e"
+      },
+      "software": [],
+      "puppet": {
+        "serverId": "e66509b0-0524-4ad4-a2b3-f400124e3c0e",
+        "puppetNodeName": "ip-172-31-18-156.us-west-2.compute.internal"
+      },
+      "hardware": {
+        "platform": "unknown",
+        "platformVersion": "unknown",
+        "architecture": "unknown",
+        "os": "linux",
+        "memory": {
+          "total": "unknown",
+          "free": "unknown"
+        }
+      },
+      "users": [
+        "superadmin"
+      ],
+      "appUrls": [],
+      "attributes": [],
+      "runlist": []
+    },
+    {
+      "_id": "56028572998e75a92b0857c5",
+      "name": "apacheTest",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "providerId": "55967022692649b85fc07ee5",
+      "keyPairId": "55967022692649b85fc07ee6",
+      "chefNodeName": "i-76c4b5ad",
+      "platformId": "i-76c4b5ad",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "instanceIP": "52.88.135.19",
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "docker": {
+        "dockerEngineStatus": "",
+        "dockerEngineUrl": ""
+      },
+      "blueprintData": {
+        "blueprintId": "55cdcd94918730036546f704",
+        "blueprintName": "apacheTest",
+        "templateId": "apache",
+        "templateType": "chef",
+        "iconPath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "root",
+        "pemFileLocation": "/mnt/jenkins/workspace/Supercatalyst_Upgrade/server/catdata/catalyst/instance-pemfiles/55967022692649b85fc07ee6"
+      },
+      "software": [],
+      "chef": {
+        "serverId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "chefNodeName": "i-76c4b5ad"
+      },
+      "hardware": {
+        "platform": "centos",
+        "platformVersion": "6.5",
+        "architecture": "x86_64",
+        "os": "linux",
+        "memory": {
+          "total": "604488kB",
+          "free": "177328kB"
+        }
+      },
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "pj",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [],
+      "attributes": [],
+      "runlist": [
+        "recipe[tomcat-all]"
+      ]
+    },
+    {
+      "_id": "5603e4c0611882675701b395",
+      "name": "apacheTest",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "providerId": "55967022692649b85fc07ee5",
+      "keyPairId": "55967022692649b85fc07ee6",
+      "chefNodeName": "i-b2532169",
+      "platformId": "i-b2532169",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "instanceIP": "52.89.69.20",
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "blueprintData": {
+        "blueprintId": "55cdcd94918730036546f704",
+        "blueprintName": "apacheTest",
+        "templateId": "apache",
+        "templateType": "chef",
+        "iconPath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "root",
+        "pemFileLocation": "/mnt/jenkins/workspace/Supercatalyst_Upgrade/server/catdata/catalyst/instance-pemfiles/55967022692649b85fc07ee6"
+      },
+      "software": [],
+      "chef": {
+        "serverId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "chefNodeName": "i-b2532169"
+      },
+      "hardware": {
+        "platform": "centos",
+        "platformVersion": "6.5",
+        "architecture": "x86_64",
+        "os": "linux",
+        "memory": {
+          "total": "604488kB",
+          "free": "184280kB"
+        }
+      },
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "pj",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [],
+      "attributes": [],
+      "runlist": [
+        "recipe[apache2]"
+      ]
+    }
+   ]
+}

@@ -1,0 +1,29 @@
+<div id='addJobLinksPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-files-o"></i>&nbsp;
+			Add Job Links
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<label class="control-label">Job Link
+				<span class="control-label red">&nbsp;*</span>
+			</label>
+			<br />
+			<input type="text" ng-model="jobLink" class="form-control" />
+		</span><br />
+		<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12 instructionTextColor">ex:http://{host:port}/TestResult/$buildNumber/log.html</span>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">
+			<i class="fa fa-check white"></i> Save
+		</button>		
+	</div>
+</div>

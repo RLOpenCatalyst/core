@@ -1,0 +1,765 @@
+<script>
+//$(".tree-view").hide();
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
+            <form id="myForm1" action="">
+                <div class="widget-box">
+                    <div class="widget-header">
+                        <h4 class="widget-margin" style="color:black;">Create Environment</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main widgetHeight">
+                            <div>
+                                <section id="widget-grid" class="">
+                                    <!-- START ROW -->
+                                    <div class="row">
+                                        <!-- NEW COL START -->
+                                        <!-- Widget ID (each widget will need unique ID)-->
+                                        <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                                            <!-- widget div-->
+                                            <div>
+                                                <!-- widget content -->
+                                                <div class="widget-body no-padding">
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
+                                                        </label>
+                                                        <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname','projectname','puppetservername']" onchange="$('#configname').change();$('#puppetservername').change();">
+                                                            <option value="">Select an Organization</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <label for="category">Chef Server:
+                                                        </label>
+                                                        <select id="configname" class="chooseOrganization width-100" sourcepath="10" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" linkedto="orgname">
+                                                            <option value="">Select a Chef Server</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                                        <label for="category">Chef Environment:
+                                                        </label>
+                                                        <a href="javascript:void(0)" class="clearfix pull-right" onclick="if(preprocess()) {$('#myModalCreateChefEnv').modal('show')}">Add</a>
+                                                        <select id="environmentname" class="chooseOrganization width-100" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" unique="true" uniqueconditionedby="environmentname,orgname">
+                                                            <option value="">Select an Chef Environment</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                                        <label for="category">Puppet Server:
+                                                        </label>
+                                                        <select id="puppetservername" class="chooseOrganization width-100" sourcepath="25" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" linkedto="orgname">
+                                                            <option value="">Select a Puppet Server</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                                        <label for="category">Puppet Environment:
+                                                        </label>
+                                                        <a href="javascript:void(0)" class="clearfix pull-right" onclick="if(preprocessPuppet()) {$('#myModalCreatePuppetEnv').modal('show')}">Add</a>
+                                                        <select id="puppetenvironmentname" class="chooseOrganization width-100" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst">
+                                                            <option value="">Select an Puppet Environment</option>
+                                                        </select>
+                                                    </div>
+                                                    <!-- <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
+                                                        <label for="category">Assign Teams:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <div id="teamname" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row" class="input-group from-control col-md-12 widthBox"  sourcepath="21" cdata="catalyst" cat-validation="onechecked" linkedto="orgname">
+                                                        </div>
+                                                    </div> -->
+                                                    <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
+                                                        <label for="category">Assign Projects:</label>
+                                                        <div id="projectname" sourcepath="4" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row" class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" cdata="catalyst" linkedto="orgname">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- end widget content -->
+                                            </div>
+                                            <!-- end widget div -->
+                                        </div>
+                                        <!-- end widget -->
+                                    </div>
+                                    <!-- END ROW -->
+                                </section>
+                                <!-- end widget grid -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="widget-toolbox clearfix">
+                        <div class="btn-group pull-right">
+                <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+                  </a>
+                  <button class="btn btn-primary btn-mini">
+                  <i class="ace-icon fa fa-check bigger-110"></i>
+                  Save
+                  </button>
+                  
+               </div>
+                    </div>
+                </div>
+            </form>
+            <!--form ends here-->
+        </div>
+        <!--col-md-12 ends here-->
+    </div>
+</div>
+<div class="modal fade bs-example-modal-sg" id="myModalCreateChefEnv" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-sg">
+        <div class="modal-content">
+            <form id="createenvinchefform" action="">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Add a Chef Environment</h4>
+                </div>
+                <div class="modal-body" style="height:100px">
+                    <div class="col-lg-6 col-md-6">
+                        <label for="category">Environment Name:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" id="chefenvname" name="chefenvname" class=" form-control" tabindex='1'>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group pull-right">
+                        <i id="envcreatespinner" class="fa-li fa fa-spinner fa-spin hidden" style="margin-top:9px"></i>
+                        <span id="chefenvcreatemsg" style="color:red"></span>
+                        
+                        <a class="btn btn-default" data-dismiss="modal">
+                            <i class="fa fa-times fa-1x"></i>&nbsp;Cancel</a>
+                            <button class="btn btn-default btn-primary createchefenvbtn" style="margin-left:15px;">
+                            <i class="fa fa-save fa-1x"></i>&nbsp;Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--row ends here-->
+<div class="modal fade bs-example-modal-sg" id="myModalCreatePuppetEnv" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-sg">
+        <div class="modal-content">
+            <form id="createenvinpuppetform" action="">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Add a Puppet Environment</h4>
+                </div>
+                <div class="modal-body" style="height:100px">
+                    <div class="col-lg-6 col-md-6">
+                        <label for="category">Environment Name:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" id="puppetenvnameinput" name="puppetenvnameinput" class=" form-control" tabindex='1'>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group pull-right">
+                        <i id="envcreatespinner" class="fa-li fa fa-spinner fa-spin hidden" style="margin-top:9px"></i>
+                        <span id="puppetenvcreatemsg" style="color:red"></span>
+                        
+                        <a class="btn btn-default" data-dismiss="modal">
+                            <i class="fa fa-times fa-1x"></i>&nbsp;Cancel</a>
+                            <button class="btn btn-default btn-primary createpuppetenvbtn" style="margin-right:11px;">
+                            <i class="fa fa-save fa-1x"></i>&nbsp;Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--row ends here-->
+<script>
+//Form Name
+$(document).ready(function() {
+    $(".chooseOrganization").select2();
+    //isUserTypeSuperAdmin();
+});
+
+function isUserTypeSuperAdmin() {
+    $.get('/d4dMasters/loggedInUser', function(data) {
+        if (!data.isSuperAdmin) {
+            $('#orgname').attr('disabled', 'disabled').select2();
+        }
+    });
+}
+
+function preprocessPuppet() {
+    $('#createenvinpuppetform')[0].reset();
+    if (typeof $('#puppetservername').find('option:selected').attr('rowid') == 'undefined') {
+        bootbox.alert('Select a Puppet Server before adding an environments.');
+        return (false);
+    } else
+        return (true);
+}
+$('#createenvinpuppetform').submit(function(e) {
+    var reqBodyEnv = {};
+    var puppetId = $('#puppetservername').find('option:selected').attr('rowid');
+    var $crbtn = $('#createenvinpuppetform').find('#createpuppetenvbtn')
+    $crbtn.attr('disabled', 'disabled');
+    var $form = $('#createenvinpuppetform');
+    reqBodyEnv.name = $form.find('#puppetenvnameinput').val();
+    if (!reqBodyEnv.name) {
+        alert('Please Enter Environment Name');
+        return false;
+    }
+    $('#envcreatespinner').removeClass('hidden');
+    //alert('in createchefenvbtn');
+    //if (typeof puppetId != 'undefined') {
+    $.ajax({
+        type: "Post",
+        url: '/puppet/'+puppetId+'/environments',
+        data: {
+            envName: $('#puppetenvnameinput').val()
+        },
+        success: function(envname, success) {
+            if (envname) {
+                $crbtn.removeAttr('disabled');
+                $('#envcreatespinner').addClass('hidden');
+                $('#puppetservername').change();
+                $('#myModalCreatePuppetEnv').modal('hide');
+                $('#puppetenvironmentname').empty();
+            } else {
+                $('#puppetenvcreatemsg').html('Could not complete.' + envname);
+                $crbtn.removeAttr('disabled');
+                $('#envcreatespinner').addClass('hidden');
+                $('#myModalCreatePuppetEnv').modal('hide');
+            }
+        },
+        error: function(jqxhr) {
+            bootbox.alert(jqxhr.responseText);
+            $crbtn.removeAttr('disabled');
+            $('#envcreatespinner').addClass('hidden');
+            $('#myModalCreatePuppetEnv').modal('hide');
+        },
+        failure: function(envname) {
+            bootbox.alert(envname.responseText);
+        }
+    });
+    // }
+    return false;
+});
+
+
+function preprocess() {
+    $('#createenvinchefform')[0].reset();
+    if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
+        bootbox.alert('Select a Chef Server before adding an environments.');
+        return (false);
+    } else
+        return (true);
+}
+$('#createenvinchefform').submit(function(e) {
+    var reqBodyEnv = {};
+    var chefid = $('#configname').find('option:selected').attr('rowid');
+    var $crbtn = $('#createenvinchefform').find('#createchefenvbtn')
+    $crbtn.attr('disabled', 'disabled');
+    var $form = $('#createenvinchefform');
+    reqBodyEnv.name = $form.find('#chefenvname').val();
+    if (!reqBodyEnv.name) {
+        alert('Please Enter Environment Name');
+        return false;
+    }
+    $('#envcreatespinner').removeClass('hidden');
+    //alert('in createchefenvbtn');
+    if (typeof chefid != 'undefined') {
+
+        $.ajax({
+            type: "Post",
+            url: '../chef/environments/create/' + chefid,
+            data: {
+                envName: $('#chefenvname').val()
+            },
+            success: function(envname, success) {
+                if (envname) {
+                    $crbtn.removeAttr('disabled');
+                    $('#envcreatespinner').addClass('hidden');
+                    $('#configname').change();
+                    $('#myModalCreateChefEnv').modal('hide');
+                    $('#environmentname').empty();
+                } else {
+                    $('#chefenvcreatemsg').html('Could not complete.' + envname);
+                    $crbtn.removeAttr('disabled');
+                    $('#envcreatespinner').addClass('hidden');
+                    $('#myModalCreateChefEnv').modal('hide');
+                }
+            },
+            error: function(jqxhr) {
+                bootbox.alert(jqxhr.responseText);
+                $crbtn.removeAttr('disabled');
+                $('#envcreatespinner').addClass('hidden');
+                $('#myModalCreateChefEnv').modal('hide');
+            },
+            failure: function(envname) {
+                bootbox.alert(envname.responseText);
+            }
+        });
+    }
+    return false;
+});
+
+function loadPuppetEnvs(puppetId) {
+    $('#myForm1').find('button').attr('disabled', 'disabled');
+    $.get('/puppet/'+puppetId+'/environments', function(envList) { //getting the list of env
+
+        if (envList) {
+            var envlist = envList.toString().split(',');
+            var $envselect = $('#puppetenvironmentname').addClass('envselect').addClass('form-control').addClass('width100').addClass('padding0');
+            for (var j = 0; j < envList.length; j++) {
+                if ($envselect.val() === envList[j]) {
+                    //console.log($envselect);
+                    $envselect.html('');
+                }
+                $envselect.append('<option value="' + envList[j] + '">' + envList[j] + '</option>');
+            }
+            $envselect.val($envselect.attr('savedvalue'));
+            $envselect.change();
+            $('#myForm1').find('button').removeAttr('disabled');
+        }
+    });
+}
+
+function loadChefEnvs(chefID) {
+    $('#myForm1').find('button').attr('disabled', 'disabled');
+    $.get('../chef/servers/' + chefID + '/environments', function(envList) { //getting the list of env
+
+        if (envList) {
+            var envlist = envList.toString().split(',');
+            var $envselect = $('#environmentname').addClass('envselect').addClass('form-control').addClass('width100').addClass('padding0');
+            for (var j = 0; j < envList.length; j++) {
+                if ($envselect.val() === envList[j]) {
+                    //console.log($envselect);
+                    $envselect.html('');
+                }
+                $envselect.append('<option value="' + envList[j] + '">' + envList[j] + '</option>');
+            }
+            $envselect.val($envselect.attr('savedvalue'));
+            $envselect.change();
+            $('#myForm1').find('button').removeAttr('disabled');
+        }
+    });
+}
+
+function inLineReady() {
+    $("input[type='text']").on("click", function() {
+        $(this).select();
+        $("#msgOrgName").hide()
+    });
+    $('#configname').change(function() {
+        var chefid = $(this).find('option:selected').attr('rowid');
+        if (chefid)
+            loadChefEnvs(chefid);
+    });
+    $('#puppetservername').change(function() {
+         var puppetId = $(this).find('option:selected').attr('rowid');
+        if (puppetId)
+            loadPuppetEnvs(puppetId);
+    });
+
+
+    readform(3);
+
+    //populating the chef env 
+
+
+
+    $('#content').css("opacity", "1 !important");
+    /* $('#iconpicker').iconpicker({
+         iconset: 'fontawesome',
+         icon: 'fa-key',
+         rows: 5,
+         cols: 5,
+         placement: 'bottom',
+     }); */
+
+    //Force opening the left navigation menu
+    if ($('#navSettings').is(":visible") == false) {
+        $('#navSettings').css("display", '');
+        $('#navSettings > ul > li').first().addClass('open');
+        $('#navSettings > ul > li > ul').css("display", "none");
+        $('#navSettings > ul > li > ul').first().css("display", "block");
+    }
+    //redrawing the breadcrumb and selecting the tree
+    $('#ulsettingstree > li').removeClass('active');
+    $('#ulsettingstree > li').each(function() {
+        if ($(this).text().trim() == "Environments")
+            $(this).addClass('active');
+    });
+    drawBreadCrumb1();
+    $("#content").css("opacity", "1 !important");
+    enableUniqueCheckingForInputs(3);
+}
+
+function readMasterJson_todelete(section) {
+
+    $.ajax({
+        type: "get",
+        dataType: "text",
+
+        async: false,
+        url: serviceURL + "readmasterjson/" + section,
+        success: function(data) {
+            // alert(data.toString());   
+            d4ddata = JSON.parse(data);
+        },
+        failure: function(data) {
+            alert(data.toString());
+        }
+    });
+    return (d4ddata);
+}
+
+
+function readform_todelete(formName) {
+    var formData = null;
+
+    //Prefilling dropdowns
+    $('select').each(function() {
+        // debugger;
+        if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
+            var tempJSON = JSON.parse(JSON.stringify(readMasterJson($(this).attr('sourcepath'))));
+            var curSelect = $(this);
+            //   alert(JSON.stringify(tempJSON));
+            $.each(eval('tempJSON.' + curSelect.attr('datapath')), function(i, item) {
+                //     alert(item.field[0].values.value);
+                // debugger;
+                for (var k = 0; k < item.field.length; k++) {
+                    if (item.field[k].name == curSelect.attr("id")) {
+                        curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
+                        // alert("Added:" + item.field[i].values.value);
+                    }
+                }
+            });
+
+            //if multiselect then change to bootstrap multiselect
+            if ($(this).attr('multiple')) {
+                if ($(this).attr('multiple') == "multiple") {
+                    $(this).multiselect({
+                        includeSelectAllOption: true,
+                        buttonWidth: '300px'
+                    });
+                }
+            }
+        }
+        //alert("Reading" + JSON.stringify(temp));
+    });
+
+    $('input[sourcepath]').each(function() {
+        // debugger;
+        if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
+            var tempJSON = JSON.parse(readMasterJson($(this).attr('sourcepath')));
+            var curInput = $(this);
+            //   alert(JSON.stringify(tempJSON));
+            $.each(eval('tempJSON.' + curInput.attr('datapath')), function(i, item) {
+                //     alert(item.field[0].values.value);
+                // debugger;
+                for (var k = 0; k < item.field.length; k++) {
+                    if (item.field[k].name == curInput.attr("id")) {
+                        // curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
+                        // alert("Added:" + item.field[i].values.value);
+                        addToCodeList(item.field[k].values.value, curInput);
+                    }
+                }
+            });
+        }
+    });
+
+    // End Prefilling dropdowns
+
+
+
+    //alert("before d4d" + JSON.stringify(d4ddata));
+    d4ddata = readMasterJson(3);
+    //alert("after d4d" + JSON.stringify(d4ddata));
+
+
+    //$.each(d4ddata.sections.section, function (i, item) {
+    //    // alert(item.name + ":" + formName)
+    //    if (item.name == formName) {
+    //        formData = item;
+    //    }
+    //});
+    // alert(JSON.stringify(formData));
+    //Reading row to get schema
+
+    formData = d4ddata.masterjson;
+
+
+    var formSchema = null;
+    var orgName = url.substr(url.indexOf("?") + 1);
+    // alert('My Rog' + orgName);
+    var editMode = false;
+    // alert(JSON.stringify(formData.rows.row));
+    $.each(formData.rows.row, function(i, item) {
+        // alert('Expanded field ' + JSON.stringify(item.field[0].values.value.toLowerCase()));
+        if (item.field[0].values.value.toLowerCase() == orgName.toLowerCase()) {
+            formSchema = item.field;
+            editMode = true;
+            return (false);
+        }
+        formSchema = item.field;
+    });
+    if (editMode == false)
+        return;
+    // alert(JSON.stringify(formSchema));
+    //Read current form values with the field names
+    var formSchemaNew = formSchema;
+
+    //alert(JSON.stringify(formSchemaNew));
+    $.each(formSchemaNew, function(i, item) {
+        var inputC = null;
+        $.each(item, function(k, v) {
+            // alert("Value:" + v);
+            if (k == "name") {
+                inputC = $("#" + v);
+
+            }
+            if (k == "values") {
+                if (inputC) {
+                    $.each(v, function(k1, v1) {
+                        if (inputC.getType().toLowerCase() == "text") {
+                            //  alert("Found Datavalue:" + inputC.attr("datavalues"));
+                            if (inputC.attr("datavalues")) {
+                                //var array = v[k1].split(",");
+                                $.each(v[k1], function(i) {
+                                    addToCodeList(v[k1][i], inputC);
+                                });
+
+                            } else
+                                inputC.val(v[k1]);
+
+                        }
+                        if (inputC.getType().toLowerCase() == "file") {
+                            //  v[k1]
+                        }
+                    });
+
+                }
+                inputC = null;
+            }
+
+        });
+
+    });
+
+
+
+}
+
+$.fn.getType = function() {
+    if ($(this).length) {
+        return this[0].tagName == "INPUT" ? this[0].type.toLowerCase() : this[0].tagName.toLowerCase();
+    } else {
+        return "undefined";
+    }
+}
+
+function saveform_todelete(formName) {
+    $("#savespinner").show();
+    //  $('.widget-box').css('opacity', '1');
+    //To Do SAve...
+    // var d4djson = $.parseJSON(d4ddata);
+    // alert(d4ddata.sections.section[0].name);
+    var formData = null;
+    readMasterJson('3');
+    /*$.each(d4ddata.sections.section, function (i, item) {
+   
+           if (item.name == formName) {
+               formData = item;
+           }
+       });*/
+    // alert(JSON.stringify(formData));
+    //Reading row to get schema
+    var formSchema = null;
+    var orgName = url.substr(url.indexOf("?") + 1);
+    //  alert(orgName);
+    var editMode = false;
+
+    formData = d4ddata.masterjson;
+
+    // debugger;
+    $.each(formData.rows.row, function(i, item) {
+        // alert('Expanded field ' + JSON.stringify(item.field[0].values.value.toLowerCase()));
+        if (item.field[0].values.value.toLowerCase() == orgName.toLowerCase()) {
+            formSchema = item.field;
+            editMode = true;
+            return (false);
+        }
+        formSchema = item.field;
+    });
+    // alert(JSON.stringify(formSchema));
+    //Read current form values with the field names
+    var formSchemaNew = null;
+    if (editMode == false)
+        formSchemaNew = JSON.parse(JSON.stringify(formSchema));
+    else
+        formSchemaNew = formSchema;
+
+    $.each(formSchemaNew, function(i, item) {
+        var inputC = null;
+        $.each(item, function(k, v) {
+            if (k == "name") {
+                inputC = $("#" + v);
+            }
+        });
+        $.each(item, function(k, v) {
+            if (k == "values") {
+                if (inputC) {
+                    $.each(v, function(k1, v1) {
+                        if (inputC.getType().toLowerCase() == "text") {
+                            //alert(inputC.attr("datavalues"));
+                            if (inputC.attr('datavalues')) {
+
+                                var itms = '';
+
+                                v1.splice(0, v1.length);
+                                $('.' + inputC.attr('datavalues')).each(function() {
+                                    v1.push($(this).text());
+                                });
+                                //  alert(v1.length);
+
+                                // v[k1] = '';
+                                //   v[k1].push(v1);
+                            } else
+                                v[k1] = inputC.val();
+                        }
+                        if (inputC.getType().toLowerCase() == "file") {
+                            v[k1] = inputC.files[0].name;
+                        }
+                        if (inputC.getType().toLowerCase() == "select") {
+                            v[k1] = inputC.val();
+                        }
+                    });
+
+                }
+                inputC = null;
+            }
+
+        });
+
+    });
+    if (editMode == false)
+        formData.rows.row.push(JSON.parse('{\"field\":' + JSON.stringify(formSchemaNew) + '}'));
+
+
+    // alert(JSON.stringify(formData));
+    //  debugger;
+    $.ajax({
+        type: "post",
+        dataType: "text",
+        data: formData,
+        async: false,
+        url: serviceURL + "savemasterjson/3",
+        success: function(data) {
+            // alert(data.toString());
+            alert('Successfully Saved');
+        },
+        failure: function(data) {
+            alert(data.toString());
+        }
+    });
+
+
+
+
+    $("#savespinner").hide();
+    $('#btncancel').click();
+    $('#btncancelNew').click();
+}
+
+function addToCodeList_todelete() {
+
+    var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px\'></i>";
+    var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ><i class=\'ace-icon fa fa-trash-o bigger-110\'></i></button>";
+    if ($('#costcode').val() != '') {
+        $('#codelistitems').append('<div class=\'codelistitem\' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important\'><p class=\'bg-success\'>' + imgCheck + $('#costcode').val() + imgDed + '</p></div>');
+        $('#costcode').val('');
+        $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
+        $('#costcode').focus();
+    }
+}
+
+function addToCodeList_todelete(txtVal, control) {
+    // alert('Control val' + $(control).val());
+    //debugger;
+    if (typeof(txtVal) == "undefined" && $(control).val() != '')
+        txtVal = $(control).val();
+    //alert('txtval: ' + txtVal + ':' + $(control).attr('datavalues'));
+    var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px\'></i>";
+    var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ><i class=\'ace-icon fa fa-trash-o bigger-110\'></i></button>";
+    if (txtVal != '') {
+        //  alert('#' + $(control).attr('datavalues'));
+        $('#' + $(control).attr('targetelement')).append('<div class=\'codelistitem\' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;\'><p class=\'bg-success\'>' + imgCheck + txtVal + imgDed + '</p></div>');
+        // alert($('#' + $(control).attr('datavalues')).html());
+        $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
+        $(control).focus();
+    }
+    $(control).val('');
+}
+
+function removeFromCodeList_todelete(btn) {
+    if (confirm('Are you sure you wish to remove this Cost Code?')) {
+        var closestDiv = $(btn).closest('div');
+        closestDiv.detach();
+    }
+}
+
+function validateForm_todelete() {
+
+    return (true);
+}
+
+function readURL__todelete(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+            var imgLogoPreview = "<img src='" + e.target.result + "' style='border:0px;height:25px;width:28px'/>";
+            $('#logoPreview').empty();
+            $('#logoPreview').append(imgLogoPreview);
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+$("#id-input-file-2").change(function() {
+    readURL(this);
+    $(".ace-file-name").attr('data-title', '');
+    $(".ace-file-name").html('<i class=" ace-icon fa fa-upload"></i>' + this.files[0].name);
+
+});
+
+inLineReady();
+</script>
+<script>
+$(document).ready(function() {
+    $("#environmentname").focus();
+    $('#myForm1').submit(function() {
+        $(this).validate();
+
+        if ($(this).valid) {
+            /* alert('valid form submitted'); // for demo*/
+            var chefEnv = $('#environmentname option:selected').val();
+            var puppetEnv = $('#puppetenvironmentname option:selected').val();
+            if (!chefEnv && !puppetEnv) {
+                bootbox.alert('Either Chef or Puppet Environment Required');
+                return false;
+            }
+
+            if(chefEnv && puppetEnv){
+                if(chefEnv != puppetEnv){
+                    alert('Both Chef and Puppet should have same Environment.');
+                    return false;
+                }
+            }
+
+            if (!puppetEnv) {
+                $('#puppetservername').val('');
+            }
+            if (!chefEnv) {
+                $('#configname').val('');
+            }
+            if (!saveform('3')) return false;
+        } else {
+            alert('invalid valid form submitted'); // for demo
+        }
+        return false; // for demo
+    });
+});
+</script>

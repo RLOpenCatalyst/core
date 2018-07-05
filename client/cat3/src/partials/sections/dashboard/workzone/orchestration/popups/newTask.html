@@ -1,0 +1,620 @@
+<div id='newTaskPage'>
+	<form name="newTaskForm" novalidate ng-submit="newTaskForm.$valid && ok()">
+		<div class="modal-header">
+			<span class="close" ng-click="cancel()">×</span>
+			<h4 class="modal-title" ng-if="!isEditMode">
+				<i class="fa fa-plus"></i>&nbsp;
+				Create {{taskTypes[taskType].name}} Job
+			</h4>
+			<h4 class="modal-title" ng-if="isEditMode">
+				<i class="fa fa-edit"></i>&nbsp;
+				Edit {{taskTypes[taskType].name}} Job - {{name}}
+			</h4>
+		</div>
+
+		<div class="modal-body">
+			<loading name="isNewTaskPageLoading" size="large" type="block" align="center"></loading>
+			<div class="row new-task-wrapper" ng-show="!isNewTaskPageLoading">
+				<div class="col-lg-5 col-md-5 col-sm-12 col-xs-12 border no-padding">
+					<section class="jobDetailsBox">
+						<header class="jobDetailsHeader">
+							<h5>Job Details</h5>
+						</header>
+						<div class="jobDetailsContent">
+							<div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+								<label class="control-label">Job Type
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.taskType.$touched && newTaskForm.taskType.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select name="taskType" class="form-control" ng-model="taskType" ng-disabled="isEditMode" required>
+										<option selected="selected" value="chef">{{taskTypes['chef'].name}}</option>
+										<option ng-show="!createChefJob" value="jenkins">{{taskTypes['jenkins'].name}}</option>
+										<option ng-show="!createChefJob" value="composite">{{taskTypes['composite'].name}}</option>
+										<option ng-show="!createChefJob" value="puppet">{{taskTypes['puppet'].name}}</option>
+										<option ng-show="!createChefJob" value="script">{{taskTypes['script'].name}}</option>
+									</select>
+								</span>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+								<label class="control-label">Job Name
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.taskName.$touched && newTaskForm.taskName.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+								   <input type="text" name="taskName" class="form-control" required autofocus ng-model="name" maxlength="50" />
+								</span>
+							</div>
+							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-hide="taskType === 'composite' || taskType === 'puppet'">
+								<label class="control-label">Add to Service Delivery : </label>
+								<input type="checkbox" class="checkbox-list" ng-model="checkBotType" ng-click="botStatus()"/>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-6 " ng-show="checkBotStatus">
+								<label class="control-label">BOT Type
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.botType.$touched && newTaskForm.botType.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select name="botType" class="form-control" ng-model="botType" ng-required="checkBotStatus">
+										<option selected="selected" value="Task">Task</option>
+										<option ng-show="!createChefJob" value="Check">Check</option>
+										<option ng-show="!createChefJob" value="Service">Service</option>
+										<option ng-show="!createChefJob" value="UI">UI</option>
+									</select>
+								</span>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-6 " ng-show="checkBotStatus">
+								<label class="control-label">Category
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.botCategory.$touched && newTaskForm.botCategory.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select name="botCategory" class="form-control" ng-model="botCategory" ng-required="checkBotStatus">
+										<option ng-repeat="(key , value) in botCategoryList" value="{{value}}">{{value}}</option>
+									</select>
+								</span>
+							</div>
+							<div class="col-lg-16 col-md-6 col-sm-12 col-xs-12 margintop10" ng-show="checkBotStatus">
+								<label class="control-label">Short Description
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.shortDesc.$touched && newTaskForm.shortDesc.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+								   <input type="text" name="shortDesc" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="shortDesc" maxlength="50" />
+								</span>
+							</div>
+							<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 margintop10" ng-show="checkBotStatus">
+								<label class="control-label">Standard Time
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.manualExecutionTime.$touched && newTaskForm.manualExecutionTime.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<span class="col-md-6 col-sm-6 col-xs-12 no-padding">
+										<input type="text" name="manualExecutionTime" class="form-control" ng-required="checkBotStatus" autofocus ng-model="manualExecutionTime" maxlength="10" />
+									</span>
+									<span class="col-md-6 col-sm-6 col-xs-12 margintop8">
+										<span>minutes</span>
+									</span>
+								</span>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="taskType==='jenkins'">
+								<label class="control-label">Server
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.serverName.$touched && newTaskForm.serverName.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select class="form-control" name="serverName" ng-model="$parent.jenkinsServerSelect" ng-change="changeJobList();" required>
+										<option value="">Select</option>
+										<option value="{{jeninsServer.id}}" ng-repeat="jeninsServer in jenkinsServerList">{{jeninsServer.name}}</option>
+									</select>
+								</span>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="taskType==='jenkins'">
+								<label class="control-label">Job
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.jobName.$touched && newTaskForm.jobName.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select class="form-control" name="jobName" ng-disabled="!jenkinsServerSelect" ng-change="changeJobURL();" ng-model="$parent.jenkinJobSelected" required>
+										<option value="">Select</option>
+										<option ng-repeat="job in jenkinServerJobList" value="{{job.name}}">{{job.name}}</option>
+									</select>
+								</span>
+							</div>
+							<!--for script adding the scriptType dropdown -->
+							<!--commented will be used in future-->
+							<!--job execution details-->
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='chef' || taskType==='script'">
+								<span class="pull-left">
+									<label class="control-label">Job Execution</label>
+								</span>
+								<div class="jenkins-auto-sync-radio">
+									<input type="radio" name="parallelCheck" value="PARALLEL" ng-model="isExecution.flag">
+									<label class="lable-align">Parallel</label>
+								</div>
+								<div class="jenkins-auto-sync-radio">
+									<input  class="marginleft15" type="radio" ng-model="isExecution.flag" name="serialCheck" value="SERIAL">
+									<label class="lable-align">Serial</label>
+								</div>
+							</div>
+							<!--job execution details ends here-->
+							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
+								<div class="col-md-6 col-sm-6 col-xs-6 margintop15 no-padding">
+									<label class="control-label">Script Type
+										<span class="control-label red">&nbsp;*</span>
+										<span ng-show="newTaskForm.scriptType.$touched && newTaskForm.scriptType.$invalid" class="inputValidationMsg">required
+										</span>
+									</label>
+									<br />
+									<span class="col-md-12 col-sm-12 col-xs-12 paddingleft0">
+										<select class="form-control" name="scriptType" ng-model="$parent.scriptTypeSelelct" ng-change="changeNodeScriptList();" required>
+											<option value="">Select</option>
+											<option value="Bash">Bash</option>
+											<option value="Python">Python</option>
+										</select>
+									</span>
+								</div>
+								<div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+									<label class="control-label">Run as Sudo:</label>
+									<br />
+									<div class="paddingtop8">
+										<input type="radio" ng-value="true" ng-model="$parent.isSudo" name="scriptIsSudo" />
+										<label for="scriptIsSudo" class="paddingright15">Yes</label>
+										<input type="radio" ng-value="false" ng-model="$parent.isSudo" name="scriptIsSudo" />
+										<label for="scriptIsSudo">No</label>
+									</div>
+								</div>
+							</div>
+							<!--scriptType ending here -->
+							<div class="col-lg-12 col-md-12col-sm-12 col-xs-12 margintop15">
+								<label class="control-label">Job Description</label>
+								<textarea id="chefDescription" rows="9" cols="15" name="description" ng-model="description"></textarea>
+							</div>
+						</div>
+					</section>
+				</div>
+				<!--Second Column:Chef -->
+				<div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 left-padding">
+					<div class="col-md-12 col-sm-12 col-xs-12 border no-padding" ng-if="taskType==='chef'">
+						<section class="Chef">
+							<header class="jobDetailsHeader">
+								<h5>Chef Server Details for - RLChefServer</h5>
+							</header>
+							<div class="jobDetailsContent">
+								<div class="chef-details-top">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+										<loading name="isTargetTypesLoading" size="medium" type="block" align="left"></loading>
+										<div ng-show="!isTargetTypesLoading" class="row margin0">
+
+											<div class="radio-instances col-lg-4 no-padding">
+												<input type="radio" name="nodesSpecification" id="rdInstance" ng-click="onChangeTargetType('instance')" value="instance" ng-model="targetType" />
+												<label for="rdInstance" class="lable-align">Nodes</label>
+											</div>
+											<div class="radio-blueprints col-lg-5 no-padding">
+												<input type="radio" name="nodesSpecification" value="blueprint"  ng-click="onChangeTargetType('blueprint')" ng-model="targetType" id="rdBlueprint"/>
+												<label for="rdBlueprint" class="lable-align">Blueprints</label>
+											</div>
+											<div class="radio-roles col-lg-3 no-padding">
+												<input type="radio" name="nodesSpecification" value="role" ng-click="onChangeTargetType('role')" ng-model="targetType" id="rdRole"/>
+												<label for="rdRole" class="lable-align">Roles</label>
+											</div>
+
+										</div>
+										<!-- <div ng-show="targetType==='instance'">
+											<label class="checkbox check-list">
+												Select All : &nbsp;<input type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAll()" ng-model="$parent.isAllSelected" title="Select All">
+											</label>
+										</div> -->
+										<div ng-show="targetType==='blueprint'">
+											<label class="checkbox check-list cursor" ng-click="clearBluePrintSelection()">
+												<span class="clear-selection blue">Clear Selection</span>
+											</label>
+										</div>
+										<div ng-show="targetType==='role'">
+											<label class="checkbox check-list cursor" ng-click="clearRoleSelection()">
+												<span class="clear-selection blue">Clear Selection</span>
+											</label>
+										</div>
+										<div class="clearfix"></div>
+										<div class="select-nodeInstance">
+											<!-- <ul ng-show="targetType==='instance'">
+												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
+													<label class="checkbox check-list">
+														<input type="checkbox" ng-change="optionToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
+													</label>
+												</li>
+											</ul> -->
+											<div class="section-headings" ng-show="targetType==='instance'">
+												<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+													<span>Instance List</span>
+												</div>
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+													<span>Assigned Instances</span>
+												</div>
+
+												<div class="component_for_instances">
+													<!-- Here HTML snippet will be append through chef component-->
+												</div>
+											</div>
+											<ul ng-show="targetType==='blueprint'">
+												<li ng-repeat="blueprint in chefBluePrintList">
+													<label class="checkbox check-list" ng-if="blueprint.blueprintType === 'instance_launch'">
+														<input name="blueprint" ng-value="blueprint._id" type="radio" ng-model="blueprint._isBlueprintSelected" class="radiobutton-list blueprint-{{blueprint._isBlueprintSelected}}">{{blueprint.name}}
+													</label>
+												</li>
+											</ul>
+
+											<ul ng-show="targetType==='role'">
+												<li ng-repeat="r in chefRoleList">
+													<label class="checkbox check-list">
+														<input name="roleRadioBtn" type="radio" ng-checked="role.name === r " ng-model="role.name" class="radiobutton-list" value="{{r}}">{{r}}
+													</label>
+												</li>
+											</ul>
+
+
+										</div>
+									</div>
+									<div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+										<label>
+											<i class="fa fa-list-ul addRunList-icon"></i>
+											<lable class="control-label" ng-if="!isEditMode">Add Runlist</lable>
+											<lable class="control-label" ng-if="isEditMode && chefrunlist.length==0">Add Runlist</lable>
+											<lable class="control-label" ng-if="isEditMode && chefrunlist.length>0">Edit Runlist</lable>
+										</label>
+										<span class="cursor pull-right">
+											<i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook()" ng-show="chefInstanceList.length || chefBluePrintList.length"></i>
+										</span>
+										<div class="view-runlist">
+											<table class="table table-bordered text-center">
+												<thead>
+												<tr>
+													<th class="text-center">View Runlist</th>
+												</tr>
+												</thead>
+												<tbody>
+												<tr ng-repeat="val in chefrunlist">
+													<td>{{val.value}}</td>
+												</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10">
+										<label>
+											<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+										</label>
+										<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
+									</span>
+									<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+										<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
+									</span>
+								</div>
+							</div>
+						</section>
+					</div>
+					<!--Second Column:Jenkins -->
+					<div class="col-md-12 col-sm-12 col-xs-12 border no-padding" ng-show="taskType==='jenkins'">
+						<section class="Jenkins">
+							<header class="jobDetailsHeader">
+								<h5>Jenkins</h5>
+							</header>
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 job-param-table-border">
+								<table id="jobParamTable" class="table" cellpadding="5px">
+									<thead>
+									</thead>
+									<tbody>
+									<tr>
+										<td class="jobParam">Auto sync:</td>
+										<td>
+											<div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+												<div class="jenkins-auto-sync-radio">
+													<input type="radio" id="radio_yes" name="auto_sync" ng-value="true" ng-model="autoSync.flag">
+													<label class="lable-align">Yes</label>
+												</div>
+												<div class="jenkins-auto-sync-radio">
+													<input type="radio" id="radio_no" name="auto_sync" ng-value="false" checked="checked" ng-model="autoSync.flag">
+													<label class="lable-align">No</label>
+												</div>
+											</div>
+											<div class="col-lg-1 col-md-1 no-padding">
+												<i class="fa fa-question-circle" title="This feature fetches the entire Jenkins job history for the particular job"></i>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="jobParam">Job Url:</td>
+										<td>
+											<div class="col-lg-11 col-md-11">
+													<span id="spinnerForUrl" class="hidden">
+													</span>
+												<input type="text" disabled="" class="jenkinsJobURL form-control" ng-model="jobUrl">
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="jobParam">Job Links:
+										</td>
+										<td>
+											<div class="col-lg-11 col-md-11 col-sm-11 col-xs-11 jobTable">
+												<span class="pull-right">
+													<i class="fa fa-plus-circle cursor" title="Add Job Links" ng-click="openAddJobLink('new');"></i>
+												</span>
+												<div id="dbNameTable_wrapper" class="dataTables_wrapper no-footer">
+													<div id="tableJobList_wrapper" class="dataTables_wrapper no-footer">
+														<table class="table table-bordered">
+															<thead>
+															<tr class="rowCustomStyle" role="row">
+																<th>Job Links</th>
+																<th>Action</th>
+															</tr>
+															</thead>
+															<tbody id="jobListSave">
+															<tr ng-repeat="jobLink in jobResultURL">
+																<td title="{{jobLink}}"><div class="jenkins-job-links">{{jobLink}}</div></td>
+																<td><button type="button" ng-click="removeJobLink(jobLink);"><i class="fa fa-trash-o"></i></button></td>
+																</td>
+															</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+											</div>
+											<div class="col-lg-1 col-md-1 no-padding">
+												<i class="fa fa-question-circle" title="This is a URL pattern for the job result or job output"></i>
+											</div>
+										</td>
+									</tr>
+									</tbody>
+								</table>
+							</div>
+							<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
+								<label>
+									<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+								</label>
+								<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
+							</span>
+							<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
+								<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
+							</span>
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="jenkins-job-parameter-text">
+									<label class="lable-align">This Job is parameterized</label>
+								</div>
+								<div class="jenkins-auto-sync-radio">
+									<input type="radio" name="paramCheck" ng-value="true" ng-model="isParameterized.flag">
+									<label class="lable-align">Yes</label>
+								</div>
+								<div class="jenkins-auto-sync-radio">
+									<input  class="marginleft15" type="radio" ng-model="isParameterized.flag" name="paramCheck" ng-value="false">
+									<label class="lable-align">No</label>
+								</div>
+							</div>
+							<div class="col-lg-12 col-md-12 add-job-parameters" ng-show="isParameterized.flag">
+								<div class="col-lg-12 col-md-12 add-parameters">
+								<span class="pull-right">
+									<i class="fa fa-plus-circle cursor" title="Add Parameters" ng-click="addJenkinsParams('new')"></i>
+								</span>
+									<table class="table table-striped table-bordered table-hover dataTable no-footer">
+										<thead>
+										<tr class="rowCustomStyle" role="row">
+											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Name">Name</td>
+											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Description">Type
+											</td>
+											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Links">Value</td>
+											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Execute">Description</td>
+											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="History">Action</td>
+										</tr>
+										</thead>
+										<tbody>
+										<tr ng-repeat="params in jenkinsParamsList">
+											<td>{{params.name}}</td>
+											<td>{{params.parameterName}}</td>
+											<td>{{params.defaultValue}}</td>
+											<td>{{params.description}}</td>
+											<td><button type="button" ng-click="removeJenkinsParams(params);"><i class=" fa fa-trash-o"></i></button></td>
+										</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</section>
+					</div>
+					<!--Second Column:Composite -->
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding" ng-show="taskType==='composite'">
+						<section class="Composite">
+							<header class="jobDetailsHeader">
+								<h5>Tasks</h5>
+							</header>
+							<div class="section-headings">
+								<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+									<span>Tasks List</span>
+								</div>
+								<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+									<span>Assigned Tasks</span>
+								</div>
+							</div>
+							<div id="component_for_composite">
+								<!-- Here HTML snippet will be append through chef component-->
+							</div>
+						</section>
+					</div>
+					<!--Second Column:Puppet -->
+					<div class="col-md-12 col-sm-12 col-xs-12 border no-padding" ng-if="taskType==='puppet'">
+						<section class="Puppet">
+							<header class="jobDetailsHeader">
+								<h5>Puppet Server</h5>
+							</header>
+							<div class="jobDetailsContent">
+								<div class="chef-details-top">
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+										<label>
+											<i class="fa fa-sitemap"></i>&nbsp;
+											<lable class="control-label">Select Nodes</lable>
+											<span class="red">*</span>
+										</label>
+										<div class="select-nodes">
+											<div class="alert alert-info text-center" ng-show="puppetInstanceList.length==0">
+												No Nodes Available
+											</div>
+											<ul>
+												<li ng-repeat="instance in puppetInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
+													<label class="checkbox check-list">
+														<input type="checkbox" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected">{{instance.name}}
+													</label>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</section>
+					</div>
+					<!--second column script-->
+					<div class="col-md-12 col-sm-12 col-xs-12 border no-padding" ng-if="taskType==='script'">
+						<section class="Script">
+							<header class="jobDetailsHeader">
+								<h5>Script Details</h5>
+							</header>
+							<div class="jobDetailsContent">
+								<div class="chef-details-top">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 script-task">
+										<loading name="isScriptNodesLoading" size="medium" type="block" align="left"></loading>
+										<div class="row margin0" ng-show="!isScriptNodesLoading">
+											<div class="radio-instances col-lg-6 no-padding">
+												<input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
+												<label for="rdInstance" class="lable-align">Nodes</label>
+											</div>
+											<label class="checkbox check-list checkboxStyling">
+												Select All : &nbsp;<input  type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAllScriptInstance()" ng-model="$parent.isAllInstanceScriptSelected" title="Select All ">
+											</label>
+										</div>
+
+										<div class="select-nodeInstance">
+											<!-- <loading name="isScriptInstanceLoading" size="large" type="block" align="center"></loading> -->
+											<!-- <ul ng-show="targetType==='instance'">
+												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
+													<label class="checkbox check-list">
+														<input type="checkbox" ng-change="optionInstanceToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
+													</label>
+												</li>
+											</ul> -->
+											<div class="section-headings" ng-show="targetType==='instance'">
+												<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+													<span>Instance List</span>
+												</div>
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+													<span>Assigned Instances</span>
+												</div>
+
+												<div class="component_for_instances">
+													<!-- Here HTML snippet will be append through chef component-->
+												</div>
+											</div>
+											<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
+												<label>
+													<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+												</label>
+												<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
+											</span>
+											<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
+												<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
+											</span>
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+										<div class="row margin0">
+											<div class="col-lg-6 no-padding">
+												<label for="scripts" class="lable-align">Script List</label>
+											</div>
+											<label ng-show="scriptSelectAll" class="checkbox check-list checkboxStyling">
+												Select All : &nbsp;<input type="checkbox" ng-checked="false" class="checkbox-list checkboxall-right" ng-click="toggleAllScripts()" ng-model="$parent.isAllScriptSelected" title="Select All ">
+											</label>
+										</div>
+										<div class="select-nodes">
+											<ul>
+												<li ng-repeat="script in scriptTaskList.data">
+													<label class="checkbox check-list">
+														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
+														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected && script.isParametrized ===true" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
+													</label>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<!--for showing the radio buttons for script params-->
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="scriptParamShow">
+
+										<div class="jenkins-job-parameter-text">
+											<span class="lable-align"><b>{{selectedScript.name}}</b>&nbsp;Parameters</span>
+											<i class="fa fa-plus-circle cursor" title="Add Script Parameters" ng-click="addScriptParams(selectedScript)"></i>
+										</div>
+										<!--script params ends here-->
+										<!--table for adding the script params starts here-->
+										<div class="col-lg-12 col-md-12 add-parameters">
+											<table class="table table-striped table-bordered table-hover dataTable no-footer">
+												<thead>
+												<tr class="rowCustomStyle" role="row">
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Parameter">Parameter</td>
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Description">Description</td>
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Type">Type</td>
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Action">Action</td>
+												</tr>
+												</thead>
+												<tbody>
+												<tr ng-repeat="param in scriptParamsObj[selectedScript.scriptId] track by $index">
+													<td ng-if="param.paramType === 'Default' || param.paramType === ''">{{param.paramVal}}</td>
+													<td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">.....</td>
+													<td>{{param.paramDesc}}</td>
+													<td ng-if="param.paramType === 'Default' || param.paramType === ''">Default</td>
+													<td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">{{param.paramType}}</td>
+													<td>
+														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript.scriptId,param);"><i class=" fa fa-trash-o"></i></button>
+													</td>
+												</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<!--table ends here-->
+								</div>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" >
+				<span class="pull-left inputValidationMsg" ><h5 ng-bind="inputValidationMsg"></h5></span>
+			</div>
+			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" >
+				<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+					<i class="fa fa-times black"></i> Cancel
+				</button>
+				<button  type="submit" class="btn cat-btn-update" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid || taskSaving">
+					<i class="fa fa-check white"></i> Save
+				</button>
+				<button type="submit" class="btn cat-btn-update" ng-if="isEditMode">
+					<i class="fa fa-check white"></i> Update
+				</button>
+			</div>
+		</div>
+	</form>
+</div>

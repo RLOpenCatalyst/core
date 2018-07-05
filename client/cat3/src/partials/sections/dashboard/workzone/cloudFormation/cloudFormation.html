@@ -1,0 +1,64 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/cloudFormation/cloudFormation.css">
+
+<div id='cloudFormationPage' ng-controller="cloudFormationCtrl">
+	<loading size="large" name="isCloudFormationPageLoading" type="block"></loading>
+	<div ng-show="!isCloudFormationPageLoading">
+		<div class="panel-heading">
+			<span class="panel-title">
+				<span> CFT Stacks</span>
+			</span>
+			<span class="pull-right">
+				<button type="button" title="Refresh" class="btn btn-xs cat-btn-update" ng-click="refreshCurrentPage()">
+					<i class="fa fa-refresh white"></i>
+				</button>
+			</span>
+		</div>
+		<div class="scrollContent">
+			<div class="alert alert-info text-center" ng-show="stacks.length===0">
+                No CFT Stacks Available
+            </div>
+			<div class="productdiv4" ng-repeat="stack in stacks">
+				<div class="productdiv1 cardimage">
+					<ul class="list-unstyled system-prop">
+						<li>
+							<img src="images/global/cf-icon.png" alt="stack" class="stackLogo" />
+							<span class="stackName">
+								<i class="fa fa-info-circle cursor" title="Stack Info" ng-click="getInfo(stack);"></i>
+							</span>
+						</li>
+						<li title="" class="Cardtextoverflow">
+							<u>
+								<b class="stackNameContainer">{{stack.stackName}}</b>
+							</u>
+						</li>
+					</ul>
+					<div class="stack-details-list">
+						<span class="stack-details">
+							<strong class="stackId">
+
+							</strong>
+						</span>
+						<div>
+							<span class="stack-details">
+								status : 
+							</span>
+						</div>
+						<div>
+							<span class="stackStatus {{getStackStateColor(stack.status)}}">
+								{{stack.status}}
+							</span>
+						</div>
+					</div>
+					<div class="btnicons">
+						<span class="btn btn-danger right-button" title="Delete Stack" ng-click="removeCftStack(stack)">
+							<i class="fa fa-trash-o white"></i>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="isCloudFormationPaginationShow">
+				<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="10" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationCftChange()" class="paginationStyle margintop15"></pagination>
+			</div>
+		</div>
+	</div>
+</div>

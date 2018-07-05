@@ -1,0 +1,26 @@
+<div id='compositeLogsPage' ng-controller="compositeLogsCtrl as compLogCtrl">
+	<div class="composite-logs-wrapper">
+		<loading size="large" name="isTaskListLoading" type="block" align="center"></loading>
+		<div ng-show="!isTaskListLoading">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-bottom15">
+				<label class="col-md-3 col-sm-3 col-xs-4 text-padding control-label">
+					Task List : <sup class="red">*</sup>
+				</label>
+				<span class="col-md-4 col-sm-4 col-xs-8 no-padding">
+					<select  class="form-control" ng-init="compLogCtrl.onchangeCompTask(0)" ng-change="compLogCtrl.onchangeCompTask(null);" ng-model="compLogCtrl.selectTaskInd" ng-options="compLogCtrl.selectBoxOption.indexOf(selectOption) as selectOption.name for selectOption in compLogCtrl.selectBoxOption"></select>
+				</span>
+			</div>
+			<div ng-switch="compLogCtrl.taskType" >
+				<div ng-switch-when="jenkins">
+					<div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/jenkinsLog.html'" ></div>
+				</div>
+				<div ng-switch-when="chef">
+					<div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/chefLog.html'" ></div>
+				</div>
+				<div ng-switch-when="script">
+					<div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/chefLog.html'" ></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

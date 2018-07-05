@@ -1,0 +1,144 @@
+{
+    "Id": "d7766f9542241a9872b731efdd1e2a590c608d557d92054518ca7ee6f2b9625b",
+    "Created": "2015-09-24T04:57:13.23629228Z",
+    "Path": "/bin/bash",
+    "Args": [],
+    "State": {
+        "Running": true,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 6025,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2015-10-25T09:18:41.854996143Z",
+        "FinishedAt": "2015-10-25T09:18:41.39524726Z"
+    },
+    "Image": "b28de8b5fcd205858c9aa095ca77803c8442a4fb6d0485655b697d2423cb37e2",
+    "NetworkSettings": {
+        "Bridge": "",
+        "EndpointID": "ebc98216dc9f9221630cc9c8454a91ec0d34337c68e4cfa6ca8f3db780968b83",
+        "Gateway": "172.17.42.1",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "HairpinMode": false,
+        "IPAddress": "172.17.0.28",
+        "IPPrefixLen": 16,
+        "IPv6Gateway": "",
+        "LinkLocalIPv6Address": "",
+        "LinkLocalIPv6PrefixLen": 0,
+        "MacAddress": "02:42:ac:11:00:1c",
+        "NetworkID": "cf871b50f02302b1b26026c8e3b6d4fd900d890578e39bf64f0a49e252fce59f",
+        "PortMapping": null,
+        "Ports": {
+            "3001/tcp": [
+                {
+                    "HostIp": "0.0.0.0",
+                    "HostPort": "3002"
+                }
+            ]
+        },
+        "SandboxKey": "/var/run/docker/netns/d7766f954224",
+        "SecondaryIPAddresses": null,
+        "SecondaryIPv6Addresses": null
+    },
+    "ResolvConfPath": "/var/lib/docker/containers/d7766f9542241a9872b731efdd1e2a590c608d557d92054518ca7ee6f2b9625b/resolv.conf",
+    "HostnamePath": "/var/lib/docker/containers/d7766f9542241a9872b731efdd1e2a590c608d557d92054518ca7ee6f2b9625b/hostname",
+    "HostsPath": "/var/lib/docker/containers/d7766f9542241a9872b731efdd1e2a590c608d557d92054518ca7ee6f2b9625b/hosts",
+    "LogPath": "/var/lib/docker/containers/d7766f9542241a9872b731efdd1e2a590c608d557d92054518ca7ee6f2b9625b/d7766f9542241a9872b731efdd1e2a590c608d557d92054518ca7ee6f2b9625b-json.log",
+    "Name": "/CAT2",
+    "RestartCount": 0,
+    "Driver": "devicemapper",
+    "ExecDriver": "native-0.2",
+    "MountLabel": "",
+    "ProcessLabel": "",
+    "Volumes": {},
+    "VolumesRW": {},
+    "AppArmorProfile": "",
+    "ExecIDs": null,
+    "HostConfig": {
+        "Binds": null,
+        "ContainerIDFile": "",
+        "LxcConf": [],
+        "Memory": 0,
+        "MemorySwap": 0,
+        "CpuShares": 0,
+        "CpuPeriod": 0,
+        "CpusetCpus": "",
+        "CpusetMems": "",
+        "CpuQuota": 0,
+        "BlkioWeight": 0,
+        "OomKillDisable": false,
+        "Privileged": false,
+        "PortBindings": {
+            "3001/tcp": [
+                {
+                    "HostIp": "",
+                    "HostPort": "3002"
+                }
+            ]
+        },
+        "Links": null,
+        "PublishAllPorts": false,
+        "Dns": null,
+        "DnsSearch": null,
+        "ExtraHosts": null,
+        "VolumesFrom": null,
+        "Devices": [],
+        "NetworkMode": "bridge",
+        "IpcMode": "",
+        "PidMode": "",
+        "UTSMode": "",
+        "CapAdd": null,
+        "CapDrop": null,
+        "RestartPolicy": {
+            "Name": "no",
+            "MaximumRetryCount": 0
+        },
+        "SecurityOpt": null,
+        "ReadonlyRootfs": false,
+        "Ulimits": null,
+        "LogConfig": {
+            "Type": "json-file",
+            "Config": {}
+        },
+        "CgroupParent": ""
+    },
+    "Config": {
+        "Hostname": "d7766f954224",
+        "Domainname": "",
+        "User": "",
+        "AttachStdin": false,
+        "AttachStdout": false,
+        "AttachStderr": false,
+        "PortSpecs": null,
+        "ExposedPorts": {
+            "3001/tcp": {}
+        },
+        "Tty": true,
+        "OpenStdin": false,
+        "StdinOnce": false,
+        "Env": [
+            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+            "JAVA_HOME=/usr/lib/jvm/java-8-oracle",
+            "DISPLAY=:99"
+        ],
+        "Cmd": [
+            "/bin/bash"
+        ],
+        "Image": "relevancelab/catalysttest:latest",
+        "Volumes": null,
+        "VolumeDriver": "",
+        "WorkingDir": "/opt",
+        "Entrypoint": null,
+        "NetworkDisabled": false,
+        "MacAddress": "",
+        "OnBuild": null,
+        "Labels": {}
+    }
+}
+
+
+
+

@@ -1,0 +1,26 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/orchestration/orchestration.css">
+
+<div id='orchestrationPage' ng-controller="orchestrationCtrl">
+	<loading size="large" name="isOrchestrationPageLoading" type="block"></loading>
+	<div ng-show="!isOrchestrationPageLoading">
+		<div class="panel-heading">
+			<span class="panel-title">
+				<span>Tasks</span>
+			</span>
+			<span class="pull-right">
+				<button type="button" class="btn btn-xs cat-btn-update" 
+				ng-click="isNewClickEnabled && createNewTask('new')" ng-show="perms.createTask">
+					<i class="fa fa-plus white"></i>
+					New
+				</button>
+                <button type="button" title="Refresh" class="btn btn-xs cat-btn-update" ng-click="refreshCurrentPage()">
+					<i class="fa fa-refresh white"></i>
+				</button>
+			</span>
+		</div>
+		<div class="alert alert-info text-center" ng-show="tabData.length===0">
+		    No Tasks Available
+		</div>
+		<div id="grid1" ng-if="tabData.length >0"  ui-grid="orcheGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
+	</div>
+</div>

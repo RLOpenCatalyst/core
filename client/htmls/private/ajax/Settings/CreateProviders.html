@@ -1,0 +1,1085 @@
+<div class="row" id="createProvider">
+    <div class="col-md-12">
+        <div class="col-md-12">
+            <form id="myForm54" enctype="mutlipart/form-data" action="/aws/providers" method="post">
+                <div class="widget-box">
+                    <div class="widget-header">
+                        <h4 class="widget-margin" style="color: black;"><span id="spnprovider"></span></h4>
+                    </div>
+                    <div class="widget-body">
+                        <fieldset>
+                            <div class="widget-main">
+                                <section id="widget-grid" class="">
+                                    <!-- START ROW -->
+                                    <div class="row">
+                                        <!-- NEW COL START -->
+                                        <article class="col-sm-12 col-md-12 col-lg-12">
+                                            <!-- Widget ID (each widget will need unique ID)-->
+                                            <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                                                <!-- widget div-->
+                                                <div id="appender">
+                                                    <!-- widget content -->
+                                                    <div class="row">
+                                                        <div class="col-lg-6 col-md-6">
+                                                            <label for="name">Provider Type:
+                                                                <span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <select id="providertype" name="providerType" unique="true" uniqueconditionedby="orgname" class="chooseOrganization width-100" style="vertical-align: central" cat-validation="required" cdata="catalyst" skiprowid="yes" onchange="UtilityMethods.providerChanged($(this).val());">
+                                                                <option value="">Select Provider</option>
+                                                                <option value="AWS">AWS</option>
+                                                                <option value="OPENSTACK">OPENSTACK</option>
+                                                                <option value="VMWARE">VMWARE</option>
+                                                                <option value="AZURE">AZURE</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6">
+                                                            <label for="">Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="providerName" placeholder="Enter Name of the Provider" id="name" class="form-control" type="text" cdata="catalyst" cat-validation="required,max15,nospace" cat-validation-openstack="required,max15,nospace" cat-validation-azure="required,max15,nospace" cat-validation-vmware="required,max15,nospace">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row foraws">
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                            <span>
+                                                <label style="margin-bottom: 0px; vertical-align: middle; margin-top: 5px;">
+                                                    Credentials:
+                                                    <span style="color: Red;" class="control-label">&nbsp;*</span>
+                                                </label>
+                                            </span>
+                                            <span style="margin-right: 20px; margin-left: 20px;">
+                                                <input type="radio" name="isDefault" value="false"
+                                                       style="vertical-align: middle;" id="credentials-accessKeys" checked>
+                                                <label for="credentials-accessKeys" style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
+                                                    Use access keys
+                                                </label>
+                                            </span>
+                                            <span style="margin-right: 20px;">
+                                                <input type="radio" name="isDefault" value="true"
+                                                       style="vertical-align: middle;" id="credentials-IAMRole">
+                                                <label for="credentials-IAMRole" style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
+                                                    Use IAM role
+                                                </label>
+                                                <span>
+                                                    <img class="tooltipMargin" data-toggle="popover" data-placement="left"
+                                                         title="Credentials are not required if catalyst instance is launched with an IAM role which has permissions to launch instances" src="img/help.png"/>
+                                                </span>
+                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row aws-secret-info">
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                            <span>
+                                                <input type="checkbox" style="vertical-align: middle;"
+                                                       id="updateSecretInfo">
+                                                <label for="updateSecretInfo"
+                                                       style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
+                                                    Update access credentials
+                                                </label>
+                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row foraws aws-secret-info">
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <label for="">Access Key:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="accessKey" id="accessKey" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the Access Key">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <label for="">Secret Key:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="secretKey" id="secretKey" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the Secret Key">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row forvmware">
+                                                        <div class="col-lg-6 col-md-6 appNameLabel">
+                                                            <label for="">Username:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="vmwareusername" id="vmwareusername" class="form-control" type="text" cdata="catalyst" cat-validation-vmware="required" placeholder="Enter Username">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel">
+                                                            <label for="">Password:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="vmwarepassword" id="vmwarepassword" class="form-control secretInfo" type="password" cdata="catalyst" cat-validation-vmware="required" placeholder="Enter the Password">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Host:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="vmwarehost" id="vmwarehost" class="form-control" type="text" cdata="catalyst" cat-validation-vmware="required" placeholder="Enter the Host">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">DC:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="vmwaredc" id="vmwaredc" class="form-control" type="text" cdata="catalyst" cat-validation-vmware="required" placeholder="Enter the Host">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row foropenstack">
+                                                        <div class="col-lg-6 col-md-6 appNameLabel">
+                                                            <label for="">Username:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstackusername" id="openstackusername" class="form-control" type="text" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter Username">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel">
+                                                            <label for="">Password:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstackpassword" id="openstackpassword" class="form-control secretInfo" type="password" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Password">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Host:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstackhost" id="openstackhost" class="form-control" type="text" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Host" onBlur="populateurls($(this));">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Project Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstackprojectname" id="openstackprojectname" class="form-control" type="text" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Project Name">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Tenant ID:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstacktenantid" id="openstacktenantid" class="form-control" type="text" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Host">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Tenant Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstacktenantname" id="openstacktenantname" class="form-control" type="text" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Tenant Name">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Compute:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstackendpointcompute" id="openstackendpointcompute" class="form-control" type="text" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Compute Service Endpoint">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Identity:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstackendpointidentity" id="openstackendpointidentity" class="form-control" type="text" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Compute Service Endpoint">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Network:</label>
+                                                            <input name="openstackendpointnetwork" id="openstackendpointnetwork" class="form-control" type="text" cdata="catalyst" placeholder="Enter the Network Service Endpoint" cat-validation-openstack="required">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Image:</label>
+                                                            <input name="openstackendpointimage" id="openstackendpointimage" class="form-control" type="text" cdata="catalyst" placeholder="Enter the Image Service Endpoint" cat-validation-openstack="required">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <label for="">Key Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="openstackkeyname" id="openstackkeyname" class="form-control" type="text" cat-validation-openstack="required" cdata="catalyst" placeholder="Enter Instance Key Name">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
+                                                            <div class="smart-forms">
+                                                                <label for="">Upload .pem file for Instance:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                                <label for="openstackinstancepem" name="field" class="field file">
+                                                                    <div class="imgdiv" value="1"></div>
+                                                                    <span class="button btn-primary">Browse</span><input name="openstackinstancepem" id="openstackinstancepem" keyfield="configname" type="file" class="gui-file file" name="fileObject"><input type="text" readonly="" class="gui-input fileOPPem" name="fileName"><input type="text" class="folderpath" style="display:none;" cdata="catalyst"/>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row forhppubliccloud">
+                                                        <div class="col-lg-6 col-md-6">
+                                                            <label for="">Region:</label>
+                                                            <select id="hppubliccloudregion" name="hppubliccloudregion" class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                                                                <option value="">Select Region</option>
+                                                                <option value="region-a.geo-1.identity.hpcloudsvc.com">US West</option>
+                                                                <option value="region-b.geo-1.identity.hpcloudsvc.com">US East</option>
+                                                            </select>
+                                                            <span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="display:none;">Required</span>
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6">
+                                                            <label for="">Key Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="hppubliccloudkeyname" id="hppubliccloudkeyname" class="form-control" type="text" cdata="catalyst" placeholder="Enter Instance Key Name">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <div class="smart-forms">
+                                                                <label for="">Upload .pem file for Instance:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                                <label for="hpFileName" name="field" class="field file">
+                                                                    <div class="imgdiv" value="1"></div>
+                                                                    <span class="button btn-primary">Browse</span><input name="hpFileName" id="hpFileName" keyfield="configname" type="file" class="gui-file file" name="fileObject"><input type="text" readonly="" class="gui-input fileHPPem" name="fileName"><input type="text" class="folderpath" style="display:none;" cdata="catalyst" />
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row forazure azureBlock">
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <label for="">Enter Subscription Id:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="azureSubscriptionId" id="azureSubscriptionId" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Subscription Id">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <label for="">Enter Client Id:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="azureClientId" id="azureClientId" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Client Id">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <label for="">Enter Client Secret:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="azureClientSecret" id="azureClientSecret" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Client Secret">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <label for="">Enter Tenant Id:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="azureTenantId" id="azureTenantId" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Tenant Id">
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <div class="smart-forms">
+                                                                <label for="">Upload .pem file:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                                <label for="azurepem" name="field" class="field file">
+                                                                    <div class="imgdiv" value="1"></div>
+                                                                    <span class="button btn-primary">Browse</span><input name="azurepem" id="azurepem" keyfield="configname" type="file" class="gui-file file" name="fileObject"><input type="text" readonly="" class="gui-input fileAzurePem" name="fileName"><input type="text" class="folderpath" style="display:none;" cdata="catalyst" />
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <div class="smart-forms">
+                                                                <label for="">Upload private key file:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                                <label for="azurekey" class="field file">
+                                                                    <div class="imgdiv" value="1"></div>
+                                                                    <span class="button btn-primary">Browse</span><input name="azurekey" id="azurekey" keyfield="configname" type="file" class="gui-file"><input type="text" readonly="" class="gui-input fileAzureKey" name="fileName">
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6 col-md-6 margintop20 foraws">
+                                                            <label for="">S3 Bucket Name:</label>
+                                                            <span>
+                                                              <img data-toggle="popover" data-html="true" data-placement="left" title="S3 bucket to which AWS bills are delivered. NOTE: Detailed billing has to be enabled in AWS." src="img/help.png"/>
+                                                            </span>
+                                                            <input name="s3BucketName" id="s3BucketName" class="form-control" type="text" cdata="catalyst" placeholder="Enter the S3 Bucket Name">
+                                                        </div>
+
+                                                        <div class="col-lg-6 col-md-6 margintop20 foraws">
+                                                            <label for="">Planned Cost:</label>
+                                                            <span>
+                                                              <img data-toggle="popover" data-html="true" data-placement="left" title="AWS Planned Cost for a Month." src="img/help.png"/>
+                                                            </span>
+                                                            <input name="plannedCost" id="plannedCost" class="form-control" type="text" cdata="catalyst" placeholder="Enter the Planned Cost">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6 col-md-6 margintop20">
+                                                            <label for="name">Organization Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <select id="orgId" name="orgId" unique="true" uniqueconditionedby="orgname" class="chooseOrganization width-100" style="vertical-align: central" cat-validation="required" cat-validation-openstack="required" cdata="catalyst" skiprowid="yes">
+                                                                <option value="">Select Organization</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <input type="hidden" id="regionNameHidden"/>
+                                                    <input type="hidden" id="keyPairNameHidden"/>
+                                                    <input type="hidden" id="keyPairFileNameHidden"/>
+                                                </div>
+                                                <!-- end widget div -->
+                                            </div>
+                                            <!-- end widget -->
+                                        </article>
+                                        <!-- END COL -->
+                                    </div>
+                                    <!-- END ROW -->
+                                </section>
+                                <!-- end widget grid -->
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="widget-toolbox clearfix">
+                        <div class="btn-group pull-right">
+
+                            <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                                <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                            </a>
+                            <button class="btn btn-primary btn-mini">
+                                <i class="ace-icon fa fa-check bigger-110"></i> Save
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--row ends here-->
+<!--Popup for selecting a cloud provider before proceeding-->
+<script type="text/javascript" src="js/jquery.form.js"></script>
+<script>
+    
+    var UtilityMethods = {
+        initTooltip: function() {
+            var $tool = $("[rel=tooltip]");
+            if ($tool.length) {
+                $tool.tooltip();
+            }
+        },
+        getRandomNumber: function() {
+            return parseInt(Math.random() * 10000000000);
+        },
+        getIdFromURL: function() {
+            var options = location.toString().split('?');
+            return options.length > 1 ? (options[1] !== "new" ? options[1] : "") : "";
+        },
+        isEditModeAvailable: function() {
+            return UtilityMethods.getIdFromURL() == "" ? false : true;
+        },
+        initializeSelect2: function() {
+            $('select').select2();
+        },
+        initializeRegionlist: function() {
+            $('select.region').off('change').on('change', checkForKeyPair).select2();
+        },
+        emptyRegion: function() {
+            $('select.region').val('').select2().trigger('change');
+        },
+        emptyKeyPairs: function() {
+            $('select.keyvalue').html('<option value="">Choose Any Key Pair</option>').select2();
+        },
+        triggerRegionChange: function() {},
+        providerChanged: function(pv) {
+            if (pv == 'AZURE') {
+                $('.foropenstack').hide();
+                $('.forhppubliccloud').hide();
+                $('.foraws').hide();
+                $('.addNewRegion').hide();
+                $('.forvmware').hide();
+                $('.forazure').show();
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/aws/g, 'azure'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/vmware/g, 'azure'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/openstack/g, 'azure'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/hppubliccloud/g, 'azure'));
+            } else if (pv == 'HPPUBLICCLOUD') {
+                $('.foropenstack').show();
+                $('.forhppubliccloud').show();
+                $('.foraws').hide();
+                $('.addNewRegion').hide();
+                $('.forvmware').hide();
+                $('.forazure').hide();
+                $('#openstackinstancepem').closest('div').hide();
+                $('#openstackkeyname').closest('div').hide();
+
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/aws/g, 'hppubliccloud'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/vmware/g, 'hppubliccloud'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/openstack/g, 'hppubliccloud'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/azure/g, 'hppubliccloud'));
+            } else if (pv == 'OPENSTACK') {
+                $('.foropenstack').show();
+                $('.forhppubliccloud').hide();
+                $('.foraws').hide();
+                $('.addNewRegion').hide();
+                $('.forvmware').hide();
+                $('.forazure').hide();
+                $('#openstackinstancepem').closest('div').show();
+                $('#openstackkeyname').closest('div').show();
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/aws/g, 'openstack'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/vmware/g, 'openstack'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/hppubliccloud/g, 'openstack'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/azure/g, 'openstack'));
+            } else if (pv == 'VMWARE') {
+                $('.foropenstack').hide();
+                $('.forhppubliccloud').hide();
+                $('.foraws').hide();
+                $('.forvmware').show();
+                $('.addNewRegion').hide();
+                $('.forazure').hide();
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/aws/g, 'vmware'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/openstack/g, 'vmware'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/hppubliccloud/g, 'vmware'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/azure/g, 'vmware'));
+            } else {
+                $('.foropenstack').hide();
+                $('.forhppubliccloud').hide();
+                $('.foraws').show();
+                $('.addNewRegion').show();
+                $('.forvmware').hide();
+                $('.forazure').hide();
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/openstack/g, 'aws'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/vmware/g, 'aws'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/hppubliccloud/g, 'aws'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/azure/g, 'aws'));
+            }
+        }
+    };
+
+    function populateurls($host) {
+        if ($('#providertype').val() == 'HPPUBLICCLOUD' && $host.val() != '') {
+            if ($('#openstackendpointec2').val() == '')
+                $('#openstackendpointec2').val($host.val());
+            if ($('#openstackendpointcompute').val() == '')
+                $('#openstackendpointcompute').val($host.val().replace('block', 'compute') + '/v2');
+            if ($('#openstackendpointidentity').val() == '')
+                $('#openstackendpointidentity').val($host.val().replace('block', 'identity') + ':35357/v2.0/');
+            if ($('#openstackendpointimage').val() == '')
+                $('#openstackendpointimage').val($host.val().replace('block', 'images') + ':443/v1.0');
+            if ($('#openstackendpointnetwork').val() == '')
+                $('#openstackendpointnetwork').val($host.val().replace('block', 'network') + '/v2.0');
+        }
+    }
+
+    function bindChange_importPemFile() {
+        $('input[type="file"]').off('change').on('change', function() {
+            $(this).next().val(this.files[0].name);
+            $(this).next().next().val($(this).val());
+        });
+    }
+
+    function isUserTypeSuperAdmin() {
+        $.get('/d4dMasters/loggedInUser', function(data) {
+            if (!data.isSuperAdmin) {
+                $('#orgId').attr('disabled', 'disabled').select2();
+            }
+        });
+    }
+
+    function inLineReady() {
+        $("input[type='text']").on("click", function() {
+            $(this).select();
+            $("#msgOrgName").hide();
+        });
+    }
+
+    inLineReady();
+
+    function appendLoader() {
+        removeLoader();
+        $("form[id*='myForm']").find("div.pull-right > input").attr('disabled', 'disabled').parent().prepend('<label id="masterssavespinner" class="" style="float:left;"><img  style="margin-left:5px;margin-right:25px;margin-top:8px;" src="img/select2-spinner.gif" /></label>');
+    }
+
+    function removeLoader() {
+        $('#masterssavespinner').remove();
+        $("form[id*='myForm']").find("div.pull-right > input").removeAttr('disabled');
+    }
+
+
+    function KeyChangeHandler(e) {
+        var accessKey = $('#accessKey').val().trim(),
+                secretKey = $('#secretKey').val().trim();
+        var providerId = UtilityMethods.getIdFromURL();
+        if ((accessKey && secretKey)) {
+            $('select.region').trigger('change');
+        } else if (providerId && providerId !== 'new') {
+            $('select.region').trigger('change');
+        } else {
+            UtilityMethods.emptyRegion();
+            UtilityMethods.emptyKeyPairs();
+        }
+    }
+
+    function checkForKeyPair(e) {
+        function loadKeyPair(accessKey, secretKey, isDefault, regionValue, providerId) {
+            appendLoader();
+            var data1 = new FormData();
+            if (!providerId) {
+                data1.append('accessKey', accessKey);
+                data1.append('secretKey', secretKey);
+                data1.append('region', regionValue);
+                data1.append('isDefault', isDefault);
+            } else if (providerId) {
+                data1.append('region', regionValue);
+                data1.append('isDefault', isDefault);
+                data1.append('providerId', providerId);
+            } else if(isDefault) {
+                data1.append('region', regionValue);
+                data1.append('isDefault', isDefault);
+            }
+
+            $.ajax({
+                method: "POST",
+                url: "/aws/providers/keypairs/list",
+                data: data1,
+                processData: false,
+                contentType: false,
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    $('.modal-dialog').find('.close').trigger('click');
+                    bootbox.alert(XMLHttpRequest.responseText);
+                    $('#btnsubmit').attr('disabled', 'disabled');
+                    $region.parents('.addNewRegion').find('select.keyvalue').html('<option value=""> Select Keypair</option>').val("").select2();
+                    removeLoader();
+                }
+            }).done(function(msg) {
+                var str = '<option value="">Choose Any Key Pair</option>',
+                        val = msg['KeyPairs'],
+                        len = val.length;
+                for (var i = 0; i < len; i++) {
+                    str = str + '<option value="' + val[i].KeyName + '">' + val[i].KeyName + '</option>';
+                }
+                $region.parents('.addNewRegion').find('select.keyvalue').html(str).val('').select2().each(function() {
+                    $(this).attr('answer') ? $(this).val($(this).attr('answer')).select2() : "";
+                });
+                $('#btnsubmit').removeAttr('disabled');
+                removeLoader();
+            });
+        }
+
+        var accessKey = $('#accessKey').val(),
+                secretKey = $('#secretKey').val(),
+                $region = $(this);
+        region = $region.val();
+        var providerId = UtilityMethods.getIdFromURL();
+        var isDefault = $("input[name='isDefault']:checked").val();
+
+        if(providerId && providerId != 'new' && region && region !== '') {
+            if(accessKey && secretKey && accessKey !== '' && secretKey !== '') {
+                loadKeyPair(accessKey, secretKey, false, region, null);
+            } else {
+                loadKeyPair(null, null, false, region, providerId);
+            }
+        } else if(accessKey && secretKey && accessKey !== '' && secretKey !== ''
+                && region && region !== '') {
+            loadKeyPair(accessKey, secretKey, false, region, null);
+        } else if(isDefault && region && region != '') {
+            loadKeyPair(null, null, true, region, null);
+        } else {
+            $('#btnsubmit').attr('disabled', 'disabled');
+        }
+
+    }
+
+    function setValueshppubliccloud(data) {
+        $('#name').val(data.providerName);
+        $('#providertype').val(data.providerType.toUpperCase()).select2();
+        $('#providertype').trigger('change');
+        $('#openstackusername').val(data.username);
+        $('#openstackpassword').val(data.password);
+        $('#openstackhost').val(data.host);
+        $('#openstacktenantname').val(data.tenantname);
+        $('#openstackprojectname').val(data.projectname);
+        $('#openstacktenantid').val(data.tenantid);
+
+        $('#orgId').val(data.orgId[0]).attr({
+            'answer': data.orgId[0]
+        }).select2().attr('disabled', 'disabled');
+
+        $('#openstackendpointec2').val(data.serviceendpoints.ec2);
+
+        $('#openstackendpointcompute').val(data.serviceendpoints.compute);
+
+        $('#openstackendpointidentity').val(data.serviceendpoints.identity);
+
+        $('#openstackendpointimage').val(data.serviceendpoints.image);
+
+        $('#openstackendpointnetwork').val(data.serviceendpoints.network);
+        bindChange_importPemFile();
+        var $pemFileLocation = $('.forhppubliccloud');
+        $pemFileLocation.find('input.fileHPPem').val(data.hpFileName);
+        $('#hppubliccloudkeyname').val(data.keyname);
+        $('#hppubliccloudregion').val(data.region).select2();
+
+    }
+
+    function setValuesAzure(data) {
+        $('#name').val(data.providerName);
+        $('#azureSubscriptionId').val(data.subscriptionId);
+        $('#azureClientId').val(data.clientId);
+        $('#azureClientSecret').val(data.clientSecret);
+        $('#azureTenantId').val(data.tenant);
+        $('#providertype').val(data.providerType.toUpperCase()).select2();
+        $('#providertype').trigger('change');
+        bindChange_importPemFile();
+        var $parentRow = $('.forazure');
+        var $keyRow = $('.row');
+        $parentRow.find('input.fileAzurePem').val(data.pemFileName);
+        $keyRow.find('input.fileAzureKey').val(data.keyFileName);
+        $('#orgId').val(data.orgId[0]).attr({
+            'answer': data.orgId[0]
+        }).select2().attr('disabled', 'disabled');
+
+    }
+
+    function setValuesopenstack(data) {
+        $('#name').val(data.providerName);
+        $('#openstackusername').val(data.username);
+        $('#openstackpassword').val(data.password);
+        $('#openstackhost').val(data.host);
+        $('#openstacktenantname').val(data.tenantname);
+        $('#openstackprojectname').val(data.projectname);
+        $('#openstackkeyname').val(data.keyname);
+        $('#openstacktenantid').val(data.tenantid);
+        $('#providertype').val(data.providerType).select2();
+        $('#orgId').val(data.orgId[0]).attr({
+            'answer': data.orgId[0]
+        }).select2().attr('disabled', 'disabled');
+
+        $('#openstackendpointec2').val(data.serviceendpoints.ec2);
+
+        $('#openstackendpointcompute').val(data.serviceendpoints.compute);
+
+        $('#openstackendpointidentity').val(data.serviceendpoints.identity);
+
+        $('#openstackendpointimage').val(data.serviceendpoints.image);
+        bindChange_importPemFile();
+        var $pemFileLocation = $('.foropenstack');
+        $pemFileLocation.find('input.fileOPPem').val(data.pemFileName);
+        $('#openstackendpointnetwork').val(data.serviceendpoints.network);
+
+
+        $('#providertype').trigger('change');
+
+    }
+
+    function setValuesvmware(data) {
+        $('.foraws').hide();
+        $('.forvmware').show();
+        $('#providertype').val(data.providerType.toUpperCase()).select2();
+        $('#providertype').trigger('change');
+        $('#name').val(data.providerName);
+        $('#vmwareusername').val(data.username);
+        $('#vmwarepassword').val(data.password);
+        $('#vmwarehost').val(data.host);
+        $('#vmwaredc').val(data.dc);
+        $('#orgId').val(data.orgId[0]).attr({
+            'answer': data.orgId[0]
+        }).select2().attr('disabled', 'disabled');
+
+    }
+
+    function setValues(data) {
+        $('#name').val(data.providerName);
+        $('#accessKey').val(data.accessKey);
+        $('#secretKey').val(data.secretKey);
+        $('#providertype').val(data.providerType).select2();
+        $('#s3BucketName').val(data.s3BucketName);
+        $('#plannedCost').val(data.plannedCost);
+        $('#orgId').val(data.orgId[0]).attr({
+            'answer': data.orgId[0]
+        }).select2().attr('disabled', 'disabled');
+        var createTemplateInstance = new createTemplate($('#appender'));
+        for (var i = 0; i < data.keyPairs.length; i++) {
+            if (i == 0) {
+                $('#appender').append(createTemplateInstance.getFinalTemplate(true));
+            } else {
+                $('#appender').append(createTemplateInstance.getFinalTemplate(false));
+            }
+
+        }
+
+        $("input[name='isDefault'][value="+data.isDefault+"]").attr('checked', true);
+        $("input[name='isDefault']").attr('disabled', true);
+        if(data.isDefault) {
+            $('.aws-secret-info').hide();
+            $('.secretInfo').removeAttr('cat-validation');
+        }
+        
+        var parentList = $('.addNewRegion');
+        $('select.region').on('change', checkForKeyPair);
+        for (var i = 0; i < data.keyPairs.length; i++) {
+            parentList.eq(i).find('select.region').attr('answer', data.keyPairs[i].region).attr('disabled', 'disabled').select2();
+            $('input#regionNameHidden').val(data.keyPairs[i].region);
+            parentList.eq(i).find('select.keyvalue').val(data.keyPairs[i].keyPairName).attr({
+                'disabled': 'disabled',
+                'keyID': data.keyPairs[i]._id
+            }).attr('answer', data.keyPairs[i].keyPairName).select2();
+            $('input#keyPairNameHidden').val(data.keyPairs[i].keyPairName);
+            $('input#keyPairFileNameHidden').val(data.keyPairs[i].fileName);
+            parentList.eq(i).find('.filename').attr('disabled', 'disabled').val(data.keyPairs[i].fileName).removeAttr('cat-validation');
+            parentList.eq(i).find('input.file').attr('disabled', 'disabled').removeAttr('cat-validation');
+        }
+        getRegionList();
+    }
+
+    $(document).ready(function() {
+
+        var $secretInfo  = $('.secretInfo');
+        var $awsInputs = $secretInfo.filter('[cat-validation]');
+        var $vmwareInputs = $secretInfo.filter('[cat-validation-vmware]');
+        var $azureInputs = $secretInfo.filter('[cat-validation-azure]');
+        var $openStack = $secretInfo.filter('[cat-validation-openstack]');
+
+        $("input[name='isDefault']").change(function() {
+            if ($("#credentials-IAMRole").is(":checked")) {
+                $('.aws-secret-info').hide();
+                $secretInfo.removeAttr('cat-validation');
+                $secretInfo.attr('disabled', 'disabled');
+            } else {
+                $('.aws-secret-info').show();
+                $secretInfo.prop('cat-validation', 'required');
+                $secretInfo.removeAttr('disabled');
+            }
+        });
+
+        $('#updateSecretInfo').change(function() {
+            if (this.checked) {
+                $secretInfo.removeAttr('disabled');
+                $('select.region').val($('.region option:first-child').val()).removeAttr('disabled').select2();
+                $('select.keyvalue').val($('.keyvalue option:first-child').val()).removeAttr('disabled').select2();
+                $('input.file').removeAttr('disabled');
+                $('input.filename').val('').removeAttr('disabled').attr('cat-validation','required');
+                bindChange_importPemFile();
+                $awsInputs.attr('cat-validation', 'required');
+                $vmwareInputs.attr('cat-validation-vmware', 'required');
+                $azureInputs.attr('cat-validation-azure', 'required');
+                $openStack.attr('cat-validation-openstack', 'required');
+            } else {
+                var regionNameOnEdit = $('#regionNameHidden').val();
+                var keyPairNameOnEdit = $('#keyPairNameHidden').val();
+                var keyPairFileNameOnEdit = $('#keyPairFileNameHidden').val();
+                $('select.region').val(regionNameOnEdit).trigger('change').attr('disabled','disabled').select2();
+                $('select.keyvalue').val(keyPairNameOnEdit).trigger('change').attr('disabled','disabled').select2();
+                $('input.filename').attr('disabled', 'disabled').val(keyPairFileNameOnEdit).removeAttr('cat-validation');
+                $('input.file').attr('disabled', 'disabled').removeAttr('cat-validation');
+                $secretInfo.attr('disabled', 'disabled');
+                $secretInfo.removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
+                $secretInfo.val('');
+            }
+        });
+
+        // removing required for edit mode for secret data
+
+        var providerId = UtilityMethods.getIdFromURL();
+        if (providerId && providerId !== 'new') {
+            $('#updateSecretInfo').parent().show();
+            $('#accessCredentialsRequired').parent().parent().remove();
+            $('.secretInfo').attr('disabled', 'disabled');
+
+            $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
+
+        } else {
+            $('#updateSecretInfo').parent().parent().hide();
+        }
+
+        $("input[type='password']").val('');
+        $("#name").focus();
+        $('#accessKey').blur(KeyChangeHandler);
+        $('#secretKey').blur(KeyChangeHandler);
+        $('select').select2();
+
+        $('#providertype').val('AWS').trigger('change');
+        getOrganizationList();
+
+        //to enter edit mode..
+        if (location.toString().indexOf('?new') === -1) {
+            $('input#accessKey').removeAttr('type');
+            $('input#accessKey').attr('type', 'password');
+            $('input#secretKey').removeAttr('type');
+            $('input#secretKey').attr('type', 'password');
+        }
+        $('#myForm54').ajaxForm({
+            beforeSubmit: function(arr, $form, options) {
+                if (location.toString().indexOf('?new') === -1) {
+                    var orgValue = $('#orgId').val();
+                    arr.push({name:'orgId',value:orgValue,type:'select-one',required:false});
+                    if($('#providerType').val() == 'AWS'){
+                        var regionName = $('.region').val();
+                        var keyPairName = $('.keyvalue').val();
+                        var kepPairFile = $('.filename').val();
+                        
+                        arr.push({name:'region',value:regionName,type:'select-one',required:false});
+                    }
+                }
+                
+                // return false to cancel submit
+                if ($('#providertype').val() == 'OPENSTACK' || $('#providertype').val() == 'HPPUBLICCLOUD') {
+                    if (isFormValidOpenStack(null, 'cat-validation-openstack')) {
+                        appendLoader();
+                        return true;
+                    } else
+                        return false;
+                } else if ($('#providertype').val() == 'VMWARE') {
+                    if (isFormValidOpenStack(null, 'cat-validation-vmware')) {
+                        appendLoader();
+                        return true;
+                    } else
+                        return false;
+                } else if ($('#providertype').val() == 'AZURE') {
+                    if (isFormValidAzure(null, 'cat-validation-azure')) {
+                        appendLoader();
+                        return true;
+                    } else
+                        return false;
+                } else {
+                    if (isFormValid()) {
+                        appendLoader();
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            },
+            dataType: 'json',
+            success: function(data, success) {
+                if (data != 500) {
+                    if ($('#btncancel').length) {
+                        $('#btncancel').click();
+                    }
+                } else {
+                    alert(data.toString());
+                }
+                removeLoader();
+            },
+            error: function(jqxhr) {
+                removeLoader();
+                console.log(jqxhr);
+                if (jqxhr.status == 409) {
+                    errormessageforInput('name', jqxhr.responseText);
+                } else {
+                    // bootbox.alert(jqxhr.status + " :: " + jqxhr.responseText);
+                    bootbox.alert(jqxhr.responseText);
+                }
+            },
+            failure: function(data) {
+                removeLoader();
+                console.log(jqxhr);
+                if (jqxhr.status == 409) {
+                    errormessageforInput('name', jqxhr.responseText);
+                } else {
+                    // bootbox.alert(jqxhr.status + " :: " + jqxhr.responseText);
+                    bootbox.alert(jqxhr.responseText);
+                }
+            }
+        });
+
+        if (!UtilityMethods.getIdFromURL()) {
+            $('.widget-header').find('h4.widget-margin').html('Add New Provider');
+            var createTemplateInstance = new createTemplate($('#appender'));
+            $('#appender').append(createTemplateInstance.getFinalTemplate(true));
+            bindChange_importPemFile();
+            UtilityMethods.initializeSelect2();
+            $('#myForm54').attr('action', '/aws/providers');
+            getRegionList();
+            $('select.region').change(checkForKeyPair);
+            $('#openstackinstancepem').attr('cat-validation-openstack','required');
+        } else {
+            $('.widget-header').find('h4.widget-margin').html('Edit Provider');
+            $('#openstackinstancepem').removeAttr('cat-validation-openstack','required');
+            $('#myForm54').attr('action', '/aws/providers/' + UtilityMethods.getIdFromURL() + '/update');
+            $('#providertype').attr('disabled','disabled');
+            $('#openstackinstancepem').attr('disabled','disabled');
+            $('#azurepem').attr('disabled','disabled');
+            $('#azurekey').attr('disabled','disabled');
+            $.ajax({
+                method: "GET",
+                url: "/aws/providers/" + UtilityMethods.getIdFromURL(),
+                success: function(data, success) {
+                    data = typeof data == "string" ? JSON.parse(data) : data;
+                    d4ddata = data;
+                    setValues(data);
+                },
+                error: function(jqxhr) {
+                    removeLoader();
+                    getopenstackprovider();
+                },
+                failure: function(data) {
+                    bootbox.alert(data);
+                }
+            });
+            var getopenstackprovider = function() {
+                $.ajax({
+                    method: "GET",
+                    url: "/openstack/providers/" + UtilityMethods.getIdFromURL(),
+                    success: function(data, success) {
+                        data = typeof data == "string" ? JSON.parse(data) : data;
+                        d4ddata = data;
+                        setValuesopenstack(data);
+                    },
+                    error: function(jqxhr) {
+
+                        getValueshppubliccloud();
+                        removeLoader();
+
+                    },
+                    failure: function(data) {
+
+                        bootbox.alert(data);
+                    }
+                });
+
+            }
+            var getValueshppubliccloud = function() {
+
+                $.ajax({
+                    method: "GET",
+                    url: "/hppubliccloud/providers/" + UtilityMethods.getIdFromURL(),
+                    success: function(data, success) {
+                        data = typeof data == "string" ? JSON.parse(data) : data;
+                        d4ddata = data;
+                        setValueshppubliccloud(data);
+                    },
+                    error: function(jqxhr) {
+
+                        getValuesAzure();
+
+                    },
+                    failure: function(data) {
+
+                        bootbox.alert(data);
+                    }
+                });
+
+            }
+
+            var getValuesAzure = function() {
+
+                $.ajax({
+                    method: "GET",
+                    url: "/azure/providers/" + UtilityMethods.getIdFromURL(),
+                    success: function(data, success) {
+                        data = typeof data == "string" ? JSON.parse(data) : data;
+                        d4ddata = data;
+                        setValuesAzure(data);
+                    },
+                    error: function(jqxhr) {
+
+                        getValuesVmware();
+                        removeLoader();
+
+                    },
+                    failure: function(data) {
+
+                        bootbox.alert(data);
+                    }
+                });
+
+            }
+
+            var getValuesVmware = function() {
+
+                $.ajax({
+                    method: "GET",
+                    url: "/vmware/providers/" + UtilityMethods.getIdFromURL(),
+                    success: function(data, success) {
+                        data = typeof data == "string" ? JSON.parse(data) : data;
+                        d4ddata = data;
+
+                        setValuesvmware(data);
+                        removeLoader();
+                        bootbox.alert(jqxhr.status);
+                    },
+                    error: function(jqxhr) {
+
+
+                        removeLoader();
+
+                    },
+                    failure: function(data) {
+
+                        bootbox.alert(data);
+                    }
+                });
+
+            }
+
+        }
+    });
+
+    function getOrganizationList() {
+        $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+            var str = ' <option value="">Select Organization</option>',
+                    len = data.length;
+            for (var i = 0; i < data.length; i++) {
+                str = str + '<option value="' + data[i].rowid + '">' + data[i].orgname + '</option>';
+            }
+            $('#orgId').html(str);
+            if ($('#orgId').attr('answer')) {
+                $('#orgId').val($('#orgId').attr('answer')).select2();
+            } else {
+                $('#orgId').val("").select2();
+            }
+        })
+    }
+
+    function getRegionList() {
+        $.get('/vmimages/regions/list', function(data) {
+            var str = '<option value="">Select Region</option>';
+            for (var i = 0; i < data.length; i++) {
+                str = str + '<option value="' + data[i].region + '">' + data[i].region_name + ' | ' + data[i].region + '</option>'
+            }
+            UtilityMethods.initializeRegionlist();
+
+            $('select.region').each(function() {
+                if (!$(this).val()) {
+                    $(this).html(str);
+                }
+            }).each(function() {
+                $(this).attr('answer') ? $(this).val($(this).attr('answer')).select2() : "";
+                if ($(this).attr('disabled')) {
+                    $(this).trigger('change');
+                }
+            });
+        });
+    }
+
+    function createTemplate(parentToAttach) {
+        var that = this,
+                parentEl = $(parentToAttach).addClass('customTemplateParent');
+        var getAddButton = function(classs) {
+                    var title = ''
+                    if (classs == 'addRegion') {
+                        titile = 'title="Add New Region" data-placement="top"';
+                    } else if (classs == 'addRow') {
+                        titile = 'title="Add New Key Pair" data-placement="top"';
+                    }
+                    return '<img src="img/add.png" class="addimage ' + (classs ? classs : '') + '" ' + titile + ' rel="tooltip" data-placement="top" />'
+                },
+
+                getRemoveButton = function(classs) {
+                    var title = ''
+                    if (classs == 'removeRegion') {
+                        titile = 'title="Remove this Region" data-placement="top"';
+                    } else if (classs == 'removeRow') {
+                        titile = 'title="Remove this Key Pair" data-placement="top"';
+                    }
+                    return '<img src="img/remove.png" class="removeimage ' + (classs ? classs : '') + '" ' + titile + ' rel="tooltip"  />'
+                },
+                getKeyValueList = function() {
+                    return '<div class="col-lg-6 col-md-6 margintop20" style="width:47%;">' + '<label for="name">Select Key Pair:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="keyPairName" unique="true" uniqueconditionedby="orgname"  class="editCheck chooseOrganization width-100 keyvalue" ' + 'style="vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '  <option value="">Select Any Key Pair</option></select>' + '</div>';
+                };
+        var getRegion = function() {
+            return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="editCheck region chooseOrganization width-100" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '</div></div>';
+        };
+        var getPemFileRow = function() {
+            return '<div class="col-lg-6 col-md-6 authPemFile margintop20" style="display: block;"><div class="smart-forms" style="  margin-left: 7%;"><label for="">Upload .pem file for Provider<span class="control-label redSpan">&nbsp;*</span></label>' + '<label for="templatesicon" name="field" class="file">' + '<span class="button btn-primary btn-importbyIP" style="height:26px;line-height:22px;  padding: 1px ' + '14px;position: absolute;right:4px;margin-top: 3.5%;">Browse</span>' + '<input id="' + UtilityMethods.getRandomNumber() + '" type="file" class="gui-file file secretInfo" cdata="catalyst" cat-validation="required" name="fileObject">' + '<input type="text" readonly="" class="gui-input filename" name="fileName">' + '<input type="text" class="folderpath" style="display:none;" cdata="catalyst" />' + '</label></div></div>';
+        };
+
+        this.getRow = function(isAdd, isRemove, notrequired) {
+            var str = '';
+            if (isAdd) {
+                str = getAddButton('addRow');
+            } else if (isRemove) {
+                str = getRemoveButton('removeRow');
+            } else if (notrequired) {
+                str = '';
+            }
+            return '<div class="row pemrow">' + getKeyValueList() + getPemFileRow() + str + '</div>';
+        };
+
+        this.getFinalTemplate = function(isAddApplicable, noOfRow) {
+            noOfRow = noOfRow ? parseInt(noOfRow) : 1;
+            var str = '';
+            for (var i = 0; i < noOfRow; i++) {
+                if (i == 0) {
+                    str = str + that.getRow(false, false, false);
+                } else {
+                    str = str + that.getRow(false, false, false);
+                }
+
+            }
+            return '<div class="addNewRegion margintop20">' + (isAddApplicable ? getAddButton('addRegion') : getRemoveButton('removeRegion')) + getRegion() + str + '</div>'
+        };
+
+        $(parentEl).delegate('.addimage', 'click', function() {
+            if ($(this).hasClass('addRow')) {
+                $(this).parent().parent().append(that.getRow(false, true)).find('select').select2();
+            } else if ($(this).hasClass('addRegion')) {
+                $(this).parents('.customTemplateParent').append(that.getFinalTemplate()).find('select').select2();
+                getRegionList();
+            }
+            UtilityMethods.initTooltip();
+            bindChange_importPemFile();
+        });
+
+        $(parentEl).delegate('.removeimage', 'click', function() {
+            var parent = $(this).parent();
+            if ($(this).hasClass('removeRow')) {
+
+                parent.remove();
+
+            } else if ($(this).hasClass('removeRegion') && !parent.find('select.keyvalue').attr('keyID')) {
+
+                parent.remove();
+            } else {
+                bootbox.confirm('You are about to remove this KeyPair <strong>' + parent.find('select.keyvalue').val() + '</strong>', function(result) {
+                    if (result) {
+                        $.ajax({
+                            type: "delete",
+                            dataType: "text",
+                            async: false,
+                            url: "/aws/providers/keypairs/" + parent.find('select.keyvalue').attr('keyID'),
+                            success: function(data) {
+                                if (data != '401') {
+                                    parent.remove();
+                                } else {
+                                    bootbox.alert('Insufficient permission to perform this operation.');
+                                }
+                            },
+                            failure: function(data) {
+                                bootbox.alert(data.responseText);
+                            },
+                            error: function(data) {
+                                bootbox.alert(data.responseText);
+                            }
+                        });
+                    }
+                });
+            }
+            UtilityMethods.initTooltip();
+        });
+    }
+
+</script>

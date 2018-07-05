@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <span class="close" ng-click="cancel()">×</span>
+    <h4 class="modal-title">
+        Importing Instance
+    </h4>
+</div>
+<div class="modal-body">
+    <loading size="large" name="isInstanceImporting" type="block" align="center"></loading>
+    <div ng-show="isInstanceImporting"></div>
+    <div ng-show="!isInstanceImporting">{{statusMessage}}</div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">Close</button>
+</div>

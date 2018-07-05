@@ -1,0 +1,440 @@
+<div id='cpInfoPage' ng-controller="cpInfoCtrl">
+	<accordion close-others="oneAtATime">
+		<div class="bp-info-wrapper" ng-if="bpInfo.length!==0">
+			<accordion-group is-open="isFirstOpen" heading="Blueprint Information">
+				<table>
+					<tbody>
+						<tr>
+							<td>
+								Template
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.templateId}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Template Type
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+                            <td ng-switch on="bpInfo.templateType">
+                                <span ng-switch-when="chef">SoftwareStack</span>
+                                <span ng-switch-when="ami">OSImage</span>
+                                <span ng-switch-when="cft">CloudFormation</span>
+                                <span ng-switch-when="docker">Docker</span>
+                                <span ng-switch-when="arm">ArmTemplate</span>
+                                <span ng-switch-default>NA</span>
+                    		</td>
+						</tr>
+						<tr>
+							<td>
+								Blueprint Name
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.name}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Provider Type
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.providerType}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Provider Name
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.providerName}}
+							</td>
+						</tr>
+					</tbody>
+					<tbody ng-show="bpInfo.templateType=='arm'">
+						<tr>
+							<td>
+								Resource Group
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.resourceGroup}}
+							</td>
+						</tr>
+					</tbody>
+					<tbody ng-show="(bpInfo.templateType=='chef' || bpInfo.templateType=='docker'|| bpInfo.templateType=='ami') && bpInfo.blueprintConfig.cloudProviderType == 'openstack'">
+						<tr>
+							<td>
+								Subnet ID
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.subnet}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Security Group
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.securityGroup}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Name
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.imageName}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Identifier
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.imageId}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Network
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.network}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Flavour
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.flavor}}
+							</td>
+						</tr>
+					</tbody>
+					<tbody ng-show="(bpInfo.templateType=='chef' || bpInfo.templateType=='docker'|| bpInfo.templateType=='ami') &&bpInfo.blueprintConfig.cloudProviderType == 'vmware'">
+						<tr>
+							<td>
+								Data Store
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.dataStore}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Name
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.imageName}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Identifier
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.imageId}}
+							</td>
+						</tr>
+					</tbody>
+					<tbody ng-show="(bpInfo.templateType=='chef' || bpInfo.templateType=='docker'|| bpInfo.templateType=='ami') && !(bpInfo.blueprintConfig.cloudProviderType == 'openstack' || bpInfo.blueprintConfig.cloudProviderType == 'vmware')">
+						<tr>
+							<td>
+								Instance Size
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.instanceType}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								VPC ID
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.vpcId}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Subnet ID
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.subnetId}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Security Group
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.securityGroupIds[0]}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Version
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.version}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Name
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.imageName}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Identifier
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.instanceAmiid}}
+							</td>
+						</tr>
+						<tr ng-hide="bpInfo.providerType=='azure'">
+							<td>
+								Keypair Name
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.keyPairName}}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</accordion-group>
+		</div>
+		<accordion-group is-open="isSecondOpen" heading="Hardware">
+			  <table>
+				<tr>
+					<td>
+						Machine
+					</td>
+					<td>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td>
+						{{hardwareInfo.machine}}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Total Memory
+					</td>
+					<td>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td>
+						{{hardwareInfo.memoryTotal}}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Free Memory
+					</td>
+					<td>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td>
+						{{hardwareInfo.memoryFree}}
+					</td>
+				</tr>
+			</table>
+		</accordion-group>
+		<!--Role Attributes Starts here-->
+		<accordion-group is-open="isThirdOpen" heading="Software">
+			<button type="button" class="btn cat-btn-update inspect-btn pull-right" ng-show="instInfo.instanceState==='running'" ng-click="inspect();">
+				<i class="fa fa-fw fa-search white"></i>
+				Inspect
+			</button>
+			<table>
+				<tr>
+					<td>
+						OS
+					</td>
+					<td>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td>
+						{{softwareInfo.os}}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Version
+					</td>
+					<td>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td>
+						{{softwareInfo.version}}
+					</td>
+				</tr>
+			</table>
+		</accordion-group>
+		<!--Configmgmt Attributes Starts here-->
+		<accordion-group is-open="isFourthOpen" heading="Configuration Management">
+			<table>
+				<tr>
+					<td>
+						Bootstrap
+					</td>
+					<td>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td>
+						{{cmInfo.bootstrap}}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Runlist
+					</td>
+					<td>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td>
+						{{cmInfo.runlist}}
+					</td>
+				</tr>
+			</table>
+		</accordion-group>
+		<!--Configmgmt Attributes Ends here-->
+		<!--Application URL-->
+		<accordion-group is-open="isFifthOpen" heading="Additional Parameters">
+			<section class="app-url-section">
+				<header class="app-url-header">
+					<span>Application URL's</span>
+					<button type="button" class="btn cat-btn-update pull-right header-margin" ng-click="createAppUrl('new','');">
+					   <i class="fa fa-plus white"></i>
+					   New
+					</button>
+				</header>
+				<div class="jobDetailsContent">
+					<div class="col-md-12 col-sm-12 col-xs-12 col-lg-12 margintop15">
+						<table class="table table-bordered text-center">
+							<thead>
+								<tr>
+									<th>S.No</th>
+									<th>Name</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="appUrl in appUrlInfo">
+									<td>{{$index + 1}}</td>
+									<td><a class="app-url cursor" target="_blank" ng-href="{{appUrl.url}}">{{appUrl.name}}</td>
+									<td width="110px">
+										<span title="Edit" class="fa fa-pencil btn btn-info tableactionbutton white" ng-click="createAppUrl('edit',appUrl);"></span>
+										<span title="Delete" class="fa fa-trash-o btn btn-danger tableactionbutton white" ng-click="deleteAppUrl(appUrl, $index)"></span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</accordion-group>
+		<!--Application URL Ends here-->
+		<!--tasks start here-->
+		<accordion-group is-open="isSixthOpen" heading="Tasks">
+			<section class="app-url-section">
+				<header class="app-url-header">
+					<span>List of Tasks</span>
+					<button type="button" class="btn cat-btn-update pull-right header-margin" ng-click="assignJob();">
+					   Assign Job
+					</button>
+				</header>
+				<div class="jobDetailsContent">
+					<div class="col-md-12 col-sm-12 col-xs-12 col-lg-12 margintop15">
+						<table class="table table-bordered text-center">
+							<thead>
+								<tr>
+									<th>S.No</th>
+									<th>Task Name</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="task in taskInfo">
+					                <td>{{$index+1}}</td>
+					                <td>{{task.name}}</td>
+					            </tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</accordion-group>
+		<!--tasks name ends here-->
+	</accordion>
+</div>

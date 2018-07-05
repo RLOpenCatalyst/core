@@ -1,0 +1,35 @@
+<div id='orchestrationLogPage'>
+    <div class="modal-header">
+        <span class="close" ng-click="orchLogCtrl.cancelAll(orchLogCtrl.taskLogType)">×</span>
+        <h4 class="modal-title">
+            <i class="fa fa-eraser"></i>
+            Execute Logs
+        </h4>
+    </div>
+
+    <div class="modal-body">
+        <fieldset>
+            <div ng-switch="orchLogCtrl.taskLogType">
+                <div ng-switch-when="jenkins">
+                    <div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/jenkinsLog.html'" ></div>
+                </div>
+                <div ng-switch-when="chef">
+                    <div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="script">
+                    <div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="puppet"></div>
+                <div ng-switch-when="composite">
+                    <div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/compositeLogs.html'" ></div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-cancel" ng-click="orchLogCtrl.cancelAll(orchLogCtrl.taskLogType)">
+            <i class="fa fa-times black"></i> Close
+        </button>
+    </div>
+</div>

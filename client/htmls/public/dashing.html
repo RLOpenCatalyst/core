@@ -1,0 +1,210 @@
+<html>
+<head>
+<title>Cost Dashboard of AWS</title>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.0.min.js"></script>
+<script src="js/jquery.gridster.js" charset="utf-8" ></script>
+<link rel="stylesheet" type="text/css" href="css/jquery.gridster.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+<style>
+.noTrackItems {
+    margin-top: 50px;
+    float: left;
+    font-size: 14px;
+    height:20px!important;
+    color:#8a6d3b!important;
+}
+.alert {
+    padding: 15px;
+    margin-bottom: 18px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+.alert h4 {
+    margin-top: 0;
+    color: inherit;
+}
+.alert-warning {
+    background-color: #fcf8e3;
+    border-color: #fbeed5;
+    color: #c09853;
+}
+.form-control{
+  display: inline;
+    height: 32px;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 1.428571429;
+    color: #555;
+    vertical-align: middle;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    height: 36px;
+    width:20%;
+}
+.hidden
+{
+ display : none;
+}
+ul {
+  list-style: none;
+}
+.spinStyle {
+  height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;
+}
+
+</style>
+</head>
+<body>
+<span class="providerSelect hidden"><label for="">Choose Providers:&nbsp;</label><select class="form-control" id ="dropdown" disabled></select></span>
+<div class="gridster">
+    <ul class="gridBox hidden">
+    <li class="logo" data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+        <span><img class="center-block" align ="middle" style="height:200px;width:200px;margin-top: 15%;margin-bottom: 10%;" src="img/cat_logo.png" /></span>
+    </li>
+    <li class="cost" data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+        <h2>Billing Period Cost</h2>
+        <span class="spinner"><img class="center-block spinStyle" align ="middle"  src="img/loading.gif" /></span>
+        <h1 id="costMonth"></h1>
+        <p id="forecastedCost"></p>
+    </li>
+    <li class="cost" data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+        <h2>Today's Cost</h2>
+        <span class="spinner"><img class="center-block spinStyle" src="img/loading.gif" /></span>
+        <h1 id="costDay"></h1>
+        <p id="costYest"></p>
+    </li>
+    <li class="instance" data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+        <h2>Active Instances</h2>
+        <span class="spinner"><img class="center-block spinStyle" src="img/loading.gif" /></span>
+        <h1 id="instances"></h1>
+    </li>
+    <li class="instance" data-row="2" data-col="1" data-sizex="1" data-sizey="1">
+        <h2>EBS Volumes</h2>
+        <span class="spinner"><img class="center-block spinStyle" src="img/loading.gif" /></span>
+        <h1 id="volumes"></h1>
+    </li>
+    <li class="instance" data-row="2" data-col="1" data-sizex="1" data-sizey="1">
+        <h2>S3 Buckets</h2>
+        <span class="spinner"><img class="center-block spinStyle" src="img/loading.gif" /></span>
+        <h1 id="buckets"></h1>
+    </li>
+    <li class="instance" data-row="2" data-col="1" data-sizex="1" data-sizey="1">
+        <h2>Elastic IPS</h2>
+        <span class="spinner"><img class="center-block spinStyle" src="img/loading.gif" /></span>
+        <h1 id="ips"></h1>
+    </li>
+    <li class="zonal" data-row="2" data-col="1" data-sizex="1" data-sizey="1">
+        <h2>R53 Zones</h2>
+        <span class="spinner"><img class="center-block spinStyle" src="img/loading.gif" /></span>
+        <h1 id="zones"></h1>
+    </li>
+
+</ul>
+<div class="alert alert-warning noTrackItems hidden" style="text-align:center"><span style="margin-left:20px;font-size:15px;font-family:Helvetica Neue,Helvetica,Arial,sans-serif">Navigate to Settings to add Providers to get the cost dashboard.</span></div>
+</div>
+<script>
+$(function() { //DOM Ready
+
+  $(".gridster ul").gridster({
+    widget_margins: [4, 4],
+    widget_base_dimensions: [250, 250]
+  });
+  $("span").css({
+    "align": "center"
+  });
+  $("div").css({
+    'width': '100%',
+    'height': '100%'
+  });
+  $("li").css({
+    "border": "solid 2px black",
+    "text-align": "center"
+  });
+  $(".cost").css("background-color", "#47bbb3");
+  $(".instance").css("background-color", "#04B431");
+  $(".zonal").css("background-color", "grey");
+});
+$(document).ready(function() {
+  $("img").css({
+    "align": "middle"
+  });
+  $('.logo').css({
+    "background-color": "black"
+  });
+
+  function getdetails(id) {
+    $.get("/aws/dashboard/providers/" + id, function(data) {
+      $('#dropdown').attr('disabled', false);
+      $(".spinner").addClass("hidden");
+      $("#costMonth").html("$" + Math.round(data.costOfMonth));
+      $('#forecastedCost').html(function() {
+        var day = new Date();
+        var date = day.getDate();
+        var forcast = Math.round((data.costOfMonth / date) * 30);
+        return "Monthly forecasted cost <p><b>$" + forcast + "</b></p>";
+      });
+      $("#costDay").html("$" + Math.round(data.costOfDay));
+      $('#costYest').html(function() {
+        if ((data.costOfDay < data.costOfYesterday) && data.costOfYesterday != 0) {
+          var percentage = ((data.costOfYesterday - data.costOfDay) / data.costOfYesterday) * 100;
+          return "Yesterday $" + (data.costOfYesterday.toFixed(2)) + "<p><span><i class='fa fa-arrow-down' style ='color:green'></i> " + percentage.toFixed(2) + "% </span></p>";
+        } else {
+          if (data.costOfDay != 0) {
+            var percentage = ((data.costOfDay - data.costOfYesterday) / data.costOfDay) * 100;
+            return "Yesterday $" + (data.costOfYesterday.toFixed(2)) + "<p><span><i class='fa fa-arrow-up' style ='color:red'></i> " + percentage.toFixed(2) + "% </span></p>";
+          } else
+            return "Yesterday $" + (data.costOfYesterday);
+        }
+      });
+      $("#instances").html(data.elasticCloudCompute);
+      $("#volumes").html(data.ebsVolumes);
+      $("#groups").html(data.securityGroups);
+      $("#ips").html(data.elasticIP);
+      $("#buckets").html(data.simpleStorageService);
+      $("#zones").html(data.route53);
+    });
+
+  }
+  $.ajax({
+    type: 'GET',
+    url: '../aws/providers',
+    success: function(data, success) {
+      if (data.length === 0) {
+        $('.providerSelect').addClass('hidden');
+        $('.gridBox').addClass('hidden');
+        $('.noTrackItems').removeClass('hidden');
+      } else {
+        for (var i = 0; i < data.length; i++) {
+          $('.providerSelect').removeClass('hidden');
+          $('.gridBox').removeClass('hidden');
+          $("#dropdown").append($("<option></option>").val(data[i]._id).html(data[i].providerName));
+        }
+        var id = data[0]._id;
+        getdetails(id);
+        $("#dropdown").change(function() {
+          $('#dropdown').attr('disabled', true);
+          $('.spinner').removeClass('hidden');
+          $("#costMonth").empty();
+          $('#forecastedCost').empty();
+          $('#costDay').empty();
+          $('#costYest').empty();
+          $("#instances").empty();
+          $("#volumes").empty();
+          $("#groups").empty();
+          $("#ips").empty();
+          $("#buckets").empty();
+          $("#zones").empty();
+          var id = $("#dropdown").val();
+          getdetails(id);
+        });
+      }
+    }
+  });
+});
+
+</script>
+</body>
+</html>
+

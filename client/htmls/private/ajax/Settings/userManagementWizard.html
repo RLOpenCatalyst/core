@@ -1,0 +1,229 @@
+<div class="wizardFlow"></div>
+<!-- fieldsets -->
+<div class="content">
+   
+    <form action="" id="myForm3">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h4 class="widget-margin" style="color:black;">Create Team</h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main" style="min-height:350px">
+                    <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                        <div>
+                                 <!-- widget content -->
+                                 <div class="widget-body no-padding">
+                                  
+                                  <div class="col-lg-6 col-md-6">
+                                          <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                          <br>
+                                          <input autofocus name="ctl00$MainContent$orgname" value="" id="teamname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max22,nospace"  unique="true"  uniqueconditionedby="teamname">
+                                       
+                                       </div>
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="name">Description:</label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="description" class="form-control" type="text"  cdata="catalyst" maxlength="50">
+                                       </div>
+                                  <div class="col-lg-6 col-md-6 margintop20">
+                                          <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <select id="orgname" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['projectname','loginname']"  cdata="catalyst" cat-validation="required">
+                                            
+                                          </select>
+                                       </div>
+                                    
+                                 <div class="col-lg-6 col-md-6 smart-form margintop20">
+                                    <label for="category">Users:</label>
+                                    <div  id="loginname" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row"  class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" sourcepath="7" cdata="catalyst" linkedto="orgname">
+                                    </div>
+                                 </div>
+                                 <div class="col-lg-6 col-md-6 smart-form margintop20">
+                                    <label for="category">Assign Projects:</label>
+                                    <div  id="projectname" sourcepath="4" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row"  class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" cdata="catalyst" linkedto="orgname" >
+                                    </div>
+                                 </div>
+                                
+
+                                 
+                                 <!-- end widget content -->
+                                 </div>
+                              </div>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-toolbox clearfix">
+                <div class="btn-group pull-right">
+                 <button name="next1" id="saveConfigTeam" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+                 <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+              </div>
+            </div>
+        </div>
+    </form>
+</div>
+<input type="hidden" id="configWizardValueNewEdit"/>
+<script>
+ //jQuery time
+ $(document).ready(function(e) {
+     orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+     orgIdForSetup = $('#orgDropdown option:selected').val();
+     var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+     $('#orgname').append($option);
+
+
+     //api call for getting the status of wizard
+     var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps bwizard-stepsUserConfig clearfix clickable"><li aria-selected="false" style="z-index: 3;" id="teamCreate" class="active btn-2 teamCreate"><span class="label">1</span><a href="ajax/Settings/userManagementWizard.html">Teams</a></li><li aria-selected="false" style="z-index: 3;" id="userCreate" class="btn-3 userCreate"><span class="label">2</span><a href="ajax/Settings/userWizard.html" class="not-activeAnchor hidden-phone">Users</a></li></ol>');
+     $('.wizardFlow').append(wizardStepsConfig);
+     var configWizardStatusValue;
+
+     function configWizardStatus(orgIdForSetup) {
+         $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+             if (data.currentStep.name === 'User Configuration') {
+                 if (data.currentStep.nestedSteps) {
+                     var nestedSteps = data.currentStep.nestedSteps;
+                     if (nestedSteps[0].name === 'Team' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'User' && nestedSteps[1].isCompleted === false) {
+                         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                         $('.contentSetting').find('ol li#userCreate').addClass('active');
+                         $('.content').load('ajax/Settings/userWizard.html');
+
+
+                     } else {
+                     }
+                 }
+             } else {
+                 getTeamValues();
+                 $('#saveConfigWizard').addClass('hidden');
+                 $('.nextFormWizard').removeAttr('disabled');
+                 $('.btn-3 a').removeClass('not-activeAnchor');
+                 $('.btn-2 a').parent('.bwizard-steps li').addClass('active');
+                 $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+             }
+         });
+         $('#wizardActionListLoader').hide();
+     }
+     var configWizardEditValue;
+     orgIdForSetup = selectedDropdownValue || firstOrgValue;
+     if (clicked) {
+         if (orgIdForSetup) {
+             configWizardStatus(orgIdForSetup);
+
+         }
+     } else {
+         //comes when the chefServer is created and navigates back to it.
+
+         if (orgIdForSetup) {
+             $('#wizardActionListLoader').hide();
+             $('.nextFormWizard').removeAttr('disabled');
+             $('.btn-3 a').removeClass('not-activeAnchor');
+             getTeamValues();
+         }
+     }
+ });
+
+  getTemplate = function(val, rowid) {
+             return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle"' + 'value="' + val + '"' + 'rowid="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
+         };
+
+ function getTeamValues() {
+     $.get('/d4dMasters/readmasterjsonnew/21', function(data) {
+         for (var i = 0; i < data.length; i++) {
+             if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                 var $optionOrgNameEnv = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                 $('#myForm3').find('select#orgname').append($optionOrgNameEnv).attr('disabled', 'disabled');
+                 $('#myForm3').find('input#teamname').val(data[i].teamname).attr('disabled', 'disabled');
+                 $('#myForm3').find('input#description').val(data[i].description).attr('disabled', 'disabled');
+                 $('#myForm3 #loginname').find('input[type="checkbox"][value="'+data[i].loginname+'"]').attr('checked','checked');
+                 $('#myForm3 #projectname').find('input[type="checkbox"][value="'+data[i].projectname+'"]').trigger('click');
+                 //$('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('#myForm3').find('button#saveConfigTeam').addClass('hidden');
+                 $('.nextFormWizard').removeAttr('disabled');
+             }
+         }
+     });
+ }
+
+ function getUserValues() {
+     $.get('/d4dMasters/readmasterjsonnew/7', function(data) {
+         for (var i = 0; i < data.length; i++) {
+             if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                 var $optionOrgNameEnv = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                 $('#myForm5').find('select#orgname').append($optionOrgNameEnv).attr('disabled', 'disabled');
+                 $('#myForm5').find('input#loginname').val(data[i].loginname).attr('disabled', 'disabled');
+                 $('#myForm5').find('input#email').val(data[i].email).attr('disabled', 'disabled');
+                 $('#myForm5').find('div.row1').remove();
+                 $('#myForm5 #userrolename').find('input[type="checkbox"][value="'+data[i].userrolename+'"]').attr('checked','checked');
+                 $('#myForm5 #teamname').find('input[type="checkbox"][value="'+data[i].teamname+'"]').attr('checked','checked');
+                 $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('#myForm5').find('button#saveConfigUser').addClass('hidden');
+                 $('.nextFormWizard').removeAttr('disabled');
+             }
+         }
+     });
+ }
+
+ $('.btn-2 a').click(function(e) {
+     e.preventDefault();
+     clicked = false;
+     $('.contentSetting').load(this.getAttribute('href'));
+ });
+ $('.btn-3 a').click(function(e) {
+     e.preventDefault();
+     $('.content').empty();
+     $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
+     $(this).parent('.bwizard-steps li').addClass('active');
+     $('.content').load(this.getAttribute('href'));
+     getUserValues();
+ });
+
+
+
+ $('#orgname').change(function(e) {
+     $('#projectname').empty();
+     $('#loginname').empty();
+     var str = '';
+         
+     $.get('/d4dMasters/orgs/all/users/7', function(data) {
+         for (var i = 0; i < data.length; i++) {
+             str = '';
+             if (orgIdForSetup === data[i].orgname_rowid[0]) {
+                 str = str + getTemplate(data[i].loginname, data[i].rowid);
+                 $('#loginname').append(str);
+             } else if (data[i].orgname_rowid[0] === "") {
+                 str = str + getTemplate(data[i].loginname, data[i].rowid);
+                 $('#loginname').append(str);
+             }
+         }
+     });
+     $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
+         for (var i = 0; i < data.length; i++) {
+             str = '';
+             if (orgIdForSetup === data[i].orgname_rowid[0]) {
+                 str = str + getTemplate(data[i].projectname, data[i].rowid);
+                 $('#projectname').append(str);
+             }
+         }
+     });
+ });
+ $('#orgname').trigger('change');
+
+ $('#myForm3').submit(function() {
+     $(this).validate();
+
+     if ($(this).valid) {
+         if (!saveform('21'))
+             return false;
+     } else {
+         alert('invalid valid form submitted'); // for demo
+     }
+     return false; // for demo
+ });
+
+ $(".nextFormWizard").click(function() {
+     $('.content').empty();
+     getUserValues();
+     $('.btn-3 a').removeClass('not-activeAnchor');
+     $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+     $('.contentSetting').find('ol li#teamCreate').addClass('active');
+     $('.content').load('ajax/Settings/userWizard.html');
+ });
+
+</script>

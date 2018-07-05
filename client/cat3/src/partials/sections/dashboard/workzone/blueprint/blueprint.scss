@@ -1,0 +1,108 @@
+@import '../../../../theme';
+
+#blueprintPage {
+	.container {
+		width: 100%;
+	}
+
+	.panel-body {
+	    padding: 15px 5px;
+	}
+
+	.panel-group .panel+.panel {
+		margin-top: 0px;
+	}
+
+	.panel-default {
+		border-radius: 0px;
+		box-shadow: none;
+	}
+
+	.productdiv4 {
+		width: 154px;
+		float: left;
+		padding-top: 7px;
+		padding-left: 10px;
+	}
+
+	.role-Selected1 {
+		border: 1px solid $color-gray;
+		border-radius: 4px;
+	}
+
+	.productdiv1 {
+		position: relative;
+		border-width: 1px;
+	}
+}
+
+/*# sourceMappingURL=blueprint.css.map */
+
+/*All Popups CSS starts here*/
+
+#blueprintInfoPage {
+	.modal-body {
+		height: 360px;
+		overflow-y: auto;
+	}
+
+	.titleName {
+		word-wrap: break-word;
+	}
+
+	.th-parameters {
+		width:11%;
+		text-align:center;
+	}
+
+	.th-values {
+		width:27%;
+		text-align:center;
+	}
+}
+
+#blueprintLaunchParamsPage {
+	.CFTInputs-block {
+		height: 75px;
+	}
+
+	.loading-position {
+		text-align: center;
+	}
+
+	.acknowledge-text, .help-block {
+		font-size: 12px;
+	}
+
+	.acknowledge-text {
+		margin-left: 15px;
+	}
+
+	.text-danger {
+		color: #a94442;
+	}
+}
+
+#blueprintLaunchPage {
+	.alert-success, .alert-danger {
+		font-size: 16px;
+	}
+
+	.success-message {
+		font-size: 12px;
+	}
+}
+
+.docker-repo-list-span {
+	line-height: 2;
+}
+
+#dockerLaunchParamsPage {
+	.widthInputClass {
+		width: 70%;
+	}
+}
+.scroll-bluePrints{
+	max-height: 400px;
+	overflow: auto;
+}

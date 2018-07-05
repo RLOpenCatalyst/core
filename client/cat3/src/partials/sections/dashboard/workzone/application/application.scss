@@ -1,0 +1,240 @@
+@import '../../../../theme';
+
+@media (min-width : 0px) and (max-width : 320px) {
+    #applicationPage {
+        .app-panel-heading-text {
+            display: none;
+        }
+    }
+}
+
+@media (min-width : 0px) and (max-width : 480px) {
+    #applicationPage {
+        .panel-heading {
+            .pull-right {
+                .app-deploy-new-button {
+                    margin: -4px 5px 0 0px;
+                    padding: 0px 4px;
+                    font-size: 12px;
+                }
+            }
+        }
+    }
+}
+
+#applicationPage {
+    .modal-content{
+        position: relative;
+    }
+	.app-deploy-new-button {
+        margin: -3px 12px 0 0px;
+        padding: 2px 5px;
+        font-size: 12px;
+    }
+
+    .fa-header {
+        font-size: 16px;
+        margin-right: 5px;
+    }
+
+    .fa-cogs {
+        font-size: 15px;
+    }
+
+    .scrollContent {
+    	padding: 10px;
+    }
+
+    .fa-info-circle {
+        font-size: 23px;
+    }
+
+    .fa-cloud-upload {
+        font-size: 18px;
+    }
+
+    .pipeline-heading {
+        padding: 5px 0;
+        background: #ddd;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .app-details-card {
+        padding-left: 28px;
+    }
+
+    .env-card {
+        width: 11%;
+        text-align: center;
+    }
+
+    .env-card-wrapper {
+        padding-top: 10px;
+    }
+    .app-tab-active{
+        background-color: #fff;
+        border: 1px solid #40baf1;
+        border-bottom: 0px;
+        box-shadow: 0 -1px 5px -1px;
+        border-radius: 0px;
+        color: #40baf1;
+        font-weight: 500;
+        outline: none !important;
+        text-decoration: none;
+        i{
+            color:#40baf1;
+        }
+    }
+}
+
+#applicationCardDetailsPage {
+    .modal-body {
+        padding: 15px 15px 50px 15px;
+    }    
+
+    .fa-info-circle {
+        font-size: 23px;
+    }
+}
+
+#deployNewAppPage {
+    label {
+        color: #666;
+        font-weight: 400;
+    }
+
+    .form-control, label {
+        font-size: 13px;
+    }
+
+    .repo-job-details-wrapper {
+        border: 1px solid #dddddd;
+        margin: 0 2px;
+        padding: 0.35em 0.625em 0.75em;
+    }
+
+    .repo-job-details-wrapper-inner {
+        border: 0 none;
+        padding: 0;
+        width: auto;
+        margin-bottom: 0;
+        font-size: 15px;
+        color: #666;
+    }
+
+    .margintop20 {
+        margin-top: 20px;
+    }
+
+    .modal-header {
+        position: relative;
+    }
+
+    .imp-note{
+        position: absolute;
+        right: 16px;
+        bottom: 0;
+    }
+
+    .modal-header .close {
+        position: absolute;
+        z-index: 11;
+        right: 9px;
+        top: 7px;
+    }
+
+    .create-new-job-button {
+        margin: 24px 0 0 0;
+    }
+}
+
+
+.pipelineView{
+    .ui-grid-cell{
+        background-color: inherit;
+        border-right: none !important;
+        border-bottom: none !important;
+    }
+    .ui-grid-row:nth-child(odd) {
+        .ui-grid-cell {
+             background-color: transparent !important;
+        }
+    }
+    .ui-grid-row:nth-child(even){
+        .ui-grid-cell {
+            background-color: transparent !important;
+        }
+    }
+    .ui-grid-pager-panel{
+        border-top-color: #ccc;
+        border-top-style: solid;
+        border-top-width: 1px;
+    }
+    .cardView{
+        width: 130px;
+        margin: auto;
+    }
+    .ui-grid .ui-grid-render-container-body{
+        .ui-grid-viewport {
+            overflow-x: auto !important;
+        }
+    }
+    .selected-card{
+        width: 124px !important;
+        border: 2px solid #40baf1 !important;
+    }
+    .instance-state-text-unknown {
+        color: #ccc;
+        cursor: default !important;
+    }
+    .instance-state-text-stopped{
+        color: #E3200B;
+    }
+    .instance-state-text-failure{
+        color: #e3c10c;
+    }
+    .app-instance-image.instance-state-unknown{
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+    }
+    .app-icon{
+        background-size: 25px 25px;
+        margin: 5px 0 0 48px;
+        width: 25px;
+        height: 28px;
+        font-size: 24px;
+
+    }
+    .app-icon-card{
+        background-size: 25px 25px;
+        margin: 15px 0 0 48px;
+        width: 25px;
+        height: 28px;
+        font-size: 24px;
+    }
+    .inavtive-card{
+        i{color:#DADADA !important;}
+    }
+    .app-card{
+        box-shadow: 3px 3px #DDD !important;
+        background: #F7F7F7;
+        .app-card-title{
+            width: 100% !important;
+            border-radius: 10px 10px 0 0;
+            height: 26px !important;
+            border-bottom: 2px solid #C5BABA;
+        }
+    }
+
+}
+.save-loading{
+    position: absolute;
+    z-index: 1;
+    background: #808080;
+    width: 100%;
+    height: 100%;
+    opacity: 0.4;
+    text-align: center;
+    padding: 40%;
+}

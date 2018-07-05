@@ -1,0 +1,136 @@
+<div class="content">
+    <form action="" id="myForm5">
+        <div class="widget-box">
+            <div class="widget-header">
+               <h4 class="widget-margin" style="color:black;">Create User
+              </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main" style="min-height:350px">
+                    <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                        <div>
+                                    <!-- widget content -->
+                                    <div class="widget-body no-padding">
+                                    <div class="row" style="margin:0px">
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="name">Login Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          
+                                          <input name="ctl00$MainContent$orgname" value="" id="loginname" class="form-control" type="text"  cdata="catalyst" unique="true" cat-validation="required,max15,nospecial" uniqueconditionedby="loginname">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="">Email Address:<span class="control-label redSpan">&nbsp;*</span></label>
+  
+                                          <input type="text" name="ctl00$MainContent$orgname" value="" id="email" class="form-control" type="email" cdata="catalyst" cat-validation="required,email">
+                                       </div>
+                                       </div>
+                                       
+                                       <div class="row1" style="margin:0px">
+                                       <div class="col-lg-6 col-md-6 editPass" style="margin-top:25px">
+                                          <label for="">Password:<span class="control-label redSpan">&nbsp;*</span>
+                                          </label>
+  
+                                          <input type="password" name="ctl00$MainContent$orgname" id="password" class="form-control" cdata="catalyst" cat-validation="required">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6 editPass" style="margin-top:25px">
+                                          <label for="">Confirm Password:<span class="control-label redSpan">&nbsp;*</span></label>
+  
+                                          <input type="password" name="ctl00$MainContent$orgname" id="cnfPassword" class="form-control" cdata="catalyst" cat-validation="cnfPass" cat-validation="required">
+                                       </div>
+                                       </div>
+                                       <div class="row" style="margin:0px">
+                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                          <label for="category">Organization:
+                                          </label>
+
+                                          <select id="orgname" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" linkedfields="['teamname']">
+                                          </select>
+
+                                      </div>
+                                       </div>
+                                       <div class="row" style="margin:0px">
+                                         <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px">
+                                            <label for="category">Roles:<span class="control-label redSpan">&nbsp;*</span></label>
+                                            <div id="userrolename" multiselect="multiselect" datatype="select" sourcepath="6" datapath="userrolename" class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:98%"  cdata="catalyst" cat-validation="onechecked">
+                                            </div>
+                                         </div>
+                                         <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
+                                            <label for="category">Assign Teams:<span class="control-label redSpan">&nbsp;*</span></label>
+                                             <div class="col-lg-6 smart-form multiselect" style="  height: 153px;overflow-y: scroll;border:1px solid gray;padding: 0px;width:100%">     
+                                              <div id="teamname" multiselect="multiselect" class="input-group from-control col-md-12 widthBox" cdata="catalyst" cat-validation="onechecked" style="width:99%;margin-top:-1px;border:0px;padding-left:5px;" linkedto="orgname">
+                                            </div>
+                                          </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                    <!-- end widget content -->
+                                 </div>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-toolbox clearfix">
+                <div class="btn-group pull-right">
+                 <button name="next1" id="saveConfigUser" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+                 <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+              </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+ //jQuery time
+ $(document).ready(function(e){
+      orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+       orgIdForSetup = $('#orgDropdown option:selected').val();
+       var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+       $('#orgname').append($option);
+       getUserValues();
+ });
+   $('#orgname').change(function(e){
+        $('#userrolename').empty();
+        $('#teamname').empty();
+        var str;
+        
+       $.get('/d4dMasters/readmasterjsonnew/21',function(data) {
+            for (var i = 0; i<data.length;i++){
+                str = '';
+                if (orgIdForSetup === data[i].orgname_rowid[0]) {
+                   str = str + getTemplate(data[i].teamname, data[i].rowid);
+                   console.log(str);
+                   $('#teamname').append(str);
+               } 
+            }
+       });
+       $.get('/d4dMasters/readmasterjsonnew/6', function(data) {
+           for (var i = 0; i < data.length; i++) {
+               str = '';
+               str = str + getTemplate(data[i].userrolename, data[i].rowid);
+               $('#userrolename').append(str);
+           }
+       });
+   });
+   $('#orgname').trigger('change');
+   enableUniqueCheckingForInputs(7);
+
+   $('#myForm5').submit(function() {      
+       $(this).validate();
+       if($(this).valid){
+           if(validateForm()) {
+            saveform('7');
+          }
+       }else{
+            alert('Invalid values found cannot submit'); // for demo
+       }
+       return false; // for demo
+   });
+
+ $(".nextFormWizard").click(function() {
+       toastr.success('Step 3 - User Configuration Setup Completed');
+       $('#providerConfiguration a').attr('href','ajax/Settings/providerWizard.html');
+       $('#startConfig a, #orgConfiguration a,#configManagement a,#userConfiguration a').addClass('green-btn').removeClass('process-btn');
+       $('.wizardFlow').empty();
+       $('#providerConfiguration a').trigger('click');
+ });
+ 
+
+</script>

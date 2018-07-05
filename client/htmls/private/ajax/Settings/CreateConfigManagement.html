@@ -1,0 +1,212 @@
+<script>
+//   $(".tree-view").hide();
+   
+</script>
+<div class="row">
+   <div class="col-md-12">
+      <div class="col-md-12">
+        <form action="" id="myForm22">
+         <div class="widget-box">
+            <div class="widget-header">
+               <h4 class="widget-margin" style="color:black;">New Configuration Management  <span id="spnconfigmanagement"></span></h4>
+            </div>
+            <div class="widget-body">
+               <div class="widget-main" style="min-height:300px;">
+                  <div>
+                     <section id="widget-grid" class="">
+                        <!-- START ROW -->
+                        <div class="row">             
+                              <!-- Widget ID (each widget will need unique ID)-->
+                              <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                                 <!-- widget div-->
+                                 <div>
+                                    <!-- widget content -->
+                                    <div class="widget-body no-padding">
+                                       <div class="col-lg-6 col-md-6">
+                                             <label for="">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                             <!-- <i class="icon-append fa fa-building"></i> -->
+                                             <input name="ctl00$MainContent$orgname" value="" id="configname" class="form-control" type="text"  cdata="catalyst" unique="true"  cat-validation="required,max15" uniqueconditionedby="configname">
+                                          </div>
+                                          
+                                          
+                                             <div class="col-lg-6 col-md-6">
+                                                <label for="name">User Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <!-- <i class="icon-append fa fa-building"></i> -->
+                                                <input name="ctl00$MainContent$orgname" value="" id="loginname" class="form-control" type="text"  cdata="catalyst"  cat-validation="required">
+                                             </div>
+                                          <hr>
+                                          
+                                             <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                                <label for="link">URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <!-- <i class="icon-append fa fa-building"></i> -->
+                                                <input type="text" unique="true" uniqueconditionedbyUrl="url" name="ctl00$MainContent$orgname" value="" id="url" class="form-control" type="url"  name="website"  cdata="catalyst"  cat-validation="required,urlcheck">
+                                             </div>
+                                             <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                                <label for="name">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <select id="orgname" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
+                                                   <option value="">Select an Organization</option>
+                                                </select>
+                                                <span data-val-controltovalidate="domainname" id="MainContent_Req_domainname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                                             </div>
+                                             <input type="hidden" name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control"  cdata="catalyst">
+                                          
+                                             <div class="col-lg-6 col-md-6" id="frmconfigmanagement" style="margin-top:20px">
+                                                <div class="smart-forms">
+                                                   <label>User Pem File:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                   <label for="userpemfile" class="field file">
+                                                      <div class="imgdiv" value="1"></div>
+                                                      <span class="button btn-primary">Browse</span><input id="userpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file" cat-validation="required"><input type="text" readonly="" class="gui-input">
+                                                   </label>
+                                                </div>
+                                             </div>
+                                             
+                                             <div class="col-lg-6 col-md-6" style="margin-top:20px">
+                                                <div class="smart-forms">
+                                                   <label>Knife.rb File:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                   <label for="kniferbfile" class="field file">
+                                                      <div class="imgdiv" value="1"></div>
+                                                      <span class="button btn-primary">Browse</span><input id="kniferbfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value" class="gui-file"  cdata="catalyst" cat-validation="required"><input type="text" readonly="" class="gui-input">
+                                                      <input id="folderpath"  cdata="catalyst" type="text" value="" style="display:none"/>
+                                                   </label>
+                                                </div>
+                                             </div>
+
+                                             <div class="col-lg-6 col-md-6" style="margin-top:20px">
+                                                <div class="smart-forms">
+                                                   <label>Validator Pem File:</label>
+                                                   <label for="validatorpemfile" class="field file">
+                                                      <div class="imgdiv" value="1"></div>
+                                                      <span class="button btn-primary">Browse</span><input id="validatorpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                                   </label>
+                                                </div>
+                                             </div>
+
+                                             <div class="col-lg-6 col-md-6" style="margin-top:20px">
+                                                <div class="smart-forms">
+                                                   <label>Key File:</label>
+                                                   <label for="validatorpemfile" class="field file">
+                                                      <div class="imgdiv" value="1"></div>
+                                                      <span class="button btn-primary">Browse</span><input id="encryption" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                                   </label>
+                                                </div>
+                                             </div>
+
+                                             <div class="col-lg-6 col-md-6" style="margin-top:20px">
+                                                <div class="smart-forms">
+                                                   <label>Template File:</label>
+                                                   <label for="validatorpemfile" class="field file">
+                                                      <div class="imgdiv" value="1"></div>
+                                                      <span class="button btn-primary">Browse</span><input id="template" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                                   </label>
+                                                </div>
+                                             </div>
+                                    </div>
+                                    <!-- end widget content -->
+                                 </div>
+                                 <!-- end widget div -->
+                              </div>
+                              <!-- end widget -->             
+                        </div>
+                        <!-- END ROW -->
+                     </section>
+                     <!-- end widget grid -->
+                  </div>
+               </div>
+            </div>
+            <div class="widget-toolbox clearfix">
+               <div class="btn-group pull-right">
+                <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+                  </a>
+                  <button class="btn btn-primary btn-mini">
+                  <i class="ace-icon fa fa-check bigger-110"></i>
+                  Save
+                  </button>
+                  
+               </div>
+            </div>
+         </div>
+       </form><!--form ends-->
+      </div>
+   </div>
+</div> <!--row ends-->
+<!--Popup for selecting a cloud provider before proceeding-->
+<script>
+   //Form Name
+   $(document).ready(function() {
+       $(".chooseOrganization").select2();
+       //isUserTypeSuperAdmin();
+       });
+   function cancelClicked() {
+       $("#popupSelectProvider").modal('hide');
+       $(".modal-backdrop.fade.in").detach();
+       $('#btncancel').click();
+   }
+   function setfolderpath(){
+       var folderpath = '/' + $('#loginname').val() + "/.chef/";
+       $('#folderpath').val(folderpath);
+   }
+   
+   function isUserTypeSuperAdmin(){
+    $.get('/d4dMasters/loggedInUser',function(data){
+      if(!data.isSuperAdmin){
+      $('#orgname').attr('disabled','disabled').select2();
+      }
+    });
+  }
+   function inLineReady() {
+       
+       $("input[type='text']").on("click", function () {
+           $(this).select();
+           $("#msgOrgName").hide();
+       });
+       $("#popupSelectProvider").modal({ keyboard: false, backdrop: "static" });
+       var ten = 10;
+       readformnew(ten); //6 is for role
+       //
+       if(typeof $('#myForm22').find('button[rowid]').attr('rowid') != 'undefined')
+          $('#orgname').attr('disabled','disabled');
+        
+       $('#content').css("opacity", "1 !important");
+       //Force opening the left navigation menu
+       if ($('#navSettings').is(":visible") == false) {
+           $('#navSettings').css("display", '');
+           $('#navSettings > ul > li').first().addClass('open');
+           $('#navSettings > ul > li > ul').css("display", "none");
+           $('#navSettings > ul > li > ul').first().css("display", "block");
+       }
+       //redrawing the breadcrumb and selecting the tree
+       $('#ulsettingstree > li').removeClass('active');
+       $('#ulsettingstree > li').each(function () {
+           if ($(this).text().trim() == "Projects")
+               $(this).addClass('active');
+       });
+      
+       $('#content').css('opacity','1 !important');
+       drawBreadCrumb1();
+       enableUniqueCheckingForInputs(10);
+   }
+   
+   inLineReady();
+   
+</script>
+<script>
+   $(document).ready(function () {
+    var isEditActivateLocation = location.href.toString().split('?')[1]==="new"?false:true;
+   
+      $("#configname").focus();
+       $('#myForm22').submit(function() {
+
+
+  if(isEditActivateLocation){
+    $('#userpemfile').removeAttr('cat-validation');
+    $('#validatorpemfile').removeAttr('cat-validation');
+    $('#kniferbfile').removeAttr('cat-validation');
+  }          
+ if(validateForm()) {setfolderpath(); saveform('10');};
+           return false; // for demo
+       });
+   });
+       
+</script>

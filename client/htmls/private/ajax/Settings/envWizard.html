@@ -1,0 +1,252 @@
+<div class="content">
+    <form action="" id="myForm1">
+        <div class="widget-box">
+            <div class="widget-header">
+               <h4 class="widget-margin" style="color:black;">Create Environment
+              </h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main" style="height:350px">
+                    <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                        <div>
+                            <!-- widget content -->
+                            <div class="widget-body no-padding">
+                                <div class="col-lg-6 col-md-6">
+                                    <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
+                                    </label>
+                                    <select id="orgname" class="chooseOrganization width-100 form-control" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" onchange="$('#configname').change();">
+                                    </select>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <label for="category">Chef Server:
+                                    </label>
+                                    <select id="configname" class="chooseOrganization width-100 form-control" sourcepath="10" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst">
+                                    </select>
+                                </div>
+                                <div class="col-lg-6 col-md-6 margintop20">
+                                    <label for="category">Chef Environment:
+                                    </label>
+                                    <a href="javascript:void(0)" class="clearfix pull-right" onclick="if(preprocess()) {$('#myModalCreateChefEnv').modal('show')}">Add</a>
+                                    <select id="environmentname" class="chooseOrganization width-100 form-control" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" unique="true">
+                                        
+                                    </select>
+                                    <input id="environmentName" class="hidden chooseOrganization width-100 form-control" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" unique="true"/>
+                                </div>
+                                <div class="col-lg-6 col-md-6 hidden">
+                                    <label for="category">Puppet Server:
+                                    </label>
+                                    <select id="puppetservername" class="chooseOrganization width-100" sourcepath="25" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst">
+                                        <option value="">Select a Puppet Server</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-6 col-md-6 hidden">
+                                    <label for="category">Puppet Environment:
+                                    </label>
+                                    <a href="javascript:void(0)" class="clearfix pull-right" onclick="if(preprocessPuppet()) {$('#myModalCreatePuppetEnv').modal('show')}">Add</a>
+                                    <select id="puppetenvironmentname" class="chooseOrganization width-100" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst">
+                                        <option value="">Select an Puppet Environment</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-6 col-md-6 smart-form margintop20">
+                                    <label for="category">Assign Projects:</label>
+                                    <div id="projectname" multiselect="multiselect" datatype="select"  class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" cdata="catalyst">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end widget content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-toolbox clearfix">
+                <div class="btn-group pull-right">
+                 <button name="next1" id="saveConfigEnv" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+                 <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+              </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal fade bs-example-modal-sg" id="myModalCreateChefEnv" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-sg">
+        <div class="modal-content">
+            <form id="createenvinchefform" action="">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Add a Chef Environment</h4>
+                </div>
+                <div class="modal-body" style="height:100px">
+                    <div class="col-lg-6 col-md-6">
+                        <label for="category">Environment Name:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" id="chefenvname" name="chefenvname" class=" form-control" tabindex='1'>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group pull-right">
+                        <i id="envcreatespinner" class="fa-li fa fa-spinner fa-spin hidden" style="margin-top:9px"></i>
+                        <span id="chefenvcreatemsg" style="color:red"></span>
+
+                        <a class="btn btn-default" data-dismiss="modal">
+                            <i class="fa fa-times fa-1x"></i>&nbsp;Cancel</a>
+                        <button class="btn btn-default btn-primary createchefenvbtn" style="margin-left:15px;">
+                            <i class="fa fa-save fa-1x"></i>&nbsp;Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function preprocess() {
+     $('#createenvinchefform')[0].reset();
+     if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
+         bootbox.alert('Select a Chef Server before adding an environments.');
+         return (false);
+     } else
+         return (true);
+ }
+$(document).ready(function(e){
+   var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+   $('#orgname').append($optionOrg);
+   getEnvValues();
+   $('#orgname').change(function() {
+       $('#projectname').empty();
+       $.get('/d4dMasters/readmasterjsonnew/10', function(data) {
+           for (var i = 0; i < data.length; i++) {
+               if (orgIdForSetup === data[i].orgname_rowid[0]) {
+                   var $optionChefServer = $('<option></option>').val(data[i].configname).attr('rowid', data[i].rowid).html(data[i].configname);
+                   $('#configname').append($optionChefServer).trigger('change');
+               }
+           }
+       });
+       $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
+           for (var i = 0; i < data.length; i++) {
+               if (orgIdForSetup === data[i].orgname_rowid[0]) {
+                   var str = '';
+                   str = str + getTemplate(data[i].projectname, data[i].rowid);
+                   $('#projectname').append(str);
+               }
+           }
+       });
+
+   });
+
+   $('#orgname').trigger('change');
+
+   
+   $('#createenvinchefform').submit(function(e) {
+       var reqBodyEnv = {};
+       var chefid = $('#configname').find('option:selected').attr('rowid');
+       var $crbtn = $('#createenvinchefform').find('#createchefenvbtn')
+       $crbtn.attr('disabled', 'disabled');
+       var $form = $('#createenvinchefform');
+       reqBodyEnv.name = $form.find('#chefenvname').val();
+       if (!reqBodyEnv.name) {
+           alert('Please Enter Environment Name');
+           return false;
+       }
+       $('#envcreatespinner').removeClass('hidden');
+       if (typeof chefid != 'undefined') {
+
+           $.ajax({
+               type: "Post",
+               url: '../chef/environments/create/' + chefid,
+               data: {
+                   envName: $('#chefenvname').val()
+               },
+               success: function(envname, success) {
+                   if (envname) {
+                       $crbtn.removeAttr('disabled');
+                       $('#envcreatespinner').addClass('hidden');
+                       $('#configname').change();
+                       $('#myModalCreateChefEnv').modal('hide');
+                       $('#environmentname').empty();
+                   } else {
+                       $('#chefenvcreatemsg').html('Could not complete.' + envname);
+                       $crbtn.removeAttr('disabled');
+                       $('#envcreatespinner').addClass('hidden');
+                       $('#myModalCreateChefEnv').modal('hide');
+                   }
+               },
+               error: function(jqxhr) {
+                   bootbox.alert(jqxhr.responseText);
+                   $crbtn.removeAttr('disabled');
+                   $('#envcreatespinner').addClass('hidden');
+                   $('#myModalCreateChefEnv').modal('hide');
+               },
+               failure: function(envname) {
+                   bootbox.alert(envname.responseText);
+               }
+           });
+       }
+       return false;
+   });
+
+   function loadChefEnvs(chefID) {
+       $('#myForm1').find('button').attr('disabled', 'disabled');
+       $.get('../chef/servers/' + chefID + '/environments', function(envList) { //getting the list of env
+
+           if (envList) {
+               var envlist = envList.toString().split(',');
+               var $envselect = $('#environmentname').addClass('envselect').addClass('form-control').addClass('width100').addClass('padding0');
+               for (var j = 0; j < envList.length; j++) {
+                   if ($envselect.val() === envList[j]) {
+                       $envselect.html('');
+                   }
+                   $envselect.append('<option value="' + envList[j] + '">' + envList[j] + '</option>');
+               }
+               $envselect.val($envselect.attr('savedvalue'));
+               $envselect.change();
+               $('#myForm1').find('button').removeAttr('disabled');
+           }
+       });
+   }
+   $('#configname').change(function(e) {
+       var chefid = $(this).find('option:selected').attr('rowid');
+       if (chefid)
+           loadChefEnvs(chefid);
+   });
+
+   $('#myForm1').submit(function() {
+       $(this).validate();
+
+       if ($(this).valid) {
+           var chefEnv = $('#environmentname option:selected').val();
+           var puppetEnv = $('#puppetenvironmentname option:selected').val();
+           if (!chefEnv) {
+               alert('Chef Environment Required.');
+               return false;
+           }
+
+           if (!puppetEnv) {
+               $('#puppetservername').val('');
+           }
+           if (!chefEnv) {
+               $('#configname').val('');
+           }
+           if (!saveform('3')) {
+               $('.btn-4 a').removeClass('not-activeAnchor');
+               return false;
+           }
+       } else {
+           alert('invalid valid form submitted'); // for demo
+       }
+       return false; // for demo
+   });
+
+   $('#createNewEnv').click(function(e){
+      $('.content').empty();
+      e.preventDefault();   
+      $('.content').load(this.getAttribute('href'));
+    });
+   $(".nextFormWizard").click(function() {
+       toastr.success('Step 2 - Config Management Setup Completed');
+       $('#userConfiguration a').attr('href','ajax/Settings/userManagementWizard.html');
+       $('#startConfig a, #orgConfiguration a,#configManagement a').addClass('green-btn').removeClass('process-btn');
+       $('.wizardFlow').empty();
+       $('#userConfiguration a').trigger('click');
+   });
+});
+</script>

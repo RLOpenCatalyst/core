@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <title>Catalyst</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/font-awesome.min.css">
+    <style>
+    @media (min-width: 320px) and (max-width: 767px) {
+    .padding-left5-mobile {
+        padding-left: 5px !important;
+    }
+    .padding-right5-mobile {
+        padding-right: 5px !important;
+    }
+    .margin-left10Per-mobile {
+        margin-left: 10%;
+    }
+}
+
+@media (min-width: 320px) and (max-width: 480px) {
+    .margin-left10Per-mobile {
+        margin-left: 25% !important;
+    }
+}
+/*form validations*/
+
+form.cmxform {
+    font-size: 1.0em;
+    color: #333;
+}
+form.cmxform legend {
+    padding-left: 0;
+}
+form.cmxform legend,
+form.cmxform label {
+    color: #333;
+}
+form.cmxform span.error,
+span.error {
+    color: red;
+    font-style: italic;
+}
+div.error {
+    display: none;
+}
+input {
+    border: 1px solid black;
+}
+input.checkbox {
+    border: none
+}
+form.cmxform .gray * {
+    color: gray;
+}
+@-moz-document url-prefix() {
+    .form-controls {
+        padding: 0px 0px!important;
+    }
+}
+
+.maxminwidth130{
+    max-width: 200px !important;
+    min-width: 128px !important;
+}
+
+.borderrad12colorGray{
+    border-radius: 12px !important;
+    border-color: #dddddd !important;
+    background: ghostwhite;
+}
+.panel-heading-support{
+    height: 22px;
+    text-align:center !important;
+    border-radius: 10px 10px 0 0 !important;
+    border-color: #dddddd !important;
+    padding:2px !important;
+    border-bottom:1px solid #ddd !important;
+    color:#fff!important;
+}
+.spanHeading{
+    text-align:center !important;
+    width:30px;
+}
+.imgStatusSuccess{
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    height: 28px;
+}
+.padding2{
+    padding: 2px !important;
+}
+.margintop-45{
+    margin-top:-45px !important;
+}
+.margintop20{
+    margin-top: 20px !important;
+}
+.width27borderradius50{
+    padding: 0px !important;
+    height: 18px !important;
+    width:18px !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+}
+.redSpan {
+    color: red;
+}
+</style>
+</head>
+<body>
+<div class="panel-group">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" href="#collapse1">List of Actions</a>
+      </h4>
+    </div>
+    <div id="collapse1" class="panel-collapse collapse in">
+      <div class="panel-body">
+        <div class="row margintop20">
+            <div class="col-lg-3 col-md-3 col-xs-6 maxminwidth130" id="nginx">
+              <div class="panel panel-primary appcard-role-inner borderrad12colorGray">
+                  <div class="panel-heading panel-heading-support">
+                    <span class="spanHeading colorblack"> 
+                      <span class="headingTest">Service</span>
+                    </span>
+                  </div>
+                  <div class="panel-body panel-primary appCardInfo padding2 text-center">
+                     <div class="imgHeight imgStatusSuccess"></div>
+                     <a href="#serviceModal" class="btn btn-primary btn-sm width27borderradius50  margintop-45 formReset" id="nginx" title="Nginx" type="reset" data-backdrop="false" data-toggle="modal">
+                     <i class="fa fa-th childCardNodeDetails"></i>
+                     <input type="hidden" class="serviceTypeNginx" value="nginx">
+                     </a>
+                  </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-xs-6 maxminwidth130" id="docker">
+              <div class="panel panel-primary appcard-role-inner borderrad12colorGray">
+                  <div class="panel-heading panel-heading-support">
+                    <span class="spanHeading colorblack"> 
+                      <span class="headingTest">Container</span>
+                    </span>
+                  </div>
+                  <div class="panel-body panel-primary appCardInfo padding2 text-center">
+                     <div class="imgHeight imgStatusSuccess"></div>
+                     <a href="#serviceModal" class="btn btn-primary btn-sm width27borderradius50  margintop-45 formReset" id="docker" value="docker" title="Docker" type="reset" data-backdrop="false" data-toggle="modal">
+                     <input type="hidden" class="serviceTypeDocker" value="docker">
+                     <i class="fa fa-th childCardNodeDetails"></i>
+                     </a>
+                  </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="serviceModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog " style="">
+     <div class="modal-content">
+        <form role="form" id="serviceUrl" class="cmxform">
+           <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">
+                 <span>Action</span>
+              </h4>
+           </div>
+           <div class="modal-body">
+              <fieldset class="fieldsetCustom">
+                  <div class="col-lg-6 col-md-6 margintop15">
+                     <label for="hostName">HostIP:<span class="control-label redSpan">&nbsp;*</span></label>
+                     <div class="input-groups" style="margin-top:6px;">
+                        <input type="text" name="hostName" placeholder="Enter the HostIP" class="required hostName form-control" id="hostName"/>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 margintop15">
+                     <label class="serviceState" for="">Service Name<span class="control-label redSpan">&nbsp;*</span></label><span class="popoverDetails"></span>
+                     <div class="input-groups">
+                        <input type="text" name="serviceName" placeholder="Enter the ServiceName or the container name that needs to be stopped" class="required serviceName form-control" id="serviceName"/>
+                     </div>
+                  </div>
+                  <input type="hidden" id="inputStatus"/>
+              </fieldset>
+           </div>
+           <div class="modal-footer">
+              <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;"></label>
+              <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
+              <button type="submit" id="stopSelectedServiceBtn" class="btn btn-primary" value="Stop"><i class="ace-icon fa fa-stop bigger-110"></i>&nbsp;Stop</button>
+           </div>
+        </form>
+     </div>
+  </div>
+</div>
+
+<script src="js/vendor/jquery-1.10.2.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="../private/js/jquery.validate.min.js"></script>
+<script src="../private/js/additional-methods.min.js"></script>
+<script>
+$(document).ready(function() {
+$(function() {
+  $.validator.addMethod('IP4Checker', function(value) {
+    var ip = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    return value.match(ip);
+  }, 'Invalid IP address');
+  var validator = $('#serviceUrl').validate({
+    rules: {
+      hostName:{
+        IP4Checker:true
+      }
+    },
+    onkeyup: false,
+    errorClass: "error",
+
+    //put error message behind each form element
+    errorPlacement: function(error, element) {
+        console.log(error, element);
+        var elem = $(element);
+        if (element.parent('.input-groups').length) {
+            error.insertBefore(element.parent());
+        } else {
+            if (element.parent('div.inputGroups')) {
+                console.log(element);
+                console.log(element.parent);
+                error.insertBefore('div.inputGroups');
+            }
+        }
+    }
+});
+  $('a.formReset[type="reset"]').on('click', function() {
+    $('#serviceUrl').trigger("reset");
+    validator.resetForm();
+  });
+});
+  var serviceType;
+  $('a.width27borderradius50').click(function(e){
+    var typeValue = $(this).find('input').val();
+    if(typeValue === "nginx"){
+      $('label.serviceState').html('<label class="containerState" for="">Service Name:<span class="control-label redSpan">&nbsp;*</span></label>');
+      $('span.popoverDetails').html('<span class="containerDetails"><img tabindex="50" style="margin-top:2px;" data-toggle="popover" data-placement="left" data-content="Enter the Service Name that needs to be stopped." src="../private/img/help.png"/></span>');
+      $('[data-toggle="popover"]').popover({
+        trigger: 'focus'
+      });
+      serviceType = $('#inputStatus').val(typeValue);  
+    }
+    if(typeValue === "docker"){
+      $('label.serviceState').html('<label class="containerState" for="">Container Name:<span class="control-label redSpan">&nbsp;*</span></label>');
+      $('span.popoverDetails').html('<span class="containerDetails"><img tabindex="50" style="margin-top:2px;" data-toggle="popover" data-placement="left" data-content="Enter the Container Name that needs to be stopped." src="../private/img/help.png"/></span>');
+      $('[data-toggle="popover"]').popover({
+        trigger: 'focus'
+      });
+      serviceType = $('#inputStatus').val(typeValue);  
+    }
+  })
+  $('#serviceUrl').submit(function(e) {
+    var isValidate = $("#serviceUrl").valid();
+    if (!isValidate) {
+        e.preventDefault();
+        return false;
+    } else {
+        e.preventDefault();
+    var $form = $('#serviceUrl');
+    $this = $(this);
+    var hostName = $this.find('.hostName').val().trim();
+    var serviceName = $(this).find('.serviceName').val().trim();
+    var url;
+    var reqBody = {};
+    var serviceValue = $form.find('#inputStatus').val();
+    if (serviceValue ==="nginx") {
+      $.post('/serviceAction', {
+        "cmd": "sudo service " + serviceName + " stop",
+        "type": "service",
+        "hosts": hostName
+      }, function(data) {
+        $('#serviceModal').modal('hide');
+        alert('The Service has been stopped.')
+      }).error(function(xhr){
+        alert(xhr);
+      });
+    }else if(serviceValue === "docker"){
+      $.post('/serviceAction', {
+        "cmd": "sudo docker stop " + serviceName,
+        "type": "service",
+        "hosts": hostName
+      }, function(data) {
+
+        $('#serviceModal').modal('hide');
+        alert('The Container has been stopped.')
+      }).error(function(xhr){
+        alert(xhr);
+      });
+    }
+    return false;
+  }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+
+<script>
+  //  $(".tree-view").hide(); 
+</script>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
+
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h5 class="widget-title" style="color:#4e5964;">
+                    <strong>Users</strong>
+                    </h5>
+                    <div class="widget-toolbar no-border">
+                        <div>
+                             
+                              <a class="btn btn-minier btn-primary" id="refreshpage" href="#ajax/Settings/UsersList.html" style="display:none">
+                                <i class="ace-icon ace-icon fa fa-refresh bigger-110"></i>
+                            </a>                      
+                            <a id="newUser" class="btn btn-minier btn-primary" id="addnewitem" href="#ajax/Settings/CreateUser.html?new">
+                                <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                                New
+                            </a>                                                
+                        </div>
+                    </div>
+                                            
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main widgetHeight">
+                        <div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
+                            <table id="templateTable" class="hidden" cellpadding="5px" width="100%">
+                                <thead>
+                                    <tr class="rowCustomStyle">
+                                        <td>Login Name</td>
+                                        <td>Email ID</td>
+                                        <td>Assigned Roles</td>
+                                        <td>Organization</td>
+                                        <!--<td>Profile Picture</td> -->
+                                        <td class="">Action</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hidden rowtemplate">
+                                        <td datafield="loginname"></td>
+                                        <td datafield="email"></td>
+                                        <td datafield="userrolename"></td>
+                                        <td datafield="orgname"></td>
+                                        <!--<td datafield="profilepicture"></td>-->
+                                        <td>
+                                            <div class="btn-group tableactionWidth">
+                                                <a class="btn btn-xs btn-info pull-left" title="Edit">
+                                                    <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                                </a>
+                                                <a class="btn btn-xs btn-danger pull-left" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></a>
+                                                
+                                            </div>
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+                                <table id="envtable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                    <thead>
+                                        <tr class="rowCustomStyle">
+                                            <td>Login Name</td>
+                                            <td>Email Address</td>
+                                            <td>Assigned Roles</td>
+                                            <td>Organization</td>
+                                            <!--<td>Profile Picture</td>-->
+                                            <td class="">Action</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                       
+                                    </tbody>
+                                    
+                                </table>
+
+
+                                <script>
+                                    $(document).ready(function () {
+                                        var hasCreateUserPermission = false;
+                                        if(haspermission('users','create')){
+                                            hasCreateUserPermission=true;
+                                        }
+                                        if(!hasCreateUserPermission){
+                                            $('#newUser').addClass('hidden');
+                                        }
+                                       startup(); 
+                                       // isUserTypeSuperAdmin();
+                                    });
+
+                                    function isUserTypeSuperAdmin(){
+                                    $.get('/d4dMasters/loggedInUser',function(data){
+                                      if(!data.isSuperAdmin){
+                                      $('#newUser').attr('disabled','disabled');
+                                      }
+                                      startup(); 
+                                    });
+                                   
+                                }
+
+                                    function startup() {
+                                       
+                                        //setting the addnew button to launch popup
+                                        $("#addnewitem").attr('data-toggle', 'modal');
+
+                                        CreateTableFromJson(7,'loginname' , 'CreateUser.html'); //7 is for users
+                                        var tab = 'envtable';
+                                        $('#envtable').dataTable({
+                                            "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
+                                            "pagingType": "full_numbers",
+                                            "retrieve": true,
+                                            "destroy":true
+                                        });
+                                        $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
+                                        $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');
+                                        /*$('#' + tab + '_info').detach().appendTo('#tableFooterLeft');
+                                        $('#' + tab + '_paginate').detach().appendTo('#tableFooterRight');
+                                        $('#' + tab + '_filter').detach().appendTo('#envtable_tools1');
+                                        $('#' + tab + '_length').detach().appendTo('#envtable_tools2');
+*/
+                                        //Force opening the left navigation menu
+                                        if ($('#navSettings').is(":visible") == false) {
+                                            $('#navSettings').css("display", '');
+                                            $('#navSettings > ul > li').first().addClass('open');
+                                            $('#navSettings > ul > li > ul').css("display", "none");
+                                            $('#navSettings > ul > li > ul').first().css("display", "block");
+                                        }
+                                        //redrawing the breadcrumb and selecting the tree
+                                        $('#Settings  li').removeClass('active');
+                                        $('#Settings  li').each(function () {
+                                            if ($(this).text().trim() == "Users"){
+                                                $(this).addClass('active');
+                                            }
+                                        });
+                                    //    drawBreadCrumb1();
+
+                                    }
+
+                                   
+
+                                </script>
+                            <div class="col-md-5">
+
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="widget-toolbox padding-8 clearfix dataTables_wrapper">
+                       <div id="tableFooterLeft" class="pull-left"></div>
+                       <div id="tableFooterRight" class="pull-right"></div>
+                    </div>
+                   
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

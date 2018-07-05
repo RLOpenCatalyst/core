@@ -1,0 +1,479 @@
+<style>
+.footer {
+    background: white none repeat scroll 0 0;
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+}
+</style>
+<div class="row basediv" style="height:96%;border:0px solid red;padding-left:10px">
+    <div id="rootwizard">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="">
+                    <ul class="hidden">
+                        <li><a href="#tab1" data-toggle="tab">First</a></li>
+                        <li><a href="#tab2" data-toggle="tab">Second</a></li>
+                        <li><a href="#tab3" data-toggle="tab">Third</a></li>
+                        <li><a href="#tab4" data-toggle="tab">Forth</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane" id="tab1">
+                            <div id="templatetype" pageurl="templatetype.html"></div>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <div id="templates" pageurl="templates.html"></div>
+                        </div>
+                        <div class="tab-pane" id="tab3" >
+                            <div id="blueprintconfig" configurl="blueprintconfigaws.html"></div>
+                        </div>
+                        <div class="tab-pane" id="tab4">
+                            Saved successfully.
+                        </div>
+                       
+                    </div>
+                </div>
+                <div style="bottom: 7px;margin-left: 10px;position: fixed;width: 80%;">
+                	<div class="row">
+                		<div class="col-md-6">
+	                		<div style="float:right">
+	                   			  <input type='button' class='btn btn-primary button-previous' name='previous' value='Previous' />
+	                   		</div>
+	                    <!-- <input type='button' class='btn btn-primary button-last' name='last' value='Last' /> -->
+	                	</div>
+	               		<div class="col-md-6">
+			                <div  style="float:left">
+			                    <!-- <input type='button' class='btn btn-primary button-first' name='first' value='First' /> -->
+			                   
+			                    <input type='button' class='btn btn-primary button-next' name='next' value='Next' />
+			                </div>
+	            		</div>
+	            	</div>
+            	</div>
+
+                <div class="modal fade" id="chefRunlistModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="width:800px">
+                            <form role="form" class="cmxform" id="chefTaskRunlist" autocomplete="off">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title">
+                            <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Edit Runlist</h4>
+                                </div>
+                                <div class="modal-body modal-height">
+                                    <div class="cookbookShow">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                                    <button type="submit" class="btn btn-primary" id="saveRunlist">Update Runlist</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="modalAppNameURL" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form role="form" id="appURLForm" autocomplete="off">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title">
+                                            <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Add Application URL
+                                     </h4>
+                                </div>
+                                <div class="modal-body appSeriesHeight">
+                                    <!--app series-->
+                                    <div class="applicationURLContainer" id="appSeries">
+                                        <div class="col-lg-6 col-md-6 projectRepo">
+                                            <label for="">Name:</label>
+                                            <input placeholder="AppName" type="text" maxlength="8" name="appNameInput" class="form-control appName">
+                                            <b class="tooltip tooltip-top-right">
+                                            <i class="fa fa-user txt-color-teal"></i> Please enter Application</b>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 projectRepo">
+                                            <label for="">URL:</label>
+                                            <input placeholder="http://$host[:port]/appname" name="appNameURL" class="form-control appURL" type="text">
+                                            <b class="tooltip tooltip-top-right">
+                                            <i class="fa fa-user txt-color-teal"></i> Please enter URL</b>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <label id="nodeAppspinner" class=" hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                                    <div class="marginForButtons">
+                                        <button id="addAppBtn" class="btn btn-primary" type="submit">
+                                            <i class="fa fa-upload fa-1x"></i>&nbsp;Add
+                                        </button>
+                                        <a class="btn btn-primary" type="submit" data-dismiss="modal">
+                                            <i class="fa fa-undo fa-1x"></i>&nbsp;Cancel
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+var selectedstack = "one";
+//localStorage.setItem('blueprintwizardcontet','{selectedstack:"one"}');
+//To Do
+//Ensure provider tree is selected.
+//function to read providerid
+var getProviderJsonFromUrl = function(param,callback){
+    var params = getUrlParams(location.href);
+    //alert(JSON.stringify(params));
+    //return(params[param]);
+    //End point to get provider name and orgid
+
+    $.get('/allproviders/getproviderbyid/' +params[param] ,function(data){
+       // alert(JSON.stringify(data));
+        if(data.providerType){
+            callback(data);
+        }
+        else{
+            alert('Provider details could not be found.',data);
+            callback({});
+            return;
+        }
+    });
+
+}
+function getFilteredList(data, value) {
+    if (!value) {
+        return data;
+    }
+    var list = [];
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].osName.toLowerCase() === value.toLowerCase()) {
+            list.push(data[i]);
+        }
+    }
+    console.log(list);
+    return list;
+}
+
+
+
+var loadOrgParams = function(orgIds){
+   // alert(orgIds);
+    $.ajax({
+        type: "get",
+        dataType: "json",
+
+        async: false,
+        url: "../organizations/getTreeNew",
+        success: function(data) {
+
+            console.log('logging data',data);
+            
+            data = JSON.parse(JSON.stringify(data));
+           // alert('Hit loadOrgParams',data.length);
+            var $orgListInput = $('#orgnameSelect');
+            //$orgListInput.append($('<option></option>').val('choose').html('Choose'));
+            $bgList = $('#bgListInput');
+            var $envList = $('#envList');
+
+            for (var i = 0; i < data.length; i++) {
+                //alert(data[i].businessGroups);
+                console.log(data[i].businessGroups);
+               // if($.inArray(orgIds,data[i].rowid) >= 0)// append only if the provider belongs to the org
+                     $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
+            }
+            $('#orgnameSelect').change(function(e) {
+              //  alert('changed');
+                var orgName = $(this).val();
+
+                if (orgName == 'choose') {
+                    return;
+                }
+                var $selectedOrgOption = $(this).find(":selected");
+                $bgList.empty();
+                $bgList.append($('<option></option>').val('choose').html('Choose'));
+                //alert('in' + JSON.stringify($selectedOrgOption.data('bglist')));
+
+                var getBGs = $selectedOrgOption.data('bglist');
+                if (getBGs != null) {
+                    for (var i = 0; i < getBGs.length; i++) {
+                        $bgList.append($('<option></option>').val(getBGs[i].rowid).html(getBGs[i].name).data('projList', getBGs[i].projects));
+                    }
+                    //selecting the first bg in list
+                    $bgList.val($bgList.find('option').eq(1).val());
+                    $bgList.select2().trigger('change');
+                }
+
+
+                var $cookbookShow = $('.cookbookShow').empty();
+                $cookbookShow.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+                //alert('here');
+                var tcb = [];
+                var $card = $('#tab3').find('div[class*="productdiv2"]').first();
+                if ($card.length) {
+                    var templatescookbooks = $card.attr('templatescookbooks');
+                    if (templatescookbooks) {
+                        tcb = templatescookbooks.split(',');
+                    }
+                }
+                /*var tcb = $('#tab3').find('div[class*="productdiv2"]').first().attr('templatescookbooks').split(',');*/
+
+                console.log(tcb);
+                console.log('tcbdhd == >', tcb);
+                var $ccrs = $chefCookbookRoleSelector(orgName, function(data) {
+
+                }, tcb);
+                console.log("Variables>>>>>" + $ccrs);
+                $cookbookShow.empty();
+                $cookbookShow.append($ccrs);
+                // console.log($ccrs.substring($ccrs.lastIndexOf("[") + 1, $ccrs.lastIndexOf("]")));
+                /*var $runlistList = $('#tableRunlistForBlueprint');
+                var $tr = $('<tr class="runlistRow"></tr>');
+                var $tdName = $('<td class="runlistDescription"></td>');
+
+                $tdName.append($ccrs);*/
+                // alert($ccrs);
+                // createRunlistTable($ccrs);
+                var currentRunlistNames = $ccrs.getRunlistNames(tcb);
+                $tasksRunlist.clear().draw();
+                for (var i = 0; i < currentRunlistNames.length; i++) {
+                    var $runlistList = $('#tableRunlistForBlueprint');
+                    var $tr = $('<tr class="runlistRow"></tr>');
+                    var $tdName = $('<td class="runlistDescription">' + currentRunlistNames[i] + '</td>');
+                    $tr.append($tdName);
+                    $runlistList.append($tr);
+                    $tasksRunlist.row.add($tr).draw();
+                }
+
+                $cookbookShow.data('$ccrs', $ccrs)
+
+
+
+            });
+
+            var $projectList = $('#projectListInput');
+            $bgList.change(function(e) {
+                var bgName = $(this).val();
+                if (bgName == 'choose') {
+                    return;
+                }
+                var $selectedOrgOption = $(this).find(":selected");
+                $projectList.empty();
+                $projectList.append($('<option></option>').val('choose').html('Choose'));
+                var getProjs = $selectedOrgOption.data('projList');
+                // alert(getProjs.length);
+                for (var i = 0; i < getProjs.length; i++) {
+
+                    $projectList.append($('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name));
+                }
+                //selecting the first projecct in the list
+
+                    $projectList.val($projectList.find('option').eq(1).val());
+                    $projectList.select2().trigger('change');
+            });
+            //forcing an orgname change event
+            $('#orgnameSelect').select2().trigger('change');
+
+
+        }
+    });
+}
+
+
+var initblueprintconfig = function(index){
+    if ($('#individualTemplateNameGrid .role-Selected').length > 0) {
+            console.log('cloning');
+            $('#blueprintconfigdiv .selectedTemplateArea').empty().append($('#individualTemplateNameGrid .role-Selected').clone());
+        }
+}
+var selectedProvider = {};
+
+$(document).ready(function() {
+	$('#content').css('height', '98% !important');
+    getProviderJsonFromUrl("providerid",function(providerdata){
+        if(providerdata){
+            //setting the corresponding config page for provider type
+            selectedProvider = providerdata; //setting the selected provider data
+
+            $('#blueprintconfig').attr('configurl','blueprintconfig' + providerdata.providerType + '.html');
+            switch(providerdata.providerType.toLowerCase()){
+                case 'hppubliccloud':
+                    loadURL('ajax/' + $('#blueprintconfig').attr('configurl'),$('#blueprintconfig'));
+
+                    break;
+                case 'aws':
+                    loadURL('ajax/Aws-Production.html',$('.basediv').first());
+                    break;
+                case 'azure':
+                    loadURL('ajax/DesignBlueprintAzure.html',$('.basediv').first());
+                    break;
+                case 'openstack':
+                    loadURL('ajax/DesignBlueprint.html',$('.basediv').first());
+                    break;
+                case 'vmware':
+                    loadURL('ajax/DesignBlueprintVmware.html',$('.basediv').first());
+                    break;
+            }
+
+            //initializing the wizard            
+            $('#rootwizard').bootstrapWizard({
+                'nextSelector': '.button-next',
+                'previousSelector': '.button-previous',
+                'firstSelector': '.button-first',
+                'lastSelector': '.button-last',
+                 onNext: function(tab, navigation, index) {
+                  //  alert($('#templateContent').html());
+                  //  alert($('#whatever').html());
+                   // return(false);
+                   if(index == 1){ //about to go to template page
+                        inittemplates(index);
+                   }
+                   if(index == 2){
+                        //to handle any more initializations.
+                        initblueprintconfig();
+                   }
+                   //alert(JSON.stringify(index));
+                }
+            });
+        } //end providerdata
+    });
+    $('div[pageurl]').each(function(){
+       // alert($(this).attr('pageurl'));
+    	loadURL('ajax/' + $(this).attr('pageurl'),$(this));
+    });
+    
+    // $('#rootwizard').on('wizard.stepped',function(){
+    // 	alert('test');
+    // });   
+    // var $wizardul = $('.wizardul').clone();
+    // $wizardul.removeClass('hidden');
+    // $('footer').append($wizardul);
+});
+
+if (!$.fn.dataTable.isDataTable('#tableRunlistForBlueprint')) {
+    //var $taskListArea = $('.taskListArea').empty();
+    $tasksRunlist = $('#tableRunlistForBlueprint').DataTable({
+        "pagingType": "full_numbers",
+        "bInfo": false,
+        "bLengthChange": false,
+        "paging": false,
+        "bFilter": false,
+        "aoColumns": [{
+            "bSortable": false
+        }]
+    });
+    
+}
+
+function createRunlistTable(runlist) {
+     //alert(runlist.length);
+     //$('#tableRunlist').removeClass('hidden');
+    $tasksRunlist.clear().draw();
+    // alert(runlist.length);
+    for (i = 0; i < runlist.length; i++) {
+        var $runlistList = $('#tableRunlistForBlueprint');
+        var $tr = $('<tr class="runlistRow"></tr>');
+        var $tdName = $('<td class="runlistDescription">' + runlist[i] + '</td>');
+        $tr.append($tdName);
+        $runlistList.append($tr);
+        $tasksRunlist.row.add($tr).draw();
+    }
+ }
+
+$('#saveRunlist').click(function(e) {
+    var $ccrs = $('.cookbookShow').data('$ccrs');
+    // alert($ccrs);
+    console.log($ccrs);
+    console.log($ccrs.getSelectedRunlist());
+    var runlist = $ccrs.getSelectedRunlist();
+    //alert(runlist);
+
+    // alert('here');
+    createRunlistTable($ccrs.getRunlistNames());
+    $('#chefRunlistModal').modal('hide');
+    return false;
+});
+
+
+$('#newAppSeries').click(function(e) {
+    $('#appURLForm').trigger("reset");
+
+});
+$('#addAppBtn').click(function(e) {
+    var rowCount1 = $('#appUrlTable').find('tbody > tr').length;
+    //alert(rowCount1);    
+    if (rowCount1 === 2) {
+        $('#newAppSeries').addClass('hidden');
+        return;
+    }
+});
+
+$('#appURLForm').submit(function(e) {
+    var regexpURL = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+
+    var $row = $('<tr/>');
+    var appName = $(this).find('.appName').val();
+    var appUrl = $(this).find('.appURL').val();
+    if (!(appName)) {
+        alert("Please Enter Name");
+        return false;
+    }
+    if (!(appUrl)) {
+        alert('Please Enter URL');
+        return false;
+    }
+
+    if (!regexpURL.test(appUrl)) {
+        alert('Please Enter a Valid URL');
+        return false;
+    }
+
+    $row.data('appUrlData', {
+        name: appName,
+        url: appUrl
+    })
+
+
+    var $tdName = $('<td/>');
+    $tdName.append(appName);
+    var $tdURL = $('<td/>');
+    $tdURL.append(appUrl);
+
+    var $tdAction = $('<td/>');
+    $tdAction.append('<div class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton deleteURL" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+    //<button class="btn btn-xs btn-info pull-left EditURL" title="Update"><i class="ace-icon fa fa-pencil bigger-120"></i></button>
+    $tdAction.find('.deleteURL').click(function() {
+        $row.remove();
+        var rowCount2 = $('#appUrlTable').find('tbody > tr').length;
+        if (rowCount2 === 1) {
+            $('#appEntry').removeClass('hidden');
+            return;
+        }
+        if (rowCount2 < 3) {
+            //alert(rowCount2);
+            $('#newAppSeries').removeClass('hidden');
+            return;
+        }
+    });
+
+    $row.append($tdName).append($tdURL).append($tdAction);
+    $('#appUrlTable').find('tbody').append($row);
+    $('#modalAppNameURL').modal('hide');
+    $('#appEntry').addClass('hidden');
+    return false;
+
+});
+</script>

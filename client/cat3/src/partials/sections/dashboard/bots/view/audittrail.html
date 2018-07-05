@@ -1,0 +1,30 @@
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
+
+<div id="botAuditTrailPage">
+	<div class="page-name">
+		BOTs Audit Trail&nbsp;
+		<button type="button" title="Refresh" class="btn btn-xs btn-primary pull-right refresh-btn" ng-click="RefreshBotsAuditTrail();">
+			<i class="fa fa-refresh" style="color: #fff"></i>
+		</button>
+	</div>
+	<div class="borderTop"></div>
+
+	<div class="bot-audit-trail-search">
+		<div class="pull-right margintop20">
+			<span class="bot-library-search">
+               <label>&nbsp;
+                  <input type="search" ng-model="botAuditTrailSearch" class="search-text bot-search" placeholder="Search">
+				  <i class="fa fa-search search-icon" ng-click="searchBotAuditTrailName()"></i>
+               </label>
+            </span>
+		</div>
+	</div>
+	<div class="col-lg-12" style="padding-left: 2%;">
+		<loading size="large" name="isBotAuditTrailPageLoading" type="block" align="center"></loading>
+		<div class="alert alert-info text-center" ng-if="!botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading">
+			No data Available
+		</div>
+
+		<div id="grid1" class="margintop8" ng-if="botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading" ui-grid="botAuditTrailGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
+	</div>
+</div>

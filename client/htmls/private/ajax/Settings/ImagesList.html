@@ -1,0 +1,428 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
+
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h5 class="widget-title" style="color:#4e5964;">
+                        <strong>VM Images</strong>
+                    </h5>
+                    <div class="widget-toolbar no-border">
+                        <div>
+
+                          <a class="btn btn-minier btn-primary" id="refreshpage" href="#ajax/Settings/ImagesList.html" style="display:none">
+                            <i class="ace-icon ace-icon fa fa-refresh bigger-110"></i>
+                        </a>                      
+                        <a class="btn btn-minier btn-primary" id="addnewitem" href="#ajax/Settings/CreateImages.html?new">
+                            <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                            New
+                        </a>                                                
+                    </div>
+                </div>
+
+            </div>
+            <div class="widget-body">
+                <div class="widget-main widgetHeight">
+                    <div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
+                        <table id="templateTable" class="hidden" cellpadding="5px" width="100%">
+                            <thead>
+                                <tr class="rowCustomStyle">
+                                    <td>Name</td>
+                                    <td>Image Identifier</td>
+                                    <td>Provider</td>
+                                    <td>Operating System</td>
+                                    <td>Organization</td>
+                                    <td class="">Action</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <div class="spinnerForImage hidden"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+                                <tr class="hidden rowtemplate">
+                                    <td datafield="name"></td>
+                                    <td datafield="imageIdentifier"></td>
+                                    <td datafield="providerName"></td>
+                                    <td datafield="osName"></td>
+                                    <td datafield="orgName"></td>
+                                    <td>
+                                        <div class="btn-group tableactionWidth">
+                                            <a class="btn btn-xs btn-info pull-left" title="Edit">
+                                                <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                            </a>
+                                            <a style="margin-left:12px;" class="btn btn-xs btn-danger pull-left" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></a>
+                                            
+                                        </div>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+                        <table id="envtable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                            <thead>
+                                <tr class="rowCustomStyle">
+                                    <td>Name</td>
+                                    <td>Image Identifier</td>
+                                    <td>Provider</td>
+                                    <td>Operating System</td>
+                                    <td>Organization</td>
+                                    <td class="">Action</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+
+                            </tbody>
+
+                        </table>
+
+
+                        <script>
+                            function updateImageListByGivingProviderName(imageList, ProviderList) {
+                                for (var i = 0; i < imageList.length; i++) {
+                                    for (var j = 0; j < ProviderList.length; j++) {
+                                        if (imageList[i].providerId === ProviderList[j]._id) {
+                                            imageList[i].providerName = ProviderList[j].providerName;
+                                            break;
+                                        }
+                                    }
+
+                                }
+                                return imageList;
+                            }
+
+                            function getProviderData() {
+                                var reqBody = {};
+                                reqBody.name = ''
+                                reqBody.accessKey = '';
+                                reqBody.secretKey = '';
+                                reqBody.providerType = '';
+                                reqBody.regions = [];
+
+                                $.ajax({
+                                    method: "GET",
+                                    url: "/allproviders/list",
+                                    data: reqBody,
+                                    success: function(data, success) {
+
+                                        var providerList = [];
+
+                                        for (i = 0; i < data.awsProviders.length; i++) {
+                                            providerList.push(data.awsProviders[i]);
+                                        }
+                                        for (i = 0; i < data.openstackProviders.length; i++) {
+                                            providerList.push(data.openstackProviders[i]);
+                                        }
+                                        for (i = 0; i < data.vmwareProviders.length; i++) {
+                                            providerList.push(data.vmwareProviders[i]);
+                                        }
+                                        for (i = 0; i < data.hpPlublicCloudProviders.length; i++) {
+                                            providerList.push(data.hpPlublicCloudProviders[i]);
+                                        }
+                                        for (i = 0; i < data.azureProviders.length; i++) {
+                                            providerList.push(data.azureProviders[i]);
+                                        }
+
+                                        console.log("awsProviders", data.awsProviders);
+                                        console.log("openstackProviders", data.openstackProviders);
+                                        console.log("vmwareProviders", data.vmwareProviders);
+                                        console.log("hpPlublicCloudProviders", data.hpPlublicCloudProviders);
+                                        console.log("azureProviders", data.azureProviders);
+
+                                        d4ddata = updateImageListByGivingProviderName(d4ddata, providerList);
+                                        getOrganizationList();
+                                    },
+                                    error: function(jqxhr) {
+                                        removeLoader();
+                                        bootbox.alert(jqxhr.status);
+                                    },
+                                    failure: function(data) {
+                                        bootbox.alert(data);
+                                    }
+                                });
+                            }
+
+                            function getImagesList() {
+                                var reqBody = {};
+                                reqBody.name = ''
+                                reqBody.accessKey = '';
+                                reqBody.secretKey = '';
+                                reqBody.providerType = '';
+                                reqBody.regions = [];
+                                //reqBody.instanceUserName='root';
+                                $.ajax({
+                                    method: "GET",
+                                    url: "/vmimages",
+                                    data: reqBody,
+                                    success: function(data, success) {
+                                        data = typeof data == "string" ? JSON.parse(data) : data;
+                                        d4ddata = data;
+                                        getProviderData();
+                                    },
+                                    error: function(jqxhr) {
+                                        removeLoader();
+                                        bootbox.alert(jqxhr.status);
+                                    },
+                                    failure: function(data) {
+                                        bootbox.alert(data);
+                                    }
+                                });
+                            }
+
+                            function CreateTableFromJsonForProvider(formID, createFileName, isEscapeMasterDirectory) {
+                                var formData = null;
+                                //force setting the idFieldName to "rowid"
+                                var idFieldName = "_id";
+                                formData = d4ddata;
+                                //alert(JSON.stringify(formData));
+                                var formSchema = null;
+                                //debugger;
+                                $.each(d4ddata, function(i, item) {
+                                    console.log("Top:" + JSON.stringify(item)); //rows
+                                    var editButton = null;
+                                    var idFieldValue = null;
+                                    var imageTD = null;
+                                    $.each(item, function(k, v) { //columns
+                                        // var inputC = null;
+                                        // console.log('k:' + k + ' v :' + JSON.stringify(v));
+                                        if (k == idFieldName) {
+                                            idFieldValue = v;
+                                        }
+                                        inputC = $('.rowtemplate').find("[datafield='" + k + "']");
+                                        //alert(v);
+                                        if (inputC) {
+                                            console.log('Inputc===>' + inputC.attr('datafield'));
+                                            if (inputC.attr('datafield') == 'active') {
+                                                if (v.toString() == 'false') {
+                                                    inputC.html('Inactive');
+                                                } else
+                                                    inputC.html('Active');
+                                            } else {
+                                                if (inputC.attr('datatype')) {
+                                                    // inputC.attr('data-content',v);
+                                                    // inputC.attr('data-toggle',"popover");
+                                                    if (inputC.attr('datatype') == 'list') {
+                                                        v = v.replace(/,/g, "<br/>");
+                                                        inputC.html('<a style="pointer:" data-toggle="popover" data-content="' + v + '" id="cellitem_' + i + '_' + k + '">View</a>');
+                                                    } else
+                                                        inputC.html(v);
+                                                } else {
+                                                    if (inputC.attr('datafield') == 'imageIdentifier') {
+                                                        inputC.html('<span class="imageIdentifier" title="'+ v +'">' + v + '</span>');
+                                                    } else {
+                                                        inputC.html(v);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+
+                                    var sRow = $(".rowtemplate").clone();
+                                    sRow.removeClass("hidden");
+                                    sRow.removeClass("rowtemplate");
+                                    // $('#envtable').append(sRow);
+                                    imageTD = $('.rowtemplate').find("[datatype='image']");
+                                    //alert(imageTD);
+                                    editButton = $('.rowtemplate').find("[title='Edit']");
+
+                                    if (idFieldValue) {
+                                        if (imageTD) {
+                                            if (imageTD.length > 0) {
+                                                console.log("Template Icon:" + idFieldValue);
+                                                var imgpath = 'img/blank.png';
+                                                if (imageTD.html().indexOf('<img') >= 0) {
+                                                    imageTD.html(''); //fix for image tag gettnig embedded. - Vinod
+                                                } else
+                                                    imgpath = '/d4dMasters/image/' + idFieldValue + '__' + imageTD.attr('datafieldoriginal') + '__' + imageTD.html();
+
+                                                imageTD.html('');
+                                                imageTD.append($('<img src="' + imgpath + '" style="height:28px;width:auto"/>'));
+
+                                            }
+                                        }
+                                        if (editButton) {
+                                            editButton.attr("href", "#ajax/Settings/" + createFileName + "?" + idFieldValue);
+                                            //checking for createfilename and checking for the resources as per the JSON
+                                            var hasEditPermission = false;
+                                            if (createFileName === 'CreateImages.html') {
+                                                if (haspermission('services', 'modify')) {
+                                                    hasEditPermission = true;
+                                                }
+                                            }
+                                            //user has no permission to edit
+                                            if (!hasEditPermission) {
+                                                editButton.addClass('disabled');
+                                            }
+                                            editButton.addClass("tableactionbutton tableactionbuttonpadding");
+                                            editButton.removeClass('btn-xs');
+                                            editButton.addClass('btn-sg');
+                                        }
+                                        
+                                        //setting the delete button
+
+                                        var deletebutton = $('.rowtemplate').find("[title='Delete']");
+                                        if (deletebutton) {
+                                            deletebutton.attr('onClick', 'deleteItemFromProvider(\"' + formID + '\", \"' + idFieldName + '\",\"' + idFieldValue + '\",this);');
+                                            var hasDeletePermission = false;
+                                            //checking whether the user has the authentication to delete any entry
+                                            if (createFileName === 'CreateImages.html') {
+                                                if (haspermission('services', 'delete')) {
+                                                    hasDeletePermission = true;
+                                                }
+                                            }
+
+                                            if (!hasDeletePermission) {
+                                                deletebutton.addClass('disabled');
+                                            }
+                                            deletebutton.removeClass('btn-xs');
+                                            deletebutton.addClass('btn-sg');
+                                            deletebutton.addClass('tableactionbutton');
+                                        }
+                                    }
+                                    console.log('-----------');
+                                    var sRow = $(".rowtemplate").clone();
+                                    sRow.removeClass("hidden");
+                                    sRow.removeClass("rowtemplate");
+                                    $('#envtable').append(sRow);
+                                });
+                                setPopOverForTableFields();
+                                $(".savespinner").hide();
+
+                            }
+
+                            function deleteItemFromProvider(docid, key, value, button) {
+
+                                bootbox.confirm('You are about to remove the Image \" ' + $(button).closest('tr').find('td').first().html() + ' \"', function(result) {
+                                    if (result) {
+                                        $.ajax({
+                                            type: "delete",
+                                            dataType: "text",
+
+                                            async: false,
+                                            url: "/vmimages/" + value,
+                                            success: function(data) {
+                                                // alert(data.toString());  
+                                                // debugger;
+                                                //d4ddata = JSON.parse(data);
+                                                // $('#refreshpage').click();
+                                                if (data != '401') {
+                                                    var $tr = $(button).closest('tr');
+                                                    //$tr.addClass('hidden').remove();
+                                                    var $table = $tr.parents('table');
+
+                                                    if ($.fn.DataTable.isDataTable($table)) {
+                                                        var $dataTable = $table.DataTable();
+                                                        $dataTable.row($tr).remove().draw(false);
+                                                    } else {
+
+                                                        $tr.fadeOut("slow");
+                                                        $tr.addClass('hidden').remove();
+                                                    }
+
+
+                                                    var tab = 'envtable';
+                                                    $('#' + tab).dataTable();
+                                                    if (parseInt(docid) < 5) {
+                                                    }
+                                                } else {
+                                                    bootbox.alert('Insufficient permission to perform this operation.');
+                                                }
+                                            },
+                                            failure: function(data) {
+                                                // debugger;
+                                                bootbox.alert(data.toString());
+                                            },
+                                            error: function(data) {
+                                                bootbox.alert(data.responseText);
+                                            }
+                                        });
+                                    }
+                                });
+
+                            }
+
+                            function getOrganizationList() {
+                                $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+
+                                    for (var i = 0; i < d4ddata.length; i++) {
+                                        for (var x = 0; x < data.length; x++) {
+                                            if (d4ddata[i].orgId[0] == data[x].rowid) {
+                                                d4ddata[i].orgName = data[x].orgname;
+                                                break;
+                                            }
+                                        }
+
+                                    }
+
+                                    startup();
+                                });
+                            }
+
+                            $(document).ready(function() {
+                                //isUserTypeSuperAdmin();
+                                getImagesList();
+                            });
+
+                            function isUserTypeSuperAdmin() {
+                                $.get('/d4dMasters/loggedInUser', function(data) {
+                                    if (!data.isSuperAdmin) {
+                                        $('#addnewitem').attr('disabled', 'disabled');
+                                    }
+                                    getImagesList();
+                                });
+
+                            }
+
+                            function startup() {
+
+                                //setting the addnew button to launch popup
+                                $("#addnewitem").attr('data-toggle', 'modal');
+
+                                CreateTableFromJsonForProvider(22, 'CreateImages.html', true); //22 is for Images
+                                var tab = 'envtable';
+                                $('#envtable').dataTable({
+                                    "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
+                                    "pagingType": "full_numbers",
+                                    "retrieve": true,
+                                    "destroy":true
+                                });
+                                $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
+                                $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');
+
+                                $('#content').css("opacity", "1 !important");
+                                //Force opening the left navigation menu
+                                if ($('#navSettings').is(":visible") == false) {
+                                    $('#navSettings').css("display", '');
+                                    $('#navSettings > ul > li').first().addClass('open');
+                                    $('#navSettings > ul > li > ul').css("display", "none");
+                                    $('#navSettings > ul > li > ul').first().css("display", "block");
+                                }
+                                //redrawing the breadcrumb and selecting the tree
+                                $('#Settings  li').removeClass('active');
+                                $('#Settings  li').each(function() {
+                                    if ($(this).text().trim() == "Images") {
+                                        $(this).addClass('active');
+                                    }
+                                });
+                                //  drawBreadCrumb1();
+                            }
+
+
+                              </script>
+                              <div class="col-md-5">
+
+                              </div>
+                          </div>
+
+                      </div>
+                      <div class="widget-toolbox padding-8 clearfix dataTables_wrapper">
+                       <div id="tableFooterLeft" class="pull-left"></div>
+                       <div id="tableFooterRight" class="pull-right"></div>
+                   </div>
+
+
+               </div>
+           </div>
+       </div>
+   </div>
+</div>

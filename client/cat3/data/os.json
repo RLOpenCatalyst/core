@@ -1,0 +1,14 @@
+[
+  {
+    "os_name": "Cent OS",
+    "osType": "linux"
+  },
+  {
+    "os_name": "Windows",
+    "osType": "windows"
+  },
+  {
+    "os_name": "Ubuntu",
+    "osType": "linux"
+  }
+]

@@ -1,0 +1,781 @@
+<link rel="stylesheet" type="text/css" href="css/application.css">
+<style>
+table.dataTable thead td, table.dataTable thead th{
+    padding:10px 18px!important;
+}
+</style>
+<div class="row">
+   <div class="col-md-12">
+      <div class="col-md-12">
+        <form action="" id="myForm3">
+         <div class="widget-box">
+            <div class="widget-header">
+               <h4 class="widget-margin" style="color:black;">Create Project</h4>
+            </div>
+            <div class="widget-body">
+               <div class="widget-main widgetHeight">
+                  <div>
+                     <section id="widget-grid" class="">
+                        <!-- START ROW -->
+                        <div class="row">
+                           <!-- NEW COL START -->
+                           <!-- Widget ID (each widget will need unique ID)-->
+                           <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                              <!-- widget div-->
+                              <div>
+                                 <!-- widget content -->
+                                 <div class="widget-body no-padding">
+                                    
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                          <br>
+                                          <input autofocus name="ctl00$MainContent$orgname" value="" id="projectname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace"  unique="true"  uniqueconditionedby="projectname,orgname,productgroupname">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="name">Description:</label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="description" class="form-control" type="text"  cdata="catalyst" maxlength="50">
+                                       </div>
+                                       
+                                       <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                          <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['productgroupname','environmentname','teamname']"  cdata="catalyst" cat-validation="required">
+                                             <option value="">Select Organization</option>
+                                          </select>
+                                       </div>
+                                       <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                          <label for="">Business Group:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname"  cdata="catalyst" cat-validation="required">
+                                             <option value="">Select Business Group</option>
+                                          </select>
+                                       </div>
+                                        <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
+                                          <label for="category">Environments:</label>
+                                          <div  id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row"  linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst">
+                                          </div>
+                                        </div>
+                                 <!-- end widget content -->
+                                 </div>
+                              </div>
+                              <!-- end widget div -->
+                           </div>
+                           <!-- end widget -->             
+                        </div>
+                        <!-- END ROW -->
+                     </section>
+                     <!-- end widget grid -->
+                  </div>
+               </div>
+            </div><!--widget body ends-->
+            <div class="widget-toolbox clearfix">
+               <div class="btn-group pull-right">
+                <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+                  </a>
+                  <button class="btn btn-primary btn-mini" id="savecreateProjectbtn">
+                  <i class="ace-icon fa fa-check bigger-110"></i>
+                  Save
+                  </button>
+                  
+               </div>
+            </div>
+         </div>
+         </form>
+      </div>
+   </div>
+</div>
+<script>
+   //Form Name
+
+   $(document).ready(function() {
+      getNexusServer();
+      getDockerServer();
+    });
+
+    function getNexusServer(){
+    var $repoServer = $('#chooseRepoServer');
+    $repoServer.empty();
+    $('#chooseRepoServer').append('<option value="">Choose Server</option>');
+    //$('.reposerverspinner').css('display','inline-block');
+    $.get('/d4dMasters/readmasterjsonnew/26',function(nexus){
+        //$('.reposerverspinner').css('display','none');
+        if(nexus.length){
+            for(var i=0;i< nexus.length;i++){
+                $('#chooseRepoServer').append('<option data-nexusId = "'+nexus[i].rowid+'" value='+nexus[i].configType+' data-serverType = "'+nexus[i].configType+'">'+nexus[i].nexusservername+'</option>');
+            }
+        }
+    });
+}
+
+function getDockerServer(){
+    $.get('/d4dMasters/readmasterjsonnew/18', function(dockerData) {
+        if(dockerData.length){
+            for(var i=0; i< dockerData.length; i++){
+                $('#chooseRepoServer').append('<option value='+dockerData[i].configType+' data-serverType = "'+dockerData[i].configType+'">'+dockerData[i].dockerreponame+'</option>');
+            }
+        }
+    });
+}
+
+
+   var $chooseRepoServer = $('#chooseRepoServer');
+   $chooseRepoServer.change(function(e){
+    $('chooseRepoServer').empty();
+    $('#repoNameCreate').empty();
+    var serverType = $('#chooseRepoServer :selected').attr('data-serverType');
+    var serverId = $('#chooseRepoServer :selected').attr('data-nexusId');
+    
+    if(serverType === "nexus"){
+      getNexusServerRepositories(serverId);
+    }else if(serverType === "docker"){
+      getDockerRepositories();
+    }else{
+      $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');
+    }
+      
+   });
+
+
+   function getDockerRepositories(){
+    $('.reposerverspinner').css('display', 'inline-block');
+    $('#repoNameCreate').empty();
+    $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');
+      $.get('/d4dMasters/readmasterjsonnew/17',function(templates){
+        if(templates.length){
+          $('.reposerverspinner').css('display', 'none');
+          for(var i=0; i< templates.length; i++){
+            if(templates[i].dockercontainerpaths){
+              $('#repoNameCreate').append('<option value='+templates[i].dockercontainerpaths+'>'+templates[i].dockercontainerpaths+'</option>');
+            }
+          }
+        }
+      });
+   }
+
+   function getNexusServerRepositories(nexusId) {
+    $('.reposerverspinner').css('display', 'inline-block');
+    $('#repoNameCreate').empty();
+    $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');
+    var $chooseRepository = $('#chooseRepository');
+        if (nexusId) {
+        $.get('/nexus/' + nexusId + '/repositories', function(nexusRepos) {
+            $('.reposerverspinner').css('display', 'none');
+            if (nexusRepos.length) {
+              for (var i = 0; i < nexusRepos.length; i++) {
+                $('#repoNameCreate').append('<option data-repoName="' + nexusRepos[i].name + '" value="' + nexusRepos[i].id + '">' + nexusRepos[i].name + '</option>');
+              }
+            }
+        });
+    } else {
+        $('.reposerverspinner').css('display', 'none');
+    }
+}
+
+
+   $(document).ready(function() {
+      var url = window.location.href;
+      var queryString = url.substring(url.indexOf('?') + 1 );
+      $(".chooseOrganization").select2();
+      $(".chooseBG").select2();
+      if (queryString == 'new') {
+      } else {
+        $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
+            for (var i = 0; i < data.length; i++) {
+              (function(i){
+                if (queryString == data[i].rowid) {
+                        var repo = data[i].repositories;
+                        if(repo){
+                            var $repoDeployTbody = $('#repoDeployTbody');
+                            var nexusList = repo.nexus;
+                            var dockerList = repo.docker;
+                            if(nexusList.length){
+                            for(var j=0; j < nexusList.length; j++){
+                              (function(j){
+                                 var $tr = $('<tr class="repoDetailsRow"></tr>');
+                                 var $tdName = $('<td class="tdrepoName" value=' + nexusList[j] + ' style="word-break: break-word;"></td>');
+                                 $tr.data('repoName', nexusList[j]);
+                                 var $tdrepoServerName = $('<td class="tdrepoServerName" value="nexus" style="word-break: break-word;"></td>');
+                                 $tr.data('repoServerName', "nexus");
+
+                                 $tdName.append(nexusList[j]);
+                                 $tdrepoServerName.append("nexus");
+                                 var $tdAction = $('<td/>');
+                                 $tdAction.append('<div style="margin-right:17px;float:right;" class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+                                 $tdAction.find('.deleteRow').click(function() {
+                                     $repoDetails.row($tr).remove().draw(true);
+                                 });
+
+                                 $tr.append($tdrepoServerName).append($tdName).append($tdAction);
+                                 $repoDeployTbody.append($tr);
+                                 $repoDetails.row.add($tr).draw();
+                              })(j);
+                            }
+                          }
+                          if(dockerList.length){
+                            for(var k =0; k < dockerList.length; k++){
+                              (function(k){
+                                var $tr = $('<tr class="repoDetailsRow"></tr>');
+                                 var $tdName = $('<td class="tdrepoName" value=' + dockerList[k] + ' style="word-break: break-word;"></td>');
+                                 $tr.data('repoName', dockerList[k]);
+                                 var $tdrepoServerName = $('<td class="tdrepoServerName" value="docker" style="word-break: break-word;"></td>');
+                                 $tr.data('repoServerName', "docker");
+
+                                 $tdName.append(dockerList[k]);
+                                 $tdrepoServerName.append("docker");
+                                 var $tdAction = $('<td/>');
+                                 $tdAction.append('<div style="margin-right:17px;float:right;" class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+                                 $tdAction.find('.deleteRow').click(function() {
+                                     $repoDetails.row($tr).remove().draw(true);
+                                 });
+
+                                 $tr.append($tdrepoServerName).append($tdName).append($tdAction);
+                                 $repoDeployTbody.append($tr);
+                                 $repoDetails.row.add($tr).draw();
+                              })(k);
+                            }
+                          }
+                        }
+                }
+             })(i);
+            }
+        });
+      }
+   });
+   $('#repoanchorDetails').click(function(e) {
+      $("#repodetailsModal").show();
+      $('#repoDetailsCreate').trigger("reset");
+      $('#repoNameCreate').empty();
+      $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');
+   });
+   $('#appanchorDetails').click(function(e) {
+      $("#appdetailsModal").show();
+      $('#appDetailsCreate').trigger("reset");
+   });
+   
+
+   if (!$.fn.dataTable.isDataTable('#tableappDetails')) {
+      $appDetails = $('#tableappDetails').DataTable({
+           "pagingType": "full_numbers",
+           "iDisplayLength": 5,
+           "aLengthMenu": [
+               [5, 40, 100, -1],
+               [5, 40, 100, "All"]
+           ],
+           "aoColumns": [
+               {
+                   "bSortable": true
+               }, {
+                   "bSortable": true
+               }, {
+                   "bSortable": true
+               }
+           ]
+       });
+   }
+   $("#tableappDetails_length").hide();
+   $("#tableappDetails_filter").hide();
+
+   
+    $("#savecreateProjectbtn").click(function(e) {
+        var repositories = {
+          nexus: [],
+          docker: []
+        };
+        var nexusList = [];
+        var dockerList = [];
+        var tableData = $repoDetails.data();
+        for(var i=0; i< tableData.length;i++){
+          if(tableData[i][0] === 'nexus'){
+            nexusList.push(tableData[i][1]);
+          }
+          if(tableData[i][0] === 'docker'){
+            dockerList.push(tableData[i][1]);
+          }
+        }
+        repositories.nexus = nexusList;
+        repositories.docker = dockerList;
+        //alert(JSON.stringify(repositories));
+        $('#repositories').val(JSON.stringify(repositories));
+    });
+   
+   function isUserTypeSuperAdmin(){
+    $.get('/d4dMasters/loggedInUser',function(data){
+      if(!data.isSuperAdmin){
+      $('#orgname').attr('disabled','disabled').select2();
+      }
+    });
+  }
+   function inLineReady() {
+       $("input[type='text']").on("click", function () {
+           $(this).select();
+           $("#msgOrgName").hide();
+       });
+       readform(4);
+   
+      
+       //Force opening the left navigation menu
+       if ($('#navSettings').is(":visible") == false) {
+           $('#navSettings').css("display", '');
+           $('#navSettings > ul > li').first().addClass('open');
+           $('#navSettings > ul > li > ul').css("display", "none");
+           $('#navSettings > ul > li > ul').first().css("display", "block");
+       }
+       //redrawing the breadcrumb and selecting the tree
+       $('#ulsettingstree > li').removeClass('active');
+       $('#ulsettingstree > li').each(function () {
+           if ($(this).text().trim() == "Projects")
+               $(this).addClass('active');
+       });
+       drawBreadCrumb1();
+       enableUniqueCheckingForInputs(4);
+   }
+   
+   function readform_todelete(formName) {
+       var formData = null;
+   
+   
+       //Prefilling dropdowns
+       $('select').each(function () {
+         
+                   if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
+                       //debugger;
+                       if($(this).attr('linkedfields') || ($(this).attr('linkedfields') == null && $(this).attr('linkedto') == null) ){
+                           var tempJSON = JSON.parse(JSON.stringify(readMasterJson($(this).attr('sourcepath'))));
+                           var curSelect = $(this);
+                       //   alert(JSON.stringify(tempJSON));
+                           $.each(eval('tempJSON.' + curSelect.attr('datapath')), function (i, item) {
+                               //     alert(item.field[0].values.value);
+                               // debugger;
+                               for (var k = 0; k < item.field.length; k++) {
+                                   if (item.field[k].name == curSelect.attr("id")) {
+                                       curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
+                                       // alert("Added:" + item.field[i].values.value);
+                                   }
+                               }
+                           });
+                       }
+                      // debugger;
+                       if($(this).attr('linkedfields')){
+                           
+                           $(this).change(function(){
+                             //  debugger;
+                               var curCtrl = $(this);
+                               $.each(eval($(this).attr('linkedfields')),function(i,item){
+                               var targetCtrl = $('#' + item);
+                                   targetCtrl.html('');
+                                   var opts = getRelatedValues(targetCtrl.attr('sourcepath'),curCtrl.attr("id"),$('#' + curCtrl.attr('id') + ' option:selected').text(),targetCtrl.attr("id"));
+                                   $.each(eval(opts),function(j,itm){
+                                       if(targetCtrl.attr('multiselect'))
+                                           addToSelectList(itm, targetCtrl);
+                                       else
+                                           targetCtrl.append('<option value="' + itm + '">' + itm + '</option>');
+                                   });
+                                   
+                               
+                               });
+                            });
+                           
+                       }
+                   }
+          
+           //alert("Reading" + JSON.stringify(temp));
+       });
+   
+       $('input[sourcepath]').each(function () {
+           //debugger;
+           if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
+               var tempJSON = JSON.parse(readMasterJson($(this).attr('sourcepath')));
+               var curInput = $(this);
+               //   alert(JSON.stringify(tempJSON));
+               $.each(eval('tempJSON.' + curInput.attr('datapath')), function (i, item) {
+                   //     alert(item.field[0].values.value);
+                   // debugger;
+                   for (var k = 0; k < item.field.length; k++) {
+                       if (item.field[k].name == curInput.attr("id")) {
+                           // curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
+                           // alert("Added:" + item.field[i].values.value);
+                           addToCodeList(item.field[k].values.value, curInput);
+                       }
+                   }
+               });
+           }
+       });
+   
+       $('div[datatype="select"]').each(function () {
+           //debugger;
+           if($(this).attr('linkedfields') || ($(this).attr('linkedfields') == null && $(this).attr('linkedto') == null) ){
+                   if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
+                       var tempJSON = JSON.parse(JSON.stringify(readMasterJson($(this).attr('sourcepath'))));
+                       var curInput = $(this);
+                       //   alert(JSON.stringify(tempJSON));
+                       $.each(eval('tempJSON.' + curInput.attr('datapath')), function (i, item) {
+                           //     alert(item.field[0].values.value);
+                           // debugger;
+                           for (var k = 0; k < item.field.length; k++) {
+                               if (item.field[k].name == curInput.attr("id")) {
+                                   // curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
+                                   // alert("Added:" + item.field[i].values.value);
+                                   addToSelectList(item.field[k].values.value, curInput);
+                               }
+                           }
+                       });
+                   }
+          }
+       });
+   
+       // End Prefilling dropdowns
+   
+   
+   
+     //  alert("before d4d" + JSON.stringify(d4ddata));
+       readMasterJson(4);
+    //   alert("after d4d" + JSON.stringify(d4ddata));
+   
+      /* $.each(d4ddata.sections.section, function (i, item) {
+           if (item.name == formName) {
+               formData = item;
+           }
+       });*/
+       // alert(JSON.stringify(formData));
+       //Reading row to get schema
+       var formSchema = null;
+       var orgName = url.substr(url.indexOf("?") + 1);
+     //  alert(orgName);
+       var editMode = false;
+   
+       formData = d4ddata.masterjson;
+   
+       $.each(formData.rows.row, function (i, item) {
+           // alert('Expanded field ' + JSON.stringify(item.field[0].values.value.toLowerCase()));
+           if (item.field[0].values.value.toLowerCase() == orgName.toLowerCase()) {
+               formSchema = item.field;
+               editMode = true;
+               return (false);
+           }
+           formSchema = item.field;
+       });
+       if (editMode == false)
+           return;
+       // alert(JSON.stringify(formSchema));
+       //Read current form values with the field names
+       var formSchemaNew = formSchema;
+   
+       $.each(formSchemaNew, function (i, item) {
+           var inputC = null;
+           $.each(item, function (k, v) {
+               if (k == "name") {
+                   inputC = $("#" + v);
+               }
+           });
+           $.each(item, function (k, v) {
+               if (k == "values") {
+                   if (inputC) {
+                       $.each(v, function (k1, v1) {
+                           if (inputC.getType().toLowerCase() == "text") {
+                             //  alert(inputC.attr("datavalues"));
+                               if (inputC.attr("datavalues")) {
+                                   //var array = v[k1].split(",");
+                                   $.each(v[k1], function (i) {
+                                       addToCodeList(v[k1][i]);
+                                   });
+                               }
+                               else
+                                   inputC.val(v[k1]);
+   
+                           }
+                           if (inputC.getType().toLowerCase() == "file") {
+                               //  v[k1]
+                           }
+                       });
+                   }
+                   inputC = null;
+               }
+           });
+       });
+   }
+     $.fn.getType = function() {
+      if($(this).length){
+      return this[0].tagName == "INPUT" ? this[0].type.toLowerCase() : this[0].tagName.toLowerCase();
+      }else{
+          return "undefined";
+      }
+  }
+   function readMasterJson_todelete(section) {
+   
+       $.ajax({
+           type: "get",
+           dataType: "text",
+   
+           async: false,
+           url: serviceURL + "readmasterjson/" + section,
+           success: function (data) {
+               // alert(data.toString());   
+               d4ddata = JSON.parse(data);
+           },
+           failure: function (data) {
+               alert(data.toString());
+           }
+       });
+       return (d4ddata);
+   }
+   
+   function saveform_todelete(formName) {
+       $(".savespinner").show();
+       $('.widget-box').css('opacity', '1');
+     //  debugger;
+       //To Do SAve...
+       // var d4djson = $.parseJSON(d4ddata);
+       // alert(d4ddata.sections.section[0].name);
+       var formData = null;
+    //   alert("before d4d" + d4ddata);
+       readMasterJson(4);
+   //    alert("after d4d" + JSON.stringify(d4ddata));
+       /*$.each(d4ddata.sections.section, function (i, item) {
+   
+           if (item.name == formName) {
+               formData = item;
+           }
+       });*/
+       // alert(JSON.stringify(formData));
+       //Reading row to get schema
+       var formSchema = null;
+       var orgName = url.substr(url.indexOf("?") + 1);
+   //    alert(orgName);
+       var editMode = false;
+   
+       formData = d4ddata.masterjson;
+   
+       $.each(formData.rows.row, function (i, item) {
+           // alert('Expanded field ' + JSON.stringify(item.field[0].values.value.toLowerCase()));
+           if (item.field[0].values.value.toLowerCase() == orgName.toLowerCase()) {
+               formSchema = item.field;
+               editMode = true;
+               return (false);
+           }
+           formSchema = item.field;
+       });
+       // alert(JSON.stringify(formSchema));
+       //Read current form values with the field names
+       var formSchemaNew = null;
+       if (editMode == false)
+           formSchemaNew = JSON.parse(JSON.stringify(formSchema));
+       else
+           formSchemaNew = formSchema;
+   
+   //     alert(JSON.stringify(formSchemaNew));
+       $.each(formSchemaNew, function (i, item) {
+           var inputC = null;
+           $.each(item, function (k, v) {
+               if (k == "name") {
+                   inputC = $("#" + v);
+                   //   alert(v);
+                   //   alert(inputC == null);
+               }
+           });
+           $.each(item, function (k, v) {
+               if (k == "values") {
+                   if (inputC) {
+                       $.each(v, function (k1, v1) {
+                        //   debugger;
+                           if (inputC.attr("datatype")) {
+                               if (inputC.attr("datatype") == "select") {
+                                   // v.value.length = 0;
+                                  // alert(v.value);
+                                   v.value = '';
+                                   v.value = [];
+                                   inputC.find("input").each(function () {
+                                       if ($(this).is(":checked")) {
+                                        //   debugger;
+                                           v.value.push($(this).val());
+                                       }
+                                           //alert($(this).val());
+                                   });
+                               }
+   
+                           }
+                           else {
+                               if (inputC.getType().toLowerCase() == "text") {
+                                   //alert(inputC.attr("datavalues"));
+                                   if (inputC.attr('datavalues')) {
+   
+                                       var itms = '';
+   
+                                       v1.splice(0, v1.length);
+                                       $('.' + inputC.attr('datavalues')).each(function () {
+                                           v1.push($(this).text());
+                                       });
+                                       //  alert(v1.length);
+   
+                                       // v[k1] = '';
+                                       //   v[k1].push(v1);
+                                   }
+                                   else
+                                       v[k1] = inputC.val();
+                               }
+   
+                               if (inputC.getType().toLowerCase() == "select") {
+                                   v[k1] = inputC.val();
+                               }
+                           }
+                       });
+   
+                   }
+                   inputC = null;
+               }
+   
+           });
+   
+       });
+   //     debugger;
+       if (editMode == false)
+           formData.rows.row.push(JSON.parse('{\"field\":' + JSON.stringify(formSchemaNew) + '}'));
+   
+      // alert(JSON.stringify(formData));
+       //Call the nodejs to save the json
+       $.ajax({
+           type: "post",
+           dataType: "text",
+           data: formData,
+           async: false,
+           url: serviceURL + "savemasterjson/4",
+           success: function (data) {
+               //alert(data.toString());
+               alert('Successfully Saved');
+           },
+           failure: function (data) {
+               alert(data.toString());
+           }
+       }); 
+   
+       $(".savespinner").hide();
+       $('#btncancel').click();
+   }
+   function addToCodeList_todelete() {
+   
+       var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px\'></i>";
+       var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ><i class=\'ace-icon fa fa-trash-o bigger-110\'></i></button>";
+       if ($('#costcode').val() != '') {
+           $('#codelistitems').append('<div class=\'codelistitem \' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important\'><p class=\'bg-success\'>' + imgCheck + $('#costcode').val() + imgDed + '</p></div>'); $('#costcode').val('');
+           $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
+           $('#costcode').focus();
+       }
+   }
+   
+   
+   function addToSelectList_todelete(txtVal, inp) {
+   
+       
+       var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px;visibility:hidden\' ></i>";
+       var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ></button>";
+       if (txtVal != '') {
+           inp.append('<label class=\"toggle font-sm\" ><input onclick=\'if($(this).is(\":checked\")) {$(this).closest(\"label\").css(\"background-color\",\"#eeeeee\");$(this).css(\"border-color\",\"#3b9ff3\");}else{$(this).closest(\"label\").css(\"background-color\",\"#ffffff\");$(this).css(\"border-color\",\"red\");}\' type=\"checkbox\" name=\"checkbox-toggle\" value=\"' + txtVal + '\" style=\"width:100%\"><i data-swchoff-text=\"NO\" data-swchon-text=\"YES\"></i>' + txtVal + '</label>');
+           //inp.append('<div class=\'codelistitem\' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;width:100%;cursor:pointer\'><p class=\'bg-success\'>' + imgCheck + txtVal + '</p></div>');
+           $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
+           
+       }
+       
+   }
+   
+   function addToCodeList_todelete(txtVal,inp) {
+   
+       if (typeof (txtVal) == "undefined" && $('#costcode').val() != '')
+           txtVal = $('#costcode').val();
+   
+       var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px\'></i>";
+       var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ><i class=\'ace-icon fa fa-trash-o bigger-110\'></i></button>";
+       if (txtVal != '') {
+           $('#codelistitems').append('<div class=\'codelistitem\' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;\'><p class=\'bg-success\'>' + imgCheck + txtVal + imgDed + '</p></div>');
+           $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
+           $('#costcode').focus();
+       }
+       $('#costcode').val('');
+   }
+   
+   function removeFromCodeList_todelete(btn) {
+       if (confirm('Are you sure you wish to remove this Cost Code?')) {
+           var closestDiv = $(btn).closest('div');
+           closestDiv.detach();
+       }
+   }
+   
+   function validateForm() {
+       //Check for required parameter
+    
+       return (true);
+   }
+   
+   function readURL_todelete(input) {
+       if (input.files && input.files[0]) {
+           var reader = new FileReader();
+           reader.onload = function (e) {
+               var imgLogoPreview = "<img src='" + e.target.result + "' style='border:0px;height:25px;width:28px'/>";
+               $('#logoPreview').empty();
+               $('#logoPreview').append(imgLogoPreview);
+           }
+           reader.readAsDataURL(input.files[0]);
+       }
+   }
+   
+   $("#id-input-file-2").change(function () {
+       readURL(this);
+       $(".ace-file-name").attr('data-title', '');
+       $(".ace-file-name").html('<i class=" ace-icon fa fa-upload"></i>' + this.files[0].name);
+   
+   });
+   
+   function getRelatedValues_todelete(jsonID, comparedField, filterByValue, outputField) {
+       readMasterJson(jsonID);
+       formData = d4ddata.masterjson;
+      // var comparedField = "orgname";
+     //  var filterByValue = "Scholastic";
+     //  var outputField = "productgroupname";
+       var result = [];
+       //debugger;
+       $.each(eval(formData.rows.row), function (i, item) {
+           $.each(item.field, function (k, item1) {
+   
+               if (item1.name == comparedField && item1.values.value == filterByValue) {
+                   // alert(item1.values.value);
+                   //found the row, now get the next column
+                   $.each(item.field, function (j, item2) {
+                       if (item2.name == outputField) {
+                           //  alert(item2.values.value);
+                           result.push(item2.values.value);
+                       }
+                   });
+               }
+           });
+       });
+       return (result);
+   }
+   inLineReady();
+   
+   function getSettingsNavFor(orgName) {
+   var getBG = getRelatedValues(2, "orgname", orgName, "productgroupname");
+   var getEnv = getRelatedValues(3, "orgname", orgName, "environmentname");
+   var getProj = getRelatedValues(4, "orgname", orgName, "projectname");
+   var retJson = { "Business Group": getBG, "Environments": getEnv, "Projects": getProj };
+   return (retJson);
+   
+   }
+</script>
+<script>
+   $(document).ready(function () {
+      $("#projectname").focus();
+       $('#myForm3').submit(function() {
+           $(this).validate();
+   
+           if($(this).valid){
+                /*alert('valid form submitted'); // for demo*/
+               if(!saveform('4'))return false;;
+           }else{
+                alert('invalid valid form submitted'); // for demo
+           }
+           return false; // for demo
+       });
+   });
+       
+</script>

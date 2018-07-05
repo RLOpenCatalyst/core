@@ -1,0 +1,43 @@
+<div id='botLogsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-bar-chart-o"></i> Bot Logs - {{botName}}
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<fieldset>
+			<div class="logsArea">
+				<loading size="large" name="isBotLogsLoading" align="center" type="block"></loading>
+				<div ng-show="!isBotLogsLoading">
+					<div ng-show="taskType !== 'jenkins'">
+						<div id="selectInstanceFromDropdown">
+		                    <label class="col-md-3 col-sm-3 col-xs-4 text-padding control-label margintop8">Select Instance<sup class="red">*</sup>
+		                    </label>
+		                    <span class="col-md-4 col-sm-4 col-xs-8 no-padding">
+			                    	<select class="form-control" ng-model="selectedInstance" ng-change="instanceChange()" ng-options="chefInstance as chefInstance.uiNodeName for chefInstance in nodeIdsWithActionLog">
+		    					</select>
+		    				</span>
+		                </div>
+					   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in botLogs">
+						    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
+						    <span class="logInfo"> {{log.log}} </span>
+					   	</div>
+					</div>
+					<div ng-show="taskType === 'jenkins'">
+					   	<div class="rowSpacing col-lg-12 col-sm-12">
+						    <p ng-bind-html="jenkinsLogs"></p>
+					   	</div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

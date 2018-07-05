@@ -1,0 +1,11 @@
+{
+  "providerTypes" : {
+    "AWS": "AWS",
+    "OPENSTACK": "OpenStack"
+  },
+
+  "catalystEntityTypes" : {
+    "PROJECT": "project",
+    "ENVIRONMENT": "environment"
+  }
+}

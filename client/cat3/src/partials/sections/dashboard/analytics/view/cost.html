@@ -1,0 +1,56 @@
+<div class="leftnavdiv" style="padding-right:7px;">
+    <br>
+    <div class="col-lg-12 col-md-12 col-sm-12 top-stats">
+        <div class="col-lg-9 col-md-9 col-sm-12 no-padding" >
+            <span class="box-title font-size-15" ng-show="cost.pieChat.data.length >0" ><span>Total Cost:</span> <span class="red">${{cost.pieChat.totalCoust}}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                             <span class="box-title font-size-15" ng-show="cost.pieChat.data.length >0"><span>Services Cost</span>
+                         <span class="badge" ng-repeat="(value , key) in cost.serviceCosts"> {{value}} : ${{key}}</span>
+                         </span>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-12 text-right no-padding" >
+            <div ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 1">
+                <span class="box-title font-size-15">Segregated by  </span>
+                <select class="form-control select2 select2-hidden-accessible" ng-model="cost.splitUp" ng-change="cost.spliteChange()" ng-options="sp.id as sp.val for sp in splitUpCosts" >
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+     <div ng-if="analytic.tabShowChat">
+         <div class="row">
+             <div class="clearfix"></div>
+             <div class="col-lg-4 col-md-4 col-sm-12" >
+                 <div class="box box-infobox box-info">
+                     <div class="box-header with-border">
+                         <h3 class="box-title font-size-15"><i class="fa fa-pie-chart"></i> Aggregate cost</h3>
+                     </div>
+                     <div class="box-body" ><nvd3 options="cost.pieChat.option" data="cost.pieChat.data"></nvd3></div>
+                 </div>
+             </div>
+             <div class="col-lg-8 col-md-8 col-sm-12" >
+                 <div class="box box-infobox box-info">
+                     <div class="box-header with-border"><h3 class="box-title font-size-15"><i class="fa fa-bar-chart"></i> Distribution of all services across {{cost.splitUp}}</h3>
+
+                     </div>
+                     <div class="box-body" ><nvd3 options="cost.barChat.option" data="cost.barChat.data"></nvd3></div>
+                 </div>
+             </div>
+             <div class="col-lg-12 col-md-12 col-sm-12" >
+                 <div class="box box-infobox box-info">
+                     <div class="box-header with-border"><h3 class="box-title font-size-15"> <i class="fa fa-line-chart"></i> Daily trends of cost across organization</h3>
+                     </div>
+                     <div class="box-body" ><nvd3 options="cost.trendLineChart.options" data="cost.trendLineChart.data" class="with-3d-shadow with-transitions"></nvd3></div>
+                 </div>
+             </div>
+         </div>
+     </div>
+    <div ng-if="analytic.tabShowReport">
+        <div ng-if="cost.costGridOptions.data.length >0" ui-grid="cost.costGridOptions" ui-grid-selection ui-grid-exporter ui-grid-auto-resize class="grid" ></div>
+        <div ng-if="!cost.costGridOptions.data.length >0">
+            <div class="alert alert-warning">
+                No Data Available.
+            </div>
+        </div>
+
+    </div>
+</div>

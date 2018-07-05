@@ -1,0 +1,382 @@
+@import '../../../theme';
+
+/*==== OVERRIDINGS (angular-strap-docs.css) ===========*/
+@media (max-width: 320px) {
+  #analyticsPage {
+    .panelRight {
+      padding-left: 1px;
+
+      #rightPanel {
+        padding-top: 2px;
+
+        .nav-tabs {
+          font-size: 10px;
+        }
+
+        .nav>li>a {
+          padding: 10px 8px;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 321px) and (max-width : 480px) {
+  #analyticsPage {
+    .panelRight {
+      #rightPanel {
+        padding-top: 2px;
+
+        .nav-tabs {
+            font-size: 12px;
+        }
+
+        .nav>li>a {
+            padding: 4px 8px;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width : 0px) and (max-width: 767px) {
+  #analyticsPage {
+    .panelLeft {
+      width: 100%;
+      padding-left: 0px;
+      position: absolute;
+    }
+
+    .panelRight {
+      width: 100%;
+      padding-left: 5px;
+      padding-right: 0px;
+    }
+  }
+}
+
+@media (min-width : 767px) {
+  .panelRight {
+    padding-left: 5px;
+  }
+}
+
+@media (min-width : 768px) and (max-width: 991px) {
+  #analyticsPage {
+    .panelLeft {
+      width: 254px;
+    }
+
+    .panelRight {
+      padding-left: 5px;
+      padding-right: 0px;
+      float: right;
+    }
+  }
+}
+
+@media (min-width:1500px){
+  #section-name {
+    width: 11.2%;
+  }
+}
+#analyticsPage .nvd3 .nv-groups path.nv-line {
+  stroke-width: 3px !important;
+}
+.usage{
+    .top-stats{
+        text-align: right;
+    }
+}
+
+.top-stats{
+    margin: 0px 0px 15px;
+    .box-title{
+        font-size: 16px;
+        .red{
+            font-size: 22px;
+        }
+    }
+    .badge{
+        margin-right: 2px; 
+        background: #40baf1; 
+        padding: 3px 10px;
+        margin-top: -5px;
+    }
+    .select2{
+        width: auto;
+        height: 31px;
+        display: table-cell;
+    }
+}
+
+#analyticsPage {
+  background: #fff;
+  .panelLeft {
+    width: 100%;
+    padding-left: 0px;
+  }
+
+  .panelRight {
+    width: 100%;
+    background: linear-gradient(to right, #ffffff 99%, #ffffff 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+    padding-right: 10px;
+    height: 571px;
+    overflow-y: auto;
+  }
+
+  #rightPanel {
+    padding-top: 0px;
+
+    .nav-tabs {
+      .dropdown-menu {
+        li {
+          a:hover {
+            background: #3276b1;
+            color: #fff;
+          }
+        }
+        li.active {
+          a {
+            background: #3276b1;
+          }
+        }
+        .active>a>.fa {
+          color: #fff;
+        }
+        li>a>.fa {
+          color: #333;
+        }
+      }
+    }
+  }
+
+  #myTab3, .dropdown-menu {
+    font-size: 12px;
+  }
+
+  .nav-tabs .dropdown-menu {
+    left: 0px;
+  }
+
+  #mytab3 .InfrastructureLocalStorage .dropdown-menu .nav-tabs>li.active>a {
+    margin-bottom: -1px;
+    cursor: pointer;
+    background: #40BAF1;
+  }
+
+  .nav-tabs>li.active>a:first-child {
+    color: #337ab7;
+  }
+
+  .nav-tabs {
+    border-bottom-width: 1px;
+    @include theme-border-color;
+
+    li {
+      margin-bottom: -1px;
+      cursor: pointer;
+    }
+
+    li.active {
+      a, a:hover {
+        border-bottom-width: 0px;
+        border-top-width: 3px;
+        @include theme-border-color;
+        background: #fcfcfc;
+      }
+    }
+  }
+
+  /*===== end of overridings =====*/
+  .tab-pane {
+    .am-fade {
+      animation-duration: .3s;
+      animation-timing-function: ease;
+      animation-fill-mode: backwards;
+      opacity: 1;
+
+      .active-remove {
+        display: none;
+      }
+
+      .active-add {
+        animation-name: fadeIn;
+      }
+    }
+  }
+}
+
+
+#analyticsPage {
+  .ui-grid-row > div .ui-grid-cell {
+    float: left !important;
+    vertical-align: middle;
+    height: 40px !important;
+    padding: 0px !important;
+    overflow: hidden;
+  }
+  .filter-btn {
+    margin: 9px 10px 0 0;
+  }
+
+  #sidebar-wrapper {
+    padding: 10px 7px 0 7px;
+    min-height: 80%;
+    top: 121px;
+
+    .repo-job-details-wrapper {
+      padding: 0.05em 0.625em 0.25em;
+    }
+
+    .marginbottom5 {
+      margin-bottom: 5px;
+    }
+
+    .search {
+      width: 100%;
+      position: relative;
+      font-size: 18px;
+      padding-top: 0px;
+      label {
+        position: absolute;
+        left: 10px;
+        top: 4px;
+      }
+    }
+
+    .search .search-input, .search .hint {
+      padding-left: 23px;
+      padding-right: -5px;
+      border-radius: 23px;
+      height: 28px;
+      outline: none;
+      font-size: 11px;
+    }
+
+    .bp-select {
+      font-size: 11px;
+      height: 28px;
+      display: inline;
+      width: auto;
+    }
+
+    .bp-panel-body {
+      max-height: 105px;
+      min-height: 80px;
+      overflow-y: auto;
+    }
+
+    .activeLi {
+      background: #E2E2E2;
+    }
+
+    .list-resources{
+      padding: 0px; 
+      ul li {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        padding: 3px 15px;
+      }
+    }
+
+    .panel-heading {
+      height: 40px;
+    }
+  }
+
+  .nav>li>a {
+    padding: 10px 7px;
+    font-size: 13px;
+  }
+
+  .filter-title {
+    margin-top: -13px;
+    font-size: 12px;
+  }
+
+  .filter-name {
+    margin-top: -21px;
+  }
+
+  .selected {
+    background: #E49C25;
+  }
+}
+.nv-axislabel{
+  font-size: 14px !important;
+}
+.nvd3 text {
+  font: normal 10px Arial;
+}
+.font-size-15{
+  font-size: 15px !important;
+}
+.marginbottom10{
+  margin-bottom: 10px !important;
+}
+#tagMappting{
+  .saveBtn{
+    position: fixed;
+    bottom: 0px;
+    display: block;
+    padding: 13px 14px 15px;
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    background: rgba(249, 249, 249, .9);
+    z-index: 999;
+  }
+  .btnFoot{
+    float: right;
+    width: 57%;
+  }
+
+}
+.form-item-container {
+  .list-inline {
+    input {
+      width: 96px;
+      height: 20px;
+      border: 1px solid #ccc;
+      border-radius: 0px !important;
+    }
+    li span {
+      border: 1px solid #23a9e1;
+      border-radius: 0px !important;
+      padding: 2px 4px;
+      font-size: 12px;
+    }
+  }
+
+}
+.autocomplete-list {
+  width: calc(94% + 2px) !important;
+  left: 3% !important;
+  z-index: 999999;
+}
+label {
+  font-weight: 400 !important;
+}
+.ui-grid-viewport {
+  overflow-x: hidden !important;
+}
+.form-control{
+  height: 29px;
+  padding: 2px 10px;
+  font-size: 12px;
+  line-height: 1;
+}
+.with250{
+  width: 250px !important;
+}
+.weekPick {
+  position: absolute;
+  left: 24%;
+  background: #FFFFFF;
+  width: 217px;
+  z-index: 999;
+  padding: 7px 17px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 2px;
+}

@@ -1,0 +1,1197 @@
+{
+    "serverId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+    "roles": {
+    "rlcatalyst": "https://api.opscode.com/organizations/goldendemo/roles/rlcatalyst",
+        "zabbixclient": "https://api.opscode.com/organizations/goldendemo/roles/zabbixclient"
+},
+    "cookbooks": {
+    "weblogic_create_domain": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/weblogic_create_domain",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/weblogic_create_domain/0.1.0"
+            }
+        ]
+    },
+    "test_jandj_app": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/test_jandj_app",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/test_jandj_app/0.1.0"
+            }
+        ]
+    },
+    "sensu_server": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sensu_server",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sensu_server/0.1.0"
+            }
+        ]
+    },
+    "golang": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/golang",
+            "versions": [
+            {
+                "version": "1.4.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/golang/1.4.0"
+            }
+        ]
+    },
+    "deploy_mongodb": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_mongodb",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_mongodb/0.1.0"
+            }
+        ]
+    },
+    "DTelemetryNewrelicJava": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryNewrelicJava",
+            "versions": [
+            {
+                "version": "2.14.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryNewrelicJava/2.14.2"
+            }
+        ]
+    },
+    "yum-mysql-community": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum-mysql-community",
+            "versions": [
+            {
+                "version": "0.1.17",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum-mysql-community/0.1.17"
+            }
+        ]
+    },
+    "test_jenkins": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/test_jenkins",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/test_jenkins/0.1.0"
+            }
+        ]
+    },
+    "oracle-instantclient": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/oracle-instantclient",
+            "versions": [
+            {
+                "version": "1.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/oracle-instantclient/1.1.0"
+            }
+        ]
+    },
+    "mongodb": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/mongodb",
+            "versions": [
+            {
+                "version": "0.16.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/mongodb/0.16.2"
+            }
+        ]
+    },
+    "liferay": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/liferay",
+            "versions": [
+            {
+                "version": "0.13.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/liferay/0.13.1"
+            }
+        ]
+    },
+    "httpd": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/httpd",
+            "versions": [
+            {
+                "version": "0.3.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/httpd/0.3.0"
+            }
+        ]
+    },
+    "docker-start": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/docker-start",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/docker-start/0.1.0"
+            }
+        ]
+    },
+    "minitest-handler": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/minitest-handler",
+            "versions": [
+            {
+                "version": "1.4.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/minitest-handler/1.4.0"
+            }
+        ]
+    },
+    "DTelemetrySystemMetrics": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetrySystemMetrics",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetrySystemMetrics/0.1.0"
+            }
+        ]
+    },
+    "sensu": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sensu",
+            "versions": [
+            {
+                "version": "2.10.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sensu/2.10.0"
+            }
+        ]
+    },
+    "runit": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/runit",
+            "versions": [
+            {
+                "version": "1.7.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/runit/1.7.2"
+            }
+        ]
+    },
+    "sysctl": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sysctl",
+            "versions": [
+            {
+                "version": "0.6.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sysctl/0.6.0"
+            }
+        ]
+    },
+    "DTelemetryZabbixClient": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryZabbixClient",
+            "versions": [
+            {
+                "version": "0.3.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryZabbixClient/0.3.0"
+            }
+        ]
+    },
+    "7-zip": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/7-zip",
+            "versions": [
+            {
+                "version": "1.0.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/7-zip/1.0.2"
+            }
+        ]
+    },
+    "chef-client": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chef-client",
+            "versions": [
+            {
+                "version": "3.4.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chef-client/3.4.0"
+            }
+        ]
+    },
+    "ark": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ark",
+            "versions": [
+            {
+                "version": "0.9.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ark/0.9.0"
+            }
+        ]
+    },
+    "postgresql": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/postgresql",
+            "versions": [
+            {
+                "version": "3.4.21",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/postgresql/3.4.21"
+            }
+        ]
+    },
+    "docker": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/docker",
+            "versions": [
+            {
+                "version": "0.35.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/docker/0.35.3"
+            }
+        ]
+    },
+    "packagecloud": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/packagecloud",
+            "versions": [
+            {
+                "version": "0.0.19",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/packagecloud/0.0.19"
+            }
+        ]
+    },
+    "mysql": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/mysql",
+            "versions": [
+            {
+                "version": "5.5.4",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/mysql/5.5.4"
+            }
+        ]
+    },
+    "DTelemetryNewrelicNodeJS": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryNewrelicNodeJS",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryNewrelicNodeJS/0.1.0"
+            }
+        ]
+    },
+    "upgrade_rlcatalyst": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/upgrade_rlcatalyst",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/upgrade_rlcatalyst/0.1.0"
+            }
+        ]
+    },
+    "logrotate": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/logrotate",
+            "versions": [
+            {
+                "version": "1.9.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/logrotate/1.9.2"
+            }
+        ]
+    },
+    "unzip": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/unzip",
+            "versions": [
+            {
+                "version": "0.0.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/unzip/0.0.1"
+            }
+        ]
+    },
+    "testchefclient": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/testchefclient",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/testchefclient/0.1.0"
+            }
+        ]
+    },
+    "sudo": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sudo",
+            "versions": [
+            {
+                "version": "2.7.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sudo/2.7.1"
+            }
+        ]
+    },
+    "service_mysql": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/service_mysql",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/service_mysql/0.1.0"
+            }
+        ]
+    },
+    "poise": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/poise",
+            "versions": [
+            {
+                "version": "1.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/poise/1.0.0"
+            }
+        ]
+    },
+    "php-fpm": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/php-fpm",
+            "versions": [
+            {
+                "version": "0.7.4",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/php-fpm/0.7.4"
+            }
+        ]
+    },
+    "jenkins_create_slave": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/jenkins_create_slave",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/jenkins_create_slave/0.1.0"
+            }
+        ]
+    },
+    "erlang": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/erlang",
+            "versions": [
+            {
+                "version": "1.5.8",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/erlang/1.5.8"
+            }
+        ]
+    },
+    "sql_server": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sql_server",
+            "versions": [
+            {
+                "version": "2.2.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sql_server/2.2.3"
+            }
+        ]
+    },
+    "solr": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/solr",
+            "versions": [
+            {
+                "version": "0.3.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/solr/0.3.0"
+            }
+        ]
+    },
+    "s3_file": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/s3_file",
+            "versions": [
+            {
+                "version": "2.5.4",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/s3_file/2.5.4"
+            }
+        ]
+    },
+    "dpkg_autostart": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/dpkg_autostart",
+            "versions": [
+            {
+                "version": "0.1.12",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/dpkg_autostart/0.1.12"
+            }
+        ]
+    },
+    "DTelemetryStackStorm": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryStackStorm",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryStackStorm/0.1.0"
+            }
+        ]
+    },
+    "user": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/user",
+            "versions": [
+            {
+                "version": "0.4.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/user/0.4.2"
+            }
+        ]
+    },
+    "testing": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/testing",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/testing/0.1.0"
+            }
+        ]
+    },
+    "php": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/php",
+            "versions": [
+            {
+                "version": "1.5.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/php/1.5.0"
+            }
+        ]
+    },
+    "nginx": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/nginx",
+            "versions": [
+            {
+                "version": "2.7.6",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/nginx/2.7.6"
+            }
+        ]
+    },
+    "handler_test": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/handler_test",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/handler_test/0.1.0"
+            }
+        ]
+    },
+    "enable-logging": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/enable-logging",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/enable-logging/0.1.0"
+            }
+        ]
+    },
+    "docker-cat-ft": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/docker-cat-ft",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/docker-cat-ft/0.1.0"
+            }
+        ]
+    },
+    "deploy_tomcat_app": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_tomcat_app",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_tomcat_app/0.1.0"
+            }
+        ]
+    },
+    "database": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/database",
+            "versions": [
+            {
+                "version": "4.0.6",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/database/4.0.6"
+            }
+        ]
+    },
+    "chef-jenkins": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chef-jenkins",
+            "versions": [
+            {
+                "version": "0.5.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chef-jenkins/0.5.0"
+            }
+        ]
+    },
+    "apache2": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/apache2",
+            "versions": [
+            {
+                "version": "4.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/apache2/4.0.0"
+            }
+        ]
+    },
+    "yum": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum",
+            "versions": [
+            {
+                "version": "3.6.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum/3.6.3"
+            }
+        ]
+    },
+    "test_petstore": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/test_petstore",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/test_petstore/0.1.0"
+            }
+        ]
+    },
+    "iptables": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/iptables",
+            "versions": [
+            {
+                "version": "0.14.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/iptables/0.14.0"
+            }
+        ]
+    },
+    "firewall": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/firewall",
+            "versions": [
+            {
+                "version": "1.1.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/firewall/1.1.2"
+            }
+        ]
+    },
+    "deploy_nodejs": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_nodejs",
+            "versions": [
+            {
+                "version": "0.1.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_nodejs/0.1.1"
+            }
+        ]
+    },
+    "deploy_catalyst": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_catalyst",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_catalyst/0.1.0"
+            }
+        ]
+    },
+    "apt": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/apt",
+            "versions": [
+            {
+                "version": "2.8.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/apt/2.8.2"
+            }
+        ]
+    },
+    "polipo": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/polipo",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/polipo/0.1.0"
+            }
+        ]
+    },
+    "nodejs": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/nodejs",
+            "versions": [
+            {
+                "version": "2.4.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/nodejs/2.4.1"
+            }
+        ]
+    },
+    "mongodb3": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/mongodb3",
+            "versions": [
+            {
+                "version": "1.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/mongodb3/1.0.0"
+            }
+        ]
+    },
+    "jenkins": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/jenkins",
+            "versions": [
+            {
+                "version": "2.3.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/jenkins/2.3.1"
+            }
+        ]
+    },
+    "homebrew": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/homebrew",
+            "versions": [
+            {
+                "version": "1.12.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/homebrew/1.12.0"
+            }
+        ]
+    },
+    "dmg": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/dmg",
+            "versions": [
+            {
+                "version": "2.2.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/dmg/2.2.2"
+            }
+        ]
+    },
+    "chef_handler": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chef_handler",
+            "versions": [
+            {
+                "version": "1.2.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chef_handler/1.2.0"
+            }
+        ]
+    },
+    "aufs": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/aufs",
+            "versions": [
+            {
+                "version": "0.1.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/aufs/0.1.1"
+            }
+        ]
+    },
+    "apache2-windows": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/apache2-windows",
+            "versions": [
+            {
+                "version": "0.2.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/apache2-windows/0.2.0"
+            }
+        ]
+    },
+    "windows": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/windows",
+            "versions": [
+            {
+                "version": "1.36.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/windows/1.36.1"
+            }
+        ]
+    },
+    "weblogic_unpack": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/weblogic_unpack",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/weblogic_unpack/0.1.0"
+            }
+        ]
+    },
+    "weblogic": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/weblogic",
+            "versions": [
+            {
+                "version": "0.1.8",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/weblogic/0.1.8"
+            }
+        ]
+    },
+    "tomcat-all": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/tomcat-all",
+            "versions": [
+            {
+                "version": "0.3.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/tomcat-all/0.3.1"
+            }
+        ]
+    },
+    "starter": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/starter",
+            "versions": [
+            {
+                "version": "1.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/starter/1.0.0"
+            }
+        ]
+    },
+    "sensu-client": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sensu-client",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/sensu-client/0.1.0"
+            }
+        ]
+    },
+    "python": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/python",
+            "versions": [
+            {
+                "version": "1.4.6",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/python/1.4.6"
+            }
+        ]
+    },
+    "pacman": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/pacman",
+            "versions": [
+            {
+                "version": "1.1.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/pacman/1.1.1"
+            }
+        ]
+    },
+    "lxc": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/lxc",
+            "versions": [
+            {
+                "version": "2.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/lxc/2.0.0"
+            }
+        ]
+    },
+    "logstash_forwarder": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/logstash_forwarder",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/logstash_forwarder/0.1.0"
+            }
+        ]
+    },
+    "inspect_software": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/inspect_software",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/inspect_software/0.1.0"
+            }
+        ]
+    },
+    "cpan": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/cpan",
+            "versions": [
+            {
+                "version": "0.0.32",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/cpan/0.0.32"
+            }
+        ]
+    },
+    "ant": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ant",
+            "versions": [
+            {
+                "version": "1.0.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ant/1.0.3"
+            }
+        ]
+    },
+    "test_catalyst": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/test_catalyst",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/test_catalyst/0.1.0"
+            }
+        ]
+    },
+    "mysql_connector": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/mysql_connector",
+            "versions": [
+            {
+                "version": "0.7.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/mysql_connector/0.7.3"
+            }
+        ]
+    },
+    "catalyst_attribute_handler": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/catalyst_attribute_handler",
+            "versions": [
+            {
+                "version": "0.1.4",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/catalyst_attribute_handler/0.1.4"
+            }
+        ]
+    },
+    "catalyst-repo": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/catalyst-repo",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/catalyst-repo/0.1.0"
+            }
+        ]
+    },
+    "ulimit": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ulimit",
+            "versions": [
+            {
+                "version": "0.3.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ulimit/0.3.3"
+            }
+        ]
+    },
+    "redisio": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/redisio",
+            "versions": [
+            {
+                "version": "2.4.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/redisio/2.4.0"
+            }
+        ]
+    },
+    "aws": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/aws",
+            "versions": [
+            {
+                "version": "2.7.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/aws/2.7.0"
+            }
+        ]
+    },
+    "ufw": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ufw",
+            "versions": [
+            {
+                "version": "0.7.4",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ufw/0.7.4"
+            }
+        ]
+    },
+    "device-mapper": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/device-mapper",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/device-mapper/0.1.0"
+            }
+        ]
+    },
+    "chef-sugar": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chef-sugar",
+            "versions": [
+            {
+                "version": "3.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chef-sugar/3.1.0"
+            }
+        ]
+    },
+    "yum-erlang_solutions": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum-erlang_solutions",
+            "versions": [
+            {
+                "version": "0.2.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum-erlang_solutions/0.2.0"
+            }
+        ]
+    },
+    "xml": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/xml",
+            "versions": [
+            {
+                "version": "1.2.13",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/xml/1.2.13"
+            }
+        ]
+    },
+    "overload-node": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/overload-node",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/overload-node/0.1.0"
+            }
+        ]
+    },
+    "DTelemetryNewrelicJavaTomcat": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryNewrelicJavaTomcat",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/DTelemetryNewrelicJavaTomcat/0.1.0"
+            }
+        ]
+    },
+    "yum-remi": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum-remi",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum-remi/0.1.0"
+            }
+        ]
+    },
+    "java8": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/java8",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/java8/0.1.0"
+            }
+        ]
+    },
+    "deploy_petstore_app": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_petstore_app",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_petstore_app/0.1.0"
+            }
+        ]
+    },
+    "deploy_jandj_app": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_jandj_app",
+            "versions": [
+            {
+                "version": "0.2.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_jandj_app/0.2.0"
+            }
+        ]
+    },
+    "bluepill": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/bluepill",
+            "versions": [
+            {
+                "version": "2.3.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/bluepill/2.3.1"
+            }
+        ]
+    },
+    "imagemagick": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/imagemagick",
+            "versions": [
+            {
+                "version": "0.2.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/imagemagick/0.2.3"
+            }
+        ]
+    },
+    "curl": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/curl",
+            "versions": [
+            {
+                "version": "2.0.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/curl/2.0.1"
+            }
+        ]
+    },
+    "openssl": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/openssl",
+            "versions": [
+            {
+                "version": "4.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/openssl/4.0.0"
+            }
+        ]
+    },
+    "magic_shell": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/magic_shell",
+            "versions": [
+            {
+                "version": "1.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/magic_shell/1.0.0"
+            }
+        ]
+    },
+    "iptables-ng": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/iptables-ng",
+            "versions": [
+            {
+                "version": "2.2.7",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/iptables-ng/2.2.7"
+            }
+        ]
+    },
+    "deploy_petclinic_app": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_petclinic_app",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_petclinic_app/0.1.0"
+            }
+        ]
+    },
+    "deploy_iis": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_iis",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_iis/0.1.0"
+            }
+        ]
+    },
+    "yum-epel": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum-epel",
+            "versions": [
+            {
+                "version": "0.6.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/yum-epel/0.6.2"
+            }
+        ]
+    },
+    "upgrade_supercatalyst": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/upgrade_supercatalyst",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/upgrade_supercatalyst/0.1.0"
+            }
+        ]
+    },
+    "rabbitmq": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/rabbitmq",
+            "versions": [
+            {
+                "version": "4.2.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/rabbitmq/4.2.0"
+            }
+        ]
+    },
+    "modules": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/modules",
+            "versions": [
+            {
+                "version": "0.2.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/modules/0.2.0"
+            }
+        ]
+    },
+    "jboss7": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/jboss7",
+            "versions": [
+            {
+                "version": "0.11.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/jboss7/0.11.2"
+            }
+        ]
+    },
+    "java": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/java",
+            "versions": [
+            {
+                "version": "1.35.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/java/1.35.0"
+            }
+        ]
+    },
+    "iis": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/iis",
+            "versions": [
+            {
+                "version": "4.1.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/iis/4.1.1"
+            }
+        ]
+    },
+    "build-essential": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/build-essential",
+            "versions": [
+            {
+                "version": "2.2.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/build-essential/2.2.3"
+            }
+        ]
+    },
+    "chocolatey": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chocolatey",
+            "versions": [
+            {
+                "version": "0.3.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chocolatey/0.3.0"
+            }
+        ]
+    },
+    "app_data_handler": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/app_data_handler",
+            "versions": [
+            {
+                "version": "0.1.4",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/app_data_handler/0.1.4"
+            }
+        ]
+    },
+    "zabbix": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/zabbix",
+            "versions": [
+            {
+                "version": "0.8.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/zabbix/0.8.0"
+            }
+        ]
+    },
+    "rsyslog": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/rsyslog",
+            "versions": [
+            {
+                "version": "2.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/rsyslog/2.0.0"
+            }
+        ]
+    },
+    "rabbitmq_test": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/rabbitmq_test",
+            "versions": [
+            {
+                "version": "1.0.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/rabbitmq_test/1.0.0"
+            }
+        ]
+    },
+    "firefox": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/firefox",
+            "versions": [
+            {
+                "version": "2.0.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/firefox/2.0.2"
+            }
+        ]
+    },
+    "deploy_rlcatalyst": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_rlcatalyst",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_rlcatalyst/0.1.0"
+            }
+        ]
+    },
+    "deploy_liferay_db": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_liferay_db",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_liferay_db/0.1.0"
+            }
+        ]
+    },
+    "chrome": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chrome",
+            "versions": [
+            {
+                "version": "1.0.12",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/chrome/1.0.12"
+            }
+        ]
+    },
+    "save_vmdk": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/save_vmdk",
+            "versions": [
+            {
+                "version": "0.2.3",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/save_vmdk/0.2.3"
+            }
+        ]
+    },
+    "ohai": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ohai",
+            "versions": [
+            {
+                "version": "2.0.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/ohai/2.0.1"
+            }
+        ]
+    },
+    "headless-firefox": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/headless-firefox",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/headless-firefox/0.1.0"
+            }
+        ]
+    },
+    "git": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/git",
+            "versions": [
+            {
+                "version": "4.0.2",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/git/4.0.2"
+            }
+        ]
+    },
+    "deploy_liferay_app": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_liferay_app",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/deploy_liferay_app/0.1.0"
+            }
+        ]
+    },
+    "cron": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/cron",
+            "versions": [
+            {
+                "version": "1.6.1",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/cron/1.6.1"
+            }
+        ]
+    },
+    "Deploy_Catalyst_EVAL": {
+        "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/Deploy_Catalyst_EVAL",
+            "versions": [
+            {
+                "version": "0.1.0",
+                "url": "https://api.opscode.com/organizations/goldendemo/cookbooks/Deploy_Catalyst_EVAL/0.1.0"
+            }
+        ]
+    }
+}
+}

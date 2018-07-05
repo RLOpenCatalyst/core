@@ -1,0 +1,17 @@
+[
+  {
+    "_id": "56cd60b623999ca90a48ef4a",
+    "applicationName": "catalyst",
+    "applicationInstanceName": "D4D",
+    "applicationVersion": "3.02.99",
+    "applicationNodeIP": "52.33.234.94",
+    "applicationLastDeploy": "2016-02-17 01:59:10 +0000",
+    "applicationStatus": "Successful",
+    "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+    "envId": "Prod",
+    "description": "PhoenixApp",
+    "applicationType": "Package",
+    "containerId": "NA",
+    "hostName": "ip-172-31-7-140.us-west-2.compute.internal"
+  }
+]

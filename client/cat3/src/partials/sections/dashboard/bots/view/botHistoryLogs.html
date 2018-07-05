@@ -1,0 +1,43 @@
+<div id='orchestrationLogPage'>
+    <div class="modal-header">
+        <span class="close" ng-click="botHistLogsCtrl.cancelAll(botHistLogsCtrl.taskLogType)">×</span>
+        <h4 class="modal-title">
+            <i class="fa fa-eraser"></i>
+            Execute Logs
+        </h4>
+    </div>
+
+    <div class="modal-body">
+        <fieldset>
+            <div ng-switch="botHistLogsCtrl.taskLogType">
+                <div ng-switch-when="jenkins">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/jenkinsLog.html'" ></div>
+                </div>
+                <div ng-switch-when="chef">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="script">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="instance_launch">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="aws_cf">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="docker">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="azure_launch">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-cancel" ng-click="botHistLogsCtrl.cancelAll(botHistLogsCtrl.taskLogType)">
+            <i class="fa fa-times black"></i> Close
+        </button>
+    </div>
+</div>

@@ -1,0 +1,102 @@
+<div id="controlPanelPage">
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<span class="modal-title title-font"> 
+			<i class="fa fa-gears"></i>&nbsp;
+			Control Panel
+		</span>
+		<div class="cp-header-card-info">
+			<span class="instance-name">{{instInfo.name}}</span>
+			<span> | </span>
+			<span class="instance-state">{{instInfo.instanceState}}</span>
+			<span> | </span>
+            <span class="instance-ip"><span ng-if="instInfo.instanceIP">{{instInfo.instanceIP}}</span><span ng-if="!instInfo.instanceIP && instInfo.privateIpAddress">{{instInfo.privateIpAddress}}</span></span>
+			<span ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'"> | </span>
+			<img class="cp-docker-image" alt="Docker"
+			src="images/global/docker.png" ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'" />
+		</div>
+	</div>
+
+	<div class="modal-body">
+		<fieldset>
+			<div class="cp-cards">
+				<div class="cp-card selected-cp-card" title="Information" ng-class="{'selected-cp-card': selectedTab == 'Information'}" ng-click="tab.setTab('Information')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-fw fa-info"></i>
+						</div>
+						<div>
+							<span class="cp-card-page-name">Information</span>
+						</div>
+					</div>
+				</div>
+				<!--ng-show="cpInstance.providerType"-->
+				<div  class="cp-card" title="Schedule" ng-class="{'selected-cp-card': selectedTab == 'Schedule'}" ng-click="tab.setTab('Schedule')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-calendar"></i>
+						</div>
+						<div>
+							<span class="cp-card-page-name">Schedule</span>
+						</div>
+					</div>
+				</div>
+				<div class="cp-card" title="Action History" ng-class="{'selected-cp-card': selectedTab == 'Actionhistory'}" ng-click="tab.setTab('Actionhistory')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-sun-o"></i>
+						</div>
+						<div>
+							<span class="cp-card-page-name">Action History</span>
+						</div>
+					</div>
+				</div>
+				<div class="cp-card" title="Services" ng-class="{'selected-cp-card': selectedTab == 'Services'}" ng-click="tab.setTab('Services')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-share-square-o"></i>
+						</div>
+						<div>
+							<span class="cp-card-page-name">Services</span>
+						</div>
+					</div>
+				</div>
+				<div class="cp-card" title="Logs" ng-class="{'selected-cp-card': selectedTab == 'Logs'}" ng-click="tab.setTab('Logs')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-clock-o"></i>
+						</div>
+						<div>
+							<span class="cp-card-page-name">Logs</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="cp-container">
+				<div class="row">
+					<div ng-show="tab.isSet('Information')">
+						<div ng-include="tab.templates.information.url"></div>
+					</div>
+					<div class="{{tab.isSet('Schedule')? 'show-grid':'hide-grid'}}">
+						<div ng-include="tab.templates.Schedule.url"></div>
+					</div>
+					<div class="{{tab.isSet('Actionhistory')? 'show-grid':'hide-grid'}}">
+						<div ng-include="tab.templates.actionhistory.url"></div>
+					</div>
+					<div class="{{tab.isSet('Services')? 'show-grid':'hide-grid'}}">
+						<div ng-include="tab.templates.services.url"></div>
+					</div>
+					<div ng-show="tab.isSet('Logs')">
+						<div ng-include="tab.templates.logs.url"></div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="modal-footer">
+ 		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+ 			<i class="fa fa-times black"></i> Close
+ 		</button>
+	</div>
+</div>

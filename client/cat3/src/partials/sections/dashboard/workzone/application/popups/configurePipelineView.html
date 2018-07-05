@@ -1,0 +1,35 @@
+<div id='configurePipelineViewPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-cogs blue cursor"></i>&nbsp;&nbsp;
+			Configure Application Pipeline View
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<loading name="isConfigurePipelineLoading" size="large" type="block" align="center"></loading>
+		<fieldset ng-show="!isConfigurePipelineLoading">
+			<div class="section-headings">
+				<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+					<span>Stages/Environments</span>
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+					<span>Active Stages/Environments</span>
+				</div>
+			</div>
+	        <div id="configure_environments">
+	            <!-- Here HTML snippet will be append through chef component-->
+	        </div>
+	    </fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+		<button type="button" class="btn cat-btn-save" ng-click="ok()">
+			<i class="fa fa-save white"></i> Save
+		</button>
+	</div>
+</div>

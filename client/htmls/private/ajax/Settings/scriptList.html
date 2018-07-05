@@ -1,0 +1,158 @@
+<style>
+input[type="file"] { 
+    display: none;
+}
+</style>
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget-box">
+      <div class="widget-header">
+        <h5 class="widget-title widgetColor">
+          <strong>List of Scripts</strong>
+        </h5>
+        <div class="widget-toolbar no-border">
+          <div>
+            <!--new button for adding a new item-->
+            <a href="#modalForScriptEdit" type="reset" data-backdrop="false" data-toggle="modal" class="btn btn-minier btn-primary addScriptItem">
+            <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;New
+            </a>                                                                                                            
+          </div>
+        </div>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main widgetHeight">
+          <div class="col-md-12 table-responsive tablePadding">
+            <table id="scriptListTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+              <thead>
+                <tr class="rowCustomStyle">
+                  <td>Script Name</td>
+                  <td>Organisation</td>
+                  <td>Script Type</td>
+                  <td>Description</td>
+                  <td>View Script</td>
+                  <td>Action</td>
+                </tr>
+              </thead>
+              <tbody id="scriptTableInput">
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!--widget main ends here-->
+      </div>
+      <!--widget body ends here-->
+    </div>
+    <!--widget box ends here-->  
+  </div>
+  <!-- col-lg-12 ends here-->
+</div>
+<!--row ends here-->     
+<!--modal for script Creation and edit-->
+<div class="modal fade" id="modalForScriptEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog " style="">
+    <div class="modal-content">
+      <form role="form" id="scriptForm">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">
+          </h4>
+        </div>
+        <div class="modal-body">
+          <fieldset class="fieldsetCustom">
+            <div class="col-lg-6 col-md-6 col-xs-6">
+              <label for="scriptName">Script Name:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <input type="text" name="scriptName" class="required scriptName form-control" id="scriptName" maxlength="15">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6">
+              <label for="">Organization Name:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <select id="orgName" name="orgName" class="required form-control width-100" style="vertical-align:central"></select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+              <label for="">Script Type:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <select id="scriptType" name="scriptType" class="required form-control width-100" style="vertical-align:central">
+                  <option value="">Choose Type</option>
+                  <option value="Bash">Bash</option>
+                  <option value="Python">Python</option>
+                  <option value="PowerShell">PowerShell</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+              <label for="">Script Description:</label>
+              <input type="text" name="scriptDescription" class="scriptDescription form-control" id="scriptDescription">
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+              <label for="scriptFile">Script File:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <input type="file" name="scriptFile" id="scriptFile" class="required form-control form-controls" onchange="setfilename(this.value);"/>
+              </div>
+                <span class="pull-left">
+                    <label title="Please choose a script file" class="choose-file cursor" for="scriptFile">Choose File</label>
+                </span>
+                <div id="fileNameDisplay" class="file-name"></div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+              <label for="">Is Script Parametrized?:</label>
+              <div class="input-groups">
+                <div class="radio">
+                  <label><input type="radio" value="No" checked="true" name="isParametrized" >No</label>
+                </div>
+                <div class="radio">
+                  <label><input type="radio"  value="Yes" name="isParametrized">Yes</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6" id="divParam">
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6" id="checkScriptParam">
+              <div class="col-lg-1 col-md-1 col-xs-1"></div>
+              <div class="col-lg-11 col-md-11 col-xs-11">
+              <label for="noOfParams">No Of Parameters:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <input name="noOfParams" class="noOfParams form-control" id="noOfParams">
+              </div>
+              </div>
+            </div>
+            <input type="hidden" id="scriptHiddenInputId">
+            <input type="hidden" id="fileHiddenInputId">
+            <input type="hidden" id="scriptEditHiddenInput">
+            <input type="hidden" id="scriptFileNameHidden">
+          </fieldset>
+        </div>
+        <div class="modal-footer">
+          <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+          <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
+          <button type="submit" id="saveBtnScript" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!--modal to show the script file in read only format-->
+<div class="modal fade bs-example-modal-lg" id="viewScriptModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">  
+        <code class="scriptContainerRead"></code>
+      </div>
+      <div class="modal-footer">
+        <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!--modal ends here-->
+<script src="js/scriptList.js"></script>
+
+
+                             

@@ -1,0 +1,40 @@
+<div id='blueprintLaunchPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-bar-chart-o"></i> Launching Blueprint
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<loading size="large" name="isBPLogsLoading" align="center"></loading>
+		<div ng-show="!isBPLogsLoading">
+			<div ng-show="launchMessage.isSuccess">
+				<h4 class="alert alert-success">Your Selected Blueprint is being Launched, kindly check back in a while.</h4>
+				<div class="success-message">{{launchMessage.message}}</div>
+			</div>
+			<div ng-show="!launchMessage.isSuccess">
+				<h4 class="alert alert-danger text-center">{{launchMessage.message}}</h4>
+			</div>
+			<div ng-show="logsErrorMessage" class="errorMsg">{{logsErrorMessage}}</div>
+			<div class="logsArea" ng-show="isNewInstanceLogsPromise">
+			  	<div ng-repeat="log in logListInitial">
+				   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}">
+					    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
+					    <span class="logInfo"> {{log.log}} </span>
+				   	</div>
+			  	</div>
+			  	<div ng-repeat="log in logListDelta">
+				   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}">
+					    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
+					    <span class="logInfo"> {{log.log}} </span>
+				   	</div>
+			  	</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close</button>
+	</div>
+</div>

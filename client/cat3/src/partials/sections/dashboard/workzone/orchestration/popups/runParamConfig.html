@@ -1,0 +1,37 @@
+<div id='runParamConfigPage'>
+    <div class="modal-header">
+        <h4 class="modal-title">Select Choice Parameter & Execute</h4>
+    </div>
+
+    <div class="modal-body">
+        <table id="paramTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer text-center" cellpadding="5px" width="100%">
+            <thead>
+            <tr class="rowCustomStyle">
+                <td>Name</td>
+                <td>Value</td>
+            </tr>
+            </thead>
+            <tbody id="paramTableList">
+            <tr ng-repeat="jParam in jenkinsParams">
+                <td ng-if=" jParam.parameterName !=='Choice' ">{{jParam.name}}</td>
+                <td  ng-if=" jParam.parameterName !=='Choice' ">{{jParam.defaultValue[0]}}</td>
+                <td ng-if=" jParam.parameterName =='Choice' ">{{jParam.name}}</td>
+                <td  ng-if=" jParam.parameterName =='Choice' ">
+                    <select class="choiceParam" name="{{jParam.name}}">
+                        <option ng-repeat="val in jParam.defaultValue" value="{{val}}">{{val}}</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+            <i class="fa fa-times black"></i> Cancel
+        </button>
+        <button type="button" class="btn cat-btn-update" ng-click="ok()">
+            <i class="fa fa-check white"></i> Ok
+        </button>    
+    </div>
+</div>

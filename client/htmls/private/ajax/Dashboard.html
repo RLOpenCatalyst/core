@@ -1,0 +1,522 @@
+<link rel="stylesheet" type="text/css" media="screen" href="css/Dashboard.css">
+<div class="modal fade" id="modaldashboardConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog">
+      <div class="modal-content">
+        <form role="form" id="appCardForm" autocomplete="off">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  X
+              </button>
+              <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Save data for Dashboard
+              </h4>
+          </div>
+          <div class="modal-body">
+            <form id="formdashboardapplication">
+              <div class="">
+                <div style="margin:5px 0px 0px;" class="row">
+                    <!-- <div style="padding-left:0px;" class="col-lg-6">
+                        <label for="name">Managed Instances:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" autofocus="" style="height:36px;" class="form-control" id="managedinstancesInput">
+                    </div> -->
+                    <div style="padding-left:0px;" class="col-lg-6">
+                        <label for="name">Average Usages:
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="averageUsagesInput">
+                    </div>
+
+                    <div style="padding-left:0px;" class="col-lg-6">
+                        <label for="name">Total Builds:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="totalbuildsInput">
+                    </div>
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total Builds Passed:
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="totalpassedbuildsInput">
+                    </div>
+
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total Builds Deployed:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="totaldeployedbuildsInput">
+                    </div>
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total Uptime:
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="totaluptimeInput">
+                    </div>
+
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total Vmware Instances:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="vmwareinstancesInput">
+                    </div>
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total AWS Instances:
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="awsinstancesInput">
+                    </div>
+
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total Azure Instances:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="azureinstancesInput">
+                    </div>
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total Openstack Instances:
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="openstackinstancesInput">
+                    </div>
+
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total Instances Daily Trends:<span style="color:red">*</span>
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="dailytrendsInput">
+                    </div>
+                    <div style="padding-left:0px;margin-top:10px" class="col-lg-6">
+                        <label for="name">Total No of Alerts:
+                        </label>
+                        <input type="text" style="height:36px;" class="form-control" id="alertsInput">
+                    </div>
+
+
+                </div>
+            </div>
+            </form>
+          </div>
+           <div class="modal-footer">
+              <div class="btn-group" style="margin-left:200px;">  
+              <a class="btn btn-default" data-dismiss="modal">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+              </a>                               
+               <a class="btn btn-primary dashboardSaveBtn" style="margin-left:10px;">
+                  <i class="ace-icon fa fa-save bigger-110"></i>
+                  Save
+              </a>
+              </div>
+            </div>
+           </form>
+      </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+<div class="modal fade" id="modaldashboardinfrastructurecardConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog">
+      <div class="modal-content">
+        <form role="form" id="appCardForm" autocomplete="off">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  X
+              </button>
+              <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Configure Dashboard Cards
+              </h4>
+          </div>
+          <div class="modal-body">
+            <form id="formconfigureapplication">
+              <table class="table table-bordered tableinfrastructuredashboard" cellpadding="5px" width="100%" id="tableinfrastructureDashboard">
+                  <thead>
+                      <tr style="background-color: #2c3742;color: #fff;">
+                          <th>Infrastructure Cards</th>
+                          <th>Active</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                      <td class="configInfrastructureUniqueName">Total Number of Providers</td>
+                      <td>
+                        <div class='iphone-toggle-buttons'>
+                          <ul style='padding: 0px; margin: 0px;list-style-type: none;'>
+                            <li>
+                              <label for='checkbox-3'>
+                                <input value="Total Number of Providers" type='checkbox' class='' name='checkbox-0' id='checkbox-0' checked /><span></span>
+
+                              </label>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="configInfrastructureUniqueName">Total Instances</td>
+                      <td>
+                        <div class='iphone-toggle-buttons'>
+                          <ul style='padding: 0px; margin: 0px;list-style-type: none;'>
+                            <li>
+                              <label for='checkbox-1'>
+                                <input value="Total Instances" type='checkbox' class='' name='checkbox-1' id='checkbox-1' checked /><span></span>
+                              </label>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="configInfrastructureUniqueName">Total Managed Instances</td>
+                      <td>
+                        <div class='iphone-toggle-buttons'>
+                          <ul style='padding: 0px; margin: 0px;list-style-type: none;'>
+                            <li>
+                              <label for='checkbox-2'>
+                                <input value="Total Managed Instances" type='checkbox' class='' name='checkbox-2' id='checkbox-2' checked /><span></span>
+                              </label>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>                    
+                    <tr>
+                      <td class="configInfrastructureUniqueName">Total Spend in Today</td>
+                      <td>
+                        <div class='iphone-toggle-buttons'>
+                          <ul style='padding: 0px; margin: 0px;list-style-type: none;'>
+                            <li>
+                              <label for='checkbox-3'>
+                                <input value="Total Spend in Today" type='checkbox' class='' name='checkbox-3' id='checkbox-3' checked/><span></span>
+                              </label>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+              </table>
+            </form>
+          </div>
+           <div class="modal-footer">
+              <div class="btn-group" style="margin-left:200px;">  
+              <a class="btn btn-default" data-dismiss="modal">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+              </a>                               
+               <a class="btn btn-primary infrastructureConfigureSaveBtn" style="margin-left:10px;">
+                  <i class="ace-icon fa fa-save bigger-110"></i>
+                  Save
+              </a>
+              </div>
+            </div>
+           </form>
+      </div>
+  </div>
+</div>
+<div class="modal fade" id="modaldashboardbuildcardConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog">
+      <div class="modal-content">
+        <form role="form" id="" autocomplete="off">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  X
+              </button>
+              <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Configure Dashboard Cards
+              </h4>
+          </div>
+          <div class="modal-body">
+            <form id="">
+              <table class="table table-bordered tablebuilddashboard" cellpadding="5px" width="100%" id="tablebuildDashboard">
+                  <thead>
+                      <tr style="background-color: #2c3742;color: #fff;">
+                          <th>Build Cards</th>
+                          <th>Active</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="configBuildUniqueName">Total Builds</td>
+                      <td>
+                        <div class='iphone-toggle-buttons'>
+                          <ul style='padding: 0px; margin: 0px;list-style-type: none;'>
+                            <li>
+                              <label for='checkbox-Arab1'>
+                                <input value="Total Builds" type='checkbox' class='' name='checkbox-Arab1' id='checkbox-Arab1' checked /><span></span>
+                              </label>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="configBuildUniqueName">Total Passed Builds</td>
+                      <td>
+                        <div class='iphone-toggle-buttons'>
+                          <ul style='padding: 0px; margin: 0px;list-style-type: none;'>
+                            <li>
+                              <label for='checkbox-Arab2'>
+                                <input value="Total Passed Builds" type='checkbox' class='' name='checkbox-Arab2' id='checkbox-Arab2' checked /><span></span>
+                              </label>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="configBuildUniqueName">Total Deployed Builds</td>
+                      <td>
+                        <div class='iphone-toggle-buttons'>
+                          <ul style='padding: 0px; margin: 0px;list-style-type: none;'>
+                            <li>
+                              <label for='checkbox-Arab3'>
+                                <input value="Total Deployed Builds" type='checkbox' class='' name='checkbox-Arab3' id='checkbox-Arab3' checked /><span></span>
+                              </label>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+              </table>
+            </form>
+          </div>
+           <div class="modal-footer">
+              <div class="btn-group" style="margin-left:200px;">  
+              <a class="btn btn-default" data-dismiss="modal">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+              </a>                               
+               <a class="btn btn-primary buildConfigureSaveBtn" style="margin-left:10px;">
+                  <i class="ace-icon fa fa-save bigger-110"></i>
+                  Save
+              </a>
+              </div>
+            </div>
+           </form>
+      </div>
+  </div>
+</div>
+<div class="panel-group smart-accordion-default">
+  <div class="panel panel-default" id="accordion-Infrastructure">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion-Infrastructure" href="#collapseInfrastructure" > 
+            <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> 
+            <i class="fa fa-fw fa-minus-circle txt-color-blue"></i>
+            <b style="color:#3a87ad;font-size:12px;">Infrastructure</b>
+          </a>
+       </h4>
+        <a href="#modaldashboardinfrastructurecardConfigure" data-toggle="modal" class="createAppConfigure" style="float:right;margin-top:10px">
+          <i class="fa fa-th fa-cogs" style="margin-right: 5px; color: rgb(64, 186, 241); font-size: 18px;"></i>
+        </a>
+      </div>
+      <div id="collapseInfrastructure" class="panel-collapse collapse in">
+        <div class="panel-body" style="padding:15px 2px !important">
+          <div id="infrastructurecardview">
+            <div class="row">
+              <div class="col-lg-3 col-xs-6 infrastructureClass" data-text="Total Number of Providers">
+                <div class="small-box bg-aqua">
+                  <div class="inner">
+                    <h3 id="totalProviders">&nbsp;</h3>
+                    <p>Total <br>Number of Providers</p>
+                  </div>
+                  <div class="icon">
+                    <i class="fa fa-th"></i>
+                  </div>
+                  <a class="small-box-footer" href="#">
+                    More info <i class="fa fa-arrow-circle-right"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="col-lg-3 col-xs-6 infrastructureClass" data-text="Total Instances">
+                <div class="small-box bg-aqua">
+                  <div class="inner">
+                    <h3 id="totalInstances">&nbsp;</h3>
+                    <p>Total <br>No. of Instances</p>
+                  </div>
+                  <div class="icon">
+                    <i class="fa fa-laptop"></i>
+                  </div>
+                  <a class="small-box-footer" href="#">
+                    More info <i class="fa fa-arrow-circle-right"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="col-lg-3 col-xs-6 infrastructureClass" data-text="Total Managed Instances">
+                <div class="small-box bg-aqua">
+                  <div class="inner">
+                    <h3 id="managedInstances">&nbsp;</h3>
+                    <p>Total <br>No. of Managed Instances</p>
+                  </div>
+                  <div class="icon">
+                    <i class="fa fa-cube"></i>
+                  </div>
+                  <a class="small-box-footer" href="#">
+                    More Info <i class="fa fa-arrow-circle-right"></i>
+                  </a>
+                </div>
+              </div>
+              
+              <div class="col-lg-3 col-xs-6 infrastructureClass" data-text="Total Spend in Today">
+                <div class="small-box bg-aqua">
+                  <div class="inner">
+                    <h3 id="totalCosts">&nbsp;</h3>
+                    <p>Total <br>Spend in Today</p>
+                  </div>
+                  <div class="icon">
+                    <i class="fa fa-dollar"></i>
+                  </div>
+                  <a class="small-box-footer" href="#">
+                   More info <i class="fa fa-arrow-circle-right"></i>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="panel panel-default" id="accordion-Build">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion-Build" href="#collapseBuild" >
+          <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> 
+          <i class="fa fa-fw fa-minus-circle txt-color-blue"></i>
+          <b style="color:#3a87ad;font-size:12px;">CI / CD</b>
+        </a>
+      </h4>
+      <a href="#modaldashboardbuildcardConfigure" data-toggle="modal" class="createAppConfigure" style="float:right;margin-top:10px">
+          <i class="fa fa-th fa-cogs" style="margin-right: 5px; color: rgb(64, 186, 241); font-size: 18px;"></i>
+        </a>
+    </div>
+    <div id="collapseBuild" class="panel-collapse collapse in">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-lg-3 col-xs-6 buildCiCdClass" data-text="Total Builds">
+              <div class="small-box bg-green">
+                <div class="inner">
+                  <h3 id="totalBuilds">&nbsp;</h3>
+                  <p>Total<br>No. of Builds</p>
+                </div>
+                <div class="icon">
+                  <i class="fa fa-location-arrow"></i>
+                </div>
+                <a class="small-box-footer" href="#">
+                  Builds More Info <i class="fa fa-arrow-circle-right"></i>
+                </a>
+              </div>
+            </div>
+            <div class="col-lg-3 col-xs-6 buildCiCdClass" data-text="Total Passed Builds">
+              <div class="small-box bg-green">
+                <div class="inner">
+                  <h3 id="totalbuildsPassed">&nbsp;</h3>
+                  <p>Total<br>No. of Builds Passed</p>
+                </div>
+                <div class="icon">
+                  <i class="fa fa-check-square-o"></i>
+                </div>
+                <a class="small-box-footer" href="#">
+                  Builds More Info <i class="fa fa-arrow-circle-right"></i>
+                </a>
+              </div>
+            </div>
+            <div class="col-lg-3 col-xs-6 buildCiCdClass" data-text="Total Deployed Builds">
+              <div class="small-box bg-green">
+                <div class="inner">
+                  <h3 id="totalbuildsDeployed">&nbsp;</h3>
+                  <p>Total<br>No. of Builds Deployed</p>
+                </div>
+                <div class="icon">
+                  <i class="fa fa-external-link"></i>
+                </div>
+                <a class="small-box-footer" href="#">
+                  Builds More Info <i class="fa fa-arrow-circle-right"></i>
+                </a>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.infrastructureConfigureSaveBtn').click(function() {
+      var $tableinfrastructureDashboard = $('#tableinfrastructureDashboard');
+      var $collapseInfrastructure = $('#collapseInfrastructure');
+      $collapseInfrastructure.find('.infrastructureClass').hide();
+
+      $tableinfrastructureDashboard.find('tbody tr input').filter(':checked').each(function() {
+        createInfrastructureDashboard($(this).val());
+      });
+
+      function createInfrastructureDashboard(uniqueText){
+        $collapseInfrastructure.find('.infrastructureClass').filter('[data-text="' + uniqueText + '"]').show();
+      }
+      $('#modaldashboardinfrastructurecardConfigure').modal('hide');
+    });
+    $('.buildConfigureSaveBtn').click(function() {
+      var $tablebuildDashboard = $('#tablebuildDashboard');
+      var $collapseBuild = $('#collapseBuild');
+
+      $collapseBuild.find('.buildCiCdClass').hide();
+
+      $tablebuildDashboard.find('tbody tr input').filter(':checked').each(function() {
+        createBuildDashboard($(this).val());
+      });
+      
+      function createBuildDashboard(uniqueText){
+        $collapseBuild.find('.buildCiCdClass').filter('[data-text="' + uniqueText + '"]').show();
+      }
+      $('#modaldashboardbuildcardConfigure').modal('hide');
+    });
+
+    $.get('/dashboard/providers/dashboardlanding', function(dashboardlandingDetails) {
+      var jenkinsServerId = dashboardlandingDetails[0].jenkinsReferenceValue;
+      var jobName = dashboardlandingDetails[0].jobsListValue;
+      $.get('/jenkins/' + jenkinsServerId + '/dashboardjobs/' + jobName, function(jobsList) {
+        $('#totalBuilds').empty();
+        $('#totalbuildsPassed').empty();
+        $('#totalbuildsDeployed').empty();
+        $('#totalBuilds').append(jobsList.buildCount);
+        $('#totalbuildsPassed').append(jobsList.sucessbuildCount);
+        $('#totalbuildsDeployed').append(jobsList.sucessbuildCount);
+      }).fail(function(jxhr) {
+        var msg = "Jenkins Server Behaved Unexpectedly.";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+          msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+          msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+      });
+    });
+
+    $.get('../allproviders/list', function(totalProviders) {
+      var totalCountProviders;
+      var awsProvidersCount = totalProviders.awsProviders.length;
+      var openstackProvidersCount = totalProviders.openstackProviders.length;
+      var vmwareProvidersCount = totalProviders.vmwareProviders.length;
+      var hpPlublicCloudProvidersCount = totalProviders.hpPlublicCloudProviders.length;
+      var azureProvidersCount = totalProviders.azureProviders.length;
+
+      totalCountProviders = awsProvidersCount + openstackProvidersCount + vmwareProvidersCount + hpPlublicCloudProvidersCount + azureProvidersCount;
+      $('#totalProviders').empty();
+      $('#totalProviders').append(totalCountProviders);
+    }).fail(function() {});
+
+    //Total Instances API
+    $.get('../dashboard/providers/totalinstances', function(totalinstances) {
+      $('#totalInstances').empty();
+      $('#totalInstances').append(totalinstances[0].totalinstancecount);
+    }).fail(function() {});
+
+    //Total Costs API
+    $.get('../dashboard/providers/totalcosts', function(totalcosts) {
+      $('#totalCosts').empty();
+      var totalcostcount = '$'+totalcosts[0].totalcostcount;
+      $('#totalCosts').append(totalcostcount);
+    }).fail(function() {});
+
+
+
+    //Total managedinstances API
+    $.get('../dashboard/providers/totalmanagedinstances', function(totalmanagedinstances) {
+      $('#managedInstances').empty();
+      $('#managedInstances').append(totalmanagedinstances);
+    }).fail(function() {});
+  });
+
+</script>
+

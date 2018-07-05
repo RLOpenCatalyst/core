@@ -1,0 +1,66 @@
+<div id='dockerParamsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			Launch Parameters - Docker Blueprints
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<div class="row">
+			<fieldset>
+				<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<label for="subpram">Container Name
+						<span class="control-label red">&nbsp;*</span>
+					</label>
+					<input type="text" ng-model="dockerParams.name" class="form-control" />
+				</span>
+				<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<label for="portMappings">Port Mappings
+					</label>
+					<input type="text" ng-model="dockerParams.port" placeholder="Map host ports to container ports" class="form-control"/>
+				</span>
+				<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
+					<label for="volumes">Volumes
+					</label>
+					<input type="text" ng-model="dockerParams.volumes" placeholder="Map host folders to container folders" class="form-control"/>
+				</span>
+				<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
+					<label for="Volumes-from">Volumes-from
+					</label>
+					<input type="text" ng-model="dockerParams.volumesFrom" placeholder="Comma separated container names" class="form-control"/>
+				</span>
+				<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
+					<label for="container">Linked Container
+					</label>
+					<input type="text" ng-model="dockerParams.link" placeholder="The name of a container this one links to" class="form-control"/>
+				</span>
+				<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
+					<label for="env">Environment Variables
+					</label>
+					<input type="text" ng-model="dockerParams.environment" placeholder="Comma seperated environment variables" placeholder="Optional startup command for the container" placeholder="Comma seperated environment variables" class="form-control"/>
+				</span>
+				<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
+					<label for="startupCommand">Startup Command
+					</label>
+					<input type="text" ng-model="dockerParams.startupCommand" placeholder="Optional startup command for the container" class="form-control"/>
+				</span>
+				<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
+					<label for="additionalStartup">Additional Startup
+					</label>
+					<input type="text" ng-model="dockerParams.addStartup" placeholder="Optional startup command for the container" class="form-control"/>
+				</span>
+			</fieldset>
+		</div>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">
+			<i class="fa fa-check white"></i> Save
+		</button>
+	</div>
+</div>
+

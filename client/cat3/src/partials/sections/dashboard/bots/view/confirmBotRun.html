@@ -1,0 +1,23 @@
+<div id='removeBlueprintPage'>
+    <div class="modal-header">
+        <span class="close" ng-click="cancel()">×</span>
+        <h4 class="modal-title">
+            <i class="fa fa-trash-o"></i> 
+            Execute BOT
+        </h4>
+    </div>
+
+    <div class="modal-body">
+        Are you sure you want to execute this BOT?
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+            <i class="fa fa-times black"></i> Cancel
+        </button>      
+        <button type="button" class="btn cat-btn-update" ng-disabled="isJobRunExecuting" ng-click="runJob()">
+            <i class="fa fa-check white"></i> OK
+        </button>
+        <loading size="small" name="isJobRunExecuting" type="inline"/>
+    </div>
+</div>

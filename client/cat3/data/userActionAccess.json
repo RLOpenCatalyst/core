@@ -1,0 +1,559 @@
+{
+  "cn": "superadmin",
+  "dc": [
+    "d4d-ldap",
+    "relevancelab",
+    "com"
+  ],
+  "permissionset": [
+    {
+      "_id": "551970de63a4f812b8e0984a",
+      "roleid": "3",
+      "rolename": "Admin",
+      "permissions": [
+        {
+          "category": "settings",
+          "type": "module",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "design",
+          "type": "module",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "organization",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "environment",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "businessgroups",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "projects",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "instancelaunch",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "instancestart",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "instancestop",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "instanceterminate",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "instanceconnect",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "instanceinfo",
+          "type": "action",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "instancerdp",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "instanceservices",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "instancetasks",
+          "type": "action",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "dockercontainerstart",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "dockercontainerstop",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "dockercontainerterminate",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "dockercontainerpause",
+          "type": "action",
+          "access": [
+            "read",
+            "execute"
+          ]
+        },
+        {
+          "category": "chefserver",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "chefenvironment",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "dockerrepository",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "buildservers",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "provider",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "imagegallery",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "jiraserver",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "planningservers",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "coderepository",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "users",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "roles",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "teams",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "authenticationprovider",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "templates",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "templatetypes",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "services",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "blueprints",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "workzone",
+          "type": "module",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "instancerunlist",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "orchestration",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "containers",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "logs",
+          "type": "resource",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "configuration",
+          "type": "resource",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "organizationdashboard",
+          "type": "resource",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "businessunitdashboard",
+          "type": "resource",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "projectdashboard",
+          "type": "resource",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "jenkins",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "jenkins_task",
+          "type": "action",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "chef_task",
+          "type": "action",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "custom_task",
+          "type": "action",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "application",
+          "type": "action",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "providers",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "vmimage",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "build",
+          "type": "action",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "application_instance",
+          "type": "action",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "deploy_history",
+          "type": "action",
+          "access": [
+            "read"
+          ]
+        },
+        {
+          "category": "databag",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete"
+          ]
+        },
+        {
+          "category": "instancechefclientrun",
+          "type": "action",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        },
+        {
+          "category": "puppetserver",
+          "type": "resource",
+          "access": [
+            "create",
+            "read",
+            "modify",
+            "delete",
+            "execute"
+          ]
+        }
+      ]
+    }
+  ],
+  "roleId": "Admin",
+  "roleName": "Admin",
+  "authorizedfiles": "Track,Workspace,blueprints,Settings"
+}

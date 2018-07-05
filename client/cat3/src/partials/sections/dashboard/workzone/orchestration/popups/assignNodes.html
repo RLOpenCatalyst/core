@@ -1,0 +1,68 @@
+<div id='assignNodesPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> 
+			<i class="fa fa-list"></i>&nbsp;
+			<span ng-show="taskType == 'chef'">Assigned Runlists</span>
+			<span ng-show="taskType == 'composite'">Assigned Tasks</span>
+			<span ng-show="taskType == 'script'">Assigned Scripts</span>
+		</h4>
+	</div>
+
+	<div class="modal-body">	
+		<fieldset>												
+			<section class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show ="taskType == 'chef'&&runlistCollection.length==0">
+				<div class="row">
+					<div class="alert alert-info text-center">
+						No runlists were selected.Either Create a New Job or Edit the Particular Job.
+					</div>
+				</div>
+			</section>
+			<section class="col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-show = "taskType == 'chef' &&runlistCollection.length>0">
+				<label>
+					<i class="fa fa-list"></i>&nbsp;&nbsp;
+					<strong>Runlists</strong>
+				</label>
+				<div class="row">
+					<div class="col col-10">
+						<ul class="assignedRunlists">
+							<li class="runlist" ng-repeat="runlist in runlistCollection">{{runlist}}</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+			<section class="col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-show = "taskType == 'composite'">
+				<label>
+					<i class="fa fa-list"></i>&nbsp;&nbsp;
+					<strong>Tasks</strong>
+				</label>
+				<div class="row">
+					<div class="col col-10">
+						<ul class="assignedRunlists">
+							<li class="runlist" ng-repeat="task in taskCollection">{{task}}</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+			<section class="col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-show = "taskType == 'script'">
+				<label>
+					<i class="fa fa-list"></i>&nbsp;&nbsp;
+					<strong>Scripts</strong>
+				</label>
+				<div class="row">
+					<div class="col col-10">
+						<ul class="assignedRunlists">
+							<li class="runlist" ng-repeat="script in scriptCollection">{{script.name}}</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+		</fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

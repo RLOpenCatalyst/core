@@ -1,0 +1,772 @@
+/*Application.html's CSS Starts here*/
+ input {
+    border: 1px solid #cccccc !important;
+}
+.jarviswidget .widget-body {
+    padding-bottom: 0px !important;
+}
+.spanTextApplication {
+    white-space: nowrap; 
+    width: 10em; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+.margintopright8{
+    margin-top: 8px;
+    margin-right: 8px;
+}
+.margintop2right8{
+    margin-top: 2px;
+    margin-right: 8px;
+}
+.width27borderradius50{
+    padding: 0px !important;
+    /*width:25px !important;
+    height:25px !important;*/
+    height: 18px !important;
+    width:18px !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+}
+.padding2{
+    padding:2px !important;
+}
+.padding3{
+    padding:3px !important;
+}
+.padding4{
+    padding:4px !important;
+}
+.padding15{
+    padding:15px !important;
+}
+.padding10{
+    padding:10px !important;
+}
+.paddingtopbottom4{
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+.paddingleftright0{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+.domain-roles-icon{
+    margin-top: 10px;
+    float:left;
+}
+.domain-roles-icon-image{
+    height:18px;
+}
+.appInstanceNameCardSpan{
+    color: #ffffff;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100px;
+}
+.appInstanceNameCard{
+    text-align:center;
+    font-weight: bold;
+    margin-top: 10px;
+    display: flex;
+}
+.envSpecificAppname{
+    text-align: center;
+    font-weight: bold;
+    margin-top:15px;
+}
+.envSpecificAppTemplate{
+    border-right: 1px solid #ddd; 
+    min-height: 450px;
+}
+.newEnvSpecificAppTemplate{
+    border-right: 1px solid #ddd; 
+    min-height: 450px;
+}
+.envSpecificAppInstanceUniqueCard{
+    max-width: 150px !important;
+    margin-top:15px;
+}
+.newEnvSpecificAppInstanceUniqueCard{
+    max-width: 150px !important; 
+    margin-top:15px;  
+}
+.appCard-inner-panel{
+    border-radius: 12px !important;
+    border-color: #dddddd;
+}
+.appCard-inner-panel-heading{
+    height:40px !important;
+    text-align:center;
+    background:#40baf1 !important;
+    border-radius: 10px 10px 0 0 !important;
+    border-color: #dddddd !important;
+    padding-left: 5px !important; 
+    padding-right: 5px !important;
+}
+.appCardInfo{
+    padding: 7px !important;
+}
+.font-size-10{
+    font-size: 10px !important;
+}
+.font-size-11{
+    font-size: 11px !important;
+}
+.font-size-13{
+    font-size: 13px !important;
+}
+.font-size-14{
+    font-size:14px !important;
+}
+.font-size-16{
+    font-size: 16px !important;
+}
+.appCard-inner-panel-footer{
+    padding:3px !important;
+    border-radius:0 0 12px 12px !important;
+    background:white!important;
+}
+.appCard-panel-foot-actiondiv{
+    padding-left:4px;
+    padding-right:4px;
+    margin-top:2px;
+}
+.appCard-panel-foot-actionchildfirstDiv{
+    padding-left:0px;
+    margin-top: -2px;
+}
+.appCard-panel-foot-actionchildsecondDiv{
+    padding-left:7px;
+    margin-top: -2px;
+}
+.appCard-panel-foot-actionchildthirdDiv{
+    padding-right:0px;
+    margin-top: -2px;
+}
+.availableApp{
+    padding-left: 0px; 
+    margin-bottom: 15px;
+    margin-top:5px;
+}
+.childCardNodeDetails{
+    font-size: 10px;
+    color:#fff
+}
+
+.panel-footer{
+    border-top: 1px solid #ddd !important;
+}
+
+.iphone-toggle-buttons,
+.iphone-toggle-buttons *,
+.iphone-toggle-buttons *::before,
+.iphone-toggle-buttons *::after
+{
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"] + span::after,
+.iphone-toggle-buttons input[type="radio"] + span::after
+{
+    content: "No";
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"]:checked + span::after,
+.iphone-toggle-buttons input[type="radio"]:checked + span::after
+{
+    content: "Yes";
+}
+ 
+.iphone-toggle-buttons
+{
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.iphone-toggle-buttons label{
+    margin-bottom: 0px !important;
+}
+ 
+.iphone-toggle-buttons label,
+.iphone-toggle-buttons input[type="checkbox"] + span,
+.iphone-toggle-buttons input[type="radio"] + span,
+.iphone-toggle-buttons input[type="checkbox"] + span::before,
+.iphone-toggle-buttons input[type="radio"] + span::before,
+.iphone-toggle-buttons input[type="checkbox"] + span::after,
+.iphone-toggle-buttons input[type="radio"] + span::after
+{
+    display: inline-block;
+}
+ 
+.iphone-toggle-buttons label,
+.iphone-toggle-buttons input[type="checkbox"] + span,
+.iphone-toggle-buttons input[type="radio"] + span
+{
+    vertical-align: middle;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"] + span,
+.iphone-toggle-buttons input[type="radio"] + span,
+.iphone-toggle-buttons input[type="checkbox"] + span::before,
+.iphone-toggle-buttons input[type="radio"] + span::before,
+.iphone-toggle-buttons input[type="checkbox"] + span::after,
+.iphone-toggle-buttons input[type="radio"] + span::after
+{
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"] + span::before,
+.iphone-toggle-buttons input[type="radio"] + span::before,
+.iphone-toggle-buttons input[type="checkbox"] + span::after,
+.iphone-toggle-buttons input[type="radio"] + span::after,
+.iphone-toggle-buttons input[type="checkbox"]:checked + span::before,
+.iphone-toggle-buttons input[type="radio"]:checked + span::before,
+.iphone-toggle-buttons input[type="checkbox"]:checked + span::after,
+.iphone-toggle-buttons input[type="radio"]:checked + span::after
+{
+    top: 0;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"] + span::after,
+.iphone-toggle-buttons input[type="radio"] + span::after,
+.iphone-toggle-buttons input[type="checkbox"]:checked + span::before,
+.iphone-toggle-buttons input[type="radio"]:checked + span::before
+{
+    right: 0;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"] + span::before,
+.iphone-toggle-buttons input[type="radio"] + span::before,
+.iphone-toggle-buttons input[type="checkbox"]:checked + span::after,
+.iphone-toggle-buttons input[type="radio"]:checked + span::after
+{
+    left: 0;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"],
+.iphone-toggle-buttons input[type="radio"],
+.iphone-toggle-buttons input[type="checkbox"] + span::before,
+.iphone-toggle-buttons input[type="radio"] + span::before,
+.iphone-toggle-buttons input[type="checkbox"] + span::after,
+.iphone-toggle-buttons input[type="radio"] + span::after
+{
+    position: absolute;
+}
+ 
+.iphone-toggle-buttons label
+{
+    cursor: pointer;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"],
+.iphone-toggle-buttons input[type="radio"]
+{
+    filter: alpha(opacity=0);
+    -moz-opacity: 0;
+    -webkit-opacity: 0;
+    opacity: 0;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"] + span,
+.iphone-toggle-buttons input[type="radio"] + span
+{
+    width: 70px;
+    height: 27px;
+    font: bold 11px/30px Arial, Sans-serif;
+    color: #8c8c8c;
+    text-transform: uppercase;
+    border: solid 1px #bcbbbb;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#c8c8c8", endColorstr="#f3f3f3");
+    background: -moz-linear-gradient(top, #c8c8c8, #f3f3f3);
+    background: -webkit-linear-gradient(top, #c8c8c8, #f3f3f3);
+    background: -o-linear-gradient(top, #c8c8c8, #f3f3f3);
+    background: -ms-linear-gradient(top, #c8c8c8, #f3f3f3);
+    background: linear-gradient(top, #c8c8c8, #f3f3f3);
+    position: relative;
+    text-indent: -9999px;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"] + span::before,
+.iphone-toggle-buttons input[type="radio"] + span::before
+{
+    content: "";
+    width: 40%;
+    height: 26px;
+    border-top: solid 1px #fff;
+    border-right: solid 1px #bebebe;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#cfcfcf", endColorstr="#f9f9f9");
+    background: -moz-linear-gradient(top, #cfcfcf, #f9f9f9);
+    background: -webkit-linear-gradient(top, #cfcfcf, #f9f9f9);
+    background: -o-linear-gradient(top, #cfcfcf, #f9f9f9);
+    background: -ms-linear-gradient(top, #cfcfcf, #f9f9f9);
+    background: linear-gradient(top, #cfcfcf, #f9f9f9);
+    -moz-box-shadow: 1px 0 1px #bebebe;
+    -webkit-box-shadow: 1px 0 1px #bebebe;
+    box-shadow: 1px 0 1px #bebebe;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"] + span::after,
+.iphone-toggle-buttons input[type="radio"] + span::after
+{
+    text-indent: 0;
+    width: 62%;
+    height: 32px;
+    text-align: center;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"]:checked + span,
+.iphone-toggle-buttons input[type="radio"]:checked + span
+{
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#40baf1", endColorstr="#40baf1");
+    background: -moz-linear-gradient(top, #40baf1, #40baf1);
+    background: -webkit-linear-gradient(top, #40baf1, #40baf1);
+    background: -o-linear-gradient(top, #40baf1, #40baf1);
+    background: -ms-linear-gradient(top, #40baf1, #40baf1);
+    background: linear-gradient(top, #40baf1, #40baf1);
+    color: #fff;
+    text-shadow: -1px -1px #40baf1;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"]:checked + span::before,
+.iphone-toggle-buttons input[type="radio"]:checked + span::before
+{
+    left: auto;
+    -moz-box-shadow: -2px 0 1px #3a5e91;
+    -webkit-box-shadow: -2px 0 1px #3a5e91;
+    box-shadow: -2px 0 1px #3a5e91;
+}
+ 
+.iphone-toggle-buttons input[type="checkbox"]:checked + span::after,
+.iphone-toggle-buttons input[type="radio"]:checked + span::after
+{
+    border-top: solid 1px #40baf1;
+    border-bottom: solid 1px #40baf1;
+    border-left: solid 1px #40baf1;
+    height: 26px;
+    top: -1px;
+    left: -1px;
+    -moz-border-radius: 4px 0 0 4px;
+    -webkit-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+}
+ 
+.browser-support li.ie6,
+.browser-support li.ie7,
+.browser-support li.ie8
+{
+    display: none;
+}
+@media (min-width: 320px) and (max-width: 767px) {
+    .padding-left5-mobile {
+        padding-left: 5px !important;
+    }
+    .padding-right5-mobile {
+        padding-right: 5px !important;
+    }
+    .margin-left10Per-mobile {
+        margin-left: 10%;
+    }
+}
+
+@media (min-width: 320px) and (max-width: 480px) {
+    .margin-left10Per-mobile {
+        margin-left: 25% !important;
+    }
+}
+
+.tableStyleColor {
+    color: #fff!important;
+    background-color: #2c3742!important;
+}
+.maxminwidth130{
+    max-width: 130px !important;
+    min-width: 128px !important;
+}
+.maxminwidth100{
+    max-width: 100px !important;
+    min-width: 98px !important;
+}
+.width100px{
+    width:100px !important;
+}
+.borderrad12colorGray{
+    border-radius: 12px !important;
+    border-color: #dddddd !important;
+}
+.bordercolorGrayMain{
+    border:1px solid #dddddd !important;
+    background-color: menu;
+    box-shadow: 2px 2px 2px #ddd;
+}
+.panel-heading-support{
+    /*height:34px;*/
+    height: 22px;
+    text-align:center !important;
+    background:#fff !important;
+    border-radius: 10px 10px 0 0 !important;
+    border-color: #dddddd !important;
+    /*padding-left: 5px !important;
+    padding-right: 5px !important;*/
+    /*padding:10px !important;*/
+    padding:2px !important;
+    border-bottom:1px solid #ddd !important;
+}
+.panel-heading-support-main{
+    height: 22px;
+    text-align:center !important;
+    border-color: #dddddd !important;
+    padding:2px !important;
+    /*border-bottom:1px solid #ddd !important;*/
+}
+.panel-footer-support{
+    padding:3px;
+    border-radius:0 0 12px 12px;
+    background:white!important;
+    border-top:1px solid #ddd !important;
+}
+.panel-footer-innerdiv{
+    padding-left:4px;
+    padding-right:4px;
+    margin-top:2px;
+}
+.footer-innerdiv{
+    padding-left:0px;
+    margin-top: -2px;
+    height:30px;
+}
+.colorblack{
+    color:#000 !important;
+    font-size:11px;
+    font-weight: bold;
+}
+.spanHeading{
+    text-align:center !important;
+    width:30px;
+}
+.imgHeight{
+    /*height:30px;*/
+}
+.imgStatusSuccess{
+    background: url("../img/aws_logo_started.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    height: 28px;
+}
+.imgStatusFailure{
+    background: url("../img/aws_logo_stopped.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    height: 28px;
+}
+.imgStatusUnknown{
+    background: url("../img/rsz_inactive.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    height: 28px;
+}
+.imgPromoteBtn{
+    background: url("../img/application/Promote.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    height: 28px;
+    cursor: pointer;
+
+    width: 100px;
+    margin-top: -28px;
+    margin-left: 70px;
+}
+.imgApproveBtn{
+    background: url("../img/application/Approve.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    height: 28px;
+    cursor: pointer;
+
+    width: 100px;
+}
+.mainImageHeight{
+    height:30px;
+}
+.padding7{
+    padding: 7px !important;
+}
+.padding2{
+    padding: 2px !important;
+}
+.padding0{
+    padding: 0px !important;
+}
+/*.spanMainImage{
+    height:27px;
+    margin-top:80px;
+}*/
+.spanChildImage{
+    height:27px;
+    margin-top: 27px;
+}
+.spanChildPromote{
+    /*padding-left: 20px;*/
+}
+.padding-left5per{
+    padding-left:5% !important;
+}
+.accordianTemplate{
+    box-shadow: none !important;
+}
+.appCardBody{
+    height:50px;
+}
+.mainCardHeight{
+    height:90px;
+    border-radius: 10px;
+}
+.margin-top-5{
+    margin-top:5px !important;
+}
+.margin-top-15{
+    margin-top: 15px !important;
+}
+.listApp{
+    color:#ffffff !important;
+    cursor:pointer !important;
+    font-size:13px !important;
+}
+.marginleft-27{
+    margin-left:-27px !important;
+}
+.margintop-45{
+    margin-top:-47px !important;
+}
+.margintop-12{
+    margin-top:-12px !important;
+}
+.margintop-6{
+    margin-top:-6px !important;
+}
+.marginleft10{
+    margin-left: 10px !important;
+}
+.marginleft200{
+    margin-left:200px !important;
+}
+/*.appCardBody{
+    height:94px;
+}
+.mainCardHeight{
+    height:180px;
+}
+.margin-top-15{
+    margin-top: 15px;
+}
+.margin-top-25{
+    margin-top: 25px;
+};*/
+.panel{
+    margin-bottom: 0px !important;
+}
+.childCardTemplate{
+    width:100%;
+}
+.btn-grey{
+    background-color: #aaa;
+    border-color: #aaa;
+    color: #fff;
+}
+.theadcolor{
+    background-color: #ddd !important;
+}
+.tablebordercolor{
+    border-style:solid;
+    border-width:0 1px 1px !important;
+    border-color: #ddd;
+}
+.colorDarkBlue{
+    color:DarkBlue;
+}
+.colorwhite{
+    color:#fff !important;
+}
+.nonClickwithGrgrayedout{
+    opacity: 0.5;
+    pointer-events: none;
+}
+.margintop40{
+    margin-top: 40px !important;
+}
+.margintop20{
+    margin-top: 20px !important;
+}
+.margintop6{
+    margin-top: 6px;
+}
+.tableOverflow{
+    overflow: auto;
+}
+.promoteNodesCSS {
+    border: 1px solid #dddddd;
+    list-style: none outside none;
+    height: 153px;
+    overflow-y: auto;
+    margin-top: 5px!important;
+}
+.btn-grp-CSS{
+    margin-top: 20px;
+}
+.fontBold{
+    font-weight: bold;
+}
+.marginAuto{
+    margin:0 auto !important;
+}
+.borderRadius7{
+    border-radius:7px !important;
+}
+.paddingtop10leftright0{
+    padding-left:0px; 
+    padding-right:0px;
+    padding-top:10px;
+}
+.loaderImg{
+    height:50px;
+    width:50px;
+    margin-top: 10%;
+    margin-bottom: 10%;
+}
+.borderbtm1{
+    border-bottom:1px solid #ddd;
+}
+.panelHeaderBackBorder{
+    border-bottom:1px solid rgb(221, 221, 221);
+    height:40px;
+    background-color:#fcfcfc;
+}
+.h4SpanCSS{
+    float:left;
+    padding:0px !important;
+    color:#666 !important;
+    font-size:13px !important;
+}
+.marginright5{
+    margin-right:5px !important;
+}
+.marginright4White{
+    color:#fff !important;
+    margin-right:4px;
+}
+.margintop-5{
+    margin-top:-5px !important;
+}
+.marginright5font18{
+    margin-right: 5px; 
+    color: rgb(64, 186, 241); 
+    font-size: 18px;
+}
+.table-responsive-CSS{
+    padding: 5px;
+    overflow-x: auto;
+    min-height:300px !important;
+}
+.tableAppDetailsCSS{
+    border:1px solid #eeeeee !important; 
+    text-align:center;
+    font-size:12px;
+    margin-top:45px !important;
+}
+.tableModalAppDetails{
+    border:1px solid #eeeeee !important; 
+    text-align:center;
+    font-size:12px;
+}
+.height150{
+    height:150px !important;
+}
+.height36{
+    height: 36px !important;
+}
+.height75widthFull{
+    width:100%;
+    height:75px !important;
+}
+.margin5-0-0{
+    margin:5px 0px 0px;
+}
+.paddingleft0{
+    padding-left:0px;
+}
+.promoteModalCheckBox{
+    margin: 5px;
+    font-size:13px;
+}
+.createAppUlCSS{
+    padding: 0px; 
+    margin: 0px;
+    list-style-type: none;
+}
+.createAppUpBtn{
+    border-radius:50%;
+    height:27px;
+    width:27px;
+    padding-top:0px;
+}
+.createAppUpBtnItag{
+    font-size:12px;
+    margin-left:-5px;
+    margin-top:5px;
+}
+.createAppDownBtn{
+    border-radius:50%;
+    height:27px;
+    width:27px;
+    padding-top:0px;
+    margin-left:10px;
+}
+.createAppDownBtnItag{
+    font-size:12px;
+    margin-left:-5px;
+    margin-top:5px;
+}
+.upgradeMoreInfoCSS{
+    box-shadow: none ! important; 
+    height: 25px; 
+    width: 25px; 
+    padding: 2px; 
+    font-size: 12px;
+}
+.marginleft27Per{
+    margin-left: 27% !important;
+}
+.noDataAppDeployCSS{
+    text-align: center;
+    margin-top: 0px;
+    padding-top: 20px;
+    display: none;
+}
+.accordianTempnoDataCSS{
+    border-color: #fff;
+    margin-bottom: 0px;
+}
+.opacityHalfponinterevntsNone{
+    opacity: 0.5;
+    pointer-events: none;
+}
+.applicationCardHeadingTextoverflow {
+    display: inline-block;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100px;
+}
+/*Application.html's CSS ends here*/

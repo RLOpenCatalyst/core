@@ -1,0 +1,19 @@
+{
+  "blueprintName":"CatalystLogStash",
+  "templateType":"chef",
+  "org":"RL",
+  "bg":"Product",
+  "project":"Catalyst",
+  "os":"linux",
+  "instanceSize":"t2.micro",
+  "providerType":"AWS",
+  "providerName":"AWS_N.Cal",
+  "region":"us-west-1",
+  "image":"Ubuntu_N_C14.04",
+  "keypair":"GoldenDemo",
+  "vpcID":"vpc-52110130",
+  "subnet":"subnet-12b4ea54",
+  "securityGroup":"sg-99a3bcfb",
+  "version":"0.1",
+  "runlist":""
+}

@@ -1,0 +1,197 @@
+<style>
+#scriptForm input[type="file"] { 
+    display: none;
+}
+</style>
+<div class="content">
+   <form action="" id="scriptForm">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">Create Scripts</h4>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main" style="height:300px">
+               <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                  <div>
+                     <!-- widget content -->
+                     <div class="widget-body no-padding">
+                        <fieldset class="fieldsetCustom">
+                          <div class="col-lg-6 col-md-6 col-xs-6">
+                            <label for="scriptName">Script Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                              <input type="text" name="scriptName" class="required scriptName form-control" id="scriptName">
+                            </div>
+                          </div>
+                          <div class="col-lg-6 col-md-6 col-xs-6">
+                            <label for="">Organization Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                              <select id="orgName" name="orgName" class="required form-control width-100" style="vertical-align:central"></select>
+                            </div>
+                          </div>
+                          <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+                            <label for="">Script Type:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                              <select id="scriptType" name="scriptType" class="required form-control width-100" style="vertical-align:central">
+                                <option value="Bash">Bash</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+                            <label for="">Script Description:</label>
+                            <input type="text" name="scriptDescription" class="scriptDescription form-control" id="scriptDescription">
+                          </div>
+                          <div class="col-lg-12 col-md-12 col-xs-12 margintop15">
+                            <label for="scriptFile">Script File:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                              <input type="file" name="scriptFile" id="scriptFile" class="required form-control form-controls" onchange="setfilename(this.value);"/>
+                            </div>
+                              <span class="pull-left">
+                                  <label title="Please choose a script file" class="choose-file cursor" for="scriptFile">Choose File</label>
+                              </span>
+                              <div id="fileNameDisplay" class="file-name"></div>
+                          </div>
+                          <input type="hidden" id="scriptHiddenInputId">
+                          <input type="hidden" id="fileHiddenInputId">
+                          <input type="hidden" id="scriptFileNameHidden">
+                        </fieldset>
+                     </div>
+                     <!-- end widget content -->
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button type="submit" name="next1" id="saveScriptWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
+      </div>
+   </form>
+</div>
+<script>
+  $(document).ready(function(e){
+    orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:selected').val();
+    var $optionOrgScript = $('<option></option>').val(orgIdForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgName').append($optionOrgScript);
+
+  });
+    function setfilename(val){
+      $('#fileNameDisplay').empty();
+      var fileName = val.substr(val.lastIndexOf("\\")+1, val.length);
+      $("#fileNameDisplay").append(fileName);
+    }
+
+    //form validation for dashboard save
+    var validator = $('#scriptForm').validate({
+        ignore: [],
+        rules: {
+            scriptFile: {
+                extension: "sh"
+            },
+            scriptName: {
+                maxlength: 15
+            }
+        },
+        messages: {
+            scriptFile: {
+                extension: "Only .sh files can be uploaded"
+            },
+            scriptName: {
+                maxlength: "Limited to 15 chars"
+            }
+        },
+        onkeyup: false,
+        errorClass: "error",
+        errorPlacement: function(error, element) {
+            var elem = $(element);
+            if (element.parent('.input-groups').length) {
+                error.insertBefore(element.parent());
+            } else {
+                if (element.parent('div.inputGroups')) {
+                    error.insertBefore('div.inputGroups');
+                }
+            }
+        },
+    });
+
+    function formSave(methodName,url,reqBody) {
+    $.ajax({
+        method: methodName,
+        url: url,
+        data: reqBody,
+        success: function(data, success) {
+        },
+        error: function(jxhr) {
+            removeUploadFile(data.fileId);
+            var msg = "Server Behaved Unexpectedly";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            toastr.error(msg);   
+        }
+    });
+    return false;
+}
+
+
+//save form for creating a new script item and updation of the script item(name, description etc)..
+$('#scriptForm').submit(function(e) {
+    var $form = $('#scriptForm');
+    var scriptData = {};
+    var $this = $(this);
+    var name = $this.find('#scriptName').val().trim();
+    var description = $this.find('#scriptDescription').val().trim();
+    var type = $form.find('#scriptType').val();
+    var orgId = $form.find('#orgName').val();
+    var scriptId = $form.find('#scriptHiddenInputId').val();
+    var fileId = $form.find('#fileHiddenInputId').val();
+    var orgName = $form.find('#orgName :selected').text();
+    var fileNameDisplay = $form.find('#scriptFile').val();
+    var availableFileName = $form.find('#fileNameDisplay').text();
+    var hiddenFileName = $form.find('#scriptFileNameHidden').text();
+    var orgDetails = {
+        name: orgName,
+        id: orgId
+    }
+    var url = '';
+    var reqBody = {};
+    var formData = new FormData();
+    formData.append('file', $('input[type=file]')[0].files[0]);
+    var methodName ='';
+        $.ajax({
+        method: "POST",
+        url: '../fileUpload?fileId='+fileId,
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+            success: function(data, success) {
+                
+                    url = '../scripts/save/scriptData';
+                    methodName = 'POST';
+                    reqBody = {
+                        "name": name,
+                        "type": type,
+                        "description": description,
+                        "orgDetails": orgDetails,
+                        "fileId": data.fileId
+                    };
+                formSave(methodName,url,reqBody);      
+                toastr.success('Succesfully created Script. Proceed to the next Step');
+            }
+        });
+    return false;
+});
+    
+    $(".nextFormWizard").click(function(){
+        $('#devopsConfiguration a').attr('href','ajax/Settings/devopsRolesWizard.html');
+        $('#devopsConfiguration a').trigger('click');
+        toastr.success('Step 4 - Gallery Setup Completed');
+        $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').addClass('green-btn').removeClass('process-btn');
+        $('.wizardFlow').empty();
+    });
+</script>

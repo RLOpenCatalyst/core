@@ -1,0 +1,152 @@
+@import '../../../theme';
+/*==== OVERRIDINGS (angular-strap-docs.css) ===========*/
+
+@media (max-width: 320px) {
+    #workzonePage {
+        .panelRight {
+            padding-left: 1px;
+            #rightPanel {
+                padding-top: 2px;
+                .nav-tabs {
+                    font-size: 10px;
+                }
+                .nav>li>a {
+                    padding: 10px 8px;
+                }
+            }
+        }
+    }
+}
+@media (min-width: 321px) and (max-width: 480px) {
+    #workzonePage {
+        .panelRight {
+            #rightPanel {
+                padding-top: 2px;
+                .nav-tabs {
+                    font-size: 12px;
+                }
+                .nav>li>a {
+                    padding: 4px 8px;
+                }
+            }
+        }
+    }
+}
+@media (min-width: 0px) and (max-width: 767px) {
+    #workzonePage {
+        .panelLeft {
+            width: 100%;
+            padding-left: 0px;
+            position: absolute;
+        }
+        .panelRight {
+            width: 100%;
+            padding-left: 10px;
+            padding-right: 0px;
+        }
+    }
+}
+@media (min-width: 767px) {
+    .panelRight {
+        padding-left: 10px;
+    }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+    #workzonePage {
+        .panelLeft {
+            width: 254px;
+        }
+        .panelRight {
+            padding-left: 10px;
+            padding-right: 0px;
+        }
+    }
+}
+@media (min-width: 1500px) {
+    #section-name {
+        width: 11.2%;
+    }
+}
+#workzonePage {
+    background: #fff;
+    .panelLeft {
+        width: 100%;
+        padding-left: 0px;
+    }
+    .panelRight {
+        width: 100%;
+        background: linear-gradient(to right, #ffffff 99%, #ffffff 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+        padding-right: 0px;
+    }
+    #rightPanel {
+        padding-top: 5px;
+        .nav-tabs {
+            .dropdown-menu {
+                li {
+                    a:hover {
+                        background: #3276b1;
+                        color: #fff;
+                    }
+                }
+                li.active {
+                    a {
+                        background: #3276b1;
+                    }
+                }
+                .active>a>.fa {
+                    color: #fff;
+                }
+                li>a>.fa {
+                    color: #333;
+                }
+            }
+        }
+    }
+    #myTab3,
+    .dropdown-menu {
+        font-size: 12px;
+    }
+    .nav-tabs .dropdown-menu {
+        left: 0px;
+    }
+    #mytab3 .InfrastructureLocalStorage .dropdown-menu .nav-tabs>li.active>a {
+        margin-bottom: -1px;
+        cursor: pointer;
+        background: #40BAF1;
+    }
+    .nav-tabs>li.active>a:first-child {
+        color: #337ab7;
+    }
+    .nav-tabs {
+        border-bottom-width: 1px;
+        @include theme-border-color;
+        li {
+            margin-bottom: -1px;
+            cursor: pointer;
+        }
+        li.active {
+            a, a:hover {
+                border-bottom-width: 0px;
+                border-top-width: 3px;
+                @include theme-border-color;
+                background: #fcfcfc;
+            }
+        }
+    }
+    /*===== end of overridings =====*/
+    
+    .tab-pane {
+        .am-fade {
+            animation-duration: .3s;
+            animation-timing-function: ease;
+            animation-fill-mode: backwards;
+            opacity: 1;
+            .active-remove {
+                display: none;
+            }
+            .active-add {
+                animation-name: fadeIn;
+            }
+        }
+    }
+}

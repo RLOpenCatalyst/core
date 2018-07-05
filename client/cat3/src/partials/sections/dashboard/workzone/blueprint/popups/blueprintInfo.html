@@ -1,0 +1,204 @@
+<div id='blueprintInfoPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title titleName"> Blueprint Information - {{blueprintInfo.name}}</h4>
+	</div>
+
+	<div class="modal-body">
+		<table class="table table-bordered" ng-show="blueprintInfo">
+			<thead>
+				<tr>
+					<th class="th-parameters">Parameters</th>
+					<th class="th-values">Values</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="td-padding">Template Type:</td>
+					<td ng-switch on="blueprintInfo.templateType">
+						<input disabled="disabled" class="form-control" value="SoftwareStack" ng-switch-when="chef">
+                        <input disabled="disabled" class="form-control" value="OSImage" ng-switch-when="ami">
+                        <input disabled="disabled" class="form-control" value="CloudFormation" ng-switch-when="cft">
+                        <input disabled="disabled" class="form-control" value="Docker" ng-switch-when="docker">
+                        <input disabled="disabled" class="form-control" value="ArmTemplate"ng-switch-when="arm">
+                        <input disabled="disabled" class="form-control" value="NA" ng-switch-default>
+            		</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Organisation Name:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.orgName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Business Group:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.bgName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Project Name:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.projectName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Version:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.version">
+					</td>
+				</tr>
+			</tbody>
+			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.blueprintConfig.cloudProviderType=='aws'">
+				<tr>
+					<td class="td-padding">Operating System:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.instanceOS">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Instance Type:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.instanceType">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Provider Type:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.providerType">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Provider Name:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.providerName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Region:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.region">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Image:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.imageName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Keypair:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.keyPairName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">VPC ID:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.vpcId">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Subnet:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.subnetId">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Security Group:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.securityGroupIds">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Runlist:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.versionsList[0].runlist">
+					</td>
+				</tr>
+			</tbody>
+			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.blueprintConfig.cloudProviderType=='azure'">
+				<tr>
+					<td class="td-padding">Operating System:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.instanceOS">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Image:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.imageName">
+
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Runlist:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.versionsList[0].runlist">
+					</td>
+				</tr>
+			</tbody>
+			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.providerType=='openstack'">
+				<tr>
+					<td class="td-padding">Operating System:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.instanceOS">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Image:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.imageName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Runlist:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.versionsList[0].runlist">
+					</td>
+				</tr>
+			</tbody>
+			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.providerType=='vmware'">
+				<tr>
+					<td class="td-padding">Operating System:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.instanceOS">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Provider Type:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.providerType">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Provider Name:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.providerName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Image:</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.imageName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Runlist:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.versionsList[0].runlist">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="errorMsg" align="center" ng-show='BPInfoerrorMessage'>
+			{{BPInfoerrorMessage}}
+		</div>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

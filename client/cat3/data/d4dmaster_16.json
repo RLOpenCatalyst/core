@@ -1,0 +1,117 @@
+[{
+    "_id": "5596736031fce44b4e3388a1",
+    "templatetypename": "SoftwareStack",
+    "designtemplateicon_filename": "Appfactory.png",
+    "rowid": "16ae9c94-19f6-485a-8c17-9af7a0f5f23d",
+    "id": "16",
+    "__v": 0,
+    "active": true,
+    "templatetype": "chef",
+    "orgname_rowid": ["ca8a9158-0426-4a14-9401-a5539a9dda87"],
+    "orgname": ["RL"]
+}, {
+    "_id": "5596736031fce44b4e3388a2",
+    "templatetypename": "OSImage",
+    "designtemplateicon_filename": "DevopsRoles.png",
+    "rowid": "9d14d362-493e-4d62-b029-a6761610b017",
+    "id": "16",
+    "__v": 0,
+    "active": true,
+    "templatetype": "ami",
+    "orgname_rowid": ["ca8a9158-0426-4a14-9401-a5539a9dda87"],
+    "orgname": ["RL"]
+}, {
+    "_id": "5596736031fce44b4e3388a3",
+    "templatetypename": "Docker",
+    "designtemplateicon_filename": "Docker.png",
+    "rowid": "b02de7dd-6101-4f0e-a95e-68d74cec86c0",
+    "id": "16",
+    "__v": 0,
+    "active": true,
+    "templatetype": "docker",
+    "orgname_rowid": ["ca8a9158-0426-4a14-9401-a5539a9dda87"],
+    "orgname": ["RL"]
+}, {
+    "_id": "5596736031fce44b4e3388a4",
+    "templatetypename": "CloudFormation",
+    "designtemplateicon_filename": "Cloudformation.png",
+    "rowid": "4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9",
+    "id": "16",
+    "__v": 0,
+    "active": true,
+    "templatetype": "cft",
+    "orgname_rowid": ["ca8a9158-0426-4a14-9401-a5539a9dda87"],
+    "orgname": ["RL"]
+}, {
+    "_id": "55e3f69b782ff6df3ca1816a",
+    "templatetypename": "SoftwareStack",
+    "rowid": "2c7c1eda-57d1-4e52-9576-f68f3f3bc6aa",
+    "id": "16",
+    "templatetype": "chef",
+    "__v": 0,
+    "orgname_rowid": ["1582fe2d-f3a9-4f63-b2c9-26a506b021cb"],
+    "orgname": ["Relevance_Labs"]
+}, {
+    "_id": "55e3f69b782ff6df3ca1816b",
+    "templatetypename": "OSImages",
+    "rowid": "f9a3305f-db1e-448c-add8-f3d31de6411b",
+    "id": "16",
+    "templatetype": "ami",
+    "__v": 0,
+    "orgname_rowid": ["1582fe2d-f3a9-4f63-b2c9-26a506b021cb"],
+    "orgname": ["Relevance_Labs"]
+}, {
+    "_id": "55d24004918730036546fc95",
+    "templatetypename": "SoftwareStack",
+    "rowid": "3e57ea58-45f4-4387-83b1-1bf26ba49a69",
+    "id": "16",
+    "templatetype": "chef",
+    "__v": 0,
+    "orgname_rowid": ["898ed247-82f9-4a15-857e-1ea9fd5499da"],
+    "orgname": ["test"]
+}, {
+    "_id": "55d24004918730036546fc96",
+    "templatetypename": "OSImage",
+    "rowid": "2068a563-ab09-4668-bac5-32f4fe98fec1",
+    "id": "16",
+    "templatetype": "ami",
+    "__v": 0,
+    "orgname_rowid": ["898ed247-82f9-4a15-857e-1ea9fd5499da"],
+    "orgname": ["test"]
+}, {
+    "_id": "55d24004918730036546fc99",
+    "templatetypename": "CloudFormation",
+    "rowid": "25a51dc6-e496-4692-ac00-02e3c43f7ea1",
+    "id": "16",
+    "templatetype": "cft",
+    "__v": 0,
+    "orgname_rowid": ["898ed247-82f9-4a15-857e-1ea9fd5499da"],
+    "orgname": ["test"]
+}, {
+    "_id": "55d24004918730036546fc9a",
+    "templatetypename": "Docker",
+    "rowid": "145481ac-2c60-4989-ae29-90199e2e8b7e",
+    "id": "16",
+    "templatetype": "docker",
+    "__v": 0,
+    "orgname_rowid": ["898ed247-82f9-4a15-857e-1ea9fd5499da"],
+    "orgname": ["test"]
+}, {
+    "_id": "55e3f69b782ff6df3ca1816c",
+    "templatetypename": "CloudFormation",
+    "rowid": "c6e3a82a-ea29-4cdb-9ced-3951afde0587",
+    "id": "16",
+    "templatetype": "cft",
+    "__v": 0,
+    "orgname_rowid": ["1582fe2d-f3a9-4f63-b2c9-26a506b021cb"],
+    "orgname": ["Relevance_Labs"]
+}, {
+    "_id": "55e3f69b782ff6df3ca1816d",
+    "templatetypename": "Docker",
+    "rowid": "accb28db-1063-4799-a528-caa54347f0cf",
+    "id": "16",
+    "templatetype": "docker",
+    "__v": 0,
+    "orgname_rowid": ["1582fe2d-f3a9-4f63-b2c9-26a506b021cb"],
+    "orgname": ["Relevance_Labs"]
+}]

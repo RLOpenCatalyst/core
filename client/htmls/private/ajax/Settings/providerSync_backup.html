@@ -1,0 +1,830 @@
+<style>
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        border-top: 0px !important;
+    }
+
+    tr.show-settings:hover .settings{
+        display:block;
+    }
+
+    div.settings{
+        display:none;
+        width: 32px;
+        height: 18px;
+    }
+
+    .dropdown-content{
+        border-radius: 5px;
+        left: -30px;
+        min-width: 98px;
+        right: 0;
+    }
+
+    .show-settings input{
+        border: 1px solid #999;
+    }
+
+    .marginSpaceTop {
+        margin-top:20px;"
+    }
+    .syncClick {
+        float:left;
+        cursor:pointer;
+        margin-top: 10px;
+        margin-left: 20px;
+    }
+    .styleRight{
+        float:right;margin-top: 4px;
+    }
+
+</style>
+
+<!--button to navigate back to provider list-->
+<button class="btn btn-minier btn-primary styleRight" onclick="window.history.back();"><i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>&nbsp;List of Providers</button>
+
+<!--tabs start here-->
+<ul class="nav nav-tabs " role="tablist">
+    <li class="active"><a href="#organiz" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has been bootstrapped by Catalyst">Managed Instances</a></li>
+    <li><a href="#unmanaged" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has not been bootstrapped by Catalyst">UnManaged Instances</a></li>
+    <li><a href="#tags" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has not been bootstrapped by Catalyst">Tags</a></li>
+    <span><a class="syncClick" title="Refresh view">Sync&nbsp;<i class="fa fa-refresh fa-lg " id="instanceRefreshSpinner"></i></a></span>
+</ul>
+
+<!--tab content starts here-->
+<div class="tab-content">
+    <!-- Tab panes -->
+    <!--managed instances-->
+    <div  class="tab-pane active instancesListContainer" id="organiz">
+        <div  class="tabContent table-responsive" id="instanceListDiv" >
+            <table class="table table-hover table-bordered" id="instanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                <thead>
+                <tr>
+                    <th style="text-align: center">InstanceId</th>
+                    <th style="text-align: center">OS</th>
+                    <th style="text-align: center">IP Address</th>
+                    <th style="text-align: center">Region</th>
+                    <th style="text-align: center">Status</th>
+                    <th style="text-align: center">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="managedInstance">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!--unmanaged instances-->
+    <div  class="tab-pane unmanagedInstancesListContainer" id="unmanaged">
+        <div  class="tabContent table-responsive" id="unmanagedinstanceListDiv" >
+            <table class="table table-hover table-bordered" id="unmanagedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                <thead>
+                <tr>
+                    <th style="text-align: center">InstanceId</th>
+                    <th style="text-align: center">OS</th>
+                    <th style="text-align: center">IP Address</th>
+                    <th style="text-align: center">Region</th>
+                    <th style="text-align: center">Status</th>
+                    <th style="text-align: center">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="unManagedInstance">
+                </tbody>
+            </table>
+        </div>
+        <footer class="footer">
+            <div style="text-align:center" class="clearfix form-actions">
+                <div>
+                    <input type="button" id="providerSyncBtn" style="margin-left:200px;" value="Import Instances" class="btn btn-primary showChefImportNodesModalBtn">
+                </div>
+            </div>
+        </footer>
+    </div>
+    <!--tags-->
+    <div  class="tab-pane tagsListContainer" id="tags">
+        <div  class="tabContent table-responsive" id="tagsListDiv" >
+            <table class="table table-hover table-bordered" id="tagsListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                <thead>
+                <tr>
+                    <th style="text-align: center">Tags Name</th>
+                    <th style="text-align: center">Description</th>
+                    <th style="text-align: center">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="tags">
+                </tbody>
+            </table>
+        </div>
+        <footer class="footer">
+            <div class="widget-toolbox clearfix">
+                <div class="btn-group pull-right">
+                    <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                        <i class="ace-icon fa fa-times bigger-110"></i>
+                        Cancel
+                    </a>
+                    <button class="btn btn-primary btn-mini" id="updateTagbtn">
+                        <i class="ace-icon fa fa-check bigger-110"></i>
+                        Update
+                    </button>
+
+                </div>
+
+            </div>
+        </footer>
+    </div>
+</div>
+
+
+<!--tab content over-->
+
+<!--import instance modal-->
+<div class="modal fade" id="providerSyncModal" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="" id="myForm12" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Import Instance</h4>
+                </div>
+                <div class="modal-body modalbody-height">
+                    <div class="col-lg-6 marginSpaceTop">
+                        <label for="exampleInputEmail1">Organization</label>
+                        <div class="input-groups">
+                            <select id="providerSyncOrgSelect"  class="width-100 form-control" disabled>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop">
+                        <label for="exampleInputEmail1">Business Groups<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncBgSelect"  class="width-100 form-control" cdata="catalyst" cat-validation="required" autofocus>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncProjectSelect"  class="width-100 form-control">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop">
+                        <label for="exampleInputEmail1">Environment<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncEnvSelect"  class="width-100 form-control" >
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Config Management<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncInfraManagerSelect"  class="width-100 form-control" >
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection marginSpaceTop" >
+                        <label for="exampleInputEmail1">Username<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <input type="text" name="importUsernameInput" class="form-control" id="importUsernameInput" required value="" autofocus>
+                            <b class="tooltip tooltip-top-right">
+                                <i class="fa fa-user txt-color-teal"></i> Please enter Instance Username</b>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="">Choose Authentication Type</label>
+                        <div class="input-groups">
+                            <select id="pemFileDropdown2"  class="authenticationType width-100 form-control" cdata="catalyst" cat-validation="required">
+                                <option value="password">Password</option>
+                                <option value="pemFile">Pem File</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection authPassword marginSpaceTop">
+                        <label for="exampleInputEmail1">Password</label>
+                        <div class="input-groups">
+                            <input type="password" class="form-control" id="importPasswordInput" required="true" cdata="catalyst" cat-validation="required"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                            <b class="tooltip tooltip-top-right">
+                                <i class="fa fa-lock txt-color-teal"></i> Please enter Instance Password</b>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection authPemFile marginSpaceTop" >
+                        <div class="smart-forms">
+                            <label for="exampleInputEmail1">Pem File</label>
+                            <div class="input-groups">
+                                <label for="" name="field" class="file">
+                                    <span class="button btn-primary">Browse</span>
+                                    <input id="importPemfileInput" type="file" class="gui-file" onchange="$(this).next().val(this.files[0].name)">
+                                    <input type="text" readonly="" class="gui-input">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="marginForButtons">
+                        <label id="saveSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                        <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                        <button type="button" class="btn btn-primary importNodesBtn">Sync</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<div class="modal fade" id="providerSyncResultModal" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Importing Instances</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<script type="text/javascript">
+
+    //initialising the datatable...
+    if (!$.fn.dataTable.isDataTable('#instanceListTable')) {
+        var $instanceManagedDatatable = $('#instanceListTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aaSorting": [[ 4, "asc" ]],
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+
+        });
+    }
+
+    //initialising the datatable...
+    if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
+        var $instanceUnManagedDatatable = $('#unmanagedinstanceListTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aaSorting": [[ 4, "asc" ]],
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+
+        });
+    }
+
+    //initialising the datatable...
+    if (!$.fn.dataTable.isDataTable('#tagsListTable')) {
+        var $tagsDatatable = $('#tagsListTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aaSorting": [[ 1, "asc" ]],
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+
+        });
+    }
+
+    (function() {
+
+        var urlParams = {};
+        (window.onpopstate = function() {
+            var url = window.location.href;
+            var indexOfQues = url.lastIndexOf("?");
+            if (indexOfQues != -1) {
+                var sub = url.substring(indexOfQues + 1);
+                console.log(sub);
+                urlParams.providerId = sub;
+
+            }
+
+        })();
+
+        var $orgListInput = $('#providerSyncOrgSelect').attr('disabled', 'disabled');
+        var $bgList = $('#providerSyncBgSelect');
+        var $projectList = $('#providerSyncProjectSelect');
+        var $envList = $('#providerSyncEnvSelect');
+        var $infraManagerList = $('#providerSyncInfraManagerSelect');
+
+        $('#providerSyncBtn').click(function(e) {
+            $('#saveSpinner').addClass('hidden');
+            $('.importNodesBtn').removeAttr('disabled');
+            var perm = haspermission('instancelaunch', 'execute');
+
+            if (!perm) {
+                bootbox.alert('Insufficient permission to perform operation.');
+                $('#chefImportNodesModal').modal('hide');
+                return;
+            } else {
+                var $checkBoxes = $('.nodeCheckBox:checked');
+                if (!$checkBoxes.length) {
+                    bootbox.alert('Please Choose instances first');
+                    return;
+                }
+                $('#providerSyncModal').modal('show');
+                $('#myForm12').trigger("reset");
+                $envList.empty();
+
+                $('#pemFileDropdown2').change();
+            }
+        });
+
+        $(".authPassword").show();
+        $(".authPemFile").hide();
+        $('.authenticationType').change(function(e) {
+            if (this.value == "password") {
+                $(".authPassword").show();
+                $(".authPemFile").hide();
+            } else {
+                $(".authPassword").hide();
+                $(".authPemFile").show();
+            }
+        });
+
+
+
+        var serviceURL = "../d4dMasters/";
+
+        function getRelatedValues_Top(jsonID, comparedField, filterByValue, outputField) {
+            var result = [];
+            readMasterJson_Top(jsonID);
+            if (d4ddata) {
+                $.each(d4ddata, function(k, v) {
+                    if (v[comparedField] == filterByValue && v[outputField]) {
+                        result.push(v['rowid'] + '|' + v[outputField]);
+                    }
+                });
+            }
+            return (result);
+        }
+
+        function getRelatedValues_Top_rowid(jsonID, comparedField, filterByValue, outputField) {
+            var result = [];
+            readMasterJson_Top(jsonID);
+            if (d4ddata) {
+                $.each(d4ddata, function(k, v) {
+                    if (v[comparedField] == filterByValue && v[outputField]) {
+                        var rowids = v[outputField + '_rowid'].split(',');
+                        var txts = v[outputField].split(',');
+                        for (var i = 0; i < txts.length; i++) {
+                            result.push(rowids[i] + '|' + txts[i]);
+                        }
+                    }
+                });
+            }
+            return (result);
+        }
+
+
+        function readMasterJson_Top(section) {
+            $.ajax({
+                type: "get",
+                dataType: "text",
+                async: false,
+                url: serviceURL + "readmasterjsonnew/" + section,
+                success: function(data) {
+                    d4ddata = JSON.parse(data);
+                },
+                failure: function(data) {
+                    alert(data.toString());
+                }
+            });
+            return (d4ddata);
+        }
+
+
+        //loading provider with org
+        $.get('/providers/' + urlParams.providerId, function(provider) {
+            var org = provider.org
+            $orgListInput.append($('<option></option>').val(org.rowid).html(org.orgname).attr('selected', 'selected'));
+            $bgList.empty();
+            $bgList.append($('<option></option>').val('choose').html('Choose'));
+            var getBGs = getRelatedValues_Top(2, "orgname_rowid", org.rowid, "productgroupname");
+            for (var i = 0; i < getBGs.length; i++) {
+                if (getBGs[i].indexOf('|') >= 0) {
+                    var txtval = getBGs[i].split('|');
+                    $bgList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                }
+
+            }
+
+            $bgList.change(function(e) {
+                var bgName = $(this).val();
+                if (bgName == 'choose') {
+                    return;
+                }
+                $projectList.empty();
+                $projectList.append($('<option></option>').val('choose').html('Choose'));
+
+                var getProjs = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
+                // alert(JSON.stringify(getProjs));
+                for (var i = 0; i < getProjs.length; i++) {
+                    if (getProjs[i].indexOf('|') >= 0) {
+                        var txtval = getProjs[i].split('|');
+                        $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
+                }
+            });
+            $projectList.change(function(e) {
+                var projName = $(this).val();
+                if (projName == 'choose') {
+                    return;
+                }
+                var getEnvs_ = getRelatedValues_Top_rowid(4, "rowid", projName, "environmentname");
+                var getEnvs = getEnvs_.toString().replace(/"/g, '').split(',');
+                for (var i = 0; i < getEnvs.length; i++) {
+                    if (getEnvs[i].indexOf('|') >= 0) {
+                        var txtval = getEnvs[i].split('|');
+                        $envList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
+                }
+            });
+            // loading inframanagers
+            $.get(serviceURL + 'organization/' + org.rowid + '/configmanagement/list', function(configMgmntList) {
+                var $configManagementDropdown = $('#providerSyncInfraManagerSelect');
+                for (var i = 0; i < configMgmntList.length; i++) {
+                    var $options = $('<option></option>');
+                    var name;
+                    if (configMgmntList[i].configType === 'puppet') {
+                        name = configMgmntList[i].puppetservername;
+                    } else {
+                        name = configMgmntList[i].configname;
+                    }
+                    $options.html(name);
+                    $options.val(configMgmntList[i].rowid);
+                    $configManagementDropdown.append($options);
+                }
+            });
+
+        });
+
+
+        function loadManagedInstances(managnedData) {
+            $instanceManagedDatatable.clear().draw();
+            var $tbody = $('#managedInstance tbody').empty();
+            for (var i = 0; i < managnedData.length; i++) {
+                var $tr = $('<tr class="managedInstance"></tr>').attr('data-id',managnedData[i]._id);
+                var $tdId = $('<td></td>').append(managnedData[i].platformId);
+                $tr.append($tdId);
+
+                var $tdOs = $('<td></td>').append(managnedData[i].hardware.os);
+                $tr.append($tdOs);
+
+                var $tdIpAddress = $('<td></td>').append(managnedData[i].instanceIP);
+                $tr.append($tdIpAddress);
+
+                var region = '';
+                if (managnedData[i].providerData && managnedData[i].providerData.region) {
+                    region = managnedData[i].providerData.region;
+                }
+                var $tdRegion = $('<td></td>').append(region);
+                $tr.append($tdRegion);
+                var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
+                $tr.append($tdStatus);
+
+                var $button = '';
+
+                if (managnedData[i].instanceState === 'terminated') {
+
+                    $button = $('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+                    $button.click(function() {
+                        var $this = $(this);
+                        var $tr = $this.parents('tr.managedInstance');
+                        var id = $this.parents('tr').attr('data-id');
+                        bootbox.confirm({
+                            message: 'Are you sure you want to Delete Managed Instance -&nbsp;',
+                            title: "Warning",
+                            callback: function(result) {
+                                if (result) {
+                                    $.ajax({
+                                        url: '/instances/' + id,
+                                        method: 'DELETE',
+                                        success: function() {
+                                            $instanceManagedDatatable.row($tr).remove().draw(false);
+                                        },
+                                        error: function(jxhr) {
+                                            bootbox.alert(result);
+                                            var msg = "Unable to Delete Managed Instances please try again later";
+                                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                                msg = jxhr.responseJSON.message;
+                                            } else if (jxhr.responseText) {
+                                                msg = jxhr.responseText;
+                                            }
+                                            bootbox.alert(msg);
+                                        }
+                                    });
+                                } else {
+                                    return;
+                                }
+                            }
+                        });
+                        return false;
+                    });
+                }
+                var $tdAction = $('<td></td>').append($button);
+                $tr.append($tdAction);
+                $tbody.append($tr);
+                $instanceManagedDatatable.row.add($tr).draw();
+            }
+        }
+
+
+        function loadUnmanagedInstances(unManagnedData) {
+            $instanceUnManagedDatatable.clear().draw();
+            var $tbody = $('#unManagedInstance tbody').empty();
+            for (var i = 0; i < unManagnedData.length; i++) {
+                var $tr = $('<tr></tr>').attr('instanceId', unManagnedData[i]._id);
+                var $tdId = $('<td></td>').append(unManagnedData[i].platformId);
+                $tr.append($tdId);
+
+                var $tdOs = $('<td></td>').append(unManagnedData[i].os);
+                $tr.append($tdOs);
+
+                var $tdIpAddress = $('<td></td>').append(unManagnedData[i].ip);
+                $tr.append($tdIpAddress);
+
+                var region = '';
+                if (unManagnedData[i].providerData && unManagnedData[i].providerData.region) {
+                    region = unManagnedData[i].providerData.region;
+                }
+                var $tdRegion = $('<td></td>').append(region);
+                $tr.append($tdRegion);
+                var $tdStatus = $('<td></td>').append(unManagnedData[i].state);
+                $tr.append($tdStatus);
+                var $input = '';
+                if (unManagnedData[i].state === 'running') {
+                    $input = $('<input class="nodeCheckBox" type="checkbox">').val(unManagnedData[i]._id);
+                }
+                var $tdAction = $('<td></td>').append($input);
+                $tr.append($tdAction);
+                $tbody.append($tr);
+                $instanceUnManagedDatatable.row.add($tr).draw();
+            }
+        }
+
+
+
+        function loadTags(tags) {
+            $tagsDatatable.clear().draw();
+            var $tbody = $('#tags tbody').empty();
+            for (var i = 0; i < tags.length; i++) {
+                var jsonArray = Object.keys(tags[i].tagsInfo);
+                for(var j = 0; j < jsonArray.length; j++){
+                    var $tr = $('<tr></tr>').attr('tags', jsonArray[j]);
+                    var $tdTag = $('<td style="text-align: justify"></td>').append(jsonArray[j]);
+                    $tr.append($tdTag);
+                    var $tdDesc = $('<td style="text-align: justify"></td>').append(tags[i].tagsInfo[jsonArray[j]]);
+                    $tr.append($tdDesc);
+                    var editButton = $('<div class="btn-group tableactionWidth"><a class="btn btn-xs btn-info pull-left" onclick="updateTag()" title="Edit"> <i class="ace-icon fa fa-pencil bigger-120"></i></a> </div>');
+                    var $tdAction = $('<td style="text-align: center"></td>').append(editButton);
+                    $tr.append($tdAction);
+                    $tbody.append($tr);
+                    $tagsDatatable.row.add($tr).draw();
+                }
+            }
+        }
+
+        $(document).ready(function(e) {
+            if (!urlParams.providerId) {
+                return;
+            }
+            getManagedInstances();
+            getUnmanagedInstances();
+            getTags();
+        })
+
+        //sync of Instances(Refresh Button)
+        $('.syncClick').click(function() {
+            $('#instanceRefreshSpinner').addClass('fa-spin');
+            $('a.syncClick').attr('href', 'index.html#ajax/Settings/providerSync.html?' + urlParams.providerId);
+
+            getManagedInstances();
+            getUnmanagedInstances();
+            getTags();
+            setTimeout(function() {
+                $('#instanceRefreshSpinner').removeClass('fa-spin');
+            }, 1000);
+        });
+
+        //loading Managed Data
+        function getManagedInstances() {
+            $.get('/providers/' + urlParams.providerId + '/managedInstances', function(managedInstances) {
+                loadManagedInstances(managedInstances);
+                $('#instanceListDiv').show();
+            }).fail(function(jxhr) {
+                var msg = "Provider Sync Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+
+        //loading UnManaged Data
+        function getUnmanagedInstances() {
+            $.get('/providers/' + urlParams.providerId + '/unmanagedInstances', function(unmanagnedInstances) {
+                loadUnmanagedInstances(unmanagnedInstances);
+                $('#unmanagedinstanceListDiv').show();
+            }).fail(function(jxhr) {
+                var msg = "Provider Sync Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+
+        //Added By Durgesh
+        //loading Tags Data
+        function getTags() {
+            $.get('/providers/' + urlParams.providerId + '/tags',function(tags) {
+                loadTags(tags);
+                $('#tagsListDiv').show();
+            }).fail(function(jxhr) {
+                var msg = "Provider Sync Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+        //End By Durgesh
+
+
+        $('.importNodesBtn').click(function(e) {
+            var $checkBoxes = $('.nodeCheckBox:checked');
+            var reqBody = {};
+            reqBody.orgId = $orgListInput.val();
+            reqBody.bgId = $bgList.val();
+            reqBody.projectId = $projectList.val();
+            //Added By Durgesh For Project Name
+            reqBody.projectName = $projectList.find('option:selected').text();
+            //End By Durgesh
+            reqBody.envId = $envList.val();
+            reqBody.configManagmentId = $infraManagerList.val();
+
+
+            if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
+                alert('Please Select a Business Group & Project');
+                return;
+            }
+
+            reqBody.instanceIds = [];
+            $checkBoxes.each(function() {
+                reqBody.instanceIds.push($(this).val());
+            });
+
+            reqBody.credentials = {};
+            reqBody.credentials.username = $('#importUsernameInput').val();
+
+            var $dropdown = $('#pemFileDropdown2');
+            if (!($dropdown.val() === 'pemFile')) {
+                reqBody.credentials.password = $('#importPasswordInput').val();
+                if (!reqBody.credentials.username) {
+                    alert('Please Enter Username');
+                    return;
+                }
+                if (!reqBody.credentials.password) {
+                    alert('Please Enter Password or Choose a Pem file');
+                    return;
+                }
+                makeRequest();
+            } else {
+                var pemFileInput = $('#importPemfileInput').get(0);
+                if (!reqBody.credentials.username) {
+                    alert('Please Enter Username');
+                    return;
+                }
+                if (!pemFileInput.files.length) {
+                    alert('Please Choose a Pem file');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    reqBody.credentials.pemFileData = e.target.result;
+
+                    makeRequest();
+
+                };
+                // Read in the image file as a data URL.
+                reader.readAsText(pemFileInput.files[0]);
+
+            }
+
+            function makeRequest() {
+                $('#saveSpinner').removeClass('hidden');
+                $('.importNodesBtn').attr('disabled', 'disabled');
+                $.post('../providers/' + urlParams.providerId + '/sync', reqBody, function(data) {
+                    console.log(data);
+                    $('#providerSyncModal').modal('hide');
+                    var $chefResultModalContainer = $('#providerSyncResultModal');
+                    var $modalBody = $chefResultModalContainer.find('.modal-body');
+                    $modalBody.empty();
+                    var $progressBar = $('<progress value="0" max="' + reqBody.instanceIds.length + '"></progress>').css({
+                        width: '100%'
+                    });
+                    var $msgDiv = $('<div class="messageDiv"></div>').css({
+                        width: '100%'
+                    });
+
+                    $modalBody.append($progressBar).append($msgDiv);
+                    $('#saveSpinner').addClass('hidden');
+
+                    $('#chefImportNodesModal').modal('hide');
+                    $chefResultModalContainer.modal('show');
+                    var timeout;
+                    var count = 0;
+
+                    function pollTaskStatus(taskId, timestamp) {
+                        timeout = setTimeout(function() {
+                            $.get('../taskstatus/' + taskId + '/status?timestamp=' + timestamp, function(data) {
+                                console.log(data);
+                                if (!data.completed) {
+                                    if (data.statusList && data.statusList.length) {
+
+                                        $progressBar.val(data.statusList.length);
+                                        $msgDiv.empty();
+                                        for (var i = 0; i < data.statusList.length; i++) {
+                                            $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                        }
+
+                                        pollTaskStatus(taskId, data.statusList[data.statusList.length - 1].timestamp);
+                                    } else {
+                                        pollTaskStatus(taskId, timestamp);
+                                    }
+                                } else {
+                                    if (data.statusList && data.statusList.length) {
+                                        $progressBar.val(data.statusList.length);
+                                        $msgDiv.empty();
+                                        for (var i = 0; i < data.statusList.length; i++) {
+                                            $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                        }
+                                    }
+                                    $progressBar.val(reqBody.selectedNodes.length);
+                                    if (reqBody.selectedNodes.length) {
+                                        var nodeData = $($checkBoxes[0]).data('node');
+                                        if (nodeData && nodeData.chef_environment) {
+                                        }
+                                    }
+                                }
+                            })
+                        }, 1000);
+
+                    }
+                    pollTaskStatus(data.taskId, 0);
+                    //Refreshing the workzone tree
+                }).error(function() {
+                    bootbox.alert('Unable to import instances. Please try again later');
+                });
+            }
+        });
+    })();
+</script>

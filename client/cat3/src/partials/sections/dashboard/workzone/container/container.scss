@@ -1,0 +1,83 @@
+@import '../../../../theme';
+
+#containerPage {
+	
+	#cAdvisorPageFrame {
+		width: 100%;
+		height: 366px;
+		border: 0px;
+	}
+	
+	.panel-title{
+		margin-right: 15px;
+	}
+
+	.sorting_1 {   
+		width:200px;  
+	}
+
+	.containerIcon {
+		width:30px; 
+		height:30px; 
+		font-size:16px; 
+		border-radius:16px; 
+		padding-top:4px; 
+		display:inline-block; 
+		cursor:pointer; 
+		margin-top:5px;
+	}
+
+	.greenBg {   
+		background: $color-green;   
+	}
+
+	.yellowBg {  
+		background: $color-yellow; 
+	}
+
+	.grayBg {   
+		background: $color-gray;  
+	}
+
+	.crimsonBg {  
+		background: $color-crimson;  
+	}
+
+	.dofade {
+		opacity: 0.5; 
+		transition: opacity .50s ease-in-out; 
+		-moz-transition: opacity .25s ease-in-out;
+		-webkit-transition: opacity .50s ease-in-out;
+	}
+
+	/*overwriting table style*/
+
+	table.dataTable td {
+		padding: 3px 5px;
+	}
+}
+
+/*All Popups CSS starts here*/
+
+#dockerMoreInfoPage {
+	.fieldset-padding {
+		padding-top:7px;
+	}
+
+	.nav-tabs>li>a {
+		cursor: pointer;
+	}
+
+	.nav-tabs li.active a {
+			border-top: 3px solid #3A87AD;
+	}
+
+	#dockerStatePage, #dockerGeneralInfoPage, #dockerImagePage {
+		padding: 10px;
+
+		.docker-table {
+			font-size: 12px;
+			line-height: 2.1;
+		}
+	}
+}

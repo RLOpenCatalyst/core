@@ -1,0 +1,298 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/blueprint/blueprint.css">
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/card/card.css">
+
+<div id='blueprintPage' ng-controller="blueprintCtrl">
+    <loading size="large" name="isBlueprintPageLoading" type="block"></loading>
+    <div ng-show="!isBlueprintPageLoading">
+        <div class="panel-heading">
+            <span class="panel-title">
+                <span>Blueprints</span>
+            </span>
+        </div>
+        <div class="scrollContent">
+            <div class="alert alert-info text-center" ng-show="blueprints.length===0">
+                No Blueprints Available
+            </div>
+            <div class="container">
+                <accordion>
+                    <div ng-if="blueprints.software_stack.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                SoftwareStack
+                            </accordion-heading>
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.software_stack">
+                                <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
+                                    <ul class="list-unstyled system-prop">
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                            <div class="bp-provider">
+                                                <img src="images/providers/azure-card.png" ng-show="launcher.blueprintType == 'azure_launch'" />
+                                                <img src="images/providers/openstack-card.png" ng-show="launcher.blueprintType == 'openstack_launch'" />
+                                                <img src="images/providers/vmware-card.png" ng-show="launcher.blueprintType == 'vmware_launch'" />
+                                                <img src="images/providers/hpcloud-card.png" ng-show="launcher.blueprintType == 'hppubliccloud_launch'" />
+                                            </div>
+                                        </div>
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="softwareStack" class="cardLogo">
+                                        </li>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher,'software_stack');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher,'software_stack')">
+                                        </select>
+                                    </div>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'software_stack')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-if="blueprints.os_image.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                OSImage
+                            </accordion-heading>
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.os_image">
+                                <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
+                                    <ul class="list-unstyled system-prop">
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                            <div class="bp-provider">
+                                                <img src="images/providers/azure-card.png" ng-show="launcher.blueprintType == 'azure_launch'" />
+                                                <img src="images/providers/openstack-card.png" ng-show="launcher.blueprintType == 'openstack_launch'" />
+                                                <img src="images/providers/vmware-card.png" ng-show="launcher.blueprintType == 'vmware_launch'" />
+                                                <img src="images/providers/hpcloud-card.png" ng-show="launcher.blueprintType == 'hppubliccloud_launch'" />
+                                            </div>
+                                        </div>           
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="OSImage" class="cardLogo"></li>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'os_image');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'os_image')">
+                                        </select>
+                                    </div>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa  fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'os_image')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-if="blueprints.cloudFormation.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                CloudFormation
+                            </accordion-heading>
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.cloudFormation">
+                                <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
+                                    <ul class="list-unstyled system-prop">
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </div>
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="CFT" class="cardLogo"></li>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'cloudFormation');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'cloudFormation')">
+                                        </select>
+                                    </div>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'cloudFormation')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-if="blueprints.docker.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                Docker
+                            </accordion-heading>
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.docker">
+                                <div class="productdiv1 cardimage role-Selected1" data-blueprinttype="instance_launch" data-templatetype="chef">
+                                    <ul class="list-unstyled system-prop">
+                                        <div class="bp-more-info-section-docker">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </div>
+                                        <li>
+                                            <img src="images/global/docker.png" alt="Docker" class="card-logo-docker"></li>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                          <u><b>{{launcher.cardVersions.name}}</b></u>
+                                        </li>
+                                        <div class="docker-repo-list">
+                                            <ul class="docker-repo" ng-repeat="docker in launcher.blueprintConfig.dockerCompose" ng-show="launcher.blueprintConfig.dockerCompose.length<2">
+                                                <li class="docker-image-text">
+                                                    <i class="fa fa-check-square docker-image-name"></i> 
+                                                    {{docker.dockercontainerpathstitle}}
+                                                </li>
+                                            </ul>
+                                            <span class="docker-repo-list-link cursor" ng-show="launcher.blueprintConfig.dockerCompose.length>1" ng-click="showDockerRepoList(launcher)">
+                                                Show Repos
+                                            </span>
+                                        </div>
+                                    </ul>
+                                    <div class="bp-version-dropdown-wrapper-docker">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'docker');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'docker')"></select>
+                                    </div>
+                                    <div class="blueprint-buttons-docker">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'docker')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-if="blueprints.azureARM.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                ArmTemplate
+                            </accordion-heading>
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.azureARM">
+                                <div class="productdiv1 cardimage role-Selected1">
+                                    <ul class="list-unstyled system-prop">
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </div>
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="azureARM" class="cardLogo">
+                                        </li>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(changeCardVersion(launcher, 'azureARM'));" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'azureARM')">
+                                        </select>
+                                    </div>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'software_stack')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-if="compositeBlueprints.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                Composite
+                            </accordion-heading>
+                            <div class="productdiv4" ng-repeat="compBlue in compositeBlueprints">
+                                <div class="productdiv1 cardimage role-Selected1" data-templatetype="compositeBlueprint">
+                                    <ul class="list-unstyled system-prop">
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="compBlueInfo(compBlue)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                            <div class="bp-provider">
+                                                <img src="images/providers/azure-card.png" ng-show="compBlue.blueprintType == 'azure_launch'" />
+                                                <img src="images/providers/openstack-card.png" ng-show="compBlue.blueprintType == 'openstack_launch'" />
+                                                <img src="images/providers/vmware-card.png" ng-show="compBlue.blueprintType == 'vmware_launch'" />
+                                                <img src="images/providers/hpcloud-card.png" ng-show="compBlue.blueprintType == 'hppubliccloud_launch'" />
+                                            </div>
+                                        </div>
+                                        <li>
+                                            <img src="../private/img/composite.png" alt="softwareStack" class="cardLogo">
+                                        </li>
+                                        <li title="{{compBlue.name}}" class="card-text-overflow">
+                                            <u><b>{{compBlue.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text"></span>
+
+                                    </div>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(compBlue);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="deleteCompositeBlueprint(compBlue.id)">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                </accordion>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,467 @@
+<html>
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/Dashboard.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/application.css">
+</head>
+<body>
+<div class="panel-group smart-accordion-default" id="mainPanelId">
+    <div class="panel panel-default" id="accordion-Infrastructure">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-Infrastructure" href="#collapseInfrastructure" >
+                    <i class="fa fa-fw fa-plus-circle txt-color-blue"></i>
+                    <i class="fa fa-fw fa-minus-circle txt-color-blue"></i>
+                    <b class="accordianName">Provider Information</b>
+                    <fieldset class="fieldsetCustomDashboard">
+                        <legend class="legendCustomDashboard legendCustomImp">Providers Annotation</legend>
+                        <span class="totalProviderLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <span class="font-size11 marginright15">Total AWS Provider</span>
+
+                        <span class="totalAwsLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <span class="font-size11 marginright15">AWS</span>
+
+                    </fieldset>
+                </a>
+            </h4>
+        </div>
+
+        <div class="row rowTemplate" style="display:none">
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-xs-6 childProviderTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>&nbsp;</h3>
+                    <p>
+                    <div class="margintop-15">Provider Name </div>
+                    <br>
+                    <span class="providerName font-bold"></span>
+                    </p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-th"></i>
+                </div>
+              <span class="small-box-footer managedUnmanagedCSS">
+              </span>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-xs-6 childTotalInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3 class="countTotalDBInstance">0</h3>
+                    <p>Total <br>RDS Instances</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-laptop"></i>
+                </div>
+                <span class="small-box-footer providerSpecificMoreInfo managedUnmanagedCSS">
+              </span>
+
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-xs-6 childManagedInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3 class="countAssignedDBInstance">0</h3>
+                    <p>Total <br>Assigned RDS Instances</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-cube"></i>
+                </div>
+              <span id="assignedDBInstancesMoreInfo" class="small-box-footer managedUnmanagedCSS">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-xs-6 childUnmanagedInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3 class="countUnAssignedDBInstance">0</h3>
+                    <p>Total <br>UnAssigned RDS Instances</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-external-link"></i>
+                </div>
+             <span id="unAssignedDBInstancesMoreInfo" class="small-box-footer footer-box-css">
+               More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
+            </div>
+        </div>
+
+        <div id="collapseInfrastructure" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div id="infrastructurecardview">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Number of Providers">
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                    <h3 id="totalProviders">&nbsp;</h3>
+                                    <p>Total <br>Providers</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-th"></i>
+                                </div>
+                      <span class="small-box-footer managedUnmanagedCSS">
+                      </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Instances">
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                    <h3 id="totalDBInstances">0</h3>
+                                    <p>Total <br>RDS Instances</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-laptop"></i>
+                                </div>
+                                <span class="small-box-footer managedUnmanagedCSS">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Managed Instances">
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                    <h3 id="totalAssignedDBInstances">0</h3>
+                                    <p>Total <br>Assigned RDS Instances</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-cube"></i>
+                                </div>
+                      <span id="allAssignedDBInstancesMoreInfo" class="small-box-footer footer-box-css">
+               More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Spend in Today">
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                    <h3 id="totalUnAssignedDBInstances">0</h3>
+                                    <p>Total <br>UnAssigned RDS Instances</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-external-link"></i>
+                                </div>
+                      <span id="allUnAssignedDBInstancesMoreInfo" class="small-box-footer footer-box-css">
+               More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class=" noProviderView" style="display:none">
+                        <div id="noenvwarning" class="alert alert-warning noEnvWarning text-center">
+                            <span>Please add the provider details </span>
+                            <span>in Settings to get the complete dashboard.</span>
+                        </div>
+                    </div>
+                    <div id="awsProviderView">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="assignedRDSTableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">Assigned RDS Instances Details for the Provider :&nbsp;</span>
+                <span id="providerforAssignedDBInstId" class="panelh4spanCSS"></span>
+            </h4>
+            <a id="backfrmAssignedDBInstance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table id="assignedRDSListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">Instance</th>
+                <th class="text-center">Org</th>
+                <th class="text-center">Bg</th>
+                <th class="text-center">Project</th>
+                <th class="text-center">Env</th>
+                <th class="text-center">Type</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Region</th>
+                <th class="text-center">Instance Class</th>
+                <th class="text-center">Multi-AZ</th>
+            </tr>
+            </thead>
+            <tbody class="assignedRDSInstance">
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="allAssignedRDSTableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">All Assigned RDS Instances Details</span>
+            </h4>
+            <a id="backfrmAllAssignedDBnstance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table id="allAssignedRDSListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">Instance</th>
+                <th class="text-center">Org</th>
+                <th class="text-center">Bg</th>
+                <th class="text-center">Project</th>
+                <th class="text-center">Env</th>
+                <th class="text-center">Type</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Region</th>
+                <th class="text-center">Instance Class</th>
+                <th class="text-center">Multi-AZ</th>
+                <th class="text-center">Cost</th>
+                <th class="text-center">Avg. Cpu Usage</th>
+            </tr>
+            </thead>
+            <tbody class="allAssignedRDSInstance">
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="unAssignedRDSTableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">UnAssigned RDS Instances Details for the Provider :&nbsp;</span>
+                <span id="providerforUnAssignedDBInstId" class="panelh4spanCSS"></span>
+            </h4>
+            <a id="backfrmUnAssignedDBInstance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="unAssignedRDSListTable">
+            <thead>
+            <tr>
+                <th class="text-center">Instance</th>
+                <th class="text-center">Type</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Region</th>
+                <th class="text-center">Instance Class</th>
+                <th class="text-center">Multi-AZ</th>
+            </tr>
+            </thead>
+            <tbody class="unAssignedRDS">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="allUnAssignedTableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">All UnAssigned RDS Instances Details </span>
+            </h4>
+            <a id="backfrmAllUnAssignedDBInstance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="allUnAssignedRDSListTable">
+            <thead>
+            <tr>
+                <th class="text-center">Instance</th>
+                <th class="text-center">Type</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Region</th>
+                <th class="text-center">Instance Class</th>
+                <th class="text-center">Multi-AZ</th>
+                <th class="text-center">Cost</th>
+                <th class="text-center">Avg. Cpu Usage</th>
+            </tr>
+            </thead>
+            <tbody class="allUnAssignedRDS">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="specUsageModalContainer" aria-labelledby="specUsageModalLabel" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title font-size15" id="specUsageModalLabel">
+                    <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Usage Details
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="usagesArea">
+                    <table class="table table-hover table-bordered font-size12" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th class="text-left">Resource Metrics</th>
+                            <th class="text-center">Average</th>
+                            <th class="text-center">Minimum</th>
+                            <th class="text-center">Maximum</th>
+                        </tr>
+                        </thead>
+                        <tbody class="usagesTbody text-center">
+
+                        <tr>
+                            <td class="text-left">CPUUtilization&nbsp;<span style="margin-left:10px;">(Percent)</span></td>
+                            <td id="specCPUUtilizationAvg"></td>
+                            <td id="specCPUUtilizationMin"></td>
+                            <td id="specCPUUtilizationMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">CPUCreditUsage&nbsp;<span style="margin-left:10px;">(Count)</span></td>
+                            <td id="specCpuUsageAvg"></td>
+                            <td id="specCpuUsageMin"></td>
+                            <td id="specCpuUsageMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">CPUCreditBalance&nbsp;<span style="margin-left:10px;">(Count)</span></td>
+                            <td id="specCPUCreditBalanceAvg"></td>
+                            <td id="specCPUCreditBalanceMin"></td>
+                            <td id="specCPUCreditBalanceMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">BinLogDiskUsage&nbsp;<span style="margin-left:10px;">(Bytes)</span></td>
+                            <td id="specBinLogUsageAvg"></td>
+                            <td id="specBinLogUsageMin"></td>
+                            <td id="specBinLogUsageMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">WriteIOPS&nbsp;<span style="margin-left:10px;">(Count/Second)</span></td>
+                            <td id="specWriteIOPSAvg"></td>
+                            <td id="specWriteIOPSMin"></td>
+                            <td id="specWriteIOPSMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">ReadIOPS&nbsp;<span style="margin-left:10px;">(Count/Second)</span></td>
+                            <td id="specReadIOPSAvg"></td>
+                            <td id="specReadIOPSMin"></td>
+                            <td id="specReadIOPSMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">SwapUsage&nbsp;<span style="margin-left:10px;">(Bytes)</span></td>
+                            <td id="specSwapUsageAvg"></td>
+                            <td id="specSwapUsageMin"></td>
+                            <td id="specSwapUsageMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">WriteThroughput&nbsp;<span style="margin-left:10px;">(Bytes/Second)</span></td>
+                            <td id="specWriteThroughputAvg"></td>
+                            <td id="specWriteThroughputMin"></td>
+                            <td id="specWriteThroughputMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">ReadThroughput&nbsp;<span style="margin-left:10px;">(Bytes/Second)</span></td>
+                            <td id="specReadThroughputAvg"></td>
+                            <td id="specReadThroughputMin"></td>
+                            <td id="specReadThroughputMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">DiskQueueDepth&nbsp;<span style="margin-left:10px;">(Count)</span></td>
+                            <td id="specDiskQueueDepthAvg"></td>
+                            <td id="specDiskQueueDepthMin"></td>
+                            <td id="specDiskQueueDepthMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">ReplicaLag&nbsp;<span style="margin-left:10px;">(Seconds)</span></td>
+                            <td id="specReplicaLagAvg"></td>
+                            <td id="specReplicaLagMin"></td>
+                            <td id="specReplicaLagMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">FreeStorageSpace&nbsp;<span style="margin-left:10px;">(Bytes)</span></td>
+                            <td id="specFreeStorageSpaceAvg"></td>
+                            <td id="specFreeStorageSpaceMin"></td>
+                            <td id="specFreeStorageSpaceMax"></td>
+                        </tr>
+
+
+
+                        <tr>
+                            <td class="text-left">FreeableMemory&nbsp;<span style="margin-left:10px;">(Bytes)</span></td>
+                            <td id="specFreeableMemoryAvg"></td>
+                            <td id="specFreeableMemoryMin"></td>
+                            <td id="specFreeableMemoryMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">DatabaseConnections&nbsp;<span style="margin-left:10px;">(Count)</span></td>
+                            <td id="specDatabaseConnectionsAvg"></td>
+                            <td id="specDatabaseConnectionsMin"></td>
+                            <td id="specDatabaseConnectionsMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">ReadLatency&nbsp;<span style="margin-left:10px;">(Seconds)</span></td>
+                            <td id="specReadLatencyAvg"></td>
+                            <td id="specReadLatencyMin"></td>
+                            <td id="specReadLatencyMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">WriteLatency&nbsp;<span style="margin-left:10px;">(Seconds)</span></td>
+                            <td id="specWriteLatencyAvg"></td>
+                            <td id="specWriteLatencyMin"></td>
+                            <td id="specWriteLatencyMax"></td>
+                        </tr>
+
+
+                        <tr>
+                            <td class="text-left">NetworkReceiveThroughput&nbsp;<span style="margin-left:10px;">(Bytes/Second)</span></td>
+                            <td id="specNetworkReceiveThroughputAvg"></td>
+                            <td id="specNetworkReceiveThroughputMin"></td>
+                            <td id="specNetworkReceiveThroughputMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">NetworkTransmitThroughput&nbsp;<span style="margin-left:10px;">(Bytes/Second)</span></td>
+                            <td id="specNetworkTransmitThroughputAvg"></td>
+                            <td id="specNetworkTransmitThroughputMin"></td>
+                            <td id="specNetworkTransmitThroughputMax"></td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/awsRDSDashboard.js"></script>
+</body>
+</html>

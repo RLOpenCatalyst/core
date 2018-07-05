@@ -1,0 +1,486 @@
+<script>
+//   $(".tree-view").hide();
+   
+</script>
+<div class="row">
+  <div class="col-md-12">
+   <div class="col-md-12">
+    <form action="" id="myForm2">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">Create Business Group</h4>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main" style="min-height:200px">
+               <div>
+                  <section id="widget-grid" class="">
+                     <!-- START ROW -->
+                     <div class="row">
+                           <!-- Widget ID (each widget will need unique ID)-->
+                           <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                              <!-- widget div-->
+                              <div>
+                                 <!-- widget content -->
+                                 <div class="widget-body no-padding">
+                                    
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="name">Business Group Name <span class="control-label redSpan">&nbsp;*</span></label>
+                                          <input autofocus name="productgroupname" value="" id="productgroupname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace" unique="true" uniqueconditionedby="productgroupname,orgname">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="">Organization<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst" cat-validation="required">
+                                             <option value="">Select an Organization</option>
+                                          </select>
+                                          <span data-val-controltovalidate="domainname" id="MainContent_Req_domainname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                                       </div>
+
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="name">Planned Cost:</label>
+                                          <span>
+                                            <img data-toggle="popover" data-html="true" data-placement="left" title="Planned Cost for a Month." src="img/help.png"/>
+                                          </span>
+                                          <input name="plannedCost" value="" id="plannedCost" class="form-control" type="text"  cdata="catalyst" maxlength="35">
+                                          <span data-val-controltovalidate="plannedCost" id="MainContent_Req_plannedCost" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                                       </div>
+                                    
+                                 </div>
+                                 <!-- end widget content -->
+                              </div>
+                              <!-- end widget div -->
+                           </div>
+                           <!-- end widget -->
+                     </div>
+                     <!-- END ROW -->
+                  </section>
+                  <!-- end widget grid -->
+               </div>
+
+            </div>
+         </div><!--widget body ends-->
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+                <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+                  </a>
+                  <button class="btn btn-primary btn-mini">
+                  <i class="ace-icon fa fa-check bigger-110"></i>
+                  Save
+                  </button>
+                  
+               </div>
+         </div>
+       </div><!--widget-box ends-->
+     </form>
+   </div><!--col-md-12 ends-->
+  </div>
+</div>
+<!--row ends-->
+<script>
+   //Form Name
+   $(document).ready(function() {
+    //isUserTypeSuperAdmin();
+   $(".chooseOrganization").select2();
+   });
+   
+   function isUserTypeSuperAdmin(){
+    $.get('/d4dMasters/loggedInUser',function(data){
+      if(!data.isSuperAdmin){
+      $('#orgname').attr('disabled','disabled').select2();
+      }
+    });
+  }
+   
+   function inLineReady() {
+       $("input[type='text']").on("click", function () {
+           $(this).select();
+           $("#msgOrgName").hide()
+       });
+       readform(2);
+       $('#content').css("opacity", "1 !important");
+       //$('#iconpicker').iconpicker({
+       //    iconset: 'fontawesome',
+       //    icon: 'fa-key',
+       //    rows: 5,
+       //    cols: 5,
+       //    placement: 'bottom',
+       //});
+   
+       //Force opening the left navigation menu
+       if ($('#navSettings').is(":visible") == false) {
+           $('#navSettings').css("display", '');
+           $('#navSettings > ul > li').first().addClass('open');
+           $('#navSettings > ul > li > ul').css("display", "none");
+           $('#navSettings > ul > li > ul').first().css("display", "block");
+       }
+       //redrawing the breadcrumb and selecting the tree
+       $('#ulsettingstree > li').removeClass('active');
+       $('#ulsettingstree > li').each(function () {
+           if ($(this).text().trim() == "Business Groups")
+               $(this).addClass('active');
+       });
+       drawBreadCrumb1();
+       enableUniqueCheckingForInputs(2);
+   }
+   
+   function readMasterJson_todelete(section) {
+   
+       $.ajax({
+           type: "get",
+           dataType: "text",
+   
+           async: false,
+           url: serviceURL + "readmasterjson/" + section,
+           success: function (data) {
+               // alert(data.toString());
+               d4ddata = JSON.parse(data);
+           },
+           failure: function (data) {
+               alert(data.toString());
+           }
+       });
+       return (d4ddata);
+   }
+   
+   
+   function readform_todelete(formName) {
+       var formData = null;
+   
+       //Prefilling dropdowns
+       $('select').each(function () {
+           // debugger;
+           if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
+               var tempJSON = JSON.parse(JSON.stringify(readMasterJson($(this).attr('sourcepath'))));
+               var curSelect = $(this);
+               //   alert(JSON.stringify(tempJSON));
+               $.each(eval('tempJSON.' + curSelect.attr('datapath')), function (i, item) {
+                   //     alert(item.field[0].values.value);
+                   // debugger;
+                   for (var k = 0; k < item.field.length; k++) {
+                       if (item.field[k].name == curSelect.attr("id")) {
+                           curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
+                           // alert("Added:" + item.field[i].values.value);
+                       }
+                   }
+               });
+   
+               //if multiselect then change to bootstrap multiselect
+               if ($(this).attr('multiple')) {
+                   if ($(this).attr('multiple') == "multiple") {
+                       $(this).multiselect({
+                           includeSelectAllOption: true,
+                           buttonWidth: '300px'
+                       });
+                   }
+               }
+           }
+           //alert("Reading" + JSON.stringify(temp));
+       });
+   
+       $('input[sourcepath]').each(function () {
+           // debugger;
+           if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
+               var tempJSON = JSON.parse(readMasterJson($(this).attr('sourcepath')));
+               var curInput = $(this);
+               //   alert(JSON.stringify(tempJSON));
+               $.each(eval('tempJSON.' + curInput.attr('datapath')), function (i, item) {
+                   //     alert(item.field[0].values.value);
+                   // debugger;
+                   for (var k = 0; k < item.field.length; k++) {
+                       if (item.field[k].name == curInput.attr("id")) {
+                           // curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
+                           // alert("Added:" + item.field[i].values.value);
+                           addToCodeList(item.field[k].values.value, curInput);
+                       }
+                   }
+               });
+           }
+       });
+   
+       // End Prefilling dropdowns
+   
+   
+   
+       //alert("before d4d" + JSON.stringify(d4ddata));
+       d4ddata = readMasterJson(2);
+       //alert("after d4d" + JSON.stringify(d4ddata));
+   
+   
+       //$.each(d4ddata.sections.section, function (i, item) {
+       //    // alert(item.name + ":" + formName)
+       //    if (item.name == formName) {
+       //        formData = item;
+       //    }
+       //});
+       // alert(JSON.stringify(formData));
+       //Reading row to get schema
+   
+       formData = d4ddata.masterjson;
+   
+   
+       var formSchema = null;
+       var orgName = url.substr(url.indexOf("?") + 1);
+       // alert('My Rog' + orgName);
+       var editMode = false;
+       // alert(JSON.stringify(formData.rows.row));
+       $.each(formData.rows.row, function (i, item) {
+           // alert('Expanded field ' + JSON.stringify(item.field[0].values.value.toLowerCase()));
+           if (item.field[0].values.value.toLowerCase() == orgName.toLowerCase()) {
+               formSchema = item.field;
+               editMode = true;
+               return (false);
+           }
+           formSchema = item.field;
+       });
+       if (editMode == false)
+           return;
+       // alert(JSON.stringify(formSchema));
+       //Read current form values with the field names
+       var formSchemaNew = formSchema;
+   
+       //alert(JSON.stringify(formSchemaNew));
+       $.each(formSchemaNew, function (i, item) {
+           var inputC = null;
+           $.each(item, function (k, v) {
+               // alert("Value:" + v);
+               if (k == "name") {
+                   inputC = $("#" + v);
+   
+               }
+           });
+           $.each(item, function (k, v) {
+               if (k == "values") {
+                   if (inputC) {
+                       $.each(v, function (k1, v1) {
+                           if (inputC.getType().toLowerCase() == "text") {
+                               //  alert("Found Datavalue:" + inputC.attr("datavalues"));
+                               if (inputC.attr("datavalues")) {
+                                   //var array = v[k1].split(",");
+                                   $.each(v[k1], function (i) {
+                                       addToCodeList(v[k1][i], inputC);
+                                   });
+   
+                               }
+                               else
+                                   inputC.val(v[k1]);
+   
+                           }
+                           if (inputC.getType().toLowerCase() == "file") {
+                               //  v[k1]
+                           }
+                       });
+   
+                   }
+                   inputC = null;
+               }
+   
+           });
+   
+       });
+   
+   
+   
+   }
+   
+       $.fn.getType = function() {
+        if($(this).length){
+        return this[0].tagName == "INPUT" ? this[0].type.toLowerCase() : this[0].tagName.toLowerCase();
+        }else{
+            return "undefined";
+        }
+    }
+   
+   function saveform_todelete(formName) {
+       $("#savespinner").show();
+       //  $('.widget-box').css('opacity', '1');
+       //To Do SAve...
+       // var d4djson = $.parseJSON(d4ddata);
+       // alert(d4ddata.sections.section[0].name);
+       var formData = null;
+       readMasterJson('2');
+       /*$.each(d4ddata.sections.section, function (i, item) {
+   
+           if (item.name == formName) {
+               formData = item;
+           }
+       });*/
+       // alert(JSON.stringify(formData));
+       //Reading row to get schema
+       var formSchema = null;
+       var orgName = url.substr(url.indexOf("?") + 1);
+       //  alert(orgName);
+       var editMode = false;
+   
+       formData = d4ddata.masterjson;
+   
+       // debugger;
+       $.each(formData.rows.row, function (i, item) {
+           // alert('Expanded field ' + JSON.stringify(item.field[0].values.value.toLowerCase()));
+           if (item.field[0].values.value.toLowerCase() == orgName.toLowerCase()) {
+               formSchema = item.field;
+               editMode = true;
+               return (false);
+           }
+           formSchema = item.field;
+       });
+   
+       //Read current form values with the field names
+       var formSchemaNew = null;
+       if (editMode == false)
+           formSchemaNew = JSON.parse(JSON.stringify(formSchema));
+       else
+           formSchemaNew = formSchema;
+       alert(JSON.stringify(formSchemaNew));
+       debugger;
+       $.each(formSchemaNew, function (i, item) {
+           // alert('in');
+           var inputC = null;
+           $.each(item, function (k, v) {
+               if (k == "name") {
+                   inputC = $("#" + v);
+               }
+           });
+           // debugger;
+           $.each(item, function (k, v) {
+               if (k == "values") {
+                   if (inputC) {
+                       $.each(v, function (k1, v1) {
+                           if (inputC.getType().toLowerCase() == "text") {
+                               //alert(inputC.attr("datavalues"));
+                               if (inputC.attr('datavalues')) {
+   
+                                   var itms = '';
+   
+                                   v1.splice(0, v1.length);
+                                   $('.' + inputC.attr('datavalues')).each(function () {
+                                       v1.push($(this).text());
+                                   });
+                                   //  alert(v1.length);
+   
+                                   // v[k1] = '';
+                                   //   v[k1].push(v1);
+                               }
+                               else
+                                   v[k1] = inputC.val();
+                           }
+                           if (inputC.getType().toLowerCase() == "file") {
+                               v[k1] = inputC.files[0].name;
+                           }
+                           if (inputC.getType().toLowerCase() == "select") {
+                               v[k1] = inputC.val();
+                           }
+                       });
+   
+                   }
+                   inputC = null;
+               }
+   
+           });
+   
+       });
+   
+       if (editMode == false)
+           formData.rows.row.push(JSON.parse('{\"field\":' + JSON.stringify(formSchemaNew) + '}'));
+   
+       //alert(JSON.stringify(formSchemaNew));
+   
+       alert(JSON.stringify(formData));
+       //  debugger;
+       $.ajax({
+           type: "post",
+           dataType: "text",
+           data: formData,
+           async: false,
+           url: serviceURL + "savemasterjson/2",
+           success: function (data) {
+               // alert(data.toString());
+               alert('Successfully Saved');
+           },
+           failure: function (data) {
+               alert(data.toString());
+           }
+       });
+   
+   
+   
+   
+       $("#savespinner").hide();
+       $('#btncancel').click();
+   }
+   
+   function addToCodeList_todelete() {
+   
+       var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px\'></i>";
+       var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ><i class=\'ace-icon fa fa-trash-o bigger-110\'></i></button>";
+       if ($('#costcode').val() != '') {
+           $('#codelistitems').append('<div class=\'codelistitem\' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important\'><p class=\'bg-success\'>' + imgCheck + $('#costcode').val() + imgDed + '</p></div>'); $('#costcode').val('');
+           $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
+           $('#costcode').focus();
+       }
+   }
+   
+   function addToCodeList_todelete(txtVal, control) {
+       // alert('Control val' + $(control).val());
+       //debugger;
+       if (typeof (txtVal) == "undefined" && $(control).val() != '')
+           txtVal = $(control).val();
+       //alert('txtval: ' + txtVal + ':' + $(control).attr('datavalues'));
+       var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px\'></i>";
+       var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ><i class=\'ace-icon fa fa-trash-o bigger-110\'></i></button>";
+       if (txtVal != '') {
+           //  alert('#' + $(control).attr('datavalues'));
+           $('#' + $(control).attr('targetelement')).append('<div class=\'codelistitem\' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;\'><p class=\'bg-success\'>' + imgCheck + txtVal + imgDed + '</p></div>');
+           // alert($('#' + $(control).attr('datavalues')).html());
+           $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
+           $(control).focus();
+       }
+       $(control).val('');
+   }
+   
+   function removeFromCodeList_todelete(btn) {
+       if (confirm('Are you sure you wish to remove this Cost Code?')) {
+           var closestDiv = $(btn).closest('div');
+           closestDiv.detach();
+       }
+   }
+   
+   function validateForm() {
+       //Check for required parameter
+     
+       return (true);
+   }
+   function readURL_todelete(input) {
+       if (input.files && input.files[0]) {
+           var reader = new FileReader();
+   
+           reader.onload = function (e) {
+               var imgLogoPreview = "<img src='" + e.target.result + "' style='border:0px;height:25px;width:28px'/>";
+               $('#logoPreview').empty();
+               $('#logoPreview').append(imgLogoPreview);
+           }
+   
+           reader.readAsDataURL(input.files[0]);
+       }
+   }
+   
+   
+   inLineReady();
+</script>
+<script>
+   $(document).ready(function () {
+      $("#productgroupname").focus();
+       $('#myForm2').submit(function() {
+           $(this).validate();
+   
+           if($(this).valid){
+                /*alert('valid form submitted'); // for demo*/
+               if(!saveform('2'))return false;
+           }else{
+                alert('invalid valid form submitted'); // for demo
+           }
+           return false; // for demo
+       });
+   });
+       
+</script>

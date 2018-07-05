@@ -1,0 +1,22 @@
+<div id='applicationCardDetailsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-bar-chart-o"></i>&nbsp;&nbsp;Details
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<loading size="large" name="isPageLoading" type="block"></loading>
+		<section ng-show="!isPageLoading">
+			<div class="alert alert-info text-center" ng-if="!cardDetails.gridOptions.data.length > 0"> No Data Found</div>
+			<div id="grid2" ng-if="cardDetails.gridOptions.data.length > 0" ui-grid="cardDetails.gridOptions" ui-grid-pagination ui-grid-auto-resize ui-grid-resize-columns ui-grid-move-columns class="grid"></div>
+		</section>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

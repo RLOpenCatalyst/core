@@ -1,0 +1,1112 @@
+<div class="row">
+  <article class="col-sm-12 col-md-12 col-lg-12">
+    <div class="widget-body font-size-12">
+      
+      <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+        <li class="pull-left  active">
+          <a href="#viewCreate" id="viewCreateNew" data-toggle="tab">Blueprints</a>
+        </li>
+        <li class="pull-left View blueprintnewbutton">
+          <a href="#l2" id="tabheader" data-toggle="tab">New</a>
+        </li>
+        <li class="pull-left View blueprintEditbutton hidden">
+          <a href="#viewEdit" id="tabheader" data-toggle="tab">Edit</a>
+        </li>
+        <li class="pull-left View compositeBlueprintHeader hidden">
+          <a href="#compoEdit" id="tabheader" data-toggle="tab">Edit Composite</a>
+        </li>
+        <!--new tab for CRUD operations for Blueprint-->
+        
+      </ul>
+      <div id="myTabContent3" class="nav tab-content">
+        <div class="tab-pane" id="l2">
+          <span class="spanName pull-right orgName">
+              <label class="orgSelectDropDown"><b>Choose Organisation</b>:</label>
+              <select id="selectOrgName" class="form-controlSelect">
+              </select>
+          </span>
+          <input type="hidden" id="orgIDCheck"/>
+          <section id="widget-grid" class="">
+            <div class="row">
+              <article class="col-sm-12 col-md-12 col-lg-12">
+                <div class="jarviswidget jarviswidget-color-darken" id="wid-id-1" data-widget-editbutton="false" data-widget-deletebutton="false">
+                  <div role="content">
+                    <div class="jarviswidget-editbox">
+                    </div>
+                    <div class="widget-body">
+                      <div class="row">
+                        <form id="wizard-1" novalidate="novalidate">
+                          <div id="bootstrap-wizard-1" class="col-sm-12 col-md-12 col-lg-12">
+                            <div class="form-bootstrapWizard">
+                              <ul class="bootstrapWizard form-wizard" style="margin-left:13%;display:none">
+                                <li class="active" data-target="#step1">
+                                  <a href="#tab1" data-toggle="tab"> <span class="step">1</span>  
+                                  <span class="title"><b></b></span> 
+                                  </a>
+                                </li>
+                                <li data-target="#step2">
+                                  <a id="addlink" data-target='#tab2' data-toggle="tab" onclick="">
+                                  <span class="step">2</span>  
+                                  <span class="title"><b></b></span>
+                                  </a>
+                                </li>
+                                <li data-target="#step3">
+                                  <a href="#tab3" data-toggle="tab">
+                                  <span class="step">3</span>  <span class="title"><b></b></span> 
+                                  </a>
+                                </li>
+                                <li data-target="#step4">
+                                  <a href="#tab4" data-toggle="tab">
+                                  <span class="step">4</span>  <span class="title"><b></b></span> 
+                                  </a>
+                                </li>
+                              </ul>
+                              <div class="clearfix"></div>
+                            </div>
+                            <div class="tab-content" id="newbpcontainer">
+                              <div class="tab-pane active" id="tab1" style="padding-bottom:20px;overflow-y: auto;">
+                                <div id="templateContent" class="row " style="margin:0px;min-height:200px;">
+                                </div>
+                              </div>
+                              <input type="hidden" id="compositeBlueprintID"/>
+                              <div class="tab-pane" id="tab2" style="padding-bottom:20px;overflow-y: auto;">
+                                <div class="row " style="margin:0px">
+                                  <div id="individualTemplateNameGrid" class="templatesAppfactory templates">
+                                  </div>
+                                  <div id="templatesDevopsRole" class="templatesdevopsrole templates" style="display:none">
+                                  </div>
+                                  <div class="templatesCloudformation templates" style="display:none">
+                                  </div>
+                                  <label id="compositeSpinner" class="hidden"><img width="30px" src="img/select2-spinner.gif"></label>
+                                    <div id="compositeBlueprintDiv" class=" templates"  style="padding-bottom:20px;overflow-y: auto;">
+                                    </div>
+                                </div>
+                              </div>
+                              <div class="tab-pane" id="tab3" style="padding-bottom:20px;">
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div class="col-lg-2">
+                                      <div class="row  selectedTemplateArea" style="margin-bottom:10px;padding-left:10px;margin-left:0px;margin-right:0px;"> Test
+                                      </div>
+                                    </div>
+                                    <div class="col-lg-10">
+                                      <div class="panel-group smart-accordion-default" id="accordion-Design">
+                                        <div class="panel panel-default divconfigureparameterrunlist">
+                                          <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                              <a data-toggle="collapse" data-parent="#accordion-Design" href="#CollapseConfigureproviderParameter"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Configure Provider Parameters</a>
+                                            </h4>
+                                          </div>
+                                          <div id="CollapseConfigureproviderParameter" class="panel-collapse collapse in">
+                                            <div class="panel-body" style="padding-left: 20px;">
+                                              <div class="col-lg-6 col-md-6">
+                                                <label for="instanceOS">Choose Operating System:<span style="color:red">*</span></label>
+                                                <div class="input-groups">
+                                                  <select id="instanceOS" name="instanceOS" class="required chooseOS width-100 form-control">
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6">
+                                                <label for="providerId">Choose Provider:<span style="color:red">*</span></label>
+                                                <div class="input-groups">
+                                                  <select id="providerId" name="providerId" class="required chooseOSProvider width-100 form-control">
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="imageId">Choose Available Images:<span style="color:red">*</span></label>
+                                                <div class="input-groups">
+                                                  <select id="imageId" name="imageId" class="required chooseSecurity width-100 form-control">
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="region">Choose Region:<span style="color:red">*</span></label>
+                                                <div class="input-groups">
+                                                  <select id="region" name="region" class="required chooseSecurity width-100 form-control">
+                                                    <option value="">Select Region</option>
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="vpcId">Select VPC:<span style="color:red">*</span></label>
+                                                <label id="vpcSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                                                <div class="input-groups">
+                                                  <select id="vpcId" name="vpcId" class="required chooseSelect chooseImage width-100 form-control">
+                                                    <option value="">Select VPC</option>
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="subnetId">Select Subnet:<span style="color:red">*</span></label>
+                                                <label id="spinnerSubnet" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                                                <div class="input-groups">
+                                                  <select id="subnetId" name="subnetId" class="required chooseSelect chooseImage width-100 form-control">
+                                                    <option value="">Select Subnet</option>
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="keypairId">Select KeyPair :<span style="color:red">*</span></label>
+                                                <div class="input-groups">
+                                                  <select id="keypairId" name="keypairId" class="required instanceType chooseInstance width-100 form-control">
+                                                    <option value="">Choose KeyPair </option>
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="instancesize">Instance Type:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <div class="input-groups">
+                                                  <select id="instancesize" name="instancesize" class="required chooseOrganization width-100 chooseSelect form-control" style="vertical-align:central">
+                                                    <option value="">Choose Instanace Type</option>
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="checkbox-toggle">Security Group:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <label id="spinnerSecurityGroup" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                                                <div class="col-lg-6 smart-form multiselect inputGroups" style="  height: 140px;overflow-y: scroll;border:1px solid gray;padding: 0px;width:100%">
+                                                  <div id="securityGroupIds" name="securityGroupIds"  multiselect="multiselect" datatype="select" datapath="" class="input-group col-md-12 widthBox" style="width:99%;margin-top:-1px;border:0px">
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="instanceCount">Instances to Launch:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <div class="input-groups">
+                                                  <select id="instanceCount" name="instanceCount" class="required chooseOrganization width-100 chooseSelect form-control" style="vertical-align:central">
+                                                   <!--  <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option> -->
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label>Do you want to configure Domain Name at the time of Blueprint Launch?:</label>
+                                                <div class="input-groups">
+                                                  <div class="radio">
+                                                    <label><input type="radio" value="true"  name="domainNameCheck">Yes</label>
+                                                  </div>
+                                                  <div class="radio">
+                                                    <label><input type="radio" value="false" checked="true" name="domainNameCheck">No</label>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <!--To add the Swipe Functionality-->                            
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!--adding organisation parameters starts here-->
+                                        <div class="panel panel-default divOrganizationParameter">
+                                          <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                              <a data-toggle="collapse" data-parent="#accordion-Design" href="#CollapseEditorgParam" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Configure Organization Parameters</a>
+                                            </h4>
+                                          </div>
+                                          <div id="CollapseEditorgParam" class="panel-collapse collapse">
+                                            <div class="panel-body" style="padding-left: 8px;">
+                                              <div class="col-lg-6 col-md-6">
+                                                <label for="orgnameSelect">Choose Organization <span style="color:red">*</span></label>
+                                                <div class="input-groups">
+                                                  <select id="orgnameSelect" name="orgnameSelect" class="required chooseOrgselect2 width-100 form-control">
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6">
+                                                <label for="blueprintNameInput">Enter Blueprint Name:
+                                                <span class="control-label redSpan">&nbsp;*</span></label>
+                                                <div class="input-groups">
+                                                  <input  id="blueprintNameInput" name="blueprintNameInput" class="required form-control" type="text" autofocus="autofocus">
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="bgListInput">Choose Business Group <span style="color:red">*</span>
+                                                </label>
+                                                <div class="input-groups">
+                                                  <select id="bgListInput" name="bgListInput" class="required chooseBG width-100 form-control">
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label for="projectListInput">Choose Project <span style="color:red">*</span>
+                                                </label>
+                                                <div class="input-groups">
+                                                  <select id="projectListInput" name="projectListInput" class="required chooseProject width-100 form-control">
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div>
+                                                  <div class="col-md-12 col-sm-12 col-xs-12 margintop15">
+                                                    <label class="control-label">Add to Service Delivery : </label>
+                                                    <input type="checkbox" id="serviceDeliveryCheck" class="checkbox-list"/>
+                                                  </div>
+                                                  <div class="col-md-6 col-sm-6 col-xs-6 sevice-delivery-section">
+                                                    <label class="control-label">Bot Type
+                                                        <span class="control-label redSpan">&nbsp;*</span>
+                                                    </label>
+                                                    <br />
+                                                    <span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+                                                      <select name="botType" class="form-control" id="botType">
+                                                        <option selected="selected" value="Task">Task</option>
+                                                        <option value="Check">Check</option>
+                                                        <option value="Learning">Learning</option>
+                                                        <option value="Composite">Composite</option>
+                                                        <option value="Built with other">Built with other</option>
+                                                      </select>
+                                                    </span>
+                                                  </div>
+                                                  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 sevice-delivery-section">
+                                                    <label class="control-label">Short Description
+                                                    </label>
+                                                    <br />
+                                                    <span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+                                                       <input type="text" id="shortDesc" name="shortDesc" class="form-control" autofocus maxlength="50" />
+                                                    </span>
+                                                  </div>
+                                                  <div class="col-md-6 col-sm-6 col-xs-6 sevice-delivery-section" style="padding-top: 15px;">
+                                                    <label class="control-label">Bot Category
+                                                        <span class="control-label redSpan">&nbsp;*</span>
+                                                    </label>
+                                                    <br />
+                                                    <span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+                                                      <select class="chooseSelect width-100 form-control" id="botCategory">
+                                                        <option selected="selected" value="Active Directory">Active Directory</option>
+                                                        <option value="Amazon Web Services">Amazon Web Services</option>
+                                                        <option value="VMWare">VMWare</option>
+                                                        <option value="Windows Services">Windows Services</option>
+                                                        <option value="Acitve Directory Workflow">Acitve Directory Workflow</option>
+                                                        <option value="OpenDJ LDAP Workflow">OpenDJ LDAP Workflow</option>
+                                                        <option value="Application Deployment">Application Deployment</option>
+                                                        <option value="Learning">Installation & Configuration</option>
+                                                        <option value="Database Management">Database Management</option>
+                                                        <option value="Upgrade">Upgrade</option>
+                                                        <option value="Installation">Installation</option>
+                                                      </select>
+                                                    </span>
+                                                  </div>
+                                                </div>
+                                              <!-- <div class="col-lg-6 hidden" style="margin-top:5px;">
+                                                <label for="">Assign Users<span style="color:red">*</span></label>
+                                                <div class="userListLoadingContainer">
+                                                </div>
+                                                <select class="custom-scroll width-100" multiple="" id="userListSelect" style="display:none">
+                                                </select> 
+                                              </div> -->
+                                              <div class="col-lg-6 col-md-6 forDocker dockerProjPort hidden notforCFT">
+                                                <label for="category">Select Docker Image <span style="color:red">*</span>
+                                                </label>
+                                                <select id="dockerrepoListInput" class="chooseDockerContainer width-100 form-control">
+                                                </select>
+                                              </div>
+                                              <div class="col-lg-6 col-md-6 forDocker dockerProjPort hidden notforCFT">
+                                                <label for="category">Available Repo Tags <span style="color:red">*</span>
+                                                </label>                 
+                                                <div id="dockerrepotagsdiv">
+                                                </div>
+                                              </div>
+                                              <div class="col-lg-12 col-md-12 hidden">
+                                                <div class="col-lg-6 col-md-6 forDocker dockerProjPort dockerLEFT notforCFT">
+                                                  <label for="category" class="pull-left">Launch Parameters<a id="launchParamDocker" href="javascript:void(0);" onclick=""><i title="Add" class="icon-append fa fa-plus" ></i></a>
+                                                  </label>               
+                                                  <div class="btn-group pull-left">
+                                                  </div>
+                                                  <input type="text" id="dockerlaunchparameters" class="form-control" disabled="disabled" title="To edit click add"/>
+                                                </div>
+                                              </div>
+                                              <!-- Docker Image selection table -->
+                                              <div class="col-lg-12 col-md-12 forDocker notforCFT" style="margin-top:9px;">
+                                                <label for="category" style="margin-top:5px;">Docker Images<span style="color:red">*</span>
+                                                </label>
+                                                <a class="btn btn-primary adddockertemplate pull-right" onclick="showdockertemplateadder();" style="margin-bottom:5px;">Add</a>
+                                                <table class="table table-striped table-bordered table-hover dataTable no-footer" id="compositedockertable" cellpadding="5px" width="100%" style="text-align:center">
+                                                  <tr>
+                                                    <th>Order</th>
+                                                    <th>Name</th>
+                                                    <th>Image Path</th>
+                                                    <th>Tag</th>
+                                                    <th>Launch Params</th>
+                                                    <th>Action</th>
+                                                  </tr>
+                                                </table>
+                                              </div>
+                                              <!-- End Docker Image selection table -->
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!--configure runlist collapse starts here-->
+                                        <div class="panel panel-default divRunlistParameter notforCFT notForDocker">
+                                          <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                              <a data-toggle="collapse" data-parent="#accordion-Design" href="#CollapseEditRunlistParam" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Configure Runlist Parameters</a>
+                                            </h4>
+                                          </div>
+                                          <div id="CollapseEditRunlistParam" class="panel-collapse collapse">
+                                            <div class="panel-body" style="padding-left: 8px;">
+                                              <div class="col-lg-6 col-md-6 notForDocker notforCFT" style="margin-top:19px">
+                                                <label>
+                                                <i style="color:#40baf1;font-size:16px;" class="ace-icon fa fa-list-ul"></i>   
+                                                Edit Runlist
+                                                </label>
+                                                <a href="#chefRunlistModal" data-backdrop="false" data-toggle="modal" style="cursor:pointer;"> <img src="img/add.png" style="float:right;margin-top:6px;" class="addList" rel="tooltip" data-placement="top" title="Edit Runlist" /></a>
+                                                <div style="height:146px;overflow-y:auto;" id="dbNameTable_wrapper" class="dataTables_wrapper no-footer">
+                                                  <table id="tableRunlistForBlueprint" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                                    <thead>
+                                                      <tr class="rowCustomStyle">
+                                                        <th style="text-align:center">View Runlist</th>
+                                                      </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                  </table>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          
+                                          <div class="col-lg-12 col-md-12" style="margin-top:22px;">
+                                                      <label>
+                                                      <i style="color:#40baf1;font-size:16px;" class="ace-icon fa fa-list-ul"></i>   
+                                                      Cookbook Attributes <a href="#editAttributesModalContainer" id="editAttributesBtn" class="bpEditBtn btn btn-primary editAttributesBtnCSS awsEditAttributesBtn" rel="tooltip" data-placement="top" data-original-title="Edit" data-toggle="modal">
+                                                      <i class="ace-icon fa fa-pencil"></i>
+                                                      </a>
+                                                      </label>
+                                                      <textarea id="attrtextarea" style="width:100%;display:none" rows="6" onfocus="$('#attrmessage').html('');" onblur="validatejson($(this));" disabled> </textarea>
+                                                      <table id="attributesViewListTable" class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                                                         <thead>
+                                                            <tr>
+                                                               <th>Attributes</th>
+                                                               <th>Values</th>
+                                                            </tr>
+                                                         </thead>
+                                                         <tbody class="attributesViewTableBody">
+                                                         </tbody>
+                                                      </table>
+                                                   </div>
+                                                   </div>
+                                        </div>
+
+                                        <!--execute modal starts here-->
+                                        <!--configure runlist collapse ends here-->									
+                                        <!--adding new collapse-->
+                                        <div class="panel panel-default appSeriesNameURL notForDocker notforCFT">
+                                          <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                              <a data-toggle="collapse" data-parent="#accordion-Design" href="#CollapseApp" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Configure Application</a>
+                                            </h4>
+                                          </div>
+                                          <div id="CollapseApp" class="panel-collapse collapse">
+                                            <div class="col-lg-12 margintop15">
+                                              <div class="smart-form">
+                                                <div class="col-lg-12">
+                                                  <label style="margin: 5px;font-size:13px;" class="checkbox">
+                                                  <input type="checkbox" class="checkConfigApp">
+                                                  <i></i>Deploy app during Bootstrap
+                                                  </label>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <input type="hidden" id="containerIdInput">
+                                            <div class="col-lg-6 col-md-6 margintop15">
+                                              <label for="">Repository Server:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="reposerverspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <div class="input-groups">
+                                                <select id="chooseNexusServer" name="" class=" width-100 form-control">
+                                                  <option value="">Choose Server</option>
+                                                </select>
+                                              </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 margintop15">
+                                              <label for="">Repository Name:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="repospinner" src="img/select2-spinner.gif" style="display:none"></img>
+                                              </span>
+                                              </label>
+                                              <div class="input-groups">
+                                                <select id="chooseRepository" name="" class=" width-100 form-control">
+                                                  <option value="">Choose Repositories</option>
+                                                </select>
+                                              </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 margintop15 groupClass">
+                                              <label for="">Group ID:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="repospinner" src="img/select2-spinner.gif" style="display:none"></img>
+                                              </span>
+                                              </label>
+                                              <div class="input-groups">
+                                                <select id="chooseGroupId" name="" class=" width-100 form-control">
+                                                  <option value="">Choose Group ID</option>
+                                                </select>
+                                              </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 margintop15 artifactClass">
+                                              <label for="">Artifacts:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="artifactsspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <div class="input-groups">
+                                                <select id="chooseArtifacts" name="" class=" width-100 form-control">
+                                                  <option value="">Choose Artifacts</option>
+                                                </select>
+                                              </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 margintop15 versionClass">
+                                              <label for="">Versions:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="versionspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <div class="input-groups">
+                                                <select id="chooseVersions" name="" class=" width-100 form-control">
+                                                  <option value="">Choose Versions</option>
+                                                </select>
+                                              </div>
+                                            </div>
+                            
+                                            <div class="col-lg-12 col-md-12 margintop15 repoUrlClass">
+                                              <label>Repository URL:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="repourlspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <input id="repositoryUrl" type="text" class="form-control" name="" disabled>
+                                            </div>
+
+                                            <div class="col-lg-6 col-md-6 margintop15 imageTagClass">
+                                              <label for="">Tags:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="tagspinner hidden" src="img/select2-spinner.gif">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <div class="input-groups">
+                                                 <select id="imageTag" name="" class="width-100 form-control">
+                                                    <option value="">Choose Tag</option>
+                                                 </select>
+                                              </div>
+                                           </div>
+                                           <div class="col-lg-12 col-md-12 margintop15 containerClass containerIdClass containerUpgradeDeploy">
+                                              <label>Container Name/ID:
+                                              <span>
+                                              <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <input id="containerIdDiv" type="text" class="form-control" />
+                                           </div>
+                                           <div class="col-lg-12 col-md-12 margintop15 containerClass  containerPortClass containerUpgradeDeploy">
+                                              <label>Container Port:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <input id="containerPort" type="text" class="form-control" name="">
+                                           </div>
+                                           <div class="col-lg-12 col-md-12 margintop15 containerClass hostPortClass containerUpgradeDeploy">
+                                              <label>Host Port:<span class="redSpan">*</span>
+                                              <span>
+                                              <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <input id="hostPort" type="text" class="form-control" />
+                                           </div>
+
+                                           <div class="col-lg-12 col-md-12 margintop15 containerClass dockerUserClass containerUpgradeDeploy">
+                                              <label>User Name:
+                                              <span>
+                                              <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <input id="dockerUser" type="text" class="form-control" />
+                                           </div>
+                                           <div class="col-lg-12 col-md-12 margintop15 containerClass dockerPasswordClass containerUpgradeDeploy">
+                                              <label>Password:
+                                              <span>
+                                              <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <input id="dockerPassword" type="text" class="form-control" />
+                                           </div>
+                                           <div class="col-lg-12 col-md-12 margintop15 containerClass dockerEmailIdClass containerUpgradeDeploy">
+                                              <label>Email ID:
+                                              <span>
+                                              <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                                              </img>
+                                              </span>
+                                              </label>
+                                              <input id="dockerEmailId" type="text" class="form-control" />
+                                           </div>
+
+                                            <div class="row">
+                                              <div class="col-md-12">
+                                                <div class="col-md-12">
+                                                  <div class="widget-box margintop15">
+                                                    <div class="widget-header">
+                                                      <h5 class="widget-title" style="color:#4e5964;">
+                                                        <strong>Application URL</strong>
+                                                      </h5>
+                                                      <div class="widget-toolbar no-border">
+                                                        <a id="newAppSeries" class="btn btn-minier btn-primary" href="#modalAppNameURL" data-toggle="modal">
+                                                        <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                                                        New
+                                                        </a>                                                
+                                                      </div>
+                                                    </div>
+                                                    <div class="widget-body">
+                                                      <div class="widget-main" style="min-height:100px">
+                                                        <div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
+                                                          <table id="appTable" class="hidden" cellpadding="5px" width="100%">
+                                                            <thead>
+                                                              <tr class="rowCustomStyle">
+                                                                <td>Name</td>
+                                                                <td>URL</td>
+                                                                <td>Action</td>
+                                                              </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                              <tr class="hidden rowtemplate">
+                                                                <td datafield="appName"></td>
+                                                                <td datafield="appURL"></td>
+                                                                <td>
+                                                                  <div class="btn-group tableactionWidth">
+                                                                    <button class="btn btn-xs btn-danger pull-left" value="Remove" title="Remove">
+                                                                    <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                                                    </button>
+                                                                    <a class="btn btn-xs btn-info pull-left" title="Update">
+                                                                    <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                                                    </a>
+                                                                  </div>
+                                                                </td>
+                                                              </tr>
+                                                            </tbody>
+                                                          </table>
+                                                          <table id="appUrlTable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                                            <thead>
+                                                              <tr class="rowCustomStyle">
+                                                                <td style="width:20%">Name</td>
+                                                                <td style="width:40%">URL</td>
+                                                                <td style="width:20%" class="">Action</td>
+                                                              </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                              <tr>
+                                                                <td colspan=3 id="appEntry">No Data Available</td>
+                                                              </tr>
+                                                            </tbody>
+                                                          </table>
+                                                          <div id="envtable_tools1"></div>
+                                                          <div class="col-md-5">
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <div class="widget-toolbox padding-8 clearfix dataTables_wrapper">
+                                                        <div id="tableFooterLeft" class="pull-left"></div>
+                                                        <div id="tableFooterRight" class="pull-right"></div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!--adding new collapse-->
+                                        <div class="panel panel-default notForDocker forCFT cftStackParameterArea" style="display:none">
+                                          <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                              <a data-toggle="collapse" data-parent="#accordion-Design" href="#CollapseStackParameters" class="collapsed">
+                                              <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> 
+                                              <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Configure Stack Parameters
+                                              </a>
+                                            </h4>
+                                          </div>
+                                          <div id="CollapseStackParameters" class="panel-collapse collapse">
+                                            <div class="panel-body" style="padding-left: 20px;">
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="tab-pane" id="tab4" style="padding-bottom:20px;overflow-y: auto;">
+                                <div class="blueprintSaveSuccess blueprintMsgContainer">
+                                  <div class="alert alert-success bootstrapSuccess">
+                                    <img style="width:50px;height:40px" src="img/correct.png" alt="success"/>
+                                    <span class="blueprintNameSuccess" style="margin-left:20px;"></span>
+                                    <div style="margin-top:24px;text-align:center;">
+                                      <button class="btn btn-primary">
+                                      <a style="color:white;text-decoration:none" href="#ajax/Aws-Production.html?addnew" id="addanotherlink">&nbsp;&nbsp;Add New Blueprint</a>
+                                      </button>
+                                      <a style="color:white;text-decoration:none" id="blueprintLaunch" href="#modalSelectEnvironment" class="btn btn-primary blueprintNameLaunch" data-backdrop="false" data-toggle="modal"></a>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="blueprintSaveFail blueprintMsgContainer">
+                                  <div class="alert alert-warning bootstrapFailure">
+                                    <img style="width:50px;height:40px" src="img/warning.png" alt="warning"/>
+                                    <span style="margin-left:20px;">Unable to save blueprint. Please try again later.</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <footer class="footer">
+                                <div style="text-align:center;" class="clearfix form-actions no-padding">
+                                  <div class="btn-group">
+                                    <ul class="pager wizard no-margin" style="margin-left:200px">
+                                      <li class="previous disabled" id="previousValue">
+                                        <a style="border-radius:0px" class="btn btn-primary" href="javascript:void(0);"> Previous </a>
+                                      </li>
+                                      <li class="next" id="nextSpecificValue">
+                                        <a style="border-radius:0px;margin-left:5px;" class="btn btn-primary" href="javascript:void(0);"> Next </a>
+                                      </li>
+                                      <li class="cancel" id="cancelSpecificValue" style="display: none;">
+                                        <a style="border-radius:0px;" class="btn btn-primary" onclick="closeCompositeEdit();">Cancel</a>
+                                      </li>
+                                        <li class="save" id="saveCompBlup" style="display: none;">
+                                            <a style="border-radius:0px;margin-left:5px;" class="btn btn-primary" href="javascript:void(0);"> Save </a>
+                                        </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </footer>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+        <!--tab-pane l2 gets over -->
+        <!--view for blueprints-->
+        <!--blueprint tab-->
+        <div class="tab-pane fade in active" id="viewCreate">
+          <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+            <div>
+              <div class="widget-body no-padding">
+                <form action="">
+                  <div class="col-lg-12 awsExisting">
+                    <div class="col-lg-4 col-md-4">
+                      <label for="">Organization <!-- <span style="color:red">*</span> --></label>
+                      <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100 form-control">
+                      </select>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                      <label for="">Business Group</label>
+                      <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control">
+                      </select>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                      <label for="category">Project
+                      </label>
+                      <select id="projectListInputExisting" class="chooseProjectExisting width-100 form-control">
+                      </select>
+                    </div>
+                    <div class="col-lg-4 col-md-4 hidden">
+                      <label for="category">Environment</label>
+                      <select  id="envListExisting" class="chooseEnvExisting hidden width-100 form-control">
+                      </select>
+                    </div>
+                  </div>
+                </form>
+                <div class="col-lg-12">
+                  <label id="spinnerProject" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                  <label id="npbpmsg" class="npbpmsg hidden">No blueprints found</label>
+                  <div class="panel-group smart-accordion-default hidden" id="accordion-2" style="">
+                  </div>
+                  <div class="panel-group smart-accordion-default" id="accordion-3" style="">             </div>                        
+                </div>
+              </div>
+            </div>
+          </div>
+          <footer class="footer">
+          <div class="clearfix form-actions" style="text-align:center">
+              
+            
+              <button class="btn pull-right btn-danger right-button" title="Remove Blueprint" onClick="removeSelectedBlueprint();" > <i class="fa fa-trash-o"></i></button>
+              <button class="btn pull-right btn-primary right-button" title="Copy Blueprint" onClick="showbpcopydialog();" > <i class="fa fa-copy"></i></button>
+            </div>
+          </footer>
+        </div>
+
+        <div class="tab-pane fade in" id="viewEdit">
+          <!-- Do Not remove this div. Will be populated on page load -->
+          <form id="blueprintEditForm" novalidate="novalidate">
+          <div class="bpeditcontainer" id="bpeditcontent">
+          </div>
+          </form>
+
+          <footer class="footer">
+                <div style="text-align:center;height:60px;margin-bottom: -3px" class="clearfix form-actions">
+                  <div class="btn-group">
+                      
+                      <button class="btn btn-primary" onclick="closeblueprintedit();">Cancel</button>
+                   
+                      <button class="btn btn-primary marginleft15" onclick="saveEditedBlueprint();">Save</button>
+                   
+                  </div>
+                </div>
+          </footer>
+        </div>
+        <!-- Copy bp pop-up -->
+        <div class="modal fade bs-example-modal-lg" id="copyBlueprintModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content modal-copybp" >
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list-ol txt-color-blue"></i>&nbsp;Select target</h4>
+              </div>
+              <div class="modal-body" style="height:232px;">
+                <div class="bpcopyContainer">
+                    
+                              
+                            <div class="col-lg-12 col-md-12">
+                                <label for="">Organization
+                                    <!-- <span style="color:red">*</span> --></label>
+                                <select id="orgnameSelectExistingforcopy" class="chooseOrgSelectExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                          
+                          
+                            <div class="col-lg-12 col-md-12">
+                                <label for="" class="lblbpc">Business Group</label>
+                                <select id="bgListInputExistingforcopy" class="chooseBGExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                          
+                            <div class="col-lg-12 col-md-12">
+                                <label for="projectListInputExistingforcopy"  class="lblbpc">Project
+                                </label>
+                                <select id="projectListInputExistingforcopy" class="chooseProjectExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                        
+                            <div class="col-lg-12 col-md-12 hidden">
+                                <label for="envListExistingforcopy"  class="lblbpc">Environment</label>
+                                <select id="envListExistingforcopy" class="chooseEnvExistingforcopy hidden width-100 form-control">
+                                </select>
+                            </div>
+                         
+                        </div>
+                    
+                        
+                        
+                </div>
+                <div class="modal-footer" style="margin-top: 0px !important; padding-right: 8px; padding-top: 7px;">
+                    <label class="pull-left bpcopycount">3 blueprints selected</label>
+                    <button type="button" class="btn btn-default btn-primary btncopybp" onclick="copySelectedBlueprint();">Copy</button>
+                    <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+                 </div>
+
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+
+        <!--assign runlist modal-->
+        <div class="modal fade" id="chefRunlistModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content" style="width:800px">
+              <form role="form" class="cmxform" id="chefTaskRunlist" autocomplete="off">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  &times;
+                  </button>
+                  <h4 class="modal-title">
+                    <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Edit Runlist
+                  </h4>
+                </div>
+                <div class="modal-body modal-height">
+                  <div class="cookbookShow">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                  <button type="submit" class="btn btn-primary" id="saveRunlist">Update Runlist
+                  </button>  
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!--modal for runlist ends here-->
+        <!--updating the runlist while blueprint edit-->
+        <div class="modal fade bs-example-modal-lg" id="chefRunModalContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" >
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel"><i class="fa fa-pencil-square-o txt-color-blue"></i>Update Runlist</h4>
+              </div>
+              <div class="modal-body" style="padding:0px !important">
+                <div class="chefRunlistContainer">
+                </div>
+              </div>
+              <div class="modal-footer" style="margin-top:0px !important;">
+                <button type="button" class="btn btn-default btn-primary btnUpdateInstanceRunlist">Update</button>
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Version and Edit pop-up -->
+        <div class="modal fade bs-example-modal-lg" id="versionModalContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog modal-vs">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list-ol txt-color-blue"></i>&nbsp;Versions</h4>
+              </div>
+              <div class="modal-body versionModalBody">
+                <div class="versionpopupContainer">
+                    
+                        <label for="">Select a version</label>
+                        <div id="selbpv" class="selbpv" size="10">
+                        </div>
+                        
+                </div>
+
+              </div>
+              <div class="modal-footer" style="margin-top:0px !important;">
+                <button type="button" class="btn btn-default btn-primary btnVersionEdit">Edit</button>
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- myTabContent3 ends here-->
+    </div>
+  </article>
+</div>
+<!--app series-->
+<div class="modal fade" id="modalAppNameURL" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form role="form" id="appURLForm" autocomplete="off">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+          &times;
+          </button>
+          <h4 class="modal-title">
+            <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Add Application URL
+          </h4>
+        </div>
+        <div class="modal-body appSeriesHeight">
+          <!--app series-->
+          <div class="applicationURLContainer" id="appSeries">
+            <div class="col-lg-6 col-md-6 projectRepo">
+              <label for="">Name:</label>
+              <input placeholder="AppName" type="text" maxlength="8" name="appNameInput" class="form-control appName">
+              <b class="tooltip tooltip-top-right">
+              <i class="fa fa-user txt-color-teal"></i> Please enter Application</b>
+            </div>
+            <div class="col-lg-6 col-md-6 projectRepo">
+              <label for="">URL:</label>
+              <input placeholder="http://$host[:port]/appname" name="appNameURL" class="form-control appURL" type="text">
+              <b class="tooltip tooltip-top-right">
+              <i class="fa fa-user txt-color-teal"></i> Please enter URL</b>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <label id="nodeAppspinner" class=" hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+          <div class="marginForButtons">
+            <button id="addAppBtn" class="btn btn-primary" type="submit">
+            <i class="fa fa-upload fa-1x"></i>&nbsp;Add
+            </button>
+            <a class="btn btn-primary" type="submit" data-dismiss="modal">
+            <i class="fa fa-undo fa-1x"></i>&nbsp;Cancel
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal for appSeries ends-->
+<!--launch docker-->
+<div class="modal fade bs-example-modal-lg" id="myModalDockerTemplateContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog modal-lg" style="width:580px">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="DockerLaunch">Add a Docker Template</h4>
+      </div>
+      <div class="modal-body " style="height:117px">
+        <section>
+          <form id="dockerparamsform" action="">
+            <div class="col-lg-6 col-md-6">
+              <label for="category">Select Template<span style="color:red">*</span><span class="dockerparamrequired hidden" style="color:red">&nbsp;Required</span>
+              </label>
+              <select class="chooseSelect width-100 form-control" id="dockertemplateselector" onchange="imagechanged();">
+              </select>
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <label for="category">Select Tag<span style="color:red">*</span><span class="dockerparamrequired hidden" style="color:red">&nbsp;Required</span>
+              </label>
+              <label id="dockertemplateSpinner" class="hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+              <select class="chooseSelect width-100 form-control" id="dockertemplatetagselector">
+              </select>
+              <div class="small pull-right" style="margin-right:10px">
+                  To get private repo tags, add a hub account in Settings > DevOps Setup > Docker
+              </div>
+            </div>
+          </form>
+        </section>
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+        <i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</button>
+        <button type="button" id="btnaddDockerTemplateToTable" class="btn btn-default btn-primary" onclick="if($('#dockertemplateselector').val() == null && $('#dockertemplatetagselector').val() == null){
+  return(false);
+}else{addDockerTemplateToTable($('#dockertemplateselector option:selected').text(),$('#dockertemplateselector').val(),$('#dockertemplatetagselector').val(),$('#dockertemplateselector option:selected').attr('reponame'));$('#myModalDockerTemplateContainer').modal('hide');}">
+        <i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--modal for composite blueprint-->
+<div class="modal fade bs-example-modal-lg" id="modalForCompositeInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel"></h4>
+         </div>
+         <div class="modal-body modalHeightHelp">
+            <table class="table table-bordered table">
+              <tbody>
+              <tr>
+                <td class="tdStyleInfo">Organisation Name:</td>
+                <td>
+                   <input id="bpOrganization" disabled="disabled" class="form-control">
+                </td>
+             </tr>
+             <tr>
+                <td class="tdStyleInfo">Business Group:</td>
+                <td>
+                   <input id="bpBusinessGroup" disabled="disabled" class="form-control">
+                </td>
+             </tr>
+             <tr>
+                <td class="tdStyleInfo">Project Name:</td>
+                <td>
+                   <input id="bpProject" disabled="disabled" class="form-control">
+                </td>
+             </tr>
+           </tbody>
+            </table>
+            <!--os and the 1st tier-->
+            <h4> Blueprint List:</h4>
+            <div class="panel-group smart-accordion-default" id="accordionCompo">
+            </div>
+            <div id="compositeInfoTable" class="hidden">
+                 <table class="table table-bordered table compoBlueprintTable">
+                  <thead>
+                     <tr>
+                        <th class="th-parameters">Parameters</th>
+                        <th class="th-values">Values</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr>
+                        <td class="tdStyleInfo">Template Type:</td>
+                        <td>
+                           <input class="templateType form-control" disabled="disabled">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Operating System:</td>
+                        <td>
+                           <input class="bpOS form-control" disabled="disabled">                                                      
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Instance Type:</td>
+                        <td>
+                           <input class="bpSize form-control" disabled="disabled">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Provider Type:</td>
+                        <td>
+                           <input class="bpProviderType form-control" disabled="disabled">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">VPC ID:</td>
+                        <td>
+                           <input class="bpVPC form-control" disabled="disabled">                                          
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Subnet:</td>
+                        <td>
+                           <input class="bpSubnetId form-control" disabled="disabled">                                          
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Security Group:</td>
+                        <td>
+                           <input class="bpSecurityGroupId form-control" disabled="disabled">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Version:</td>
+                        <td>
+                           <input class="bpVersion form-control" disabled="disabled">                                    
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Runlist:</td>
+                        <td>
+                           <input class="bpRunlist form-control" disabled="disabled">                                           
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+<!--modal ends here-->
+<script type="text/javascript" src="js/dev/awsProduction.js"></script>
+
+<style>
+    .sevice-delivery-section {
+        display: none;
+    }
+
+    .showservice {
+        display: block;
+    }
+</style>

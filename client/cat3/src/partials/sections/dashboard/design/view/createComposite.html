@@ -1,0 +1,126 @@
+<!--for showing existing blueprints-->
+<form name="compositeBlueprintCreation" class="compositeFieldClass" novalidate>
+
+   <fieldset id="compBlueprint">
+   <legend>Composite Blueprint:</legend><br>
+     <div class="form-group">
+         <label class="control-label col-sm-2 labelHorizontal" for="blueprintNameInputComposite">Enter Blueprint Name<span class=" red">&nbsp;*</span></label>
+         <div class="col-sm-8 blueprintName"> <input ng-model="createCBP.newEnt.bpName" type="text" name="coBlueprintName"  class="required form-control"  required style="width: 60%;" />
+            <span class="error red" ng-show="createCBP.onSubmit && compositeBlueprintCreation.coBlueprintName.$invalid"> Please enter Composite Blueprint name!</span>
+         </div>
+     </div>
+
+<div style="clear: both;"></div>
+<br />
+   <div id="compositeDivision" class="margin-top5">
+      <div id="compositeBlueprintLoadBlueprint">
+         <div id="compositeBlueprintSelector" >
+            <div class="col-lg-6 col-md-6 col-sm-12">
+               <div class="panel-group">
+                  <div class="panel panel-default">
+                     <div class="panel-heading" style="height: 40px;">
+                        <div class="search">
+                           <div class="col-lg-6 col-md-6 col-sm-6">
+                              <label for="search-input"><i class="fa fa-search" aria-hidden="true"></i><span class="sr-only">Search</span></label>
+                              <input ng-model="searchText.name" class="search-input" class="form-control input-lg" placeholder="Search" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1">
+                              <a id="search-clear" href="#" class="fa fa-times-circle hide" aria-hidden="true"><span class="sr-only">Clear search</span></a>
+                           </div>
+                           <div class="col-lg-6 col-md-6 col-sm-6">
+                              &nbsp;
+                              <select class="form-control bp-select pull-right" ng-change="createCBP.createList();" ng-model="createCBP.compositeBPType">
+                                 <option value="chef" >SoftwareStack </option>
+                              </select>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="panel-body bp-panel-body">
+                        <span class="red" ng-if=" createCBP.ExBlueprintList.length === 0 && createCBP.SelectedBPList.length === 0">No Data Found!</span>
+                        <ul class="list-group" ui-sortable>
+                           <li class="list-group-item" ng-repeat="bp in createCBP.ExBlueprintList | filter :searchText">
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.addBP(createCBP.ExBlueprintList.indexOf(bp))" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.selectBpInfo($event,bp)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <img src="./images/rsz_layers.png" alt="{{bp.name}}"> &nbsp;{{bp.name}}
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+               <div class="panel-group">
+                  <div class="panel panel-default">
+                     <div class="panel-heading" style="height: 40px;">
+                        <input type="hidden" ng-model="createCBP.newEnt.blueprintIds" >
+                        <span>Selected Blueprints</span> &nbsp; <span class="error red" ng-show="createCBP.onSubmit && createCBP.SelectedBPList.length <= 0">Please select blueprint.</span>
+                     </div>
+                     <div class="panel-body bp-panel-body">
+                        <ul class="list-group" dnd-list="createCBP.SelectedBPList" >
+                           <li class="list-group-item bpListComp"  ng-repeat="selectedp in createCBP.SelectedBPList" dnd-draggable="selectedp"
+                              dnd-moved="createCBP.SelectedBPList.splice($index, 1)"
+                              dnd-effect-allowed="move"
+                              dnd-selected="models.selected = selectedp"  ng-class=" {'activeLi':createCBP.selectBlueprintId === selectedp._id}">
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.editSelectBpInfo($event,selectedp)" ><i class="fa fa-pencil-square-o fa-2 white" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.selectBpInfo($event,selectedp)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.deSelect($event,createCBP.SelectedBPList.indexOf(selectedp))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span>
+                              <span class="badge pull-left" >{{(+createCBP.SelectedBPList.indexOf(selectedp)) +1}}</span><img class="layersClassComposite" src="./images/rsz_layers.png"  alt="{{selectedp.name}}"> &nbsp;{{selectedp.name}}
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+<div style="clear: both;"></div>
+<!--for showing no blueprints available-->
+<label id="npbpmsgComposite" class="npbpmsg hidden">No blueprints found</label>
+<!--edit attribute-->
+   <div class="col-lg-12" ng-show="createCBP.SelectedBPList.length >0 && createCBP.selectBlueprintId">
+      <accordion>
+         <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+            <accordion-heading>
+               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+               Edit attribute of Composed Roles and Cookbooks
+            </accordion-heading>
+            <div class="panel-body" id="attributeRunlistTable">
+               <div class="col-lg-8 col-md-8 marginTop19">
+                  <label>
+                  <i class="ace-icon fa fa-list-ul"></i>
+                  Runlist
+                  </label>
+                  <div style="height:146px;overflow-y:auto; overflow-x:hidden;" id="dbNameTable_wrapper" class="dataTables_wrapper no-footer">
+                     <div class="dataTables_wrapper no-footer">
+                        <div  class="dataTables_wrapper no-footer">
+                           <table class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" role="grid" style="width: 100%;">
+                              <thead>
+                                 <tr class="rowCustomStyle" role="row">
+                                    <th class="sorting_disabled" rowspan="1" colspan="1" style="width: 395px;">View Runlist</th>
+                                    <th class="sorting_disabled" rowspan="1" colspan="1" style="width: 395px;">Cookbook Attributes</th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 <tr class="runlistRow" ng-if="createCBP.selectedBPDetails.blueprintConfig.infraManagerData.versionsList.length === 0">
+                                    <td collapse="2">No data available</td>
+                                 </tr>
+                                 <tr class="runlistRow" ng-repeat="val in chefrunlist">
+                                    <td>{{val.value}}</td>
+                                    <td>
+                                       <span title="Edit Attributes" class="btn btn-xs cat-btn-update bpvicon" ng-click="updateCookbook()"><i class="fa fa-pencil-square-o fa-2 white" aria-hidden="true"></i></span>
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </accordion-group>
+      </accordion>
+   </div>
+   </fieldset>
+</form>
+<div class="pager">
+   <button class="btn  cat-btn-update" ng-disabled="compositeBlueprintCreation.$invalid" ng-click="compositeEnabled && compositeSave()">Save</button>
+</div>

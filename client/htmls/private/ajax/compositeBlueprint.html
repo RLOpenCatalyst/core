@@ -1,0 +1,120 @@
+<!--for showing existing blueprints-->
+<div class="awsExisting">
+    <div class="col-lg-4 col-md-4">
+      <label for="">Organization <!-- <span style="color:red">*</span> --></label>
+      <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100 form-control">
+      </select>
+    </div>
+    <div class="col-lg-4 col-md-4">
+      <label for="">Business Group</label>
+      <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control">
+      </select>
+    </div>
+    <div class="col-lg-4 col-md-4">
+      <label for="category">Project
+      </label>
+      <select id="projectListInputExisting" class="chooseProjectExisting width-100 form-control">
+      </select>
+    </div>
+    <div class="col-lg-4 col-md-4 hidden">
+      <label for="category">Environment</label>
+      <select  id="envListExisting" class="chooseEnvExisting hidden width-100 form-control">
+      </select>
+    </div>
+</div>
+<div style="clear: both;"></div>
+    <fieldset id="compBlueprint">
+        <legend>Composite Blueprint:</legend><br>
+        <div class="form-group">
+            <label class="control-label col-sm-3 labelHorizontal" for="blueprintNameInputComposite">Enter Blueprint Name<span class=" redSpan">&nbsp;*</span></label>
+            <div class="col-sm-6 blueprintName"> <input type="text" id="blueprintName" class="required form-control" type="text" autofocus="autofocus">
+                <span class="error hidden"> Please enter Composite Blueprint name!</span>
+            </div>
+        </div>
+        <div style="clear: both;"></div>
+<div id="compositeDivision" class="margin-top5">
+<div class="section-headings">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 paddingtopbottom10 paddingleft-13">
+        <span>SoftwareStack Blueprint</span>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 paddingtopbottom10 paddingleft assigned-tasks selectorList-option">
+        <span>Selected Blueprint</span> &nbsp;<span class="error hidden"> Please Select Blueprint!</span>
+    </div>
+</div>
+<div id="compositeBlueprintLoadBlueprint">
+
+    <div id="compositeBlueprintSelector" >
+        <!-- Here HTML snippet will append through blueprint component-->
+    </div>
+</div>
+</div>
+<!--for showing no blueprints available-->
+<label id="npbpmsgComposite" class="npbpmsg hidden">No blueprints found</label>
+<!--edit attribute-->
+<div class="col-lg-12" id="attributeBlue" style="display: none;">
+    <div class="panel-group smart-accordion-default" id="accordionNew" >
+        <div class="panel panel-default divRunlistParameter notforCFT notForDocker" >
+            <div class="panel-heading">
+                <span class="col-lg-18">
+                     <h4 class="panel-title">
+                         <a data-toggle="collapse" data-parent="#accordion-Design" id="collapsed" href="#editRunlistParam" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Edit attribute of Composed Roles and Cookbooks</a>
+                     </h4>
+                </span>
+
+                <span class="compositeBPVersion col-lg-18"><label>Blueprint Version:&nbsp;</label><select class="bpVersion form-control"></select></span>
+            </div>
+            <div id="editRunlistParam" class="panel-collapse collapse" >
+                <div class="panel-body" id="attributeRunlistTable">
+                    <div class="col-lg-6 col-md-6 marginTop19">
+                        <label>
+                            <i  class="ace-icon fa fa-list-ul"></i>
+                            Runlist
+                        </label>
+                        <div style="height:146px;overflow-y:auto; overflow-x:hidden;" id="dbNameTable_wrapper" class="dataTables_wrapper no-footer">
+                            <div id="tableRunlistForBlueprint_wrapper" class="dataTables_wrapper no-footer">
+                                <table id="tableRunlistForBlueprint" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%"  role="grid">
+                                    <thead>
+                                        <tr class="rowCustomStyle" role="row">
+                                            <th class="sorting_disabled" rowspan="1" colspan="1">View Runlist</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 marginTop19">
+                        <label>
+                            <i style="color:#40baf1;font-size:16px;" class="ace-icon fa fa-list-ul"></i>
+                            Cookbook Attributes <a href="#editAttributesModalContainer" id="editAttributesBtn" class="bpEditBtn btn btn-primary editAttributesBtnCSS awsEditAttributesBtn" rel="tooltip" data-placement="top" data-original-title="Edit" data-toggle="modal">
+                            <i class="ace-icon fa fa-pencil"></i>
+                        </a>
+                        </label>
+                        <textarea id="attrtextarea" style="width:100%;display:none" rows="6" onfocus="$('#attrmessage').html('');" onblur="validatejson($(this));" disabled=""> </textarea>
+                        <table id="attributesViewListTable" class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                            <thead>
+                            <tr>
+                                <th style="width:50%">Attributes</th>
+                                <th>Values</th>
+                            </tr>
+                            </thead>
+                            <tbody class="attributesViewTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div></fieldset>
+<script>
+    /*only for software stack*/
+    $(document).ready(function(){
+        softwareStackListing();
+        checkandupdateRunlistTable();
+        $('.awsEditAttributesBtn').click(editAtrributesHandlers);
+        $('.saveAttribBtn').click(saveAtrributesHandler); 
+    })
+</script>

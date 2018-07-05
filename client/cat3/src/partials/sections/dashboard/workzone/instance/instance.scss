@@ -1,0 +1,1080 @@
+@import '../../../../theme';
+$imagePath: "../../../../../../images";
+/*# sourceMappingURL=card.css.map */
+
+.box {
+    position: relative;
+    border-radius: 3px;
+    background: #ffffff;
+    border-top: 3px solid #d2d6de;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    &.box-primary {
+        border-top-color: #3c8dbc;
+    }
+    &.box-info {
+        border-top-color: #00c0ef;
+    }
+    &.box-danger {
+        border-top-color: #dd4b39;
+    }
+    &.box-warning {
+        border-top-color: #f39c12;
+    }
+    &.box-success {
+        border-top-color: #00a65a;
+    }
+    &.box-default {
+        border-top-color: #d2d6de;
+        &.instance-filter {
+            height: 0;
+            transition: all 1s ease-in-out;
+            transition-property: box-shadow, height, border;
+            position: absolute;
+            overflow: hidden;
+            border: 0px solid transparent;
+            box-shadow: 0 3px 0 #e4e4e4;
+            border-radius: 5px;
+            margin-top: 2px;
+            width: 70%;
+            right: 100px;
+            z-index: 2;
+            &.active {
+                height: 110px;
+                border: 1px solid #cdd1d9;
+            }
+            .box-header {
+                background: #F3F3F3;
+                .box-title {
+                    font-size: 16px;
+                    .fa {
+                        color:  #219bd1;
+                    }
+                }
+            }
+            .box-body {
+                background: #fff;
+                .cat-btn-update{
+                    margin-top: 5px;
+                }
+                .loader-container{
+                    padding: 0;
+                    margin-top: 5px;
+                }
+            }
+        }
+    }
+    &.collapsed-box {
+        .box-body, .box-footer {
+            display: none;
+        }
+    }
+    .nav-stacked > li {
+        border-bottom: 1px solid #f4f4f4;
+        margin: 0;
+        &:last-of-type {
+            border-bottom: none;
+        }
+    }
+    &.height-control .box-body {
+        max-height: 300px;
+        overflow: auto;
+    }
+    .border-right {
+        border-right: 1px solid #f4f4f4;
+    }
+    .border-left {
+        border-left: 1px solid #f4f4f4;
+    }
+    &.box-solid {
+        border-top: 0;
+        > .box-header {
+            .btn {
+                &.btn-default {
+                    background: transparent;
+                }
+                &:hover {
+                    background: rgba(0, 0, 0, 0.1);
+                }
+            }
+            a:hover {
+                background: rgba(0, 0, 0, 0.1);
+            }
+        }
+        &.box-default {
+            border: 1px solid #d2d6de;
+            > .box-header {
+                color: #444444;
+                background: #d2d6de;
+                background-color: #d2d6de;
+                a, .btn {
+                    color: #444444;
+                }
+            }
+        }
+        &.box-primary {
+            border: 1px solid #3c8dbc;
+            > .box-header {
+                color: #ffffff;
+                background: #3c8dbc;
+                background-color: #3c8dbc;
+                a, .btn {
+                    color: #ffffff;
+                }
+            }
+        }
+        &.box-info {
+            border: 1px solid #00c0ef;
+            > .box-header {
+                color: #ffffff;
+                background: #00c0ef;
+                background-color: #00c0ef;
+                a, .btn {
+                    color: #ffffff;
+                }
+            }
+        }
+        &.box-danger {
+            border: 1px solid #dd4b39;
+            > .box-header {
+                color: #ffffff;
+                background: #dd4b39;
+                background-color: #dd4b39;
+                a, .btn {
+                    color: #ffffff;
+                }
+            }
+        }
+        &.box-warning {
+            border: 1px solid #f39c12;
+            > .box-header {
+                color: #ffffff;
+                background: #f39c12;
+                background-color: #f39c12;
+                a, .btn {
+                    color: #ffffff;
+                }
+            }
+        }
+        &.box-success {
+            border: 1px solid #00a65a;
+            > .box-header {
+                color: #ffffff;
+                background: #00a65a;
+                background-color: #00a65a;
+                a, .btn {
+                    color: #ffffff;
+                }
+            }
+        }
+        > .box-header > .box-tools .btn {
+            border: 0;
+            box-shadow: none;
+        }
+        &[class*='bg'] > .box-header {
+            color: #fff;
+        }
+    }
+    .box-group > .box {
+        margin-bottom: 5px;
+    }
+    .knob-label {
+        text-align: center;
+        color: #333;
+        font-weight: 100;
+        font-size: 12px;
+        margin-bottom: 0.3em;
+    }
+    > .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+.control-label {
+    padding: 7px;
+}
+.form-group {
+    select{
+        padding: 5px;
+    }
+}
+.overlay-wrapper > .overlay,
+.box > .loading-img,
+.overlay-wrapper > .loading-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.box .overlay,
+.overlay-wrapper .overlay {
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 3px;
+}
+.box .overlay > .fa,
+.overlay-wrapper .overlay > .fa {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -15px;
+    margin-top: -15px;
+    color: #000;
+    font-size: 30px;
+}
+.box .overlay.dark,
+.overlay-wrapper .overlay.dark {
+    background: rgba(0, 0, 0, 0.5);
+}
+.box-header:before,
+.box-body:before,
+.box-footer:before,
+.box-header:after,
+.box-body:after,
+.box-footer:after {
+    content: " ";
+    display: table;
+}
+.box-header:after,
+.box-body:after,
+.box-footer:after {
+    clear: both;
+}
+.box-header {
+    color: #444;
+    display: block;
+    padding: 13px 10px;
+    position: relative;
+    &.with-border {
+        border-bottom: 1px solid #f4f4f4;
+    }
+    .box-title {
+        display: inline-block;
+        font-size: 18px;
+        line-height: 1;
+    }
+}
+.collapsed-box .box-header.with-border {
+    border-bottom: 1px solid #ffffff;
+    box-shadow: 0 1px 0 #dbdbdb, 0 0 10px #d6d6d6 inset;
+}
+.box-header {
+    > {
+        .fa, .glyphicon, .ion {
+            display: inline-block;
+            font-size: 18px;
+            margin: 0;
+            line-height: 1;
+        }
+    }
+    .box-title {
+        display: inline-block;
+        font-size: 18px;
+        margin: 0;
+        line-height: 1;
+    }
+    > {
+        .fa, .glyphicon, .ion {
+            margin-right: 5px;
+        }
+        .box-tools {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            [data-toggle="tooltip"] {
+                position: relative;
+            }
+            &.pull-right .dropdown-menu {
+                right: 0;
+                left: auto;
+            }
+        }
+    }
+}
+.btn-box-tool {
+    padding: 5px;
+    font-size: 13px;
+    background: transparent;
+    color: #97a0b3;
+}
+.open .btn-box-tool {
+    color: #606c84;
+}
+.btn-box-tool {
+    &:hover {
+        color: #606c84;
+    }
+    &.btn:active {
+        box-shadow: none;
+    }
+}
+.box-body {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 14px 0 0 10px;
+}
+.no-header .box-body {
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+}
+.box-body {
+    > .table {
+        margin-bottom: 0;
+    }
+    .fc {
+        margin-top: 5px;
+    }
+    .full-width-chart {
+        margin: -19px;
+    }
+    &.no-padding .full-width-chart {
+        margin: -9px;
+    }
+    .box-pane {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 3px;
+    }
+    .box-pane-right {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 0;
+    }
+}
+.box-footer {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top: 1px solid #f4f4f4;
+    padding: 10px;
+    background-color: #ffffff;
+}
+.chip{
+    font-size: 12px;
+    border: 1px solid #ccc;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: #eee;
+    margin-right: 3px;  
+}
+.chart-legend {
+    margin: 10px 0;
+}
+@media (max-width: 991px) {
+    .chart-legend > li {
+        float: left;
+        margin-right: 10px;
+    }
+}
+.box-comments {
+    background: #f7f7f7;
+    .box-comment {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+        &:before {
+            content: " ";
+            display: table;
+        }
+        &:after {
+            content: " ";
+            display: table;
+            clear: both;
+        }
+        &:last-of-type {
+            border-bottom: 0;
+        }
+        &:first-of-type {
+            padding-top: 0;
+        }
+        img {
+            float: left;
+        }
+    }
+    .comment-text {
+        margin-left: 40px;
+        color: #555;
+    }
+    .username {
+        color: #444;
+        display: block;
+        font-weight: 600;
+    }
+    .text-muted {
+        font-weight: 400;
+        font-size: 12px;
+    }
+}
+
+@media (min-width: 0px) and (max-width: 320px) {
+    #instanceUpdateChefRunlistPage {
+        .modal-header {
+            .help-text {
+                margin-top: -21px;
+                margin-right: 30px;
+            }
+        }
+        .searchCookbooksRolesLabel {
+            font-size: 10px;
+        }
+    }
+    #controlPanelPage {
+        .modal-header {
+            .cp-header-card-info {
+                width: 90%;
+                padding-top: 0px;
+                font-size: 12px;
+            }
+        }
+        .nav-tabs {
+            font-size: 9px;
+        }
+        .nav>li>a {
+            padding: 10px 1px;
+        }
+    }
+    #assignJobPage {
+        .paddingbottom15 {
+            .left-right-selection {
+                margin: 19% 0% 0 0;
+            }
+        }
+        .selectCookbooksandRecipesdivRight {
+            margin-left: 10px;
+            margin-top: 40px;
+        }
+        .section-headings {
+            .assigned-tasks {
+                position: absolute;
+                top: 50%;
+            }
+        }
+    }
+    #cpInfoPage {
+        .header-margin {
+            margin-top: -3px;
+            margin-right: -10px;
+        }
+    }
+    #cpServicesPage {
+        position: relative;
+        .inactive-grid {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 1;
+            opacity: 0.6;
+        }
+    }
+}
+@media (min-width: 321px) and (max-width: 480px) {
+    #controlPanelPage {
+        .modal-header {
+            .title-font {
+                font-size: 14px;
+            }
+            .cp-header-card-info {
+                width: 65%;
+                float: right;
+                padding-top: 2px;
+                font-size: 13px;
+            }
+        }
+        .nav-tabs {
+            font-size: 10px;
+        }
+        .nav>li>a {
+            padding: 10px 8px;
+        }
+    }
+    #assignJobPage {
+        .paddingbottom15 {
+            .left-right-selection {
+                margin: 19% 0% 0 0;
+            }
+        }
+        .selectCookbooksandRecipesdivRight {
+            margin-left: 10px;
+            margin-top: 40px;
+        }
+        .section-headings {
+            .assigned-tasks {
+                position: absolute;
+                top: 50%;
+            }
+        }
+    }
+}
+@media (min-width: 0px) and (max-width: 480px) {
+    #cardView .options-menu-wrapper .dropdown-icon,
+    #tableView .options-menu-wrapper .dropdown-icon,
+    #cpActionsPage .options-menu-wrapper .edit-instance-bs .dropdown-icon {
+        margin: 0px 3px 0px 8px;
+    }
+    #instancePage {
+        #cardView {
+            .card-wrapper {
+                .card-border {
+                    border-width: 1px;
+                    @include theme-border-color;
+                }
+            }
+        }
+        #tableView {
+            font-size: 11px;
+            .options-menu-wrapper {
+                float: left;
+                margin-left: -12px;
+                .dropdown-menu {
+                    left: -123px;
+                }
+            }
+            .ssh-rdp-wrapper {
+                display: none;
+            }
+        }
+        #cardView,
+        #tableView {
+            .options-menu-wrapper {
+                .dropdown-menu {
+                    font-size: 12px;
+                    margin-bottom: 10px;
+                }
+                .dropdown-menu > li > span {
+                    padding: 2px 0px;
+                }
+            }
+        }
+        .panel-heading {
+            .pull-right {
+                .fa-th, .fa-align-justify {
+                    font-size: 1.2em;
+                }
+            }
+        }
+    }
+}
+@media (min-width: 481px) {
+    #instanceUpdateChefRunlistPage {
+        .radio-all, .radio-roles, .radio-cookbooks, .radio-templates, .chef-factory {
+            width: 18%;
+            float: left;
+        }
+        .chef-factory {
+            margin: 3px 0 0 30px;
+        }
+    }
+}
+@media (min-width: 0px) and (max-width: 767px) {
+    .dropdown-menu {
+        left: -80px;
+    }
+    .rdp-anchor {
+        color: #333;
+    }
+    .rdp-anchor:hover {
+        text-decoration: none;
+        color: #333;
+    }
+}
+@media (min-width: 768px) {
+    #instancePage {
+        #cardView {
+            .card-wrapper {
+                .card-border {
+                    border-width: 2px;
+                    @include theme-border-color;
+                }
+            }
+        }
+    }
+    #assignJobPage {
+        .left-right-selection {
+            margin: 19% 5% 0 0;
+        }
+    }
+    .panel-title {
+        margin-right: 15px;
+    }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+    .box.box-default.instance-filter.active {
+        height: 250px;
+    }
+
+    .box.box-default.instance-filter .box-body .cat-btn-update {
+        float: right;
+    }
+
+    #assignJobPage {
+        #container {
+            .left-right-selection {
+                margin: 25% 2% 0 0;
+            }
+        }
+    }
+}
+@media (min-width: 992px) and (max-width: 1199px) {} @media (min-width: 1200px) {} @media (min-width: 768px) {
+    .dropdown-menu {
+        left: -113px;
+    }
+    .edit-instance-bs {
+        display: none;
+    }
+    .more-info-bs {
+        display: none;
+    }
+    .ssh-bs {
+        display: none;
+    }
+    .rdp-bs {
+        display: none;
+    }
+}
+/*Common CSS which is used for all devices*/
+
+#cardView,
+#tableView {
+    .options-menu-wrapper {
+        .dropdown-menu {
+            border-width: 1px;
+            @include theme-border-color;
+            margin-bottom: 20px;
+            min-width: 140px;
+        }
+        .dropdown-icon {
+            margin: 0px 3px 0px 20px;
+        }
+        .dropdown-menu > li > span {
+            display: inline-block;
+            padding: 3px 0px;
+            clear: both;
+            font-weight: 400;
+            line-height: 1.42857143;
+            color: #333;
+            white-space: nowrap;
+        }
+        .dropdown-menu > li:hover {
+            background: #ccc;
+            cursor: pointer;
+        }
+        .dropdown-menu > li.no-action:hover {
+            cursor: default;
+            background: #fff;
+        }
+    }
+}
+#instancePage {
+    .instance-import-button {
+        margin: -2px 5px 0 0;
+        padding: 2px 10px;
+        font-size: 13px;
+        vertical-align: top;
+    }
+    .marginleft5 {
+        margin-left: 5px;
+    }
+    .instanceSelection {
+        margin-left: 28%;
+    }
+    #tableView {
+        width: 100%;
+        padding: 0px 0px 42px 0px;
+        margin-bottom: 5px;
+        .fa-sort-down {
+            vertical-align: top;
+        }
+        .btn-danger {
+            padding: 2px 6px;
+            border-radius: 14px;
+            width: 25px;
+            height: 25px;
+            margin: -24px -7px 0 0px;
+        }
+        .dropdown {
+            width: 50px;
+            right: 20px;
+            position: absolute;
+        }
+        .dropdown-toggle {
+            border-radius: 5px;
+            padding: 1px 4px;
+            border-width: 2px;
+            @include theme-border-color;
+            background: #fff;
+        }
+        .instance-status {
+            .status-state {
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: 30px 30px;
+                height: 30px;
+            }
+        }
+        .instance-state-unknown,
+        .instance-state-pending {
+            background: url("#{$imagePath}/instance-states/aws-inactive.png");
+        }
+        .instance-state-paused,
+        .instance-state-stopping {
+            background: url("#{$imagePath}/instance-states/aws-paused.png");
+        }
+        .instance-state-running {
+            background: url("#{$imagePath}/instance-states/aws-started.png");
+        }
+        .instance-state-stopped,
+        .instance-state-terminated {
+            background: url("#{$imagePath}/instance-states/aws-stopped.png");
+        }
+        .icon-chef,
+        .icon-chef-disabled {
+            position: relative;
+            left: 39%;
+        }
+        .icon-rdp-disabled {
+            background: url("#{$imagePath}/instance/rdp-disable.png");
+            width: 28px;
+            height: 28px;
+        }
+        .icon-puppet,
+        .icon-puppet-disabled {
+            position: relative;
+            left: 40%;
+        }
+        .ChefClientRun {
+            width: 28px;
+            height: 28px;
+            background: url("#{$imagePath}/global/sprites.png") no-repeat -59px -10px;
+        }
+        .dropdown-menu {
+            border-width: 1px;
+            border-color: #40BAF1;
+            margin: 0 0 0 14px;
+        }
+        .ssh-rdp-wrapper {
+            float: left;
+            width: 34px;
+            margin-left: 20px;
+        }
+        .chef-run-wrapper {
+            float: left;
+            width: 28px;
+        }
+    }
+}
+/*Common CSS which is used for all devices ends here*/
+/*CSS for all Popups starts here*/
+
+#instanceUsagePage {
+    .usage-dropdown {
+        width: auto;
+        height: 31px;
+        display: table-cell;
+    }
+}
+#deleteInstancePage {
+    .font-normal {
+        font-weight: normal;
+    }
+}
+#viewRunListPage {
+    .cookbook-list {
+        line-height: 1.8;
+    }
+}
+#cookbookAttributesPage {
+    .margin {
+        margin-left: 15px;
+    }
+}
+#instanceImportByIpPage {
+    .important_field {
+        color: $color-red;
+    }
+    .modal-body {
+        position: relative;
+        padding: 20px;
+    }
+    .URL-margin {
+        margin: 15px;
+        cursor: pointer;
+    }
+    .control-margin {
+        margin-top: 15px;
+    }
+}
+#instanceImportByIpPage,
+#instanceSSHPage {
+    .importErrorMsg {
+        color: $color-red;
+        padding-top: 16px;
+    }
+    .error-padding {
+        padding: 0px 0px 10px 0px;
+    }
+}
+#instanceSSHPage {
+    .ssh-error-area {
+        margin-bottom: 4%;
+        padding-top: 60px;
+    }
+    .sshStyle {
+        margin-top: 25px;
+    }
+    #ssh-loadingContainer {
+        height: 100%;
+        display: none;
+    }
+    #ssh-errorArea {
+        color: red;
+    }
+}
+#instanceUpdateChefRunlistPage {
+    font-size: 12px;
+    .help-text {
+        font-size: 14px;
+        margin-top: -24px;
+        float: right;
+        margin-right: 60px;
+        cursor: pointer;
+    }
+    .cookbook-edit-text,
+    .cookbook-edit-info {
+        float: left;
+    }
+    .cookbook-edit-info {
+        margin: 6px 12px;
+        cursor: pointer;
+    }
+    .cookbook-attributes-edit-check {
+        margin: 8px 5px 0;
+    }
+    .panel-group {
+        margin-bottom: 0px;
+    }
+}
+#instanceCookBookHelpPage {
+    .modal-body {
+        height: 369px;
+        overflow-y: auto;
+    }
+}
+#controlPanelPage {
+    .cp-header-card-info {
+        width: 65%;
+        float: right;
+        padding-top: 4px;
+    }
+    .title-font {
+        font-size: 18px;
+    }
+    .cp-docker-image {
+        height: 40px;
+        position: absolute;
+        margin: -13px 0 0 10px;
+    }
+    .cp-container {
+        height: 500px;
+        overflow-y: auto;
+        width: 85%;
+    }
+    .cp-cards {
+        width: 15%;
+        float: left;
+        .cp-card-info-wrapper {
+            margin-top: 15px;
+        }
+        .cp-card-page-name {
+            font-size: 15px;
+            color: #40BAF1;
+        }
+        .cp-card {
+            position: relative;
+            width: 100px;
+            float: left;
+            border: 1px solid #DDDDDD;
+            text-align: center;
+            font-size: 10px;
+            min-height: 92px;
+            border-radius: 11px;
+            margin-right: 15px;
+            @include border-radius(8px);
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .selected-cp-card {
+            border: 2px solid #40BAF1;
+        }
+        .fa {
+            font-size: 40px;
+        }
+    }
+}
+#cpInfoPage {
+    line-height: 1.8;
+    font-size: 12px;
+    .panel-body {
+        padding: 15px 25px;
+    }
+    .panel-heading-custom-style {
+        color: #3a87ad;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .bp-info-wrapper {
+        margin-bottom: 5px;
+    }
+    .inspect-btn {
+        margin-top: -43px;
+        padding: 2px 8px;
+        font-size: 13px;
+    }
+    .app-url-section {
+        border: 1px solid #ccc;
+        min-height: 160px;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    .app-url-header {
+        padding: 8px 15px;
+        border-bottom: 1px solid #ccc;
+        font-size: 13px;
+    }
+    .margintop15 {
+        margin-top: 15px;
+    }
+    .table>thead>tr>th {
+        text-align: center;
+    }
+    .header-margin {
+        margin-top: -5px;
+    }
+    .tableactionbutton {
+        border-radius: 50%;
+    }
+}
+#cpServicesPage,
+#addNewServicePage {
+    .cp-service-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+        color: white;
+        border-radius: 16px;
+        padding-top: 4px;
+        display: inline-block;
+        cursor: pointer;
+        margin: 5px 5px 0 0;
+    }
+    .greenBg {
+        background: $color-green;
+    }
+    .yellowBg {
+        background: $color-yellow;
+    }
+    .redBg {
+        background: $color-red;
+    }
+    .frontKill {
+        background: $color-lightBlack;
+    }
+}
+#cpLogsPage {
+    .logsArea {
+        height: 500px;
+        border-left: 1px solid #ddd;
+    }
+}
+#cpServicesPage {
+    .add-new-service-btn {
+        margin: 0 0 10px 0;
+    }
+    .ui-grid {
+        height: 452px;
+    }
+}
+#cpActionHistoryPage {
+    .ui-grid {
+        height: 496px;
+    }
+}
+#stopInstancePage {
+    .loader-section {
+        padding: 0px 0px 15px 15px;
+    }
+}
+#inspectSoftwarePage {
+    .inspect-software-content {
+        height: 370px;
+        overflow-y: auto;
+    }
+}
+/*Global CSS in Instance Page*/
+
+.app_url {
+    font-size: 10px;
+}
+.instanceTaskListUL {
+    list-style-type: square;
+}
+.instanceTaskListUL>li {
+    font-size: 10px;
+    color: #3276b1;
+    line-height: 1.8;
+}
+.showmenuAppTaskAnchor {
+    background-color: #ffffff;
+    @include theme-border-color;
+    border-radius: 50%;
+    height: 26px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 4px 6px;
+    font-size: 13px;
+    margin-top: -25px;
+    margin-left: 37px;
+    float: left;
+}
+.paddingtopbottom10 {
+    padding: 10px 0;
+}
+.instanceRoleLogo {
+    height: 25px;
+    margin-right: 10px;
+    max-width: 30px;
+}
+.instanceRoleLogoDocker {
+    height: 25px;
+    position: absolute;
+}
+//For Active tab
+.instance-tab-active {
+    background-color: #fff !important;
+    border: 1px solid #40baf1 !important;
+    border-bottom: 0px !important;
+    box-shadow: 0 -1px 5px -1px;
+    border-radius: 0px;
+    color: #40baf1 !important;
+    font-weight: 500;
+    outline: none !important;
+    text-decoration: none !important;
+    i {
+        color: #40baf1;
+    }
+}
+#tableView .ui-grid-row > div .ui-grid-cell {
+    float: left !important;
+    vertical-align: middle;
+    height: 55px !important;
+    padding: 6px !important;
+    overflow: hidden;
+}

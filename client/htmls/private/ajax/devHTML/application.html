@@ -1,0 +1,743 @@
+<link rel="stylesheet" type="text/css" href="css/application.css">
+<div class="tab-pane" id="l6">
+    <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-application" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+        <div>
+            <div class="widget-body no-padding">
+                <div class="col-lg-6 col-md-6 availableApp hidden">
+                    <label for="chooseApplication">Choose Available Application:<span class="redSpan">*</span></label>
+                    <div class="input-groups">
+                        <select id="chooseApplication" name="chooseApplication" class="required chooseApplication width-100">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 hidden">
+                    <div class="panel-heading">
+                        <span class="pull-right swap-view">
+						<a class="btn btn-primary envAppDeployList margin-top-15" href="#modalAppCardTableDetails" data-toggle="modal">
+						<span class="fontBold">List of Application</span>
+                        <i title="Add Application Details" class="fa fa-list fa-2x listApp"></i>
+                        </a>
+                        <a class="btn btn-primary envAppDeployModal margin-top-15" href="#modalAppCardDetails" data-toggle="modal">
+                            <span class="fontBold">Add Application</span>
+                            <i title="Add Application Details" class="fa fa-plus fa-2x listApp"></i>
+                        </a>
+                        </span>
+                    </div>
+                </div>
+                <div class="row noAppEnvironment padding15" style="display:none">
+                  <div class="alert alert-warning text-center">
+                      <span class="font-size-13">Please activate environments from configure application to see the Pipeline View</span>
+                  </div>
+                </div>
+                <div class="row">
+                    <article class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="widget-body font-size12" id="widgetAppDeploy">
+                            <div class="panel-group smart-accordion-default" id="accordion-AppDeploy">
+                            </div>
+                            <div id="nodataAppDeploy" style="display:none">
+                            </div>
+                            <div class="mainCardTemplate" style="display:none">
+			                    <span>
+				                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-6 no-padding padding-right5-mobile maxminwidth130">
+				                        <div class="panel panel-primary appcard-role-inner bordercolorGrayMain mainCardHeight">
+				                            <div class="panel-heading-support-main">
+				                                
+				                                <span class="spanHeading">
+				                                  <span class="applicationMainIP colorblack"></span>
+				                                </span>
+							            	</div>
+								            <div class="appCardBody">
+								                <div class="panel-body panel-primary appCardInfo padding2">
+								                    <div>
+								                        <div class="col-lg-12 col-sm-12 col-xs-12 text-center margin-top-5">
+								                            <img class="mainImageHeight" src="img/rsz_logo.png">
+								                        </div>
+								                        <div class="col-lg-12 col-sm-12 col-xs-12 paddingtopbottom4 text-center margin-top-5">
+								                            <div class="font-size-10">
+								                                <span>Version :</span><span class="versionMain"></span>
+								                            </div>
+								                        </div>
+								                    </div>
+								                </div>
+								            </div>
+							        	</div>
+							    	</div>
+							    </span>
+							</div>
+			    			<div class="childCardTemplate" style="display:none">
+			        			<span class="firstChildSpanTemplate">
+				                    <div class="col-sm-12 col-md-12 col-lg-12 col-xs-6 no-padding padding-right5-mobile maxminwidth130">
+				                        <div class="panel panel-primary appcard-role-inner borderrad12colorGray">
+				                            <div class="panel-heading panel-heading-support">
+				                                <span class="spanHeading"> 
+				                                  <span class="applicationChildIP colorblack">
+				                                  	
+				                                  </span>
+				                                </span>
+			    							</div>
+										    <div class="appCardBody">
+										        <div class="panel-body panel-primary appCardInfo padding2">
+										            <div class="">
+										                <div class="col-lg-12 col-sm-12 col-xs-12 text-center">
+										                    <div class="imgHeight imgStatusSuccess"></div>
+										                    <a class="btn btn-primary btn-sm width27borderradius50 applicationChildDetails margintop-45" title="Node Details">
+										                        <i class="fa fa-th childCardNodeDetails"></i>
+										                    </a>
+										                </div>
+										                <div class="col-lg-12 col-sm-12 col-xs-12 padding0 text-center ">
+										                    <div class="font-size-10 margintop-12">
+										                        <div>
+										                            <span class="lastapplicationDeploy" title="Last Deploy"></span>
+										                        </div>
+										                    </div>
+										                </div>
+										            </div>
+										            <div class="col-lg-12 col-sm-12 col-xs-12" style="display:none">
+														<span class="applicationEnvNamePipelineView"></span>
+														<span class="applicationInstanceNamePipelineView"></span>
+														<span class="hostNamePipelineView"></span>  
+														<span class="applicationNodeIPPipelineView"></span>  
+														<span class="containerIdPipelineView"></span>  
+														<span class="applicationStatusPipelineView"></span>
+													</div>
+										        </div>
+										    </div>
+										</div>
+									</div>
+								</span>
+								<div class="secondChildSpanTemplate marginAuto hidden">
+									<div class="btn-group btn-grp-CSS">
+					                    <a class="btn btn-primary btn-approve marginleft10 borderRadius7" title="Approve">
+					                     <i class="ace-icon fa fa-check-square-o bigger-110 colorwhite"></i>
+					                     
+					                    </a>
+					                    <a class="btn btn-primary btn-promote marginleft10 borderRadius7" title="Promote" disabled>
+					                    	<i class="ace-icon fa fa-line-chart bigger-110 colorwhite"></i>
+					                    	
+					                    </a>
+					                </div>
+								</div>
+							</div>
+							<div class="col-md-12 tablebordercolor paddingtop10leftright0" id="divapplicationcardview">
+								<div class="row loadingPipelineView">
+								    <article class="col-sm-12 col-md-12 col-lg-12">
+								        <img class="center-block loaderImg" src="img/loading.gif" />
+								    </article>
+								</div>
+                				<table class="tableClone dataTable table-custom table-condensed borderbtm1" cellpadding="5px" width="100%">
+                					<thead></thead>
+                					<tbody></tbody>
+
+				                </table>
+				                <div class="table-responsive table-div tableOverflow" id="tableContainer">
+				                    
+				                </div>
+            				</div>
+							
+                        </div>
+                    </article>
+                </div>
+                
+				<!-- <div class="row loadingAppDeploySpinner">
+				    <article class="col-sm-12 col-md-12 col-lg-12">
+				        <img class="center-block loaderImg" src="img/loading.gif" />
+				    </article>
+				</div> -->
+				<div class="accordianTemplateContainer" style="display:none">
+				    <div class="panel panel-default accordianTemplate">
+				        <div class="panel-heading panelHeaderBackBorder">
+				            <h4 class="panel-title">
+								<span class="envAppDeployName h4SpanCSS"></span>
+							</h4>
+				            <span class="pull-right margintop2right8"> 
+				            	<a id="syncAppPipelineView" class="btn btn-primary marginright5 hidden" title="Sync"> 
+									<i class="ace-icon fa fa-refresh bigger-110 marginright4White"></i>
+								</a>  
+								<a id="syncAppTableView" class="btn btn-primary marginright5" style="display:none"> 
+									<i class="ace-icon fa fa-refresh bigger-110 marginright4White"></i>
+								</a>
+								<a id="defaultViewButtonNewDeploy" class="btn btn-primary createNewDeploy marginright5" data-toggle="modal" href="#modalUpgradeAppDeploy"> 
+								<i class="ace-icon fa fa-plus bigger-110 marginright4White"></i>Deploy New App
+								</a>                                 
+								<a onclick="showHideControlApplication(this.id)" class="btn1" id="instanceviewAppCard" title="History"> 
+								<i class="fa fa-header fa-2x txt-color-deactive font-size-16"></i>
+								</a>&nbsp;
+								<a onclick="showHideControlApplication(this.id)" id="defaultViewButtonAppCard" class="btn btn-primary" style="display:none"> 
+								<i class="ace-icon ace-icon fa fa-chevron-left bigger-110 marginright4White"></i>Pipeline View
+								</a>
+								<a href="#modalappcardConfigure" data-toggle="modal" class="createAppConfigure margintop-5"  title="Configure">
+								<i class="fa fa-th fa-cogs marginright5font18"></i>
+								</a>
+							</span>
+				        </div>
+				        <div id="divapplicationtableview">
+				            <div id="collapseAppEnv1" class="panel-collapse collapse in envAppDeployAccordian">
+				                <div class="table-responsive table-div table-responsive-CSS">
+				                    <table id="tableappDeploydetails" class="table table-striped table-bordered table-hover dataTable envAppDeployTable tableAppDetailsCSS" width="100%" cellpadding="5px">
+				                        <thead>
+				                            <tr class="rowCustomStyle fontBold">
+				                                <td class="tableStyleColor">App</td>
+				                                <td class="tableStyleColor">App-Instance</td>
+				                                <td class="tableStyleColor">Version</td>
+				                                <td class="tableStyleColor">Host</td>
+				                                <td class="tableStyleColor">Node IP</td>
+				                                <td class="tableStyleColor">Last Deploy</td>
+				                                <td class="tableStyleColor">Container Name/ID</td>
+				                                <td class="tableStyleColor">Application Type</td>
+				                                <td class="tableStyleColor">Status</td>
+				                                <td class="tableStyleColor">Logs</td>
+				                                <td class="tableStyleColor">Upgrade</td>
+				                            </tr>
+				                        </thead>
+				                        <tbody>
+				                        </tbody>
+				                    </table>
+				                </div>
+				                <div class="table-responsive table-div fornNoDataDiv" style="display:none">
+				                    <table id="tableappDeploydetailsforNoData" class="table table-striped table-bordered table-hover dataTable tableAppDetailsCSS" width="100%" cellpadding="5px">
+				                        <thead>
+				                            <tr class="rowCustomStyle">
+				                                <td class="tableStyleColor">App</td>
+				                                <td class="tableStyleColor">App-Instance</td>
+				                                <td class="tableStyleColor">Version</td>
+				                                <td class="tableStyleColor">Host</td>
+				                                <td class="tableStyleColor">Node IP</td>
+				                                <td class="tableStyleColor">Last Deploy</td>
+				                                <td class="tableStyleColor">Container Name/ID</td>
+				                                <td class="tableStyleColor">Application Type</td>
+				                                <td class="tableStyleColor">Status</td>
+				                                <td class="tableStyleColor">Logs</td>
+				                                <td class="tableStyleColor">Upgrade</td>
+				                            </tr>
+				                        </thead>
+				                        <tbody>
+				                        </tbody>
+				                    </table>
+				                </div>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalapproveConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Approve to Promote App from "<span id="approvedEnvName"></span>"
+					</h4>
+				</div>
+				<div class="modal-body height150">
+					<div class="">
+                     	<label class="font-size-13">Comments :</label>
+                     	<textarea class="form-control height75widthFull" name="comments" id="approvalCommentsDesc"></textarea>
+                  	</div>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">
+						  
+						<a class="btn btn-default" data-dismiss="modal">
+							<i class="ace-icon fa fa-times bigger-110"></i>
+							Cancel
+						</a>  
+						                            
+						<a class="btn btn-primary approveSave marginleft10">
+							<i class="ace-icon fa fa-check bigger-110"></i>
+							Approve
+						</a>
+						<a class="btn btn-danger revokeSave marginleft10">
+							<i class="ace-icon fa fa-times-circle bigger-110"></i>
+							Revoke
+						</a> 
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalpromoteConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="appPromoteForm" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Promote for Pipeline View
+					</h4>
+				</div>
+				<div class="modal-body modal-height">
+					<div class="col-lg-6 col-md-6">
+						<label for="">Source Environments:
+							<span class="redSpan">*</span>
+							<span>
+								<img class="environmentspinner" src="img/select2-spinner.gif" style="display:none" />
+							</span>
+						</label>
+						<div class="input-groups">
+							<select id="chooseSourceEnvironments" name="" class="required width-100 form-control">
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-6 col-md-6">
+						<label for="">Target Environments:
+							<span class="redSpan">*</span>
+							<span>
+								<img class="environmentspinner" src="img/select2-spinner.gif" style="display:none" />
+							</span>
+						</label>
+						<div class="input-groups">
+							<select id="chooseEnvironments" name="" class="required width-100 form-control">
+							</select>
+						</div>
+					</div>
+					
+					<div class="col-lg-6 col-md-6 margintop15">
+						<label for="">Jobs:
+							<span class="redSpan">*</span>
+							<span>
+								<img class="jobsspinner" src="img/select2-spinner.gif" style="display:none" />
+							</span>
+						</label>
+						<div class="input-groups">
+							<select id="chooseJobs" name="" class="required width-100 form-control">
+								<option value="">Choose Jobs</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-12 margintop15">
+					   	<label for="">Nodes:<span class="redSpan">*</span></label>
+					   	<div class="smart-form">
+	                       	<ul id="promoteNodesId" class="promoteNodesCSS paddingleftright0">
+	              
+	                       	</ul>
+                       	</div>
+                    </div>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">  
+						<a class="btn btn-default" data-dismiss="modal">
+							<i class="ace-icon fa fa-times bigger-110"></i>
+							Cancel
+						</a>                               
+						<a class="btn btn-primary promoteSave marginleft10">
+							<i class="ace-icon fa fa-check bigger-110"></i>
+							Promote
+						</a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalappcardConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="appCardForm" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Configure Application Pipeline View
+					</h4>
+				</div>
+				<div class="modal-body">
+					<form id="formconfigureapplication">
+						<table class="table table-bordered" cellpadding="5px" width="100%" id="tableconfigureapplication">
+							<thead>
+								<tr class="tableStyleColor">
+									<th>Stages/Environments</th>
+									<th>Active</th>
+									<th>UP/DOWN</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">  
+						<a class="btn btn-default" data-dismiss="modal">
+						<i class="ace-icon fa fa-times bigger-110"></i>
+						Cancel
+						</a>                               
+						<a class="btn btn-primary appdeployConfigureSaveBtn marginleft10">
+						<i class="ace-icon fa fa-save bigger-110"></i>
+						Save
+						</a>
+					</div>
+				</div>
+			</form>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<div class="modal fade" id="modalAppCardDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="formAppDeploy" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Associate App Deploy<span class="redSpan font-size-12" id="errorParam"></span>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="addApptoAppend">
+						<div class="row application4Params margin5-0-0">
+							<div class="col-lg-6 col-md-6 col-sm-6 paddingleft0">
+								<label for="name">Application Name:<span class="redSpan">*</span>
+								</label>
+								<input type="text" autofocus="" class="form-control height36" id="appNameInput">
+							</div>
+							<div class="col-lg-6 col-md-6 col-sm-6 paddingleft0">
+								<label for="name">Description:
+								</label>
+								<input type="text" class="form-control height36" id="applicationDescriptionInput">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">
+						<a class="btn btn-default cancelAppDeploy marginleft10" data-dismiss="modal">
+						<i class="ace-icon fa fa-times bigger-110"></i> Cancel
+						</a>
+						<a class="btn btn-primary" id="parameterAppDeploySaveBtn">
+						<i class="ace-icon fa fa-save bigger-110"></i> Save
+						</a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalAppCardTableDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="formAppDeployTableHistory" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;List of Application
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="table-responsive table-div">
+						<table id="tableappParamDeploy" class="table table-striped table-bordered table-hover dataTable tableModalAppDetails" width="100%" cellpadding="5px">
+							<thead>
+								<tr class="rowCustomStyle fontBold">
+									<td class="tableStyleColor">S.No.</td>
+									<td class="tableStyleColor">Application Name</td>
+									<td class="tableStyleColor">Application Description</td>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">
+						<a class="btn btn-default marginleft10" data-dismiss="modal">
+						<i class="ace-icon fa fa-times bigger-110"></i> Cancel
+						</a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalDetailsAppDeploy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" id="" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close logsClose" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                    <h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Details
+					</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="">
+                        <table class="table table-bordered" cellpadding="5px" width="100%" id="envSpecificDataTable">
+                            <thead>
+                                <tr class="tableStyleColor">
+                                    <th>Node IP</th>
+                                    <th>Last Deploy</th>
+                                    <th>Status</th>
+                                    <th>Logs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group marginleft200">
+                        <a class="btn btn-default marginleft10 logsClose" data-dismiss="modal">
+                            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modallogsSpecificDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" id="" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                    <h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Log Details
+					</h4>
+                </div>
+                <div class="modal-body modalHeightHelp">
+                    <div class="appLogsSpecific colorDarkBlue">
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group marginleft200">
+                        <a class="btn btn-default marginleft10" data-dismiss="modal">
+                            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAppCardLogDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="formAppDeployLogs" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Logs
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="logsForAppDeploy">
+					</div>
+					
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">
+						<a class="btn btn-default cancelAppDeploy marginleft10" data-dismiss="modal">
+						<i class="ace-icon fa fa-times bigger-110"></i> Cancel
+						</a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalUpgradeAppDeploy" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="formUpgradeAppDeploy" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title modaltitleforNewDeploy" style="display:none">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;New App Deployment
+					</h4>
+					<h4 class="modal-title modaltitleforupgradeDeploy">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Upgrade : <span id="upgradeAppName"></span> (<span id="upgradeNodeIp"></span>)
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="upgradeForAppDeploy">
+						<input type="hidden" id="containerIdInput">
+						<fieldset class="fieldsetCustom">
+							<legend  class="legendCustom">Repository Details:</legend>
+							<div class="col-lg-6 col-md-6">
+								<label for="">Repository Server:<span class="redSpan">*</span>
+								<span>
+								<img class="reposerverspinner" src="img/select2-spinner.gif" style="display:none">
+								</img>
+								</span>
+								</label>
+								<div class="input-groups">
+									<select id="chooseNexusServer" name="" class="required width-100 form-control">
+										<option value="">Choose Server</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-6 col-md-6">
+								<label for="">Repository:<span class="redSpan">*</span>
+								<span>
+								<img class="repospinner" src="img/select2-spinner.gif" style="display:none"></img>
+								</span>
+								</label>
+								<div class="input-groups">
+									<select id="chooseRepository" name="" class="required width-100 form-control">
+										<option value="">Choose Repositories</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-6 col-md-6 margintop15 groupClass">
+								<label for="">Group ID:<span class="redSpan">*</span>
+								<span>
+								<img class="repospinner" src="img/select2-spinner.gif" style="display:none"></img>
+								</span>
+								</label>
+								<div class="input-groups">
+									<select id="chooseGroupId" name="" class="required width-100 form-control">
+										<option value="">Choose Group ID</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-6 col-md-6 margintop15 artifactClass">
+								<label for="">Artifacts:<span class="redSpan">*</span>
+								<span>
+								<img class="artifactsspinner" src="img/select2-spinner.gif" style="display:none">
+								</img>
+								</span>
+								</label>
+								<div class="input-groups">
+									<select id="chooseArtifacts" name="" class="required width-100 form-control">
+										<option value="">Choose Artifacts</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-6 col-md-6 margintop15 versionClass">
+								<label for="">Versions:<span class="redSpan">*</span>
+								<span>
+								<img class="versionspinner" src="img/select2-spinner.gif" style="display:none">
+								</img>
+								</span>
+								</label>
+								<div class="input-groups">
+									<select id="chooseVersions" name="" class="required width-100 form-control">
+										<option value="">Choose Versions</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-12 col-md-12 margintop15 repoUrlClass">
+								<label>Repository URL:<span class="redSpan">*</span>
+								<span>
+								<img class="repourlspinner" src="img/select2-spinner.gif" style="display:none">
+								</img>
+								</span>
+								</label>
+								<input id="repositoryUrl" type="text" class="form-control" name="" disabled>
+							</div>
+							<div class="col-lg-12 col-md-12 margintop15 containerClass containerIdClass containerUpgradeDeploy">
+								<label>Container Name/ID:
+								<span>
+								<img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+								</img>
+								</span>
+								</label>
+								<input id="containerIdDiv" type="text" class="form-control" />
+							</div>
+							<div class="col-lg-12 col-md-12 margintop15 containerClass  containerPortClass containerUpgradeDeploy">
+								<label>Container Port:<span class="redSpan">*</span>
+								<span>
+								<img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+								</img>
+								</span>
+								</label>
+								<input id="containerPort" type="text" class="form-control" name="">
+							</div>
+							<input id="upgradeValue" type="hidden" />
+							
+						</fieldset>
+						<fieldset class="fieldsetCustom margintop20">
+							<legend  class="legendCustom">Job Details:</legend>
+							<div class="col-lg-6 col-md-6 col-sm-6">
+								<label>Jobs:<span class="redSpan">*</span>
+								<span>
+								<img class="jobdetailsspinner" src="img/select2-spinner.gif" style="display:none">
+								</img>
+								</span>
+								</label>
+								<div class="input-groups">
+									<select id="chooseJobType" name="" class="required width-100 form-control">
+										<option value="">Choose Job</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-6 col-md-6 margintop6">
+								<label>
+								<span></span>
+								</label>
+								<div class="input-groups">
+									<a class="btn btn-primary createTaskLinkUpgrade">
+									<i class="ace-icon fa fa-indent bigger-110"></i> Create New Job
+									</a>
+								</div>
+							</div>
+						</fieldset>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">
+						<a class="btn btn-default cancelUpgradeAppDeploy marginleft10" data-dismiss="modal">
+						<i class="ace-icon fa fa-times bigger-110"></i> Cancel
+						</a>
+						<a class="btn btn-primary saveNewAppDeploy marginleft10" style="display:none">
+						<i class="ace-icon fa fa-location-arrow bigger-110"></i> Deploy
+						</a>
+						<a class="btn btn-primary saveUpgradeAppDeploy marginleft10">
+						<i class="ace-icon fa fa-save bigger-110"></i> Upgrade
+						</a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalassignTaskUpgrade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form role="form" id="" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        X
+                    </button>
+                    <h4 class="modal-title">
+						<i class="fa fa-indent txt-color-blue"></i>&nbsp;&nbsp;Create New Job
+					</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="js/dev/application.js"></script>
+<script src="js/dev/applicationUpgradeAssignTask.js"></script>

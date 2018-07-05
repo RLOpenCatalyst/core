@@ -1,0 +1,248 @@
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-12">
+              <form action="" id="configForm" autocomplete="off">
+                    <div class="widget-box">
+                        <div class="widget-header">
+                            <h5 class="widget-title" style="color:#4e5964;">
+                                 <strong>ServiceNow CMDB Setting</strong>
+                            </h5>
+                        </div>
+                <div class="widget-body">
+                    <div class="widget-main" style="min-height:300px;">
+                        <div>
+                            <section id="widget-grid" class="">
+                        <!-- START ROW -->
+                                <div class="row">             
+                              <!-- Widget ID (each widget will need unique ID)-->
+                                    <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                                 <!-- widget div-->
+                                        <div>
+                                    <!-- widget content -->
+                                        <div class="widget-body no-padding">
+                                       <div class="col-lg-6 col-md-6">
+                                             <label for="configname">Configuration Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                             <!-- <i class="icon-append fa fa-building"></i> -->
+                                            <div class="input-groups"> 
+                                             <input name="configname" value="" id="configname" class="form-control required" type="text"  cdata="catalyst" unique="true" uniqueconditionedby="configname">
+                                             </div>
+                                          </div>
+                                          
+                                          
+                                             <div class="col-lg-6 col-md-6">
+                                                <label for="url">ServiceNow URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <!-- <i class="icon-append fa fa-building"></i> -->
+                                                <div class="input-groups">
+                                                <input name="url" value="" id="url" class="form-control required" type="url"  cdata="catalyst
+                                                " ></div>
+                                             </div>
+                                          <hr>
+                                          
+                                             <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                                <label for="username">UserName:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <!-- <i class="icon-append fa fa-building"></i> -->
+                                                <div class="input-groups">
+                                                <input type="text" name="username" value="" id="username" class="form-control required" type="text"  name="website"  cdata="catalyst"  autocomplete="off">
+                                                </div>
+                                             </div>
+                                          
+                                          <hr/>
+                                          
+                                             <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                                <label for="password">Password:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <!-- <i class="icon-append fa fa-building"></i> -->
+                                                <div class="input-groups">
+                                                <input name="password" value="" id="password" class="form-control required" type="password"  name="website"  cdata="catalyst"  autocomplete="off">
+                                                </div>
+                                             </div>
+
+                                              <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                                <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <div class="input-groups">
+                                                <select name="orgname" id="orgname" class="width-100 form-control required"  style="vertical-align:central">
+                                                   <option value="">Select an Organization</option>
+                                                </select>
+                                                </div>
+                                             </div>
+                                    </div>
+                                    <!-- end widget content -->
+                                 </div>
+                                 <!-- end widget div -->
+                              </div>
+                              <!-- end widget -->             
+                        </div>
+                        <!-- END ROW -->
+                     </section>
+                     <!-- end widget grid -->
+                     </div>
+                    </div>
+
+            <div class="widget-toolbox clearfix">
+               <div class="btn-group pull-right">
+                  <a class="btn btn-default" style="margin-right:11px;" onclick="window.history.back();" id="btncancel">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+                  </a>
+                  <button class="btn btn-primary btn-mini">
+                  <i class="ace-icon fa fa-check bigger-110"></i>
+                  Save
+                  </button>
+               </div>
+            </div>
+
+                </div>
+                    </div>
+               </form><!--form ends-->
+                </div>
+            </div>
+        </div>
+
+      <script >
+
+        var UtilityMethods={
+             initTooltip:function(){
+              var $tool=$("[rel=tooltip]");
+              if ($tool.length) {
+               $tool.tooltip();
+             }
+           },
+           getRandomNumber:function(){      
+             return parseInt(Math.random()*10000000000);
+           },
+           getIdFromURL:function(){
+             var options=location.toString().split('?');
+             return options.length >1 ? (options[1]!=="new" ? options[1]:"" ):"";
+           }
+         };
+   
+        $(document).ready(function () {
+            
+            var isEditMode = false;
+
+            var id = UtilityMethods.getIdFromURL();
+
+
+            if(id){
+               console.log("In updation :", id);
+               isEditMode = true;
+
+              $.get('/cmdb/servers/' + id ,function(data){
+                  $('#configname').val(data.configname);
+                  $('#url').val(data.url);
+                  $('#username').val(data.servicenowusername);
+                  $('#password').val(data.servicenowpassword);
+                  var $option = '<option selected value="'+data.orgname+'" orgname_rowid="'+data.orgname_rowid+'">'+data.orgname+'</option>';
+                  $('#orgname').append($option).attr('disabled','disabled');
+             });
+            }else{
+                $.get('/d4dMasters/readmasterjsonnew/1',function(data){
+               //alert('data');
+                  var $select = $('#orgname');
+
+                  for(i=0;i<data.length;i++){
+                    var orgname_rowid = data[i].rowid;
+                    $select.append('<option value="'+data[i].orgname+'" orgname_rowid="'+orgname_rowid+'">'+data[i].orgname+'</option>');
+                  }
+               });//end of get organizations action
+
+            }
+
+            //form validation for dashboard save
+             var validator = $('#configForm').validate({
+                 onkeyup: false,
+                 errorClass: "error",
+
+                 //put error message behind each form element
+                 errorPlacement: function(error, element) {
+                     console.log(error, element);
+                     var elem = $(element);
+                     if (element.parent('.input-groups').length) {
+                         error.insertBefore(element.parent());
+                     } else {
+                         if (element.parent('div.inputGroups')) {
+                             console.log(element);
+                             console.log(element.parent);
+                             error.insertBefore('div.inputGroups');
+                         }
+                         $("select.select2-me").each(function(index, el) {
+
+                             if ($(this).is("[data-rule-required]") &&
+                                 $(this).attr("data-rule-required") == "true") {
+                                 $(this).on('select2-close', function(e) {
+                                     $(this).valid()
+                                 });
+                             }
+                         });
+                     }
+                 },
+
+                 //When there is an error normally you just add the class to the element.
+                 // But in the case of select2s you must add it to a UL to make it visible.
+                 // The select element, which would otherwise get the class, is hidden from
+                 // view.
+                 highlight: function(element, errorClass, validClass) {
+                     var elem = $(element);
+                     if (elem.hasClass("select2-offscreen")) {
+                         $("#s2id_" + elem.attr("id") + " ul").addClass(errorClass);
+                     } else {
+                         elem.addClass(errorClass);
+                     }
+                 },
+
+                 //When removing make the same adjustments as when adding
+                 unhighlight: function(element, errorClass, validClass) {
+                     var elem = $(element);
+                     if (elem.hasClass("select2-offscreen")) {
+                         $("#s2id_" + elem.attr("id") + " ul").removeClass(errorClass);
+                     } else {
+                         elem.removeClass(errorClass);
+                     }
+                 }
+             });
+           
+             $('#configForm').submit(function(e) {
+                 console.log("In config form");
+                 var isValidate = $("#configForm").valid();
+                 //alert(isValidate);
+                 if (!isValidate) {
+                     e.preventDefault();
+                 } else {
+                     var url = '/servicenow/saveconfig';
+
+                     if(isEditMode){
+                       url = '/servicenow/config/update/' + id;
+                     }
+
+                     e.preventDefault();
+                     console.log('Form validation is success');
+                     var configname = $('#configname').val().trim();
+                     var servicenowurl = $('#url').val().trim();
+                     var username = $('#username').val().trim();
+                     var password = $('#password').val().trim();
+                     //var chefserver = $('#chefserver').val().trim();
+                     var org = $('#orgname').val().trim();
+                     var orgname_rowid = $('#orgname').find(':selected').attr('orgname_rowid');
+
+                     //console.log("orgname_rowid",orgname_rowid);
+                     var body = {};
+
+                     body.configname = configname;
+                     body.servicenowurl = servicenowurl;
+                     body.username = username;
+                     body.password = password;
+                     //body.chefserver = chefserver;
+                     body.org = org;
+                     body.orgname_rowid = orgname_rowid;
+
+                     $.post(url, body, function(data) {
+                         console.log("Saveconfig Response::" + data);
+                         $('#btncancel').click();
+                     });
+                     // }
+                 }
+
+             }); //end of save config action
+
+         }); //end of document load
+
+      </script>

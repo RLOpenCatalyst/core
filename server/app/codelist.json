@@ -1,0 +1,17 @@
+[
+    {
+        "name": "awsregions",
+        "values": [
+            "US West",
+            "US East"
+        ]
+    },
+    {
+        "name": "azureregions",
+        "values": [
+            "US West",
+            "US East",
+            "East Asia"
+        ]
+    }
+]

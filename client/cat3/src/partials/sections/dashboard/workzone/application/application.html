@@ -1,0 +1,78 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/application/application.css">
+
+<div id='applicationPage' ng-controller="applicationCtrl">
+    <loading size="large" name="isApplicationPageLoading" type="block"></loading>
+    <div ng-show="!isApplicationPageLoading">
+        <div class="panel-heading">
+            <span class="pull-left">
+                <span class="panel-title">
+                    <span>Application</span>
+                </span>
+                <button type="button" class="btn btn-xs btn-link {{!isAppActiveCardTab.icon ?'app-tab-active':''}}" ng-click="applicationPipelineTab('activeCards')">
+                    Pipeline Summary
+                </button>
+                <button type="button" class="btn btn-xs btn-link  {{!isAppallCardTab.icon ?'app-tab-active':''}}" ng-click="applicationPipelineTab('allCards')">
+                    Pipeline View
+                </button>
+                <button type="button" class="btn btn-xs btn-link  {{!isHistoryTab.icon ?'app-tab-active':''}}" title="History" ng-click="applicationPipelineTab('history')">
+                    History
+                </button>
+            </span>
+            <span class="pull-right">
+                <span ng-show="pipeLineActBarShow">
+                    <button type="button" class="btn btn-xs cat-btn-update" ng-click="appCardDetail(pipeLineActBarData)">
+                        <i class="fa fa-tasks white"></i> Info 
+                    </button>
+                    <button type="button" class="btn btn-xs cat-btn-update" ng-click="promoteApp(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
+                        <i class="fa fa-clone white"></i> Promote
+                    </button>
+                    <button type="button" class="btn btn-xs cat-btn-update" ng-click="appApprove(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
+                         <i class="fa fa-times white"></i> Revoke
+                    </button>
+                    <button type="button" class="btn btn-xs cat-btn-update" ng-click="appApprove(pipeLineActBarData)" ng-if="!pipeLineActBarData.isApproved && !isLastEnv">
+                        <i class="fa fa-eye white"></i> Approve
+                    </button>
+                    <button type="button" class="btn btn-xs cat-btn-update" ng-click="upgradeApp(pipeLineActBarData)">
+                        <i class="fa fa-edit white"></i> Upgrade
+                    </button>
+                </span>
+                <span>
+                    <button title="Deploy new app"  type="button" class="btn btn-xs cat-btn-update" ng-click="deployNewApp()" >
+                        <i class="fa fa-plus white"></i> New
+                    </button>
+                    <button title="Configuration"  type="button" class="btn btn-xs cat-btn-update" ng-click="configureAppPipelineView()" >&nbsp;<i class="fa fa-cogs white"></i>&nbsp;</button>
+                    <button title="Refresh" ng-show="isAppActiveCardTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appSummaryRefresh()">&nbsp;<i class="fa fa-refresh white"></i>&nbsp;</button>
+                    <button title="Refresh" ng-show="isHistoryTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appHistoryRefresh()" >&nbsp;<i class="fa fa-refresh white"></i>&nbsp;</button>
+                    <button title="Refresh" ng-show="isAppallCardTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appCardRefresh()" >&nbsp;<i class="fa fa-refresh white"></i>&nbsp;</button>
+                </span>
+            </span>
+        </div>
+
+        <section id="pipelineView" class="pipelineView {{!isAppallCardTab.template? 'hide-grid':'show-grid'}}" >
+            <div ng-if="pipeGridOptions.data.length > 0">
+                <div ui-grid="pipeGridOptions"  ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
+            </div>
+            <div class="alert alert-info text-center" ng-if="!pipeGridOptions.data.length > 0">
+                No Application Deployments Available
+            </div>
+        </section>
+
+        <section  class="{{!isHistoryTab.template? 'hide-grid':'show-grid'}}"  ng-controller="applicationHistoryCtrl">
+            <div class="alert alert-info text-center" ng-if="!historGgridData.length > 0">
+                No Application Deployments Available
+            </div>
+            <div ng-if="historyGridOptions.data.length > 0">
+                <div  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
+            </div>
+        </section>
+
+        <section  class="pipelineView {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
+            <div ng-if="summaryGridOptions.data.length > 0">
+                <div ui-grid="summaryGridOptions" ui-grid-auto-resize class="grid" style="height:{{gridHeightSummary}}px"></div>
+            </div>
+            <div class="alert alert-info text-center" ng-if="!summaryGridOptions.data.length > 0">
+                No Application Deployments Available
+            </div>
+        </section>
+    </div>
+</div>

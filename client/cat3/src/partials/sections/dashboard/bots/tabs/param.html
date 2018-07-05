@@ -1,0 +1,22 @@
+<div id="botLibraryPage" ng-controller="botDescriptionCtrl">
+   <div class="container summary-container">
+      <div class="bot-info-wrapper">
+         <table class="table table-bordered">
+            <thead>
+               <tr class="paramRow">
+                  <th class="th-parameters">Label</th>
+                  <th class="th-values">Type</th>
+                  <th class="th-values">Default</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr ng-repeat = "botParams in botInfo.inputFormFields">
+                  <td>{{botParams.label}}</td>
+                  <td>{{botParams.type}}</td>
+                  <td>{{botParams.default}}</td>
+               </tr>
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div> 

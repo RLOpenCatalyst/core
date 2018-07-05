@@ -1,0 +1,163 @@
+<div id='deployNewAppPage' >
+	<div class="save-loading" ng-show="isLoadingNewApp">
+		<loading size="large" name="isLoadingNewApp" type="inline"></loading>
+	</div>
+	<form name="DeploymentForm" novalidate>
+		<div class="modal-header">
+			<div class="imp-note red" ng-show="DeploymentForm.$invalid" > <span class="red">*</span> are mandatory fields</div>
+			<span class="close" ng-click="cancel()">×</span>
+			<h4 class="modal-title">
+				<i class="fa fa-plus"></i> New App Deployment
+			</h4>
+		</div>
+		<div class="modal-body">
+			<div>
+				<fieldset class="repo-job-details-wrapper">
+					<legend class="repo-job-details-wrapper-inner">Repository Details:</legend>
+					<div class="col-lg-6 col-md-6">
+						<label for="">Repository Server:<span class="red">*</span> <span ng-if="depNewApp.errorMsg.server" messages msg-config="depNewApp.errorMsg"></span>
+						</label>
+						<div class="input-groups">
+							<loading size="small" name="isLoadingServer" type="inline"></loading>
+							<select ng-model="depNewApp.newEnt.serverTypeInd" class="form-control" ng-change="depNewApp.getRepository();" required>
+								<option value="">Choose Server</option>
+								<option ng-repeat="serverOption in depNewApp.serverOptions" value="{{depNewApp.serverOptions.indexOf(serverOption)}}">{{(serverOption.nexusservername) ? serverOption.nexusservername : serverOption.dockerreponame}}</option>
+							</select>
+						</div>
+					</div>
+					<div ng-if="depNewApp.newEnt.serverType!=='docker' && depNewApp.newEnt.serverType!=='nexus'">
+						<div class="col-lg-6 col-md-6">
+							<label >Repository:<span class="red">*</span>
+							</label>
+							<div class="input-groups">
+								<select name="" class="form-control" >
+									<option value="">Choose Repositories</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div ng-if="depNewApp.newEnt.serverType==='docker'">
+						<div class="col-lg-6 col-md-6">
+							<label >Repository:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select name="repositories" class="form-control" ng-model="depNewApp.newEnt.repositoryIMG" ng-change="depNewApp.changeRepository();" required>
+									<option value="">Choose Repositories</option>
+									<option ng-repeat="(key,value) in depNewApp.repositoryOptions" value="{{value}}">{{value}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15">
+							<label>Tags:<span class="red">*</span>
+								<loading size="small" name="isLoadingDocTag" type="inline"></loading>
+							</label>
+							<select class="form-control" ng-model="depNewApp.newEnt.tag"  required>
+								<option value="">Choose Tag</option>
+								<option ng-repeat="tagOption in depNewApp.tagOptions" value="{{tagOption.name}}">{{tagOption.name}}</option>
+							</select>
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15">
+							<label>Container Port:<span class="red">*</span>
+								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+							</label>
+							<div class="input-groups"><input type="text" name="contPort" class="form-control" ng-model="depNewApp.newEnt.contPort" required></div>
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15" >
+							<label ng-click="showHideLoader()">Host Port:<span class="red">*</span></label>
+							<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+							<input type="text" class="form-control" name="hostPort" ng-model="depNewApp.newEnt.hostPort" required>
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15" >
+							<label ng-click="showHideLoader()">Container Name/ID:</label>
+							<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+							<input type="text" class="form-control" ng-model="depNewApp.newEnt.ContNameId" >
+						</div>
+					</div>
+					<div  ng-if="depNewApp.newEnt.serverType==='nexus'">
+						<div class="col-lg-6 col-md-6">
+							<label >Repository:<span class="red">*</span> <span ng-if="depNewApp.errorMsg.repository" messages msg-config="depNewApp.errorMsg"></span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select name="repositoryInd" class="form-control" ng-model="depNewApp.newEnt.repositoryInd" ng-change="depNewApp.changeRepository();" required>
+									<option value="">Choose Repositories</option>
+									<option ng-repeat="repository in depNewApp.repositoryOptions" value="{{depNewApp.repositoryOptions.indexOf(repository)}}">{{repository.name}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15" >
+							<label>Group ID:<span class="red">*</span>
+								<loading size="small" n ame="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select class="form-control" name="groupId" ng-model="depNewApp.newEnt.groupId"  ng-change="depNewApp.getArtifacts()" required>
+									<option value="">Choose Group ID</option>
+									<option ng-repeat="(key , val) in depNewApp.groupOptions" value="{{val}}">{{val}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15">
+							<label>Artifacts:<span class="red">*</span>
+								<loading size="small" name="isLoadingArtifacts" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select class="form-control" name="artifactInd" ng-model="depNewApp.newEnt.artifact" ng-change="depNewApp.getVersions();" required>
+									<option value="">Choose Artifacts</option>
+									<option ng-repeat="(key , artifact) in  depNewApp.artifactsOptions" value="{{artifact}}">{{artifact}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15" >
+							<label for="">Versions:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select class="form-control" name="version" ng-model="depNewApp.newEnt.version" required>
+									<option value="">Choose Versions</option>
+									<option ng-repeat="(key , values) in depNewApp.versionsOptions" value="{{values}}">{{values}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-12 col-md-12 margintop15">
+							<label>Repository URL:<span class="red">*</span>
+								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+							</label>
+							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						</div>
+					</div>
+				</fieldset>
+				<fieldset class="repo-job-details-wrapper margintop20">
+					<legend class="repo-job-details-wrapper-inner">Job Details:</legend>
+					<div class="col-lg-6 col-md-6 col-sm-6">
+						<label>Jobs:<span class="red">*</span>
+						<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+						</label>
+						<div class="input-groups">
+							<loading size="small" name="isLoadingJob" type="inline"></loading>
+							<select id="chooseJobType" name="jobInd" ng-model="depNewApp.newEnt.jobInd"  ng-options="depNewApp.jobOptions.indexOf(jobOption) as jobOption.name for jobOption in depNewApp.jobOptions" class="form-control" required>
+								<option value="">Choose Job</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-6 col-md-6">
+						<div class="input-groups create-new-job-button">
+							<button type="button" class="btn cat-btn-update" ng-click="depNewApp.createNewJob()">
+								<i class="fa fa-plus white"></i> Create New Job
+							</button>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+
+		<div class="modal-footer">
+			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+				<i class="fa fa-times black"></i> Cancel
+			</button>
+				<button type="button" class="btn cat-btn-update" ng-disabled="DeploymentForm.$invalid"  ng-click="depNewApp.submitAppDeploy();">
+				<i class="fa fa-location-arrow white"></i> Deploy
+				</button>
+		</div>
+	</form>
+</div>

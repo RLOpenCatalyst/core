@@ -1,0 +1,659 @@
+<script>
+//   $(".tree-view").hide();
+   
+</script>
+<div class="row">
+   <div class="col-md-12">
+      <div class="col-md-12">
+         <form action="" id="myForm6">
+            <div class="widget-box">
+               <div class="widget-header">
+                  <h4 class="widget-margin" style="color:black;">Create Templates <span id="spnbuildservername"></span></h4>
+               </div>
+               <div class="widget-body">
+                  <div class="widget-main widgetHeight">
+                     <div>
+                        <section id="widget-grid" class="">
+                        <!-- START ROW -->
+                        <div class="row">
+                           <!-- Widget ID (each widget will need unique ID)-->
+                           <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                              <!-- widget div-->
+                              <div>
+                                 <!-- widget content -->
+                                 <div class="widget-body no-padding">
+                                    <div class="row zero-margin" >
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="">Template Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <label id="msgOrgName"></label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="templatename" class="form-control"  cdata="catalyst" unique="true" uniqueconditionedby="templatename,templatetypename" type="text" cat-validation="required,max15"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                                       </div>
+                                       <div class="col-lg-6 col-md-6">
+                                          <div class="smart-forms">
+                                             <label for="">Icon:</label>
+                                             <label for="templatesicon" name="field" class="file">
+                                                <div class="imgdiv" value="1"></div>
+                                                <span class="button btn-primary">Browse</span><input id="templatesicon" type="file" onchange="this.nextSibling.value = this.value" cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                             </label>
+                                          </div>
+                                       </div>
+                                    </div>
+                                    
+         
+
+                                       <div class="col-lg-6 col-md-6" style="margin-top:5px;">
+                                          <label for="">Template Type:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <select id="templatetypename" ignoreoption="OSImage" class="choosetemplateType width-100" sourcepath="16" ignoreComposite="Composite"  cdata="catalyst" datapath="masterjson.rows.row" onChange="if($(this).val().indexOf('Docker') >= 0) {$('.forDocker').show(); $('.notforDocker').hide();$('.notCFT').hide();}else {$('.forDocker').hide();$('.notforDocker').show();$('.forCFT').hide();}if($(this).val().indexOf('CloudFormation') >=0 || $(this).val().indexOf('ARMTemplate') >=0){$('.forDocker').hide(); $('.notforDocker').hide(); $('.forCFT').show();}">
+                                          </select>
+                                       </div>
+                                       <div class="col-lg-6 col-md-6" hidden>
+                                          Template Provider Path:
+                                          <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                          <input name="ctl00$MainContent$orgname" value="https://" id="providertemplatepath" class="form-control" type="text"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                                       </div>
+                                       
+                                    
+                                       <div class="col-lg-6 col-md-6" style="margin-top:5px;">
+
+                                                        <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
+                                                        </label>
+
+                                                        <!-- <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname']" onchange="$('#configname').change();">
+                                                            <option value="">Select an Organization</option>
+                                                        </select> -->
+                                                        <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname']" onchange="loadCookbookSelectorControlFromOrgId('orgname')">
+                                                            <option value="">Select an Organization</option>
+                                                        </select>
+
+                                                    </div>
+
+                                       <div  class="col-lg-6 col-md-6 forDocker" style="margin-top:16px;">
+                                          
+                                             <label for="">
+
+                                             Select Docker Repo 
+                                             </label>
+                                             
+                                             <select id="dockerreponame" class="choosedockerRepo width-100" sourcepath="18" datapath="masterjson.rows.row"  cdata="catalyst">
+                                                <option value="">Select an Docker Path</option>
+                                             </select>
+                                          
+                                          
+                                       </div>
+
+                                       <!-- <div class="col-lg-6 col-md-6 margintop15 notforDocker notCFT">
+                                          
+                                             <label for="">Chef Server <span class="control-label redSpan">&nbsp;*</span></label>
+                                          
+                                           <select id="configname" class="choosechefserver width-100" sourcepath="10" datapath="masterjson.rows.row"  cdata="catalyst" onchange="loadCookbookSelectorControl('configname');" >
+                                          </select> 
+                                          
+                                       </div> -->
+
+                                       <div class="col-lg-6 col-md-6 notforDocker forCFT" style="margin-top:20px">
+                                                <div class="smart-forms">
+                                                   <label>Template File:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                   <label for="validatorpemfile" class="field file">
+                                                      <div class="imgdiv" value="1"></div>
+                                                      <span class="button btn-primary">Browse</span><input id="template" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value" cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                                   </label>
+                                                </div>
+                                       </div>
+                                       
+                                    
+                                       
+                                          <div class="col-lg-6 col-md-6 forDocker hidden" style="margin-top:16px">
+                                             
+                                                <label for="">
+                                                Title
+                                                <label id="msgOrgName2" style="display:none;color:red;float:right;">Required</label></label>
+                                             
+                                             
+                                                
+                                                   <input name="ctl00$MainContent$costcode" value="" id="dockercontainerstitle" class="form-control" type="text" datavalues="dockercontainerstitle" targetelement="dockercontainerpathstitle"  show="imgCheck" maxlength="13">
+                                                
+                                             
+                                             
+                                          </div>
+                                          <div class="col-lg-6 col-md-6 forDocker" style="margin-top:16px;">
+                                             <label for="">
+                                             Add  Docker Repo Path <span class="control-label redSpan">&nbsp;*</span>
+                                             <label id="msgOrgName2" style="display:none;color:red;float:right;">Required</label>
+                                             </label>
+                                             <input name="ctl00$MainContent$costcode" value="" id="dockercontainers" class="form-control" type="text" datavalues="dockercontainerpaths" targetelement="dockercontainerpaths"  relatedlist="dockercontainerpathstitle" show="imgDed">
+                                                <div class="input-group hidden">
+                                                   
+                                                   <span class="input-group-addon" style="padding:1px !important;">
+                                                   <input type="button" class="btn btn-sm btn-primary" title="Check to add to list" style="width:53px;height:34px;" value="Add" onclick="addToTargetList($('#dockercontainers'),$('#dockercontainerstitle'));" />
+                                                   </span>
+                                                </div>
+                                             
+                                          </div>
+                                       
+                                    
+                                 
+                                 
+                                 <div class="col-lg-12 col-md-12 notforDocker notCFT" style="margin-top:25px">
+                                 <div class="row notforDocker" style="margin-top:15px">
+                                 <div class="" id="templatescookbooks" cdata='catalyst'>
+                                 </div> 
+                                 </div>
+                                 </div>
+
+                                 <div class="col-lg-12 col-md-12 forDocker">
+                                 <div class="col-lg-6 col-md-6 forDocker  noleftpadding" style="margin-top:15px">
+                                 <div id="dockercontainerpathstitle" class="input-group from-control col-md-12 forDocker" style="height:20px;overflow-y:auto;min-width:105px;"  cdata="catalyst" ctype="list" csource="dockercontainerstitle" ></div>
+                                 </div>
+                                 <div class="col-lg-6 col-md-6 forDocker" style="margin-top:15px"> 
+                                 <div id="dockercontainerpaths" class="input-group from-control col-md-12 forDocker" style="height:20px;overflow-y:auto;"  cdata="catalyst" ctype="list" csource="dockercontainers"></div>
+                                 </div>
+                                 </div>
+                                 
+                              </div>
+                              <!-- end widget content -->
+                           </div>
+                           <!-- end widget div -->
+                        </div>
+                        <!-- end widget -->             
+                     </div>
+                     <!-- END ROW -->
+                     </section>
+                     <!-- end widget grid -->
+                  </div>
+               </div>
+            </div>
+            <div class="widget-toolbox clearfix">
+               <div class="btn-group pull-right">
+                <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+                  </a>
+                  <button class="btn btn-primary btn-mini">
+                  <i class="ace-icon fa fa-check bigger-110"></i>
+                  Save
+                  </button>
+                  
+               </div>
+            </div>
+      </div>
+      </form> <!--form ends here-->
+   </div>
+</div>
+</div> <!--row ends here-->
+<div class="modal fade" id="popupSelectProvider" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+            ×
+            </button>
+            <h4 class="modal-title">
+               Cookbooks
+            </h4>
+         </div>
+         <div class="modal-body no-padding">
+            <form class="" id="" action="">
+               <div novalidate="novalidate" class="smart-form" id="" action="">
+                  <div style="margin:0px;" class="row">
+                     <section style="padding-top:17px;" class="col">
+                        <div style="clear: both; float: left;margin-left:40px;" id="divtable">
+                           <div style=" " class="col-lg-5">
+                              <div class="input-group">
+                                 <div class="btn-group">
+                                    <select multiple="multiple" size="10" style="width: 180px" class="form-control" id="jsonFiles">
+                                       <option>apache </option>
+                                       <option>apache2</option>
+                                       <option>apt</option>
+                                       <option>aptgetupdate</option>
+                                       <option>art</option>
+                                       <option>art_active_windows</option>
+                                       <option>art_add_admin_grp</option>
+                                       <option>art_append_hosts</option>
+                                       <option>art_application_hosts</option>
+                                       <option>art_application_code</option>
+                                       <option>art_base</option>
+                                       <option>art_check_ms</option>
+                                    </select>
+                                 </div>
+                                 <!-- /btn-group -->
+                              </div>
+                              <!-- /input-group -->
+                           </div>
+                           <div style="margin-top: 50px; margin-left: 5px" class="col-lg-1">
+                              <div class="input-group">
+                                 <div style="padding-bottom: 10px;" class="btn-group">
+                                    <button id="btnaddToSuite" class="btn btn-default btn-primary" style="width:30px;height:27px;" type="button"><i style="font-size:20px;" class="fa fa-angle-double-right"></i></button>
+                                 </div>
+                                 <div class="clearfix"></div>
+                                 <div class="btn-group">
+                                    <button id="btnremoveFromSuite" class="btn btn-default btn-primary" style="width:30px;height:27px;" type="button"><i style="font-size:20px;" class="fa fa-angle-double-left"></i></button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-5 col-md-5">
+                              <div class="input-group">
+                                 <div class="btn-group">
+                                    <table>
+                                       <tbody>
+                                          <tr>
+                                             <td>   <select multiple="multiple" size="10" style="width: 180px;" class="form-control" id="suiteFiles"></select>
+                                             </td>
+                                             <td style="padding-left:10px;">
+                                                <button id="btnSuiteItemUp" class="btn btn-default btn-primary" style="width:30px;height:27px;" type="button"><i style="font-size:20px;" class="fa fa-angle-double-up"></i></button>
+                                                <div class="clearfix"></div>
+                                                <div class="clearfix"></div>
+                                                <div style="padding-top: 10px" class="btn-group">
+                                                   <button id="btnSuiteItemDown" class="btn btn-default btn-primary" style="width:30px;height:27px;" type="button"><i style="font-size:20px;" class="fa fa-angle-double-down"></i></button>
+                                                </div>
+                                             </td>
+                                          </tr>
+                                       </tbody>
+                                    </table>
+                                    <div style="padding-bottom: 10px; margin-top: 40px;" class="btn-group">
+                                    </div>
+                                    <!-- /.btn-group -->
+                                 </div>
+                                 <!-- /.input-group -->
+                              </div>
+                           </div>
+                        </div>
+                     </section>
+                  </div>
+                  <footer>
+                     <a type="button" class="btn btn-default" onclick="cancelClicked();" data-dismiss="modal" href="#ajax/Settings/CreateTemplates.html?new">
+                     Cancel
+                     </a>
+                     <button name="button" id="donebutton" data-dismiss="modal" class="btn btn-primary">
+                     Done
+                     </button>
+                     <a href="#ajax/Settings/CreateTemplate.html" id="abacklink" class="btn btn-primary providerchecked hidden">
+                     Back
+                     </a>
+                  </footer>
+               </div>
+            </form>
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!-- /.modal-dialog -->
+</div><!-- /.modal-dialog -->
+<!--Popup for selecting a cloud provider before proceeding-->
+<script>
+   //Form Name
+   $(document).ready(function() {
+      pageSetUp();
+   $(".choosetemplateType").select2();
+   $(".choosedockerRepo").select2();
+   $(".choosechefserver").trigger('change').select2();
+   $("select").select2();
+    /*$('.forDocker').show();
+    $('.notforDocker').hide();
+    $('.notCFT').hide();
+    $('.notForSSOS').hide();*/
+
+   //isUserTypeSuperAdmin();
+   });
+
+   
+
+   function isUserTypeSuperAdmin(){
+    $.get('/d4dMasters/loggedInUser',function(data){
+      if(!data.isSuperAdmin){
+      $('#orgname').attr('disabled','disabled').select2();
+      }
+    });
+  }
+   function cancelClicked() {
+       $("#popupSelectProvider").modal('hide');
+       $(".modal-backdrop.fade.in").detach();
+       //$('#btncancel').click();
+   }
+   //function removeRow(curBtn) {
+   //  $(curBtn).closest('tr').detach();
+   //}
+   
+   function loadCookbookSelectorControl(chefserverid){
+       var csid = $('#' + chefserverid + ' option:selected').attr('rowid');
+      
+       if(csid != undefined){
+            //alert(csid);
+       var itms = $('#templatescookbooks').attr('savedvalue');
+       if(itms) {
+         itms = itms.split(',');
+       } else {
+         itms = [];
+       }
+       console.log(itms);
+       var $ccrs = $chefCookbookRoleSelector('usechefserver/' + csid,null,itms);
+        $('#templatescookbooks').empty().append($ccrs).data('$ccrs',$ccrs);
+   
+       }
+   }
+
+   function loadCookbookSelectorControlFromOrgId(orgId){
+       var csid = $('#' + orgId + ' option:selected').attr('rowid');
+      
+       if(csid != undefined){
+            //alert(csid);
+       var itms = $('#templatescookbooks').attr('savedvalue');
+       if(itms) {
+         itms = itms.split(',');
+       } else {
+         itms = [];
+       }
+       console.log(itms);
+       var $ccrs = $chefCookbookRoleSelector(csid,null,itms);
+        $('#templatescookbooks').empty().append($ccrs).data('$ccrs',$ccrs);
+   
+       }
+   }
+   
+
+
+   function inLineReady() {
+       //alert('in');
+   
+       $("input[type='text']").on("click", function () {
+           $(this).select();
+           $("#msgOrgName").hide();
+       });
+       // $("#popupSelectProvider").modal({ keyboard: false, backdrop: "static" });
+       $('#createproviderbody').css("display", "none");
+       $('#content').css("opacity", "1 !important");
+       // if (readform(9) == true) {  //9 is the reference for provider master. Function returns true if in not in edit mode
+       //     $("#launchProviderTypeSelection").click();
+       //  }
+       $("#popupSelectProvider").modal('hide');
+   
+       readform(17); //7 is for users
+       //
+   
+       //Force opening the left navigation menu
+       if ($('#navSettings').is(":visible") == false) {
+           $('#navSettings').css("display", '');
+           $('#navSettings > ul > li').first().addClass('open');
+           $('#navSettings > ul > li > ul').css("display", "none");
+           $('#navSettings > ul > li > ul').first().css("display", "block");
+       }
+       //redrawing the breadcrumb and selecting the tree
+       $('#settings li').removeClass('active');
+       $('#settings li').each(function () {
+           if ($(this).text().trim() == "Templates")
+               $(this).addClass('active');
+       });
+       $('#templatetypename').trigger('onchange');
+       drawBreadCrumb1();
+       enableUniqueCheckingForInputs(17);
+   
+   }
+   inLineReady();
+   //Copkbook popup functionality
+   function setfolderpath(){ //Uncomment below line to set the folder path to uploaded files.
+       var folderpath = ''; //'/' + $('#dockerreponame').val() + "/dockerfiles/";
+    //   alert(folderpath);
+           $('#folderpath').val(folderpath);
+   }
+   $("#btnaddToSuite").on('click', function () {
+       var x = document.getElementById("jsonFiles");
+       for (var i = 0; i < x.options.length; i++) {
+           if (x.options[i].selected == true) {
+               var y = document.createElement("option");
+               y.value = x.options[i].value;
+               y.innerHTML = x.options[i].text;
+               $("#suiteFiles").append(y);
+   
+           }
+       }
+   });
+   
+   $("#btnremoveFromSuite").on('click', function () {
+       $("#suiteFiles option:selected").remove();
+   });
+   
+   $("#btnSuiteItemUp").on('click', function () {
+       $("#suiteFiles option:selected").each(function () {
+           var listItem = $(this);
+           var listItemPosition = $("#suiteFiles option").index(listItem) + 1;
+   
+           if (listItemPosition == 1) return false;
+   
+           listItem.insertBefore(listItem.prev());
+       });
+   
+   });
+   
+   $("#btnSuiteItemDown").on('click', function () {
+       var itemsCount = $("#suiteFiles option").length;
+   
+       $($("#suiteFiles option:selected").get().reverse()).each(function () {
+           var listItem = $(this);
+           var listItemPosition = $("#suiteFiles option").index(listItem) + 1;
+   
+           if (listItemPosition == itemsCount) return false;
+   
+           listItem.insertAfter(listItem.next());
+   
+       });
+   });
+   
+    $("#donebutton").click(function () {
+   
+       var $contents = $("#suiteFiles option");
+       //alert($contents);
+       for (var i = 0; i < $contents.length; i++) {
+           var option = $contents.get(i);
+           //alert(option);
+           var x = option.value;
+           //alert(x);
+           
+           var y = $('<option>' + x + ' </option>').val(x);
+           //alert(y);
+           //$("#templatescookbooks").append(y);
+       }
+   });
+   
+   function loadChefServerObjects(chefServer){
+       $.get('/d4dMasters/' + chefServer + '/cookbooks', function(data) {
+           console.log(data);
+           var cookbooks = data.cookbooks;
+           var keys = Object.keys(cookbooks);
+           keys.sort(function(a,b){
+           return a.toLowerCase().localeCompare(b.toLowerCase());
+           });
+           var $deploymentCookbookList = $('.deploymentCookbookList').empty();
+           $deploymentCookbookList.append('<label class="label" style="text-align:center;">Select Cookbooks</label>');
+           var $inputtypetextCookbooks = $('<input type="text" style="height:24px;margin-left:2px;" placeholder="Search Cookbooks">').addClass('searchoptionforCookbooks form-control padding0');
+           $deploymentCookbookList.append($inputtypetextCookbooks);
+           for (i = 0; i < keys.length; i++) {
+               $deploymentCookbookList.append($('<li><label class="checkbox" style="margin: 5px;"><input type="checkbox"  name="checkboxCookbooks" value="recipe[' + keys[i] + ']" data-cookbookName="' + keys[i] + '"><i></i>' + keys[i] + '</label></li>'));
+           }
+           $('.searchoptionforCookbooks').keyup(function(e){
+               //alert('asdfgh');
+               var searchText = $(this).val();
+               $allListElements = $('.deploymentCookbookList > li');
+               $matchingListElements = $allListElements.filter(function(i,el){
+                   return $(el).text().indexOf(searchText) !== -1;
+               });
+               $allListElements.hide();
+               $matchingListElements.show();
+            });
+   
+           $.get('/d4dMasters/' + chefServer + '/roles', function(data) {
+               console.log(data);
+               var roles = data.roles;
+               var keys = Object.keys(roles);
+               keys.sort(function(a,b){
+               return a.toLowerCase().localeCompare(b.toLowerCase());
+               });
+               var $deploymentRolesList = $('.deploymentRolesList').empty();
+               $deploymentRolesList.append('<li><label class="label" style="text-align:center;">Select Roles</label></li>');
+               var $inputtypetextRoles = $('<input type="text" style="height:24px;margin-left:2px;" placeholder="Search Roles">').addClass('searchoptionforRoles form-control padding0');
+               $deploymentRolesList.append($inputtypetextRoles);
+               for (i = 0; i < keys.length; i++) {
+                   $deploymentRolesList.append($('<li><label class="checkbox" style="margin: 5px;"><input type="checkbox"  name="checkboxRoles" value="role[' + keys[i] + ']" data-roleName="' + keys[i] + '"><i></i>' + keys[i] + '</label></li>'));
+               }
+               $('.searchoptionforRoles').keyup(function(e){
+                   //alert('dsfvb');
+                   var searchText = $(this).val();
+                   $allListElements = $('.deploymentRolesList > li');
+                   $matchingListElements = $allListElements.filter(function(i,el){
+                       return $(el).text().indexOf(searchText) !== -1;
+                   });
+                   $allListElements.hide();
+                   $matchingListElements.show();
+                });
+               var itms = $('#templatescookbooks').attr('defaultvalues').split(',');
+               //alert(itms.length);
+               $.each(itms,function(k,v){
+                   $('.deploymentCookbookList li').find('input[value="' + v + '"]').prop('checked','true');
+                   $('.deploymentRolesList li').find('input[value="' + v + '"]').prop('checked','true');
+                   
+               });
+               $('#btnDeploymentAddSelectedCookbook').trigger('click');
+           });
+   
+       });
+   }
+   $('#btnDeploymentAddSelectedCookbook').click(function(e) {
+   var $deploymentSelectedList = $('.deploymentSelectedRunList');
+   var $selectedCookbooks = $("input[name=checkboxCookbooks]:checked");
+   $selectedCookbooks.each(function(idx) {
+       var $this = $(this);
+       $deploymentSelectedList.append($('<li><label style="margin: 5px;"><input type="hidden" value="' + $this.val() + '"/>' + $this.attr('data-cookbookName') + '</label></li>').on('click', function(e) {
+           if ($(this).hasClass('deploymentCookbookSelected')) {
+               $(this).removeClass('deploymentCookbookSelected');
+           } else {
+               $(this).addClass('deploymentCookbookSelected');
+           }
+       }));
+       $this.attr('checked', false);
+       $this.parents('li').hide();
+   
+   });
+   
+   var $selectedRoles = $("input[name=checkboxRoles]:checked");
+   $selectedRoles.each(function(idx) {
+       var $this = $(this);
+       $deploymentSelectedList.append($('<li><label style="margin: 5px;"><input type="hidden" value="' + $this.val() + '"/>' + $this.attr('data-roleName') + '</label></li>').on('click', function(e) {
+           if ($(this).hasClass('deploymentCookbookSelected')) {
+               $(this).removeClass('deploymentCookbookSelected');
+           } else {
+               $(this).addClass('deploymentCookbookSelected');
+           }
+       }));
+       $this.attr('checked', false);
+       $this.parents('li').hide();
+   
+   
+   });
+   
+   $deploymentSelectedList.sortable({
+       cursor: "move"
+   });
+   });
+   
+   $('#btnDeploymentRemoveSelectedCookbook').click(function(e) {
+   var $deploymentSelectedList = $('.deploymentSelectedRunList');
+   
+   $deploymentSelectedList.find('.deploymentCookbookSelected').each(function() {
+       var value = $(this).find('input').val();
+       var selector = 'input[name=checkboxRoles][value="' + value + '"]';
+       console.log(selector);
+       $('input[name=checkboxRoles][value="' + value + '"]').parents('li').show();
+       $('input[name=checkboxCookbooks][value="' + value + '"]').parents('li').show();
+       $(this).remove();
+   
+   });
+   
+   });
+   
+   //loadChefServerObjects($('#configname').val());
+   //Fix for default first item selection and cookbook load. - Vinood CAT-88
+   $('#configname').trigger('change');
+   $('#templatetypename').trigger('change');
+
+   /*$('#templatetypename').on('change',function(){
+      var templateType = $('#templatetypename').val();
+      
+   })*/
+   
+   
+   // $chefItemdiv.find('.searchoptionforCookbooks').keyup(function(e){
+   //      var searchText = $(this).val();
+   //      $allListElements = $chefItemdiv.find('.deploymentsCookbookList > li');
+   //      $matchingListElements = $allListElements.filter(function(i,el){
+   //          return $(el).text().indexOf(searchText) !== -1;
+   //      });
+   //      $allListElements.hide();
+   //      $matchingListElements.show();
+   //   });
+   
+   //   $chefItemdiv.find('.searchoptionforRoles').keyup(function(e){
+   //      var searchText = $(this).val();
+   //      $allListElements = $chefItemdiv.find('.deploymentRoleList > li');
+   //      $matchingListElements = $allListElements.filter(function(i,el){
+   //          return $(el).text().indexOf(searchText) !== -1;
+   //      });
+   //      $allListElements.hide();
+   //      $matchingListElements.show();
+   //   });
+</script>
+<script>
+   $(document).ready(function() {
+           $("#templatename").focus();
+           $('#myForm6').submit(function() {
+                  
+                   var templateType = $('#templatetypename').val();
+                   if(templateType === 'Docker'){
+                        if($('#dockercontainers').val() != '')
+                        {
+                           $('#dockercontainerpaths').html('');
+                           addToTargetList($('#dockercontainers'),$('#templatename'));
+                        }
+                     }
+                   $(this).validate();
+                   if (templateType === 'Docker' || templateType === 'SoftwareStack' || location.toString().indexOf('?new') === -1) {
+
+                       $('#template').removeAttr('cat-validation', 'required');
+                       //Explicitly adding validation for repo path
+                       if(templateType === 'Docker' && $('#dockercontainerpaths').text() == "")
+                         $('#dockercontainers').attr('cat-validation','required');
+                       else
+                           {  
+                              $('#dockercontainers').removeAttr('cat-validation');
+                              
+                           }
+                         
+
+                       if ($(this).valid) {
+                           /*alert('valid form submitted'); // for demo*/
+                           if (validateForm()) {
+                               setfolderpath();
+                               saveform('17');
+                           };
+                       } else {
+                           alert('invalid form submitted'); // for demo
+                       }
+                   } else if (templateType === 'CloudFormation' || templateType === 'ARMTemplate' ){
+                     
+                           $('#template').attr('cat-validation', 'required');
+                           //explicity removing validation for repo path
+                           $('#dockercontainers').removeAttr('cat-validation');
+                           if ($(this).valid) {
+                               /*alert('valid form submitted'); // for demo*/
+                               if (validateForm()) {
+                                   setfolderpath();
+                                   saveform('17');
+                               };
+                           } else {
+                               alert('invalid valid form submitted'); // for demo
+                           }
+                       }
+                       return false; // for demo
+                   });
+           });
+       
+</script>

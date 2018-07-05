@@ -1,0 +1,313 @@
+<html>
+<head>
+    <script>
+    $(document).ready(function() {
+    $(".pemFileCheck").hide();
+    });
+    </script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="js/term.js"></script>
+
+     
+<style type="text/css">
+.btn-primary{
+    background-color: #40baf1;
+    border-color: #40baf1;
+}
+.btn-primary:hover{
+    background-color: #40baf1;
+    border-color: #40baf1;
+}
+</style>
+
+
+
+<script type="text/javascript">
+</script>
+</head>
+<body style="background:white">
+
+<div id="ssh-loadingContainer" style="height:100%;display:none" >
+<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />
+</div>
+
+
+<form class="forms" id="ssh-login-form">
+    <input type='hidden' id='ssh-instanceId'>
+    <input type='hidden' id='ssh-containerId'>
+    <input type='hidden' id='ssh-sessionUser'>
+      <div class="col-lg-12 col-md-12 credentialSection sshStyle">
+          Username<span class="control-label" style="color:Red;">&nbsp;*</span>
+         <input type="text" id="ssh-username" value="" autocomplete="off" class="form-control" autofocus/>
+            <b class="tooltip tooltip-top-right">
+            <i class="fa fa-user txt-color-teal"></i> Please enter Instance Username</b>
+      </div>
+      <div class="col-lg-12 col-md-12 credentialSection sshStyle">
+        Select Authentication Type<span class="control-label" style="color:Red;">&nbsp;*</span>
+        <select id="ssh-pemFileCheckbox" class="chooseAuthenticationtype form-control width-100">
+            <option id="authPassword" value="Password">Password</option>
+            <option id="pemFileCheckbox" value="pemFile">Pem File</option>
+        </select>
+      </div>
+      <div class="col-lg-12 col-md-12 credentialSection passwordCheck sshStyle">
+          Password<span class="control-label" style="color:Red;">&nbsp;*</span>
+          <input type="password" id="ssh-password" value="" autocomplete="off" class="form-control" />
+                <b class="tooltip tooltip-top-right">
+                <i class="fa fa-lock txt-color-teal"></i> Please enter Instance Password</b>
+      </div>
+      <div class="col-lg-12 col-md-12 credentialSection pemFileCheck sshStyle">
+            <div class="smart-forms">
+            Pem File<span class="control-label" style="color:Red;">&nbsp;*</span>
+            <label for="pemFileBrowse" name="field" class="file">
+            <span class="button btn-primary" style="top:5px;">Browse</span><input id="ssh-pemfileInput" type="file" class="gui-file"><input type="text" readonly="" class="gui-input">
+            </label>
+
+        </div>
+
+
+       
+      </div>
+             <div id="ssh-errorArea" style="color:red;margin-left:10px">
+</div>
+      
+      <br>
+    <div style="text-align:right" style="margin-top:5%;">
+        <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-right:10px;">Close</button>
+        <button type="button" class="btn btn-primary sshSubmit"  style="margin-right:14px;">Submit</button>
+    </div>
+</form>
+ <input type="button" id='ssh-terminateBtn' style="display:none"/>
+ <input type="hidden" id="ssh-actionLogId" />
+
+
+
+<div id="ssh-terminalContainer" style="display:none"></div>
+
+</body>
+<script type="text/javascript">
+
+var urlParams = {};
+(window.onpopstate = function() {
+    var url = window.location.href;
+    var indexOfQues = url.lastIndexOf("?");
+    if (indexOfQues != -1) {
+        var sub = url.substring(indexOfQues + 1);
+        console.log(sub);
+        var params = sub.split('&')
+        for (var i = 0; i < params.length; i++) {
+            var paramParts = params[i].split('=');
+            urlParams[paramParts[0]] = paramParts[1];
+        }
+    }
+
+})();
+$(document).ready(function() {
+    $('.chooseAuthenticationtype').change(function(e) {
+        if (this.value == "Password") {
+            $(".pemFileCheck").hide();
+            $(".passwordCheck").show();
+        } 
+        else {
+            $(".passwordCheck").hide();
+            $(".pemFileCheck").show();
+        }
+    });
+});
+
+$('#ssh-pemfileInput').change(function(){
+    //console.log(this.files);
+    $(this).next().val(this.files[0].name);
+});
+
+$(function() {
+
+
+    var $pemFileCheckBox = $('#ssh-pemFileCheckbox');
+
+
+   
+    var $errorArea = $('#ssh-errorArea');
+    
+    var $terminalContainer = $('#ssh-terminalContainer');
+    var $loadingContainer = $('#ssh-loadingContainer'); 
+    var $terminalContainer = $('#ssh-terminalContainer'); 
+    var $loginForm = $('#ssh-login-form');
+    var $terminateBtn = $('#ssh-terminateBtn'); 
+    var $sshActionLogIdInput = $('#ssh-actionLogId');
+     
+
+    console.log($loginForm)
+
+
+    
+
+    var term;
+    var sshOpened = false;
+    var socket; 
+
+
+    function openSSh(reqBody) {
+        console.log(reqBody);
+        $errorArea.hide();
+        $terminalContainer.hide();
+        $loginForm.hide();
+        $loadingContainer.show();
+
+        socket = io.connect('/sshShell', {
+            'force new connection': true,
+            reconnection: false
+        });
+
+        socket.on('connect', function() {
+            socket.emit('open', reqBody);
+        });
+
+        socket.on('conErr', function(data) {
+            $errorArea.empty().append(data.message);
+            $errorArea.show();
+            $loginForm.show();
+            $terminalContainer.hide();
+            $loadingContainer.hide();
+            if (data.actionLogId) {
+                $sshActionLogIdInput.val(data.actionLogId);
+            }
+
+        });
+
+        socket.on('opened', function(data) {
+            console.log('connected');
+            $errorArea.hide();
+            $loginForm.hide();
+            $loadingContainer.hide();
+            $terminalContainer.show();
+            sshOpened = true;
+            term = new Terminal({
+                cols: 80,
+                rows: 24,
+                screenKeys: true,
+                cursorBlink: true,
+                useStyle: true
+            });
+
+            term.on('data', function(data) {
+                if (sshOpened) {
+                    //socket.emit('data', data);
+                    socket.emit('cmd', data);
+                }
+            });
+
+            term.open($terminalContainer.get(0));
+
+            if (data.actionLogId) {
+                $sshActionLogIdInput.val(data.actionLogId);
+            }
+
+        });
+
+        socket.on('out', function(data) {
+            if (term) {
+                term.write(data.res);
+            }
+        });
+
+        socket.on('disconnect', function() {
+            destroyTerminal();
+        });
+
+        socket.on('close', function() {
+            destroyTerminal();
+        });
+
+        socket.on('error', function(err) {
+            if(err && err.reason) {
+                $errorArea.empty().append(err.reason);
+            } else {
+                $errorArea.empty().append('Error occured while making a connection');
+            }
+            $errorArea.show();
+            $loginForm.show();
+            $terminalContainer.hide();
+            $loadingContainer.hide();
+            if (data.actionLogId) {
+                $sshActionLogIdInput.val(data.actionLogId);
+            }
+        });
+
+    }
+
+    function destroyTerminal() {
+        if (term) {
+            term.destroy();
+        }
+        $terminalContainer.hide();
+        $loginForm.show();
+        $errorArea.hide();
+        $loadingContainer.hide();
+    }
+
+
+    $('.sshSubmit').click(function(e) {
+        console.log('submitting form');
+        var reqBody = {};
+        reqBody.id = $('#ssh-instanceId').val();
+        reqBody.sessionUser = $('#ssh-sessionUser').val();
+        reqBody.username = $('#ssh-username').val();
+        reqBody.dockerContainerId = $('#ssh-containerId').val();
+
+
+        if ($pemFileCheckBox.val()==='Password') {
+            reqBody.password = $('#ssh-password').val();
+
+            if (!reqBody.username) {
+                alert('Please Enter Username');
+                return;
+            }
+            if (!reqBody.password) {
+                alert('Please Enter Password or Choose a Pem file');
+                return;
+            }
+            console.log(reqBody);
+            openSSh(reqBody);
+        } else {
+            var pemFileInput = $('#ssh-pemfileInput').get(0);
+            if (!reqBody.username) {
+                alert('Please Enter Username');
+                return;
+            }
+            if (!pemFileInput.files.length) {
+                alert('Please Choose a Pem file');
+                return;
+            }
+            var reader = new FileReader();
+
+            // Closure to capture the file information.
+            reader.onload = function(e) {
+                // Render thumbnail.
+                reqBody.pemFileData = e.target.result;
+                openSSh(reqBody);
+
+            };
+            // Read in the image file as a data URL.
+            reader.readAsText(pemFileInput.files[0]);
+
+        }
+
+        return false;
+    });
+
+   
+    
+
+    $terminateBtn.click(function() {
+        if (sshOpened) {
+            if (socket) {
+                socket.disconnect();
+            }
+        }
+    });
+
+   
+});
+</script>
+</html>

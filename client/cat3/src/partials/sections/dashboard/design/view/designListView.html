@@ -1,0 +1,68 @@
+<div>
+<div id="well" class="well well-sm">
+    <div class="col-lg-8 col-md-8">
+        <b><i>{{state.params.templateObj.templatetypename}} blueprints</i></b> <!--<span ng-if="bpList.selectedCards.length > 0"> : - <span class="badge">{{bpList.selectedCards.length}}</span> Selected Blueprints </span>-->
+    </div>
+    <div class="col-lg-4 col-md-4 pull-right" >
+        
+        <button type="button" title="Refresh" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="refreshCurrentPageBp()">&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
+        <button type="button" title="Copy" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="bpList.selectedCards.length > 0 && bpList.viewTypeList === false" ng-click="bpList.copyBp(bpList.selectedCards)" ><i class="fa fa-clone fa-2 white" aria-hidden="true"></i>&nbsp;Copy</button>
+        <button ng-show="state.params.templateObj.templatetypename !== 'Composite'" type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="bpList.viewTypeList = !bpList.viewTypeList">
+           <sapn title="Table View" ng-if="bpList.viewTypeList === false ">&nbsp;<i class="fa fa-list fa-2 white" aria-hidden="true"></i>&nbsp;</sapn>
+            <sapn title="Card View" ng-if="bpList.viewTypeList === true">&nbsp;<i class="fa fa-th-large white" aria-hidden="true"></i>&nbsp;</sapn>
+        </button>
+    </div>
+</div>
+<div class="col-lg-12">
+    <br>
+    <div ng-if="bpList.pager.totalRecords <= 0" class="alert alert-info text-center"> No Data Found!</div>
+    <div class="listPageView" ng-show="state.params.templateObj.templatetypename === 'Composite'">
+        <div class="bpCardDetails" ng-repeat="blueprint in bpList.blueprintList.card" ng-init="bpList[blueprint._id]= false ">
+            <div class="anm" style="background: #FFF; position: absolute; z-index: 1;width: 100%; bottom: 0px;margin: 0 8px;"></div>
+            <div class="productdiv4" id="{{blueprint._id}}" >
+            <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint._id] === true }" >
+                <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="bpList.selectCard(blueprint);">
+                    <li title="Zabix and Logstash" class="Cardtextoverflow"><h5>{{blueprint.name}}</h5></li>
+                    <li>
+                        <img src="./images/composite.png" alt="Zabix and Logstash" class="cardLogo">
+                    </li>
+                    <hr class="blue-hr"/>
+                    <button class="btn btn-xs cat-btn-update bpvicon" title="Launch" ng-click="bpList.launchInstance($event,blueprint);"><i class="fa fa-location-arrow fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="bpList.blueprintInfo($event,blueprint,'composite')"><i class="fa fa-info fa-2 white"></i></button>
+                    <button class="btn btn-xs btn-danger bpvicon" title="Delete" ng-click="bpList.deleteBp($event,blueprint,'composite')" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></button>
+                </ul>
+
+            </div>
+        </div>
+            </div>
+    </div>
+
+    <div ng-show="state.params.templateObj.templatetypename !== 'Composite'">
+        <div class="listPageView" ng-show="bpList.pager.totalRecords > 0 && bpList.viewTypeList === false">
+            <div class="bpCardDetails" ng-repeat="blueprint in bpList.blueprintList.card" ng-init="bpList[blueprint._id]= false ">
+            <div class="anm" style="background: #FFF; position: absolute; z-index: 1;width: 100%; bottom: 0px;margin: 0 8px;"></div>
+            <div class="productdiv4" id="{{blueprint._id}}" >
+                <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint._id] === true }" >
+                    <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="bpList.selectCard(blueprint);">
+                        <li>
+                            <img ng-src="./images/img.jpg" class="cardLogo" alt="blueprints" >
+                        </li>
+                        <li title="{{blueprint.name}}" class="Cardtextoverflow card-title">{{blueprint.name}}</li>
+                        <li class='btns-group'>
+                        <button class="btn btn-xs cat-btn-update bpvicon" title="Launch" ng-click="bpList.launchInstance($event,blueprint);"><i class="fa fa-location-arrow fa-2 white"></i></button>
+                        <button class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="bpList.blueprintInfo($event,blueprint,null)"><i class="fa fa-info fa-2 white"></i></button>
+                        <button class="btn btn-xs btn-danger bpvicon" title="Delete" ng-click="bpList.deleteBp($event,blueprint,null)" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+            </div>
+        </div>
+        <div ng-if="bpList.pager.totalRecords > 0 && bpList.viewTypeList === true">
+            <div ui-grid="bpList.blueprintList.list" ui-grid-auto-resize ui-grid-resize-columns ui-grid-pagination class="bp-list-grid " ></div>
+        </div>
+    </div>
+</div>
+    <span ng-if="stateItems.params.view === 'list'"  ng-include="'src/partials/sections/dashboard/design/view/filterSidebar.html'"></span>
+</div>

@@ -1,0 +1,460 @@
+<html>
+    <head>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+        <link rel="stylesheet" type="text/css" media="screen" href="css/Dashboard.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="css/application.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="plugins/morris/morris.css">
+    </head>
+    <body>
+        <div class="panel-group smart-accordion-default" id="mainPanelId">
+            <div class="panel panel-default" id="accordion-Infrastructure">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion-Infrastructure" href="#collapseInfrastructure" >
+                            <i class="fa fa-fw fa-plus-circle txt-color-blue"></i>
+                            <i class="fa fa-fw fa-minus-circle txt-color-blue"></i>
+                            <b class="accordianName">Infrastructure</b>
+                            <fieldset class="fieldsetCustomDashboard">
+                                <legend class="legendCustomDashboard legendCustomImp">Providers Annotation</legend>
+                                <span class="totalProviderLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                <span class="font-size11 marginright15">Total Provider</span>
+
+                                <span class="totalAwsLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                <span class="font-size11 marginright15">AWS</span>
+
+                                <span class="totalAzureLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                <span class="font-size11 marginright15">Azure</span>
+
+                                <span class="totalVmwareLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                <span class="font-size11 marginright15">VMware</span>
+
+                                <span class="totalOpenstackCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                <span class="font-size11 marginright15">OpenStack</span>
+                            </fieldset>
+                        </a>
+                    </h4>
+                </div>
+
+                <div class="row rowTemplate" style="display:none">
+                </div>
+
+                <div class="col-md-5ths childProviderTemplate" style="display:none">
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <p style="line-height: 40px;">Provider name</p>
+                            <br />
+                            <p class="providerName font-bold"></p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-th"></i>
+                        </div>
+                        <span class="small-box-footer managedUnmanagedCSS">
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-5ths childTotalInstanceTemplate" style="display:none">
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3 class="countTotalInstance">0</h3>
+                            <p> <br>No. of Instances</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-laptop"></i>
+                        </div>
+                        <span class="small-box-footer managedUnmanagedCSS">
+                        </span>
+
+                    </div>
+                </div>
+
+                <div class="col-md-5ths childManagedInstanceTemplate" style="display:none">
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3 class="countMangedInstance">0</h3>
+                            <p> <br>No. of Managed Instances</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-cube"></i>
+                        </div>
+                        <span id="managedInstSpecificMoreInfo" class="small-box-footer  managedUnmanagedCSS cursor-pointer">
+                            More info <i class="fa fa-arrow-circle-right"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-5ths childUnmanagedInstanceTemplate" style="display:none">
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3 class="countUnmangedInstance">0</h3>
+                            <p> <br>No. of Assigned Instances</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-external-link"></i>
+                        </div>
+                        <span id="assignedInstSpecificMoreInfo" class="small-box-footer footer-box-css cursor-pointer">
+                            More info <i class="fa fa-arrow-circle-right"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-5ths childUnassignedInstanceTemplate" style="display:none">
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3 class="countUnassignedInstance">0</h3>
+                            <p> <br>No. of Unassigned Instances</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-external-link"></i>
+                        </div>
+                        <span id="unassignedInstSpecificMoreInfo" class="small-box-footer footer-box-css cursor-pointer">
+                            More info <i class="fa fa-arrow-circle-right"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="collapseInfrastructure" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div id="infrastructurecardview">
+                            <div class="row">
+                                <div class="col-md-5ths infrastructureClass" data-text="Total Number of Providers">
+                                    <div class="small-box bg-aqua">
+                                        <div class="inner">
+                                            <h3 id="totalProviders">0</h3>
+                                            <p>Total <br>Number of Providers</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fa fa-th"></i>
+                                        </div>
+                                        <span class="small-box-footer managedUnmanagedCSS">
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5ths infrastructureClass" data-text="Total Instances">
+                                    <div class="small-box bg-aqua">
+                                        <div class="inner">
+                                            <h3 id="totalInstances">0</h3>
+                                            <p>Total <br>No. of Instances</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fa fa-laptop"></i>
+                                        </div>
+                                        <span class="small-box-footer managedUnmanagedCSS">
+                                        </span>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-5ths infrastructureClass" data-text="Total Managed Instances">
+                                    <div class="small-box bg-aqua">
+                                        <div class="inner">
+                                            <h3 id="totalmanagedInstances">0</h3>
+                                            <p>Total <br>No. of Managed Instances</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fa fa-cube"></i>
+                                        </div>
+                                        <span class="small-box-footer managedUnmanagedCSS">
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class=" col-md-5ths infrastructureClass" data-text="Total Spend in Today">
+                                    <div class="small-box bg-aqua">
+                                        <div class="inner">
+                                            <h3 id="totalunmanagedInstances">0</h3>
+                                            <p>Total <br>No. of Assigned Instances</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fa fa-external-link"></i>
+                                        </div>
+                                        <span class="small-box-footer managedUnmanagedCSS">
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5ths infrastructureClass" data-text="Total Managed Instances">
+                                    <div class="small-box bg-aqua">
+                                        <div class="inner">
+                                            <h3 id="totalunassignedInstances">0</h3>
+                                            <p>Total <br>No. of Unassigned Instances</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fa fa-cube"></i>
+                                        </div>
+                                        <span class="small-box-footer managedUnmanagedCSS">
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class=" noProviderView" style="display:none">
+                                <div id="noenvwarning" class="alert alert-warning noEnvWarning text-center">
+                                    <span>Please add the provider details </span>
+                                    <span>in Settings to get the complete dashboard.</span>
+                                </div>
+                            </div>
+                            <div id="awsProviderView">
+                            </div>
+                            <div id="openstackProviderView">
+                            </div>
+                            <div id="vmwareProvidersView">
+                            </div>
+                            <div id="hpPlublicCloudProvidersView">
+                            </div>
+                            <div id="azureProvidersView">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="managedTableContainer" style="display:none">
+            <div class="panel panel-default panel-default-CSS">
+                <div class="panel-heading panel-heading-CSS">
+                    <h4 class="panel-title padding2">
+                        <span class="panelh4spanCSS">Managed Instances Details for the Provider :&nbsp;</span>
+                        <span id="providerforManagedInstId" class="panelh4spanCSS"></span>
+                    </h4>
+                    <a id="backfrmManagedInstance" class="btn btn-primary panelh4aCSS">
+                        <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            <div  class="table-responsive table-responsiveCSS">
+                <table id="managedinstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">InstanceId</th>
+                            <th class="text-center">Org</th>
+                            <th class="text-center">Bg</th>
+                            <th class="text-center">Project</th>
+                            <th class="text-center">Env</th>
+                            <th class="text-center">OS</th>
+                            <th class="text-center">IP Address</th>
+                            <th class="text-center">Region</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Cost<span>
+                            <img data-toggle="popover" data-html="true" data-placement="left" title="Cost for the Current Month" src="../private/img/help.png"/>
+                            </span></th>
+                            <th class="text-center">Avg. Cpu Usage<span>
+                            <img data-toggle="popover" data-html="true" data-placement="left" title="Usage for the Last 24 hrs" src="../private/img/help.png"/>
+                            </span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="managedInstance">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="unmanagedTableContainer" style="display:none">
+            <div class="panel panel-default panel-default-CSS">
+                <div class="panel-heading panel-heading-CSS">
+                    <h4 class="panel-title padding2">
+                        <span class="panelh4spanCSS">Assigned Instances Details for the Provider :&nbsp;</span>
+                        <span id="providerforunManagedInstId" class="panelh4spanCSS"></span>
+                    </h4>
+                    <a id="backfrmunManagedInstance" class="btn btn-primary panelh4aCSS">
+                        <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            <div  class="table-responsive table-responsiveCSS">
+                <table id="unmanagedinstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">InstanceId</th>
+                            <th class="text-center">Org</th>
+                            <th class="text-center">Bg</th>
+                            <th class="text-center">Project</th>
+                            <th class="text-center">Env</th>
+                            <th class="text-center">OS</th>
+                            <th class="text-center">IP Address</th>
+                            <th class="text-center">Region</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Cost<span>
+                            <img data-toggle="popover" data-html="true" data-placement="left" title="Cost for the Current Month" src="../private/img/help.png"/>
+                            </span></th>
+                            <th class="text-center">Avg. Cpu Usage<span>
+                            <img data-toggle="popover" data-html="true" data-placement="left" title="Usage for the Last 24 hrs" src="../private/img/help.png"/>
+                            </span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="unmanagedInstance">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="unassignedTableContainer" style="display:none">
+            <div class="panel panel-default panel-default-CSS">
+                <div class="panel-heading panel-heading-CSS">
+                    <h4 class="panel-title padding2">
+                        <span class="panelh4spanCSS">Unassigned Instances Details for the Provider :&nbsp;</span>
+                        <span id="providerforunAssignedInstId" class="panelh4spanCSS"></span>
+                    </h4>
+                    <a id="backfrmunAssignedInstance" class="btn btn-primary panelh4aCSS">
+                        <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            <div  class="table-responsive table-responsiveCSS">
+                <table id="unassignedinstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">InstanceId</th>
+                            <th class="text-center">Org</th>
+                            <th class="text-center">OS</th>
+                            <th class="text-center">IP Address</th>
+                            <th class="text-center">Region</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Cost<span>
+                            <img data-toggle="popover" data-html="true" data-placement="left" title="Cost for the Current Month" src="../private/img/help.png"/>
+                            </span></th>
+                            <th class="text-center">Avg. Cpu Usage<span>
+                            <img data-toggle="popover" data-html="true" data-placement="left" title="Usage for the Last 24 hrs" src="../private/img/help.png"/>
+                            </span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="unmanagedInstance">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="trackedManagedInstancesAllProviderTableContainer" style="display:none">
+            <div class="panel panel-default panel-default-CSS">
+                <div class="panel-heading panel-heading-CSS">
+                    <h4 class="panel-title padding2">
+                        <span class="panelh4spanCSS">All Tracked Managed Instances &nbsp;</span>
+                    </h4>
+                    <a id="backfrmallprovidertrackedManagedInstance" class="btn btn-primary panelh4aCSS">
+                        <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            <div  class="table-responsive table-responsiveCSS">
+                <table id="allProviderTrackedManagedInstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">InstanceId</th>
+                            <th class="text-center">Org</th>
+                            <th class="text-center">Project</th>
+                            <th class="text-center">Env</th>
+                            <th class="text-center">OS</th>
+                            <th class="text-center">IP Address</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Provider</th>
+                        </tr>
+                    </thead>
+                    <tbody class="managedInstance">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="trackedAssignedInstancesAllProviderTableContainer" style="display:none">
+            <div class="panel panel-default panel-default-CSS">
+                <div class="panel-heading panel-heading-CSS">
+                    <h4 class="panel-title padding2">
+                        <span class="panelh4spanCSS">All Tracked Assigned Instances &nbsp;</span>
+                    </h4>
+                    <a id="backfrmallprovidertrackedAssignedInstance" class="btn btn-primary panelh4aCSS">
+                        <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            <div  class="table-responsive table-responsiveCSS">
+                <table id="allProviderTrackedAssignedInstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">InstanceId</th>
+                            <th class="text-center">Org</th>
+                            <th class="text-center">Project</th>
+                            <th class="text-center">Env</th>
+                            <th class="text-center">OS</th>
+                            <th class="text-center">IP Address</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Provider</th>
+                        </tr>
+                    </thead>
+                    <tbody class="unmanagedInstance">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal fade" id="specUsageModalContainer" aria-labelledby="specUsageModalLabel" data-backdrop="static">
+            <div class="modal-dialog modal-lg modal-trends">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title font-size15" id="specUsageModalLabel">
+                            <i class="fa fa-bar-chart-o txt-color-blue" style="font-size: 24px; vertical-align: middle;"></i>&nbsp;&nbsp;Usage Trends
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6" id="metricSelectorContainer"><label>Metric:</label>
+                                <select id="metricSelector" class="form-select"> 
+                                    <option value="CPUUtilization"> CPU Utilization</option>
+                                    <option value="NetworkOut"> Network Out</option>
+                                    <option value="NetworkIn"> Network In</option>
+                                    <option value="DiskReadBytes">Disk Read Bytes</option>
+                                    <option value="DiskWriteBytes">Disk Write  Bytes</option>
+                                </select></div>
+                        </div>
+                        <div class="chartOuter">
+                            <div id="CPUUtilization" class="chartContainer">
+                                <div class="row">
+                                    <div class="col-md-12"><h4>CPU Utilization </h4></div>
+                                </div>
+                                <div class="chart" id="chartCPUUtilization">
+
+                                </div>
+                            </div>
+                            <div id="NetworkOut" class="chartContainer">
+                                <div class="row">
+                                    <div class="col-md-12"><h4>Network Out </h4></div>
+                                </div>
+                                <div class="chart" id="chartNetworkOut">
+
+                                </div>
+                            </div>
+                            <div id="NetworkIn" class="chartContainer">
+                                <div class="row">
+                                    <div class="col-md-12"><h4>Network In </h4></div>
+                                </div>
+                                <div class="chart" id="chartNetworkIn">
+
+                                </div>
+                            </div>
+                            <div id="DiskReadBytes" class="chartContainer">
+                                <div class="row">
+                                    <div class="col-md-12"><h4>Disk Read Bytes </h4></div>
+                                </div>
+                                <div class="chart" id="chartDiskReadBytes">
+
+                                </div>
+                            </div>
+                            <div id="DiskWriteBytes" class="chartContainer">
+                                <div class="row">
+                                    <div class="col-md-12"><h4>Disk Write Bytes </h4></div>
+                                </div>
+                                <div class="chart" id="chartDiskWriteBytes">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+        <script src="plugins/morris/morris.js"></script>
+        <script src="js/dashboard.js"></script>
+    </body>
+</html>

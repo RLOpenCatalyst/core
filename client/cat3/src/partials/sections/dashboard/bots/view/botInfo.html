@@ -1,0 +1,36 @@
+<div id='botInfoPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-bar-chart-o"></i> Bot Info - {{botInfo.name}}
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<fieldset>
+			<div class="bot-info-wrapper">
+				<table class="table table-bordered">
+					<thead>
+		               <tr>
+		                  <th class="th-parameters">Label</th>
+		                  <th class="th-values">Type</th>
+		                  <th class="th-values">Default</th>
+		               </tr>
+		            </thead>
+		            <tbody>
+		               <tr ng-repeat = "botParams in botInfo.inputFormFields">
+		                  <td>{{botParams.label}}</td>
+		                  <td>{{botParams.type}}</td>
+		                  <td>{{botParams.default}}</td>
+		               </tr>
+				</table>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

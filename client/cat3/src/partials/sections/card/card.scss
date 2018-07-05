@@ -1,0 +1,705 @@
+@import '../../theme';
+
+$imagePath : "/cat3/images";
+
+/*# sourceMappingURL=card.css.map */
+@media (max-width : 320px) {
+	#cardView {
+		height: 169px;
+	}
+}
+
+@media (min-width : 320px) and (max-width : 480px) {
+	#cardView {
+		height: 146px;
+	}
+}
+
+@media (min-width : 0px) and (max-width: 767px) {
+	#instancePage {
+		.card {
+			position: relative;
+			width: 100px;
+			float: left;
+			margin: 0px 5% 20px 0px;
+			border: 1px solid #DDDDDD;
+			text-align: center;
+			font-size: 10px;
+			min-height: 120px;
+			@include border-radius(11px);
+
+			.card-title {
+				width: 88px;
+				height: 22px;
+				font-size: 11px;
+				padding: 4px 0px 0px 0px;
+			}
+
+			.card-title-role {
+				display: none;
+			}
+
+			.card-title-name {
+				display: inline-block;
+				font-weight: normal;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				width: 94px;
+				text-align: center;
+			}
+
+			.edit-instance-name {
+				display: none;
+			}
+
+			.card-title-osIcon {
+				display: none;
+			}
+
+			.card-title-osIcon img {
+				display: none;
+			}
+
+			.docker-image {
+				height: 36px;
+			    margin: 8px 0 0px 0px;
+			    width: auto;
+			    padding-top: 5px;
+			}
+
+			.card-status-state {
+				.status-state {
+					width: 60px;
+					height: 60px;
+					text-align: center;
+					margin-left: 18px;
+					background-repeat: no-repeat;
+					background-size: 60px 60px;
+				}
+			}
+
+			.card-circle-info {
+				display: none;
+			}
+
+			.instance-ip {
+				margin-top: 7px;
+				text-align: center;
+				width: 100px;
+			}
+
+			.provider-id {
+				display: none;
+			}
+
+			.card-btns {
+				bottom: 0;
+				right: 0;
+				width: 91%;
+				border-top: 1px solid #ccc;
+				padding: 4px 4px 0px 5px;
+				height: 36px;
+				margin-left: 5px;
+			}
+
+			.btn-icons {
+				margin: 0px 6px 3px 6px;
+				float: left;
+			}
+
+			.icon-ssh {
+				display: none;
+			}
+
+			.cicon-rdp {
+				display: none;
+			}
+
+			.icon-ssh-disabled {
+				display: none;
+			}
+
+			.icon-rdp-disabled {
+				display: none;
+			}
+
+			hr {
+				margin: 0px 0px 10px 8px;
+				border: 1px solid #eee;
+			}
+		}
+	}
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+	#cardView {
+		height: 744px;
+	}
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+	#cardView {
+		height: 486px;
+	}
+}
+
+@media (min-width: 1200px) {
+	
+}
+
+@media (min-width: 768px) {
+	#instancePage, #controlPanelPage {
+		#cardView {
+			.card {
+				position: relative;
+				width: 164px;
+				float: left;
+				margin: 0px 32px 15px 0px;
+				border: 1px solid #DDDDDD;
+				text-align: center;
+				font-size: 10px;
+				min-height: 200px;
+				@include border-radius(11px);
+
+				.card-title {
+					width: 152px;
+					height: 42px;
+					font-size: 12px;
+					padding: 10px 0px 0px 0px;
+				}
+
+				.card-title-role {
+					float: left;
+					margin-top: -6px;
+				}
+
+				.card-title-name {
+					display: inline-block;
+					font-weight: bold;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					width: 81px;
+				}
+
+				.card-title-edit a {
+					margin-left: -18px
+				}
+
+				.edit-instance-name {
+					cursor: pointer;
+					vertical-align: top;
+					margin-left: -20px;
+				}
+
+				.card-title-osIcon img {
+					height: 25px;
+					margin-top: -29px;
+					float: right;
+					margin-right: -7px;
+				}
+
+				.status-state {
+					width: 80px;
+					height: 80px;
+					text-align: center;
+					margin-left: 40px;
+					background-repeat: no-repeat;
+					background-size: 80px;
+				}
+
+				.card-circle-info {
+					font-size: 25px;
+						margin-top: 18px;
+				}
+
+				.docker-image {
+					height: 32px;
+				    margin: 42px 0px 0 -25px;
+				    width: auto;
+				    position: absolute;
+				}
+
+				.instance-ip, .provider-id {
+					font-size: 10px;
+				}
+
+				.provider-id {
+					margin-top: 4px;
+					width: 155px;
+				    overflow: hidden;
+				    text-overflow: ellipsis;
+				    white-space: nowrap;
+				    margin-left: 5px;
+				}
+
+				.instance-ip {
+					margin-top: 4px;
+				}
+
+				.card-btns {
+					position: absolute;
+					bottom: 0;
+					right: 0;
+					width: 100%;
+					border-top: 1px solid #ccc;
+					padding: 5px;
+				}
+
+				.btn-icons {
+					margin: 0px 10px;
+					float: left;
+				}
+
+				.icon-ssh {
+					background: url("#{$imagePath}/global/sprites.png") no-repeat;
+					background-position: -206px -9px;
+					width: 34px;
+					height: 28px;
+					cursor: pointer;
+				}
+
+				.icon-ssh-disabled {
+					background: url("#{$imagePath}/instance/ssh-disable.png") no-repeat;
+					width: 34px;
+					height: 28px;
+				}
+
+				.icon-rdp {
+					background: url("#{$imagePath}/instance/rdp.png");
+					width: 28px;
+					height: 28px;
+					margin: 0 13px;
+					cursor: pointer;
+				}
+
+				hr {
+					margin: 0px 0px 10px 7px;
+				}
+
+				.dropdown {
+					margin-top: 2px;
+				}
+			}
+		}
+	}
+}
+
+#blueprintPage {
+	.bp-more-info-section {
+		height: 25px;
+	}
+
+	.bp-more-info-section-docker {
+		height: 18px;
+	}
+
+	.cardimage {
+		background-repeat: no-repeat;
+		height: 160px;
+		margin-left: 15px;
+	}
+
+	.cardLogo, .card-logo-docker {
+		height: 41px;
+		padding-top: 0px;
+		margin-right: -30px;
+	}
+
+	.system-prop {
+		position: relative;
+		text-align: center;
+		margin-bottom: 0px;
+	}
+
+	.readBtn {
+		float: right;
+		margin: 4px 7px;
+		cursor: pointer;
+	}
+
+	.docker-image-text {
+		text-align: center;
+	    margin-left: 5px;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    max-width: 120px;
+	    height: 15px;
+	    white-space: nowrap;
+	}
+
+	.docker-image-name {
+		padding-right: 5px;
+	}
+
+	.card-text-overflow {
+		font-size: 12px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.moreinfoBuild, .moreinfoAppDeploy, .moreinfoactionHistory, .actionbuttonChefClientRun, .actionbuttonStart, .actionbuttonStartContainer, .actionbuttonCPStart, .actionbuttonShutdown, .actionbuttonShutdownContainer, .sshIcon, .aws, .azure, .rl, .openstack, .cloudstack, .dock, .logo {
+		background: url('#{$imagePath}/global/sprites.png') no-repeat;
+	}
+
+	.fa-info-circle {
+		font-size: 23px;
+	}
+
+	.bp-version-dropdown-wrapper {
+		height: 40px;
+		margin: 4px 0 0 36px;
+	}
+
+	.bp-version-dropdown-wrapper-docker {
+		height: 31px;
+		margin: -3px 0 0 36px;
+	}
+
+	.btnicons {
+		margin: 0px 7px 5px 1px;
+		float: left;
+	}
+
+	.btn-danger {
+		padding: 2px 6px;
+		border-radius: 14px;
+	}
+
+	.control-panel-button {
+		border-radius: 11px;
+		padding: 2px 5px;
+		width: 25px;
+		height: 25px;
+	}
+
+	.docker-repo-list {
+        height: 20px;
+    }
+
+    .docker-repo {
+        padding: 0px;
+        font-size: 12px;
+    }
+
+    .docker-repo-list-link {
+        font-size: 11px;
+        color: blue;
+        text-decoration: underline;
+        vertical-align: top;
+    }
+
+	.blueprint-buttons {
+		margin: 0 0 0 45px;
+	}
+
+	.blueprint-buttons-docker {
+		margin: 5px 0 0 45px;
+	}
+
+	.bp-version-dropdown {
+		margin-top: 2px;
+		font-size: 12px;
+	}
+
+	.bp-version-dropdown-text {
+		font-size: 12px;
+	}
+
+	.bp-provider {
+		position: absolute;
+    	margin: 5px 0 0 5px;
+	}
+}
+
+#cloudFormationPage, #azureARMPage {
+	.cardimage {
+		background-image: url("#{$imagePath}/app-store-icons/box-ops.png");
+		background-repeat: no-repeat;
+		height: 163px;
+		margin-left: 15px;
+	}
+
+	.stackLogo, .armLogo {
+		height: 52px;
+		padding-top: 11px;
+		margin-top: 9px;
+		margin-left: 44px;
+	}
+
+	.stackLogo {
+		margin-left: 44px;
+	}
+
+	.armLogo {
+		margin-left: -10px;
+	}
+
+	.Cardtextoverflow {
+		font-size: 12px;
+		overflow: hidden;
+		padding-left: 0px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		width: 127px;
+	}
+
+	.stack-details-list {
+		font-size: 9px;
+		padding-bottom: 0px;
+		padding-top: 5px;
+		text-align: center;
+	}
+
+	.fa-info-circle {
+		font-size: 23px;
+	}
+
+	.system-prop {
+		text-align: center;
+	}
+
+	.stackName {
+		float: right;
+		margin-top: 6px;
+		margin-left: 8px;
+		padding-right: 22px;
+	}
+
+	.right-button {
+		border-radius: 18px;
+		padding: 2px 7px;
+		margin: 5px 0px 0px 53px;
+	}
+}
+
+#cloudFormationPage {
+	.orange, .red, .green {
+		margin-left: -12px;
+	}
+}
+
+#azureARMPage {
+	.stack-details {
+		margin-left: -12px;
+	}
+}
+
+/*CSS which is used for All Devices*/
+
+#cardView, #tableView {
+	.icon-chef {
+		background: url("#{$imagePath}/instance/chef.png");
+		cursor: pointer;
+		width: 28px;
+		height: 28px;
+	}
+
+	.icon-chef-disabled {
+		background: url("#{$imagePath}/instance/chef-disable.png");
+		width: 28px;
+		height: 28px;
+	}
+
+	.icon-puppet {
+		background: url("#{$imagePath}/global/puppet.png");
+		cursor: pointer;
+		width: 28px;
+		height: 28px;
+		background-size: 28px 28px;
+	}
+
+	.icon-puppet-disabled {
+		background: url("#{$imagePath}/global/puppet.png");
+		width: 28px;
+		height: 28px;
+		background-size: 28px 28px;
+		opacity: 0.4;
+	}
+
+	.sshIcon, .sshIcon-disabled {
+		background-position: -206px -9px;
+		width: 34px;
+		height: 28px;
+		background: url("#{$imagePath}/global/sprites.png") no-repeat -206px -9px;
+		background-repeat: no-repeat;
+		float: left;
+	}
+
+	.sshIcon {
+		background-position: -206px -9px;
+		background: url("#{$imagePath}/global/sprites.png") no-repeat -206px -9px;
+	}
+
+	.sshIcon-disabled {
+		background: url("#{$imagePath}/instance/ssh-disable.png") no-repeat;
+	}
+
+	.rdpIcon {
+		background: url("#{$imagePath}/instance/rdp.png");
+		width: 34px;
+		height: 28px;
+		background-repeat: no-repeat;
+		float: left;
+		cursor: pointer;
+	}
+
+	.hideStartStopCur:hover{
+		cursor: default;
+	}
+}
+
+#cardView {
+	padding: 10px 0px 0px 20px;
+	overflow-y: auto;
+
+	.card {
+		.card-title-role img {
+			height: 25px;
+			margin: 0 4px;
+			max-width: 30px;
+		}
+
+		.card-title-edit {
+			font-size: 18px;
+		}
+
+		.instance-state-unknown, .instance-state-pending, .instance-state-shutting-down{
+			background: url("#{$imagePath}/instance-states/aws-inactive.png");
+		}
+
+		.instance-state-paused, .instance-state-stopping {
+			background: url("#{$imagePath}/instance-states/aws-paused.png");
+		}
+
+		.instance-state-running {
+			background: url("#{$imagePath}/instance-states/aws-started.png");
+		}
+
+		.instance-state-stopped, .instance-state-terminated {
+			background: url("#{$imagePath}/instance-states/aws-stopped.png");
+		}
+
+		.icon-links {
+			-moz-border-radius: 50px;
+			-webkit-border-radius: 50px;
+			border-radius: 50px;
+			border-width: 2px;
+			@include theme-border-color;
+			font-size: 16px;
+			cursor: pointer;
+		}
+
+		.dropdown-toggle {
+			border-radius: 14px;
+			padding: 1px 10px;
+			border-width: 2px;
+			@include theme-border-color;
+			background: #fff;
+		}
+
+		.shutdown {
+			background: url("#{$imagePath}/instance/shutdown.png") no-repeat;
+			height: 25px;
+			width: 26px;
+			cursor: pointer;
+			display: block;
+			margin-left: 40px;
+		}
+
+		.icon-rdp-disabled {
+			background: url("#{$imagePath}/instance/rdp-disable.png");
+			width: 28px;
+			height: 28px;
+			margin: 0 13px;
+		}
+	}
+}
+
+#applicationPage {
+	#cardView {
+		padding: 0px;
+
+		.app-details {
+			border-radius: 0px;
+			border: 4px solid #dddddd;
+
+			.card-title {
+				width: 125px;
+				padding: 4px 0px 0px 0px;
+			}
+
+			hr {
+				margin: 0px;
+				border: 1px solid #eee;
+				width: 92%;
+			}
+		}
+	}
+
+	.card {
+		position: relative;
+		width: 125px;
+		float: left;
+		border: 1px solid #DDDDDD;
+		text-align: center;
+		font-size: 10px;
+		min-height: 84px;
+		@include border-radius(11px);
+
+		.card-title {
+			width: 110px;
+			height: 12px;
+			font-size: 11px;
+			padding: 4px 0px 0px 0px;
+		}
+
+		.card-title-name {
+			display: inline-block;
+			font-weight: normal;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			width: 120px;
+			text-align: center;
+		}
+
+		.card-status-state {
+			.status-state {
+				width: 30px;
+				height: 30px;
+				text-align: center;
+				margin: 15px 0 0 45px;
+				background-repeat: no-repeat;
+				background-size: 30px 30px;
+			}
+		}
+
+		.instance-ip {
+			margin-top: 7px;
+			text-align: center;
+			width: 125px;
+		}
+
+		.fa-th {
+			font-size: 16px;
+			margin-top: 7px;
+		}
+
+		hr {
+			margin: 0px 0px 10px 8px;
+			border: 1px solid #eee;
+		}
+
+		.app-instance-image {
+			background: url("#{$imagePath}/global/cat-logo.png") no-repeat;
+			background-size: 25px 25px;
+			cursor: pointer;
+			margin: 20px 0 0 48px;
+			width: 25px;
+			height: 25px;
+		}
+	}
+}

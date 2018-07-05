@@ -1,0 +1,47 @@
+[
+  {
+    "cookbookName": "DTelemetryNewrelicNodeJS",
+    "attributes": {
+      "DTelemetryNewrelicNodeJS/app_path": {
+        "display_name": "node.JS app path",
+        "description": "Please specify nodejs app path",
+        "default": "/mnt/jenkins/workspace/Deploy_To_D4D/server",
+        "choice": [],
+        "calculated": false,
+        "type": "string",
+        "required": "optional",
+        "recipes": []
+      },
+      "DTelemetryNewrelicNodeJS/app_name": {
+        "display_name": "App name",
+        "description": "Please specify App name",
+        "default": "D4D",
+        "choice": [],
+        "calculated": false,
+        "type": "string",
+        "required": "optional",
+        "recipes": []
+      },
+      "DTelemetryNewrelicNodeJS/root_file": {
+        "display_name": "APP Main file",
+        "description": "Please mention application main file",
+        "default": "app.js",
+        "choice": [],
+        "calculated": false,
+        "type": "string",
+        "required": "optional",
+        "recipes": []
+      },
+      "DTelemetryNewrelicNodeJS/license_key": {
+        "display_name": "Newrelic Lincense Key",
+        "description": "Please specify license key which is in active state",
+        "default": "b764c5b2cb8e519d639de4f26b6a0ad8a715d6f6",
+        "choice": [],
+        "calculated": false,
+        "type": "string",
+        "required": "optional",
+        "recipes": []
+      }
+    }
+  }
+]

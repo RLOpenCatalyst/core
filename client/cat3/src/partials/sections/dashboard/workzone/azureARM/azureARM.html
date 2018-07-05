@@ -1,0 +1,57 @@
+<div id='azureARMPage' ng-controller="AzureARMCtrl">
+	<loading size="large" name="isAzureARMPageLoading" type="block"></loading>
+	<div ng-show="!isAzureARMPageLoading">
+		<div class="panel-heading">
+			<span class="panel-title">
+				<span> ARM Deployments</span>
+			</span>
+			<span class="pull-right">
+				<button type="button" title="Refresh" class="btn btn-xs cat-btn-update" ng-click="refreshCurrentPage()">
+					<i class="fa fa-refresh white"></i>
+				</button>
+			</span>
+		</div>
+		<div class="scrollContent">
+			<div class="alert alert-info text-center" ng-show="arms.length===0">
+	            No ARM Deployments Available
+	        </div>
+			<div class="productdiv4" ng-repeat="arm in arms">
+				<div class="productdiv1 cardimage">
+					<ul class="list-unstyled system-prop">
+						<li>
+							<img src="images/global/cf-icon.png" alt="azureArm" class="armLogo" />
+						</li>
+						<li title="" class="Cardtextoverflow">
+							<u>
+								<b class="stackNameContainer">{{arm.deploymentName}}</b>
+							</u>
+						</li>
+					</ul>
+					<div class="stack-details-list">
+						<span class="stack-details">
+							<strong class="stackId">
+
+							</strong>
+						</span>
+						<div>
+							<span class="stack-details">
+								status : 
+							</span>
+							<span class="stackStatus {{getStackStateColor(arm.status)}}">
+								{{arm.status}}
+							</span>
+						</div>
+					</div>
+					<div class="btnicons">
+						<span class="btn btn-danger right-button" title="Delete Arm" ng-click="removeARMDeployment(arm,$index)">
+							<i class="fa fa-trash-o white"></i>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="isAzureARMPaginationShow">
+				<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="10" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationArmChange()" class="paginationStyle margintop15"></pagination>
+			</div>
+		</div>
+	</div>
+</div>

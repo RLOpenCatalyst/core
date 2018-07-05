@@ -1,0 +1,40 @@
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" ng-click="bpCopy.cancel()"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list-ol txt-color-blue"></i>&nbsp;Select target</h4>
+    </div>
+    <div class="modal-body" style="height:232px;">
+        <form name="copyBP" novalidate>
+        <div class="bpcopyContainer">
+            <div class="col-lg-12 col-md-12">
+                <label for="">Organization
+                   <span style="color:red">*</span></label>
+                <select  ng-model="bpCopy.newEnt.copyOrg" class="chooseProjectExisting width-100 form-control" required>
+                    <option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+                </select>
+            </div>
+
+
+            <div class="col-lg-12 col-md-12 margintop15">
+                <label for="" class="lblbpc">Business Group   <span style="color:red">*</span></label>
+                <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="bpCopy.newEnt.copyBuss" required>
+                    <option ng-repeat="buss in organObject[bpCopy.newEnt.copyOrg].businessGroups" value="{{organObject[bpCopy.newEnt.copyOrg].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
+                </select>
+            </div>
+
+            <div class="col-lg-12 col-md-12 margintop15">
+                <label class="lblbpc">Project  <span style="color:red">*</span>
+                </label>
+                <select class="chooseProjectExisting width-100 form-control" ng-model="bpCopy.newEnt.copyProj" required>
+                    <option ng-repeat="proj in organObject[bpCopy.newEnt.copyOrg].businessGroups[bpCopy.newEnt.copyBuss].projects"  value="{{organObject[bpCopy.newEnt.copyOrg].businessGroups[bpCopy.newEnt.copyBuss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+                </select>
+            </div>
+
+        </div>
+            </form>
+    </div>
+    <div class="modal-footer" style="margin-top: 0px !important; padding-right: 8px; padding-top: 7px;">
+        <button type="button" class="btn cat-btn-close" ng-click="bpCopy.cancel()">
+            <i class="fa fa-times black"></i> Close</button>
+        <button type="button" class="btn cat-btn-update" data-dismiss="modal" ng-disabled="copyBP.$invalid" ng-click="bpCopy.copySelectedBlueprint();"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i> Copy</button>
+    </div>

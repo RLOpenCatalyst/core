@@ -1,0 +1,150 @@
+<div class="row">
+	 <div class="col-md-12">
+			<div class="col-md-12">
+				 <div class="widget-box">
+						<div class="widget-header">
+							 <h5 class="widget-title" style="color:#4e5964;">
+									<strong>ServiceNow CMDB Management</strong>
+							 </h5>
+							 <div class="widget-toolbar no-border">
+									<div>
+										 <a id="newConfig" class="btn btn-minier btn-primary" href="#ajax/Settings/ConfigCMDB.html">
+										 <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+										 New
+										 </a>
+									</div>
+							 </div>
+						</div>
+						<div class="widget-body">
+							 <div class="widget-main widgetHeight">
+									<div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
+										 <table id="cmdbtable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px" width="100%" style="text-align:center">
+												<thead>
+													 <tr class="rowCustomStyle">
+															<td>ServiceNow Server Name</td>
+															<td>User Name</td>
+															<td>URL</td>
+															<td>Organization</td>
+															<td class="">Action</td>
+													 </tr>
+												</thead>
+												<tbody>
+												</tbody>
+										 </table>
+									</div>
+							 </div>
+						</div>
+				 </div>
+			</div>
+	 </div>
+</div>
+
+<!--javascript starts here-->
+<script>
+	$(document).ready(function() {
+		//initializing the datatable
+		if (!$.fn.dataTable.isDataTable('#cmdbtable')) {
+				$trackDatatable = $('#cmdbtable').DataTable({
+						"pagingType": "full_numbers",
+						"bInfo": false,
+						"bLengthChange": false,
+						"paging": true,
+						"bFilter": false,
+						"aoColumns": [{
+								"bSortable": false
+						}, {
+								"bSortable": false
+						}, {
+								"bSortable": false
+						}, {
+								"bSortable": false
+						}, {
+								"bSortable": false
+						}]
+
+				});
+		}
+});
+
+//get the list of all cmdb events.
+$.get('/cmdb/list', function(data) {
+		console.log("In CMDBList::" + data);
+		createTableFromJson(data);
+});
+
+//showing the data on the datatable by creating a table function and appending data to the rows.
+function createTableFromJson(data) {
+		var $taskbody = $('#cmdbtable').find('tbody');
+		for (var i = 0; i < data.length; i++) {
+
+				if (data[i].servicenowusername) {
+
+						var $tr = $('<tr class="cmdbRow" id="' + data[i].rowid + '"></tr>');
+						$tr.append('<td scope="col">' + data[i].configname + '</td>');
+
+						$tr.append('<td scope="col">' + data[i].servicenowusername + '</td>');
+
+						$tr.append('<td scope="col"><a target="_blank" href="' + data[i].url + '">'+ data[i].url +'</a></td>');
+
+						$tr.append('<td scope="col">' + data[i].orgname + '</td>');
+
+						var $td = $('<td></td>');
+
+						var $div = $('<div class="btn-group tableactionWidthChef"></div');
+
+						var $removeButton = '<a class="btn btn-danger pull-left btn-sg ' + 'tableactionbutton tableactionbuttonpadding removeAction" value="Remove" title="Delete"' + '><i class="ace-icon fa fa-trash-o ' + 'bigger-120"></ i></a>';
+
+						var $updateButton = '<a class="btn btn-info pull-left ' + 'tableactionbutton tableactionbuttonpadding btn-sg updateAction" ' + 'title="Edit" href="#ajax/Settings/ConfigCMDB.html?' + data[i]._id + '"><i class="ace-icon fa fa-pencil bigger-120"></i></a>';
+
+						var $importButton = '<a class="btn btn-sg btn-primary tableactionbutton ' + 'tableactionbuttonpadding importAction" title="Import Nodes" ' + 'href="#ajax/Settings/servicenowSync.html?' + data[i]._id + '"><i class="ace-' + 'icon fa fa-download bigger-120"></i></a>';
+
+						$div.append($updateButton);
+						$div.append($importButton);
+						$div.append($removeButton);
+						
+
+						$td.append($div);
+						$tr.append($td);
+
+						$taskbody.append($tr);
+						$trackDatatable.row.add($tr).draw();
+
+						$div.find("a.removeAction").on('click', function(e) {
+
+								var $tr = $(this).parents('tr');
+								var id = $tr.attr('id');
+								bootbox.confirm({
+										message: 'Are you sure you want to Delete ?&nbsp;',
+										title: "Warning",
+										callback: function(result) {
+												if (result) {
+														$.ajax({
+																url: '/servicenow/removeItem/id/' + id,
+																method: 'DELETE',
+																success: function() {
+																		$trackDatatable.row($tr).remove().draw(false);
+																		console.log('remove action complete');
+																},
+																error: function(jxhr) {
+																		var msg = "Unable to Delete URL please try again later";
+																		if (jxhr.responseJSON && jxhr.responseJSON.message) {
+																				msg = jxhr.responseJSON.message;
+																		} else if (jxhr.responseText) {
+																				msg = jxhr.responseText;
+																		}
+																		bootbox.alert(msg);
+																}
+														});
+												} else {
+														return;
+												}
+										}
+								});
+								return false;
+						});
+				}
+
+		}
+}					
+</script>
+<!--javascript ends here-->

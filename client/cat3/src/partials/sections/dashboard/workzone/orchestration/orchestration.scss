@@ -1,0 +1,437 @@
+@import '../../../../theme';
+
+$imagePath : "../../../../../../images";
+
+@media (min-width : 0px) and (max-width : 320px) {
+	#newTaskPage {
+		#container {
+			.selectCookbooksandRecipesdivRight {
+			    margin-left: 10px;
+			    margin-top: 40px;
+			}
+		}
+
+		.section-headings {
+			.assigned-tasks {
+				position: absolute;
+				top: 51%;
+			}
+		}
+
+		.jobDetailsContent {
+			.margintop15 {
+				.form-control {
+					padding: 4px 6px;
+					font-size: 12px;
+				}
+			}
+		}
+	}
+}
+
+@media (min-width : 321px) and (max-width : 480px) {
+	#newTaskPage {
+		#container {
+			.selectCookbooksandRecipesdivRight {
+			    margin-left: 10px;
+			    margin-top: 40px;
+			}
+		}
+
+		.section-headings {
+			.assigned-tasks {
+				position: absolute;
+				top: 51%;
+			}
+		}
+	}
+}
+
+@media (min-width : 0px) and (max-width : 480px) {
+	
+}
+
+@media (min-width : 0px) and (max-width : 990px) {
+	#newTaskPage {
+		.left-padding {
+			padding: 15px 0 0 0;
+		}
+	}
+}
+
+@media (min-width : 991px) {
+	#newTaskPage {
+		.left-padding {
+			padding-left: 15px;
+			padding-right: 0px;
+		}
+	}
+
+	.my-modal-popup {
+		.modal-lg {
+			width:1056px;
+		}
+	}
+}
+
+#orchestrationPage {
+	font-size: 13px;
+	margin-bottom: 5px;
+
+	.scrollContent {
+		padding: 10px;
+	}
+
+	input[type=search] {
+		-webkit-appearance: textfield;
+	}
+
+	.btnEditTask {
+		float: left;
+	}
+
+	.btnDeleteTask {
+		float: right;
+	}
+
+	.chefImage-size {
+		height: 20px;
+	}
+
+	.task-type-img {
+		width: 27px;
+	}
+
+	.task-section {
+		width: 70px;
+	}
+
+	.chef-view-nodes {
+		font-size: 20px;
+	}
+
+	.assigned-runlists {
+		font-size: 20px;
+		margin-left: 10px;
+	}
+
+	.panel-title{
+		margin-right: 15px;
+	}
+
+	.tableactionbutton {
+		border-radius: 50%;
+		padding: 2px 8px;
+	}
+}
+
+/*All Popup Styles starts here*/
+
+#assignNodesPage {
+	font-size: 12px;
+
+	.runlist {
+		font-size: 12px;
+	}
+
+	.assignedRunlists {
+		border: 1px solid #dddddd;
+		list-style: none outside none;
+		height: 150px;
+		overflow-y: auto;
+		padding: 5px 10px;
+		line-height: 1.7;
+	}
+}
+
+#newTaskPage {
+	font-size: 12px;
+
+	.new-task-wrapper {
+	/*Changing height from 325px to 394px*/
+		height: 394px;
+		overflow-y: auto;
+	}
+
+	textarea {
+	    resize: none;
+	}
+
+	.jobDetailsContent {
+		.form-control {
+			font-size: 13px;
+		}
+	}
+
+	.fa-plus-circle, .fa-question-circle, .fa-sitemap {
+		font-size: 18px;
+	}
+
+	.border {
+		border: 1px solid #ccc;
+	}
+
+	.job-param-table-border {
+		border: 1px dotted black;
+	}
+
+	.jobDetailsHeader {
+		border-bottom: 1px solid #ddd;
+		text-align: center;
+	}
+
+	.view-runlist {
+		height: 235px;
+		overflow-y: auto;
+		margin-top: 3px;
+	}
+
+	h5 {
+		font-weight: bold;
+	}
+
+	.select-nodeInstance {
+		border: 1px solid #dddddd;
+		list-style: none outside none;
+		height: 350px;
+		overflow-y: auto;
+		margin-top: 5px;
+		margin-bottom: 10px;
+		padding: 5px;
+	}
+
+	.jobParam {
+		padding-top: 18px;
+	}
+
+	.jobDetailsContent {
+		padding: 12px 0;
+	}
+
+	.jenkins-job-links {
+		max-width: 225px;
+	    text-overflow: ellipsis;
+	    overflow: hidden;
+	    height: 18px;
+	}
+
+	.chef-details-top {
+		width: 100%;
+		min-height: 184px;
+	}
+
+	.cookbook-attributes {
+		width: 100%;
+	}
+
+	.edit-cookbook {
+		padding: 0px 4px;
+	}
+
+	#chefDescription, #compositeDescription, #puppetDescription {
+		width: 100%;
+	}
+
+	.img-margin {
+		margin-top: -5px;
+	}
+
+	.clear-selection {
+		text-decoration: underline;
+	}
+
+	.check-list a:hover {
+		text-decoration: none;
+	}
+
+	.radiobutton-list {
+		margin: 2px 4px 0 0;
+		vertical-align: top;
+	}
+
+	.addRunList-icon {
+		font-size: 16px;
+	}
+
+	.add-job-parameters {
+		margin-bottom: 16px;
+	}
+
+	.add-parameters {
+		margin-bottom: 26px;
+	}
+
+	.paddingtopbottom10 {
+		padding: 10px 0;
+	}
+
+	.authScriptFile {
+		margin-top: 4px;
+	}
+
+	.script-file {
+		margin-bottom: 9px;
+	}
+
+	.choose-file {
+		padding: 4px 8px;
+	    background: #f1f1f1;
+	    border-radius: 5px;
+	    font-weight: normal;
+	    border: 1px solid gray;
+	}
+
+	.file-name {
+		max-width: 160px;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    white-space: nowrap;
+	    float: left;
+	    margin-top: 5px;
+	}
+
+	input[type="file"] { 
+		display: none; 
+	}
+
+	.script-task {
+		loading h1 {
+			margin: 3px 0 0 0;
+		}
+	}
+
+	.paddingtop8 {
+		padding-top: 8px;
+	}
+
+	.paddingleft0 {
+		padding-left: 0px;
+	}
+
+	.paddingright15 {
+		padding-right: 15px;
+	}
+}
+
+#viewNodesPage {
+	font-size: 12px;
+
+	.header-lineheight {
+		line-height:2.3;
+	}
+
+	.name-width {
+		width:200px;
+	}
+
+	.ip-width {
+		width: 100px;
+	}
+
+	.header-font {
+		font-size:12px;
+	}
+}
+
+#addJobLinksPage {
+	font-size: 12px;
+
+	.modal-body {
+		height: 120px;
+	}
+
+	.instructionTextColor {
+		color: #666;
+		margin-top: 15px;
+	}
+}
+
+#addJenkinsParamsPage , #selectInstanceFromDropdown {
+	font-size: 12px;
+
+	.parameter-section {
+		min-height: 215px;
+	}
+
+	.text-padding {
+		padding-top: 8px;
+	}
+
+	.table>tbody>tr>td {
+		border-top: 0px;
+	}
+
+	.fa-question-circle {
+		position: absolute;
+	    left: 100px;
+	    top: 102px;
+	    font-size: 18px;
+	}
+}
+
+#orchestrationHistoryPage {
+	font-size: 12px;
+
+	.fa-info-circle {
+		font-size: 23px;
+	}
+
+	.marginbottomright3 {
+		margin: 0 3px 3px 0;
+	}
+
+	.tableactionbutton {
+		border-radius: 50%;
+	}
+}
+
+#jenkinLogPage {
+	font-size: 12px;
+}
+
+#compositeLogsPage {
+	.text-padding {
+		padding-top: 8px;
+	}
+
+	.padding-bottom15 {
+		padding-bottom: 15px;
+	}
+}
+
+.control-label {
+	font-size: 12px;
+	font-weight: normal;
+}
+
+.marginleft10 {
+	margin-left: 10px;
+}
+
+.chef-logs-wrapper {
+	height: 462px;
+	overflow-y: auto;
+}
+
+.composite-logs-wrapper {
+	height: 511px;
+	overflow-y: auto;
+}
+
+a.marginleft23 {
+	margin-left: 23px;
+	cursor: pointer;
+}
+
+.scriptParamsDelete {
+	margin-left: 8px;
+	margin-top: 5px;
+}
+
+.cursorPointer {
+	cursor: pointer;
+}
+
+.margintop7 {
+	margin-top: 7px;
+}

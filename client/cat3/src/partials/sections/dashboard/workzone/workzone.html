@@ -1,0 +1,96 @@
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/workzone/workzone.css'>
+
+<div id='workzonePage' class='fluid-container'>
+	<div class='row'>
+		<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 panelLeft'>
+			<div ng-include="'src/partials/sections/dashboard/workzone/workzoneTreeMenu/workzoneTreeMenu.html'"></div>
+		</div>
+		<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 panelRight'>
+			<div ng-if="config.message" class="alert alert-warning text-center">
+				<span ng-bind-html=config.message>
+				</span>
+			</div>
+			<div ng-if="!config.message" id='rightPanel' class='container-fluid'>
+				<ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+					<li class="dropdown active InfrastructureLocalStorage">
+						<a data-toggle="dropdown" class="dropdown-toggle" href="javascript:void(0);">Infrastructure<b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li ng-class="{active:tab.isSet('Instances')}">
+								<a ng-click="tab.setTab('Instances');addActive()">
+									<i class="fa fa-reorder"></i>&nbsp;
+									Instances
+								</a>
+							</li>
+							<li ng-class="{active:tab.isSet('Blueprints')}">
+								<a ng-click="tab.setTab('Blueprints');addActive()">
+									<i class="fa fa-crosshairs"></i>&nbsp;
+									Blueprints
+								</a>
+							</li>
+							<li ng-class="{active:tab.isSet('CloudFormation')}">
+								<a ng-click="tab.setTab('CloudFormation');addActive()">
+									<i class="fa fa-indent"></i>&nbsp;
+									CloudFormation
+								</a>
+							</li>
+							<li ng-class="{active:tab.isSet('AzureARM')}">
+								<a ng-click="tab.setTab('AzureARM');addActive()">
+									<i class="fa fa-indent"></i>&nbsp;
+									AzureARM
+								</a>
+							</li>
+							<li ng-class="{active:tab.isSet('Containers')}">
+								<a ng-click="tab.setTab('Containers');addActive()">
+									<i class="fa fa-briefcase"></i>&nbsp;
+									Containers
+								</a>
+							</li>
+						</ul>
+					</li>
+					<li ng-class="{active:tab.isSet('Orchestration')}">
+						<a ng-click="tab.setTab('Orchestration');removeActive()">
+							<i class="fa fa-codepen black"></i>&nbsp;
+							Orchestration
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Applications')}">
+						<a ng-click="tab.setTab('Applications');removeActive()">
+							<i class="fa fa-shield black"></i>&nbsp;
+							Applications
+						</a>
+					</li>
+					<!--<li ng-class="{active:tab.isSet('Dashboard')}">-->
+						<!--<a ng-click="tab.setTab('Dashboard');removeActive()">-->
+                            <!--<i class="fa fa-tachometer black"></i>-->
+							<!--Dashboard-->
+						<!--</a>-->
+					<!--</li>-->
+				</ul>
+				<div class="{{tab.isSet('Instances')? 'show-grid-tab':'hide-grid'}}">
+					 <div ng-include="tab.templates.instance.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Blueprints')">
+					  <div ng-include="tab.templates.blueprint.url"></div>
+				</div>
+				<div ng-show="tab.isSet('CloudFormation')">
+					  <div ng-include="tab.templates.cloudFormation.url"></div>
+				</div>
+				<div ng-show="tab.isSet('AzureARM')">
+					  <div ng-include="tab.templates.azureARM.url"></div>
+				</div>
+				<div class="{{tab.isSet('Containers')? 'show-grid-tab':'hide-grid'}}">
+					  <div ng-include="tab.templates.container.url"></div>
+				</div>
+				<div class="{{tab.isSet('Orchestration')? 'show-grid-tab':'hide-grid'}}">
+					  <div ng-include="tab.templates.orchestration.url"></div>
+				</div>
+				<div class="{{tab.isSet('Applications')? 'show-grid-tab':'hide-grid'}}">
+					  <div ng-include="tab.templates.application.url"></div>
+				</div>
+                <!--<div class="{{tab.isSet('Dashboard')? 'show-grid-tab':'hide-grid'}}">-->
+                    <!--<iFrame src="{{dashboardUrlWZ | trustAsResourceUrl}}" frameborder="0" width="100%" height="800" allowfullscreen></iFrame>-->
+                <!--</div>-->
+			</div>
+		</div>
+	</div>
+</div>

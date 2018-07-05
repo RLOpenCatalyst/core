@@ -1,0 +1,302 @@
+<style type="text/css">
+.smart-form .toggle input:checked + i:before {
+		right: 46px !important;
+}
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
+            <form action="" id="myForm32">
+                <div class="widget-box">
+                    <div class="widget-header">
+                        <h4 class="widget-margin" style="color:black;">BOT Executor Configuration</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main" style="min-height:200px">
+                            <section id="widget-grid" class="">
+                                <!-- START ROW -->
+                                <div class="row">
+                                    <!-- Widget ID (each widget will need unique ID)-->
+                                    <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                                        <!-- widget div-->
+                                        <div>
+                                            <!-- widget content -->
+                                            <div class="widget-body no-padding">
+                                                <div class="col-lg-6 col-md-6">
+                                                    <label for="name">Name:
+                                                    <span class="control-label redSpan">&nbsp;*</span></label>
+                                                    <input autofocus name="ctl00$MainContent$name" value="" id="name" unique="true"  uniqueconditionedby="name" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+	                                                <label for="name">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+	                                                <select id="orgname" class="chooseOrganization width-100" cdata="catalyst"  cat-validation="required">
+	                                                   <option value="">Select an Organization</option>
+	                                                </select>
+	                                             </div>
+                                                <div class="col-lg-6 col-md-6 margintop15">
+                                                    <label for="name">Engine URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                    <input name="hostIP" value="" id="hostIP" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
+                                                </div>
+												<div class="col-lg-6 col-md-6 margintop15">
+													<label for="name">Host Port:<span class="control-label redSpan">&nbsp;*</span></label>
+													<input name="hostPort" value="" id="hostPort" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
+												</div>
+                                                <div class="col-lg-6 margintop15 orgactive hidden">
+                                                    <label for="name">BOT Executor Status:</label>
+                                                    <div class="clearfix" style="border:1px solid silver" >
+                                                        <div class="btn-group pull-left" style="padding:5px;margin-top:-22px;width:100%">
+                                                            <div style="padding-top:5px;">
+                                                                <label for="active" style="width:20%"><input name="ctl00$MainContent$domainname" value="" id="active" class="hidden" type="text"  cdata="catalyst" style="margin-top:-25px" value="true"></label>
+                                                                <div class="input-group from-control col-md-12 smart-form">
+                                                                    <label class="toggle font-sm" ><input onclick='if($(this).is(":checked")) {$(this).closest("label").css("background-color","#ffffff");$(this).css("border-color","#ffffff");}else{$(this).closest("label").css("background-color","#ffffff");$(this).css("border-color","red");}' type="checkbox" name="checkbox-toggle" value="true" style="width:100%" id="currentorgstatus"><i data-swchoff-text="Active" data-swchon-text="Inactive" style="width:61px;"></i>Current Status</label>
+                                                                </div>
+                                                            </div>
+                                                            <label for="name">
+                                                                <div style="margin-top:5px" class="control-label"><br/>Note:<br/><span style="color:#CC0000">Deactivating is cascading and would deactivate all entities depending on this organization.</span></div>
+                                                            </label>
+                                                            <div>
+                                                                <a class="btn btn-primary btn-mini pull-right hidden" onclick="" id="btnenablement">
+                                                                <i class="ace-icon fa fa-check bigger-110"></i>
+                                                                Change
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end widget content -->
+                                        </div>
+                                        <!-- end widget div -->
+                                    </div>
+                                    <!-- end widget -->
+                                </div>
+                                <!-- END ROW -->
+                            </section>
+                            <!-- end widget grid -->
+                        </div>
+                    </div>
+                    <div class="widget-toolbox clearfix">
+                        <div class="btn-group pull-right">
+                            <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                            <i class="ace-icon fa fa-times bigger-110"></i>
+                            Cancel
+                            </a>
+                            <button class="btn btn-primary btn-mini">
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+	$(document).ready(function(){
+		getOrganizationList();
+	 	$(".chooseOrganization").select2();
+	});
+
+	 function inLineReady() {
+	 	$("input[type='text']").on("click", function() {
+	 		$(this).select();
+	 		$("#msgOrgName").hide();
+	 	});
+	 	readform(32);
+
+	 	//Force opening the left navigation menu
+	 	if ($('#navSettings').is(":visible") == false) {
+	 		$('#navSettings').css("display", '');
+	 		$('#navSettings > ul > li').first().addClass('open');
+	 		$('#navSettings > ul > li > ul').css("display", "none");
+	 		$('#navSettings > ul > li > ul').first().css("display", "block");
+	 	}
+	 	//redrawing the breadcrumb and selecting the tree
+	 	$('#ulsettingstree > li').removeClass('active');
+	 	$('#ulsettingstree > li').each(function() {
+	 		if ($(this).text().trim() == "Organizations")
+	 			$(this).addClass('active');
+	 	});
+	 	drawBreadCrumb1();
+	 	enableUniqueCheckingForInputs(32);
+	 	//enabling active org section
+	 	if (typeof $('#myForm32').find('button').first().attr('rowid') != "undefined")
+	 		$('#myForm32').find('.orgactive').first().removeClass('hidden');
+	 	else
+	 		$('#myForm32').find('.orgactive').first().addClass('hidden');
+
+	 	if ($('#active').val() == "false") {
+	 		if (!$('#currentorgstatus').is(':checked'))
+	 			$('#currentorgstatus').trigger('click');
+	 	}
+	 }
+
+	 var btnenablement = function() {
+	 	var data1 = new FormData();
+	 	if (confirm('You have selected to change the status of this BOT Executor. Proceed?')) {
+	 		var $deactivatebtn = $(this);
+	 		$deactivatebtn.attr('disabled', 'disabled');
+	 		var orgid__ = $('#myForm32').find('button').first().attr('rowid');
+	 		var action = "true";
+	 		if ($('#currentorgstatus').is(':checked') == true) {
+	 			action = "false";
+	 		}
+
+	 		var retVal = false;
+	 		if (orgid__) {
+	 			$deactivatebtn.parent().prepend('<label id="masterativatessavespinner" class="" style="float:left;"><img  style="margin-left:5px;margin-right:25px;margin-top:8px;" src="img/select2-spinner.gif"></img> </label>');
+
+	 			data1.append("orgid", orgid__);
+
+	 			$.ajax({
+	 				url: '/d4dMasters/deactivateBotEngine/' + action,
+	 				data: data1,
+	 				processData: false,
+	 				contentType: false,
+	 				type: 'POST',
+	 				async: false,
+	 				success: function(data, success) {
+	 					$('#masterativatessavespinner').detach();
+	 					$deactivatebtn.removeAttr('disabled');
+	 					retVal = true;
+	 				},
+	 				error: function(jqxhr) {
+	 					$('#masterativatessavespinner').detach();
+	 					$deactivatebtn.removeAttr('disabled');
+	 					alert(jqxhr.status);
+	 					retVal = false;
+	 				}
+	 			});
+	 		}
+	 	}
+	 	return retVal;
+	 };
+
+
+	 function readform_todelete(formName) {
+	 	var formData = null;
+	 	readMasterJson(32);
+	 	formData = d4ddata.masterjson;
+
+	 	var formSchema = null;
+	 	var orgName = url.substr(url.indexOf("?") + 1);
+
+	 	var editMode = false;
+	 	$.each(formData.rows.row, function(i, item) {
+	 		if (item.field[0].values.value.toLowerCase() == orgName.toLowerCase()) {
+	 			formSchema = item.field;
+	 			editMode = true;
+	 			return (false);
+	 		}
+	 		formSchema = item.field;
+	 	});
+	 	if (editMode == false)
+	 		return;
+	 	var formSchemaNew = formSchema;
+
+	 	$.each(formSchemaNew, function(i, item) {
+	 		var inputC = null;
+	 		$.each(item, function(k, v) {
+	 			if (k == "name") {
+	 				inputC = $("#" + v);
+	 			}
+	 		});
+	 		$.each(item, function(k, v) {
+	 			if (k == "values") {
+	 				if (inputC) {
+	 					$.each(v, function(k1, v1) {
+	 						if (inputC.getType().toLowerCase() == "text") {
+	 							if (inputC.attr("datavalues")) {
+	 								$.each(v[k1], function(i) {
+	 									addToCodeList(v[k1][i]);
+	 								});
+	 							} else
+	 								inputC.val(v[k1]);
+
+	 						}
+	 						if (inputC.getType().toLowerCase() == "file") {}
+	 						if (inputC.getType().toLowerCase() == "hidden") {
+	 							inputC.val(getUUID());
+	 						}
+	 					});
+	 				}
+	 				inputC = null;
+	 			}
+	 		});
+	 	});
+	 }
+	 $.fn.getType = function() {
+	 	if ($(this).length) {
+	 		return this[0].tagName == "INPUT" ? this[0].type.toLowerCase() : this[0].tagName.toLowerCase();
+	 	} else {
+	 		return "undefined";
+	 	}
+	 }
+
+	 function validateForm() {
+	 	return (true);
+	 }
+	 inLineReady();
+
+	 $(document).ready(function() {
+
+	 	var isEditActivate = location.href.toString().split('?')[1] === "new" ? false : true;
+
+        var onEditId = location.href.toString().split('?')[1];
+        if (isEditActivate) {
+          $.get('/d4dMasters/readmasterjsonrecord/32/' + onEditId , function(data){
+            if(data.orgname_rowid) {
+            	$('#orgname').empty().append('<option rowid="'+data.orgname_rowid+'" value="'+data.orgname+'">'+data.orgname+'</option>').select2().attr('disabled','disabled');   
+            }
+          });
+        }
+	 	
+	 	var rowid = $('#myForm32').find('button').first().attr('rowid');
+	 	if (typeof rowid == "undefined") {
+	 		$('#active').val('true');
+	 	}
+	 	$("#name").focus();
+	 	$('#myForm32').submit(function() {
+	 		if ($('#currentorgstatus').is(':checked').toString() == $('#active').val()) {
+	 			if (!btnenablement()) {
+	 				return false;
+	 			}
+	 			$('#active').detach();
+	 		}
+	 		console.log('serialize ==> ', $(this).serialize());
+	 		$(this).validate();
+
+	 		if ($(this).valid) {
+	 			if (!saveform('32')) return false;
+
+	 		} else {
+	 			alert('invalid valid form submitted'); // for demo
+	 		}
+	 		return false; // for demo
+	 	});
+	 });
+
+
+	//to list down the organization for creating the monitoring server item.
+	function getOrganizationList() {
+	    $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+	        var str = ' <option value="">Select Organization</option>',
+	        len = data.length;
+	        for (var i = 0; i < data.length; i++) {
+	            str = str + '<option rowid="'+ data[i].rowid +'" value="' + data[i].orgname + '">' + data[i].orgname + '</option>';
+	        }
+	        $('#orgname').html(str);
+	    })
+	}
+
+	 function isUserTypeSuperAdmin() {
+	 	$.get('/d4dMasters/loggedInUser', function(data) {
+	 		if (!data.isSuperAdmin) {
+	 			$('#orgname').attr('disabled', 'disabled');
+	 		}
+	 	});
+	 }
+</script>

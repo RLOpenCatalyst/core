@@ -1,0 +1,642 @@
+ <div id="create-bp" class="col-lg-12">
+      <div id="content">
+         <div next-text="Next" previous-text="Previous">
+            <div ng-if="bpTypeName === 'Composite'">
+               <form name="compositeBlueprintCreation" novalidate>
+                  <span ng-include="'src/partials/sections/dashboard/design/view/createComposite.html'"></span>
+               </form>
+            </div>
+            <form name="newBlueprintForm" novalidate>
+               <div ng-show="steps[0].isDisplayed">
+                 <div class="col-sm-12 col-md-12 col-lg-12"> 
+                     <div class="col-sm-2 col-lg-2 col-md-2 " ng-repeat="templateDetail in templateList" ng-if="bpTypeName == templateDetail.templatetypename">
+                        <div class="blueprintTemplate"  ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
+                           <ul class="list-unstyled system-prop" style="text-align:center;">
+                              <li>
+                                 <img style="height:40px;width:auto;" ng-if="templateDetail.templatesicon_filePath" alt="templateLogo" ng-src="{{templateDetail.templatesicon_filePath}}">
+                                 <img style="height:40px;width:auto;" ng-if="!templateDetail.templatesicon_filePath" ng-src="{{logo}}">
+                              </li>
+                              <li style="font-size:12px;"><u><b>{{templateDetail.templatename}}</b></u></li>
+                              <li style="font-size:10px;" ng-repeat="item in templateDetail.templatescookbooks.split(',')">{{item}}</li>
+                           </ul>
+                        </div>
+                     </div>
+
+                     <div class="col-sm-2 col-lg-2 col-md-2 " ng-repeat="templateDetail in imageList" ng-if="bpTypeName === 'OSImage'" >
+                        <div class="blueprintTemplate" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
+                           <ul class="list-unstyled system-prop" style="text-align:center;">
+                              <li>
+                                 <img style="height:40px;width:auto;" ng-if="templateDetail.osType =='linux'" alt="templateLogo" ng-src="{{osImageLogo}}">
+                                 <img style="height:40px;width:auto;" ng-if="templateDetail.osType =='windows'" alt="templateLogo" ng-src="{{osImageLogoWindows}}">
+                              </li>
+                              <li style="font-size:12px;"><u><b>{{templateDetail.name}}</b></u></li>
+                           </ul>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div ng-show="steps[1].isDisplayed">
+                  <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename !== 'Docker'">
+                     <ul class="list-unstyled system-prop" style="text-align:center;">
+                        <li ng-if="templateSelected.templatetypename === 'SoftwareStack' || templateSelected.templatetypename === 'CloudFormation' || templateSelected.templatetypename === 'ARMTemplate'">
+                           <img style="height:40px;width:auto;" ng-if="templateSelected.templatesicon_filePath" alt="templateLogo" ng-src="{{templateSelected.templatesicon_filePath}}">
+                           <img style="height:40px;width:auto;" ng-if="!templateSelected.templatesicon_filePath" ng-src="{{logo}}">
+                        </li>
+                        <li ng-if="templateSelected.osType">
+                           <img style="height:40px;width:auto;" alt="OSImage" ng-src="{{osImageLogo}}">
+                        </li>
+                        <li ng-if="templateSelected.templatetypename === 'SoftwareStack' || templateSelected.templatetypename === 'CloudFormation' || templateSelected.templatetypename === 'ARMTemplate'" style="font-size:12px;"><u><b>{{templateSelected.templatename}}</b></u></li>
+                        <li ng-if="templateSelected.osType" style="font-size:12px;"><u><b>{{templateSelected.name}}</b></u></li>
+                        <li ng-if="templateSelected.templatetypename === 'SoftwareStack'" style="font-size:10px;" ng-repeat="item in templateSelected.templatescookbooks.split(',')">{{item}}</li>
+                     </ul>
+                  </div>
+                  <div class="col-sm-10 col-lg-10 col-md-10 margintop15">
+                     <accordion>
+                        <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
+                           <accordion-heading>
+                              <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                             Provider Parameters
+                           </accordion-heading>
+                           <div class="col-lg-4 col-md-4">
+                              <label for="instanceOS">Operating System:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.osListing.$touched && newBlueprintForm.osListing.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isOSLoading" type="inline"></loading>
+                              </label>
+                              <select name="osListing" ng-if="templateSelected.templatetypename === 'SoftwareStack'" ng-model="bpCreate.newEnt.osListing" class="chooseOS width-100 form-control" ng-options="osListing.os_name group by osListing.os for osListing in bpCreate.osListing" ng-change="bpCreate.changeImageOS();" required>
+                                 <option value="">Select OS</option>
+                                 <!-- <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" ng-repeat="name in bpCreate.osListing" value="{{name.osType}}">{{name.os_name}}</option> -->
+                              </select>
+                              <select name="osListing" ng-if="templateSelected.osType" ng-model="bpCreate.newEnt.osListing" class="chooseOS width-100 form-control" ng-disabled="isOSImage" ng-change="bpCreate.changeImageOS();" required>
+                                 <option value="{{templateSelected.osType}}">{{templateSelected.osName}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4">
+                              <label for="providerId">Provider:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isOSLoading" type="inline"></loading>
+                              </label>
+                              <select name="providerId" ng-model="bpCreate.newEnt.providers" class="chooseOSProvider width-100 form-control" ng-change="bpCreate.getProviderImage();" ng-disabled="isOSImage" required>
+                                 <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" value="">Select Provider</option>
+                                 <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                                 <option ng-if="templateSelected.osType" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4">
+                              <label for="imageId">Available Images:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.imageId.$touched && newBlueprintForm.imageId.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isImageLoading" type="inline"></loading>
+                              </label>
+                              <select  ng-model="bpCreate.newEnt.images" name="imageId" class="chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();" ng-disabled="isOSImage" required>
+                                 <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" value="">Select Image</option>
+                                 <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
+                                  <option ng-if="templateSelected.osType" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType ==='AZURE'">
+                              <label for="blueprintSecurityGroupPortInput">Security Group Ports:<span class="red"  >&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.blueprintSecurityGroupPortInput.$touched && newBlueprintForm.blueprintSecurityGroupPortInput.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <input ng-model="bpCreate.newEnt.blueprintSecurityGroupPort" name="blueprintSecurityGroupPortInput" class="form-control" type="text" autofocus="autofocus" required placeholder="Enter ports separated by comma">
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
+                              <label for="region">Region:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.region.$touched && newBlueprintForm.region.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.region" name="region" class="chooseSecurity width-100 form-control" ng-change="bpCreate.listVpcs();" required>
+                                 <option value="">Select Region</option>
+                                 <option ng-if="providerType === 'AWS'" value="{{bpCreate.regionListing.region}}">{{bpCreate.regionListing.region_name}} | {{bpCreate.regionListing.region}}</option>
+                                 <option ng-repeat="location in bpCreate.regionListingAzure" ng-if="providerType === 'AZURE'" value="{{location}}">{{location}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'OPENSTACK'">
+                              <label for="flavour">Flavour:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.flavour.$touched && newBlueprintForm.flavour.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.flavour" name="flavour" class="width-100 form-control" required>
+                                 <option value="">Select Flavour</option>
+                                 <option ng-repeat="flavours in bpCreate.flavourListing" value="{{location.Name}}">{{location.Name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'OPENSTACK'">
+                              <label for="network">Network:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.network.$touched && newBlueprintForm.network.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.network" name="network" class="width-100 form-control" required>
+                                 <option value="">Select Network</option>
+                                 <option ng-repeat="flavours in bpCreate.flavourListing" value="{{location.Name}}">{{location.Name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
+                              <label for="vpcId">VPC:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.vpcId.$touched && newBlueprintForm.vpcId.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isVPCLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.vpcId" name="vpcId" class="chooseSelect chooseImage width-100 form-control" ng-change="bpCreate.postSubnets();" required>
+                                 <option value="">Select VPC</option>
+                                 <option ng-if="providerType === 'AWS'" ng-repeat="vpcDetails in bpCreate.vpcListing" value="{{vpcDetails.VpcId}}">{{vpcDetails.VpcId}} ({{vpcDetails.CidrBlock}}) {{vpcDetails.Tags[0].Value}}</option>
+                                 <option ng-if="providerType === 'AZURE'" ng-repeat="vpcDetailsAzure in bpCreate.vpcListing" value="{{vpcDetailsAzure}}">{{vpcDetailsAzure}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType !=='VMWARE'">
+                              <label for="subnetId">Subnet:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.subnetId.$touched && newBlueprintForm.subnetId.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isSubnetLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.subnetId" name="subnetId" class="chooseSelect chooseImage width-100 form-control" ng-change="bpCreate.postSecurityGroups();" required>
+                                 <option value="">Select Subnet</option>
+                                 <option ng-if="providerType === 'AWS'" ng-repeat="subnetDetails in bpCreate.subnetListing" value="{{subnetDetails.SubnetId}}">{{subnetDetails.SubnetId}} ({{subnetDetails.AvailabilityZone}}) | {{subnetDetails.Tags[0].Value}}</option>
+                                 <option ng-if="providerType === 'AZURE'" ng-repeat="subnetDetailsAzure in bpCreate.subnetListingAzure" value="{{subnetDetailsAzure.Name}}">{{subnetDetailsAzure.Name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'">
+                              <label for="keypairId">KeyPair:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.keypairId.$touched && newBlueprintForm.keypairId.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.keyPair" name="keypairId" class="instanceType chooseInstance width-100 form-control" required>
+                                 <option value="">Select KeyPair </option>
+                                 <option ng-repeat="keyPairListing in bpCreate.keyPairListing" value="{{keyPairListing._id}}">{{keyPairListing.keyPairName}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
+                              <label for="instancesize">Instance Type:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.instancesize.$touched && newBlueprintForm.instancesize.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isInstanceTypeLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.instanceType" name="instancesize" class="width-100 chooseSelect form-control" required>
+                                 <option value="">Select Instanace Type</option>
+                                 <option ng-if="providerType === 'AWS'" ng-repeat="instanceType in bpCreate.instanceType[0].hvm" value="{{instanceType}}">{{instanceType}}</option>
+                                 <option ng-if="providerType === 'AZURE'" ng-repeat="instanceType in bpCreate.instanceType" value="{{instanceType}}">{{instanceType}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
+                              <label for="instanceCount">Instances to Launch:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.instanceCount.$touched && newBlueprintForm.instanceCount.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isImageLoading" type="inline"></loading>
+                              </label>
+                              <select  ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="width-100 chooseSelect form-control" required>
+                                 <option value="">Select No. Of Instances</option>
+                                 <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType ==='AWS'   || providerType ==='OPENSTACK'">
+                              <label for="checkbox-toggle">Security Group:<span class="red">&nbsp;*</span>
+                                 <loading size="small" name="isSecurityGroupLoading" type="inline"></loading>
+                              </label>
+                              <div class="col-lg-6 securityGroupComponent" ng-if="providerType === 'AWS'">
+                                    <li style="border-bottom: 1px solid #9C9C9C;" ng-repeat="securityGroupDetails in bpCreate.securityGroupListing" id="securityGroupIds" name="securityGroupIds"  class="input-group col-md-12 widthBox"><label  style="padding-left: 26px;" class="checkbox check-list"><input class="checkbox-list" type="checkbox" ng-checked="securityGroupDetails._isChecked" ng-model="securityGroupDetails._isChecked" name="bpCreate.newEnt.securityGroupCheck"/>{{securityGroupDetails.GroupId}} | {{securityGroupDetails.GroupName}} </label></li>
+                              </div>
+                              <select  ng-model="bpCreate.newEnt.securityGroup" name="securityGroup" class="width-100 chooseSelect form-control" required ng-if="providerType ==='OPENSTACK'">
+                                 <option value="">Select Security Group</option>
+                                 <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
+                              </select>
+                            </div>
+                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType ==='AWS'">
+                              <label>Do you want to configure Domain Name at the time of Blueprint Launch?:</label>
+                              <div class="input-groups">
+                                <input type="radio" ng-value="true" ng-model="bpCreate.newEnt.domainCheck" name="domainCheck" />
+                                 <label for="domainCheck" class="paddingright15">Yes</label>
+                                <input type="radio" ng-value="false" ng-model="bpCreate.newEnt.domainCheck" name="domainCheck" />
+                                 <label for="domainCheck">No</label>
+                              </div>
+                            </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'VMWARE'">
+                              <label for="dataStore">Data Store:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.dataStore.$touched && newBlueprintForm.dataStore.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.dataStore" name="dataStore" class="width-100 form-control" required>
+                                 <option value="">Select Data Store </option>
+                                 <option ng-repeat="storeName in bpCreate.dataStore" value="{{storeName.name}}">{{storeName.name}}</option>
+                              </select>
+                           </div>
+                           <!--To add the Swipe Functionality-->                            
+                        </accordion-group>
+                        <!--adding organisation parameters starts here-->
+                        <accordion-group ng-init="accGroupStatus = {opened: isOrgOpen}" is-open="accGroupStatus.opened">
+                           <accordion-heading>
+                              <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                              Blueprint name & Organization
+                           </accordion-heading>
+                           <div class="col-lg-4 col-md-4">
+                              <label for="blueprintNameInput">Blueprint Name:<span class="red"  >&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.blueprintNameInput.$dirty && newBlueprintForm.blueprintNameInput.$error.required" class="inputValidationMsg">Required</span>
+                                 <span class="red inputValidationMsg" ng-show="newBlueprintForm.blueprintNameInput.$error.maxlength">
+                                 (only 25 chars allowed)</span>
+                              </label>
+                              <input ng-model="bpCreate.newEnt.blueprintName" ng-maxlength="25" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
+                           </div>
+                           <div class="col-lg-4 col-md-4">
+                              <label for="orgnameSelect">Select Organization <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.orgnameSelect.$touched && newBlueprintForm.orgnameSelect.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.orgList" name="orgnameSelect" class="chooseOrgselect2 width-100 form-control" required>
+                                 <option value="">Select Organization</option>
+                                 <option ng-repeat="org in organObject" ng-if="org.orgid === organNewEnt.org.orgid"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4">
+                              <label for="bgListInput">Select Business Group <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.bgListInput.$touched && newBlueprintForm.bgListInput.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.bgList" name="bgListInput" class="chooseBG width-100 form-control" required>
+                                 <option value="">Select Business Group</option>
+                                 <option ng-repeat="buss in organObject[bpCreate.newEnt.orgList].businessGroups" value="{{organObject[bpCreate.newEnt.orgList].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15">
+                              <label for="projectListInput">Select Project <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.projectList.$touched && newBlueprintForm.projectList.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.projectList" name="projectListInput" class="chooseProject width-100 form-control" ng-change="bpCreate.enableAppDeploy();" required>
+                                 <option value="">Select Project</option>
+                                 <option ng-repeat="proj in organObject[bpCreate.newEnt.orgList].businessGroups[bpCreate.newEnt.bgList].projects"  value="{{organObject[bpCreate.newEnt.orgList].businessGroups[bpCreate.newEnt.bgList].projects.indexOf(proj)}}" >{{proj.name}}</option>
+                              </select>
+                           </div>
+
+                           <div class="col-lg-12 col-md-12 margintop15">
+                              <label class="git stat">
+                                 <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.serviceDelivery_isChecked" ng-change="bpCreate.botTypes();"> Add to Service Delivery
+                              </label>
+                           </div>
+
+
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
+                              <label for="">BOT Type:<span class="red">*</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.botTypeValue" name="" class=" width-100 form-control">
+                                <option selected="selected" value="Task">Task</option>
+                                <option value="Check">Check</option>
+                                 <option value="Provision">Provision</option>
+                                <option value="Run">Run</option>
+                                <option value="UI">UI</option>
+                              </select>
+                           </div>
+
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
+                              <label for="">Short Description:<span class="red">*</span>
+                              </label>
+                              <input ng-model="bpCreate.newEnt.botDescription" name="" class=" width-100 form-control">
+                           </div>
+
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
+                              <label for="">BOT Category:<span class="red">*</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.botCategoryValue" name="" class=" width-100 form-control">
+                                <option selected="selected" value="Active Directory">Active Directory</option>
+                                <option value="OpenDJ LDAP">OpenDJ LDAP</option>
+                                <option value="Application Deployment">Application Deployment</option>
+                                <option value="Database Management">Database Management</option>
+                                <option value="Service Management">Service Management</option>
+                                <option value="User Management">User Management</option>
+                                <option value="Upgrade">Upgrade</option>
+                                <option value="Installation">Installation</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
+                              <label for="">Standard Time:<span class="red">*</span>
+                              </label>
+                              <input ng-model="bpCreate.newEnt.manualExecutionTime" style="width: 70%;" name="" class=" width-100 form-control"> 
+                              <span class="pull-right" style="margin: -30px 50px 0 0px;">mins</span>
+                           </div>
+
+
+
+                           <!-- Docker Image selection table -->
+                           <div ng-if="templateSelected.templatetypename === 'Docker'" class="col-lg-12 col-md-12" style="margin-top:9px;">
+                              <label for="category">Docker Images<span class="red">&nbsp;*</span>
+                              </label>
+                              <a class="btn btn-primary adddockertemplate pull-right" ng-click="addDockerTemplate();" style="margin-bottom:5px;">Add</a>
+                              <table class="table-bordered text-center">
+                                 <thead>
+                                    <tr class="rowCustomStyle" role="row">
+                                       <td>Order</td>
+                                       <td>Name</td>
+                                       <td>Image Path</td>
+                                       <td>Tag</td>
+                                       <td>Launch Params</td>
+                                       <td>Re-Order</td>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr ng-repeat="docker in dockerDetails">
+                                       <td>{{$index+1}}</td>
+                                       <td>{{docker.dockercontainerpathstitle}}</td>
+                                       <td>{{docker.dockercontainerpaths}}</td>
+                                       <td>{{docker.dockerrepotags}}</td>
+                                       <td><input type="text" ng-model="docker.dockerlaunchparameters"><i class="btn icon-append fa fa-list-alt fa-lg" title="Launch Parameters" ng-click="launchParam(docker, $index)"></i></td>
+                                       <td><i class="fa fa-chevron-circle-up fa-lg" ng-click="moveUpChoice(dockerDetails,this.$index)"></i><i class="fa fa-chevron-circle-down fa-lg marginleft5" ng-click="moveDownChoice(dockerDetails,this.$index)"></i></td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                           <!-- End Docker Image selection table -->
+                        </accordion-group>
+                        <!--configure runlist collapse starts here-->
+                        <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                           <accordion-heading>
+                              <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                              Runlist Configuration
+                           </accordion-heading>
+                           <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <span class="cursor pull-right">
+                                 <i class="fa fa-plus-circle cursor" title="Add Runlist" ng-click="updateCookbook()"></i>
+                              </span>
+                              <div class="view-runlist">
+                                 <table class="table table-bordered text-center">
+                                    <thead>
+                                       <tr>
+                                          <th class="text-center">View Runlist</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody>
+                                       <tr ng-repeat="item in chefrunlist">
+                                          <td>{{item.value}}</td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </div>
+                        </accordion-group>
+                        <!--execute modal starts here-->
+                        <!--configure runlist collapse ends here-->                  
+                        <!--adding new collapse-->
+                        <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                           <accordion-heading>
+                              <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                              Application Deployment
+                           </accordion-heading>
+                           <div class="col-lg-12 col-md-12 margintop15">
+                              <label class="git stat">
+                                 <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.appDeployCheck_isChecked" ng-change="bpCreate.showRepoServers();"> Deploy app during Bootstrap
+                              </label>
+                           </div>
+
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="showRepoServerName">
+                              <label for="">Repository Server:<span class="red">*</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control" ng-change="bpCreate.getRepository();">
+                                 <option value="">Select Server</option>
+                                 <option ng-repeat="serverOption in bpCreate.serverRepos" value="{{bpCreate.serverRepos.indexOf(serverOption)}}">{{(serverOption.nexusservername) ? serverOption.nexusservername : serverOption.dockerreponame}}</option>
+                              </select>
+                           </div>
+                           
+                           <div ng-if="bpCreate.newEnt.serverType==='docker'">
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label >Repository:<span class="red">*</span>
+                                    <loading size="small" name="isLoadingNexus" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select name="repositories" class="form-control" ng-model="bpCreate.newEnt.repositoryIMG" ng-change="bpCreate.changeRepository();" required>
+                                       <option value="">Select Repositories</option>
+                                       <option ng-repeat="(key,value) in bpCreate.repositoryOptions" value="{{value}}">{{value}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label>Tags:<span class="red">*</span>
+                                    <loading size="small" name="isLoadingDocTag" type="inline"></loading>
+                                 </label>
+                                 <select class="form-control" ng-model="bpCreate.newEnt.tag"  required>
+                                    <option value="">Select Tag</option>
+                                    <option ng-repeat="tagOption in bpCreate.tagOptions" value="{{tagOption.name}}">{{tagOption.name}}</option>
+                                 </select>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label>Container Port:<span class="red">*</span>
+                                    <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+                                 </label>
+                                 <div class="input-groups"><input type="text" name="contPort" class="form-control" ng-model="bpCreate.newEnt.contPort" required></div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label ng-click="showHideLoader()">Host Port:<span class="red">*</span></label>
+                                 <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+                                 <input type="text" class="form-control" name="hostPort" ng-model="bpCreate.newEnt.hostPort" required>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label ng-click="showHideLoader()">Container Name/ID:</label>
+                                 <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+                                 <input type="text" class="form-control" ng-model="bpCreate.newEnt.ContNameId" >
+                              </div>
+                           </div>
+                           <div ng-if="bpCreate.newEnt.serverType==='nexus'">
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label >Repository:<span class="red">*</span> <span ng-if="bpCreate.errorMsg.repository" messages msg-config="bpCreate.errorMsg"></span>
+                                    <loading size="small" name="isLoadingNexus" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select name="repositoryInd" class="form-control" ng-model="bpCreate.newEnt.repositoryInd" ng-change="bpCreate.changeRepository();" required>
+                                       <option value="">Select Repositories</option>
+                                       <option ng-repeat="repository in bpCreate.repositoryOptions" value="{{bpCreate.repositoryOptions.indexOf(repository)}}">{{repository.name}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label>Group ID:<span class="red">*</span>
+                                    <loading size="small" n ame="isLoadingNexus" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select class="form-control" name="groupId" ng-model="bpCreate.newEnt.groupId"  ng-change="bpCreate.getArtifacts()" required>
+                                       <option value="">Select Group ID</option>
+                                       <option ng-repeat="(key , val) in bpCreate.groupOptions" value="{{val}}">{{val}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label>Artifacts:<span class="red">*</span>
+                                    <loading size="small" name="isLoadingArtifacts" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select class="form-control" name="artifactInd" ng-model="bpCreate.newEnt.artifact" ng-change="bpCreate.getVersions();" required>
+                                       <option value="">Select Artifacts</option>
+                                       <option ng-repeat="(key , artifact) in  bpCreate.artifactsOptions" value="{{artifact}}">{{artifact}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
+                                 <label for="">Versions:<span class="red">*</span>
+                                    <loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select class="form-control" name="version" ng-model="bpCreate.newEnt.version" required>
+                                       <option value="">Select Versions</option>
+                                       <option ng-repeat="(key , values) in bpCreate.versionsOptions" value="{{values}}">{{values}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-12 col-md-12 margintop15" ng-show="showNexusDocker">
+                                 <label>Repository URL:<span class="red">*</span>
+                                    <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+                                 </label>
+                                 <input type="text" class="form-control" disabled="" ng-model="bpCreate.newEnt.repositoryURL">
+                              </div>
+                           </div>
+                           <hr/>
+                           <div class="col-md-12 col-sm-12 col-xs-12 col-lg-12 applicationUrl-text">
+                              <span class="lable-align"><b>Application URL</b></span>
+                              <button type="button" class="btn btn-xs cat-btn-update pull-right appCreateBtn" ng-click="createAppUrl('new');"><i class="fa fa-plus white"></i>&nbsp;New</button>
+                              <table class="table table-striped table-bordered table-hover dataTable no-footer">
+                                 <thead>
+                                    <tr class="rowCustomStyle" role="row">
+                                       <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="S.No">S.No</td>
+                                       <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Name">Name</td>
+                                       <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="URL">URL</td>
+                                       <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Action">Action</td>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr ng-repeat="appUrl in bpCreate.appUrlList">
+                                       <td>{{$index + 1}}</td>
+                                       <td>{{appUrl.name}}</td>
+                                       <td><a class="app-url cursor" target="_blank" ng-href="{{appUrl.url}}">{{appUrl.url}}</a></td>
+                                       <td><button type="button" ng-click="removeAppUrl(appUrl);"><i class=" fa fa-trash-o"></i></button></td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </accordion-group>
+                        <!--adding new collapse-->    
+                        <accordion-group ng-if="templateSelected.templatetypename ==='CloudFormation'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                           <accordion-heading>
+                              <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                              Configure Stack Parameters
+                           </accordion-heading>
+                           <div class="col-lg-6 col-md-6">
+                              <label for="region">Region:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.region.$touched && newBlueprintForm.region.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.region" name="region" class="chooseSecurity width-100 form-control" required>
+                                 <option value="">Select Region</option>
+                                 <option ng-repeat="regionDetails in bpCreate.getRegionLists" value="{{regionDetails.region}}">{{regionDetails.region_name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-6 col-md-6">
+                              <label for="orgnameSelect">Provider <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.providers" ng-change="bpCreate.getProviderImage();" name="providerId" class="chooseOSProvider width-100 form-control" required>
+                                 <option value="">Select Provider</option>
+                                 <option ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-6 col-md-6 margintop15" ng-repeat="(key,value) in bpCreate.getCFTDetails.Parameters">
+                              <label for="cftResources">{{key}}<span class="red">&nbsp;*</span>&nbsp;&nbsp;<span title="{{value.Description}}"><i class="fa fa-question-circle"></i></span></label>
+                              <input type="text" name="resource" ng-model="value.Default" class="form-control"/>
+                           </div>
+                           <div class="accordionClear"></div>
+                           <br/>
+                           <accordion ng-repeat="(key,value) in bpCreate.getCFTDetails.Resources">
+                              <accordion-group ng-if="bpCreate.getCFTDetails.Resources[key].Type === 'AWS::EC2::Instance' || bpCreate.getCFTDetails.Resources[key].Type === 'AWS::AutoScaling::AutoScalingGroup'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                                 <accordion-heading>
+                                    <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                    Configure Resource : {{key}}
+                                 </accordion-heading>
+                                 <div class="col-lg-6 col-md-6 margintop15">
+                                    <label for="cftUserName">Instance Username<span class="red">&nbsp;*</span>
+                                       <span ng-show="newBlueprintForm.cftUserName.$touched && newBlueprintForm.cftUserName.$invalid" class="inputValidationMsg">Required</span></label>
+                                    <input type="text" ng-model="bpCreate.newEnt.cftModelResources[key]" name="cftUserName" class="form-control"/>
+                                 </div>
+                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
+                                    <span class="cursor pull-right">
+                                       <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook(key)"></i>
+                                    </span>
+                                    <div class="view-runlist">
+                                       <table class="table table-bordered text-center">
+                                          <thead>
+                                             <tr>
+                                                <th class="text-center">View Runlist</th>
+                                             </tr>
+                                          </thead>
+                                          <tbody>
+                                             <tr ng-repeat="item in runlistWithKey[key] track by $index">
+                                                <td>{{item.value}}</td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </div>
+                                 </div>
+                              </accordion-group>
+                           </accordion>
+                        </accordion-group>
+                        <accordion-group ng-if="templateSelected.templatetypename ==='ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                           <accordion-heading>
+                              <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                              Configure Template Parameters
+                           </accordion-heading>
+                           <div class="col-lg-6 col-md-6">
+                              <label for="orgnameSelect">Provider <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.providers" name="providerId" class="chooseOSProvider width-100 form-control" ng-change="bpCreate.getResourceGroups();" required>
+                                 <option value="">Select Provider</option>
+                                 <option ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-6 col-md-6">
+                              <label for="resourceGroup">Resource Group:
+                                 <!--<span ng-show="newBlueprintForm.resourceGroup.$touched && newBlueprintForm.resourceGroup.$invalid" class="inputValidationMsg">Required</span>-->
+                                 <loading size="small" name="isResourceGroupLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.resourceGroup" name="resourceGroup" class="width-100 form-control">
+                                 <option value="">Select Resource Group</option>
+                                 <option ng-repeat="resourceName in bpCreate.resourceGroupListing" value="{{resourceName.name}}">{{resourceName.name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-6 col-md-6 margintop15" ng-repeat="(key,value) in bpCreate.getARMDetails.parameters">
+                              <label for="armResources">{{key}}<span class="red">&nbsp;*</span>&nbsp;&nbsp;<span title="{{value.metadata.description}}"><i class="fa fa-question-circle"></i></span></label>
+                              <input ng-if="value.type !=='securestring' && !value.allowedValues" type="text" name="resource" ng-model="bpCreate.newEnt.armModelResources[key].value" class="form-control" required ng-change="bpCreate.hideVMEvals();"/>
+                              <input type="password" ng-if="value.type ==='securestring'" name="resource" ng-model="bpCreate.newEnt.armModelResources[key].value" class="form-control" required ng-change="bpCreate.hideVMEvals();"/>
+                              <select ng-if="value.allowedValues" ng-model="bpCreate.newEnt.armModelResources[key].value" name="resource" ng-disabled="isVmModel" class="width-100 form-control" required ng-change="bpCreate.checkForResource();">
+                                 <option value="">Select Value</option>
+                                 <option ng-repeat="values in value.allowedValues" value="{{values}}">{{values}}</option>
+                              </select>
+                           </div>
+                           <br/>
+                           <button class="btn btn-primary margintop15" ng-show="isVMEvalsVisible" ng-click="bpCreate.showVMs();" ng-disabled="buttonClickedOnce">Configure VMs</button>
+                           <div class="accordionClear"></div>
+                           <br/>
+                           <accordion ng-if="isVMVisible" ng-repeat="vmName in bpCreate.getAzureVMDetails">
+                              <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                                 <accordion-heading>
+                                    <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                    Configure VM : {{vmName.name}}
+                                 </accordion-heading>
+                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
+                                    <span class="cursor pull-right">
+                                       <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook(vmName.name)"></i>
+                                    </span>
+                                    <div class="view-runlist">
+                                       <table class="table table-bordered text-center">
+                                          <thead>
+                                             <tr>
+                                                <th class="text-center">View Runlist</th>
+                                             </tr>
+                                          </thead>
+                                          <tbody>
+                                             <tr ng-repeat="item in runlistWithKey[vmName.name] track by $index">
+                                                <td>{{item.value}}</td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </div>
+                                 </div>
+                              </accordion-group>
+                           </accordion>
+                        </accordion-group>
+                     </accordion>
+                  </div>
+               </div>
+            </form>
+         </div>
+      </div>
+   </div>
+   <div class="pager">
+      <button class="btn  cat-btn-update" ng-click="previous(stpLen)" ng-disabled="!previousEnabled" ng-show="!isSubmitComposite">Previous</button>
+      <button class="btn cat-btn-update" ng-show="isNextVisible" ng-click="next(stpLen)" ng-disabled="!nextEnabled">Next</button>
+      <button class="btn  cat-btn-update" ng-show="isSubmitVisible" ng-disabled="newBlueprintForm.$invalid || vmEnabled" ng-click="submit()">Save</button>
+      <button class="btn  cat-btn-update" ng-show="isSubmitComposite" ng-disabled="compositeBlueprintCreation.$invalid" ng-click="compositeSave()">Save</button>
+   </div>

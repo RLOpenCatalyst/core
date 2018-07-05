@@ -1,0 +1,40 @@
+<div class="leftnavdiv" style="padding-right:7px;">
+    <br>
+    <div class="col-lg-12 col-md-12 col-sm-12 top-stats">
+        <span class="pull-right">
+        <span class="box-title font-size-15">Usage Type</span>
+        <select  class="form-control select2 select2-hidden-accessible " ng-change="usage.splitChange()" style="width: auto;height: 31px;display: table-cell" ng-model="usage.splitUp" >
+            <option value="CPUUtilization">CPUUtilization</option>
+            <option value="DiskReadBytes">DiskReadBytes</option>
+            <option value="DiskWriteBytes">DiskWriteBytes</option>
+            <option value="NetworkIn">NetworkIn</option>
+            <option value="NetworkOut">NetworkOut</option>
+        </select>
+            </span>
+    </div>
+    <div class="clearfix"></div>
+    <div ng-if="analytic.tabShowChat">
+        <div class="row usage">
+            <div class="col-lg-12 col-md-12 col-sm-12" >
+                <div class="box box-infobox box-info">
+                    <div class="box-header with-border"><h3 class="box-title font-size-15"><i class="fa fa-line-chart"></i> Daily trends of usage</h3>
+                        <!--<div class="box-tools pull-right">-->
+                        <!--<button type="button" class="btn btn-link" ng-click="cost.trendsChartType ='lineChart'"><i class="fa fa-line-chart" aria-hidden="true"></i></button>-->
+                        <!--<button type="button" class="btn btn-link" ng-click="cost.trendsChartType ='stackedAreaChart' "><i class="fa fa-area-chart"></i></button>-->
+                        <!--</div>-->
+                    </div>
+                    <div class="box-body" ><nvd3 options="usage.trendLineChart.options" data="usage.trendLineChart.data" class="with-3d-shadow with-transitions"></nvd3></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-if="analytic.tabShowReport">
+        <div ng-if="usage.costGridOptions.data.length > 0" ui-grid="usage.costGridOptions" ui-grid-selection ui-grid-exporter ui-grid-auto-resize class="grid"></div>
+        <div ng-if="!usage.costGridOptions.data.length > 0">
+            <div class="alert alert-warning">
+                No Data Available.
+            </div>
+        </div>
+
+    </div>
+</div>

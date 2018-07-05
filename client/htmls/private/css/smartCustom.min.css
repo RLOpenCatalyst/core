@@ -1,0 +1,406 @@
+/*!
+ *  Smart_Form && custom CSS - Srikanth V
+ */.smart-form *,.smart-form:after,.smart-form:before{margin:0;padding:0;-webkit-box-sizing:content-box;box-sizing:content-box;-moz-box-sizing:content-box}.smart-form .checkbox+.checkbox,.smart-form .radio+.radio{margin-top:0}.smart-form footer .btn{float:right;height:31px;margin:10px 0 0 5px;padding:0 22px;font:300 15px/29px 'Open Sans',Helvetica,Arial,sans-serif;cursor:pointer}.smart-form legend{padding-top:15px}.smart-form header{display:block;padding:8px 0;border-bottom:1px dashed rgba(0,0,0,.2);background:#fff;font-size:16px;font-weight:300;color:#232323;margin:10px 14px 0}.note,.smart-form .note{margin-top:6px;padding:0 1px;font-size:11px;line-height:15px;color:#999}.smart-form .note a{font-size:13px}.smart-form .checkbox,.smart-form .radio{margin-bottom:4px;padding-left:25px;line-height:25px;color:#404040;cursor:pointer;font-size:13px}.smart-form .checkbox:last-child,.smart-form .radio:last-child{margin-bottom:0}.smart-form .checkbox input,.smart-form .radio input{position:absolute;left:-9999px}.smart-form .checkbox i,.smart-form .radio i{position:absolute;top:3px;left:0;display:block;width:17px;height:17px;outline:0;border-width:1px;border-style:solid;background:#FFF}.smart-form .tooltip-bottom-left:after,.smart-form .tooltip-bottom-right:after{bottom:100%;border-right:4px solid transparent;border-bottom:4px solid rgba(0,0,0,.9);border-left:4px solid transparent}.smart-form .button,.smart-form .toggle i:before{background-color:#3276B1}.smart-form .radio i{border-radius:50%}.smart-form .checkbox input+i:after,.smart-form .radio input+i:after{position:absolute;opacity:0;transition:opacity .1s;-webkit-transition:opacity .1s}.smart-form .radio input+i:after{content:'';top:4px;left:4px;width:9px;height:9px;border-radius:50%}.smart-form .checkbox input+i:after{content:'\f00c';top:-1px;left:1px;width:15px;height:15px;font:400 16px/19px FontAwesome;text-align:center}.smart-form .checkbox input:checked:hover+i:after{content:'\f00d'}.smart-form .checkbox input:checked:disabled:hover+i:after{content:'\f00c'}.smart-form .checkbox input:checked+i:after,.smart-form .radio input:checked+i:after{opacity:1}.smart-form .col{float:left;min-height:1px;padding-right:15px;padding-left:15px;-webkit-box-sizing:border-box;box-sizing:border-box;-moz-box-sizing:border-box}.smart-form .col-1{width:8.33%}.smart-form .col-2{width:16.66%}.smart-form .col-3{width:25%}.smart-form .col-4{width:33.33%}.smart-form .col-5{width:41.66%}.smart-form .col-6{width:50%}.smart-form .col-8{width:66.67%}.smart-form .col-9{width:75%}.smart-form .col-10{width:83.33%}@media screen and (max-width:600px){.smart-form .col{float:none;width:100%}}.smart-form .tooltip-bottom-right:after{right:11px}.smart-form .input input:focus+.tooltip-bottom-right,.smart-form .textarea textarea:focus+.tooltip-bottom-right{right:0;left:auto;margin-top:5px}.smart-form .tooltip-bottom-left{top:100%;margin-top:15px}.smart-form .tooltip-bottom-left:after{left:11px}.smart-form .input input:focus+.tooltip-bottom-left,.smart-form .textarea textarea:focus+.tooltip-bottom-left{right:auto;left:0;margin-top:5px}.smart-form .checkbox i,.smart-form .icon-append,.smart-form .icon-prepend,.smart-form .input input,.smart-form .radio i,.smart-form .select select,.smart-form .textarea textarea,.smart-form .toggle i{border-color:#BDBDBD;transition:border-color .3s;-webkit-transition:border-color .3s}.smart-form .rating label{color:#ccc;transition:color .3s;-webkit-transition:color .3s}.smart-form .button{opacity:.8;transition:opacity .2s;-webkit-transition:opacity .2s}.smart-form .button.button-secondary{background-color:#b3b3b3}.smart-form .icon-append,.smart-form .icon-prepend{color:#A2A2A2}.smart-form .checkbox input+i:after,.smart-form .rating input:checked~label{color:#3276B1}.smart-form .checkbox:hover i,.smart-form .input:hover input,.smart-form .radio:hover i,.smart-form .select:hover select,.smart-form .textarea:hover textarea,.smart-form .toggle:hover i{border-color:#5D98CC}.smart-form .checkbox input:checked+i,.smart-form .checkbox input:focus+i,.smart-form .input input:focus,.smart-form .radio input:checked+i,.smart-form .radio input:focus+i,.smart-form .select select:focus,.smart-form .textarea textarea:focus,.smart-form .toggle input:checked+i,.smart-form .toggle input:focus+i{border-color:#3276B1}.smart-form .button:hover{opacity:1}.smart-form .checkbox:hover i,.smart-form .radio:hover i,.smart-form .toggle:hover i{-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.1);box-shadow:inset 0 1px 1px rgba(0,0,0,.1)}.smart-form .checkbox:active i,.smart-form .radio:active i,.smart-form .toggle:active i{background:#F0F0F0;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.1);box-shadow:inset 0 1px 1px rgba(0,0,0,.1)}.smart-form .radio input+i:after{background-color:#3276B1}.smart-form .checkbox.state-error i,.smart-form .radio.state-error i,.smart-form .state-error input,.smart-form .state-error select,.smart-form .state-error textarea,.smart-form .toggle.state-error i{background:#fff0f0;border-color:#A90329}.smart-form .toggle.state-error input:checked+i{background:#fff0f0}.smart-form .state-error+em{display:block;margin-top:6px;padding:0 1px;font-style:normal;font-size:11px;line-height:15px;color:#D56161}.smart-form .rating.state-error+em{margin-top:-4px;margin-bottom:4px}.smart-form .state-error select+i{background:#FFF0F0;-webkit-box-shadow:0 0 0 9px #FFF0F0;box-shadow:0 0 0 9px #FFF0F0}.state-error .icon-append,.state-error .icon-prepend{color:#ed1c24}.smart-form .checkbox.state-success i,.smart-form .radio.state-success i,.smart-form .state-success input,.smart-form .state-success select,.smart-form .state-success textarea,.smart-form .toggle.state-success i{background:#f0fff0;border-color:#7DC27D}.smart-form .toggle.state-success input:checked+i{background:#f0fff0}.smart-form .note-success{color:#6fb679}.smart-form .state-success select+i{background:#f0fff0;-webkit-box-shadow:0 0 0 9px #f0fff0;box-shadow:0 0 0 9px #f0fff0}.smart-form .button.state-disabled,.smart-form .checkbox.state-disabled,.smart-form .input.state-disabled input,.smart-form .radio.state-disabled,.smart-form .select.state-disabled,.smart-form .textarea.state-disabled,.smart-form .toggle.state-disabled{cursor:default!important;opacity:.6!important}.smart-form .checkbox.state-disabled:hover i,.smart-form .input.state-disabled:hover input,.smart-form .radio.state-disabled:hover i,.smart-form .select.state-disabled:hover select,.smart-form .textarea.state-disabled:hover textarea,.smart-form .toggle.state-disabled:hover i{border-color:#e5e5e5!important}.smart-form .state-disabled.checkbox input+i:after,.smart-form .state-disabled.checkbox input:checked+i,.smart-form .state-disabled.radio input+i:after,.smart-form .state-disabled.radio input:checked+i,.smart-form .state-disabled.toggle input:checked+i{border-color:#e5e5e5!important;color:#333!important}.smart-form .state-disabled.radio input+i:after{background-color:#333}.smart-form .message{display:none;color:#6fb679}.smart-form .message i{display:block;margin:0 auto 20px;width:81px;height:81px;border:1px solid #6fb679;border-radius:50%;font-size:30px;line-height:81px}.smart-form.submited fieldset,.smart-form.submited footer{display:none}.smart-form.submited .message{display:block;padding:25px 30px;background:rgba(255,255,255,.9);font:300 18px/27px 'Open Sans',Helvetica,Arial,sans-serif;text-align:center}.smart-form .ui-widget-content .ui-spinner-input{margin:0;border:0;-webkit-box-shadow:none!important;box-shadow:none!important;height:29px}.smart-form-modal{position:fixed;z-index:1;display:none;width:400px}.smart-form-modal-overlay{position:fixed;top:0;left:0;display:none;width:100%;height:100%;background:rgba(0,0,0,.7)}.smart-form input.input-lg{height:44px;padding:10px 16px;font-size:17px;line-height:1.33}.smart-form input.input-sm{height:30px;padding:5px 10px;font-size:12px;line-height:1.5}.smart-form input.input-xs{height:24px;padding:2px 10px;font-size:11px;line-height:1.5}.smart-form select.input-sm{height:30px;line-height:15px;font-size:12px}.smart-form select.input-sm+i{height:10px}.smart-form select.input-lg{height:44px;line-height:22px;font-size:17px}.smart-form select.input-lg+i{height:11px;top:17px}.smart-forms,.smart-forms *{box-sizing:border-box}.smart-forms .gui-input,.smart-forms .gui-textarea,.smart-forms .select,.smart-forms .select-multiple select,.smart-forms .select>select{background:#fff;border:1px solid #ccc;height:36px;outline:0;position:relative;vertical-align:top;width:100%;padding-left:7px}.smart-forms .file{display:block;width:100%}.smart-forms .file .gui-file{bottom:0;cursor:pointer;height:100%;opacity:0;padding:8px 10px;position:absolute;right:0;width:100%;z-index:11}.smart-forms .file .button{float:none;height:30px;line-height:30px;padding:0 16px;position:absolute;right:4px;top:9px;z-index:10}.smart-forms .button{background:#bdc3c7;border:0;color:#243140;cursor:pointer;display:inline-block;font-size:15px;height:36px;line-height:1;padding:0 18px;text-align:center;text-shadow:0 1px rgba(255,255,255,.2);vertical-align:top;margin:17px 14px 0 0}.smart-forms .button:hover{background:#cacfd2;color:#243140}.smart-forms .button:active{background:#a1a6a9;color:#1d2938}.smart-forms .btn-primary{background-color:#1abc9c}.smart-forms .btn-primary:focus,.smart-forms .btn-primary:hover{background-color:#48c9b0}.smart-forms .btn-primary:active{background-color:#16a085}.smart-forms .btn-primary,.smart-forms .btn-primary:active,.smart-forms .btn-primary:focus,.smart-forms .btn-primary:hover{color:#fff;text-shadow:0 1px rgba(0,0,0,.08)}@keyframes sfprogress{0%{background-position:0 0}100%{background-position:-16px 0}}.custom-theme .smart-form .button,.smart-style-1 .btn-primary{background-color:none repeat scroll 0 0 #1b1e24}.custom-theme .btn-primary,.custom-theme .smart-form .button{background-color:#40BCE6;border:1px solid #40BCE6}.custom-theme .smart-form .checkbox input:checked+i,.custom-theme .smart-form .radio input:checked+i,.custom-theme .smart-form .toggle input:checked+i{border-color:#3b9ff3}.custom-theme .smart-form .toggle i:before{background-color:#3b9ff3}.smart-form .rating input+label:hover,.smart-form .rating input+label:hover~label{color:#3b9ff3}.smart-accordion-default.panel-group .panel+.panel{margin-top:-1px}.smart-accordion-default.panel-group .panel-heading{padding:1px}.smart-accordion-default.panel-group .panel-title a{display:block;padding:10px 15px;text-decoration:none!important;color:#666}.panel-group .panel,.smart-accordion-default .panel-heading{border-radius:0}.smart-accordion-default .panel-default>.panel-heading{background-color:#fcfcfc}.smart-accordion-default .panel-default{border-color:#c3c3c3}.smart-accordion-default .panel-title>a.collapsed>.fa,.smart-accordion-default .panel-title>a>:first-child{display:none}.smart-accordion-default .panel-title>a.collapsed>:first-child{display:inline-block}.no-padding .smart-accordion-default>div{border-left:0!important;border-right:0!important}.no-padding .smart-accordion-default>div:first-child{border-top:0!important}.no-padding .smart-accordion-default>div:last-child{border-bottom:0!important}.alert-success{border-color:#40BAF1;color:#fff;background:#40BAF1}.smart-form .toggle{margin-bottom:4px;padding-right:61px;font-size:15px;line-height:25px;color:#404040;cursor:pointer}.smart-form .toggle:last-child{margin-bottom:0}.smart-form .toggle input{position:absolute;left:-9999px}.smart-form .toggle i{content:'';position:absolute;top:4px;right:0;display:block;width:49px;height:17px;border-width:1px;border-style:solid;border-radius:12px;background:#fff}.smart-form .toggle i:after{content:attr(data-swchoff-text);position:absolute;top:2px;right:8px;left:8px;font-style:normal;font-size:9px;line-height:13px;font-weight:700;text-align:left;color:#5f5f5f}.smart-form .toggle i:before{content:'';position:absolute;z-index:1;top:4px;right:4px;display:block;width:9px;height:9px;border-radius:50%;opacity:1;transition:right .2s;-webkit-transition:right .2s}.smart-form .toggle input:checked+i:after{content:attr(data-swchon-text);text-align:right}.smart-form .toggle input:checked+i:before{right:36px}.smart-form footer{display:block;padding:7px 14px 15px;border-top:1px solid rgba(0,0,0,.1);background:rgba(248,248,248,.9)}.smart-form .row:after,.smart-form footer:after{content:'';display:table;clear:both}.smart-form .icon-append,.smart-form .icon-prepend{position:absolute;top:5px;width:22px;height:22px;font-size:14px;line-height:22px;text-align:center}.smart-form .icon-append{right:5px;padding-left:3px;border-left-width:1px;border-left-style:solid}.smart-form .icon-prepend{left:5px;padding-right:3px;border-right-width:1px;border-right-style:solid}.smart-form .input .icon-prepend+input,.smart-form .textarea .icon-prepend+textarea{padding-left:37px}.smart-form .input .icon-append+input,.smart-form .textarea .icon-append+textarea{padding-right:37px}.smart-form .input .icon-prepend+.icon-append+input,.smart-form .textarea .icon-prepend+.icon-append+textarea{:37px;padding-left:37px}.smart-form .row{margin:0 -15px}.widget-toolbar .smart-form .icon-append,.widget-toolbar .smart-form .icon-prepend,.widget-toolbar.smart-form .icon-append,.widget-toolbar.smart-form .icon-prepend{top:3px!important}.smart-form{margin:0;outline:0;color:#666;position:relative}.smart-form .label{display:block;margin-bottom:6px;line-height:19px;font-weight:400;font-size:13px;color:#333;text-align:left}.smart-form .label.col{margin:0;padding-top:7px}.smart-form .button,.smart-form .checkbox,.smart-form .input,.smart-form .radio,.smart-form .select,.smart-form .textarea,.smart-form .toggle{position:relative;display:block;font-weight:400}.smart-form .input input,.smart-form .select select,.smart-form .textarea textarea{display:block;-webkit-box-sizing:border-box;box-sizing:border-box;-moz-box-sizing:border-box;width:100%;padding:8px 10px;outline:0;border-width:1px;border-style:solid;border-radius:0;background:#fff;font:13px/16px 'Open Sans',Helvetica,Arial,sans-serif;color:#404040;appearance:normal;-moz-appearance:none;-webkit-appearance:none}
+
+
+.custom-theme .productdiv4 {
+    padding-left: 10px;
+}
+
+.custom-theme .tree-view span a {
+    color: white;
+}
+
+body.custom-theme {
+    background: #fff;
+}
+
+label.custom-select {
+    position: absolute;
+}
+
+.custom-select select {
+    display: inline-block;
+    padding: 4px 3px 3px 5px;
+    margin: 0;
+    font: inherit;
+    outline: none;
+    line-height: 1.2;
+    background: #fff;
+    color: #40baf1;
+    border: 0;
+}
+/* Select arrow styling */
+
+.custom-select:after {
+    content: "▼";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 100%;
+    line-height: 24px;
+    padding: 0 7px;
+    background: #fff;
+    color: #40baf1;
+    pointer-events: none;
+}
+
+.custom-theme #main-collapse {
+    background-color: #40baf1;
+}
+
+#main-collapse {
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    display: none;
+    height: auto;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1009;
+}
+
+#main-collapse ul {
+    padding: 0px;
+    list-style: none;
+    margin: 0;
+    border-bottom: 1px solid #423F3F;
+}
+
+#main-collapse ul li {
+    width: auto;
+    padding: 8px;
+}
+
+#main-collapse ul li:hover {
+    background-color: white !important;
+}
+
+#main-collapse ul li .jarvismetro-tile {
+    margin: 0 3px 3px;
+    border: 0;
+    border-radius: 0;
+}
+
+#main-collapse ul li .jarvismetro-tile:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+#main-collapse ul li .jarvismetro-tile:active,
+#main-collapse ul li .jarvismetro-tile:focus {
+    left: 0;
+    top: 0;
+}
+
+.main-collapse-on #response-btn {
+    display: none!important;
+}
+
+.main-collapse-on #left-bar .navbar,
+.main-collapse-on #main .navbar {
+    border: 0!important;
+}
+.custom-theme .left-projects-links > a.active {
+    font-weight: bold;
+    border-color: #3a87ad rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.3);
+    border-style: solid;
+    border-width: 3px 0px 0px;
+    padding: 6px;
+}
+
+.custom-theme nav ul li a b {
+    font-size: 14px;
+}
+
+.custom-theme #shortcut {
+    background-color: #40baf1;
+    width: auto;
+}
+
+.custom-theme .form-control {
+    height: 36px;
+}
+
+.custom-theme .superbox-list.active:before {
+    color: #2C3742;
+}
+
+.custom-theme .superbox-img-description {
+    color: #9EA8B1 !important;
+}
+
+.custom-theme .breadcrumb > li + li:before {
+    color: white;
+    content: ">";
+    padding: 0 5px;
+}
+
+.custom-theme .btn-header>:first-child>a {
+    background: none;
+    border: none !important;
+    color: #C5C6CA;
+    box-shadow: none !important;
+}
+
+.custom-theme .btn-header>:first-child>a:hover {
+    color: #fff;
+    cursor: pointer !important;
+}
+
+.custom-theme #ribbon {
+    /*Arabinda background:#fff;*/
+    background: linear-gradient(to right, #40baf1 100%, #cacaca 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+}
+
+.custom-theme .btn.btn-ribbon {
+    background: #9498A0;
+}
+
+.custom-theme #ribbon .breadcrumb li:last-child,
+.custom-theme #ribbon .breadcrumb>.active,
+.custom-theme #ribbon .breadcrumb,
+.custom-theme #ribbon .breadcrumb a {
+    color: white !important;
+}
+
+.custom-theme #project-context a {
+    color: white;
+}
+
+.custom-theme #left-panel {
+    padding: 0px;
+}
+
+.custom-theme .txt-color-blue {
+    color: #40baf1 !important;
+}
+
+.custom-theme .txt-color-deactive {
+    color: #40baf1;
+}
+
+.custom-theme .txt-color-active {
+    color: #3b4142;
+}
+
+.custom-theme #logo-group>span .badge {
+    background: #008DC4;
+}
+
+.custom-theme .tree-view span,
+.custom-theme .tree-view {
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.custom-theme .tree-view span {
+    background: none repeat scroll 0 0 #40baf1;
+    margin-right: 1px;
+}
+
+.custom-theme nav > ul > li.open:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.custom-theme .tree-view a,
+.custom-theme .tree-view strong {
+    font-size: 16px;
+    color: white;
+}
+
+.custom-theme .tree-view img {
+    width: 35px;
+}
+
+.custom-theme nav ul li a {
+    color: #40baf1;
+}
+
+.custom-theme nav ul ul>li:hover b {
+    color: #69737A !important;
+}
+
+.custom-theme nav>ul>li>a>i {
+    font-size: 18px !important;
+}
+
+.custom-theme nav ul ul {
+    background: none;
+    padding: 0px;
+}
+
+.custom-theme nav ul li.open>a b,
+{
+    background: linear-gradient(to right, #f7f7f7 99%, #cacaca 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+}
+
+.custom-theme nav ul li.open>a,
+.custom-theme nav ul li.open>a b,
+.custom-theme nav ul .active>a {
+    color: white !important;
+    font-weight: bold;
+}
+
+.custom-theme nav ul ul li>a {
+    padding-left: 34px;
+    background: #3b4142 !important;
+}
+
+.custom-theme nav > ul > li > ul::before,
+.custom-theme nav > ul ul li::before {}
+
+.custom-theme nav ul ul ul li a {
+    padding-left: 58px;
+}
+
+.custom-theme nav ul ul ul ul li a {
+    padding-left: 80px;
+}
+
+.custom-theme nav ul ul ul ul ul li a {
+    padding-left: 50px;
+}
+
+.custom-theme nav ul ul ul ul ul ul li a {
+    padding-left: 60px;
+}
+
+.custom-theme .jarviswidget-color-blueDark>header {
+    background: #2C3742 !important;
+    border-color: #2C3742!important;
+}
+
+.custom-theme .dropdown-menu>li>a:hover,
+.custom-theme .dropdown-menu>li>a:focus {
+    background-color: #3E90D4;
+}
+
+.custom-theme .btn-primary:hover,
+.custom-theme .btn-primary:focus,
+.custom-theme .btn-primary:active,
+.custom-theme .btn-primary.active,
+.custom-theme .open .dropdown-toggle.btn-primary {
+    background-color: #40BCE6;
+    border-color: #40BCE6;
+}
+
+.custom-theme .btn-danger {
+    background-color: #DB4A67;
+    border-color: #CA4862;
+}
+
+.custom-theme .btn-danger:hover,
+.custom-theme .btn-danger:focus,
+.custom-theme .btn-danger:active,
+.custom-theme .btn-danger.active,
+.custom-theme .open .dropdown-toggle.btn-danger {
+    background-color: #CF4762;
+    border-color: #C0455E;
+}
+
+.custom-theme .btn-warning {
+    background-color: #E2B14A;
+    border-color: #C99D42;
+}
+
+.custom-theme .btn-warning:hover,
+.custom-theme .btn-warning:focus,
+.custom-theme .btn-warning:active,
+.custom-theme .btn-warning.active,
+.custom-theme .open .dropdown-toggle.btn-warning {
+    background-color: #D6A848;
+    border-color: #C09844;
+}
+
+
+/*
+ * MINIFIED
+ */
+
+.custom-theme.minified #left-panel {
+    padding: 0 !important;
+}
+
+.custom-theme.minified nav ul>li>a {
+    padding: 12px 11px;
+}
+
+.custom-theme.minified nav>ul>li>ul,
+.custom-theme.minified nav>ul>li>ul>li,
+.custom-theme.minified nav>ul>li>ul>li>ul>li {
+    background: #fff !important;
+}
+
+.custom-theme.minified nav>ul>li {
+    border-bottom: 1px solid #E6E6E6;
+    border-top: 1px solid #FFFFFF;
+}
+
+.custom-theme.minified nav>ul>li>a>i {
+    font-size: 18px !important;
+}
+
+.custom-theme.minified .tree-view span {
+    padding: 0;
+}
+
+.custom-theme.minified .tree-view {
+    margin: 0 !important;
+}
+
+.custom-theme.minified nav ul li.active>a:before {
+    height: 23px;
+    right: -19px;
+    top: 7px;
+    font-size: 20px;
+    color: #FFFFFF;
+}
+
+
+/*
+ * COLOR PALLET
+ */
+
+.custom-theme .bg-color-red {
+    background: #DB4A67 !important;
+}
+
+.custom-theme .bg-color-blue {
+    background: #4387bf !important;
+}
+
+
+.custom-theme .bg-color-greenLight {
+    background-color: #89AD45 !important;
+}
+
+.custom-theme .bg-color-orange {
+    background-color: #D6A848 !important;
+}
+
+.custom-theme .bg-color-teal {
+    background-color: #5ba0a3 !important;
+}
+
+.custom-theme .minifyme {
+    background: #D7DAE2;
+    border-bottom: 1px solid #818181;
+    color: #7E7E7E;
+}
+
+.custom-theme .minifyme:hover {
+    color: #4E4E4E;
+}
+
+.custom-theme .onoffswitch-inner:before {
+    background: #3b9ff3;
+    border-color: #3b9ff3 #257DC7 #2A7DC4;
+}
+
+.custom-theme .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-switch:before {
+    color: #84A83E;
+}
+

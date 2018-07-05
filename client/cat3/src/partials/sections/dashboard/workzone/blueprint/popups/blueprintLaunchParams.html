@@ -1,0 +1,110 @@
+<div id="blueprintLaunchParamsPage">
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title" ng-show="!showCFTInputs && !showARMInputs && !showBlueprintInputs"> Confirmation</h4>
+		<h4 class="modal-title" ng-show="showCFTInputs"> Enter a Unique Stack Name</h4>
+		<h4 class="modal-title" ng-show="showBlueprintInputs"> Enter a Domain Name</h4>
+		<h4 class="modal-title" ng-show="showARMInputs"> Enter ARM Deployment Name</h4>
+	</div>
+
+	<form name="cftForm" ng-submit="cftSubmitHandler(cftForm.$valid)" novalidate>
+		<div class="modal-body" ng-show="!isBPLogsLoading">
+			<fieldset>
+
+				<div ng-show="!showCFTInputs && !showARMInputs && !showBlueprintInputs">
+					Are you sure you want to launch the Blueprint? Press Ok To continue <br /><br />
+
+
+					<div class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="" class="">Organization:<span class="red">*</span></label>
+						<label id="spinnerForEnv" class="hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+						<input type="text" ng-model="orgSeleted" class="width-100 form-control" readonly>
+					</div>
+
+					<div class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="" class="">Business Groups:<span class="red">*</span></label>
+						<label id="spinnerForEnv" class="hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+						<input type="text" ng-model="busSeleted" class="width-100 form-control" readonly>
+					</div>
+
+					<div class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="" class="">project:<span class="red">*</span></label>
+						<label id="spinnerForEnv" class="hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+						<input type="text" ng-model="projSeleted" class="width-100 form-control" readonly>
+					</div>
+
+					<div class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="" class="">Choose Environment:<span class="red">*</span></label>
+						<label id="spinnerForEnv" class="hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+						<select id="envSelect" ng-model="envSeleted" class="width-100 form-control" required>
+							<option ng-repeat="envOption in envOptions" value="{{envOption.rowid}}">{{envOption.name}}</option>
+						</select>
+					</div>
+
+					<div class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="" class="">Tag Server:</label>
+						<select class="form-control"  ng-model="tagSerSelected">
+							<option selected="selected" value="">Chose Tag Server</option>
+							<option ng-repeat="(key , value) in taggingServerList" value="{{value}}">{{value}}</option>
+						</select>
+					</div>
+
+					<div ng-show="showMonitor" class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="">Monitoring:</label>
+                        	<select name="monitorId" ng-model="monitorId" class="form-control width-100">
+                        		<option value="null">None</option>
+                        		<option ng-repeat="monitor in monitorList" value="{{monitor._id}}">
+									{{monitor.name}}
+								</option>
+                        </select>
+					</div>
+
+				</div>
+				<div ng-show="showCFTInputs || showARMInputs" class="CFTInputs-block">
+					<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>
+					<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<input type="text" name="stackInpt" ng-model="stackName" ng-trim="false" ng-pattern="/^[a-zA-Z0-9]*$/" maxlength="20" class="form-control" required>
+						<div class="text-danger help-block" ng-messages="cftForm.stackInpt.$error">
+							<div ng-messages-include="src/partials/globals/formMessages/messages.html"></div>
+						</div>
+					</span>
+				</div>
+
+				<div ng-show="showBlueprintInputs" class="CFTInputs-block">
+					<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>
+					<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<input type="text" name="domainInpt" ng-model="domainName" ng-trim="false" ng-pattern="/^[a-zA-Z0-9]*$/" maxlength="20" class="form-control" required>
+						<div class="text-danger help-block" ng-messages="cftForm.domainInpt.$error">
+								<div ng-messages-include="src/partials/globals/formMessages/messages.html"></div>
+						</div>
+					</span>
+				</div>
+			</fieldset>
+		</div>
+
+		<div class="modal-footer" ng-show="!isBPLogsLoading">
+			<div ng-show="!showCFTInputs && !showARMInputs && !showBlueprintInputs">
+				<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+					<i class="fa fa-times black"></i> Cancel
+				</button>
+				<button type="button" class="btn cat-btn-update" ng-click="launchBP()">
+					<i class="fa fa-check white"></i> Ok
+				</button>
+			</div>
+			<div>
+				<div ng-show="showCFTInputs || showARMInputs">
+					<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+						Cancel
+					</button>
+					<input type="submit" class="btn cat-btn-update" ng-disabled="cftForm.stackInpt.$dirty && cftForm.stackInpt.$invalid" ng-click="cftSubmitHandler()" value="Ok" />
+				</div>
+				<div ng-show="showBlueprintInputs ">
+					<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+						Cancel
+					</button>
+					<input type="submit" class="btn cat-btn-update" ng-disabled="cftForm.domainInpt.$dirty && cftForm.domainInpt.$invalid" ng-click="launchBPWithDomainName()" value="Ok" />
+				</div>
+			</div>
+		</div>
+	</form>
+</div>

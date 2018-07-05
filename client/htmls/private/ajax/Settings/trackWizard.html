@@ -1,0 +1,125 @@
+<form action="" id="myForm50">
+   <div class="widget-box">
+      <div class="widget-header">
+         <h4 class="widget-margin" style="color:black;">Create Track Dashboard</h4>
+      </div>
+      <div class="widget-body">
+         <div class="widget-main" style="min-height:200px">
+            <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+               <div>
+                                    <!-- widget content -->
+                                    <div class="widget-body no-padding">
+                                       <fieldset class="fieldsetCustom">
+            <div class="col-lg-6 col-md-6">
+              <label for="">Type:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <select id="trackType" name="trackType" class="required form-control width-100" style="vertical-align:central">
+                  <option value="">Choose Type</option>
+                  <option value="Capacity">Capacity</option>
+                  <option value="Providers">Providers</option>
+                  <option value="Health">Health</option>
+                  <option value="Telemetry">Telemetry</option>
+                  <option value="CI/CD">CI/CD</option>
+                  <option value="Service Delivery">Service Delivery</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <label for="">Description:</label>
+              <input type="text" name="trackDescription" class="trackDescription form-control" id="trackDescription">
+            </div>
+            <div class="itemURLContainer" id="itemSeries">
+              <div class="col-lg-6 col-md-6 margintop15">
+                <label for="">Item Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                <div class="input-groups">
+                  <input type="text" name="trackName" class="required trackNameItem form-control" id="trackName"/>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6 margintop15">
+                <label for="trackUrl">Item URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                <div class="input-groups">
+                  <input type="url" name="trackUrl" class="required trackUrlItem form-control" id="trackUrl"/> 
+                </div>
+              </div>
+            </div>
+            <div class="childAppendContainer">
+            </div>
+            <a href="javascript:void(0)" class="clearfix pull-right addChildItem" data-backdrop="false" data-toggle="modal">Add Child Item</a>
+            <input type="hidden" id="trackEditHiddenInputId">
+            <input type="hidden" id="trackEditHiddenInput">
+            <input type="hidden" id="trackItemHiddenInputNameUrl">
+          </fieldset>
+                                    </div>
+                                    <!-- end widget content -->
+                                 </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="btn-group pull-right">
+      <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
+   </div>
+</form>
+<script>
+    //jQuery time
+    var current_fs, next_fs, previous_fs; //fieldsets
+    var left, opacity, scale; //fieldset properties which we will animate
+    var animating; //flag to prevent quick multi-click glitches
+
+    var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($option);
+   
+     $('#myForm50').submit(function() {
+     $(this).validate();
+
+     if ($(this).valid) {
+       if(!saveform('20'))return false;
+     } else {
+       bootbox.alert('invalid valid form submitted'); // for demo
+     }
+     return false; // for demo
+   });
+   
+
+     $(".nextChef").click(function(){
+      //toastr.success
+      $('.content').load('ajax/Settings/templatesWizard.html');
+        //toastr.success('Step 4 - Devops Roles Configuration Completed');
+        //$('#providerConfiguration a').trigger('click');
+    });
+
+    $(".previous").click(function(){
+        if(animating) return false
+        animating = true;
+
+        current_fs = $(this).parent();
+        previous_fs = $(this).parent().prev();
+
+        //de-activate current step on progressbar
+        $("#progressbar li").eq($("form").index(current_fs)).removeClass("active");
+
+        //show the previous fieldset
+        previous_fs.show();
+        //hide the current fieldset with style
+        current_fs.animate({opacity: 0}, {
+            step: function(now, mx) {
+                //as the opacity of current_fs reduces to 0 - stored in "now"
+                //1. scale previous_fs from 80% to 100%
+                scale = 0.8 + (1 - now) * 0.2;
+                //2. take current_fs to the right(50%) - from 0%
+                left = ((1-now) * 50)+"%";
+                //3. increase opacity of previous_fs to 1 as it moves in
+                opacity = 1 - now;
+                current_fs.css({'left': left});
+                previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
+            },
+            duration: 800,
+            complete: function(){
+                current_fs.hide();
+                animating = false;
+            },
+            //this comes from the custom easing plugin
+            easing: 'easeInOutBack'
+        });
+    });
+</script>

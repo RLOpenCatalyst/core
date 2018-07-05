@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <title>Catalyst</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/catalyst.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/smartCustom.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/jqueryUI.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/jquery-ui-timepicker-addon.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="js/jquery-filetree/jqueryFileTree.css" />
+    <link rel="stylesheet" type="text/css"  href="css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
+  </head>
+  <style>
+    .list-group-itemHK {
+      position: relative !important;
+      display: block !important;
+      padding: 10px 15px !important;
+      margin-bottom: -1px !important;
+      background-color: #fff !important;
+      border: 1px solid #ddd !important;
+    }
+    .list-group-itemHK:first-child {
+      border-top-left-radius: 4px !important;
+      border-top-right-radius: 4px !important;
+    }
+  </style>
+  <body class="custom-theme">
+    <!-- HEADER -->
+    <!-- Header starts here -->
+    <header>
+      <nav class="navbar navbar-default">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="navbar-brand"><img src="img/logo.png" class="iconLogo" alt="logo"></div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <!--left side navbar-->
+          <ul class="nav navbar-nav">
+
+            <li class="left-projects-links" id="workflowStyle" data-target="Workflow" navigation="Workflow">
+              <a class="navigationTab" id="workflow" href="#ajax/Workflow/workflow.html"  onclick="setleftnavigation(this,'workflow');" >
+                <i class="fa fa-history white"></i>&nbsp;WORKFLOW</a>
+            </li>
+
+            <li class="left-projects-links hidden" id="botStyle" data-target="#Workspace" navigation="Workspace,Workspace1">
+              <a class="navigationTab" id="bots" href="#"  onclick="setleftnavigation(this,'bots');" >
+                <i class="fa fa-delicious white"></i>&nbsp; BOTS
+              </a>
+            </li>
+
+            <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
+              <a class="active navigationTab" id="workZoneNew" href="#" onclick="setleftnavigation(this,'org');">
+              <i class="fa fa-credit-card"></i>&nbsp;WORKZONE 
+              </a>
+            </li>
+            <!--design starts here-->
+            <li class="left-projects-links hidden" id="designStyle" data-target="#blueprints"  navigation="blueprints">
+              <a href="#" id="designNew" onclick="setleftnavigation(this,'Design');" class="navigationTab">
+              <i class="fa fa-puzzle-piece"></i>&nbsp;DESIGN
+              </a>
+            </li>
+            <!--track-->
+            <li class="left-projects-links hidden" id="trackStyle" data-target="#Track" navigation="Track">
+              <a class="dropdown-toggle navigationTab" href="#ajax/trackSettings.html" id="trackNew"  onclick="setleftnavigation(this,'Track');"><i class="fa fa-anchor"></i>&nbsp;TRACK</a>
+            </li>
+            <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
+              <a class="navigationTab" id="analytics" href="#"  onclick="setleftnavigation(this,'analytics');" >
+                <i class="fa fa-cloud white"></i>&nbsp;CLOUD
+              </a>
+            </li>
+
+
+
+            <!--track ends here-->
+            <!--right side navbar-->
+            <span class="navRight">
+
+              <li class="left-projects-links">
+                <!-- <a>
+                  <i class="fa fa-bell white font-size-16"></i><span style="position: absolute;top: -10px;right: 176px" class="label label-primary">8</span>
+                </a> -->
+              </li>
+              <li class="left-projects-links" title="Settings">
+                <a style="margin-right:24px;" href="#ajax/Settings/Dashboard.html" id="settingsNew" onclick="setleftnavigation(this,'Settings');">
+                  <i style="color:white!important" class="fa fa-cog fa-fw"></i>
+                </a>
+              </li>
+
+              <li class="left-projects-links active dropdown-toggle" id="liuserinfo" style="font-size: inherit;cursor: pointer;" data-toggle="dropdown"></li>
+              <div class="list-group dropdown-menu" style="top:33px;width: 214px;left: initial;">
+                 <a class="list-group-itemHK" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
+                      <i class="fa fa-question "></i> HELP
+                 </a>
+
+                <a id="signOut" class="list-group-itemHK cursor" href="#" style="color: #000" logoutlink="/auth/signout" title="Sign Out">
+
+                  <i class="fa fa-sign-out"></i> Logout
+                </a>
+              </div>
+              <!--Settings tab-->
+
+            </span>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <!--HEADER ends here -->
+    <!-- Left panel : Navigation area -->
+    <aside id="left-panel">
+      <div id="Workspace1">
+        <div class="leftSpaceStyle">
+          <!--workzone hidden so that while navigating from angular workzone to any other jquery page the workzone on the left panel shouldn't show up-->
+          <div class="hiddencollapse treeStyle hidden">WORKZONE</div>
+        </div>
+        <div id="tree" class="font-size-12"></div>
+      </div>
+      <!--for track-->
+      <div id="trackShow" style="display:none;">
+        <!-- <div class="leftSpaceStyle">
+          <div class="hiddencollapse treeStyle">TRACK</div>
+        </div> -->
+        <div id="trackTree" class="font-size-12"></div>
+      </div>
+      <!--track ends here-->
+      <div id="Settings_nav" style="display:none;">
+        <!-- <div class="leftSpaceStyle">
+          <div class="hiddencollapse treeStyle">SETTINGS</div>
+        </div> -->
+        <div id="setting_tree" class="font-size-12"></div>
+      </div>
+      <nav class="font-size-12">
+        </ul>
+        <ul class="menu-item-parentdemo" id="Workspace">
+        </ul>
+        <ul class="menu-item-parentdemo hidden" id="Track">
+        </ul>
+        <ul class="menu-item-parentdemo hidden" id="blueprints" providerselected="aws">
+          <li class="active open">
+            <ul class="visibleClass">
+              <li>
+                <a href="ajax/Aws-Production.html" onclick="$('#blueprints').attr('providerselected','aws');" class="devops_providers">
+                  <div class="aws" title="AWS"><span class="menu-item-parent provider-images trackAlign">&nbsp;&nbsp;AWS</span></div>
+                </a>
+              </li>
+              <li>
+                <a href="ajax/DesignBlueprintAzure.html?provider=azure" onclick="$('#blueprints').attr('providerselected','azure');"  class="devops_providers">
+                  <div class="azure" title="Azure"><span class="menu-item-parent provider-images trackAlign">&nbsp;&nbsp;AZURE</span></div>
+                </a>
+              </li>
+              <li>
+                <a href="ajax/DesignBlueprint.html?provider=os" onclick="$('#blueprints').attr('providerselected','openstack');"  class="devops_providers">
+                  <div class="openstack" title="Open Stack"><span class="menu-item-parent provider-images trackAlign">&nbsp;OPENSTACK</span></div>
+                </a>
+              </li>
+              <li>
+                <a href="ajax/DesignBlueprintVmware.html?provider=vmware" onclick="$('#blueprints').attr('providerselected','vmware');" class="devops_providers">
+                  <div class="vmware" title="Vmware"><span class="menu-item-parent provider-images trackAlign">&nbsp;VMWARE</span></div>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <!-- END NAVIGATION -->
+    <!-- MAIN PANEL -->
+    <div id="main" role="main">
+      <!-- RIBBON -->
+      <div id="ribbon">
+        <div class="demo1">
+          <div id="hide-menu" style="margin-top:-3px;">
+            <span> <a href="javascript:void(0);" title="Collapse Menu">
+            <i class="fa fa-sitemap txt-color-lightwhite"></i></a> </span>
+          </div>
+        </div>
+        <div id="leftPanelToggle" style="cursor: pointer">
+            <div style="float: left; width: 2%; height: 40px; font-size: 20px">
+                <i class="fa fa-bars" style="color: #fff; margin-top: 10px; padding-right: 55px;"></i>
+            </div>
+            <div style="float: left; width: 3%; margin: 11px 0 0 5px; color: #fff; margin-right: 14%; height: 29px;">
+                <span class="menu-item-parent trackAlign"><strong>Menu</strong></span>
+            </div>
+        </div>
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+          <!-- This is auto generated -->
+        </ol>
+      </div>
+      <!-- MAIN CONTENT -->
+      <div id="content">
+      </div>
+      <!--hiding the comment for no org available when the organization and environments are present-->
+      <div id="noenvwarning" class="hidden alert alert-warning noEnvWarning">
+        <img style="width:50px;height:40px" src="img/warning.png" alt="warning"/><span style="margin-left:20px;">Please Configure your Chef Server &amp; Environments. Check your</span>
+        <ul style="list-style-type:none;text-align:center">
+          <li class="left-projects-links hidden" data-target="#Settings" navigation="Settings">
+            <a class="navigationTab" href="#ajax/Settings/Dashboard.html" id="settingsNewClick"  onclick="setleftnavigation(this,'Settings');">&nbsp;SETTINGS</a>
+          </li>
+        </ul>
+      </div>
+      <!--noEnv Error for consumer and designer-->
+      <div id="noEnvError" class="hidden alert alert-warning noEnvWarningConsumerDesigner"><img style="width:50px;height:40px" src="img/warning.png" alt="warning"/><span style="margin-left:20px;">There are no Workzone items to display.</span>
+      </div>
+      <!--error ends-->
+      <!-- END MAIN CONTENT -->
+    </div>
+    <!-- END MAIN PANEL -->
+    <div id="shortcut" style="margin-left: 100px;margin-top: 90px;">
+      <ul class="orgsList">
+      </ul>
+    </div>
+    <!-- END SHORTCUT AREA -->
+    <div id="main-collapse" style="margin-top: 50px;">
+      <ul class="" style="width:100%">
+        <li class="collapseActive">
+          <a href="#ajax/Dev.html">WORKZONE</a>
+        </li>
+        <li>
+          <a href="#ajax/Aws-Production.html">DESIGN</a>
+        </li>
+        <li>
+          <a href="#ajax/Settings/OrgList.html"><span>SETTINGS</span></a>
+        </li>
+      </ul>
+    </div>
+    <!--modal for instance edit-->
+    <div class="modal fade" id="modalforInstanceEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form role="form" class="cmxform" id="instanceEditNew">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">
+                &nbsp;Edit Instance Name
+              </h4>
+            </div>
+            <div class="modal-body">
+              <fieldset>
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                  <label for="instanceEditName">Name<span class="control-label redSpan">&nbsp;*</span></label>
+                  <input type="text" name="instanceEditName" class="form-control" id="instanceEditName" autofocus/>
+                </div>
+                <input type="hidden" id="instanceIDHiddenInput">
+              </fieldset>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <input type="submit" id="editSaveBTN" class="btn btn-primary" value="Save" />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!--modal for instance edit ends-->
+    <!--modal for blueprint read-->
+    <div class="modal fade bs-example-modal-lg" id="modalForRead" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel"></h4>
+          </div>
+          <div class="modal-body modalHeightHelp">
+            <!--os and the 1st tier-->
+            <table class="table table-bordered">
+              <thead>
+                <th class="paramStyle">Parameters</th>
+                <th class="valueStyle">Values</th>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tdStyleInfo">Blueprint Name:</td>
+                  <td>
+                    <input  id="blueprintNameInputNew" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Template Type:</td>
+                  <td>
+                    <input id="blueprintTemplateType" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Organisation Name:</td>
+                  <td>
+                    <input id="blueprintORG" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Business Group:</td>
+                  <td>
+                    <input id="blueprintBU" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Project Name:</td>
+                  <td>
+                    <input id="blueprintProject" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Operating System:</td>
+                  <td>
+                    <input id="instanceOSNew" class="form-control" disabled="disabled">                                                      
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Instance Type:</td>
+                  <td>
+                    <input id="instancesizeNew" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Provider Type:</td>
+                  <td>
+                    <input id="instanceProviderType" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Provider Name:</td>
+                  <td>
+                    <input id="instanceProviderName" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Region:</td>
+                  <td>
+                    <input id="instanceRegion" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Image:</td>
+                  <td>
+                    <input id="instanceImage" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Keypair:</td>
+                  <td> 
+                    <input id="instancekeyPair" disabled="disabled" class="form-control">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">VPC ID:</td>
+                  <td>
+                    <input id="instanceVPC" class="form-control" disabled="disabled">                                               
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Subnet:</td>
+                  <td>
+                    <input id="instanceSubnetId" class="form-control" disabled="disabled">                                          
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Security Group:</td>
+                  <td>
+                    <input id="instanceSecurityGroupId" class="form-control" disabled="disabled">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Version:</td>
+                  <td>
+                    <input id="instanceVersion" class="form-control" disabled="disabled">                                    
+                  </td>
+                </tr>
+                <tr>
+                  <td class="tdStyleInfo">Runlist:</td>
+                  <td>
+                    <input id="instanceRunlist" class="form-control" disabled="disabled">                                           
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--modal for blueprint edit read-->
+    <!--modal for blueprint read-->
+    <div class="modal fade bs-example-modal-lg" id="modalForReadCFT" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" class="titleCFTDocker" id="myModalLabel"></h4>
+          </div>
+          <div class="modal-body">
+            <fieldset>
+              <!--os and the 1st tier-->
+              <table class="table table-bordered">
+                <thead>
+                  <th class="paramStyle">Parameters</th>
+                  <th class="valueStyle">Values</th>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="tdStyleInfo">Blueprint Name:</td>
+                    <td>
+                      <input  id="blueprintNameCFT" disabled="disabled" class="form-control">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tdStyleInfo">Template Type:</td>
+                    <td>
+                      <input id="blueprintTemplateTypeCFT" disabled="disabled" class="form-control">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tdStyleInfo">Organisation Name:</td>
+                    <td>
+                      <input id="blueprintORGCFT" disabled="disabled" class="form-control">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tdStyleInfo">Business Group:</td>
+                    <td>
+                      <input id="blueprintBUCFT" disabled="disabled" class="form-control">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tdStyleInfo">Project Name:</td>
+                    <td>
+                      <input id="blueprintProjectCFT" disabled="disabled" class="form-control">
+                    </td>
+                  </tr>
+                  <tr>
+                  <td class="tdStyleInfo">Version:</td>
+                  <td>
+                    <input id="instanceVersion" class="form-control" disabled="disabled">                                    
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </fieldset>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--modal for blueprint launch parameters -->
+     <div class="modal fade bs-example-modal-lg" id="modalSelectEnvironment" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+       <div class="modal-dialog">
+         <div class="modal-content">
+           <div class="modal-header">
+             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+             <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list-ol txt-color-blue"></i>&nbsp;Select Blueprint Launch Parameters</h4>
+           </div>
+           <div class="modal-body">
+           <fieldset>
+             <div class="col-lg-6 col-md-6">
+                 <label for="">Organization</label>
+                 <input id="blueprintOrgEnv" disabled="disabled" class="form-control">
+             </div>
+             <div class="col-lg-6 col-md-6">
+                 <label for="" class="">Business Group</label>
+                 <input id="blueprintBuEnv" disabled="disabled" class="form-control">
+             </div>
+             <div class="col-lg-6 col-md-6 projectRepo">
+                 <label for="" class="">Project Name
+                 </label>
+                 <input id="blueprintProEnv" disabled="disabled" class="form-control">
+             </div>
+             <div class="col-lg-6 col-md-6 projectRepo">
+                 <label for=""  class="">Choose Environment:</label>
+                 <label id="spinnerForEnv" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                 <select id="envSelect" class="width-100 form-control">
+                 </select>
+             </div>
+             <input type="hidden" id="selectedVersion"/>
+           </fieldset>         
+             </div>
+             <div class="modal-footer">
+                 <a type="button" class="btn btn-default btn-default" data-dismiss="modal">Close</a>
+                 <button type="button" class="btn btn-default btn-primary launchBlueprintBtn" data-dismiss="modal">Launch</button>
+              </div>
+         </div>
+       </div>
+     </div>
+     <!--modal ends here-->
+
+<!--instance launching pad-->
+<div class="modal fade" id="instanceLogModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">
+               <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Instance Logs
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div class="logsArea font-size-12"></div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!--modal for launching the blueprint-->
+<div class="modal fade" id="launchResultContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">Launching Blueprint</h4>
+         </div>
+         <div class="modal-body">
+            ...
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+<!--modal for blueprint laucnh ends here-->
+<!--modal for CFT launch-->
+<div class="modal fade" id="cftContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <form role="form" class="cmxform" id="cftForm">
+          <div class="modal-header">
+             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+             <h4 class="modal-title" id="myModalLabel">Enter a Unique Stack Name?</h4>
+          </div>
+          <div class="modal-body">
+             <i>(Only numbers,letters allowed. No spaces and underscores)</i>
+             <input type="text" uniqueconditionedby="cftInput" class="form-control" autofocus name="cftInput" id="cftInput"/>
+          </div>
+          <div class="modal-footer">
+             <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+             <input type="submit" class="btn btn-default btn-primary" value="Submit">
+          </div>
+       </form>
+    </div>
+  </div>
+</div>
+
+    <div class="modal fade" id="domainNameContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form role="form" class="cmxform" id="domainNameForm">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <h4 class="modal-title" id="myModalLabel">Enter a Unique Domain Name?</h4>
+            </div>
+            <div class="modal-body">
+              <i>(Only numbers,letters allowed. No spaces and underscores)</i>
+              <input type="text" uniqueconditionedby="domainNameInput" class="form-control" autofocus name="domainNameInput" id="domainNameInput"/>
+            </div>
+            <div class="modal-footer">
+              <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+              <input type="submit" class="btn btn-default btn-primary" value="Submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!--modal for CFT Launch ends here-->
+    <!--launching docker parameters-->
+<div class="modal fade bs-example-modal-lg" id="launchDockerInstanceSelector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title" id="DockerLaunch">Launch Docker Blueprint</h4>
+      </div>
+      <div class="modal-body">
+          <section id="wizard">
+              <form id="commentForm" action="">
+                  <div id="rootwizard">
+                      <ul style="display:none">
+                          <li><a href="#dockerTab1" data-toggle="tab">First</a></li>
+                          <li><a href="#dockerTab2" data-toggle="tab">Second</a></li>
+                      </ul>
+                      <div class="tab-content">
+                          <div class="tab-pane" id="dockerTab1">
+                              <div style="margin:0px;">
+                                  <div class="col-lg-12 col-md-12 fordocker" style="margin-top:5px;">
+                                      <label for="category">Docker Images:
+                                          </label>
+                                      <a class="btn btn-primary adddockertemplate pull-right hidden" onclick="showdockertemplateadder();">Add</a>
+                                      <table class="table table-striped table-bordered table-hover dataTable no-footer" id="compositeDockerImagesTable" cellpadding="5px" width="100%">
+                                          <tr>
+                                              <th>Order</th>
+                                              <th>Name</th>
+                                              <th>Image Path</th>
+                                              <th>Tag</th>
+                                              <th>Launch Params</th>
+                                              <th>Action</th>
+                                          </tr>
+                                      </table>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="tab-pane" id="dockerTab2">
+                              <div id="dockerinstancesselctorview" style="margin-top: 26px;">
+                                  <table class="table table-striped table-bordered table-hover dataTable no-footer" id="dockerinstancesTable" cellpadding="5px" width="100%">
+                                      <thead>
+                                          <tr>
+                                              <th class="text-center">Select Instance</th>
+                                              <th class="text-center">Instance Name</th>
+                                              <th class="text-center">IP Address</th>
+                                              <th class="text-center">Log</th>
+                                          </tr>
+                                      </thead>
+                                      <tbody></tbody>
+                                  </table>
+                              </div>
+                              <div class="btn-group">
+                                  <a type="button" class="btn btn-default btn-primary hidden" data-dismiss="modal">Close</a>
+                              </div>
+                          </div>
+                          <ul class="pager wizard">
+                              <li class="previous disabled"><a href="javascript:void(0);" class="btn btn-primary dockerModal previousModal" style="border-radius:0px">Previous</a></li>
+                              <li class="next"><a href="javascript:void(0);" class="btn btn-primary dockerModal nextModal" style="border-radius:0px;margin-left:5px;">Next</a></li>
+                              <button type="button" class="btn btn-primary nav nav-pills dockerinstancestart hidden dockerModal startModal"><span class="startBTN">Start</span></button>
+                          </ul>
+                      </div>
+                  </div>
+              </form>
+          </section>
+      </div>
+    </div>
+  </div>
+</div>
+    <!--launching docker parameter ends here-->
+
+<div class="modal fade bs-example-modal-lg" id="myModalLabelDockerContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title" id="DockerLaunch">Launch Parameters-Docker Blueprints</h4>
+      </div>
+      <div class="modal-body dockerModalHeight">
+          <section>
+              <form id="dockerparamsform" action="">
+                  <div style="margin:0px;">
+                      <div class="col-lg-6 col-md-6">
+                          <label for="category">Container Name<span style="color:red">*</span><span class="dockerparamrequired hidden" style="color:red">&nbsp;Required</span>
+                          </label>
+                          <input type="text" id="Containernamefield" name="namefield" class="required form-control" placeholder="" dockerparamkey="--name" onclick="$('.dockerparamrequired').addClass('hidden')">
+                      </div>
+                      <div class="col-lg-6 col-md-6">
+                          <label for="category">Port Mappings</label>
+                          <input type="text" id="Portmappingfield" name="Portmappingfield" class=" form-control" placeholder="Map host ports to container ports" dockerparamkey="-p">
+                      </div>
+                      <div class="col-lg-6 col-md-6 dockerModal">
+                          <label for="category">Volumes</label>
+                          <input type="text" id="Volumesfield" name="Volumesfield" class=" form-control" placeholder="Map host folders to container folders" dockerparamkey="-v">
+                      </div>
+                      <div class="col-lg-6 col-md-6 dockerModal">
+                          <label for="category">Volumes-from</label>
+                          <input type="text" id="Volumes-fromfield" name="Volumes-fromfield" class=" form-control" placeholder="Comma separated container names" dockerparamkey="--volumes-from">
+                      </div>
+                      <div class="col-lg-6 col-md-6 dockerModal">
+                          <label for="category">Linked Container</label>
+                          <input type="text" id="Linkedcontainerfield" name="Linkedcontainerfield" class=" form-control" placeholder="The name of a container this one links to" dockerparamkey="--link">
+                      </div>
+                      <div class="col-lg-6 col-md-6 dockerModal">
+                          <label for="category">Environment Variables</label>
+                          <input type="text" id="Environmentvariablesfield" name="Environmentvariablesfield" class=" form-control" placeholder="" dockerparamkey="-e">
+                      </div>
+                      <div class="col-lg-6 col-md-6 dockerModal">
+                          <label for="category">Startup Command</label>
+                          <input type="text" id="Startupcommandfield" name="Startupcommandfield" class=" form-control" placeholder="Optional startup command for the container" dockerparamkey="-c">
+                      </div>
+                      <div class="col-lg-6 col-md-6 dockerModal">
+                          <label for="category">Additional Startup</label>
+                          <input type="text" id="additionalStartupcommandfield" name="additionalStartupcommandfield" class=" form-control" placeholder="Additional startup command for the container" dockerparamkey="-exec">
+                      </div>
+                  </div>
+              </form>
+          </section>
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-default btn-primary" onclick="if(generateDockerLaunchParams()!=''){$('#myModalLabelDockerContainer').modal('hide');}else{return(false);}"><i class="fa fa-save fa-1x"></i>&nbsp;Add</button>
+          <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">
+          <i class="fa fa-undo fa-1x"></i>&nbsp;Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="editAttributesModalContainer" class="modal fade" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+                    x
+                </button>
+                <h4 class="modal-title">
+                <i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Edit Attributes
+                </h4>
+            </div>
+            <div class="modal-body no-padding">
+                <div class="loadingContainer">
+                    <img class="center-block loadingContainerimageCSS" src="img/loading.gif" />
+                </div>
+                <div class="errorMsgContainer loadingerrorMsgContainerCSS"></div>
+                <form class="attributesEditFormArea padding10" action="">
+                    <table id="attributesEditListArea" class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Attributes</th>
+                                <th>Values</th>
+                            </tr>
+                        </thead>
+                        <tbody class="attributesEditTableBody">
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-default" data-dismiss="modal">Close</a>
+                <a type="submit" class="btn btn-primary saveAttribBtn">Save</a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+
+    
+<script src="js/libs/jquery-2.0.2.min.js"></script>
+<!--Authentication Setup through token-->
+<script src="authSetup.js"></script>
+<script src="js/libs/jquery-ui-1.10.3.min.js"></script>
+<script src="js/jquery-ui-timepicker-addon.js"></script>
+<script src="js/libs/modernizr-2.5.3.min.js"></script>
+<script src="js/select2.min.js"></script>
+<script src="js/bootstrap-treeview.js"></script>
+
+<script src="js/bootstrap/bootstrap.min.js"></script>
+<!-- CUSTOM NOTIFICATION -->
+<script src="js/notification/SmartNotification.min.js"></script>
+<!-- JARVIS WIDGETS -->
+<script src="js/smartwidgets/jarvis.widget.min.js"></script>
+<script src="js/plugin/bootstrap-wizard/jquery.bootstrap.wizard.js"></script>
+<script src="js/plugin/bootbox/bootbox.min.js"></script>
+
+<script src="/private/js/jquery.dataTables.min.js"></script>
+<script src="js/jquery.tablesorter.min.js"></script>
+<script src="js/jquery.validate.min.js"></script>
+<script src="js/additional-methods.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/app.js"></script>
+
+<script src="js/dev/dev.js"></script>
+<script src="js/toastr.min.js"></script>
+    
+<!-- MAIN APP JS FILE -->
+<script type="text/javascript">
+  //toastr config
+  toastr.options.closeButton = true;
+  toastr.options.closeDuration = 2000;
+var a, b, x;
+String.prototype.capitalizeFirstLetter = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+
+$(document).ready(function() {
+    var hasSettingsPermission = false;
+    if (haspermission("settings", "read")) {
+        hasSettingsPermission = true;
+    }
+    if (!hasSettingsPermission) {
+        $('#settingsNew').addClass('hidden');
+        $('#noenvwarning').addClass('hidden');
+        $('#noEnvError').removeClass('hidden');
+    }
+
+    var hasDesignPermission = false;
+    if (haspermission("design", "read")) {
+        hasDesignPermission = true;
+    }
+
+    if (!hasDesignPermission) {
+        $('#designNew').addClass('hidden');
+        $('#noenvwarning').addClass('hidden');
+        $('#noEnvError').removeClass('hidden');
+    }
+
+    $( "#leftPanelToggle" ).mouseover(function() {
+        $("#left-panel").addClass("show-left-panel");
+    });
+    $( "#left-panel" ).mouseover(function() {
+        $("#left-panel").addClass("show-left-panel");
+    });
+    $( "#leftPanelToggle" ).mouseleave(function() {
+        $("#left-panel").removeClass("show-left-panel");
+    });
+    $( "#left-panel" ).mouseleave(function() {
+        $("#left-panel").removeClass("show-left-panel");
+    });
+});
+
+
+function foldTreeForSetting() {
+    var list = $('#setting_tree').find('.fa-angle-down'),
+        len = list.length;
+    for (var i = 0; i < len; i++) {
+        list.eq(i).trigger('click');
+    }
+}
+/*Added for angular integration. To disable, turn off flag and remove authSetup.js*/
+var isAngularIntegration = true;
+function locationClick(){
+  if(isAngularIntegration){
+    window.location.href = "../../cat3/#/dashboard/workzone";
+  }
+}
+
+
+function setleftnavigation(toplink, breadcrumbHeader) {
+    var TabID = $(toplink).attr('id');
+    if (TabID === "bots") {
+        if(isAngularIntegration){
+          var checkUrl = window.location.href;
+          if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+            console.log('here');
+          }else{
+             window.location.href = "../../cat3/#/dashboard/bots/library";  
+            return false;
+          }
+        }
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+
+    }
+    else if (TabID === "analytics") {   
+        if(isAngularIntegration){
+          var checkUrl = window.location.href;
+          if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+            console.log('here');
+          }else{
+             window.location.href = "../../cat3/#/dashboard/CM/analytics/cost/";
+            return false;
+          }
+        }
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+    }
+    else if (TabID === "designNew") {   
+        if(isAngularIntegration){
+          var checkUrl = window.location.href;
+          if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+            console.log('here');
+          }else{
+             window.location.href = "../../cat3/#/dashboard/design/AWS/list";  
+            return false;
+          }
+        }
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+    }
+    else if (TabID === "workZoneNew") {
+        
+        if(isAngularIntegration){
+          var checkUrl = window.location.href;
+          if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+            console.log('here');
+          }else{
+            locationClick();  
+            return false;
+          }
+        }
+        loadTreeFuncNew();
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+
+    } /*else if (TabID === "designNew") {
+        $('#selectOrgName').trigger('click');
+        $('#Workspace1').hide();
+        $('#Settings_nav').hide();
+        $('#trackShow').hide();
+
+    }*/ else if (TabID === "settingsNew") {
+        $('#tree').empty()
+        $('#trackTree').empty();
+        loadSettingsTree();
+        foldTreeForSetting();
+        $('#Workspace1').hide();
+        $('#trackShow').hide();
+        $('#Settings_nav').show();
+
+    } else if (TabID === "settingsNewClick") {
+        $('#tree').empty();
+        $('#trackTree').empty();
+        loadSettingsTree();
+        foldTreeForSetting();
+        $('#Workspace1').hide();
+        $('#trackShow').hide();
+        $('#Settings_nav').show();
+
+    } else if (TabID === "trackNew") {
+        $('#tree').empty();
+        $('#trackTree').empty();
+        getTrackTreeDetails();
+        loadTrackTree();
+        $('#Workspace1').hide();
+        $('#Settings_nav').hide();
+        $('#trackShow').show();
+    }  else if (TabID === "workflow") {
+        if (isAngularIntegration) {
+            var checkUrl = window.location.href;
+            if (checkUrl.indexOf('ajax/Dev.html') !== -1) {
+                console.log('here');
+            } else {
+                window.location.href = "#/ajax/Workflow/workflow.html";
+                return false;
+            }
+        }
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+    }
+
+    if ($(toplink).hasClass('active')) {
+      if ($(toplink).attr('id') == 'workZoneNew') {
+          selectEnv();
+      }
+      return;
+    }
+    $('.navigationTab').removeClass('active').find("i").removeClass('txt-color-blue');
+    $(toplink).addClass('active').find('i').addClass('txt-color-blue');
+    $('nav > ul').addClass('hidden'); //hiding all navigation elements
+    var navbar = $(toplink).closest("li").attr('navigation');
+    $('#Workspace1').addClass('hidden');
+    if (navbar.length) {
+        var navs = navbar.split(',');
+        for (var i = 0; i < navs.length; i++) {
+            $('#' + navs[i]).removeClass('hidden').css('display', '');
+        }
+
+    }
+    if (breadcrumbHeader == 'org') {
+        window.selectedOrgName = $('.orgSelected').find('span').text();
+    } else {
+        //Reverting the warning message when no org present
+        $('#content').removeClass('hidden').removeAttr('style', 'height:100% !important');
+        $('#noenvwarning').addClass('hidden');
+        $('#noEnvError').addClass('hidden');
+        $('ol.breadcrumb').removeClass('hidden');
+        window.selectedOrgName = breadcrumbHeader;
+    }
+    //Setting local storage with last selected tab
+    localStorage.setItem("lasttabselected", $(toplink).attr('id'));
+    if ($(toplink).attr('id') == 'workZoneNew') {
+      selectEnv();
+    }
+}
+
+//Expanding the providers tree
+var serviceURL = "../d4dMasters/";
+window.selectedOrgName = $('.orgSelected').text().trim();
+var SettingTreeJson = [{
+        "name": "organizationsetup",
+        "text": "Org Configuration",
+        "icon": "fa fa-lg fa-fw fa-building",
+        "nodetype": "org",
+        "nodes": [{
+            "name": "organizations",
+            "text": "Organizations",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/OrgList.html",
+            "parent": "org",
+            "nodetype": "OrgList",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-building"
+
+        }, {
+            "name": "organizations",
+            "text": "Business Groups",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ProductGroupList.html",
+            "parent": "org",
+            "nodetype": "ProductGroupList",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-th"
+
+        }, {
+            "name": "organizations",
+            "text": "Projects",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ProjectList.html",
+            "parent": "org",
+            "nodetype": "ProjectList",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-tags"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+
+    }, {
+        "name": "config setup",
+        "text": "Config Management",
+        "nodes": [{
+            "name": "organizations",
+            "text": "Chef Server",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ConfigManagementList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-random"
+        }, {
+            "name": "organizations",
+            "text": "Puppet Server",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/PuppetServerList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-random"
+
+        },{
+            "name": "organizations",
+            "text": "Environments",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/EnvironmentConceptList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-tint",
+            "parent": "devops",
+            "nodetype": "EnvironmentConceptList"
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa-lg fa-fw fa fa-tachometer"
+    }, {
+        "name": "user setup",
+        "text": "User Configuration",
+        "nodes": [{
+            "name": "organizations",
+            "text": "Teams",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/TeamsList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-users"
+
+        }, {
+            "name": "organizations",
+            "text": "User Roles",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/RolesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-th-list"
+
+        }, {
+            "name": "organizations",
+            "text": "Users",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/UsersList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-user"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa fa-lg fa-fw  fa-tasks"
+    }, {
+        "name": "provider setup",
+        "text": "Provider Configuration",
+        "nodes": [{
+            "name": "organizations",
+            "text": "Providers",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ProvidersList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-sitemap"
+        }, {
+            "name": "organizations",
+            "text": "VMImage",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ImagesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-image"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa fa-lg fa-fw fa-sitemap"
+    }, {
+        "name": "gallerysetup",
+        "text": "Gallery Setup",
+        "icon": "fa fa-lg fa-fw fa-building",
+        "nodes": [{
+            "name": "templates",
+            "text": "Template Types",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/DesignTemplateTypesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-files-o"
+
+        }, {
+            "name": "organizations",
+            "text": "Templates",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/TemplatesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-files-o"
+
+        }, {
+            "name": "organizations",
+            "text": "Service Command",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ServiceCommandList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-terminal"
+
+        }, {
+            "name": "organizations",
+            "text": "Script Gallery",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/scriptList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa fa-folder-o"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+    }, {
+        "name": "devopssetup",
+        "text": "DevOps Roles",
+        "icon": "fa fa-lg fa-fw fa-qrcode",
+        "nodetype": "devops",
+        "nodes": [{
+                "name": "organizations",
+                "text": "Nexus Server",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/NexusServerList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-random"
+
+            }, {
+                "name": "organizations",
+                "text": "Docker",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/DockerTemplatesList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-hdd-o"
+
+            }, {
+                "name": "organizations",
+                "text": "Jenkins",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/JenkinsConfigList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-link"
+
+            }
+            // ,{
+            //     "name": "organizations",
+            //     "text": "Bitbucket",
+            //     "borderColor": "#000",
+            //     "href": "#ajax/Settings/bitBucketConfigList.html",
+            //     "selectable": true,
+            //     "icon": "fa fa-lg fa-fw fa-bitbucket"
+            //
+            // }
+            ,{
+                "name": "organizations",
+                "text": "Octopus",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/octopusConfigList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-code"
+            },{
+                "name": "organizations",
+                "text": "Jira",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/jiraConfigList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-ticket"
+            },{
+                "name": "organizations",
+                "text": "CICD Server",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/cicddashboardserverList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-server"
+            },{
+                "name": "organizations",
+                "text": "Sonarqube",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/SonarqubeList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-thumbs-o-up"
+            },{
+                "name": "organizations",
+                "text": "QA Portal",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/functionalTestConfigList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-check"
+            },{
+                "text": "Git",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/githubList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-github"
+
+            }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+    }, {
+        "name": "cicd",
+        "text": "CI/CD Dashboard",
+        "nodes": [{
+            "name": "templates",
+            "text": "Dashboards",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/CICDDashboard.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-files-o"
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa-lg fa-fw fa fa-tachometer"
+    },{
+        "name": "track",
+        "text": "Track Setup",
+        "nodes": [{
+            "name": "templates",
+            "text": "Dashboards",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/DashboardSettings.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-files-o"
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa-lg fa-fw fa fa-tachometer"
+    }, {
+        "name": "monitoring",
+        "text": "Monitors",
+        "nodes": [{
+            "name": "organizations",
+            "text": "Monitors",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/monitoringServer.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa fa-eye"
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa fa-lg fa-fw fa fa-eye"
+    }, {
+        "name": "botEngine",
+        "text": "BOTs",
+        "nodes": [{
+            "name": "organizations",
+            "text": "BOT Executor",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/botEngineList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-paper-plane-o"
+        },{
+            "name": "organizations",
+            "text": "Service Now Server",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/cmdbList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-database"
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa fa-lg fa-fw fa-paper-plane-o"
+    }
+];
+
+function loadSettingsTree() {
+    $('#setting_tree').empty().treeview({
+        data: SettingTreeJson,
+        enableLinks: true,
+        collapseIcon: 'fa fa-angle-down',
+        expandIcon: 'fa fa-angle-right',
+        levels: -1,
+        onNodeSelected: function(event, node) {
+            drawBreadCrumb1();
+            event.stopPropagation();
+        }
+    });
+
+}
+var trackTree;
+
+function getTrackTreeDetails() {
+    $.ajax({
+        type: "get",
+        dataType: "json",
+        async: false,
+        url: '../track',
+        success: function(data) {
+            trackTree = [];
+
+            for (var i = 0; i < data.length; i++) {
+                trackTree.push({
+                    "name": "data",
+                    "text": data[i].type,
+                    "icon": "icon fa fa-line-chart",
+                    "nodetype": "data",
+                    "nodes": [],
+                    "borderColor": "#000",
+                    "selectable": false,
+                    "href": "javascript:void(0);"
+                });
+                for (var j = 0; j < data[i].itemUrls.length; j++) {
+                    if (data[i].itemUrls[j].childItem.length > 0) {
+                        trackTree[i].nodes.push({
+                            "name": "parentData",
+                            "text": data[i].itemUrls[j].name,
+                            "borderColor": "#000",
+                            "href": 'javascript:void(0)',
+                            "parent": "data",
+                            "data-href": data[i].itemUrls[j].url,
+                            "nodetype": "parentNode",
+                            "selectable": false,
+                            "icon": "icon fa fa-lg fa-fw fa-files-o",
+                            "nodes": []
+                        });
+                    } else {
+                        trackTree[i].nodes.push({
+                            "name": "parentData",
+                            "text": data[i].itemUrls[j].name,
+                            "borderColor": "#000",
+                            "href": 'javascript:void(0)',
+                            "parent": "data",
+                            "data-href": data[i].itemUrls[j].url,
+                            "nodetype": "parentNode",
+                            "selectable": true,
+                            "icon": "icon fa fa-lg fa-fw fa-files-o"
+                        });
+                    }
+                    for (var k = 0; k < data[i].itemUrls[j].childItem.length; k++) {
+                        trackTree[i].nodes[j].nodes.push({
+                            "name": "childData",
+                            "text": data[i].itemUrls[j].childItem[k].name,
+                            "borderColor": "#000",
+                            "href": 'javascript:void(0)',
+                            "parent": "data",
+                            "data-href": data[i].itemUrls[j].childItem[k].url,
+                            "nodetype": "childType",
+                            "selectable": true,
+                            "icon": "fa fa-fw fa-1x fa-desktop"
+                        });
+                    }
+                }
+            }
+        }
+    })
+}
+
+function loadTrackTree() {
+    $('#trackTree').treeview({
+        data: trackTree,
+        enableLinks: true,
+        collapseIcon: 'fa fa-angle-down',
+        expandIcon: 'fa fa-angle-right',
+        levels: -1,
+        onNodeSelected: function(event, node) {
+            $("#content").empty();
+            $("#content").attr('style', 'height: 100%!important').append('<iframe src=' + node['data-href'] + ' style="width: 101% ! important; height: 97%! important; border: medium none;"></iframe>');
+            event.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+    });
+}
+
+var treeData;
+
+function getTreeData() {
+    $.ajax({
+        type: "get",
+        dataType: "json",
+        async: false,
+        url: "../organizations/getTreeForbtv",
+        success: function(data1) {
+            treeData = data1;
+        }
+    });
+
+}
+
+function buildTree() {
+    $('#tree').empty().treeview({
+        data: treeData,
+        enableLinks: true,
+        collapseIcon: 'fa fa-angle-down',
+        expandIcon: 'fa fa-angle-right',
+        levels: 1,
+        onNodeSelected: function(event, node) {
+
+            window.selectedOrgName = $('li[data-nodeid="' + node.nodeId + '"]').first().find('a').first().attr('orgname');
+            localStorage.setItem('selectedOrgName', $('li[data-nodeid="' + node.nodeId + '"]').first().find('a').first().attr('orgname'));
+            localStorage.setItem('selectedOrgId', $('li[data-nodeid="' + node.nodeId + '"]').first().find('a').first().attr('orgid'));
+            /*Description from the node*/
+            localStorage.setItem("orgname", node.orgname);
+            localStorage.setItem("projname", node.projname ? node.projname : node.text);
+            localStorage.setItem("bgname", node.bgname);
+            localStorage.setItem("envname", node.text);
+            localStorage.setItem('itProjectActive', 'no');
+
+            /*Draw the breadcrumb from ol*/
+            var ol = $("#ribbon ol.breadcrumb");
+            if (ol.children().length == 0) {
+                drawBreadCrumb();
+            }
+            if (node.hasOwnProperty('itemtype') && node.itemtype === "proj") {
+                localStorage.setItem('itProjectActive', 'yes');
+            }
+
+        }
+    });
+}
+
+var loadTreeFuncNew = function(lazy) {
+    if (lazy) {
+        buildTree();
+    } else {
+        getTreeData();
+        buildTree();
+    }
+
+}
+
+
+
+function getUrlParameter(sParam) {
+    var u = $('#workZoneNew').attr('href').split('?');
+    var sPageURL = u[1];
+    if (typeof sPageURL != 'undefined') {
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam) {
+                return sParameterName[1];
+            }
+        }
+    } else {
+        //check local storage for last env clicked.
+        var lastwzurl = localStorage.getItem("lastworkzoneurl");
+        if (lastwzurl) {
+            u = lastwzurl.split('?');
+            sPageURL = u[1];
+            if (typeof sPageURL != 'undefined') {
+                var sURLVariables = sPageURL.split('&');
+                for (var i = 0; i < sURLVariables.length; i++) {
+                    var sParameterName = sURLVariables[i].split('=');
+                    if (sParameterName[0] == sParam) {
+                        return sParameterName[1];
+                    }
+                }
+            } else
+                return ('');
+
+        } else
+            return ('');
+    }
+    return ('');
+}
+
+$(document).keypress("l", function(e) {
+    if (e.ctrlKey && e.altKey && (String.fromCharCode(e.which) === 'l' || String.fromCharCode(e.which) === 'L')) {
+        window.open('/private/catlog.html', 'Catalyst Log');
+    }
+});
+
+
+
+window.getUrlParams = function(url) {
+    var urlParams = {};
+    var indexOfQues = url.lastIndexOf("?");
+    if (indexOfQues != -1) {
+        var sub = url.substring(indexOfQues + 1);
+        console.log(sub);
+        var params = sub.split('&')
+        for (var i = 0; i < params.length; i++) {
+            var paramParts = params[i].split('=');
+            urlParams[paramParts[0]] = paramParts[1];
+        }
+    }
+    return urlParams;
+
+};
+
+function selectFirstEnvironment() {
+    var $workspaceTree = $('#Workspace1');
+    var $orgLink = $workspaceTree.find('a[itemtype="org"][bgId][projId][envId]');
+    if ($orgLink.length) {
+        $orgLink = $orgLink.first().click();
+        var $bgLink = $workspaceTree.find('a[rowid="' + $orgLink.attr('bgId') + '"]').click();
+        var $projLink = $workspaceTree.find('a[rowid="' + $orgLink.attr('projId') + '"]').click();
+        var $envLink = $workspaceTree.find('a[rowid="' + $orgLink.attr('envId') + '"]');
+        $('#workZoneNew').attr('href', $envLink.attr('href'));
+        $envLink.click();
+        return true;
+    } else {
+        $('#workZoneNew').attr('href', '#');
+        return false;
+    }
+}
+
+function selectEnv() {
+    var $workspaceTree = $('#Workspace1');
+    var url = localStorage.getItem("lastworkzoneurl");
+    if (!url) {
+        url = window.location.href;
+    }
+    var urlParams = getUrlParams(url);
+    console.log(urlParams);
+    var $orgLink;
+
+    var envFound = false;
+    if (urlParams.envid && urlParams.org && urlParams.bg && urlParams.projid) { //finding env
+        var treeNodes = [];
+
+        $orgLink = $workspaceTree.find('a[itemtype="org"][rowid="' + urlParams.org + '"]');
+        if ($orgLink.length) {
+            $orgLink.click();
+            treeNodes.push($orgLink);
+
+        }
+        var $bgLink = $workspaceTree.find('a[rowid="' + urlParams.bg + '"]');
+        if ($bgLink.length) {
+            $bgLink.click();
+            treeNodes.push($bgLink);
+        }
+        var $projLink = $workspaceTree.find('a[rowid="' + urlParams.projid + '"]');
+        if ($projLink.length) {
+            $projLink.click();
+            treeNodes.push($projLink);
+        }
+        var $envLink = $workspaceTree.find('a[rowid="' + urlParams.envid + '"]');
+        if ($envLink.length) {
+            //$envLink = $envLink.first().click();
+            console.log('ancor a ==>', $envLink.attr('href'));
+            $('#workZoneNew').attr('href', $envLink.attr('href'));
+            treeNodes.push($envLink);
+            envFound = true;
+        }
+        if (!envFound) {
+            console.log('treenodes', treeNodes);
+            for (var i = treeNodes.length - 1; i >= 0; i--) {
+                treeNodes[i].click();
+            }
+            loadTreeFuncNew(true);
+            envFound = selectFirstEnvironment();
+        }
+
+
+    } else {
+        //not found ... trying to find first element in any org
+        envFound = selectFirstEnvironment();
+    }
+    if (!envFound) {
+        $('#content').addClass('hidden');
+        $('#noenvwarning').removeClass('hidden');
+        $('ol.breadcrumb').addClass('hidden');
+    } else {
+        $('#content').removeClass('hidden').removeAttr('style', 'height:100% !important');
+    }
+}
+
+//Renavigate to the tab that was previously selected.
+checkandnavigatetotab = function() {
+    //has tab in LS
+    var ltab = localStorage.getItem("lasttabselected");
+    if (ltab) {
+        $('#' + ltab).trigger('click');
+        drawBreadCrumb();
+    } else { //will be a first time load
+        console.log('selecting first env');
+        $('#workZoneNew').trigger('click');
+    }
+};
+//Commented for angular integration
+if (isAngularIntegration) {
+//Angular Change - condition added for manual refresh error when the user is in some settings page and refreshes it.
+  var tabSelected;
+  var url = window.location.href;
+  if (tabSelected = $('#settingsNew').attr('id')) {
+    if (url.indexOf('#ajax/Settings/') !== -1) {
+        window.location = '#ajax/Settings/Dashboard.html';
+    }
+  }
+  if(tabSelected = $('#designNew').attr('id')) {
+    if (url.indexOf('#ajax/DesignBlueprintAzure.html') !== -1 || url.indexOf('#ajax/DesignBlueprint.html')!== -1 || url.indexOf('#ajax/DesignBlueprintVmware.html') !== -1) {
+        window.location = '#ajax/Aws-Production.html';
+    } 
+  }
+} else{
+  checkandnavigatetotab();
+}
+loadSettingsTree();
+foldTreeForSetting();
+
+//check this functionality as it breaks at times..
+function saveAtrributesHandler(e) {
+    var $modal = $('#editAttributesModalContainer');
+    var $tbody = $modal.find('.attributesEditTableBody');
+    var $input = $tbody.find('.attribValueInput');
+    var attributes = [];
+    for (var j = 0; j < $input.length; j++) {
+        var $this = $($input[j]);
+        var attributeKey = $this.attr('data-attribKey');
+        var attribValue = $this.val();
+        if (attribValue) {
+            var attribPathParts = attributeKey.split('/');
+            var attributeObj = {};
+            var currentObj = attributeObj;
+            for (var i = 0; i < attribPathParts.length; i++) {
+                if (!currentObj[attribPathParts[i]]) {
+                    if (i === attribPathParts.length - 1) {
+                        currentObj[attribPathParts[i]] = attribValue;
+                        continue;
+                    } else {
+                        currentObj[attribPathParts[i]] = {};
+                    }
+                }
+                currentObj = currentObj[attribPathParts[i]];
+            }
+            attributes.push({
+                name: $this.attr('data-attribName'),
+                jsonObj: attributeObj
+            });
+        } else {
+            if ($this.attr('data-attributeRequired') === 'true') {
+                toastr.warning("Please fill in the required attributes");
+                return false;
+            }
+        }
+    }
+    createAttribTableRowFromJson(attributes);
+    $modal.modal('hide');
+}
+</script>
+<script src="js/blueprintLaunch.js"></script>
+<script src="js/blueprintCommon.js"></script>
+<script src="js/chefmodalcommon.js"></script>
+<script src="js/jquerytemplatemin.js"></script>
+<script src="/private/js/settingscommon.js"></script>
+<script src="/private/js/selectorCompnetBlueprint.js" type="application/javascript"></script>
+</body>
+</html>

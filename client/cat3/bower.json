@@ -1,0 +1,46 @@
+{
+  "name": "catalyst",
+  "version": "3.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "homepage": "index.html",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "authors": [
+    "revinjacob"
+  ],
+  "dependencies": {
+    "angular": "~1.4.4",
+    "angular-route": "~1.4.4",
+    "angular-strap": "~2.3.1",
+    "angular-ui-router": "~0.2.15",
+    "font-awesome": "~4.4.0",
+    "angular-animate": "~1.4.6",
+    "angular-datatables": "~0.5.0",
+    "angular-sanitize": "~1.4.7",
+    "angular-touch": "~1.4.7",
+    "jquery": "~2.1.4",
+    "ngstorage": "~0.3.9",
+    "angular-ui-grid": "^3.1.1",
+    "lodash": "^4.11.2",
+    "ng-file-upload": "^12.0.4",
+    "angular-nvd3": "^1.0.7",
+    "angularMultipleSelect": "angular-multiple-select#^1.1.2",
+    "glyphicons-halflings": "*"
+  },
+  "exportsOverride": {
+    "font-awesome": {
+      "fonts": "fonts/*",
+      "css": "css/font-awesome.css",
+      "less": "less/*"
+    },
+    "lodash": {
+      "lodash": "lodash.js"
+    }
+  }
+}

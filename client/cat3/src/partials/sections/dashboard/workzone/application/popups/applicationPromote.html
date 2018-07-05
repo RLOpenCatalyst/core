@@ -1,0 +1,78 @@
+<div id='deployNewAppPage'>
+    <div class="save-loading" ng-show="isLoadingPromApp">
+        <loading size="large" name="isLoadingPromApp" type="inline"></loading>
+    </div>
+    <form name="promoteAppForm" novalidate>
+        <div class="modal-header">
+            <div class="imp-note red" ng-show="promoteAppForm.$invalid"><span class="red">*</span> are mandatory fields</div>
+            <span class="close" ng-click="cancel()">×</span>
+            <h4 class="modal-title">
+                <i class="fa fa-clone"></i> Promote for Pipeline Card
+            </h4>
+        </div>
+        
+  	<div ng-if="promApp.errorMsg">
+		<div class="alert alert-danger fade in">
+			<strong>Error!</strong> Some {{promApp.msgText}} has been occurred while submitting your data.
+		</div>
+	</div>
+
+        <div class="modal-body">
+            <div>
+                <fieldset class="repo-job-details-wrapper">
+                    <legend class="repo-job-details-wrapper-inner">Environment Details:</legend>
+                    <div class="col-lg-6 col-md-6">
+                        <label for="">Current Environment:<span class="red">*</span>
+                        </label>
+                        <div class="input-groups">
+                            <input type="text" class="form-control" disabled="" ng-model="promApp.newEnt.currentEnv" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <label >Target Environment:<span class="red">*</span>
+                        </label>
+                        <div class="input-groups">
+                            <select name="" class="form-control" ng-model="promApp.newEnt.targetEnv" ng-change="promApp.getAllChefJobs();"  required>
+                                <option value="">Choose Environment</option>
+                                <option ng-repeat="(key, value) in promApp.envOptions" value="{{value}}">{{value}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="repo-job-details-wrapper margintop20">
+                    <legend class="repo-job-details-wrapper-inner">Job Details:</legend>
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <label>Jobs:<span class="red">*</span>
+                            <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+                        </label>
+                        <div class="input-groups">
+                            <loading size="small" name="isLoadingJob" type="inline"></loading>
+                            <select id="chooseJobType" ng-model="promApp.newEnt.jobInd"  ng-options="promApp.jobOptions.indexOf(jobOption) as jobOption.name for jobOption in promApp.jobOptions" class="form-control" required>
+                                <option value="">Choose Job</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <label>
+                            <span></span>
+                        </label>
+                        <div class="input-groups">
+                            <button type="button" class="btn cat-btn-update"  ng-click="promApp.createNewJob()">
+                                <i class="fa fa-plus white"></i> Create New Job {{}}
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn cat-btn-close" ng-click="cancel()">
+                <i class="fa fa-times black"></i> Cancel
+            </button>
+            <button type="button" class="btn cat-btn-update" ng-disabled="promoteAppForm.$invalid" ng-click="promApp.submitAppPromote();">
+                <i class="fa fa-check white"></i> Promote
+            </button>
+        </div>
+    </form>
+</div>

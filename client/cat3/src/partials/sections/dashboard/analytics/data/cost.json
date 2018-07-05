@@ -1,0 +1,189 @@
+{
+  "period": "month",
+  "fromTime": "2016-08-01T00:00:00",
+  "toTime": "2016-08-12T00:00:00",
+  "catalystEntity": {
+    "type": "organization",
+    "id": "q23ro9uasoidfElasdf"
+  },
+  "cost": {
+    "totalCost": 720,
+    "awsCosts": {
+      "totalCost": 720,
+      "serviceCosts": {
+        "ec2": 335,
+        "rds": 170,
+        "s3": 245
+      }
+    }
+  },
+  "splitUpCosts": {
+    "businessUnits": [
+      {
+        "id": "<businessUnit_1_id>",
+        "name": "Unit 1",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 10,
+              "rds": 50,
+              "s3": 30
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_2_id>",
+        "name": "Unit 2",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 40,
+              "rds": 20,
+              "s3": 40
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_3_id>",
+        "name": "Unit 3",
+        "cost": {
+          "totalCost": 130,
+          "awsCosts": {
+            "totalCost": 130,
+            "serviceCosts": {
+              "ec2":95,
+              "rds": 20,
+              "s3": 15
+            }
+          }
+        }
+      }, {
+        "id": "<businessUnit_3_id>",
+        "name": "Unit 4",
+        "cost": {
+          "totalCost": 80,
+          "awsCosts": {
+            "totalCost": 80,
+            "serviceCosts": {
+              "ec2":65,
+              "rds": 0,
+              "s3": 15
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_3_id>",
+        "name": "Unit 5",
+        "cost": {
+          "totalCost": 50,
+          "awsCosts": {
+            "totalCost": 50,
+            "serviceCosts": {
+              "ec2":5,
+              "rds": 20,
+              "s3": 25
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_2_id>",
+        "name": "Unit 6",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 40,
+              "rds": 20,
+              "s3": 40
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_2_id>",
+        "name": "Unit 7",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 40,
+              "rds": 20,
+              "s3": 40
+            }
+          }
+        }
+      },{
+        "id": "<businessUnit_2_id>",
+        "name": "Unit8",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 40,
+              "rds": 20,
+              "s3": 40
+            }
+          }
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "<provider_1_id>",
+        "name": "Provider 1",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 60,
+              "rds": 20,
+              "s3": 20
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_2_id>",
+        "name": "Provider 2",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2":10,
+              "rds": 60,
+              "s3": 30
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_3_id>",
+        "name": "Provider 3",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 65,
+              "rds": 10,
+              "s3": 25
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+<div id='dockerStatePage'>
+	<table align="left" class="docker-table">
+		<thead>
+			<tr class="tr-line-height">
+				<th scope="col"><u></u></th>
+				<th scope="col"> <u></u></th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<tr>
+				<td>Running :</td>
+				<td>{{ dockerInfoResponse.State.Running }}</td>
+			</tr>
+			<tr>
+				<td>PID :</td>
+				<td>{{ dockerInfoResponse.State.Pid }}</td>
+			</tr>
+			<tr>
+				<td>ExitCode(If Stopped) :</td>
+				<td >{{ dockerInfoResponse.State.ExitCode }}</td>
+			</tr>
+			<tr>
+				<td>Started At :</td>
+				<td>{{ dockerInfoResponse.State.StartedAt | timestampToLocaleTime }}</td>
+			</tr>
+			<tr>
+				<td>Finished At :</td>
+				<td>{{ dockerInfoResponse.State.FinishedAt }}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

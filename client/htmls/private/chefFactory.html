@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en-us">
+ <head>
+    <title>Chef Factory</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/catalyst.css">
+    <link rel="stylesheet" href="js/jquery-filetree/jqueryFileTree.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/font-awesome.min.css">
+<style>
+
+#dirArea {
+    border-right: 1px solid #000000;
+    height: 92%;
+    overflow: auto;
+    width: 21%;
+    float:left;
+    display: none;
+}
+#fileEditorArea {
+    height: 100%;
+    overflow: auto;
+    width: 79%;
+    float:right;
+    display: none;
+}
+#fileEditorContainer {
+    height: 83%;
+    width: 100%;
+    display:none;
+
+}
+#fileEditorDiv{
+    height: 100%;
+    width: 100%;
+    border-bottom: 1px solid black; 
+}
+#workingIndicatorContainer {
+    position: absolute;
+    top:0;
+    left: 0;
+    z-index: 10;
+    height: 100%;
+    width: 100%;
+    background-color:rgba(255,255,255,0.8); 
+    padding-top: 18%;
+    display: none;
+    
+}
+#editorBtnContainer {
+    display: none;
+    padding-left: 21%;
+    padding-top: 10px;
+}
+
+#fileEditorMsgContainer{
+    height: 100%;
+    padding-top: 15%;
+    text-align: center;
+    width: 100%;
+}
+
+#workingMsg{
+    display: block;
+    padding-top: 10px;
+}
+.editorBtn {
+    margin-left: 10%;
+}
+
+.marginCheck{
+    margin-right: 10px;
+    margin-top: 10px;
+}
+input[type="checkbox"]{
+    margin :6px 10px 10px 4px!important;
+}
+
+.roleSyncArea{
+    margin-top: 10px;   
+}
+.syncMargin{
+    float:right;
+    margin-right: 10px;
+    margin-top: 4px;
+}
+
+.cookbookSyncArea{
+    margin-top: 10px;
+}
+
+.cookbookImg {
+    background: url("img/cookbook.png");
+    background-repeat: no-repeat;
+    height: 24px;
+    padding-left: 36px !important;
+    padding-top: 6px !important;
+    background-position: 4px 2px;
+}
+
+.rolesImg {
+    background: url("img/recipe.png");
+    background-repeat: no-repeat;
+    height: 24px;
+    padding-left: 34px !important;
+    padding-top: 6px !important;
+    background-position: 4px 2px;
+}
+hr{
+    border-top: 2px solid #eee!important;
+}
+.spinner{
+    margin-left: 124px;
+}
+
+.custom-theme .btn-header>:first-child>a {
+    background: none;
+    border: none !important;
+    color: #C5C6CA;
+    box-shadow: none !important;
+}
+
+.custom-theme .btn-header>:first-child>a:hover {
+    color: #fff;
+    cursor: pointer !important;
+}
+
+</style>
+</head>
+<body class="custom-theme"> 
+<header>
+            <nav class="navbar navbar-default">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                    <div class="navbar-brand" style="width:220px;"><img src="img/logo.png" style="width:112px;height:40px" alt="logo"></div>
+                </div>
+
+    
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <!--left side navbar-->
+                  <ul class="nav navbar-nav" style="margin-top:20px;margin-left:28px">
+                    <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
+                        <a class="active navigationTab" style="font-size:14px!important" href="#" onclick="">
+                            <i class="fa fa-credit-card txt-color-blue"></i>&nbsp;Chef Factory 
+                        </a>
+                    </li>
+                  </ul>
+                  <!--right side navbar-->
+                  <ul class="nav navbar-nav navbar-right" style="font-size:14px!important;margin-top:20px">
+                    <li class="left-projects-links active" id="liuserinfo" style="color:white;margin-right:16px;"></li>
+                        <li id="logout" class="btn-header transparent pull-right logouttop">
+                            <!-- ../auth/signout -->
+                            <span><a href="/auth/signout" title="Sign Out" style="font-size:16px!important;">
+                                <i class="fa fa-sign-out"></i></a>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+<div id="dirArea">
+ <ul class="nav nav-tabs">
+      <li class="active"><a id="cookbook_link" href="#cookbookDirArea" data-toggle="tab">Cookbooks</a></li>
+      <li><a id="roles_tab" href="#rolesDirArea" data-toggle="tab">Roles</a></li> 
+      <li><a id="sync_tab" href="#syncDirArea" data-toggle="tab">Sync</a></li>        
+ </ul>
+ <div class="tab-content">
+      <div class="tab-pane active" id="cookbookDirArea"></div>
+      <div class="tab-pane" id="rolesDirArea"></div>
+      <div class="tab-pane" id="syncDirArea">
+<ul class="nav nav-tabs">
+      <li class="active"><a id="cookbookSync_link" href="#cookbookShowSync" data-toggle="tab"><span class="cookbookImg">Cookbooks</span></a></li>
+      <li><a id="rolesSync_tab" href="#rolesShowSync" data-toggle="tab"><span class="rolesImg">Roles</span></a></li> 
+</ul>
+        
+        
+<div class="tab-content">
+    <a href="javascript:void(0)" id="syncFactoryItems" class="syncMargin hidden"><i class="fa fa-refresh"></i>&nbsp;Sync</a>
+            <div class="tab-pane active" id="cookbookShowSync">
+                <div class="cookbookSyncArea">
+                    <label id="saveItemSpinnerCookbook" class="hidden spinner"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                    <span class="borderBox hidden"><input type="checkbox" name="checkbox" id="cookbookCheckBox"/>Select All</span>
+                    <hr/>
+                </div>
+            </div> 
+            <div class="tab-pane" id="rolesShowSync">
+                <div class="roleSyncArea">
+                    <label id="saveItemSpinnerRoles" class="hidden spinner"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                    <span class="borderBox hidden"><input type="checkbox" name="checkbox" id="rolesCheckBox"/>Select All</span>
+                    <hr/>
+                </div>
+
+            </div>
+    
+</div>
+</div>
+</div>
+</div>
+<div id="fileEditorArea">
+    <div id="fileEditorContainer">
+        <div id="fileEditorDiv"></div>
+
+    </div>
+    <div id="editorBtnContainer"><button class="btn btn-primary btn-lg editorBtn" role="button" disabled>Clone</button><button class="btn btn-primary btn-lg save editorBtn" role="button">Save</button><button class="btn btn-primary btn-lg editorBtn" role="button" disabled>Test</button></div>
+    <div id="fileEditorMsgContainer">
+     <span id='chefAccountMsg' style="display:block;position:absolute;top:18px;color:#fff"></span>
+     <span id='chefInstructionMsg'> <span style="font-size:24px">Welcome to Chef Factory </span><br/><br/>
+     <span style="font-size:20px">You can Clone, Edit and Upload a Cookbook,Roles to Chef Server.</span><br/>
+     <span style="font-size:20px">
+     Please select a Cookbook or Role. </span> </span>
+    </div>
+</div>
+<div id="workingIndicatorContainer" class="text-center">
+<img src="img/loading.gif" style="height:10%;width:auto"/>
+<span id="workingMsg"></span>
+</div>
+
+<div class="modal fade" id="chefFactorySyncResultModal" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Syncing Items - Please Wait for a while.</h4>
+      </div>
+      <div class="modal-body">
+      </div>
+       <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</body>
+
+<script src="js/libs/jquery-2.0.2.min.js"></script>
+<script src="js/jquery-filetree/jqueryFileTree.js" type="text/javascript"></script>
+<script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/bootstrap/bootstrap.min.js"></script>
+<script src="js/plugin/bootbox/bootbox.min.js"></script>
+<script type="text/javascript">
+
+$(function() {
+    var urlParams = {};
+    (window.onpopstate = function() {
+        var url = window.location.href;
+        var indexOfQues = url.lastIndexOf("?");
+        if (indexOfQues != -1) {
+            var sub = url.substring(indexOfQues + 1);
+            console.log(sub);
+            urlParams.id = sub;
+        }
+    })();
+
+    var $fileEditorArea = $('#fileEditorArea');
+    var $fileEditorDivContianer = $('#fileEditorContainer').hide();
+    var $fileEditorDiv = $('#fileEditorDiv');
+    var $editorBtnContainer = $('#editorBtnContainer').hide();
+    var $workingIndicatorContainer = $('#workingIndicatorContainer');
+    var $workingMsg = $('#workingMsg');
+    var $fileEditorMsgContainer = $('#fileEditorMsgContainer');
+    var editor = ace.edit("fileEditorDiv");
+
+    editor.setTheme("ace/theme/clouds");
+    editor.getSession().setMode("ace/mode/ruby");
+    $workingMsg.empty().append('Please Wait ... Syncing Cookbooks');
+    $workingIndicatorContainer.show();
+    var $dirArea = $('#dirArea');
+    $cookbookdir = $('#cookbookDirArea');
+    $rolesDirArea = $('#rolesDirArea');
+    $databagDirArea = $('#databagDirArea');
+    
+    function loadDirArea() {
+        $fileEditorDivContianer.hide();
+        $editorBtnContainer.hide();
+        $fileEditorMsgContainer.show();
+
+        $cookbookdir.empty();
+        $rolesDirArea.empty();
+        $cookbookdir.fileTree({
+            root: '/',
+            script: '/cheffactory/' + urlParams.id + '/cookbooks',
+            onFolderLoad: function(path, data) {
+                if (path === '/') {
+                    $dirArea.show();
+                    $('#fileEditorArea').show();
+                    $('#chefAccountMsg').append('Chef Account : ' + data.chefUserName);
+                    $workingIndicatorContainer.hide()
+                }
+            }
+        }, function(file) {
+            $('.save').data('saveUrl','/cheffactory/' + urlParams.id + '/cookbooks/');
+            $('.save').data('saveType','cookbook');
+            $('li.file a').css({
+                background: 'none'
+            });
+            $('a[rel="' + file + '"]').css({
+                background: '#BDF'
+            });
+            $fileEditorMsgContainer.hide();
+            $.get('/cheffactory/' + urlParams.id + '/cookbooks/?path=' + file, function(data) {
+                if (data.resType == 'file') {
+                    $fileEditorDivContianer.show();
+                    $editorBtnContainer.show();
+                    $fileEditorDiv.attr('data-file-path', file);
+                    editor.setValue(data.fileData);
+                }
+            });
+        });
+
+        $rolesDirArea.fileTree({
+            root: '/',
+            script: '/cheffactory/' + urlParams.id + '/roles',
+            onFolderLoad: function(path, data) {
+                if (path === '/') {
+                    $dirArea.show();
+                    $('#fileEditorArea').show();
+                    $workingIndicatorContainer.hide()
+                }
+            }
+        }, function(file) {
+            $('.save').data('saveUrl','/cheffactory/' + urlParams.id + '/roles/');
+            $('.save').data('saveType','role');
+            $('li.file a').css({
+                background: 'none'
+            });
+            $('a[rel="' + file + '"]').css({
+                background: '#BDF'
+            });
+            $fileEditorMsgContainer.hide();
+            $.get('/cheffactory/' + urlParams.id + '/roles/?path=' + file, function(data) {
+                if (data.resType == 'file') {
+                    $fileEditorDivContianer.show();
+                    $editorBtnContainer.show();
+                    $fileEditorDiv.attr('data-file-path', file);
+                    editor.setValue(data.fileData);
+                }
+            });
+        });
+    }
+    loadDirArea();
+
+    
+
+    $('.save').click(function(e) {
+        var saveUrl = $(this).data('saveUrl');
+        var saveType = $(this).data('saveType');
+        var filePath = $fileEditorDiv.attr('data-file-path');
+        var fileContent = editor.getValue();
+        var str = 'Please Wait ... Uploading Cookbook';
+        if (saveType === 'role') {
+            str = 'Please Wait ... Uploading Roles';
+        }
+        $workingMsg.empty().append(str);
+        $workingIndicatorContainer.show();
+        $.post(saveUrl, {
+            filePath: filePath,
+            fileContent: fileContent
+        }, function(data, success) {
+            $workingIndicatorContainer.hide();
+            console.log(data);
+        }).fail(function(jxhr) {
+            var msg = 'Unable to save cookbook/Role.';
+            console.log('jxhr==>', jxhr);
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            }
+            if(jxhr.responseJSON && jxhr.responseJSON.stdErrMsg) {
+                msg = msg+'\n\r'+'Error Output : '+jxhr.responseJSON.stdErrMsg;
+            }
+
+            bootbox.alert(msg);
+            $workingIndicatorContainer.hide();
+        });
+
+    });
+
+    $('#syncFactoryItems').click(function(e) {
+        var reqData = {
+            cookbooks: [],
+            roles: []
+        };
+        $('.syncList:checked').each(function() {
+            var $this = $(this);
+            var type = $this.attr('data-itemType');
+            if (type == 'cookbook') {
+                reqData.cookbooks.push($this.val());
+            } else {
+                reqData.roles.push($this.val());
+            }
+
+        });
+        if(!reqData.cookbooks.length && !reqData.roles.length) {
+           return;
+        }
+        console.log(reqData);
+        $dirArea.hide();
+        $fileEditorArea.hide();
+        $workingMsg.empty().append("Please wait ... syncing");
+        $workingIndicatorContainer.show();
+
+        $.post('/cheffactory/' + urlParams.id + '/factoryItems/sync', reqData, function(data) {
+            var $chefResultModalContainer = $('#chefFactorySyncResultModal');
+            var $modalBody = $chefResultModalContainer.find('.modal-body');
+            $modalBody.empty();
+            var totalLenth = reqData.cookbooks.length + reqData.roles.length;
+            var $progressBar = $('<progress value="0" max="' + totalLenth + '"></progress>').css({
+                width: '100%'
+            });
+            var $msgDiv = $('<div class="messageDiv"></div>').css({
+                width: '100%'
+            });
+
+            $modalBody.append($progressBar).append($msgDiv);
+
+            $chefResultModalContainer.modal('show');
+            var timeout;
+            var count = 0;
+
+            function pollTaskStatus(taskId, timestamp) {
+                timeout = setTimeout(function() {
+                    $.get('../taskstatus/' + taskId + '/status?timestamp=' + timestamp, function(data) {
+                        console.log(data);
+                        if (!data.completed) {
+                            if (data.statusList && data.statusList.length) {
+
+                                $progressBar.val(data.statusList.length);
+                                $msgDiv.empty();
+                                for (var i = 0; i < data.statusList.length; i++) {
+                                    $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                }
+
+                                pollTaskStatus(taskId, data.statusList[data.statusList.length - 1].timestamp);
+                            } else {
+                                pollTaskStatus(taskId, timestamp);
+                            }
+                        } else {
+                            if (data.statusList && data.statusList.length) {
+                                $progressBar.val(data.statusList.length);
+                                $msgDiv.empty();
+                                for (var i = 0; i < data.statusList.length; i++) {
+                                    $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                }
+                            }
+                            $progressBar.val(totalLenth);
+                            
+                            $dirArea.show();
+                            $fileEditorArea.show();
+                            $workingIndicatorContainer.hide();
+                            loadDirArea();
+
+                        }
+                    });
+                }, 5000);
+            }
+            pollTaskStatus(data.jobId, 0);
+        });
+    });
+    
+    var $spinnerForRoleCookBook = $('.spinner').removeClass('hidden');
+    $.get('/cheffactory/' + urlParams.id + '/factoryItems/', function(factoryItems) {
+        var $syncDirArea = $('#syncDirArea');
+        var $cookbookArea = $syncDirArea.find('.cookbookSyncArea');
+        var $rolesDirArea = $syncDirArea.find('.roleSyncArea');
+        if (factoryItems.cookbooks && factoryItems.cookbooks.length) {
+            for (var i = 0; i < factoryItems.cookbooks.length; i++) {
+                var $div = $('<div></div>').append('<input class="syncList cookBookSelect marginCheck" data-itemType="cookbook" type="checkbox" value="' + factoryItems.cookbooks[i] + '"/><span>' + factoryItems.cookbooks[i] + '</span>');
+                $spinnerForRoleCookBook.addClass('hidden');
+                $('.syncMargin').removeClass('hidden');
+                $('.borderBox').removeClass('hidden');
+                $cookbookArea.append($div);
+
+            }
+        }
+        if (factoryItems.roles && factoryItems.roles.length) {
+            for (var i = 0; i < factoryItems.roles.length; i++) {
+                var $div = $('<div></div>').append('<input class="syncList rolesSelect marginCheck" data-itemType="role" type="checkbox" value="' + factoryItems.roles[i] + '"/><span>' + factoryItems.roles[i] + '</span>');
+                $spinnerForRoleCookBook.addClass('hidden');
+                $('.syncMargin').removeClass('hidden');
+                $('.borderBox').removeClass('hidden');
+                $rolesDirArea.append($div);
+            }
+        }
+    }).fail(function(jxhr){
+        console.log(jxhr);
+        $spinnerForRoleCookBook.addClass('hidden');
+        var msg = "Server Behaved Unexpectedly";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+            msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+            msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+    });
+    
+    //for selecting/deselcting all cookbooks at once..
+    $('#cookbookCheckBox').change(function(e) {
+        $(".cookBookSelect").prop('checked', $(this).prop("checked"));
+    });
+
+    //for selecting/deselecting all roles at once..
+    $('#rolesCheckBox').change(function(e){
+       $('.rolesSelect').prop('checked',$(this).prop("checked")); 
+    })
+
+});
+</script>
+</html>

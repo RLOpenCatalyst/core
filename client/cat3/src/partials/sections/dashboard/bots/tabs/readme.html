@@ -1,0 +1,8 @@
+<div id="botDescriptionPage" ng-controller="botDescriptionCtrl">
+	<div class="container summary-container">
+		<section>
+			<pre ng-if="templateSelected.ymlFileData">{{templateSelected.ymlFileData}}</pre>
+			<div class="alert alert-info text-center" ng-if="!templateSelected.ymlFileData" align="center">No Data Found</div>
+		</section>
+	</div>
+</div>

@@ -1,0 +1,181 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
+
+<div id='instanceImportByIpPage'>
+	<form  name="InstanceImportbyIPForm" role="form" class="cmxform" autocomplete="off" novalidate>
+		<div class="modal-header">
+			<span class="close" ng-click="cancel()">×</span>
+			<h4 class="modal-title">
+				<i class="fa fa-th fa-download"></i>
+				Import Instance By IP
+			</h4>
+		</div>
+
+		<div class="modal-body">
+			<fieldset>
+				<div class="row">
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="col-lg-6 col-md-6">
+							<label for="instanceFQDN">Enter IP Address
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.instanceFQDN.$touched && InstanceImportbyIPForm.instanceFQDN.$error.required" class="inputValidationMsg">required
+								</span>
+
+								<span ng-show="InstanceImportbyIPForm.instanceFQDN.$touched && InstanceImportbyIPForm.instanceFQDN.$error.pattern" class="inputValidationMsg">Invalid IP Address
+								</span>
+							</label>
+							<div class="input-groups">
+								<input type="text" name="instanceFQDN" class="form-control" id="instanceFQDN" ng-model="ipAddress" ng-pattern="/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/" required>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label for="importinstanceOS">Choose Operating System
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.importinstanceOS.$touched && InstanceImportbyIPForm.importinstanceOS.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							
+							<div class="input-groups">
+								<select id="importinstanceOS" name="importinstanceOS" class="width-100 form-control" ng-model="os" required>
+									<option value="">Select OS</option>
+									<option ng-repeat="os in osList" value="{{os.osType}}">{{os.os_name}}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="col-lg-6 col-md-6 control-margin">
+							<label for="username">Username
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.username.$touched && InstanceImportbyIPForm.username.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							<div class="input-groups">
+								<input type="text" name="username" class="form-control" ng-model="username" required>
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 control-margin">
+							<label for="configManagementDropdown">Config Management
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.configManagementDropdown.$touched && InstanceImportbyIPForm.configManagementDropdown.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							<select id="configManagementDropdown" class="width-100 form-control" ng-model="selectedConfig" name="configManagementDropdown" required>
+								<option ng-repeat="config in configList" value="{{config.rowid}}">
+									{{config.configname}}
+								</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="col-lg-6 col-md-6 control-margin">
+							<label for="pemFileDropdown">Choose Authentication Type
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.pemFileDropdown.$touched && InstanceImportbyIPForm.pemFileDropdown.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							<select id="pemFileDropdown" class="authenticationType width-100 form-control" aria-invalid="false" ng-model="isPemActive" required>
+								<option value="password">Password</option>
+								<option value="pemFile">Pem File</option>
+							</select>
+						</div>
+
+						<div class="col-lg-6 col-md-6 authPassword control-margin" ng-if="(isPemActive=='password')">
+							<label for="">Password
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.authenticationPassword.$touched && InstanceImportbyIPForm.authenticationPassword.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							<div class="input-groups">
+								<input type="password" name="authenticationPassword" class="form-control" ng-model="$parent.passwordModel" required ng-init="passwordModel">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6 authPemFile control-margin" ng-if="(isPemActive=='pemFile')">
+							<label for="autenticationPemfile">Pem File
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.autenticationPemfile.$touched && InstanceImportbyIPForm.autenticationPemfile.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							<div class="input-groups">
+								<input type="file" name="autenticationPemfile" class="form-control form-controls" ngf-select="" ng-model="$parent.pemfile" name="file" accept=".pem" required="">
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="col-lg-6 col-md-6 control-margin">
+							<label for="">Monitoring:</label>
+	                        	<select name="monitorId" ng-model="monitorId" class="form-control width-100">
+	                        		<option value="null">None</option>
+	                        		<option ng-repeat="monitor in monitorList" value="{{monitor._id}}">
+										{{monitor.name}}
+									</option>
+	                        </select>
+	                    </div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="applicationURLContainer" id="appSeries12">
+							<div class="col-lg-6 col-md-6 control-margin">
+								<label for="appName">Application Name</label>
+
+								<input id="appName" placeholder="AppName" maxlength="8" type="text" name="appNameInput" class="form-control appName" ng-model="app[0].name">
+							</div>
+							<div class="col-lg-6 col-md-6 control-margin">
+								<label for="appNameURL">Application URL<span id="validURL" class="hidden red">&nbsp;Please Enter a Valid URL</span></label>
+								<div class="input-groups">
+									<input type="text" id="appNameURL" name="appNameURL" class="form-control appURL" placeholder="http://$host[:port]/appname" ng-model="app[0].url">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="applicationURLContainer" ng-show="appLinkSecondOption">
+							<div class="col-lg-6 col-md-6 control-margin">
+
+								<label for="appName">Application Name</label>
+
+								<input id="appName" placeholder="AppName" maxlength="8" type="text" name="appNameInput" class="form-control appName" ng-model="app[1].name">
+							</div>
+							<div class="col-lg-6 col-md-6 control-margin">
+
+								<label for="appNameURL">Application URL<span id="validURL" class="hidden red">&nbsp;Please Enter a Valid URL</span></label>
+								<div class="input-groups">
+									<input type="text" id="appNameURL" name="appNameURL" class="form-control appURL" placeholder="http://$host[:port]/appname" ng-model="app[1].url">
+								</div>
+							</div>
+						</div>
+					</div>
+					<a class="pull-right URL-margin" ng-click="appLinkSecondOption=true;" ng-show="!appLinkSecondOption">Add Application URL</a>
+					<div class="col-lg-6 col-md-6 pull-left">
+						<label class="control-label">Tag Server: </label>
+			            <input type="checkbox" ng-model="tagServerCheck" class="checkbox-list" ng-click="tagServerChecking()" />
+		            </div>
+		            <div class="col-lg-6 col-md-6" ng-show="tagServerStatus">
+						<label for="instanceFQDN">Select server
+							<span class="control-label red">&nbsp;*</span>
+						</label>
+						<div class="input-groups">
+							<select class="form-control"  ng-model="tagSerSelected">
+								<option selected="selected" value="">Choose Tag Server</option>
+								<option ng-repeat="(key , value) in taggingServerList" value="{{value}}">{{value}}</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+
+		<div class="modal-footer">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 importErrorMsg text-right error-padding" ng-show="!isSubmitLoading">
+				{{ importErrorMessage }}
+			</div>
+			<div class="marginForButtons">
+				<button type="button" class="btn cat-btn-cancel" ng-click="cancel();">
+					<i class="fa fa-times black"></i>&nbsp;Cancel
+				</button>
+				<button type="submit" class="btn cat-btn-update" id="addInstanceBtn" ng-click="ok();" ng-disabled="!InstanceImportbyIPForm.$valid || isSubmitLoading">
+					<i class="fa fa-download white"></i>&nbsp;Import
+				</button>
+				<loading size="small" name="isSubmitLoading" type="inline"></loading>
+			</div>
+		</div>
+	</form>
+</div>

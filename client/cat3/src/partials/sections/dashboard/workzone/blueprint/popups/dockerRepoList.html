@@ -1,0 +1,20 @@
+<div id='dockerRepoListPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-outdent"></i> Docker Repo List
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<div ng-repeat="dockerRepoName in dockerRepoList">
+			<span class="docker-repo-list-span">{{dockerRepoName.dockercontainerpathstitle}}</span>
+		</div>
+	</div>
+
+	<div class="modal-footer">
+	  	<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+	  		<i class="fa fa-times black"></i> Close
+	  	</button>
+	</div>
+</div>

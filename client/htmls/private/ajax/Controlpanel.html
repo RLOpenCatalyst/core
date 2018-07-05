@@ -1,0 +1,3059 @@
+<style type="text/css">
+.appNameIndex{
+  width:5% !important;
+}
+#myTab3 .active a{
+  color: #40baf1 !important;
+}
+#myTab3 li a:hover{
+  color: #000000 !important;
+}
+</style>
+
+<script src="js/jquery.sieve.min.js" type="text/javascript"></script>
+
+<div class="row">
+  <article class="col-sm-12 col-md-12 col-lg-12" id="controlPanelContainer" style="display:none">
+    <div class="widget-body" style="font-size:14px;">
+      <div class="">
+        <ul class="thumbnails list-unstyled col-lg-2 col-md-2 col-sm-12">
+          <!--Card for Planning starts here-->
+          <li class="domain-role-thumbnail cpCardStyle">
+            <div class="flip-toggle container">
+              <div class="card">
+                <div class="front">
+                  <div class="domain-roles">
+                    <div class="domain-roles-caption">
+                      <div class="domain-roles-heading">
+                      </div>
+                      <hr>
+                      <div class="componentlistContainer">
+                        <div class="instance-bootstrap-list">
+                        </div>
+                        <div class="forURL">
+                        </div>
+                      </div>
+                      <div>
+                        <div class="instance-details-list">
+                          <span class="instance-details-id instance-details-ip">IP : <strong></strong></span>
+                          <span class="instance-details-id"> 
+                          <span class="instance-state"></span>
+                          </span>
+                        </div>
+                      </div>
+                      <hr>
+                      <div style="width:152px !important;height:30px;margin-left:4px;" class="instanceActionBtnCtr">
+                        <div class="instance-bootstrap-ActionChefRun cpTop">
+                          <a class="instanceActionBtnUpdateRunlist instance-bootstrap-list-image chefClientRunlistImageCP" rel="tooltip" data-placement="top" data-original-title="Chef Client Run"></a>
+                          <a class="instanceActionBtnUpdatePuppetRunlist instance-bootstrap-list-image puppetClientRunlistImageCP" rel="tooltip" data-placement="top" data-original-title="Puppet Client Run"><img style="height:100%" src="img/puppeticon.png"/></a>
+                        </div>
+                        <div class="actionbutton instance-bootstrap-ActionStart" style="display:none;"><a href="javascript:void(0)" class="actionbuttonStart instanceActionBtn" data-actiontype="Start" data-placement="top" rel="tooltip" data-original-title="Start"></a></div>
+                        <div class="actionbutton instance-bootstrap-ActionShutdown"style="display:none;"><a href="javascript:void(0)" class="actionbuttonShutdown instanceActionBtn" data-actiontype="stop" rel="tooltip" data-placement="top" data-original-title="Stop"></a></div>
+                        <div class="sshContainer actionbutton instance-bootstrap-ActionSSH">
+                          <a href="javascript:void(0)" class='sshShellBtn cpTop sshTerminalBtn' data-actiontype="SSH" data-placement="top" rel="tooltip" data-original-title="SSH">
+                          </a>
+                        </div>
+                        <div class="rdpContainer actionbutton instance-bootstrap-ActionRDP">
+                          <a class='rdpIcon rdpShellBtn cpTop'>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <!--Card for Planning ends here-->
+        </ul>
+      </div>
+      <ul id="myTab3" class="nav nav-tabs pull-left col-lg-9 col-md-9 col-sm-12 tabStyle">
+        <li class="active" style="margin-right: 30px;">
+          <a style="color: #eee;border-radius: 5px 5px 0 0 ; padding: 9px 10px 13px;" href="#l1" data-toggle="tab" style="font-size: 16px" ><i class="fa fa-fw fa-exclamation-circle" style="font-size: 16px"></i>Information</a>
+        </li>
+        <li class="pull-left serviceTabLi" style="margin-right: 30px;">
+          <a style="color: #eee;border-radius: 5px 5px 0 0 ; padding: 9px 10px 13px;" href="#l2" data-toggle="tab" style="font-size: 16px"><i class="fa fa-fw fa-share-square-o"></i>Services</a>
+        </li>
+        <li class="pull-left" style="margin-right: 30px;">
+          <a style="color: #eee;border-radius: 5px 5px 0 0 ;padding: 9px 10px 13px;" href="#l3" data-toggle="tab" style="font-size: 14px"><i class="fa fa-fw fa-sun-o"></i>Action History</a>
+        </li>
+        <li class="pull-left" style="margin-right: 30px;">
+          <a id="controlPanelLogTab" style="color: #eee;border-radius: 5px 5px 0 0 ; padding: 9px 10px 13px;" href="#l4" data-toggle="tab" style="font-size: 14px"> <i class="fa fa-fw fa-clock-o"></i>Logs</a>
+        </li>
+      </ul>
+      <div id="myTabContent3" class="nav pull-left tab-content col-lg-9 col-md-9 col-sm-12 tabContent">
+        <!-- info tab contents starts here -->
+        <div class="tab-pane fade in active " id="l1" style="min-height:405px;overflow-y:auto;">
+          <div class="panel-group smart-accordion-default">
+            <div class="panel panel-default" id="accordion-Blueprints" style="border-radius:10px 10px 0px 0px;">
+              <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-Blueprints" href="#collapseBlueprints" ><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><i class="fa fa-fw fa-rss fa-dot-circle-o" style="font-size:14px;"></i> <b style="color:#3a87ad;font-size:12px;"><u>Blueprint Information</u></b></a></h4>
+              </div>
+              <div id="collapseBlueprints" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <table align="left">
+                    <tbody > 
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!--collapseRoleAttr ends here-->
+            </div>
+            <div class="panel panel-default" id="accordion-Hardware">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#accordion-Hardware" href="#collapseHardware" > 
+                  <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> 
+                  <i class="fa fa-fw fa-minus-circle txt-color-red"></i>
+                  <i class="fa fa-fw fa-wrench" style="font-size:14px;"></i>
+                  <b style="color:#3a87ad;font-size:12px;"><u>Hardware</u></b>
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseHardware" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <table align="left">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <!--Role Attributes Starts here-->
+            <div class="panel panel-default" id="accordion-Software">
+              <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-Software" href="#collapseSoftware" ><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><i class="fa fa-fw fa-rss fa-dot-circle-o" style="font-size:14px;"></i> <b style="color:#3a87ad;font-size:12px;"><u>Software</u></b></a></h4>
+                <a class="btn btn-primary inspectBtn" data-toggle="modal" href="#installedSoftwareModalContainer" style="float: right; margin-right: 5px; margin-top: 2px;">
+                <i class="fa fa-fw fa-search" style="font-size:14px;"></i>
+                Inspect
+                </a>
+              </div>
+              <div id="collapseSoftware" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <table align="left">
+                    <tbody > 
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!--collapseRoleAttr ends here-->
+            </div>
+            <!--Role Attributes ends here-->
+            <!--Configmgmt Attributes Starts here-->
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-configmgmt" href="#collapseConfigmgmt"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><i class="fa fa-fw fa-bar-chart-o" style="font-size:14px;"></i> <b style="color:#3a87ad;font-size:12px;"><u>Configuration Management</u></b></a></h4>
+              </div>
+              <div id="collapseConfigmgmt" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <table align="left">
+                    <tbody > 
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <!--Configmgmt Attributes Starts here-->
+            <!--Configmgmt Attributes Ends here-->
+            <!--Application URL-->
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-configmgmt" href="#collapseAppURL"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><i class="fa fa-fw fa-list-ul" style="font-size:14px;"></i> <b style="color:#3a87ad;font-size:12px;"><u>Additional Parameters</u></b></a></h4>
+              </div>
+              <div id="collapseAppURL" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <!--row starts AWS-->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="col-md-12">
+                        <div class="widget-box">
+                          <div class="widget-header">
+                            <h5 class="widget-title" style="color:#4e5964;">
+                              <strong>Application URLs</strong>
+                            </h5>
+                            <div class="widget-toolbar no-border">
+                              <a type="reset" id="newAppSeries" class="btn btn-minier btn-primary" href="#modalAppNameURL" data-toggle="modal">
+                              <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                              New
+                              </a>                                                
+                            </div>
+                          </div>
+                          <div class="widget-body">
+                            <div class="widget-main" style="min-height:100px">
+                              <div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
+                                <table id="appUrlTable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                  <thead>
+                                    <tr class="rowCustomStyle">
+                                      <td style="width:5%">S.No</td>
+                                      <td style="width:40%">Name</td>
+                                      <td style="width:20%" class="">Action</td>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                  </tbody>
+                                </table>
+                                <div id="envtable_tools1"></div>
+                                <div class="col-md-5">
+                                </div>
+                              </div>
+                            </div>
+                            <div class="widget-toolbox padding-8 clearfix dataTables_wrapper">
+                              <div id="tableFooterLeft" class="pull-left"></div>
+                              <div id="tableFooterRight" class="pull-right"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--row ends from Aws--> 
+                </div>
+              </div>
+            </div>
+            <!--Application URL Ends here-->
+            <!--tasks start here-->
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion-configmgmt" href="#collapseTaskArea"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><i class="fa fa-fw fa-newspaper-o" style="font-size:14px;"></i> <b style="color:#3a87ad;font-size:12px;"><u>Tasks</u></b></a></h4>
+              </div>
+              <div id="collapseTaskArea" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="col-md-12">
+                        <div class="widget-box">
+                          <div class="widget-header">
+                            <h5 class="widget-title" style="color:#4e5964;">
+                              <strong>List of Tasks</strong>
+                            </h5>
+                            <div class="widget-toolbar no-border">
+                              <a id="addTaskBtn" class="btn btn-minier btn-primary" data-toggle="modal">
+                              Assign Job
+                              </a>                                                
+                            </div>
+                          </div>
+                          <div class="widget-body">
+                            <div class="widget-main" style="min-height:100px">
+                              <div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
+                                <table id="tasksLists"  class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                  <thead>
+                                    <tr class="rowCustomStyle">
+                                      <td width="50px">S.No </td>
+                                      <td>Tasks Name</td>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--tasks name ends here-->
+            <!--app series-->
+            <div class="modal fade" id="modalAppNameURL" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form role="form" class="cmxform" id="appURLForm" autocomplete="off">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                      &times;
+                      </button>
+                      <h4 class="modal-title">
+                        <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Add Application URL
+                      </h4>
+                    </div>
+                    <div class="modal-body appSeriesHeight">
+                      <!--app series-->
+                      <div class="applicationURLContainer" id="appSeries">
+                        <div class="col-lg-6 col-md-6 projectRepo">
+                          <label for="appNameInput">Name:</label>
+                          <input type="hidden" class="form-control appUrlId">
+                          <input placeholder="AppName" type="text" maxlength="8" name="appNameInput" id="appNameInput" class="form-control appName">
+                          <b class="tooltip tooltip-top-right">
+                          <i class="fa fa-user txt-color-teal"></i> Please enter Application</b>
+                        </div>
+                        <div class="col-lg-6 col-md-6 projectRepo">
+                          <label for="appNameURL">URL:</label>
+                          <input placeholder="http://$host[:port]/appname" name="appNameURL" id="appNameURL" class="form-control appURL" type="text">
+                          <b class="tooltip tooltip-top-right">
+                          <i class="fa fa-user txt-color-teal"></i> Please enter URL</b>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <label id="nodeAppspinner" class=" hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                      <div class="marginForButtons">
+                        <a class="btn btn-default" type="submit" data-dismiss="modal">
+                        <i class="fa fa-times fa-1x"></i>&nbsp;Cancel
+                        </a>
+                        <button id="addAppBtn" class="btn btn-primary" type="submit">
+                        <i class="fa fa-check fa-1x"></i>&nbsp;Save
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <!-- /.modal-content -->
+              </div>
+              <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal for appSeries ends-->
+          </div>
+        </div>
+        <!-- info tab contents ends here-->
+        <!-- tab of Actions starts here -->
+        <div class="tab-pane" id="l2" style="height:415px;overflow-y: auto;border-radius:11px;">
+          <div role="content">
+            <!-- widget content -->
+            <div class="table-responsive" style="border:1px solid #dddddd;border-radius:11px">
+              <!-- class="table table-hover" -->
+              <table  id="tableServices" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" style="margin-top:72px;">
+                <thead>
+                  <tr>
+                    <th style="font-size: 13px;text-align:center;">
+                      <i class="fa fa-fw fa-archive "></i>
+                      <strong style="color:#3a87ad">Service Name</strong>
+                    </th>
+                    <th style="font-size: 13px;text-align:center;">
+                      <i class="fa fa-fw fa-sort-amount-asc "></i>
+                      <strong style="color:#3a87ad">Actions </strong>
+                    </th>
+                    <th style="font-size: 13px;text-align:center;">
+                      <i class="fa fa-fw fa-flash "></i>
+                      <strong style="color:#3a87ad">Options</strong>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tbody class="servicesTbody">
+                </tbody>
+                </tbody>
+                <a class="btn btn-primary addServiceBtn" style="float:right;padding-right:10px;margin-right:10px;margin-top:32px;" data-toggle="modal" href="#serviceModalContainer">Add New Service</a>
+              </table>
+            </div>
+           
+            <!-- end widget content -->
+          </div>
+          <!-- end widget div -->
+        </div>
+        <!-- Tab of Action ends here -->
+        <div class="modal fade" id="serviceModalContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add New Service</h4>
+              </div>
+              <div class="modal-body">
+                <!--<select id="serviceList" class="col col-6" multiple></select>-->
+                <table  class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                  <thead>
+                    <tr>
+                      <th style="text-align:center;">Select</th>
+                      <th style="text-align:center;">Name</th>
+                      <th style="text-align:center;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="serviceList">
+                    <tr>
+                      <td colspan=3>No Data Available</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
+                <button type="button" class="btn btn-default btn-primary btnsaveDeploymentBP btnSaveService"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal fade" id="installedSoftwareModalContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list txt-color-blue"></i>&nbsp;&nbsp;Inspect Installed Software</h4>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12 heightModal400">
+                    <div id="paragraphs" class="p-sieve paraHeightModal">
+                    </div>
+                    <div class="loadingContainerimageInspectCSS">
+                      <img  style="margin-left:140px;" src="img/spinner.gif">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Configure tab contents starts here -->
+        <div class="tab-pane" id="l3" style="height:415px;overflow-y: auto;">
+          <div class="table-responsive" style="border:1px solid #dddddd;min-height:400px;border-radius:11px">
+            <table id="tableactionHistory" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+              <thead style="font-size: 13px">
+                <tr>
+                  <td>
+                    <strong style="color:#3a87ad";>Type</strong>
+                  </td>
+                  <td>
+                    <strong style="color:#3a87ad;">Status</strong>
+                  </td>
+                  <td>
+                    <strong style="color:#3a87ad;">Data</strong>
+                  </td>
+                  <td>
+                    <strong style="color:#3a87ad;">Timestamp</strong>
+                  </td>
+                  <td>
+                    <strong style="color:#3a87ad;">Users</strong>
+                  </td>
+                  <td>
+                    <strong style="color:#3a87ad;">MoreInfo</strong>
+                  </td>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!--Configure tab contents ends here -->
+        <div class="tab-pane" id="l4" style="height:415px;overflow-y: auto;overflow-x:hidden;border:1px solid #ddd;border-radius:11px;">
+          <div class="logsArea"></div>
+        </div>
+      </div>
+    </div>
+  </article>
+  <!--article ended-->
+  <div class="loadingControlPanelIndicator">
+    <img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />
+  </div>
+</div>
+<div class="modal fade bs-example-modal-lg" id="controlPanelChefRunModalContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel"><i class="fa fa-pencil-square-o txt-color-blue"></i>Update Runlist</h4>
+        <a style="font-size:14px!important;margin-top:-24px;float:right;margin-right:60px;" href="#modalForHelp" data-toggle="modal"><i class="fa fa-question"></i>&nbsp;Help</a>
+      </div>
+      <div class="modal-body" style="padding:0px !important">
+        <div class="panel-group smart-accordion-default" id="chefRunAccordion" role="tablist" aria-multiselectable="true">
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingOne">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#chefRunAccordion" href="#chefRunAccordionRunlistArea"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Assign Runlist</a>
+              </h4>
+            </div>
+            <div id="chefRunAccordionRunlistArea" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+              <div class="panel-body">
+                <div class="chefRunlistContainer">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingOne">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#chefRunAccordion" href="#chefRunAccordionAttributeArea" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Cookbook Attributes</a>
+              </h4>
+            </div>
+            <div id="chefRunAccordionAttributeArea" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+              <div class="panel-body">
+                <div class="col-lg-12">
+                  <div class="smart-form margin15">
+                    <label class="marginbottom4">
+                    <img src="img/templateicons/Select-nodes---deployment.png">
+                    <strong>Cookbook Attributes 
+                    <a class="bpEditBtn btn btn-primary editAttributesBtnCSS editChefClientRunAttribBtn" rel="tooltip" data-placement="top" data-original-title="Edit">
+                    <i class="ace-icon fa fa-pencil"></i>
+                    </a>
+                    </strong>
+                    </label>
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <table  class="chefRunAttributesViewTable table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                          <thead>
+                            <tr>
+                              <th>Attributes</th>
+                              <th>Values</th>
+                            </tr>
+                          </thead>
+                          <tbody class="attributesViewTableBody">
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+          <button type="button" class="btn btn-default btn-primary btnUpdateInstanceRunlist">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--execute modal-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="chefClientRunAttributesModal" class="modal fade" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+        x
+        </button>
+        <h4 class="modal-title">
+          <i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Edit Attributes
+        </h4>
+      </div>
+      <div class="modal-body no-padding">
+        <div class="loadingContainer">
+          <img class="center-block loadingContainerimageCSS" src="img/loading.gif" />
+        </div>
+        <div class="errorMsgContainer loadingerrorMsgContainerCSS"></div>
+        <form  class="attributesEditFormArea padding10" action="">
+          <table class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter attributesListTable" cellpadding="5px" width="100%">
+            <thead>
+              <tr>
+                <th>Attributes</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody class="attributesEditTableBody">
+            </tbody>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
+        <button type="button" class="btn btn-primary btnSaveInstanceRunlistAttributes"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedExecute-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+        &times;
+        </button>
+        <h4 class="modal-title">
+          Edit Data Bag Item
+        </h4>
+      </div>
+      <div class="modal-body no-padding">
+        <form action="" id="" class="">
+          <div action="" id="" class="smart-form" novalidate="novalidate">
+            <div class="row" style="margin:0px;">
+              <div style="height:200px; width:200px; padding-left:20px; padding-top:10px;" contenteditable="true">
+                <ul style="list-style:none outside none;font-size:12px;">
+                  <li> id: frank </li>
+                  <li> comment: Frank </li>
+                  <li> uid: 2000 </li>
+                  <li> gid: 0 </li>
+                  <li> home: /home/frank </li>
+                  <li> shell: /bin/bash </li>
+                </ul>
+              </div>
+            </div>
+            <footer>
+              <button type="submit" class="btn btn-primary">
+              Save
+              </button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">
+              Cancel
+              </button>
+            </footer>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<br><br>
+<footer class="footer">
+  <div class="clearfix form-actions" style="text-align:center">
+    <div class="btn-group">
+      <button class="btn pull-left btn-primary" id="getViewAttr" onclick="getInfoLi();" style="margin-left:200px;">Back to Instances</button>
+    </div>
+  </div>
+</footer>
+<!-- Modal SSH Shell-->
+<div class="modal fade" id="modalSSHShellContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog " style="">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">
+          <i class="fa fa-terminal txt-color-blue"></i>Terminal
+        </h4>
+      </div>
+      <div class="modal-body" style="height:430px">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="actionLogMoreInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog " style="">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="">
+          <i class="fa fa-bar-chart-o txt-color-blue"></i>Instance Logs
+        </h4>
+      </div>
+      <div class="modal-body instanceBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="instanceTaskModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-lg" style="">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">
+          &nbsp;List of Tasks
+        </h4>
+      </div>
+      <div class="modal-body">
+        <fieldset>
+          <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="input-group width100">
+              <label class="input searchTaskLabel">
+              <strong class="fontsize13">Available Task</strong>
+              </label>
+              <div class="btn-group selectTasksdiv">
+                <div class="loadingContainerGap" style="display: none;">
+                </div>
+                <select multiple="multiple" size="10" id="selectavailbleTaskList" class="btn-group selectavailbleTask">
+                  <option style="display:block" value="recipe[7-zip]" class="taskimg">
+                    Hi
+                  </option>
+                  <option style="display:block" value="recipe[7-zip]" class="taskimg">
+                    GO
+                  </option>
+                </select>
+              </div>
+              <div class="btn-group marginleft5">
+                <button type="button" id="btnaddToTasklist" class="btn btn-default btn-primary anchorAdd">
+                <i class="fa fa-chevron-right anchorAddi"></i>
+                </button>
+                <div class="clearfix"></div>
+                <button type="button" id="btnremoveFromTasklist" class="btn btn-default btn-primary anchorRemove">
+                <i class="fa fa-chevron-left anchorRemovei"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 col-sm-6" id="selectedTaskForSave">
+            <div class="input-group width100">
+              <label class="input searchTaskLabel">
+              <strong class="fontsize13">Selected Task</strong>
+              </label>
+              <div class="btn-group selectTasksdiv">
+                <select multiple="multiple" size="10" id="selectedTaskList" class="btn-group selectavailbleTask">
+                </select>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div class="modal-footer">
+        <a type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times fa-1x"></i>&nbsp;Close</a>
+        <button type="submit" id="saveTaskBtn" class="btn btn-primary" value="Save"><i class="fa fa-check fa-1x"></i>&nbsp;Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- div of Contant tab starts here -->
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+  //To Add
+  $('#selectavailbleTaskList').on('dblclick', 'option', function() {
+    var $this = $(this);
+    var $selectedList = $("#selectedTaskList");
+    $selectedList.append($this.clone());
+    $this.hide();
+  });
+  //To Remove
+  $('#selectedTaskList').on('dblclick', 'option', function() {
+    var $instanceCookbookList = $('#selectavailbleTaskList');
+    var $this = $(this);
+    var value = $this.val();
+    $this.remove();
+    $instanceCookbookList.find('option[value="' + value + '"]').show();
+  });
+});
+
+//To add the wizard
+$("#btnaddToTasklist").on('click', function() {
+  var $options = $('#selectavailbleTaskList option:selected');
+  var $selectedList = $("#selectedTaskList");
+  $options.each(function() {
+    var $this = $(this);
+    $selectedList.append($this.clone());
+    $this.hide();
+  });
+});
+
+$("#btnremoveFromTasklist").on('click', function() {
+  var $instanceCookbookList = $('#selectavailbleTaskList');
+
+  $("#selectedTaskList option:selected").each(function() {
+    var $this = $(this);
+    var value = $this.val();
+    $this.remove();
+    $instanceCookbookList.find('option[value="' + value + '"]').show();
+
+  });
+});
+var urlParams = {};
+(window.onpopstate = function() {
+  var url = window.location.href;
+  var indexOfQues = url.lastIndexOf("?");
+  if (indexOfQues != -1) {
+    var sub = url.substring(indexOfQues + 1);
+    console.log(sub);
+    var params = sub.split('&')
+    for (var i = 0; i < params.length; i++) {
+      var paramParts = params[i].split('=');
+      urlParams[paramParts[0]] = paramParts[1];
+    }
+  }
+
+})();
+
+
+function populateJsonData(instanceId) {
+  $('.paraHeightModal').hide();
+  $.ajax({
+    type: "GET",
+    url: "/instances/" + urlParams.id + "/inspect",
+    success: function(data) {
+      var installedSoftwareString = data.installedSoftwareString;
+      var installedSoftwareArray = installedSoftwareString.split('\r\n');
+      var temp = '';
+      for (var i = 0; i < installedSoftwareArray.length; i++) {
+        installedSoftwareArray[i] = installedSoftwareArray[i].trim();
+        if (installedSoftwareArray[i]) {
+          temp = temp + '<p><i class="fa fa-chevron-right txt-color-blue"></i>&nbsp;' + installedSoftwareArray[i] + '</p>';
+        }
+      }
+      $('.loadingContainerimageInspectCSS').hide();
+      $('.paraHeightModal').show();
+      $('#paragraphs').append(temp);
+    },
+    error: function(jqxhr) {
+      $('#installedSoftwareModalContainer').modal('hide');
+
+      var failureText;
+      if (jqxhr.responseJSON && jqxhr.responseJSON.message) {
+        failureText = jqxhr.responseJSON.message;
+      }
+      bootbox.alert({
+        size: 'small',
+        title: '<span style="font-size:22px;">Error!</span>',
+        message: failureText
+      });
+
+      $('.loadingContainerimageInspectCSS').hide();
+      $('.paraHeightModal').hide();
+    }
+  });
+}
+$('.inspectBtn').click(populateJsonData);
+$('.inspectBtn').click(function() {
+  $('.loadingContainerimageInspectCSS').show();
+  $('div').find('#paragraphs').empty();
+});
+
+
+
+function disableSSHBtn(instanceId) {
+  var $cardViewInstanceId = $(".domain-roles-caption[data-instanceId='" + instanceId + "']");
+  $cardViewInstanceId.find('.instance-bootstrap-ActionSSH a').addClass('isStopedInstance').removeClass('sshIcon').addClass('hidden');
+
+}
+
+
+
+function enableInstanceActionStartBtn(instanceId) {
+  var $cardViewInstanceId = $(".domain-roles-caption[data-instanceId='" + instanceId + "']");
+  var osType = $cardViewInstanceId.attr('data-osType');
+
+  $cardViewInstanceId.find('.instance-bootstrap-ActionChefRun a').removeClass('isStopedInstance').removeClass('actionbuttonChefClientRundisable').addClass('chefClientRunlistImageCP');
+
+  if (osType === 'linux') {
+    $cardViewInstanceId.find('.instance-bootstrap-ActionSSH a').removeClass('isStopedInstance').removeClass('sshIcondisable').addClass('sshShellBtn');
+  } else {
+    $cardViewInstanceId.find('.instance-bootstrap-ActionRDP a').removeClass('isStopedInstance').removeClass('rdpIcondisable').addClass('rdpIcon');
+  }
+
+  $cardViewInstanceId.find('.instance-bootstrap-ActionShutdown a').removeClass('isStopedInstance').removeClass('actionbuttonShutdowndisable').addClass('actionbuttonShutdown');
+  $cardViewInstanceId.find('.instance-bootstrap-ActionStart a').addClass('isStopedInstance').removeClass('actionbuttonStart').addClass('actionbuttonStartdisable');
+}
+
+function enableInstanceActionStopBtn(instanceId) {
+  var $cardViewInstanceId = $(".domain-roles-caption[data-instanceId='" + instanceId + "']");
+
+  $cardViewInstanceId.find('.instance-bootstrap-ActionChefRun a').addClass('isStopedInstance').removeClass('chefClientRunlistImageCP').addClass('actionbuttonChefClientRundisable');
+  $cardViewInstanceId.find('.instance-bootstrap-ActionSSH a').addClass('isStopedInstance').removeClass('sshShellBtn').addClass('sshIcondisable');
+  //rdp
+  $cardViewInstanceId.find('.instance-bootstrap-ActionRDP a').addClass('isStopedInstance').removeClass('rdpIcon').addClass('rdpIcondisable');
+  $cardViewInstanceId.find('.instance-bootstrap-ActionShutdown a').addClass('isStopedInstance').removeClass('actionbuttonShutdown').addClass('actionbuttonShutdowndisable');
+  $cardViewInstanceId.find('.instance-bootstrap-ActionStart a').removeClass('isStopedInstance').removeClass('actionbuttonStartdisable').addClass('actionbuttonStart');
+}
+
+function disableInstanceActionBtns(instanceId) {
+  var $cardViewInstanceId = $(".domain-roles-caption[data-instanceId='" + instanceId + "']");
+
+  $cardViewInstanceId.find('.instance-bootstrap-ActionChefRun a').addClass('isStopedInstance').removeClass('chefClientRunlistImageCP').addClass('actionbuttonChefClientRundisable');
+  $cardViewInstanceId.find('.instance-bootstrap-ActionSSH a').addClass('isStopedInstance').removeClass('sshShellBtn').addClass('sshIcondisable');
+  //rdp
+  $cardViewInstanceId.find('.instance-bootstrap-ActionRDP a').addClass('isStopedInstance').removeClass('rdpIcon').addClass('rdpIcondisable');
+  $cardViewInstanceId.find('.instance-bootstrap-ActionShutdown a').addClass('isStopedInstance').removeClass('actionbuttonShutdown').addClass('actionbuttonShutdowndisable');
+  $cardViewInstanceId.find('.instance-bootstrap-ActionStart a').addClass('isStopedInstance').removeClass('actionbuttonStart').addClass('actionbuttonStartdisable');
+}
+
+function disableInstanceStartStopActionBtns(instanceId) {
+  var $cardViewInstanceId = $(".domain-roles-caption[data-instanceId='" + instanceId + "']");
+  var osType = $cardViewInstanceId.attr('data-osType');
+
+  $cardViewInstanceId.find('.instance-bootstrap-ActionChefRun a').removeClass('isStopedInstance').removeClass('actionbuttonChefClientRundisable').addClass('chefClientRunlistImageCP');
+
+  if (osType === 'linux') {
+    $cardViewInstanceId.find('.instance-bootstrap-ActionSSH a').removeClass('isStopedInstance').removeClass('sshIcondisable').addClass('sshShellBtn');
+  } else {
+    $cardViewInstanceId.find('.instance-bootstrap-ActionRDP a').removeClass('isStopedInstance').removeClass('rdpIcondisable').addClass('rdpIcon');
+  }
+
+  $cardViewInstanceId.find('.instance-bootstrap-ActionShutdown a').addClass('isStopedInstance').removeClass('actionbuttonShutdown').addClass('actionbuttonShutdowndisable');
+  $cardViewInstanceId.find('.instance-bootstrap-ActionStart a').addClass('isStopedInstance').removeClass('actionbuttonStart').addClass('actionbuttonStartdisable');
+}
+
+function pollInstanceBootstrapState(instanceId, delay) {
+
+  var timeout = setTimeout(function() {
+    $.get('../instances/' + instanceId, function(data) {
+      var title = '';
+      if (data) {
+        if (data.bootStrapStatus == 'waiting') {
+          console.log('polling again bootStrapStatus');
+          pollInstanceBootstrapState(instanceId, 5000);
+        } else {
+          if (data.bootStrapStatus == 'success') {
+            if (data.hardware.platform === 'unknown') {
+              console.log('polling again bootStrapStatus unknown');
+              pollInstanceBootstrapState(instanceId, 5000);
+              return;
+            }
+            var $parent = $('.domain-roles-caption[data-instanceId="' + instanceId + '"]');
+            var basePath = 'img/osIcons/',
+              imgPath, title = '';
+            switch (data.hardware.platform.toLowerCase()) {
+              case "window 2008":
+                imgPath = 'windows.png';
+                break;
+              case "centos":
+                imgPath = 'centos.png';
+                break;
+              case "ubuntu":
+                imgPath = 'ubuntu.png';
+                break;
+              default:
+                imgPath = 'unknown.png';
+            }
+            title = data.hardware.platform;
+            if (imgPath === "unknown.png") {
+              if (data.hardware.os.toLowerCase() === "linux") {
+                imgPath = "linux.png";
+                title = data.hardware.os;
+
+              } else if (data.hardware.os.toLowerCase().indexOf('window') > -1) {
+                imgPath = "windows.png";
+                title = data.hardware.os;
+
+              }
+
+            }
+            $parent.find('.card_os').empty().append('<img src="' + basePath + imgPath + '" height="25" width="25" data-placement="top" data-original-title="' + title.capitalizeFirstLetter() + '" rel="tooltip"/>');
+           /*
+            $.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+              var lastActionLog = actionLogs[actionLogs.length - 1];
+              var actionLogTimestamp = lastActionLog.timeStarted;
+              if (lastActionLog.completed) {
+                actionLogTimestamp = lastActionLog.timeEnded;
+              }
+              var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+              var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+              $parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+            });*/
+          }
+        }
+      }
+    });
+  }, delay);
+}
+
+var logTimeout;
+var stateTimeout;
+$.get('../instances/' + urlParams.id, function(data) {
+  var $selectedOrg = $('.orgsList').find('[data-org="' + urlParams.org + '"]');
+  var orgid = $selectedOrg.click().attr('data-id');
+  if (orgid) {
+    console.log('orgid ==>', orgid);
+  }
+
+  console.log(data);
+
+
+  //fetching services list
+  if (data.chef) {
+    $.get('/d4dMasters/19/chefserverid/' + data.chef.serverId, function(services) {
+      $.get('/d4dMasters/19/commandtype/Service%20Command', function(servicesCmd) {
+
+        servicesCmd = JSON.parse(servicesCmd);
+        services = JSON.parse(services);
+        for (var k = 0; k < servicesCmd.length; k++) {
+          if (servicesCmd[k].chefserverid !== data.chef.serverId) {
+            services.push(servicesCmd[k]);
+          }
+        }
+        var $serviceList = $('#serviceList');
+        console.log(services, "length==>", services.length);
+        var serviceIds = [];
+        if (data.serviceIds && data.serviceIds.length) {
+          serviceIds = data.serviceIds;
+        }
+
+        for (var i = 0; i < services.length; i++) {
+
+          var name = services[i].servicename;
+          if (!name) {
+            name = services[i].commandname;
+          }
+          var $tr = $('<tr></tr>').attr('data-listServiceId', services[i].rowid);
+          var $checkBox = $('<input type="checkbox" name="svcCkb"></input>').val(services[i].rowid).data('serviceData', services[i]);
+          var $tdCheckBox = $('<td></td>').append($checkBox);
+          $tr.append($tdCheckBox);
+          var $tdName = $('<td></td>').append(name);
+          $tr.append($tdName);
+
+          var commandType = services[i].commandtype;
+          if (commandType === 'Chef Cookbook/Recipe') {
+            var html = getCookbookActionHtml(services[i].rowid, services[i]);
+          } else {
+            var html = getCommandActionHtml(services[i].rowid, services[i]);
+          }
+
+          var $tdActions = $('<td></td>').append(html);
+          $tr.append($tdActions);
+          if (serviceIds.indexOf(services[i].rowid) !== -1) {
+            $tr.addClass('hidden');
+          }
+
+          $serviceList.append($tr);
+        }
+      });
+    });
+    if (data.serviceIds && data.serviceIds.length) {
+      $.post('/d4dMasters/getrows/19', {
+        serviceids: data.serviceIds
+      }, function(services) {
+        services = JSON.parse(services);
+        for (var i = 0; i < services.length; i++) {
+          console.log("sd1 = ", services[i]);
+          addServiceToDom(services[i]);
+        }
+      });
+    }
+  }
+
+  // setting up action logs
+  $.get('/instances/' + urlParams.id + '/actionLogs', function(actionLogs) {
+    addActionLogsToTable(actionLogs);
+  });
+  var showmenuAppTaskVar = {
+    getshowmenuAppTask: function() {
+      return '<div class="showmenuAppTask"><a class="btn1 showmenuAppTaskAnchor"><i class="fa fa-ellipsis-h showmenuAppTaskAnchorI"></i></a></div>';
+    }
+  };
+  var menuAppTaskLI = '';
+  var menuTaskListLI = '';
+  var getOS = function(data) {
+      if (data.bootStrapStatus === 'waiting') {
+        console.log('polling bootStrapStatus');
+        pollInstanceBootstrapState(data._id, 5000);
+      }
+      var basePath = 'img/osIcons/',
+        imgPath, title = '';
+      console.log(data.hardware.os + ' :: OS ::' + data.hardware.platform.toLowerCase())
+      switch (data.hardware.platform.toLowerCase()) {
+        case "window 2008":
+          imgPath = 'windows.png';
+          break;
+        case "centos":
+          imgPath = 'centos.png';
+          break;
+        case "ubuntu":
+          imgPath = 'ubuntu.png';
+          break;
+        default:
+          imgPath = 'unknown.png';
+      }
+      title = data.hardware.platform;
+      if (imgPath === "unknown.png") {
+        if (data.hardware.os.toLowerCase() === "linux") {
+          imgPath = "linux.png";
+          title = data.hardware.os;
+
+        } else if (data.hardware.os.toLowerCase().indexOf('window') > -1) {
+          imgPath = "windows.png";
+          title = data.hardware.os;
+
+        }
+
+      }
+      return '<span class="card_os" style="float:right;"><img src="' + basePath + imgPath + '" height="25" width="25" data-placement="top" data-original-title="' + title.capitalizeFirstLetter() + '" rel="tooltip"/></span>'
+    },
+    getStartStopToggler = function(data) {
+      var title = data.instanceState == "running" ? "Stop" : data.instanceState == "stopped" ? "Start" : "";
+      return '<div class="startstoptoggler ' + data.instanceState + '" instanceID="' + data._id + '" style="float:left;margin-left:14px;margin-top:4px;" data-placement="top" data-original-title="' + title + '" rel="tooltip"></div>'
+    },
+    startAndStopToggler = function(e) {
+      if ($(this).hasClass('unknown') || $(this).hasClass('pending') || $(this).hasClass('stopping') || $(this).hasClass('terminated')) {
+        console.log('pending or Unknow State');
+        return false;
+      } else if ($(this).hasClass('running')) {
+        console.log('running State');
+        var hasStopPermissionCP = false;
+        if (haspermission("instancestop", "execute")) {
+          hasStopPermissionCP = true;
+        }
+        if (!hasStopPermissionCP) {
+          bootbox.alert('User has No Permission to Stop');
+          return;
+        }
+        $(this).parent().find('.actionbuttonShutdown').trigger('click');
+
+      } else if ($(this).hasClass('stopped')) {
+        console.log('Stopped State');
+        var hasStartPermissionCP = false;
+        if (haspermission("instancestart", "execute")) {
+          hasStartPermissionCP = true;
+        }
+        if (!hasStartPermissionCP) {
+          bootbox.alert('User has No Permission to Start');
+          return;
+        }
+        $(this).parent().find('.actionbuttonStart').trigger('click');
+      }
+    }
+
+  if (data.chef) {
+    var $domainRolesCaption = $('.domain-roles-caption').attr('data-instanceId', data._id).attr('data-chefServerId', data.chef.serverId).attr('data-osType', data.hardware.os).attr('data-instanceIP', data.instanceIP).data('runlist', data.runlist).data('orgId', data.orgId).data('serviceList', data.serviceIds).data('jsonAttributes', data.attributes);
+    $('.instanceActionBtnUpdatePuppetRunlist').remove();
+  } else {
+    var $domainRolesCaption = $('.domain-roles-caption').attr('data-instanceId', data._id).attr('data-puppetServerId', data.puppet.serverId).attr('data-osType', data.hardware.os).attr('data-instanceIP', data.instanceIP).data('runlist', data.runlist).data('orgId', data.orgId).data('serviceList', data.serviceIds).data('jsonAttributes', data.attributes);
+    $('.instanceActionBtnUpdateRunlist').remove();
+    $('.serviceTabLi').hide();
+  }
+
+  var $divHeadingCP = $domainRolesCaption.find('.domain-roles-heading').empty();
+
+  if (data.blueprintData.iconPath == undefined) {
+    data.blueprintData.iconPath = 'img/logo.png'
+  }
+  var $spanheadingLeftCP = $('<span></span>').addClass('domain-roles-icon').html('<img src="' + data.blueprintData.iconPath + '" style="width:27px;margin-right:5px;margin-top:-10px;"/>').attr('contenteditable', 'false');
+
+  var name = data.name;
+  if (!name) {
+    name = data.blueprintData.blueprintName;
+  }
+  var $spanheadingMiddleCP = $('<span class="cardHeadingTextoverflow" rel="tooltip" data-placement="top" data-original-title="' + name + '">' + name + '</span>' + '<a type="reset" href="#modalforInstanceEdit" data-backdrop="false" data-toggle="modal" class="glyphicon glyphicon-pencil editInstanceNameBtn" style="cursor:pointer;"></a></span>');
+  var $spanheadingRightCP = $('<span></span>').css({
+    'float': 'left',
+    'margin-top': '4px',
+    'margin-left': '37px'
+  }).append($('<a href="javascript:void(0)" data-instanceId="' + data._id + '"></a>').addClass('moreInfo').attr('rel', 'tooltip').attr('data-placement', 'top').attr('data-original-title', 'MoreInfo'));
+
+  $divHeadingCP.append($spanheadingLeftCP);
+  $divHeadingCP.append($spanheadingMiddleCP);
+  $divHeadingCP.append($(getOS(data)));
+
+  $('.instanceActionBtnCtr').append([$(getStartStopToggler(data)), $spanheadingRightCP]);
+  $('.instanceActionBtnCtr').append(showmenuAppTaskVar.getshowmenuAppTask());
+  $('.instance-bootstrap-list').append($spanheadingRightCP);
+  $domainRolesCaption.find('.showmenuAppTask').click(function() {
+
+    $.get('../instances/' + instanceId, function(data1) {
+      if (data1.orgId) {
+        $.get('../organizations/' + data1.orgId + '/businessgroups/' + data1.bgId + '/projects/' + data1.projectId + '/environments/' + data1.envId + '/', function(data2) {
+          console.log('success---3---4');
+          var urls;
+          var instanceIp;
+          var tasks;
+          for (var i in data2.instances) {
+            console.log("data2>>>>>>>>" + JSON.stringify(data2.instances[i]));
+            if (data2.instances[i]._id == instanceId) {
+              urls = data2.instances[i].appUrls;
+              instanceIp = data2.instances[i].instanceIP;
+              tasks = data2.instances[i].taskIds;
+              break;
+            }
+          }
+
+          var stringmenuAppTask = '';
+          if (tasks && tasks.length) {
+            $.post('../tasks', {
+              taskIds: tasks
+            }, function(tasks) {
+              var $ul = $('.domain-roles-caption[data-instanceId="' + data._id + '"]').find('.instanceTaskListUL');
+              $ul.empty();
+              for (var ll = 0; ll < tasks.length; ll++) {
+                var $taskLi = "<li><a style='font-size:10px;' href='javascript:void(0)' data-taskId='" + tasks[ll]._id + "'>" + tasks[ll].name + "</a></li>";
+                console.log("tasksLiName" + $taskLi);
+                $ul.append($taskLi);
+              }
+            });
+            var menuTaskLI = "<li style='font-size:10px;color:#3276b1'>Fetching</li>";
+          } else {
+            var menuTaskLI = "<li style='font-size:10px;color:#3276b1'>No TaskLinks Available</li>";
+          }
+
+          if (urls && urls.length) {
+
+            var menuAppTaskLI = '';
+            for (var i = 0; i < urls.length; i++) {
+              $domainRolesCaption.find('.menuAppTask').empty();
+              console.log("I am inside the Loop");
+              var url = urls[i].url;
+              if (url) {
+                url = url.replace('$host', instanceIp);
+              }
+              var tempApp = "<li><a style='font-size:10px;' data-appUrlId='" + urls[i]._id + "' class='app-url' title='" + url + "' href='" + url + "'' target='_blank' >" + urls[i].name + "</a></li>";
+
+              menuAppTaskLI = menuAppTaskLI + tempApp;
+            }
+          } else {
+            menuAppTaskLI = "<li style='font-size:10px;color:#3276b1'>No AppLinks Available</li>";
+          }
+
+          stringmenuAppTask = "<div class='menuAppTask' style='display: none;'><span class='menuAppLinkSpan'>AppLinks</span><ul class='paddingleft32'>" + menuAppTaskLI + "</ul><span class='menuTaskSpan'>TaskLinks</span><ul class='paddingleft32 instanceTaskListUL' style='list-style-type: square;'>" + menuTaskLI + "</ul></div>";
+
+
+          $domainRolesCaption.append(stringmenuAppTask);
+          var $menu = $domainRolesCaption.find('.menuAppTask');
+          if ($menu.is(':visible')) {
+            $domainRolesCaption.find('.menuAppTask').remove();
+            $menu.hide();
+          } else {
+            $('.menuAppTask').hide();
+            $menu.show();
+            var $anchor = $('.app-url').parent();
+            $anchor.click(function() {
+              $domainRolesCaption.find('.menuAppTask').remove();
+              $menu.hide();
+            });
+          }
+        });
+      }
+    });
+  });
+  $('.startstoptoggler').click(startAndStopToggler);
+  $domainRolesCaption.find('.instance-details-ip strong').html(data.instanceIP);
+  $domainRolesCaption.find('.instance-state').html(data.instanceState);
+
+  if (data.instanceState != 'running') {
+    $('.inspectBtn').hide();
+  }
+
+  if (data.instanceState == 'running') {
+    $domainRolesCaption.find('.componentlistContainer').addClass('started');
+    //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-started');
+  } else if (data.instanceState == 'terminated') {
+    $domainRolesCaption.find('.componentlistContainer').addClass('stopped');
+    //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-stopped');
+
+  } else if (data.instanceState == 'stopped') {
+    $domainRolesCaption.find('.componentlistContainer').addClass('stopped');
+    //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-stopped');
+  } else {
+    $domainRolesCaption.find('.componentlistContainer').addClass('pending');
+    //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-pending');
+  }
+
+  // $.get('/instances/' + data._id + '/actionLogs', function(actionLogs) {
+
+  //   var lastActionLog = actionLogs[actionLogs.length - 1];
+
+  //   var actionLogTimestamp = lastActionLog.timeStarted;
+  //   if (lastActionLog.completed) {
+  //     actionLogTimestamp = lastActionLog.timeEnded;
+  //   }
+  //   var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+  //   var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+
+  //   $domainRolesCaption.find('.instance-state').html(actionLogDate);
+
+  // });
+
+  var platformId = 'unknown';
+  var providerIdText = 'Instance Id : ';
+  if (data.platformId) {
+    platformId = data.platformId;
+    switch (data.providerType) {
+      case 'aws':
+        providerIdText = 'AWS Id : ';
+        break;
+      case 'azure':
+        providerIdText = 'Azure Id : ';
+        break;
+      case 'vmware':
+        providerIdText = 'VMware Id : ';
+        break;
+      case 'openstack':
+        providerIdText = 'openstack Id : ';
+        break;
+      default:
+        platformId = 'unknown';
+        providerIdText = 'Instance Id : ';
+
+    }
+  }
+
+
+
+  $domainRolesCaption.find('.instance-state').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> ' +providerIdText + platformId + '</span>');
+
+  if (data.hardware.os !== 'linux') {
+    disableSSHBtn(data._id);
+  }
+  if (data.hardware.os === 'windows') {
+    var instanceId = $('.domain-roles-caption').attr('data-instanceId');
+    var $cardViewInstanceId = $(".domain-roles-caption[data-instanceId='" + instanceId + "']");
+    $cardViewInstanceId.find('.instance-bootstrap-ActionRDP a').replaceWith($('<a class="rdpIcon" href="/instances/rdp/' + data.instanceIP + '/3389"></a>').attr('data-actionType', 'RDP').attr('rel', 'tooltip').attr('data-placement', 'top').attr('data-original-title', 'RDP'));
+  }
+  if (data.hardware.os === 'linux') {
+    var instanceId = $('.domain-roles-caption').attr('data-instanceId');
+    var $cardViewInstanceId = $(".domain-roles-caption[data-instanceId='" + instanceId + "']");
+    $cardViewInstanceId.find('.instance-bootstrap-ActionRDP a').addClass('isStopedInstance').removeClass('rdpIcon').addClass('hidden');
+  }
+
+
+
+  if (data.instanceState == 'stopped') {
+    enableInstanceActionStopBtn(data._id);
+  }
+  if (data.instanceState == 'running') {
+    enableInstanceActionStartBtn(data._id);
+  }
+  if (data.instanceState == 'pending' || data.instanceState == 'stopping' || data.instanceState == 'terminated') {
+    disableInstanceActionBtns(data._id);
+  }
+  if (data.instanceState == 'unknown') {
+    disableInstanceStartStopActionBtns(data._id);
+  }
+  if (!data.providerId) {
+    disableInstanceStartStopActionBtns(data._id, data.hardware.os);
+    $('.domain-roles').find('[data-instanceid="' + data._id + '"]').find('.startstoptoggler').removeClass('running').addClass('shutdown');
+  }
+
+  if (data.docker != null) {
+    //docker image out of circle.
+    if (data.docker.dockerEngineStatus != '' && data.docker.dockerEngineStatus != null) {
+      var $componentList = $('.instance-bootstrap-list');
+      var $dockerStatus = $('<img class="dockerIMG" whatever="2" alt="Docker" src="img/galleryIcons/Docker.png">');
+      $componentList.append($dockerStatus);
+    }
+  }
+
+
+  var $backRunlistContainer = $('.cardBackRunlistContaner');
+  for (var j = 0; j < data.runlist.length; j++) {
+    var $divComponentItem;
+
+    $divComponentItem = $('<span title="' + data.runlist[j] + '" style="margin-top:8px;overflow:hidden;text-overflow:ellipsis;width:130px;color:#3a87ad;font-size:13px;"></span>').addClass('instance-details-item').append(data.runlist[j]);
+    $backRunlistContainer.append($divComponentItem);
+  }
+  pageSetUp();
+
+
+
+  var displayLog = function(e) {
+    var instanceId = $('.domain-roles-caption').attr('data-instanceId');
+
+    if (logTimeout) {
+      clearTimeout(logTimeout);
+    }
+    var $logTabBtn = $('#controlPanelLogTab');
+    $('.logsArea').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+    $logTabBtn.trigger('click');
+    var lastTimestamp;
+
+    function pollLogs(timestamp, delay, clearData) {
+      var url = '../instances/' + instanceId + '/logs';
+      if (timestamp) {
+        url = url + '?timestamp=' + timestamp;
+      }
+
+      logTimeout = setTimeout(function() {
+        $.get(url, function(data) {
+          var $modalBody = $('.logsArea');
+          if (clearData) {
+            $modalBody.empty();
+          }
+          var $table = $('<table></table>');
+
+          for (var i = 0; i < data.length; i++) {
+            var $rowDiv = $('<tr class="row rowSpacing"></tr>');
+            var timeString = new Date().setTime(data[i].timestamp);
+            var date = new Date(timeString).toLocaleString(); //converts to human readable strings
+            if (data[i].err) {
+              $rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:red;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + data[i].log + '</span>'));
+            } else {
+              $rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:DarkBlue;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + data[i].log + '</span>'));
+            }
+
+            $table.append($rowDiv);
+
+
+          }
+
+
+          if (data.length) {
+            lastTimestamp = data[data.length - 1].timestamp;
+            console.log(lastTimestamp);
+            $modalBody.append($table);
+            $modalBody.scrollTop($modalBody[0].scrollHeight + 100);
+          }
+
+
+
+          if ($logTabBtn.parent('li').hasClass('active')) {
+            console.log('polling again');
+            pollLogs(lastTimestamp, 1000, false);
+          } else {
+            console.log('not polling again');
+          }
+        });
+      }, delay);
+    }
+    pollLogs(lastTimestamp, 0, true);
+  };
+
+  var validator = $('#instanceEditNew').validate({
+    errorPlacement: function(error, element) {
+      // Append error within linked label
+      $(element).closest("form").find("label[for='" + element.attr("id") + "']").append(error);
+
+    },
+    rules: {
+      instanceEditName: {
+        required: true
+      }
+    },
+    messages: {
+      instanceEditName: {
+        required: "Required"
+      }
+    },
+    onkeyup: false,
+    errorClass: "error",
+  });
+
+  $('#instanceEditNew').submit(function(e) {
+    var isValidate = $("#instanceEditNew").valid();
+    var reqBodyEdit = {};
+    if (!isValidate) {
+      e.preventDefault();
+    } else {
+      e.preventDefault();
+
+      var $form = $('#instanceEditNew');
+      reqBodyEdit.name = $form.find('#instanceEditName').val();
+      var instanceId = $form.find('#instanceIDHiddenInput').val();
+      var $selectedRow = $('#tableinstanceview').find('tr.rowcustomselected');
+
+      blueprintName = $selectedRow.attr('data-blueprintName');
+      $.post('/instances/' + instanceId + '/updateName', reqBodyEdit, function(data) {
+
+        $('.domain-roles-caption[data-instanceId="' + instanceId + '"]').find('.cardHeadingTextoverflow').html(reqBodyEdit.name);
+        $('.domain-roles-caption[data-instanceId="' + instanceId + '"]').find('.cardHeadingTextoverflow').attr('rel', 'tooltip').attr('data-original-title', reqBodyEdit.name);
+        $('tr[data-instanceId="' + instanceId + '"] td.instanceBlueprintName').html(reqBodyEdit.name);
+        $('#modalforInstanceEdit').modal('hide');
+      });
+
+      return false;
+    }
+    $('a.editInstanceNameBtn[type="reset"]').on('click', function() {
+      validator.resetForm();
+    });
+
+  });
+
+  function editInstanceNameHandler(e) {
+    $('#instanceEditNew').trigger("reset");
+    $('#instanceIDHiddenInput').val(data._id);
+    var prevName = $('.domain-role-thumbnail').find('.cardHeadingTextoverflow').text();
+    $('#instanceEditName').val(prevName);
+  }
+  $('.domain-role-thumbnail').find('.editInstanceNameBtn').click(editInstanceNameHandler);
+
+  $('.moreInfo').click(displayLog);
+  $('#controlPanelLogTab').on('shown.bs.tab', displayLog);
+
+  $('#modalSSHShellContainer').on('hide.bs.modal', function(e) {
+    $('#modalSSHShellContainer').find('#ssh-terminateBtn').click();
+    $('#modalSSHShellContainer').find('.modal-body').empty();
+  });
+  $('.rdpIcondisable').click(function() {
+    if ($(this).hasClass('isStopedInstance')) {
+      return false;
+    }
+  });
+  $('.sshTerminalBtn').click(function() {
+    if ($(this).hasClass('isStopedInstance')) {
+      return false;
+    }
+
+
+    var hasConnectPermission = false;
+    if (haspermission("instanceconnect", "execute")) {
+      hasConnectPermission = true;
+    }
+    if (!hasConnectPermission) {
+      bootbox.alert('User has no permission to do SSH');
+      return;
+    }
+    var $sshModal = $('#modalSSHShellContainer');
+    var instanceId = $(this).parents('.domain-roles-caption').attr('data-instanceId');
+    $sshModal.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+    $sshModal.modal('show');
+    $.ajax({
+
+      type: "GET",
+      url: "/d4dMasters/getuser",
+      success: function(usrdata) {
+        var username = '';
+        if (usrdata.user && usrdata.user.length) {
+          if (usrdata.user[0].username) {
+            username = usrdata.user[0].username.cn;
+          }
+        }
+        console.log(username);
+        $.get('sshShell.html?id=' + instanceId, function(data) {
+
+          $sshModal.find('.modal-body').empty().append(data);
+          $sshModal.find('#ssh-instanceId').val(instanceId);
+          $sshModal.find('#ssh-sessionUser').val(username);
+        });
+      }
+    });
+
+
+  });
+
+  function getCssClassFromStatus(status) {
+    var cssClasses = {
+
+    };
+    switch (status) {
+
+      case 'running':
+        cssClasses.ringClass = 'started';
+        cssClasses.textClass = 'instance-state-text-started';
+        cssClasses.tableViewStatusClass = "started";
+        break;
+
+      case 'stopped':
+        cssClasses.ringClass = 'stopped';
+        cssClasses.textClass = 'instance-state-text-stopped';
+        cssClasses.tableViewStatusClass = "stopped";
+        break;
+
+      case 'terminated':
+        cssClasses.ringClass = 'stopped';
+        cssClasses.textClass = 'instance-state-text-stopped';
+        cssClasses.tableViewStatusClass = "stopped";
+        break;
+
+      default:
+        cssClasses.ringClass = 'pending';
+        cssClasses.textClass = 'instance-state-text-pending';
+        cssClasses.tableViewStatusClass = "pending";
+
+    }
+
+    return cssClasses;
+  }
+
+
+
+  $('.instanceActionBtn').click(function(e) {
+
+
+    if ($(this).hasClass('isStopedInstance')) {
+      return false;
+    }
+    var $this = $(this);
+    var $parent = $('.domain-roles-caption');
+    var instanceId = $parent.attr('data-instanceId');
+    var type = $this.attr('data-actionType');
+    var url = '../instances/' + instanceId + '/startInstance';
+    if (type === 'stop') {
+      url = '../instances/' + instanceId + '/stopInstance'
+    }
+
+    function makeRequest(url) {
+      $parent.find('.moreInfo').trigger('click');
+      $.get(url, function(data) {
+        if (data.actionLogId) {
+          $.get('../instances/' + instanceId + '/actionLogs/' + data.actionLogId, function(actionLog) {
+            addActionLogRow(actionLog);
+          });
+        }
+
+        console.log($parent.length, $parent);
+
+        var cssClassed = getCssClassFromStatus(data.instanceCurrentState);
+
+        var oldState = data.instanceCurrentState;
+
+        $parent.find('.componentlistContainer').removeClass().addClass('componentlistContainer').addClass(cssClassed.ringClass);
+
+        //$parent.find('.instance-state').removeClass().addClass('instance-state').addClass(cssClassed.textClass).html(data.instanceCurrentState);
+
+        function pollInstanceState(state, delay) {
+          stateTimeout = setTimeout(function() {
+            $.get('../instances/' + instanceId, function(data) {
+              if (data) {
+                title = data.instanceState == "running" ? "Stop" : data.instanceState == "stopped" ? "Start" : "";
+                $('[instanceID="' + data._id + '"]').removeClass('stopped running pending stopping unknown').addClass(data.instanceState).attr('data-original-title', title);
+
+                if (data.instanceState == 'stopped') {
+
+                  enableInstanceActionStopBtn(data._id);
+                }
+                if (data.instanceState == 'running') {
+                  enableInstanceActionStartBtn(data._id);
+                }
+                if (data.instanceState == 'pending' || data.instanceState == 'stopping') {
+                  disableInstanceActionBtns(data._id);
+                }
+                if (data.instanceState == 'unknown') {
+                  disableInstanceStartStopActionBtns(data._id);
+                }
+                if (!data.providerId) {
+                  disableInstanceStartStopActionBtns(data._id, data.hardware.os);
+                  $('.domain-roles').find('[data-instanceid="' + data._id + '"]').find('.startstoptoggler').removeClass('running').addClass('shutdown');
+                }
+                if (data.instanceState === state) {
+                  pollInstanceState(state, 5000);
+                } else {
+                  console.log('polling complete');
+                  var cssClassed = getCssClassFromStatus(data.instanceState);
+                  $parent.find('.componentlistContainer').removeClass().addClass('componentlistContainer').addClass(cssClassed.ringClass);
+                  $parent.find('.instance-state').removeClass().addClass('instance-state').addClass(cssClassed.textClass).html(data.instanceState);
+                  $parent.find('instance-bootstrap-ActionRDP a').attr('href', '/instances/rdp/' + data.instanceIP + '/3389');
+                  if (data.appUrls && data.appUrls.length) {
+                    for (var k = 0; k < data.appUrls.length; k++) {
+                      var url = data.appUrls[k].url;
+                      url = url.replace('$host', data.instanceIP);
+                      $('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url).attr('data-instanceIP', data.instanceIP);
+                    }
+                  }
+
+                  
+                  $.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+                    var lastActionLog = actionLogs[actionLogs.length - 1];
+                    var actionLogTimestamp = lastActionLog.timeStarted;
+                    if (lastActionLog.completed) {
+                      actionLogTimestamp = lastActionLog.timeEnded;
+                    }
+                    var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+                    var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+                    $parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+                  });
+
+                  window.instanceIPForAppLink = data.instanceIP;
+                }
+              }
+            })
+          }, delay);
+        }
+        pollInstanceState(oldState, 2000);
+      }).fail(function(jxObj) {
+        console.log(jxObj);
+        if (jxObj.responseJSON && jxObj.responseJSON.actionLogId) {
+          console.log('calling actionLog');
+          $.get('../instances/' + instanceId + '/actionLogs/' + jxObj.responseJSON.actionLogId, function(actionLog) {
+            addActionLogRow(actionLog);
+          });
+        }
+      });
+
+    }
+    $.get('../instances/' + instanceId, function(data) {
+      if (type === 'stop') {
+        bootbox.confirm("Are you sure you want to Stop the Instance-&nbsp;&quot;&nbsp;<b>" + data.name + "</b>&nbsp;&quot;", function(result) {
+          if (result) {
+            makeRequest(url);
+          }
+        });
+      } else {
+        makeRequest(url);
+      }
+    });
+
+
+
+  });
+
+
+  $('.instanceActionBtnUpdateRunlist,.instanceActionBtnUpdatePuppetRunlist').click(function(e) {
+    if ($(this).hasClass('isStopedInstance')) {
+      return false;
+    }
+    var hasChefRunPermissionCP = false;
+    if (haspermission("instancechefclientrun", "execute")) {
+      hasChefRunPermissionCP = true;
+    }
+    if (!hasChefRunPermissionCP) {
+      $('.editChefClientRunAttribBtn').addClass('disabled');
+      return;
+    }
+    var $this = $(this);
+    var $parent = $('.domain-roles-caption');
+    var $controlPanelChefRunModalContainer = $('#controlPanelChefRunModalContainer');
+    var instanceId = $parent.attr('data-instanceId');
+    $controlPanelChefRunModalContainer.data('data-instanceid', instanceId);
+    var chefServerId = $parent.attr('data-chefServerId');
+
+    if (!chefServerId) {
+      var puppetServerId = $this.attr('data-puppetServerId');
+      $controlPanelChefRunModalContainer.data('infraManagerType', 'puppet');
+      $controlPanelChefRunModalContainer.find('.btnUpdateInstanceRunlist').click();
+    } else {
+      $controlPanelChefRunModalContainer.data('infraManagerType', 'chef');
+      var orgId = $parent.data('orgId');
+      var runlist = $parent.data('runlist');
+      console.log(orgId);
+      var readMode = false;
+      if (localStorage.getItem('userRole') === '[Consumer]') {
+        readMode = true;
+      }
+      var $ccrs = $chefCookbookRoleSelector(urlParams.org, null, runlist, readMode, {
+        cookbooks: true,
+        roles: true,
+        templates: true,
+        all: true
+      });
+
+      $controlPanelChefRunModalContainer.find('.chefRunlistContainer').empty().append($ccrs);
+      $controlPanelChefRunModalContainer.find('.chefRunlistContainer').data('$ccrs', $ccrs);
+      $controlPanelChefRunModalContainer.find('.attributesViewTableBody').empty();
+      var attributes = $parent.data('jsonAttributes');
+      if (attributes) {
+        createAttribTableRowFromJson(attributes);
+      }
+      $controlPanelChefRunModalContainer.modal('show');
+    }
+
+  });
+
+  $('.btnUpdateInstanceRunlist').click(function(e) {
+    if ($(this).hasClass('isStopedInstance')) {
+      return false;
+    }
+    $chefRunModalContainer = $('#controlPanelChefRunModalContainer');
+    var infraType = $chefRunModalContainer.data('infraManagerType');
+    var cnfMsg = "Are you sure you want to Update the runlist? This will run all the cookbooks available in the Runlist";
+    if (infraType === 'puppet') {
+      cnfMsg = "Are you sure you want to run puppet client";
+    }
+    bootbox.confirm({
+      message: cnfMsg,
+      title: "Confirmation",
+      callback: function(result) {
+        if (!result) {
+          return;
+        }
+        var $parent = $('.domain-roles-caption');
+        var instanceId = $parent.attr('data-instanceId');
+        var runlist = [];
+        var attributes = [];
+
+        if (infraType === 'puppet') {
+
+        } else {
+          var $ccrs = $chefRunModalContainer.find('.chefRunlistContainer').data('$ccrs');
+
+          runlist = $ccrs.getSelectedRunlist();
+
+          if (!runlist.length) {
+            bootbox.alert("Runlist is empty");
+            return;
+          }
+          console.log('runlist == ', runlist);
+
+          $trAttribute = $chefRunModalContainer.find('.attributesViewTableBody tr');
+          attributes = [];
+          $trAttribute.each(function() {
+            var $tr = $(this);
+            attributes.push({
+              name: $tr.attr('data-attributeName'),
+              jsonObj: $tr.data('jsonObj')
+            });
+          });
+        }
+        $.post('../instances/' + instanceId + '/updateRunlist', {
+          runlist: runlist,
+          jsonAttributes: attributes
+        }, function(data) {
+
+          $chefRunModalContainer.modal('hide');
+          var $parent = $('.domain-roles-caption[data-instanceId="' + instanceId + '"]');
+          $parent.find('.instance-bootstrap-list-image').data('runlist', runlist);
+          $parent.find('.instance-bootstrap-list-image').data('jsonAttributes', attributes);
+          var $backRunlistContainer = $parent.parents('.card').find('.cardBackRunlistContaner').empty();
+          console.log($backRunlistContainer.length);
+          console.log(runlist);
+
+          for (var j = 0; j < runlist.length; j++) {
+            var $divComponentItem;
+
+            $divComponentItem = $('<span title="' + runlist[j] + '" style="margin-top:8px;overflow:hidden;text-overflow:ellipsis;width:130px;color:#3a87ad"></span>').addClass('instance-details-item').append(runlist[j]);
+            $backRunlistContainer.append($divComponentItem);
+          }
+          $('.runlistInfoContainer').empty().append(runlist.join());
+
+          //$parentTr.find('.instance-bootstrap-list-image').data('runlist', runlist
+          $parent.data('runlist', runlist);
+          $parent.data('jsonAttributes', attributes);
+          $parent.find('.moreInfo').trigger('click');
+          console.log(data);
+          if (data.actionLogId) {
+            $.get('../instances/' + instanceId + '/actionLogs/' + data.actionLogId, function(actionLog) {
+              addActionLogRow(actionLog);
+            });
+          }
+        }).fail(function(jxObj) {
+          if (jxObj.responseJSON && jxObj.responseJSON.actionLogId) {
+            $.get('../instances/' + instanceId + '/actionLogs/' + jxObj.responseJSON.actionLogId, function(actionLog) {
+              addActionLogRow(actionLog);
+            });
+          }
+        });
+
+      }
+    });
+  });
+
+  $('.editChefClientRunAttribBtn').click(function(e) {
+    var $chefRunModalContainer = $('#controlPanelChefRunModalContainer');
+    var $ccrs = $chefRunModalContainer.find('.chefRunlistContainer').data('$ccrs');
+
+
+    var instanceId = $ccrs.find('#cookbooksrecipesselectedList').attr('data-instanceId');
+
+    var runlist = $ccrs.getSelectedRunlist();
+
+    if (!runlist.length) {
+      bootbox.alert('Runlist is empty');
+      return;
+    }
+
+    var $modal = $('#chefClientRunAttributesModal');
+    $modal.find('.attributesEditFormArea').hide();
+    $modal.find('.errorMsgContainer').hide();
+    $modal.find('.loadingContainer').show();
+    $modal.modal('show');
+
+    var reqBody = {
+      cookbooks: [],
+      roles: []
+    }
+    for (var i = 0; i < runlist.length; i++) {
+
+      if (runlist[i].indexOf('template') === 0) {
+        var templateRunlist = $chefCookbookRoleSelector.getRunlistFromTemplate(runlist[i]);
+        runlist = runlist.concat(templateRunlist);
+        continue;
+      }
+      var name = '';
+      var item = runlist[i];
+      var indexOfBracketOpen = item.indexOf('[');
+      if (indexOfBracketOpen != -1) {
+        var indexOfBracketClose = item.indexOf(']');
+        if (indexOfBracketClose != -1) {
+          name = item.substring(indexOfBracketOpen + 1, indexOfBracketClose);
+        }
+      }
+      if (runlist[i].indexOf('recipe') === 0) {
+        if (reqBody.cookbooks.indexOf(name) === -1) {
+          reqBody.cookbooks.push(name);
+        }
+      } else {
+        if (reqBody.roles.indexOf(name) === -1) {
+          reqBody.roles.push(name);
+        }
+      }
+
+    }
+    var $tbody = $modal.find('.attributesEditTableBody');
+    $tbody.empty();
+    var chefServerId = $ccrs.getChefServerId();
+    $.post('../chef/servers/' + chefServerId + '/attributes', reqBody, function(attributesList) {
+      var $chefRunModalContainer = $('#controlPanelChefRunModalContainer');
+      var $tbodyViewAttributes = $chefRunModalContainer.find('.attributesViewTableBody');
+
+      for (var i = 0; i < attributesList.length; i++) {
+        var attributesNamesList = Object.keys(attributesList[i].attributes);
+        for (var j = 0; j < attributesNamesList.length; j++) {
+          var $tr = $('<tr/>');
+          var displayName = attributesNamesList[j];
+          if (attributesList[i].attributes[attributesNamesList[j]].display_name) {
+            displayName = attributesList[i].attributes[attributesNamesList[j]].display_name;
+          }
+          var $tdAttribName = $('<td/>').html(displayName);
+          var required = false;
+          if (attributesList[i].attributes[attributesNamesList[j]]['required'] === 'required') {
+            $tdAttribName.append('<span class="control-label" style="color:Red;">&nbsp;*</span>');
+            required = true;
+          }
+          var value = '';
+          if (attributesList[i].attributes[attributesNamesList[j]]['default']) {
+            value = attributesList[i].attributes[attributesNamesList[j]]['default'];
+          }
+          var $trView = $tbodyViewAttributes.find('tr[data-attributeKey="' + attributesNamesList[j] + '"]');
+          if ($trView.length) {
+            value = $trView.attr('data-attributeValue');
+          }
+
+          var $attributeInput;
+          var choices = attributesList[i].attributes[attributesNamesList[j]].choice;
+          if (choices && choices.length) {
+            $attributeInput = $('<select class="attribValueInput" data-attribKey="' + attributesNamesList[j] + '" data-attribName="' + displayName + '" data-attributeRequired="' + required + '"></select>');
+            for (var k = 0; k < choices.length; k++) {
+              var $option = $('<option></option>').val(choices[k]).html(choices[k]);
+              $attributeInput.append($option);
+            }
+            $attributeInput.val(value);
+          } else {
+            var passwordField = false;
+            var keyParts = attributesNamesList[j].split('/');
+            if (keyParts.length) {
+              var indexOfPassword = keyParts[keyParts.length - 1].indexOf('password_');
+              if (indexOfPassword !== -1) {
+                passwordField = true;
+              }
+            }
+            if (passwordField) {
+              $attributeInput = $('<input type="password" class="attribValueInput" data-attribKey="' + attributesNamesList[j] + '" value="' + value + '" data-attribName="' + displayName + '" data-attributeRequired="' + required + '"/>');
+            } else {
+              $attributeInput = $('<input type="text" class="attribValueInput" data-attribKey="' + attributesNamesList[j] + '" value="' + value + '" data-attribName="' + displayName + '" data-attributeRequired="' + required + '"/>');
+            }
+
+          }
+
+          var $tdAttribEditor = $('<td/>').append($attributeInput);
+          var desc = attributesList[i].attributes[attributesNamesList[j]]['description'];
+          if (desc) {
+            var $tooltipAnchor = $('<a href="#" data-toggle="tooltip" title="' + desc + '!" style="margin-left:15px"><i class="fa fa-info"></i></a>');
+            $tooltipAnchor.tooltip();
+            $tdAttribEditor.append($tooltipAnchor);
+          }
+          $tr.append($tdAttribName).append($tdAttribEditor);
+          $tbody.append($tr)
+        }
+      }
+      $modal.find('.errorMsgContainer').hide();
+      $modal.find('.loadingContainer').hide();
+      $modal.find('.attributesEditFormArea').show();
+
+    }).fail(function(e) {
+      $modal.find('.errorMsgContainer').html('Unable to fetch attributes. Please try again later').show();
+      $modal.find('.loadingContainer').hide();
+      $modal.find('.attributesEditFormArea').hide();
+    });
+
+  });
+  $('.btnSaveInstanceRunlistAttributes').click(function(e) {
+    var $modal = $('#chefClientRunAttributesModal');
+    var $input = $modal.find('.attribValueInput');
+    var attributes = [];
+    for (var j = 0; j < $input.length; j++) {
+      var $this = $($input[j]);
+      var attributeKey = $this.attr('data-attribKey');
+      console.log(attributeKey);
+      var attribValue = $this.val();
+      if (attribValue) {
+        var attribPathParts = attributeKey.split('/');
+        var attributeObj = {};
+        var currentObj = attributeObj;
+        for (var i = 0; i < attribPathParts.length; i++) {
+          if (!currentObj[attribPathParts[i]]) {
+            if (i === attribPathParts.length - 1) {
+              currentObj[attribPathParts[i]] = attribValue;
+              continue;
+            } else {
+              currentObj[attribPathParts[i]] = {};
+            }
+          }
+          currentObj = currentObj[attribPathParts[i]];
+        }
+        attributes.push({
+          name: $this.attr('data-attribName'),
+          jsonObj: attributeObj
+        });
+      } else {
+        if ($this.attr('data-attributeRequired') === 'true') {
+          alert("Please fill in the required attributes");
+          return false;
+        }
+      }
+    }
+    createAttribTableRowFromJson(attributes);
+    $modal.modal('hide');
+  });
+
+  function createAttribTableRowFromJson(attributes) {
+    var $chefRunModalContainer = $('#controlPanelChefRunModalContainer')
+    var $tbody = $chefRunModalContainer.find('.attributesViewTableBody').empty();
+    for (var j = 0; j < attributes.length; j++) {
+      var attributeObj = attributes[j].jsonObj;
+
+      function getVal(obj, currentKey) {
+        var keys = Object.keys(obj);
+        for (var i = 0; i < keys.length; i++) {
+          if (typeof obj[keys[i]] === 'object') {
+            getVal(obj[keys[i]], currentKey + '/' + keys[i]);
+          } else {
+            var keyString = currentKey + '/' + keys[i];
+            keyString = keyString.substring(1);
+
+            var $tr = $('<tr/>').attr({
+              'data-attributeKey': keyString,
+              'data-attributeValue': obj[keys[i]],
+              'data-attributeName': attributes[j].name
+            }).data('jsonObj', attributes[j].jsonObj);;
+
+            var passwordField = false;
+            var passwordField = false;
+            var keyParts = keyString.split('/');
+            if (keyParts.length) {
+              var indexOfPassword = keyParts[keyParts.length - 1].indexOf('password_');
+              if (indexOfPassword !== -1) {
+                passwordField = true;
+              }
+            }
+
+            var $tdAttributeKey = $('<td/>').html(attributes[j].name);
+            if (passwordField) {
+              var $tdAttributeVal = $('<td/>').html("*****");
+            } else {
+              var $tdAttributeVal = $('<td/>').html(obj[keys[i]]);
+            }
+            $tr.append($tdAttributeKey).append($tdAttributeVal);
+            $tbody.append($tr);
+          }
+        }
+      }
+      getVal(attributeObj, '');
+    }
+  }
+
+
+
+  //hardware
+  var $hrdwareTbody = $('#collapseHardware').find('tbody');
+  $hrdwareTbody.empty();
+  var $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">Machine</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + data.hardware.architecture + '</td>');
+  $hrdwareTbody.append($tr);
+
+  function memoryCalculation(data) {
+    var memoryInitial = data;
+    if (memoryInitial == 'unknown' || memoryInitial.indexOf('MB') !== -1) {
+      return memoryInitial;
+    } else {
+      var mem = memoryInitial.substring(0, memoryInitial.length - 2);
+      var mem1 = mem / 1000;
+      var intvalue = Math.round(mem1);
+      var mem2 = intvalue + ' MB';
+      return mem2;
+    }
+  }
+  $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">Total Memory</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + memoryCalculation(data.hardware.memory.total) + '</td>');
+  $hrdwareTbody.append($tr);
+
+  $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">Free Memory</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + memoryCalculation(data.hardware.memory.free) + '</td>');
+  $hrdwareTbody.append($tr);
+
+  var $blueprintTbody = $('#collapseBlueprints').find('tbody');
+  $blueprintTbody.empty();
+
+  if(data.blueprintData && data.blueprintData.blueprintId) {
+
+    $.get('../blueprints/'+data.blueprintData.blueprintId,function(blueprint){
+      var imageId;
+      var providerUrl;
+      $tr = $('<tr style="line-height:2.3"></tr>');
+      $tr.append('<td scope="col" style="font-size:12px;">Blueprint Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.name + '</td>');
+      $blueprintTbody.append($tr);
+     
+      switch (blueprint.blueprintType) {
+
+        case 'instance_launch':
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.cloudProviderData.instanceType + '</td>');
+          $blueprintTbody.append($tr);
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">VPC ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.cloudProviderData.vpcId + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Subnet ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.cloudProviderData.subnetId + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.cloudProviderData.securityGroupIds + '</td>');
+          $blueprintTbody.append($tr);
+          imageId = blueprint.blueprintConfig.cloudProviderData.imageId;
+          providerUrl = "/aws/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+        case 'azure_launch':
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.instanceType + '</td>');
+          $blueprintTbody.append($tr);
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">VPC ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.vpcId + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Subnet ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.subnetId + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.securityGroupIds + '</td>');
+          $blueprintTbody.append($tr);
+          imageId = blueprint.blueprintConfig.imageId;
+          providerUrl = "/azure/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+        case 'vmware_launch':
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">DataStore</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.dataStore + '</td>');
+          $blueprintTbody.append($tr);
+
+          imageId = blueprint.blueprintConfig.imageId;
+          providerUrl = "/vmware/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+        case 'openstack_launch':
+          var providerId = blueprint.blueprintConfig.cloudProviderId;
+
+
+
+          $.get('/openstack/' + providerId + '/flavors/' + blueprint.blueprintConfig.flavor, function(flavour) {
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + flavour.name + '</td>');
+            $blueprintTbody.append($tr);
+          });
+
+          $.get('/openstack/' + providerId + '/networks/' + blueprint.blueprintConfig.network, function(network) {
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Network</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + network.name + '</td>');
+            $blueprintTbody.append($tr);
+          });
+
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Subnet ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.subnet + '</td>');
+          $blueprintTbody.append($tr);
+
+          $.get('/openstack/' + providerId + '/securityGroups/' + blueprint.blueprintConfig.securityGroupIds, function(securityGroup) {
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + securityGroup.name + '</td>');
+            $blueprintTbody.append($tr);
+          });
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.securityGroupIds + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          imageId = blueprint.blueprintConfig.instanceImageID;
+          providerUrl = "/openstack/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+
+        case 'aws_cf':
+          providerUrl = "/aws/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+        case 'azure_arm':
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Resource Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.resourceGroup + '</td>');
+          $blueprintTbody.append($tr);
+          providerUrl = "/azure/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+
+      }
+
+      $.ajax({
+        type: "GET",
+        url:providerUrl,
+        success: function(data3) {
+          var providerTYPE = data3.providerType
+          var providerNAME = data3.providerName;
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Provider Type</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + providerTYPE + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Provider Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + providerNAME + '</td>');
+          $blueprintTbody.append($tr);
+
+          if (providerTYPE === 'aws') {
+            var regionNAME = data3.keyPairs[0].region;
+            var keypairNAME = data3.keyPairs[0].keyPairName;
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Region Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + regionNAME + '</td>');
+            $blueprintTbody.append($tr);
+
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Keypair Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + keypairNAME + '</td>');
+            $blueprintTbody.append($tr);
+          }
+
+        },
+        failure: function(data) {
+          bootbox.alert(data.toString());
+        }
+      });
+
+      if (imageId) {
+        $.ajax({
+          type: "GET",
+          url: "/vmimages/" + imageId,
+          success: function(data4) {
+            var imageNAME = data4.name;
+            var imageIDENTIFIER = data4.imageIdentifier;
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Image Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + imageNAME + '</td>');
+            $blueprintTbody.append($tr);
+
+
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Image Identifier</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + imageIDENTIFIER + '</td>');
+            $blueprintTbody.append($tr);
+          },
+          failure: function(data) {
+            bootbox.alert(data.toString());
+          }
+        });
+      }
+
+
+
+
+    });
+
+  }
+ 
+
+
+  $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">Template</td><td scope="col"> : </td><td scope="col" style="font-size:12px;">' + data.blueprintData.templateId + '</td>');
+  $blueprintTbody.append($tr);
+
+  $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">Template Type</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + data.blueprintData.templateType + '</td>');
+  $blueprintTbody.append($tr);
+
+  if (data.blueprintData.templateId == 'chef_import') {
+    $("#accordion-Blueprints").hide();
+  }
+
+
+
+  //software
+  var $sfwareTbody = $('#collapseSoftware').find('tbody');
+  $sfwareTbody.empty();
+  var $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">OS</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + data.hardware.platform + '</td>');
+  $sfwareTbody.append($tr);
+
+  $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">Version</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + data.hardware.platformVersion + '</td>');
+  $sfwareTbody.append($tr);
+
+  //configManagement
+  var $cfmwareTbody = $('#collapseConfigmgmt').find('tbody');
+  $cfmwareTbody.empty();
+  var $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">Environment</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + data.envId + '</td>');
+
+  $tr = $('<tr style="line-height:2.3"></tr>');
+  $tr.append('<td scope="col" style="font-size:12px;">Bootstrap</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + data.bootStrapStatus + '</td>');
+  $cfmwareTbody.append($tr);
+
+  $tr = $('<tr style="line-height:2.3"></tr>');
+
+  var runlistName = $chefCookbookRoleSelector.getRunlistNames(data.runlist);
+  $tr.append('<td scope="col" style="font-size:12px;">Runlist</td><td scope="col"> : </td><td scope="col" style="font-size:12px;" class="runlistInfoContainer" > ' + runlistName.join(' , ') + '</td>');
+  $cfmwareTbody.append($tr);
+
+  if (data.taskIds && data.taskIds.length) {
+    var $collapseTaskAreaTbody = $('#collapseTaskArea').find('tbody');
+
+    var $selectedTaskList = $('#selectedTaskList').empty();
+    $.post('../tasks', {
+      taskIds: data.taskIds
+    }, function(tasks) {
+      var str = '';
+      for (var i = 0; i < tasks.length; i++) {
+        var $option = $("<option></option>").val(tasks[i]._id).html(tasks[i].name).attr('data-taskName', tasks[i].name).addClass('taskimg');
+        $selectedTaskList.append($option);
+        var $trTask = $('<tr style="line-height:2.3"></tr>');
+        var $tdSerial = $('<td/>')
+        var $tdName = $('<td class="taskNameTd"/>');
+        $tdName.append(tasks[i].name);
+        $trTask.append($tdSerial);
+        $trTask.append($tdName);
+        $tasksDatatable.row.add($trTask).draw();
+      }
+    });
+  }
+
+
+  window.instanceIPForAppLink = data.instanceIP;
+
+  if (data.appUrls && data.appUrls.length) {
+    for (var kk = 0; kk < data.appUrls.length; kk++) {
+      createAppUrlTableRow(data.appUrls[kk]);
+    }
+  }
+  $('.loadingControlPanelIndicator').hide();
+  $('#controlPanelContainer').show();
+
+
+  $('#addTaskBtn').click(function(e) {
+    var $select = $('#selectavailbleTaskList').empty();
+    var taskIds = [];
+    if (data.taskIds && data.taskIds.length) {
+      taskIds = data.taskIds;
+    }
+    $.get('/tasks?orgId=' + data.orgId + '&bgId=' + data.bgId + '&projectId=' + data.projectId + '&envId=' + data.envId, function(taskList) {
+      if (taskList.length == 0) {
+        bootbox.alert({
+          size: 'small',
+          message: '<div style="margin-left:6px;"><img style="width:50px;height:40px" src="img/warning.png" alt="warning"/><span style="margin-left:20px;font-size:16px;">There are no Jobs associated to this Instance. Navigate to <span style="margin-left:72px;">Orchestration Tab on the Instances Page to create one.</span></span></div>',
+          title: '<span style="font-size:22px;">Warning</span>'
+        });
+        $('#instanceTaskModal').modal('hide');
+      } else {
+        for (var i = 0; i < taskList.length; i++) {
+          var $option = $("<option></option>").val(taskList[i]._id).html(taskList[i].name).attr('data-taskName', taskList[i].name).addClass('taskimg');
+          var $selectedOptionsValues = $('#selectedTaskList').find('option[value="' + taskList[i]._id + '"]').length;
+          $select.append($option);
+          if ($selectedOptionsValues) {
+            $('#selectavailbleTaskList option[value="' + taskList[i]._id + '"]').hide();
+          }
+        }
+        $('#instanceTaskModal').modal('show');
+      }
+    });
+  });
+
+  $('#saveTaskBtn').click(function() {
+    var $taskSelect = $('#selectedTaskList');
+    var $selectedOptions = $taskSelect.find('option');
+    var taskIds = [];
+    $selectedOptions.each(function() {
+      taskIds.push($(this).val());
+
+    });
+    $.post('../instances/' + data._id + '/addTask', {
+      taskIds: taskIds
+    }, function() {
+      var str = '';
+      $tasksDatatable.clear().draw();
+      for (var i = 0; i < $selectedOptions.length; i++) {
+        var $trTask = $('<tr style="line-height:2.3"></tr>');
+        var $tdSerial = $('<td/>');
+        str = $($selectedOptions[i]).text();
+        var $tdName = $('<td class="taskNameTd"/>');
+        $tdName.append(str);
+        $trTask.append($tdSerial);
+        $trTask.append($tdName);
+        $tasksDatatable.row.add($trTask).draw();
+      }
+      $('#instanceTaskModal').modal('hide');
+      data.taskIds = taskIds;
+    });
+
+  });
+
+});
+
+
+
+function getActionBtnClass(actionType) {
+  console.log(actionType)
+  switch (actionType) {
+    case 'start':
+      return {
+        bg: 'frontGreen',
+        icon: 'fa-play',
+        actionType: 'start'
+      }
+    case 'stop':
+      return {
+        bg: 'frontRed',
+        icon: 'fa-power-off',
+        actionType: 'stop'
+      }
+    case 'restart':
+      return {
+        bg: 'frontRestart',
+        icon: 'fa-undo',
+        actionType: 'restart'
+      }
+    case 'kill':
+      return {
+        bg: 'frontKill',
+        icon: 'fa-times-circle',
+        actionType: 'kill'
+      }
+    case 'status':
+      return {
+        bg: 'frontKill',
+        icon: 'fa-bell-o',
+        actionType: 'status'
+      }
+    default:
+      return {}
+
+
+  }
+}
+
+function getCommandActionHtml(serviceId, serviceData) {
+  var commandActions = serviceData.commandaction.split(',');
+  var html = '';
+  for (var i = 0; i < commandActions.length; i++) {
+    var actionBtnClass = getActionBtnClass(commandActions[i]);
+    console.log(actionBtnClass);
+    html += '<div class="container1" style="display:inline-block"><div><div class="cardGreenRedYellowBlack ' + actionBtnClass.bg + '"><div><div class=""><a rel="tooltip" data-placement="top" data-original-title="' + commandActions[i] + '" data-action-type="' + actionBtnClass.actionType + '" href="javascript:void(0)"><i class="fa ' + actionBtnClass.icon + ' fa-1x txt-color-white"></i></a></div></div></div></div></div>';
+
+  }
+  return html;
+
+}
+
+function getCookbookActionHtml(serviceId, serviceData) {
+  var html = '';
+  if (serviceData.servicestart && serviceData.servicestart !== 'none') {
+    var actionBtnClass = getActionBtnClass('start');
+    console.log(actionBtnClass);
+    html += '<div class="container1" style="display:inline-block"><div><div class="cardGreenRedYellowBlack ' + actionBtnClass.bg + '"><div><div class=""><a rel="tooltip" data-placement="top" data-original-title="start" data-action-type="' + actionBtnClass.actionType + '" href="javascript:void(0)"><i class="fa ' + actionBtnClass.icon + ' fa-1x txt-color-white"></i></a></div></div></div></div></div>';
+  }
+  if (serviceData.servicestop && serviceData.servicestop !== 'none') {
+    var actionBtnClass = getActionBtnClass('stop');
+    console.log(actionBtnClass);
+    html += '<div class="container1" style="display:inline-block"><div><div class="cardGreenRedYellowBlack ' + actionBtnClass.bg + '"><div><div class=""><a rel="tooltip" data-placement="top" data-original-title="stop" data-action-type="' + actionBtnClass.actionType + '" href="javascript:void(0)"><i class="fa ' + actionBtnClass.icon + ' fa-1x txt-color-white"></i></a></div></div></div></div></div>';
+  }
+
+  if (serviceData.servicerestart && serviceData.servicerestart !== 'none') {
+    var actionBtnClass = getActionBtnClass('restart');
+    console.log(actionBtnClass);
+    html += '<div class="container1" style="display:inline-block"><div><div class="cardGreenRedYellowBlack ' + actionBtnClass.bg + '"><div><div class=""><a rel="tooltip" data-placement="top" data-original-title="restart" data-action-type="' + actionBtnClass.actionType + '" href="javascript:void(0)"><i class="fa ' + actionBtnClass.icon + ' fa-1x txt-color-white"></i></a></div></div></div></div></div>';
+  }
+  if (serviceData.servicekill && serviceData.servicekill !== 'none') {
+    var actionBtnClass = getActionBtnClass('kill');
+    console.log(actionBtnClass);
+    html += '<div class="container1" style="display:inline-block"><div><div class="cardGreenRedYellowBlack ' + actionBtnClass.bg + '"><div><div class=""><a rel="tooltip" data-placement="top" data-original-title="kill" data-action-type="' + actionBtnClass.actionType + '" href="javascript:void(0)"><i class="fa ' + actionBtnClass.icon + ' fa-1x txt-color-white"></i></a></div></div></div></div></div>';
+  }
+  if (serviceData.servicestatus && serviceData.servicestatus !== 'none') {
+    var actionBtnClass = getActionBtnClass('status');
+    console.log(actionBtnClass);
+    html += '<div class="container1" style="display:inline-block"><div><div class="cardGreenRedYellowBlack ' + actionBtnClass.bg + '"><div><div class=""><a rel="tooltip" data-placement="top" data-original-title="status" data-action-type="' + actionBtnClass.actionType + '" href="javascript:void(0)"><i class="fa ' + actionBtnClass.icon + ' fa-1x txt-color-white"></i></a></div></div></div></div></div>';
+  }
+  pageSetUp();
+  return html;
+}
+
+var $serviceTableBody = $('.servicesTbody');
+
+function addActionToServiceDom(serviceId, serviceData, $tr) {
+  console.log("sd==", serviceData);
+  $td = $tr.find('td[data-serviceId=' + serviceId + ']');
+  var commandType = serviceData.commandtype;
+  if (commandType === 'Chef Cookbook/Recipe') {
+    var html = getCookbookActionHtml(serviceId, serviceData);
+  } else {
+    var html = getCommandActionHtml(serviceId, serviceData);
+  }
+
+
+  $td.append(html);
+  $td.find('a').click(function(e) {
+    var actionType = $(this).attr('data-action-type');
+    $.get('../instances/' + urlParams.id + '/services/' + serviceId + '/' + actionType, function(data) {
+      var $parent = $('.domain-roles-caption[data-instanceId="' + urlParams.id + '"]');
+      console.log($parent.length, $parent.find('.moreInfo').length);
+      $parent.find('.moreInfo').trigger('click');
+      if (data.actionLogId) {
+        $.get('../instances/' + urlParams.id + '/actionLogs/' + data.actionLogId, function(actionLog) {
+          addActionLogRow(actionLog);
+        });
+      }
+
+    }).fail(function(jxhr) {
+      if (jxhr.responseJSON && jxhr.responseJSON.actionLogId) {
+        $.get('../instances/' + urlParams.id + '/actionLogs/' + jxhr.responseJSON.actionLogId, function(actionLog) {
+          addActionLogRow(actionLog);
+        });
+      }
+    });
+  });
+
+}
+
+function addServiceToDom(serviceData) {
+  var $tr = $('<tr></tr>').attr('data-serviceId', serviceData.rowid);
+  var name = serviceData.servicename;
+  if (!name) {
+    name = serviceData.commandname;
+  }
+  var $tdName = $('<td></td>').append(name);
+  $tr.append($tdName);
+  $tr.append($('<td></td>').attr('data-serviceId', serviceData.rowid))
+
+  addActionToServiceDom(serviceData.rowid, serviceData, $tr);
+
+  var $tdOption = $('<td></td>').append('<div class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton deleteServiceBtn" rel="tooltip" data-placement="top" data-original-title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+  $tdOption.find('.deleteServiceBtn').click(function(e) {
+    $.ajax({
+      url: '../instances/' + urlParams.id + '/services/' + serviceData.rowid,
+      type: 'DELETE',
+      success: function() {
+        console.log($tr);
+        var $modalServiceList = $('.serviceNameList');
+        var $option = $modalServiceList.find('option[value=' + serviceData.rowid + ']');
+        $servicesDatatable.row($tr).remove().draw(false);
+        $option.remove();
+        var $serviceList = $('#serviceList');
+        var $input = $serviceList.find('input[value=' + serviceData.rowid + ']');
+        if ($input.length) {
+          $input.get(0).checked = false;
+          $input.parents('tr').removeClass('hidden');
+        }
+
+      }
+    });
+  });
+
+
+
+  $tr.append($tdOption);
+
+  $servicesDatatable.row.add($tr).draw();
+
+}
+
+var actionLogsPollTimeouts = [];
+
+function pollActionLogCompleteStatus(instanceId, actionLogId, $td) {
+  $.get('../instances/' + instanceId + '/actionLogs/' + actionLogId, function(actionLog) {
+    if (!actionLog.completed) {
+      var timeout = setTimeout(function() {
+        pollActionLogCompleteStatus(instanceId, actionLogId, $td);
+        var indexTimeout = actionLogsPollTimeouts.indexOf(timeout);
+        if (indexTimeout) {
+          actionLogsPollTimeouts.splice(indexTimeout, 1);
+        }
+      }, 2000);
+      actionLogsPollTimeouts.push(timeout);
+    } else {
+      //for failure
+      var status = '<img title="Failed"  src="img/indicator_stopped.png"/>'
+      if (actionLog.success) {
+        //for success
+        status = '<img title="Success" src="img/indicator_started.png"/>';
+      }
+      $td.html(status);
+    }
+  });
+}
+
+function addActionLogRow(actionLog) {
+  var $tr = $(document.createElement('tr'));
+  var $tdName = $('<td></td>').append(actionLog.name);
+  $tr.append($tdName);
+
+  var $tdStatus = $('<td></td>');
+  var status = '<img title="Failed" src="img/indicator_stopped.png"/>';
+
+  //for condition when polling or unknown
+  if (!actionLog.completed) {
+    status = '<img title="Pending" src="img/indicator_unknown.png"/>';
+    //polling
+    if (actionLog.type !== 8) {
+      pollActionLogCompleteStatus(urlParams['id'], actionLog._id, $tdStatus);
+    }
+
+    //for success
+  } else {
+    if (actionLog.success) {
+      status = '<img title="Success" src="img/indicator_started.png"/>';
+    }
+  }
+  $tdStatus.append(status);
+  $tr.append($tdStatus);
+
+  var $tdData = $('<td></td>');
+  var actionData = actionLog.actionData;
+  if (actionData) {
+    var keys = Object.keys(actionData);
+    for (var j = 0; j < keys.length; j++) {
+      if (actionData[keys[j]] && actionData[keys[j]].length) {
+        var data = actionData[keys[j]];
+        if (keys[j] == 'runlist') {
+          data = $chefCookbookRoleSelector.getRunlistNames(data);
+          if (data.length) {
+            data = data.join(' , ');
+          }
+        }
+        $tdData.append($('<span></span>').append(keys[j] + ' : ').append(data));
+        $tdData.append('<br/>');
+      }
+    }
+  } else {
+    $tdData.append($('<span> - </span>'));
+  }
+  $tr.append($tdData);
+
+
+  var timeString = new Date().setTime(actionLog.timeStarted);
+  var dateStarted = new Date(timeString).toLocaleString(); //converts to human readable strings
+  var $tdTimeStarted = $('<td></td>').append(dateStarted);
+  $tr.append($tdTimeStarted);
+
+  var $tdUser = $('<td></td>').append(actionLog.user);
+  $tr.append($tdUser);
+
+  var $tdMorInfo = $('<td></td>').append($('<a data-toggle="modal" href="javascript:void(0)" class="moreinfoactionHistory" rel="tooltip" data-placement="top" data-original-title="MoreInfo"></a>').data('actionLogId', actionLog._id).click(function(e) {
+    var actionId = $(this).data('actionLogId');
+    var $actionLogMoreInfo = $('#actionLogMoreInfo');
+    $.get('/instances/' + urlParams['id'] + '/actionLogs/' + actionId + '/logs', function(data) {
+      var $table = $('<table></table>');
+
+      for (var i = 0; i < data.length; i++) {
+        var $rowDiv = $('<tr class="row rowSpacing"></tr>');
+        var timeString = new Date().setTime(data[i].timestamp);
+        var date = new Date(timeString).toLocaleString(); //converts to human readable strings
+
+        if (data[i].err) {
+          $rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:red;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + data[i].log + '</span>'));
+        } else {
+          $rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:DarkBlue;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + data[i].log + '</span>'));
+        }
+
+        $table.append($rowDiv);
+
+
+      }
+
+      $actionLogMoreInfo.find('.modal-body').empty().append($table);
+      $actionLogMoreInfo.modal('show');
+
+    });
+  }));
+
+  $tr.append($tdMorInfo);
+  $actionhistoryDatatable.row.add($tr).draw();
+}
+
+function addActionLogsToTable(actionLogs) {
+  console.log('loadin logs', actionLogs);
+  if (!(actionLogs && actionLogs.length)) {
+    return;
+  }
+
+  for (var i = 0; i < actionLogs.length; i++) {
+    addActionLogRow(actionLogs[i]);
+  }
+}
+
+$('.btnSaveService').click(function(e) {
+  var $serviceList = $('#serviceList');
+  var $checkbox = $serviceList.find('input[type="checkbox"]:checked');
+  var serviceIds = [];
+  $checkbox.each(function() {
+    serviceIds.push($(this).val());
+  })
+  console.log('serviceIds ==>', serviceIds);
+  if (!serviceIds.length) {
+    alert('please choose a service');
+    return;
+  }
+  $.post('../instances/' + urlParams.id + '/services/add', {
+    serviceIds: serviceIds
+  }, function(data) {
+
+    for (var i = 0; i < data.length; i++) {
+
+      var $input = $serviceList.find('input[value=' + data[i] + ']');
+      if ($input.length) {
+        var serviceData = $input.data('serviceData');
+        $input.get(0).checked = false;
+        $input.parents('tr').addClass('hidden');
+        addServiceToDom(serviceData);
+
+      }
+    }
+
+    $('#serviceModalContainer').modal('hide');
+
+  });
+
+});
+
+$('.addServiceBtn').click(function() {
+  $serviceList = $('#serviceList');
+  var hasServicesPermission = false;
+  if (haspermission("instanceservices", "execute")) {
+    hasServicesPermission = true;
+  }
+  if (!hasServicesPermission) {
+    bootbox.alert('User has no permission to Add Services');
+    return false;
+  }
+  if ($serviceList.find('tr[data-listServiceId]:not(.hidden)').length === 0) {
+
+    $serviceList.find('tr:first-child').show();
+  } else {
+    $serviceList.find('tr:first-child').hide();
+  }
+
+});
+
+</script>
+
+
+<script type="text/javascript">
+  
+  $(document).ready(function() {
+    $('#data_bag_div2').hide();
+  });
+  $('.panel-databag').click(function(e) {
+    $('#data_bag_div2').show();
+  });
+
+
+  $(document).ready(function() {
+    $('#data_bag_div3').hide();
+  });
+  $('.panel-databag1').click(function(e) {
+    $('#data_bag_div3').show();
+  });
+
+  function getInfoLi() {
+    $('#controlPanelLogTab').parent('li').removeClass('active');
+    if (logTimeout) {
+      console.log('clearint log timeout');
+      clearTimeout(logTimeout);
+    }
+    if (stateTimeout) {
+      console.log('clearint log state timeout');
+      clearTimeout(stateTimeout);
+    }
+    for (var i = 0; i < actionLogsPollTimeouts.length; i++) {
+      if (actionLogsPollTimeouts[i]) {
+        console.log('clearing timeout');
+        clearTimeout(actionLogsPollTimeouts[i]);
+      }
+    }
+
+    var getURL = localStorage.getItem("dataEx");
+    var x = location.href;
+    var z = x.lastIndexOf("=");
+    var ControlID = x.slice(z + 1, z.length);
+    localStorage.setItem("ControlID", ControlID);
+    location.href = getURL;
+  }
+  $(document).ready(function() {
+
+    //emptying ssh container 
+
+    var LocalBreadCrumb = localStorage.getItem("breadcrumb");
+    var splitBread = null;
+    if (LocalBreadCrumb != null && LocalBreadCrumb != 'undefined') {
+      localStorage.removeItem("breadcrumb");
+      splitBread = LocalBreadCrumb.split('>');
+      if (splitBread.length > 0) {
+        $('#ribbon').find('.breadcrumb').find('li').detach();
+        for (var arraycount = 0; arraycount < splitBread.length; arraycount++) {
+          var liNew = document.createElement('li');
+          liNew.innerHTML = splitBread[arraycount];
+          $('#ribbon').find('.breadcrumb').append(liNew);
+        }
+        var liCP = document.createElement('li');
+        liCP.innerHTML = "Control panel";
+        $('#ribbon').find('.breadcrumb').append(liCP);
+        var parentUl = $('li').filter(".referenceliClass.open").find('ul').find('li[data-envname=' + splitBread[3] + ']');
+        parentUl.addClass('active');
+      }
+    }
+  });
+
+</script>
+<script type="text/javascript">
+$('.instance-details-item').click(function(e) {
+  $(this).parents('.flip-toggle').toggleClass('flip');
+  $('.front').hide();
+  $('.back').show();
+});
+
+$('.goback').click(function(e) {
+  $(this).parents('.flip-toggle').toggleClass('flip');
+  $('.front').show();
+  $('.back').hide();
+});
+</script>
+
+<script>
+$(document).ready(function(e) {
+  $('span[name=editText]').click(function(e) {
+    $('input[name=check]', $(this).closest('div')).focus();
+  });
+});
+if (!$.fn.dataTable.isDataTable('#tableactionHistory')) {
+  //var $taskListArea = $('.taskListArea').empty();
+  $actionhistoryDatatable = $('#tableactionHistory').DataTable({
+    "pagingType": "full_numbers",
+    "aaSorting": [],
+    "aoColumns": [{
+      "bSortable": false
+    }, {
+      "bSortable": false
+    }, {
+      "bSortable": false
+    }, {
+      "bSortable": true
+    }, {
+      "bSortable": false
+    }, {
+      "bSortable": false
+    }]
+
+  });
+}
+if (!$.fn.dataTable.isDataTable('#tableServices')) {
+  //var $taskListArea = $('.taskListArea').empty();
+  $servicesDatatable = $('#tableServices').DataTable({
+    "pagingType": "full_numbers",
+    "bLengthChange": false,
+    "aoColumns": [{
+      "bSortable": true
+    }, {
+      "bSortable": false
+    }, {
+      "bSortable": false
+    }]
+
+  });
+}
+
+if (!$.fn.dataTable.isDataTable('#tasksLists')) {
+  //var $taskListArea = $('.taskListArea').empty();
+  $tasksDatatable = $('#tasksLists').DataTable({
+    "pagingType": "full_numbers",
+    "aoColumns": [{
+      "bSortable": true
+    }, {
+      "bSortable": false
+    }],
+    "fnRowCallback": function(nRow, aData, iDisplayIndex) {
+      $("td:first", nRow).html(iDisplayIndex + 1);
+      return nRow;
+    }
+
+  });
+}
+//for cloning the app Url
+$('.addNewApp1').click(function() {
+  $('#appSeries12').clone().find("input").val("").end().appendTo('.applicationURLContainer:last');
+
+  var countApp = $('.applicationURLContainer').length;
+
+  if (countApp === 2) {
+    $(this).addClass('hidden');
+    return;
+  }
+
+});
+ var searchTemplate = "<div class='row form-inline'><label style='float: left;margin-left:15px;'>Filter: <input type='text' class='form-control' placeholder='search e.g. acpid'></label></div>"
+ $(".p-sieve").sieve({
+   searchTemplate: searchTemplate,
+   itemSelector: "p"
+ });
+</script>
+
+<script>
+$(document).ready(function() {
+  var validator = $('#appURLForm').validate({
+    errorPlacement: function(error, element) {
+      // Append error within linked label
+      $(element).closest("form").find("label[for='" + element.attr("id") + "']").append(error).css('font-size', '12px');
+
+    },
+    rules: {
+      appNameURL: {
+        required: true,
+        url: true
+      },
+      appNameInput: {
+        required: true
+      }
+    },
+    messages: {
+      appNameInput: {
+        required: "&nbsp;Required"
+      },
+      appNameURL: {
+        required: "&nbsp;Required"
+      }
+    },
+    onkeyup: false,
+    errorClass: "error",
+  });
+  $('a#newAppSeries[type="reset"]').on('click', function() {
+    validator.resetForm();
+  });
+});
+
+
+$('#newAppSeries').click(function(e) {
+  $('#appURLForm').trigger("reset");
+  $('#modalAppNameURL').find('.modal-title').html('Add Application URL').css('margin-left', '18px');
+});
+
+function createAppUrlTableRow(appUrlData) {
+  var $appUrlTableBody = $('#appUrlTable tbody');
+
+  var $index = $('#appUrlTable tbody').find('tr');
+  var $row = $('<tr/>').attr('data-appUrlIdTableRow', appUrlData._id);
+  $row.data('appUrlData', appUrlData);
+
+  var $tdName = $('<td class="appNameIndex"/>');
+  $tdName.append($index.length + 1);
+
+  var url = appUrlData.url;
+  if (url) {
+    url = url.replace('$host', window.instanceIPForAppLink);
+  }
+  var $tdURL = $('<td class="appUrlTable"/>').append('<a style="word-break:break-word" href="' + url + '" target="_blank">' + appUrlData.name + '</a> ');
+  var $tdAction = $('<td/>');
+  $tdAction.append('<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton appUrlEditLink" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>').append('<div style="margin-left:5px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton appUrlRemoveLink" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+  $tdAction.find('.appUrlEditLink').click(function() {
+    var appUrlData = $row.data('appUrlData');
+    var $editModal = $('#modalAppNameURL');
+    $('#modalAppNameURL').find('.modal-title').html('Edit Application URL').css('margin-left', '18px');
+    $editModal.modal('show');
+    $editModal.find('.appName').val(appUrlData.name);
+    $editModal.find('.appURL').val(appUrlData.url);
+    $editModal.find('.appUrlId').val(appUrlData._id);
+  });
+
+  $tdAction.find('.appUrlRemoveLink').click(function() {
+    var $this = $(this);
+    var $tr = $this.parents('tr');
+    var appUrlData = $tr.data('appUrlData');
+    $.ajax({
+      url: '../instances/' + urlParams.id + '/appUrl/' + appUrlData._id,
+      method: 'DELETE',
+      success: function() {
+        $tr.remove();
+        removeAppUrlCardLink(appUrlData._id);
+
+      },
+      fail: function() {
+        alert("Unable to delete URL please try again later");
+      }
+    });
+  });
+  $row.append($tdName).append($tdURL).append($tdAction);
+  $appUrlTableBody.append($row);
+
+}
+
+function removeAppUrlCardLink(appUrlId) {
+  var $anchor = $('a[data-appUrlId="' + appUrlId + '"]').parent();
+  if (!$anchor.length) {
+    return;
+  }
+  $anchor.remove();
+}
+
+$('#appURLForm').submit(function(e) {
+  var isValidator = $('#appURLForm').valid();
+  if (!isValidator) {
+    e.preventDefault();
+    return false;
+  } else {
+    e.preventDefault();
+    var appUrls = []
+    var appUrlData = {};
+    var rowIndex = $('#appUrlTable tbody').find('tr').length;
+    appUrlData.Index = rowIndex;
+    appUrlData.name = $(this).find('.appName').val();
+    appUrlData.url = $(this).find('.appURL').val();
+    var appUrlId = $(this).find('.appUrlId').val();
+    var url = '../instances/' + urlParams.id + '/appUrl';
+    var reqBody = {
+      appUrls: [appUrlData]
+    }
+    if (appUrlId) {
+      url = '../instances/' + urlParams.id + '/appUrl/' + appUrlId + '/update';
+      reqBody = {
+        url: appUrlData.url,
+        name: appUrlData.name,
+        index: appUrlData.Index
+      }
+    }
+
+    var $appUrlIdInput = $(this).find('.appUrlId');
+
+    $.post(url, reqBody, function(data) {
+      $appUrlIdInput.val('');
+      console.log(data);
+      if (!appUrlId) {
+        console.log("DATA:" + data[0]);
+        createAppUrlTableRow(data[0]);
+      } else {
+        //When edit button clicked in a row it's executed.
+        var $tr = $('tr[data-appUrlIdTableRow="' + appUrlId + '"]');
+        $tr.find('.appNameIndex').text(reqBody.index);
+        var url = reqBody.url;
+        if (url) {
+          url = url.replace('$host', window.instanceIPForAppLink);
+        }
+        $tr.find('.appUrlTable').html('<a style="word-break:break-word;" href="' + url + '" target="_blank">' + reqBody.name + '</a> ');
+        $tr.data('appUrlData', {
+            _id: appUrlId,
+            name: reqBody.name,
+            url: reqBody.url
+          })
+
+        var $a = $('.app-url[data-appUrlId="' + appUrlId + '"]');
+        $a.html(reqBody.name);
+        var instanceIP = $a.attr('data-instanceIP');
+        var url = reqBody.url;
+        if (url) {
+          url = url.replace('$host', instanceIP);
+        }
+        $a.attr('href', url);
+      }
+      $('#modalAppNameURL').modal('hide');
+      $('#appEntry').addClass('hidden');
+
+
+    }).fail(function() {
+      $appUrlIdInput.val('');
+    });
+    return false;
+  }
+});
+
+function getCssClassFromStatus(status) {
+  var cssClasses = {
+
+  };
+  switch (status) {
+
+    case 'running':
+      cssClasses.ringClass = 'started';
+      cssClasses.textClass = 'instance-state-text-started';
+      cssClasses.tableViewStatusClass = "started";
+      break;
+
+    case 'stopped':
+      cssClasses.ringClass = 'stopped';
+      cssClasses.textClass = 'instance-state-text-stopped';
+      cssClasses.tableViewStatusClass = "stopped";
+      break;
+
+    case 'terminated':
+      cssClasses.ringClass = 'stopped';
+      cssClasses.textClass = 'instance-state-text-stopped';
+      cssClasses.tableViewStatusClass = "stopped";
+      break;
+
+    default:
+      cssClasses.ringClass = 'pending';
+      cssClasses.textClass = 'instance-state-text-pending';
+      cssClasses.tableViewStatusClass = "pending";
+
+  }
+
+  return cssClasses;
+}
+</script>

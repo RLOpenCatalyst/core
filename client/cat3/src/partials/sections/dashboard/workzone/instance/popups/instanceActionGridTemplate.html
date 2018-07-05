@@ -1,0 +1,103 @@
+<div id='instanceActionGridTemplatePage'>
+    <div class="chef-run-wrapper">
+        <div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>
+        <div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>
+        <div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>`
+        <div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled"></div>
+    </div>
+    <div class="ssh-rdp-wrapper">
+        <span class="sshIcon cursor" ng-click="grid.appScope.operationSet.instanceSSH(row.entity)" title="SSH" ng-show="grid.appScope.actionSet.isSSHEnabled(row.entity) && grid.appScope.perms.ssh"></span>
+        <span class="sshIcon-disabled ng-hide" ng-show="grid.appScope.actionSet.isSSHDisabled(row.entity) && grid.appScope.perms.ssh"></span>
+        <span class="rdpIcon ng-hide" ng-show="grid.appScope.actionSet.isRDPEnabled(row.entity) && grid.appScope.perms.rdp">
+            <a title="RDP" target="_self" href="" download=""></a>
+        </span>
+        <span class="rdpIcon icon-rdp-disabled ng-hide" ng-show="grid.appScope.actionSet.isRDPDisabled(row.entity) && grid.appScope.perms.rdp"></span>
+    </div>
+    <div class="options-menu-wrapper">
+        <div class="btn-icons dropdown">
+            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-gear"></i>
+                <i class="fa fa-sort-down"></i></button>
+            <ul class="dropdown-menu">
+                <li>
+                    <span ng-click="grid.appScope.instanceControlPanel(row.entity);">
+                        <i class="fa fa-gears dropdown-icon"></i>
+                        Control Panel
+                    </span>
+                </li>
+                <li>
+                    <span ng-click="grid.appScope.operationSet.deleteInstance(row.entity, $index);">
+                        <i class="fa fa-trash-o dropdown-icon"></i>
+                        Delete Instance
+                    </span>
+                </li>
+                <li class="edit-instance-bs">
+                    <span ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">
+                        <i class="fa fa-pencil dropdown-icon"></i>
+                        Edit Instance Name
+                    </span>
+                </li>
+                <li class="more-info-bs">
+                    <span ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo">
+                        <i class="fa fa-info-circle dropdown-icon"></i>
+                        More Info
+                    </span>
+                </li>
+                <li class="ssh-bs">
+                    <span ng-click="grid.appScope.operationSet.instanceSSH(row.entity)" ng-show="row.entity.hardware.os === 'linux' || row.entity.hardware.os === 'centos'">
+                        <i class="fa fa-briefcase dropdown-icon"></i>
+                        SSH
+                    </span>
+                </li>
+                <li class="rdp-bs" ng-show="grid.appScope.actionSet.isRDPEnabled(row.entity) && grid.appScope.perms.rdp">
+                    <span>
+                        <a class="rdp-anchor" target="_self" href="{{rdpFileLink(row.entity)}}" download="{{rdpFileName(row.entity)}}">
+                            <i class="fa fa-stack-overflow dropdown-icon"></i>
+                            RDP
+                        </a>
+                    </span>
+                </li>
+                <li ng-click="instStartStopFlag || grid.appScope.operationSet.changeInstanceStatus(row.entity)" ng-show="grid.appScope.perms.start
+                    && row.entity.instanceState === 'stopped' && row.entity.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
+                    <span>
+                        <i class="fa fa-play dropdown-icon"></i>
+                        Start Instance
+                    </span>
+                </li>
+                <li ng-click="instStartStopFlag || grid.appScope.operationSet.changeInstanceStatus(row.entity)" ng-show="grid.appScope.perms.stop && row.entity.instanceState === 'running' && row.entity.providerId" ng-disabled="instStartStopFlag"  ng-class="{'hideStartStopCur': instStartStopFlag}">
+                    <span>
+                        <i class="fa fa-stop dropdown-icon"></i>
+                        Stop Instance
+                    </span>
+                </li>
+                <li class="divider" ng-hide="row.entity.appUrls.length == 0 && row.entity.tasks.length == 0"></li>
+                <span ng-hide="row.entity.appUrls.length == 0">
+                    <li class="no-action">
+                        <span>
+                            <i class="fa fa-list-alt dropdown-icon"></i>
+                            App Links
+                        </span>
+                    </li>
+                    <ul class="paddingleft32 instanceTaskListUL">
+                        <li ng-repeat="applink in row.entity.appUrls">
+                            <a class="app-url cursor" target="_blank" ng-href="{{applink.url}}">
+                                {{applink.name}}
+                            </a>
+                        </li>
+                    </ul>
+                </span>
+                <span ng-hide="row.entity.tasks.length == 0">
+                    <li class="no-action">
+                        <span class="menuTaskSpan">
+                            <i class="fa fa-outdent dropdown-icon"></i>
+                            Task Links
+                        </span>
+                    </li>
+                    <ul class="paddingleft32 instanceTaskListUL">
+                        <li class="cursor" ng-click="grid.appScope.instanceExecute(taskDetail)" ng-repeat="taskDetail in row.entity.tasks">{{taskDetail.taskName}}</li>
+                    </ul>
+                </span>
+            </ul>
+        </div>
+    </div>
+</div>

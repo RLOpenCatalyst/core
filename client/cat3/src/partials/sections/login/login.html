@@ -1,0 +1,72 @@
+<div class='row' id='loginPage'>
+	<div id="main" role="main">
+		<!-- MAIN CONTENT -->
+		<div id="content" class="container">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 hidden-xs">
+					<h1 class="txt-color-red login-header-big">DevOps-Catalyst</h1>
+					<div class="hero">
+						<div class="pull-left login-desc-box-l">
+							<h5 class="paragraph">DevOps is a new discipline that complements the Agile Delivery models for software engineering by bringing in Automation and Monitoring on the IT side and leverages Cloud computing concepts. DevOps leverages collaboration, tool-chain pipelines, automation and Cloud adoption. The immediate benefits can be observed as improved processes, more standardizations and building trust and improve productivity across development, QA and IT operations teams</h5>
+						</div>
+						<img src="images/Technology-Offerings.png" class="pull-right display-image technologyImage" alt="technology">
+					</div>
+				</div>
+				<div class='col-lg-4 col-md-4 col-sm-12 col-xs-12'></div>
+				<div class='col-lg-4 col-md-4 col-sm-12 col-xs-12'>
+					<div class="well grayBorder">
+						<form id="login-form" class="loginform" nonvalidate>
+							<header>Login</header>
+							<fieldset>
+								<section>
+									<label class='lebel'>Username</label>
+									<label class="loginform_input"><i class="loginform_icon-append fa fa-user"></i>
+										<input class="manipulator" type="text" ng-model='username'>
+									</label>
+								</section>
+								<section>
+									<label class='lebel'>Password</label>
+									<label class="loginform_input"><i class="loginform_icon-append fa fa-lock"></i>
+										<input class="manipulator" type="password" ng-model='password'>
+									</label>
+								</section>
+								<div class="pull-left loginform_incorlog">{{inCorrectLoginMessage}}</div>
+							</fieldset>
+							<footer>
+								<div class="loginform_note">
+									<a href="http://www.relevancelab.com/RLCatalyst/RL_Catalyst_SaaS_Evaluation_Agreement.pdf" target="_blank"> Evaluation &amp; trial agreement terms &amp; conditions</a>
+								</div>
+								<button type="submit" class="btn cat-btn-update" id="loginBtn" ng-click='login()'>Login</button>
+							</footer>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 hidden-sm hidden-xs">
+						<div class="plan"></div>
+					</div>
+					<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 images-margin hidden-sm hidden-xs">
+						<div class="design"></div>
+					</div>
+					<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 images-margin hidden-sm hidden-xs">
+						<div class="workzone"></div>
+					</div>
+					<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 images-margin hidden-sm hidden-xs">
+						<div class="track"></div>
+					</div>
+					<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 images-margin hidden-sm hidden-xs">
+						<div class="Monitor"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<footer class="login-footer">
+		<div class="row" style="color: #fff;">
+			<div class="login-footer-text col-xs-8 col-sm-8 col-md-8 col-lg-8">© 2017 Relevance Lab. All rights reserved</div>
+			<div class="login-footer-text col-xs-4 col-sm-4 col-md-4 col-lg-4"><span class="pull-right">Version : {{logD.vers}}</span></div>
+		</div>
+	</footer>
+</div>

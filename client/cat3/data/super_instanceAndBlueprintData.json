@@ -1,0 +1,1620 @@
+{
+  "tasks": [],
+  "instances": [
+    {
+      "_id": "55ed7a58d4f7633f112aa917",
+      "name": "52.11.22.146",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "instanceIP": "52.11.22.146",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "blueprintData": {
+        "blueprintName": "52.11.22.146",
+        "templateId": "chef_import",
+        "iconPath": "../private/img/templateicons/chef_import.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "ubuntu",
+        "pemFileLocation": "/mnt/jenkins/workspace/Supercatalyst_Upgrade/server/catdata/catalyst/instance-pemfiles/92f8411c-a155-4d18-8cf3-cbc46ea8c9b9"
+      },
+      "software": [],
+      "puppet": {
+        "serverId": "e66509b0-0524-4ad4-a2b3-f400124e3c0e",
+        "puppetNodeName": "ip-172-31-13-33.us-west-2.compute.internal"
+      },
+      "hardware": {
+        "platform": "Ubuntu",
+        "platformVersion": "14.04",
+        "architecture": "x86_64",
+        "os": "linux",
+        "memory": {
+          "total": "992.44 MB",
+          "free": "814.36 MB"
+        }
+      },
+      "users": [
+        "Admin2"
+      ],
+      "appUrls": [],
+      "attributes": [],
+      "runlist": []
+    },
+    {
+      "_id": "55f12dd7d5b88bd278a2e205",
+      "name": "52.11.200.48",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "instanceIP": "52.11.200.48",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "blueprintData": {
+        "blueprintName": "52.11.200.48",
+        "templateId": "chef_import",
+        "iconPath": "../private/img/templateicons/chef_import.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "ubuntu",
+        "pemFileLocation": "/mnt/jenkins/workspace/Supercatalyst_Upgrade/server/catdata/catalyst/instance-pemfiles/50a69373-17a3-4c9a-a68e-6d796101b32e"
+      },
+      "software": [],
+      "puppet": {
+        "serverId": "e66509b0-0524-4ad4-a2b3-f400124e3c0e",
+        "puppetNodeName": "ip-172-31-18-156.us-west-2.compute.internal"
+      },
+      "hardware": {
+        "platform": "unknown",
+        "platformVersion": "unknown",
+        "architecture": "unknown",
+        "os": "linux",
+        "memory": {
+          "total": "unknown",
+          "free": "unknown"
+        }
+      },
+      "users": [
+        "superadmin"
+      ],
+      "appUrls": [],
+      "attributes": [],
+      "runlist": []
+    },
+    {
+      "_id": "56028572998e75a92b0857c5",
+      "name": "apacheTest",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "providerId": "55967022692649b85fc07ee5",
+      "keyPairId": "55967022692649b85fc07ee6",
+      "chefNodeName": "i-76c4b5ad",
+      "platformId": "i-76c4b5ad",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "instanceIP": "52.88.135.19",
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "docker": {
+        "dockerEngineStatus": "",
+        "dockerEngineUrl": ""
+      },
+      "blueprintData": {
+        "blueprintId": "55cdcd94918730036546f704",
+        "blueprintName": "apacheTest",
+        "templateId": "apache",
+        "templateType": "chef",
+        "iconPath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "root",
+        "pemFileLocation": "/mnt/jenkins/workspace/Supercatalyst_Upgrade/server/catdata/catalyst/instance-pemfiles/55967022692649b85fc07ee6"
+      },
+      "software": [],
+      "chef": {
+        "serverId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "chefNodeName": "i-76c4b5ad"
+      },
+      "hardware": {
+        "platform": "centos",
+        "platformVersion": "6.5",
+        "architecture": "x86_64",
+        "os": "linux",
+        "memory": {
+          "total": "604488kB",
+          "free": "177328kB"
+        }
+      },
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "pj",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [],
+      "attributes": [],
+      "runlist": [
+        "recipe[tomcat-all]"
+      ]
+    },
+    {
+      "_id": "5603e4c0611882675701b395",
+      "name": "apacheTest",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "providerId": "55967022692649b85fc07ee5",
+      "keyPairId": "55967022692649b85fc07ee6",
+      "chefNodeName": "i-b2532169",
+      "platformId": "i-b2532169",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "instanceIP": "52.89.69.20",
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "blueprintData": {
+        "blueprintId": "55cdcd94918730036546f704",
+        "blueprintName": "apacheTest",
+        "templateId": "apache",
+        "templateType": "chef",
+        "iconPath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "root",
+        "pemFileLocation": "/mnt/jenkins/workspace/Supercatalyst_Upgrade/server/catdata/catalyst/instance-pemfiles/55967022692649b85fc07ee6"
+      },
+      "software": [],
+      "chef": {
+        "serverId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "chefNodeName": "i-b2532169"
+      },
+      "hardware": {
+        "platform": "centos",
+        "platformVersion": "6.5",
+        "architecture": "x86_64",
+        "os": "linux",
+        "memory": {
+          "total": "604488kB",
+          "free": "184280kB"
+        }
+      },
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "pj",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [],
+      "attributes": [],
+      "runlist": [
+        "recipe[apache2]"
+      ]
+    }
+  ],
+  "blueprints": [
+    {
+      "_id": "55e43e70782ff6df3ca19054",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "CentOS",
+      "templateId": "CentOS66",
+      "templateType": "ami",
+      "blueprintConfig": {
+        "_id": "55e43e70782ff6df3ca19053",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "55e43e70782ff6df3ca19052",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55e43e70782ff6df3ca19051",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "55e43e70782ff6df3ca19050",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "55c1fcffd802b23d433cd347",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-036f8547",
+          "instanceType": "t2.micro",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55c33526bf6b5ecf111041ba",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Catalyst",
+      "iconpath": "/d4dMasters/image/756ea0c6-5df8-45d5-8e50-5f8624ae0a4c__templatesicon__Docker.png",
+      "templateId": "Docker",
+      "templateType": "docker",
+      "blueprintConfig": {
+        "dockerCompose": [
+          {
+            "_id": "55c33526bf6b5ecf111041b9",
+            "dockerreponame": "Docker_Catalyst",
+            "dockerlaunchparameters": " --name Catalyst -p 3001:3001 -exec catalyst.sh",
+            "dockerrepotags": "latest",
+            "dockercontainerpaths": "relevancelab/catalysttest",
+            "dockercontainerpathstitle": "Docker_Cat"
+          }
+        ],
+        "_id": "55c33526bf6b5ecf111041b8",
+        "dockerImageName": "Docker_Cat",
+        "dockerRepoName": "Docker_Catalyst",
+        "dockerLaunchParameters": "",
+        "dockerContainerPaths": "relevancelab/catalysttest",
+        "dockerContainerPathsTitle": "Docker_Cat"
+      },
+      "blueprintType": "docker",
+      "__v": 0,
+      "templatetypename": "docker",
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "pj",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55c9a8f99187300365464be3",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "CatalystLogstash",
+      "iconpath": "/d4dMasters/image/e13165ed-dbcd-4d86-aa83-abf23f7c5f48__templatesicon__Custom_temp.jpg",
+      "templateId": "CustomTemplate",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "55c9a8f99187300365464be2",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "55c9a8f99187300365464be1",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55c9a8f99187300365464be0",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "55c9a8f99187300365464bdf",
+          "instanceOS": "linux",
+          "imageId": "55c193bb2b4997ef060e53d2",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-df6a8b9b",
+          "instanceType": "t2.micro",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "templatetypename": "chef",
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "pj",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55cdcd94918730036546f704",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "apacheTest",
+      "iconpath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
+      "templateId": "apache",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "55cdcd94918730036546f703",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [
+                "recipe[apache2]"
+              ],
+              "_id": "55cdcd94918730036546f702",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55cdcd94918730036546f701",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-c00ee1a5"
+          ],
+          "_id": "55cdcd94918730036546f700",
+          "instanceOS": "linux",
+          "imageId": "55967069692649b85fc07ee7",
+          "subnetId": "subnet-aed68ce8",
+          "vpcId": "vpc-b1f3ecd3",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-b6bdde86",
+          "instanceType": "t1.micro",
+          "keyPairId": "55967022692649b85fc07ee6"
+        },
+        "cloudProviderId": "55967022692649b85fc07ee5",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "templatetypename": "chef",
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "pj",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55e43617782ff6df3ca19035",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Base_Ubuntu",
+      "templateId": "Ubuntu_N.C14.04",
+      "templateType": "ami",
+      "blueprintConfig": {
+        "_id": "55e43617782ff6df3ca19034",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "55e43617782ff6df3ca19033",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55e43617782ff6df3ca19032",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "55e43617782ff6df3ca19031",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "55c193bb2b4997ef060e53d2",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-df6a8b9b",
+          "instanceType": "t2.micro",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55ee63fb2692bc5f3247f0aa",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "JAVA_Stack",
+      "iconpath": "/d4dMasters/image/19e45675-c517-4c3b-84c8-72da67550f13__templatesicon__CFT.jpg",
+      "templateId": "CFT_JAVA",
+      "templateType": "cft",
+      "blueprintConfig": {
+        "stackParameters": [
+          {
+            "ParameterValue": "java-test",
+            "ParameterKey": "JavaStack"
+          },
+          {
+            "ParameterValue": "GoldenDemo",
+            "ParameterKey": "KeyName"
+          },
+          {
+            "ParameterValue": "subnet-d7df258e",
+            "ParameterKey": "Subnet"
+          },
+          {
+            "ParameterValue": "sg-eeff688b",
+            "ParameterKey": "SecurityGroup"
+          },
+          {
+            "ParameterValue": "ami-df6a8b9b",
+            "ParameterKey": "AMImageID"
+          },
+          {
+            "ParameterValue": "t2.micro",
+            "ParameterKey": "InstanceType"
+          }
+        ],
+        "instances": [
+          {
+            "runlist": [],
+            "username": "ubuntu",
+            "logicalId": "Java"
+          },
+          {
+            "runlist": [],
+            "username": "ubuntu",
+            "logicalId": "MySql"
+          }
+        ],
+        "_id": "55ee63fb2692bc5f3247f0a9",
+        "region": "us-west-1",
+        "templateFile": "19e45675-c517-4c3b-84c8-72da67550f13__template__JavaStack_orginal.template",
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderId": "55c193992b4997ef060e53d0"
+      },
+      "blueprintType": "aws_cf",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55ee642d2692bc5f3247f0ac",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Windows_Stack",
+      "iconpath": "/d4dMasters/image/16281d1f-4643-4dc5-adf2-5f2ec208ecc8__templatesicon__CFT.jpg",
+      "templateId": "CFT_Microsoft",
+      "templateType": "cft",
+      "blueprintConfig": {
+        "stackParameters": [
+          {
+            "ParameterValue": "microsoft-test",
+            "ParameterKey": "MicrosoftStack"
+          },
+          {
+            "ParameterValue": "GoldenDemo",
+            "ParameterKey": "KeyName"
+          },
+          {
+            "ParameterValue": "subnet-d7df258e",
+            "ParameterKey": "Subnet"
+          },
+          {
+            "ParameterValue": "sg-eeff688b",
+            "ParameterKey": "SecurityGroup"
+          },
+          {
+            "ParameterValue": "ami-5ff8071b",
+            "ParameterKey": "AMImageID"
+          },
+          {
+            "ParameterValue": "t2.micro",
+            "ParameterKey": "InstanceType"
+          }
+        ],
+        "instances": [
+          {
+            "runlist": [],
+            "username": "Administrator",
+            "logicalId": "Microsoft"
+          },
+          {
+            "runlist": [],
+            "username": "Administrator",
+            "logicalId": "MSSQL"
+          }
+        ],
+        "_id": "55ee642d2692bc5f3247f0ab",
+        "region": "us-west-1",
+        "templateFile": "16281d1f-4643-4dc5-adf2-5f2ec208ecc8__template__MicrosoftStack.template",
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderId": "55c193992b4997ef060e53d0"
+      },
+      "blueprintType": "aws_cf",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55ee64592692bc5f3247f0ae",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Catalyst",
+      "iconpath": "/d4dMasters/image/365738fb-240c-4787-9cc7-ca471500fdd7__templatesicon__CFT.jpg",
+      "templateId": "CFT_Catalyst",
+      "templateType": "cft",
+      "blueprintConfig": {
+        "stackParameters": [
+          {
+            "ParameterValue": "mp-test",
+            "ParameterKey": "CatalystName"
+          },
+          {
+            "ParameterValue": "GoldenDemo",
+            "ParameterKey": "KeyName"
+          },
+          {
+            "ParameterValue": "subnet-d7df258e",
+            "ParameterKey": "Subnet"
+          },
+          {
+            "ParameterValue": "sg-eeff688b",
+            "ParameterKey": "SecurityGroup"
+          },
+          {
+            "ParameterValue": "ami-df6a8b9b",
+            "ParameterKey": "AMImageID"
+          },
+          {
+            "ParameterValue": "t2.micro",
+            "ParameterKey": "InstanceType"
+          }
+        ],
+        "instances": [
+          {
+            "runlist": [],
+            "username": "ubuntu",
+            "logicalId": "Node"
+          },
+          {
+            "runlist": [],
+            "username": "ubuntu",
+            "logicalId": "Mongo"
+          }
+        ],
+        "_id": "55ee64592692bc5f3247f0ad",
+        "region": "us-west-1",
+        "templateFile": "365738fb-240c-4787-9cc7-ca471500fdd7__template__CatalystStack.template",
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderId": "55c193992b4997ef060e53d0"
+      },
+      "blueprintType": "aws_cf",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55d2e148918730036547003e",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Supercat_preprod",
+      "iconpath": "/d4dMasters/image/e13165ed-dbcd-4d86-aa83-abf23f7c5f48__templatesicon__Custom_temp.jpg",
+      "templateId": "CustomTemplate",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "55d2e148918730036547003d",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "55d2e148918730036547003c",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55d2e148918730036547003b",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "55d2e148918730036547003a",
+          "instanceOS": "linux",
+          "imageId": "55c193bb2b4997ef060e53d2",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-df6a8b9b",
+          "instanceType": "t2.micro",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "templatetypename": "chef",
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55ddaa6493ca027d3618f9fd",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Apache_Ubuntu",
+      "iconpath": "/d4dMasters/image/e13165ed-dbcd-4d86-aa83-abf23f7c5f48__templatesicon__Custom_temp.jpg",
+      "templateId": "CustomTemplate",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "55ddaa6493ca027d3618f9fc",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [
+                "recipe[apache2]"
+              ],
+              "_id": "55ddaa6493ca027d3618f9fb",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55ddaa6493ca027d3618f9fa",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-c00ee1a5"
+          ],
+          "_id": "55ddaa6493ca027d3618f9f9",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "5596708c692649b85fc07ee8",
+          "subnetId": "subnet-aed68ce8",
+          "vpcId": "vpc-b1f3ecd3",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-3d50120d",
+          "instanceType": "t2.micro",
+          "keyPairId": "55967022692649b85fc07ee6"
+        },
+        "cloudProviderId": "55967022692649b85fc07ee5",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [
+        {
+          "name": "Apache",
+          "url": "http://$host",
+          "_id": "55ddaa6493ca027d3618f9fe"
+        }
+      ]
+    },
+    {
+      "_id": "55e43d7b782ff6df3ca1904f",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "CentOS",
+      "iconpath": "/d4dMasters/image/756ea0c6-5df8-45d5-8e50-5f8624ae0a4c__templatesicon__Docker.png",
+      "templateId": "Docker",
+      "templateType": "docker",
+      "blueprintConfig": {
+        "dockerCompose": [
+          {
+            "_id": "55e43d7b782ff6df3ca1904e",
+            "dockerreponame": "Docker_Catalyst",
+            "dockerlaunchparameters": " --name CentOS -c /bin/bash",
+            "dockerrepotags": "6.6",
+            "dockercontainerpaths": "centos",
+            "dockercontainerpathstitle": "Centos"
+          }
+        ],
+        "_id": "55e43d7b782ff6df3ca1904d",
+        "dockerImageName": "Docker_Cat",
+        "dockerRepoName": "Docker_Catalyst",
+        "dockerLaunchParameters": "",
+        "dockerContainerPaths": "relevancelab/catalysttest",
+        "dockerContainerPathsTitle": "Docker_Cat"
+      },
+      "blueprintType": "docker",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55e95109782ff6df3ca19db0",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Puppet_Master",
+      "iconpath": "/d4dMasters/image/e13165ed-dbcd-4d86-aa83-abf23f7c5f48__templatesicon__Custom_temp.jpg",
+      "templateId": "CustomTemplate",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "55e95109782ff6df3ca19daf",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "55e95109782ff6df3ca19dae",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55e95109782ff6df3ca19dad",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "55e95109782ff6df3ca19dac",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "55c193bb2b4997ef060e53d2",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-df6a8b9b",
+          "instanceType": "t2.micro",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55edaa7cd03178aa446f4523",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Mongo",
+      "iconpath": "/d4dMasters/image/756ea0c6-5df8-45d5-8e50-5f8624ae0a4c__templatesicon__Docker.png",
+      "templateId": "Docker",
+      "templateType": "docker",
+      "blueprintConfig": {
+        "dockerCompose": [
+          {
+            "_id": "55edaa7cd03178aa446f4522",
+            "dockerreponame": "Docker_Catalyst",
+            "dockerlaunchparameters": " --name Mongo -c /bin/bash",
+            "dockerrepotags": "2.6.10",
+            "dockercontainerpaths": "mongo",
+            "dockercontainerpathstitle": "Mongo"
+          }
+        ],
+        "_id": "55edaa7cd03178aa446f4521",
+        "dockerImageName": "Docker_Cat",
+        "dockerRepoName": "Docker_Catalyst",
+        "dockerLaunchParameters": "",
+        "dockerContainerPaths": "relevancelab/catalysttest",
+        "dockerContainerPathsTitle": "Docker_Cat"
+      },
+      "blueprintType": "docker",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55ee652d40ab40e54caa6aa2",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Windows2008_Server",
+      "templateId": "Windows2008R2NC",
+      "templateType": "ami",
+      "blueprintConfig": {
+        "_id": "55ee652d40ab40e54caa6aa1",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "55ee652d40ab40e54caa6aa0",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55ee652d40ab40e54caa6a9f",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "55ee652d40ab40e54caa6a9e",
+          "instanceCount": "1",
+          "instanceOS": "windows",
+          "imageId": "55c1e8a1e27f62381f865bcc",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-03f60947",
+          "instanceType": "t2.small",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55ee65fb40ab40e54caa6aa7",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Windows2012_Server",
+      "templateId": "Win2012_N.Cal",
+      "templateType": "ami",
+      "blueprintConfig": {
+        "_id": "55ee65fb40ab40e54caa6aa6",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "55ee65fb40ab40e54caa6aa5",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55ee65fb40ab40e54caa6aa4",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "55ee65fb40ab40e54caa6aa3",
+          "instanceCount": "1",
+          "instanceOS": "windows",
+          "imageId": "55c1cd632b4997ef060e5522",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-5ff8071b",
+          "instanceType": "t2.small",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "55efc6bd8907f53764067a04",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "EVT_Setup",
+      "templateId": "Ubuntu_N.C14.04",
+      "templateType": "ami",
+      "blueprintConfig": {
+        "_id": "55efc6bd8907f53764067a03",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "55efc6bd8907f53764067a02",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55efc6bd8907f53764067a01",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-001f8965",
+            "sg-45a73120",
+            "sg-51a23434",
+            "sg-24a73141",
+            "sg-3050c655"
+          ],
+          "_id": "55efc6bd8907f53764067a00",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "55c193bb2b4997ef060e53d2",
+          "subnetId": "subnet-3179fc54",
+          "vpcId": "vpc-bd815ad8",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-df6a8b9b",
+          "instanceType": "t2.small",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "5602a69a76b6f38e5db31a27",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "Centos6.5-Catalyst",
+      "templateId": "CentOS6.5",
+      "templateType": "ami",
+      "blueprintConfig": {
+        "_id": "5602a69a76b6f38e5db31a26",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [
+                "role[catalyst]"
+              ],
+              "_id": "5602a69a76b6f38e5db31a25",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "5602a69a76b6f38e5db31a24",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-c00ee1a5"
+          ],
+          "_id": "5602a69a76b6f38e5db31a23",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "55b881b01817ea821a250b10",
+          "subnetId": "subnet-aed68ce8",
+          "vpcId": "vpc-b1f3ecd3",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-d92a25e9",
+          "instanceType": "t1.micro",
+          "keyPairId": "55967022692649b85fc07ee6"
+        },
+        "cloudProviderId": "55967022692649b85fc07ee5",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "5603e8eecd4c3cdb631d6044",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "24Sept",
+      "iconpath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
+      "templateId": "apache",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "5603e8eecd4c3cdb631d6043",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [],
+              "_id": "5603e8eecd4c3cdb631d6042",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "5603e8eecd4c3cdb631d6041",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "5603e8eecd4c3cdb631d6040",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "55c193bb2b4997ef060e53d2",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-df6a8b9b",
+          "instanceType": "t2.small",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "5603ec24cd4c3cdb631d7fff",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "24sept-Centos",
+      "iconpath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
+      "templateId": "apache",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "5603ec24cd4c3cdb631d7ffe",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [
+                "recipe[apache2]"
+              ],
+              "_id": "5603ec24cd4c3cdb631d7ffd",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "5603ec24cd4c3cdb631d7ffc",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-99a3bcfb"
+          ],
+          "_id": "5603ec24cd4c3cdb631d7ffb",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "55c193f02b4997ef060e53d3",
+          "subnetId": "subnet-12b4ea54",
+          "vpcId": "vpc-52110130",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-696e9c2d",
+          "instanceType": "m1.small",
+          "keyPairId": "55c193992b4997ef060e53d1"
+        },
+        "cloudProviderId": "55c193992b4997ef060e53d0",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    },
+    {
+      "_id": "56043f344deb9af37ae1c696",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "name": "StarbuckBP",
+      "iconpath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
+      "templateId": "apache",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "56043f344deb9af37ae1c695",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [
+                "recipe[apache2]",
+                "recipe[logstash_forwarder]",
+                "recipe[curl]"
+              ],
+              "_id": "56043f344deb9af37ae1c694",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "56043f344deb9af37ae1c693",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-c00ee1a5"
+          ],
+          "_id": "56043f344deb9af37ae1c692",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "55967069692649b85fc07ee7",
+          "subnetId": "subnet-aed68ce8",
+          "vpcId": "vpc-b1f3ecd3",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-b6bdde86",
+          "instanceType": "t1.micro",
+          "keyPairId": "55967022692649b85fc07ee6"
+        },
+        "cloudProviderId": "55967022692649b85fc07ee5",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "appUrls": []
+    }
+  ],
+  "stacks": [
+    {
+      "_id": "55f286ea321355c22907b979",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "stackName": "JavaCFT",
+      "stackId": "arn:aws:cloudformation:us-west-1:549974527830:stack/JavaCFT/3e53a170-5859-11e5-9288-500c595b89d4",
+      "status": "CREATE_COMPLETE",
+      "templateFile": "19e45675-c517-4c3b-84c8-72da67550f13__template__JavaStack_orginal.template",
+      "cloudProviderId": "55c193992b4997ef060e53d0",
+      "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+      "infraManagerType": "chef",
+      "region": "us-west-1",
+      "__v": 0,
+      "autoScaleResourceIds": [],
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "stackParameters": [
+        {
+          "ParameterKey": "JavaStack",
+          "ParameterValue": "java-test"
+        },
+        {
+          "ParameterKey": "KeyName",
+          "ParameterValue": "GoldenDemo"
+        },
+        {
+          "ParameterKey": "Subnet",
+          "ParameterValue": "subnet-d7df258e"
+        },
+        {
+          "ParameterKey": "SecurityGroup",
+          "ParameterValue": "sg-eeff688b"
+        },
+        {
+          "ParameterKey": "AMImageID",
+          "ParameterValue": "ami-df6a8b9b"
+        },
+        {
+          "ParameterKey": "InstanceType",
+          "ParameterValue": "t2.micro"
+        }
+      ]
+    },
+    {
+      "_id": "55f7c1e33f985c8847887038",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "stackName": "CATCHEF",
+      "stackId": "arn:aws:cloudformation:us-west-1:549974527830:stack/CATCHEF/54995940-5b77-11e5-905b-5044330dbaa6",
+      "status": "CREATE_COMPLETE",
+      "templateFile": "365738fb-240c-4787-9cc7-ca471500fdd7__template__CatalystStack.template",
+      "cloudProviderId": "55c193992b4997ef060e53d0",
+      "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+      "infraManagerType": "chef",
+      "region": "us-west-1",
+      "__v": 0,
+      "autoScaleResourceIds": [],
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "stackParameters": [
+        {
+          "ParameterKey": "CatalystName",
+          "ParameterValue": "mp-test"
+        },
+        {
+          "ParameterKey": "KeyName",
+          "ParameterValue": "GoldenDemo"
+        },
+        {
+          "ParameterKey": "Subnet",
+          "ParameterValue": "subnet-d7df258e"
+        },
+        {
+          "ParameterKey": "SecurityGroup",
+          "ParameterValue": "sg-eeff688b"
+        },
+        {
+          "ParameterKey": "AMImageID",
+          "ParameterValue": "ami-df6a8b9b"
+        },
+        {
+          "ParameterKey": "InstanceType",
+          "ParameterValue": "t2.micro"
+        }
+      ]
+    },
+    {
+      "_id": "55fff370bd22fd21749c1d7b",
+      "orgId": "ca8a9158-0426-4a14-9401-a5539a9dda87",
+      "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
+      "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+      "envId": "aa20c605-b493-4993-8167-756efa7ccfa7",
+      "stackName": "Spirent",
+      "stackId": "arn:aws:cloudformation:us-west-1:549974527830:stack/Spirent/88edf480-6059-11e5-962d-50d5017048d2",
+      "status": "CREATE_COMPLETE",
+      "templateFile": "365738fb-240c-4787-9cc7-ca471500fdd7__template__CatalystStack.template",
+      "cloudProviderId": "55c193992b4997ef060e53d0",
+      "infraManagerId": "6a178a0f-8c87-4f87-962d-04e508f1c095",
+      "infraManagerType": "chef",
+      "region": "us-west-1",
+      "__v": 0,
+      "autoScaleResourceIds": [],
+      "users": [
+        "Admin2",
+        "Eng1",
+        "Eng2",
+        "Rel_Admin",
+        "Tester1",
+        "Tester2",
+        "appuser1",
+        "johnsmith",
+        "pj",
+        "superadmin",
+        "test",
+        "userc",
+        "userd"
+      ],
+      "stackParameters": [
+        {
+          "ParameterKey": "CatalystName",
+          "ParameterValue": "mp-test"
+        },
+        {
+          "ParameterKey": "KeyName",
+          "ParameterValue": "GoldenDemo"
+        },
+        {
+          "ParameterKey": "Subnet",
+          "ParameterValue": "subnet-d7df258e"
+        },
+        {
+          "ParameterKey": "SecurityGroup",
+          "ParameterValue": "sg-eeff688b"
+        },
+        {
+          "ParameterKey": "AMImageID",
+          "ParameterValue": "ami-df6a8b9b"
+        },
+        {
+          "ParameterKey": "InstanceType",
+          "ParameterValue": "t2.micro"
+        }
+      ]
+    }
+  ]
+}

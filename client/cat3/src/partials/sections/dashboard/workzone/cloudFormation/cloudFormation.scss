@@ -1,0 +1,53 @@
+@import '../../../../theme';
+
+#cloudFormationPage, #azureARMPage {
+	.productdiv4 {
+		width: 153px!important;
+		float: left;
+		padding-top: 7px;
+		margin-left: 10px;
+	}
+	.panel-title{
+		margin-right: 15px;
+	}
+}
+
+#stackInfoPage {
+	.cftEventTbl-wrapper {
+		overflow: auto; 
+	}
+
+	.cftEventTbl {
+		min-height: 65px;
+		overflow-y: auto;
+		border-top: 1px solid #ddd;
+		border-left: 1px solid #ddd;
+		font-size: 12px;
+		min-width: 868px;
+	}
+
+	.time-stamp-header, .resource-name-header, .resource-type-header, .resource-status-header, .time-stamp, .resource-name, .resource-type, .resource-status {
+		float: left;
+		padding: 5px 0;
+		border-bottom: 1px solid #ddd;
+		border-right: 1px solid #ddd;
+		text-align: center;
+	}
+
+	.time-stamp-header, .resource-name-header, .resource-type-header, .resource-status-header {
+		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f2f2f2), to(#fafafa));
+		font-weight: bold;
+	}
+
+	.time-stamp-header, .time-stamp {
+		width: 25%;
+	}
+
+	.resource-name-header, .resource-name {
+		width: 25%;
+	}
+
+	.resource-type-header, .resource-type, .resource-status-header, .resource-status {
+		width: 25%;
+	}
+}

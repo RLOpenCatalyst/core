@@ -1,0 +1,49 @@
+<div id='addScriptParamsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"><i class="fa fa-th-list"></i> Add Script Params</h4>
+	</div>
+
+	<div class="modal-body">
+		<fieldset>
+			<div class="parameter-section">
+				<div class="col-lg-12 col-md-12 margintop15">
+					<table id="booleanTable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%">
+						<thead>
+							<tr>
+								<th class="headParamTable">Parameter</th>
+								<th class="headParamTable">Value</th>
+								<th class="headParamTable">Description</th>
+								<th class="headParamTable">Type</th>
+							<!--	<th class="headParamTable">Delete</th>-->
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="param in params track by $index">
+								<td class="booleanParam"><label class="control-label" for="choiceName">Parameter{{$index+1}}:<span class="red">*</span></label></td>
+								<td><input id="paramVal" type="text" class="form-control" name="paramVal" ng-model="param.paramVal"></td>
+								<td><input id="paramDesc" type="text" class="form-control" name="paramDesc" ng-model="param.paramDesc"></td>
+								<td><select id="paramType" name="paramType" ng-init="param.paramType = ''" class="form-control" ng-model="param.paramType">
+									<option value="">Default</option>
+									<option value="Password">Password</option>
+									<option value="Restricted">Restricted</option>
+								</select></td>
+								<!--<td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(param);"><i class=" fa fa-trash-o"></i></button></td>-->
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!--<a id="addParams" class="marginleft23" type="button" id="add" ng-click="add()">Add More</a>-->
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">
+			<i class="fa fa-check white"></i> Save
+		</button>		
+	</div>
+</div>

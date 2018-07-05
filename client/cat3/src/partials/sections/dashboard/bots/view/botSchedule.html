@@ -1,0 +1,146 @@
+<div id='addEventsPage'>
+   <form name="newSchedule" novalidate>
+      <div class="modal-header">
+         <span class="close" ng-click="$dismiss('cancel')">×</span>
+         <h4 class="modal-title"><i class="fa fa-calendar"></i>&nbsp;Schedule Your BOT</h4>
+      </div>
+
+      <div class="modal-body">
+         <!--dropdown for selecting the repeat type-->
+
+         <div class="col-lg-6 col-md-6">
+            <label>Starts on: <span class="red">*</span>
+            </label>
+            <input id="date-start"  ng-change="dateChange()"   type="text"  ng-model="schedulerStartOn" class="form-control-date"  >
+         </div>
+         <div class="col-lg-6 col-md-6">
+            <label>Ends on: <span class="red">*</span>
+            </label>
+            <input ng-change="dateChange()" type="text"   id="date-end" ng-model="schedulerEndOn" class="form-control-date"  >
+            <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
+         </div>
+         <div class="clearfix margintop15 "></div>
+         <div class="clearfix margintop15"></div>
+          <div>
+         <fieldset class="repo-job-details-wrapper">
+            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Interval </legend>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+               <label>Repeats: <span class="red">*</span></label>
+               <select class="form-control-date" ng-model="repeatsType">
+                  <option selected="selected" value="Minutes" title="Repeat in Minutes">Minutes</option>
+                  <option value="Daily" title="Repeats Daily">Daily</option>
+                  <option value="Weekly" title="Repeats Weekly">Weekly</option>
+                  <option value="Monthly" title="Repeats Monthly">Monthly</option>
+                  <!-- <option value="Yearly" title="Repeats Yearly">Yearly</option> -->
+               </select>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+               <label>Repeat By: <span class="red">*</span>
+                <span ng-show="newSchedule.repeatBy.$touched && newSchedule.repeatBy.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="repeatBy" class="form-control-date" ng-model="repeatBy" >
+                  <option value="" selected="selected">Choose</option>
+                  <option ng-repeat="repeatBy in repeatCount(30)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
+               </select>
+            </div>
+            <!--repeat on yearly for month starts -->
+
+            <!--starts at dropdown-->
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType!=='Minutes'">
+               <label>Time(Hrs):
+               <span class="red">&nbsp;*</span>
+               <span ng-show="newSchedule.timeEventHour.$touched && newSchedule.timeEventHour.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="timeEventHour" class="form-control-date" ng-model="timeEventType">
+                  <option value="" selected="selected">Choose Start Hour</option>
+                  <option ng-repeat="timeNumber in repeatCount(23)" value="{{timeNumber}}" title="Time Starts {{timeNumber}} {{repeatsType}}">{{timeNumber}}</option>
+               </select>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType!=='Minutes'">
+               <label>Time(Mins):
+               <span class="red">&nbsp;*</span>
+               <span ng-show="newSchedule.timeEventMinute.$touched && newSchedule.timeEventMinute.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="timeEventMinute" class="form-control-date" ng-model="timeEventMinute">
+                  <option value="" selected="selected">Choose Start Minute</option>
+                  <option ng-repeat="timeNumberMinutes in repeatCount(59)" value="{{timeNumberMinutes}}" title="Time Starts {{timeNumberMinutes}} {{repeatsType}}">{{timeNumberMinutes}}</option>
+               </select>
+            </div>
+            <!--repeat on weekly -->
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType==='Weekly'">
+               <label>Repeat On:
+               <span class="control-label red">&nbsp;*</span>
+               <span ng-show="newSchedule.weekOfTheDay.$touched && newSchedule.weekOfTheDay.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="weekOfTheDay" class="form-control-date" ng-model="weekOfTheDay">
+                  <option value="" selected="selected">Choose The Day</option>
+                  <option ng-repeat="(key,value) in daysOfWeek" value="{{key}}" title="Repeats every {{value}}">{{value}}</option>
+               </select>
+            </div>
+            <!--repeat on weekly ends--> 
+            <!--repeat on monthly & yearly starts -->
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType==='Monthly'">
+               <label>Choose Date:
+               <span class="control-label red">&nbsp;*</span>
+               <span ng-show="newSchedule.selectedDayOfTheMonth.$touched && newSchedule.selectedDayOfTheMonth.$invalid" class="inputValidationMsg">
+               </span>
+               </label>
+               <select name="selectedDayOfTheMonth" class="form-control-date" ng-model="selectedDayOfTheMonth">
+                  <option value="" selected="selected">Choose the Date</option>
+                  <option ng-repeat="selectedDayOfTheMonth in repeatCount(31)" value="{{selectedDayOfTheMonth}}" title="Day of the Month selected {{selectedDayOfTheMonth}}">{{selectedDayOfTheMonth}}</option>
+               </select>
+            </div>
+            <!--repeat on monthly & yearly ends-->
+            <!--starts at dropdown ends here-->
+            <!--dropdown ends here-->
+         </fieldset>
+          </div>
+      </div>
+      <div class="modal-footer">
+         <button type="button" class="btn cat-btn-close" ng-click="$dismiss('cancel')">
+         <i class="fa fa-times black"></i> Cancel
+         </button>
+         <button type="submit" class="btn cat-btn-update" ng-disabled="newSchedule.$invalid" ng-click="ok()">
+         <i class="fa fa-check white"></i> Save
+         </button>      
+      </div>
+   </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#date-end').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY ',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        });
+        $('#date-start').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        }).on('change', function(e, date)
+        {
+            $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
+        });
+        $.material.init();
+        $(document).on('click', 'input.time', function(){
+            var $this = $(this);
+            setTimeout(function () {
+                $this.bootstrapMaterialDatePicker({
+                    format: 'HH:mm',
+                    date: false,
+                    switchOnClick : true,
+                });
+            },100);
+
+        });
+    });
+</script>

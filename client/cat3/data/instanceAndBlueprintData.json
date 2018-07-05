@@ -1,0 +1,130 @@
+{
+  "tasks": [],
+  "instances": [
+    {
+      "_id": "55e02cbb676b635e363f085a",
+      "name": "Demo",
+      "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+      "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+      "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+      "envId": "c393e5da-ae81-40db-9347-11f77ee6c0d7",
+      "providerId": "556c505a632bffa92554f3ac",
+      "keyPairId": "556c505a632bffa92554f3ad",
+      "chefNodeName": "i-1007bfcb",
+      "platformId": "i-1007bfcb",
+      "instanceState": "stopped",
+      "bootStrapStatus": "failed",
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "software": [],
+      "users": [
+        "padmin",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [
+        {
+          "name": "Readmagi",
+          "url": "http://localhost:3000/",
+          "_id": "55d3f3bfa08f399f2716933b"
+        }
+      ],
+      "attributes": [],
+      "runlist": [
+        "recipe[nodejs]"
+      ],
+      "__v": 0,
+      "instanceIP": "52.11.224.98",
+      "actionLogs": [],
+      "blueprintData": {
+        "blueprintId": "55d3f3bfa08f399f2716933a",
+        "blueprintName": "Demo",
+        "templateId": "NodeJS",
+        "templateType": "AppFactory",
+        "iconPath": "/d4dMasters/image/533a5752-4238-4622-ad9c-29344ba2a38b__templatesicon__appFact2.png"
+      },
+      "credentials": {
+        "username": "root",
+        "pemFileLocation": "/home/ankitgoel/Desktop/cat_poc_work/D4D/server/catdata/catalyst/instance-pemfiles/556c505a632bffa92554f3ad"
+      },
+      "chef": {
+        "serverId": "f858448c-5ed2-46f7-be1a-14bd6486d2fb",
+        "chefNodeName": "i-1007bfcb"
+      },
+      "hardware": {
+        "platform": "unknown",
+        "platformVersion": "unknown",
+        "architecture": "unknown",
+        "os": "linux",
+        "memory": {
+          "total": "unknown",
+          "free": "unknown"
+        }
+      }
+    }
+  ],
+  "blueprints": [
+    {
+      "_id": "55d3f3bfa08f399f2716933a",
+      "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+      "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+      "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+      "name": "Demo",
+      "iconpath": "/d4dMasters/image/533a5752-4238-4622-ad9c-29344ba2a38b__templatesicon__appFact2.png",
+      "templateId": "NodeJS",
+      "templateType": "AppFactory",
+      "blueprintConfig": {
+        "_id": "55d3f3bfa08f399f27169339",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [
+                "recipe[nodejs]"
+              ],
+              "_id": "55d3f3bfa08f399f27169338",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "55d3f3bfa08f399f27169337",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "f858448c-5ed2-46f7-be1a-14bd6486d2fb",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-c00ee1a5"
+          ],
+          "_id": "55d3f3bfa08f399f27169336",
+          "instanceOS": "linux",
+          "imageId": "556c50b1632bffa92554f3ae",
+          "subnetId": "subnet-aed68ce8",
+          "vpcId": "vpc-b1f3ecd3",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-b6bdde86",
+          "instanceType": "t1.micro",
+          "keyPairId": "556c505a632bffa92554f3ad"
+        },
+        "cloudProviderId": "556c505a632bffa92554f3ac",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "padmin",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [
+        {
+          "name": "Readmagi",
+          "url": "http://localhost:3000/",
+          "_id": "55d3f3bfa08f399f2716933b"
+        }
+      ]
+    }
+  ],
+  "stacks": []
+}

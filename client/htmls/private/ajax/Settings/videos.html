@@ -1,0 +1,293 @@
+<style>
+@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700);
+@import url(http://fonts.googleapis.com/css?family=Rokkitt);
+
+
+.video > img, .play-overlay {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+
+.play-overlay {
+  display: none;
+  background-color: rgba(0,0,0,0.45);
+}
+
+.glyphicon-play {
+  position: relative;
+  color: #CCC;
+  font-size: 4em;
+  top: 27%;
+  left: 38%;
+  transition: color 0.5s ease;
+}
+
+.glyphicon-play::hover {
+    color: #fff;
+    -webkit-transition: color 0.5s ease;
+    -moz-transition: color 0.5s ease;
+    -o-transition: color 0.5s ease;
+    -ms-transition: color 0.5s ease;
+    transition: color 0.5s ease;
+    text-decoration: none;
+ }
+
+.video-content {
+  position: absolute;
+  top: 250px;
+  left:26px;
+  color: #000;
+  display: block;
+  z-index: 200;
+}
+
+.glyphicon-time {
+  color: #bbb;
+  padding: 10px 0 0 10px;
+}
+
+
+.description {
+  font-family: 'Lato';
+  font-size: 12px;
+ /* padding: 5px 15px;*/
+  color: #000;
+}
+
+@media(max-width: 767px) {
+  .video-clip:not(:first-child) {
+    margin-top: 155px;
+  }
+}
+.ui.card {
+    max-width:100%;
+    position:relative;
+    width:390px;
+    background:#FFF;
+    padding:0;
+    border:none;
+    border-radius:.28571429rem;
+    box-shadow:0 1px 3px 0 #D4D4D5,
+    0 0 0 1px #D4D4D5;
+    transition:0s!important;
+}
+
+.ui.card a,
+.ui.cards>.card a {
+    cursor:pointer
+}
+.ui.card:first-child {
+    margin-top:0
+}
+.ui.card:last-child {
+    margin-bottom:0
+}
+
+
+.ui.card:after {
+    display:block;
+    content:' ';
+    clear:both;
+    overflow:hidden;
+    visibility:hidden
+}
+
+
+
+.ui.card>.image {
+    position:relative;
+    display:block;
+    -webkit-box-flex:0;
+    -webkit-flex:0 0 auto;
+    -ms-flex:0 0 auto;
+    flex:0 0 auto;
+    padding:0;
+    background:rgba(0,0,0,.05)
+}
+.ui.card>.image>img {
+    display:block;
+    width:100%;
+    border-radius:inherit
+}
+.ui.card>.image:not(.ui)>img {
+    border:none
+}
+.ui.card>.content {
+    border:none;
+    border-top:1px solid rgba(34,36,38,.1);
+    background:0 0;
+    margin:0;
+    padding:1em;
+    box-shadow:none;
+    font-size:1em;
+    border-radius:0
+}
+.ui.card>.content:after {
+    display:block;
+    content:' ';
+    clear:both;
+    overflow:hidden;
+    visibility:hidden
+}
+.ui.card>.content>.header {
+    display:block;
+    margin:'';
+    font-family:Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    color:rgba(0,0,0,.85);
+}
+.ui.card>.content>.header:not(.ui) {
+    font-weight:700;
+    font-size:1.28571429em;
+    margin-top:-.21425em;
+}
+.ui.card>.content>.header+.description{
+    margin-top:.5em
+}
+
+.ui.card>.content>.description {
+    clear:both;
+    color:rgba(0,0,0,.68)
+}
+.ui.card>.content p {
+    margin:0 0 .5em
+}
+.ui.card>.content p:last-child {
+    margin-bottom:0
+}
+
+
+
+video{
+  margin-left: 4px;
+  /*background:transparent url('play.jpg') no-repeat 0 0; */
+   -webkit-background-size:cover; 
+   -moz-background-size:cover; 
+   -o-background-size:cover; 
+   background-size:cover; 
+   width:320px;
+   height:308px;
+}
+
+</style>
+<div class="row">
+   <div class="col-md-12">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h5 class="widget-title widgetColor">
+               <strong>List of Videos</strong>
+            </h5>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main widgetHeight">
+               <div class="col-lg-4 col-md-4">
+                  <div class="ui card video-clip">
+                     <div class="video">
+                        <iframe width="334" height="250" src="https://www.youtube.com/embed/Gkopvq56s7Y" frameborder="0" allowfullscreen></iframe>
+                     </div>
+                     <div class="content">
+                        <h3 class="header">Autoscale</h3>
+                        <div class="description">
+                           This video demonstrates launching autoscale group in CFT using catalyst and basic behavior.
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!--  Start Video Object  --> <!--azure Windows-->
+               <div class="col-lg-4 col-md-4">
+                  <div class="ui card video-clip">
+                     <div class="video">
+                        <iframe width="334" height="250" src="https://www.youtube.com/embed/iEsat5kBEjw" frameborder="0" allowfullscreen></iframe>
+                     </div>
+                     <div class="content">
+                        <h3 class="header">Azure Windows</h3>
+                        <div class="description">
+                           This video demonstrates integration of Azure as provider with Catalyst.
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!--azure windows ends here-->
+               <!--Hp helion starts here-->
+               <div class="col-lg-4 col-md-4">
+                  <div class="ui card video-clip">
+                     <div class="video">
+                        <iframe width="334" height="250" src="https://www.youtube.com/embed/8dbVIJUQV0U" frameborder="0" allowfullscreen></iframe>
+                     </div>
+                     <div class="content">
+                        <h3 class="header">Hp Helion</h3>
+                        <div class="description">
+                           This video demonstrates integration of HPHelion as provider with Catalyst.
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!--Hp helion ends here-->
+         <div class="row">
+            <div class="col-lg-12 col-md-12">
+               <!--new design starts here-->
+               <div class="col-lg-4 col-md-4">
+                  <div class="ui card video-clip">
+                     <div class="video">
+                        <iframe width="334" height="250" src="https://www.youtube.com/embed/LhaCdYZU9H0" frameborder="0" allowfullscreen></iframe>
+                     </div>
+                     <div class="content">
+                        <h3 class="header">New Design</h3>
+                        <div class="description">
+                           This video demonstrates the new design for Blueprint creation page.
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!--new design ends here-->
+               <div class="col-lg-4 col-md-4">
+                  <div class="ui card video-clip">
+                     <div class="video">
+                        <iframe width="334" height="250" src="https://www.youtube.com/embed/KrNN9eMIg2Q" frameborder="0" allowfullscreen></iframe>
+                     </div>
+                     <div class="content">
+                        <h3 class="header">OpenStack</h3>
+                        <div class="description">
+                           This video demonstrates integration of OpenStack as provider with Catalyst.
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-lg-4 col-md-4">
+                  <div class="ui card video-clip">
+                     <div class="video">
+                        <iframe width="334" height="250" src="https://www.youtube.com/embed/u0jVcCmFBBg" frameborder="0" allowfullscreen></iframe>
+                     </div>
+                     <div class="content">
+                        <h3 class="header">VMware</h3>
+                        <div class="description">
+                           This video demonstrates integration of VMware as provider with Catalyst.
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-lg-12">
+               <div class="col-lg-4 col-md-4">
+                  <div class="ui card video-clip">
+                     <div class="video">
+                        <iframe width="334" height="250" src="https://www.youtube.com/embed/kzqlbbHS86U" frameborder="0" allowfullscreen></iframe>
+                     </div>
+                     <div class="content">
+                        <h3 class="header">Upgrade</h3>
+                        <div class="description">
+                           This video demonstrates application deployment flow in catalyst.
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

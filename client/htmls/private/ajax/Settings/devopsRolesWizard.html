@@ -1,0 +1,556 @@
+<div class="wizardFlow"></div>
+<div class="content">
+   <form action="" id="myForm101">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">Nexus Configuration Management</h4>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main" style="min-height:200px">
+               <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                  <div>
+                     <!-- widget content -->
+                     <div class="widget-body no-padding">
+                        <div class="col-lg-6 col-md-6">
+                           <label for="">Nexus Server Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <div class="input-groups">
+                              <input name="" value="" id="nexusservername" class="required form-control" type="text"  cdata="catalyst" unique="true"  cat-validation="required,max15">
+                           </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                           <label for="">User Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <div class="input-groups">
+                              <input autocomplete="false" name="username" id="username" class="form-control" cdata="catalyst" type="text">
+                           </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 appNameLabel">
+                           <label for="name">Password:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <div class="input-groups">
+                              <input name="nexuspassword" id="nexuspassword" class="form-control" type="text" cdata="catalyst"  cat-validation="required,max15">
+                           </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 appNameLabel">
+                           <label for="link">Nexus Server URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <div class="input-groups">
+                              <input type="text" unique="true" name="hostname" id="hostname" class="form-control" type="text"  cdata="catalyst"  cat-validation="required" type="url">
+                           </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 appNameLabel">
+                           <label for="name">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <select id="orgname" name="orgname" unique="true" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst">
+                           </select>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                           <a style="cursor:pointer;" data-toggle="modal" data-backdrop="  false" id="nexusGroupAnchorDetails" href="#nexusGroupDetailsModal"> <img title="Add Nexus Group Details" data-placement="top" rel="tooltip" style="float:right;margin-top:20px;" src="img/add.png"></a>
+                           <label style="float:left;margin-top:20px;">Nexus Group ID Details :</label>
+                           <div class="table-responsive table-div">
+                              <table id="tablenexusGroupDetails" class="table table-striped table-bordered table-hover dataTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;margin-top:45px;" width="100%" cellpadding="5px">
+                                 <thead>
+                                    <tr class="rowCustomStyle" style="font-weight:bold;">
+                                       <td style="color:#fff;background-color: #2c3742;">Name</td>
+                                       <td style="color:#fff;background-color: #2c3742; width:40%">Action</td>
+                                    </tr>
+                                 </thead>
+                                 <tbody id="nexusGroupTbody">
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6" style="margin-top:25px; display:none">
+                           <label for="name">Nexus Group ID Details:</label>
+                           <input autofocus name="ctl00$MainContent$orgname" value="" id="groupid" class="form-control" type="text"  cdata="catalyst">
+                        </div>
+                        <div class="col-lg-6 col-md-6 smart-form margintop20">
+                           <label for="category">Assign Projects:</label>
+                           <div id="projectname" multiselect="multiselect" datatype="select"  class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" cdata="catalyst">
+                           </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                           <a style="cursor:pointer;" data-toggle="modal" data-backdrop="false" id="repoanchorDetails" href="#repodetailsModal"> <img title="Add Repository Details" data-placement="top" rel="tooltip" class="addrepoDetails" style="float:right;margin-top:20px;" src="img/add.png"></a>
+                           <label style="float:left;margin-top:20px;">Repositories Details :</label>
+                           <div class="table-responsive table-div">
+                              <table id="tablerepositoryDetails" class="table table-striped table-bordered table-hover dataTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;margin-top:45px;" width="100%" cellpadding="5px">
+                                 <thead>
+                                    <tr class="rowCustomStyle" style="font-weight:bold;">
+                                       <td style="color:#fff;background-color: #2c3742;">Name</td>
+                                       <td style="color:#fff;background-color: #2c3742; width:10%">Action</td>
+                                    </tr>
+                                 </thead>
+                                 <tbody id="repoDeployTbody">
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6" style="margin-top:25px; display:none">
+                           <label for="name">Repository Details:</label>
+                           <input autofocus name="ctl00$MainContent$orgname" value="" id="repositories" class="form-control" type="text"  cdata="catalyst">
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+               <button name="next1" id="saveNexusWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+               <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+            </div>
+         </div>
+      </div>
+   </form>
+</div>
+<!--modal for Repo Deploy Details-->
+<div class="modal fade" id="nexusGroupDetailsModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form class="" id="nexusGroupDetailsCreate" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               &times;
+               </button>
+               <h4 class="modal-title">
+                  <img style="width:18px;margin-left:6px;" src="img/tasksmall.png">&nbsp;&nbsp;Add Nexus Group Details
+               </h4>
+            </div>
+            <div class="modal-body" style="height:150px;">
+               <div class="col-lg-6 col-md-6">
+                  <label for="name">Nexus Group ID:<span class="control-label redSpan">&nbsp;*</span></label>
+                  <input type="text" cdata="catalyst" class="form-control" id="nexusGroupId" value="" name="ctl00$MainContent$orgname">
+               </div>
+            </div>
+            <div class="modal-footer">
+               <a type="button" class="btn btn-default" data-dismiss="modal">
+               <i class="ace-icon fa fa-times bigger-110" style="margin-right: 5px;"></i>Cancel
+               </a>
+               <button class="btn btn-primary btn-mini" id="saveNexusGroupDetails">
+               <i class="ace-icon fa fa-check bigger-110"></i>
+               Save
+               </button>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<!--modal for Repo Deploy Details-->
+<div class="modal fade" id="repodetailsModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form class="" id="repoDetailsCreate" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               &times;
+               </button>
+               <h4 class="modal-title">
+                  <img style="width:18px;margin-left:6px;" src="img/tasksmall.png">&nbsp;&nbsp;Add Repository Details
+               </h4>
+            </div>
+            <div class="modal-body" style="height:150px;">
+               <div class="col-lg-6 col-md-6">
+                  <label for="">Repository Name:<span style="color:red">*</span>
+                  <span>
+                  <img class="reposerverspinner" src="img/select2-spinner.gif" style="display:none">
+                  </img>
+                  </span>
+                  </label>
+                  <select id="repoNameCreate" name="" class="form-control">
+                     <option value="">Choose Repository</option>
+                  </select>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <a type="button" class="btn btn-default" data-dismiss="modal">
+               <i class="ace-icon fa fa-times bigger-110" style="margin-right: 5px;"></i>Cancel
+               </a>
+               <button class="btn btn-primary btn-mini" id="saveRepoDetails">
+               <i class="ace-icon fa fa-check bigger-110"></i>
+               Save
+               </button>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<script>
+   $(document).ready(function(e) {
+      var devopsRolesWizard = $('<ol class="bwizard-steps bwizard-steps3 clearfix clickable"><li aria-selected="true" class="btn-2 nexusCreate active" id="nexusCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/devopsRolesWizard.html" class="hidden-phone">Nexus Configuration</a></li><li aria-selected="true" style="z-index: 3;" id="dockerCreate" class="btn-3 dockerCreate"><span class="label">2</span><a href="ajax/Settings/dockerWizard.html" class="hidden-phone">Docker Configuration</a></li><li aria-selected="true" style="z-index: 2;" id="jenkinsCreate" class="btn-4 jenkinsCreate"><span class="label btn-1">3</span><a href="ajax/Settings/jenkinsWizard.html" class="hidden-phone">Jenkins Configuration</a></li></ol>');
+    $('.wizardFlow').append(devopsRolesWizard);
+     orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:selected').val();
+    var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($option);
+        //api call for getting the status of wizard
+        if(clicked){
+          $('#wizardActionListLoader').show();
+            $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+              if (data.currentStep.name === 'Devops Roles') {
+                if (data.currentStep.nestedSteps) {
+                    var nestedSteps = data.currentStep.nestedSteps;
+                    if (nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
+                        nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === false &&
+                        nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false) {
+                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                        $('.contentSetting').find('ol li#dockerCreate').addClass('active');
+                        $('.content').load('ajax/Settings/dockerWizard.html');
+                    } else if (nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
+                        nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === true &&
+                        nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false) {
+                        $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                        $('.contentSetting').find('ol li#dockerCreate').removeClass('active').addClass('green-btn');
+                        $('.contentSetting').find('ol li#jenkinsCreate').addClass('active');
+                        $('.content').load('ajax/Settings/jenkinsWizard.html');
+                    } else {
+
+                    }
+                }
+              } else {
+                getNexusRepoDetailsOnEdit();
+                $('.btn-3 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+              }
+            });
+            $('#wizardActionListLoader').hide();
+        } else {
+            getNexusRepoDetailsOnEdit();
+        }
+    });
+  
+    function getNexusRepoDetailsOnEdit() {
+      $.get('/d4dMasters/readmasterjsonnew/26', function(data){
+          for (var i = 0; i < data.length; i++) {
+             if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                 var $optionOrgNameEnv = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                 $('#myForm101').find('select#orgname').append($optionOrgNameEnv).attr('disabled', 'disabled');
+                 $('#myForm101').find('input#nexusservername').val(data[i].nexusservername).attr('disabled', 'disabled');
+                 $('#myForm101').find('input#username').val(data[i].username).attr('disabled', 'disabled');
+                 $('#myForm101').find('input#nexuspassword').val(data[i].nexuspassword).attr('disabled', 'disabled').removeAttr('type').attr('type','password');
+                 $('#myForm101').find('input#hostname').val(data[i].hostname).attr('disabled', 'disabled');
+                 $('#myForm101 #projectname').find('input[type="checkbox"][value="'+data[i].projectname+'"]').attr('checked','checked')
+                 //$('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('#myForm101').find('button#saveNexusWizard').addClass('hidden');
+                 for (var j = 0; j < data[i].groupid.length; j++) {
+                     (function(j) {
+                       var nexusGroupName = data[i].groupid[j];
+                       var $nexusGroupTbody = $('#nexusGroupTbody');
+                       var $tr = $('<tr class="nexusGroupDetailsRow"></tr>');
+                       var $tdnexusGroupName = $('<td class="tdnexusGroupName" value=' + nexusGroupName + ' style="word-break: break-word;"></td>');
+                       $tr.data('nexusGroupName', nexusGroupName);
+
+                       $tdnexusGroupName.append(nexusGroupName);
+                       var $tdAction = $('<td/>');
+                       $tdAction.append('<div class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+                       $tdAction.find('.deleteRow').click(function() {
+                         $nexusGroupDetails.row($tr).remove().draw(true);
+                       });
+
+                       $tr.append($tdnexusGroupName).append($tdAction);
+                       $nexusGroupTbody.append($tr);
+                       $nexusGroupDetails.row.add($tr).draw();
+                     })(j);
+                }
+                for(var k =0; k < data[i].repositories.nexus.length; k++) {
+                  
+                      var nexusRepoName = data[i].repositories.nexus[k];
+                       var $repoDeployTbody = $('#repoDeployTbody');
+            var $tr = $('<tr class="repoDetailsRow"></tr>');
+            var $tdName = $('<td class="tdrepoName" value=' + nexusRepoName + ' style="word-break: break-word;"></td>');
+            $tr.data('repoName', nexusRepoName);
+
+            $tdName.append(nexusRepoName);
+            var $tdAction = $('<td/>');
+            $tdAction.append('<div style="margin-right:17px;float:right;" class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+            $tdAction.find('.deleteRow').click(function() {
+                $repoDetails.row($tr).remove().draw(true);
+            });
+
+            $tr.append($tdName).append($tdAction);
+            $repoDeployTbody.append($tr);
+            $repoDetails.row.add($tr).draw();
+                  
+                }
+             }
+         }
+      });
+    }
+
+    function getDockerDetailsOnEdit() {
+      $.get('/d4dMasters/readmasterjsonnew/18',function(data){
+          for (var i = 0; i < data.length; i++) {
+             if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                 var $optionOrgNameDocker = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                 $('#myForm45').find('select#orgname').append($optionOrgNameDocker).attr('disabled', 'disabled');
+                 $('#myForm45').find('input#dockerreponame').val(data[i].dockerreponame).attr('disabled', 'disabled');
+                 $('#myForm45').find('input#dockerrepopath').val(data[i].dockerrepopath).attr('disabled', 'disabled');
+                 $('#myForm45').find('input#dockeruserid').val(data[i].dockeruserid).attr('disabled', 'disabled');
+                 $('#myForm45').find('input#dockerpassword').val(data[i].dockerpassword).attr('disabled', 'disabled').removeAttr('type').attr('type','password');
+                 $('#myForm45').find('input#dockeremailid').val(data[i].dockeremailid).attr('disabled', 'disabled');
+                 $('#myForm45 #projectname').find('input[type="checkbox"][value="'+data[i].projectname+'"]').attr('checked',true);
+                 $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('#myForm45').find('button#saveDockerWizard').addClass('hidden');
+                 
+             }
+         }
+      });
+    }
+
+    function getJenkinsOnEdit() {
+        $.get('/d4dMasters/readmasterjsonnew/20',function(data){
+          for (var i = 0; i < data.length; i++) {
+             if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                 var $optionOrgNameJenkins = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                 $('#myForm50').find('select#orgname').append($optionOrgNameJenkins).attr('disabled', 'disabled');
+                 $('#myForm50').find('input#jenkinsname').val(data[i].jenkinsname).attr('disabled', 'disabled');
+                 $('#myForm50').find('input#jenkinsurl').val(data[i].jenkinsurl).attr('disabled', 'disabled');
+                 $('#myForm50').find('input#jenkinsusername').val(data[i].jenkinsusername).attr('disabled', 'disabled');
+                 $('#myForm50').find('input#jenkinspassword').val(data[i].jenkinspassword).attr('disabled', 'disabled').removeAttr('type').attr('type','password');
+                 
+                 $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('#myForm50').find('button#saveJenkinsWizard').addClass('hidden');
+             }
+         }
+      });
+    }
+
+    getTemplate = function(val, rowid) {
+                            return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle"' + 'value="' + val + '"' + 'rowid="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
+                        };
+  
+    $('#orgname').change(function() {
+        $('#projectname').empty();
+        $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
+            for (var i = 0; i < data.length; i++) {
+                if (orgIdForSetup === data[i].orgname_rowid[0]) {
+                    var str = '';
+                    str = str + getTemplate(data[i].projectname, data[i].rowid);
+                    $('#projectname').append(str);
+                }
+            }
+        });
+    });
+    $('#orgname').trigger('change');
+
+    
+    $('.btn-2 a').click(function(e) {
+        e.preventDefault();
+        clicked = false;
+        $('.contentSetting').load(this.getAttribute('href'));
+    });
+    $('.btn-3 a').click(function(e) {
+       clicked = true;
+        e.preventDefault();
+        $('.content').empty();
+        $('.btn-2 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
+        $(this).parent('.bwizard-steps li').addClass('active');
+        $('.content').load(this.getAttribute('href'));
+        getDockerDetailsOnEdit();
+    });
+    $('.btn-4 a').click(function(e) {
+        clicked = true;
+        e.preventDefault();
+        $('.content').empty();
+        $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
+        $(this).parent('.bwizard-steps li').addClass('active');
+        getJenkinsOnEdit();
+        $('.content').load(this.getAttribute('href'));
+    });
+
+
+
+
+    if (!$.fn.dataTable.isDataTable('#tablerepositoryDetails')) {
+        $repoDetails = $('#tablerepositoryDetails').DataTable({
+            "pagingType": "full_numbers",
+            "iDisplayLength": 5,
+            "aLengthMenu": [
+                [5, 40, 100, -1],
+                [5, 40, 100, "All"]
+            ],
+            "aoColumns": [{
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }]
+        });
+    }
+    $("#tablerepositoryDetails_length").hide();
+    $("#tablerepositoryDetails_filter").hide();
+
+
+    $('#repoanchorDetails').click(function(e) {
+        getNexusRepoDetails();
+    });
+    
+    function getNexusRepoDetails() {
+        var nexusUserName, nexusPassword, nexusHostName;
+        var $form = $('#myForm101');
+        nexusUserName = $form.find('#username').val();
+        nexusPassword = $form.find('#nexuspassword').val();
+        nexusHostName = $form.find('#hostname').val();
+        $('#repoNameCreate').empty();
+        $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');
+        $.get('/nexus/userName/' + nexusUserName + '/nexusPassword/' + nexusPassword + '/repositories?hostName=' + nexusHostName, function(nexusRepos) {
+            $('.reposerverspinner').css('display', 'none');
+            if (nexusRepos.length) {
+                for (var i = 0; i < nexusRepos.length; i++) {
+                    $('#repoNameCreate').append('<option data-repoName="' + nexusRepos[i].name + '" value="' + nexusRepos[i].id + '">' + nexusRepos[i].name + '</option>');
+                }
+            }
+        });
+    }
+
+    $("#saveRepoDetails").click(function(e) {
+
+        e.preventDefault();
+        var repoServerName = $("#chooseRepoServer").val();
+        var repoName = $("#repoNameCreate").val();
+        if (repoName == '') {
+            alert("Please enter Repository Name");
+        }
+        if (repoName != '') {
+            var $repoDeployTbody = $('#repoDeployTbody');
+            var $tr = $('<tr class="repoDetailsRow"></tr>');
+            var $tdName = $('<td class="tdrepoName" value=' + repoName + ' style="word-break: break-word;"></td>');
+            $tr.data('repoName', repoName);
+            $tdName.append(repoName);
+            var $tdAction = $('<td/>');
+            $tdAction.append('<div style="margin-right:17px;float:right;" class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+            $tdAction.find('.deleteRow').click(function() {
+                $repoDetails.row($tr).remove().draw(true);
+            });
+
+            $tr.append($tdName).append($tdAction);
+            $repoDeployTbody.append($tr);
+            $repoDetails.row.add($tr).draw();
+            $("#repodetailsModal").modal('hide');
+        }
+        $("#repoNameCreate").empty();
+        $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');
+    });
+
+    $('#nexusGroupAnchorDetails').click(function(e) {
+        $("#nexusGroupDetailsModal").modal('show');
+        $('#nexusGroupDetailsCreate').trigger("reset");
+    });
+    $("#saveNexusGroupDetails").click(function(e) {
+        e.preventDefault();
+        var nexusGroupName = $("#nexusGroupId").val();
+        if (nexusGroupName == '') {
+            alert("Please enter Nexus GroupId");
+        }
+        if (nexusGroupName != '') {
+            var $nexusGroupTbody = $('#nexusGroupTbody');
+            var $tr = $('<tr class="nexusGroupDetailsRow"></tr>');
+            var $tdnexusGroupName = $('<td class="tdnexusGroupName" value=' + nexusGroupName + ' style="word-break: break-word;"></td>');
+            $tr.data('nexusGroupName', nexusGroupName);
+
+            $tdnexusGroupName.append(nexusGroupName);
+            var $tdAction = $('<td/>');
+            $tdAction.append('<div class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+            $tdAction.find('.deleteRow').click(function() {
+                $nexusGroupDetails.row($tr).remove().draw(true);
+            });
+
+            $tr.append($tdnexusGroupName).append($tdAction);
+            $nexusGroupTbody.append($tr);
+            $nexusGroupDetails.row.add($tr).draw();
+            $("#nexusGroupDetailsModal").modal('hide');
+        }
+    });
+    $("#saveNexusGroupDetails").click(function(e) {
+        var nexusGroupList = [];
+        var tableData = $nexusGroupDetails.data();
+        for (var i = 0; i < tableData.length; i++) {
+            nexusGroupList.push(tableData[i][0]);
+        }
+        $('#groupid').val(JSON.stringify(nexusGroupList));
+    });
+    if (!$.fn.dataTable.isDataTable('#tablenexusGroupDetails')) {
+        $nexusGroupDetails = $('#tablenexusGroupDetails').DataTable({
+            "pagingType": "full_numbers",
+            "iDisplayLength": 5,
+            "aLengthMenu": [
+                [5, 40, 100, -1],
+                [5, 40, 100, "All"]
+            ],
+            "aoColumns": [{
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }]
+        });
+    }
+    $("#tablenexusGroupDetails_length").hide();
+    $("#tablenexusGroupDetails_filter").hide();
+    $("#nexusservername").focus();
+    //form validation for dashboard save
+
+    $("#saveNexusWizard").click(function(e) {
+        var repositories = {
+            nexus: []
+        };
+        var nexusList = [];
+        var tableData = $repoDetails.data();
+        for (var i = 0; i < tableData.length; i++) {
+            nexusList.push(tableData[i][0]);
+        }
+        repositories.nexus = nexusList;
+        $('#repositories').val(JSON.stringify(repositories));
+    });
+
+
+    $('#myForm101').submit(function(e) {
+
+        var nexusDesc = [];
+        var nexusData = {};
+
+        var $form = $('#myForm101');
+        nexusData.username = $form.find('#username').val();
+        nexusData.nexuspassword = $form.find('#nexuspassword').val();
+        nexusData.hostname = $form.find('#hostname').val();
+        var reqBody = {
+            nexusDesc: [nexusData]
+        }
+        var url = '../nexus/authenticate'
+        var reqBody = {
+            "username": nexusData.username,
+            "nexuspassword": nexusData.nexuspassword,
+            "hostname": nexusData.hostname
+        };
+
+        $.ajax({
+            method: "POST",
+            url: url,
+            data: reqBody,
+            success: function(data, success) {
+                if (!data.length) {
+                    bootbox.alert('Invalid Nexus Server Details.');
+                } else {
+                    if (validateForm()) {
+                        saveform('26');
+                    };
+                    return false; // for demo
+                }
+            },
+            error: function(jqxhr) {
+                $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                $('.contentSetting').find('ol li#dockerCreate').addClass('active');
+                $('.content').load('ajax/Settings/dockerWizard.html');
+                return false;
+                bootbox.alert(jqxhr.responseText);
+            },
+            failure: function(jqxhr) {
+                bootbox.alert(jqxhr.responseText);
+            }
+        });
+
+        return false;
+    });
+    $(".nextFormWizard").click(function() {
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+        $('.contentSetting').find('ol li#dockerCreate').addClass('active');
+        $('.content').load('ajax/Settings/dockerWizard.html');
+        getDockerDetailsOnEdit();
+    });
+</script>

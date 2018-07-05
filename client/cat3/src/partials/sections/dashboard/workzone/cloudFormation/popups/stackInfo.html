@@ -1,0 +1,39 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/cloudFormation/cloudFormation.css">
+
+<div id="stackInfoPage">
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> 
+			<i class="fa fa-bar-chart-o"></i> Event History
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<loading size="large" name="isStackInfoLoading" type="block" align="center"></loading>
+		<div class="cftEventTbl-wrapper" ng-show="!isStackInfoLoading">
+			<div class="cftEventTbl">
+				<div class="cftTblHead">
+					<div class="time-stamp-header"> Timestamp </div>
+					<div class="resource-name-header"> Resource Name </div>
+					<div class="resource-type-header"> Resource Type </div>
+					<div class="resource-status-header"> Resource Status </div>
+				</div>
+				<div class="cftTblBody" ng-repeat="cftEve in cftEvents">
+					<div class="cftTblRow">
+						<div class="time-stamp"> {{cftEve.Timestamp | timestampToLocaleTime}} </div>
+						<div class="resource-name"> {{cftEve.LogicalResourceId}} </div>
+						<div class="resource-type"> {{cftEve.ResourceType}} </div>
+						<div class="resource-status"> {{cftEve.ResourceStatus}} </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div ng-show="cftEvents.hasOwnProperty('message')">{{cftEvents.message}}</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

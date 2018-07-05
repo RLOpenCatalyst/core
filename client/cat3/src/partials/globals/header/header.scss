@@ -1,0 +1,403 @@
+@import '../../theme';
+
+/* Large desktops and laptops */
+@media (min-width: 768px) {
+	.navbar-nav {
+		width: 80%;
+	}
+
+	.navbar-nav .header-right {
+		float: right;
+	}
+
+	#header {
+		height: 49px;
+		background: #2C3742;
+		color: white;
+
+		.cursor {
+			cursor:pointer;
+		}
+		
+		.activeSection i {
+			color: #40BAF1 !important;
+		}
+
+		.header-logo-image {
+			height: 40px;  
+		}
+
+		#header-logo {
+			width: 18%;
+			height: 100%;
+			float: left;
+			margin-left: 10px;
+			padding-top: 5px;
+		}
+
+		.header-content {
+			.headNavigItem {
+				height: 30px;
+				font-weight: normal;
+				padding: 6px;
+				margin-top: 8px;
+				margin-left: 15px;
+				color: white;
+				cursor: pointer;
+			}
+			/*To override bootstrap style. Anchor is used in header to redirect to 2.0*/
+			.headNavigItem > a {
+				color: white;
+				text-decoration: none;
+			}
+			/*Override ends*/
+			#workzone {
+				float: left;
+				text-align: center;
+			}
+
+			#design, #design > a {
+				float: left;
+				text-align: center;
+				
+			}
+
+			#track, #track > a {
+				float: left;
+				text-align: center;
+			}
+
+			#userInfo {
+				height: 100%;
+			    float: left;
+			    max-width: 200px;
+			    overflow: hidden;
+			    text-overflow: ellipsis;
+			    white-space: nowrap;
+			}
+
+			#settings {
+				float: left;
+			}
+
+			#help, #help > a {
+				height: 100%;
+				float: left;
+				margin-left: 10px;
+			}
+
+			#logout {
+				width: 30px;
+				height: 100%;
+				float: left;
+				margin-left: 30px;
+			}
+		}
+
+		#header-menu {
+			float: right;
+		}
+	}
+}
+
+/* Landscape tablets and medium desktops */
+@media (min-width: 992px) and (max-width: 1199px) {
+	.header-right {
+		float: left;
+	}
+}
+
+/* Portrait tablets and small desktops */
+@media (min-width: 768px) and (max-width: 991px) {
+	#userInfo {
+		display: none;
+	}
+}
+
+/* Landscape phones and portrait tablets */
+@media (max-width: 767px) {
+	#header-logo {
+		top: 0px;
+		position: absolute;
+		padding: 5px;
+	}
+
+	.header-logo-image {
+		height: 40px;  
+	}
+
+	.navbar-nav {
+		line-height: 2.4;
+		padding-left: 4%;
+		color: #fff;
+	}
+
+	.navbar-toggle {
+		margin-right: 3%;
+	}
+}
+
+/* Portrait phones and smaller */
+@media (max-width: 480px) {
+	.navbar-nav {
+		padding-left: 8%;
+	}
+
+	.navbar-toggle {
+		margin-right: 7%;
+	}
+
+	#design>a, #track>a, #settings>a, #help>a {
+		color: #fff;
+	}
+
+	.navbar-collapse {
+		.header-content {
+			.activeSection {
+				@include theme-text-color;
+				border: none;
+			}
+		}
+	}
+}
+
+@media(min-width:1500px) {
+	#header-logo {
+		width: 13%;
+		height: 100%;
+		float: left;
+		margin-left: 10px;
+		padding-top: 5px;
+	}
+}
+
+/*Styles common for all Devices*/
+
+.header-content {
+	.activeSection {
+		font-weight: bold;
+		border-top: 3px solid #40BAF1;
+	}
+}
+
+.header-right {
+	.dropdown {
+		margin: 11px 0px 0 10px;
+	}
+	
+	.dropdown-toggle {
+		font-size: 18px; 
+		margin-top: 5px;
+	}
+
+	.dropdown-menu {
+		color: #000;
+		background: #fff;
+		padding: 6px;
+		min-width: 100px;
+		line-height: 2;
+	}
+
+	a {
+		color: #000;
+		text-decoration: none;
+	}
+}
+
+/*Styles for Logout Confirmation starts here*/
+.divMessageBox {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: rgba(0, 0, 0, .6);
+	z-index: 100000;
+}
+
+.MessageBoxContainer {
+	top: 35%;
+	color: #fff;
+	position: relative;
+	width: 100%;
+	background-color: #232323;
+	background-color: rgba(0, 0, 0, .8);
+	padding: 20px;
+	height: 120px;
+}
+
+.MessageBoxMiddle {
+	position: relative;
+	left: 20%;
+	width: 60%;
+}
+
+.MessageBoxMiddle .MsgTitle {
+	letter-spacing: -1px;
+	font-size: 24px;
+	font-weight: 300;
+}
+
+.MessageBoxButtonSection {
+	width: 100%;
+	height: 30px;
+	float: right;
+}
+
+.MessageBoxButtonSection button {
+	float: right;
+	margin-right: 7px;
+	padding-left: 15px;
+	padding-right: 15px;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.btn-sm {
+	padding: 6px 10px 5px;
+}
+/*Styles for Logout Confirmation starts here*/
+
+.font-size14 {
+	font-size:14px;
+}
+
+.margintop5Right20 {
+	margin-top: 5px!important;
+	margin-right: 20px;
+}
+
+.notificationCheck.dropdown-menu {
+  right: 22%;
+  width: 330px;
+  top: 46px; 
+  left: inherit;
+}
+
+.nav .open>a.notificationSetting, .nav .open>a.notificationSetting:focus, .nav .open>a.notificationSetting:hover {
+    background-color: #525961;
+    border-color: #fff;
+}
+
+.dropdown-menu>li.header {
+	border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: #ffffff;
+    padding: 0px 7px;
+    border-bottom: 1px solid #f4f4f4;
+    color: #444444;
+    font-size: 13px;
+}
+
+.dropdown-menu>li .menu {
+	max-height: 200px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: hidden;	
+}
+
+.dropdown-menu>li .menu>li>a {
+	margin: 0;
+    padding: 10px 10px;
+	display: block;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.dropdown-menu>li .menu>li>a>h4 {
+	padding: 0;
+    margin: 0 0 0 1px;
+    color: #444444;
+    font-size: 15px;
+    position: relative;
+}
+
+.dropdown-menu>li .menu>li>a>h4>small {
+	color: #999999;
+    font-size: 10px;
+    position: absolute;
+    top: 40px;
+    right: 0;
+}
+
+.dropdown-menu>li .menu>li>a>p {
+	margin: 0 0 0 1px;
+    font-size: 12px;
+    color: #888888;
+    width: 86%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+}
+
+.dropdown-menu>li.footer {
+	border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    font-size: 13px;
+    background-color: #fff;
+    color: #444 !important;
+    text-align: center;
+}
+
+.notificationNumber {
+	position: absolute;
+	top: 8px;
+	right: 2px;
+	font-size: 12px;
+	background: red;
+	padding: 1px 3px;
+	border-radius: 2px;
+}
+
+.notificationNumberGreaterValue {
+	position: absolute;
+	top: 8px;
+	right: -5px;
+	font-size: 12px;
+	background: red;
+	padding: 1px 3px;
+	border-radius: 2px;
+}
+
+.dropdown-menu>li .menu>li.errorStrip {
+	background: #edecee;
+	border-left: 3px solid red;
+	top: 0;
+	bottom: 140px;
+	left: -4px;
+	width: 100%;
+	z-index: 1;	
+	height: 70px;
+}
+
+.dropdown-menu>li .menu>li.successStrip {
+	background: #edecee;
+	border-left: 3px solid green;
+	top: 0;
+	bottom: 140px;
+	left: -4px;
+	width: 100%;
+	z-index: 1;	
+	height: 70px;
+}
+
+.marginbottom2 {
+	margin-bottom: 2px;
+}
+
+.marginbottom10 {
+	margin-bottom: 10px;
+}
+
+.notificationCaret {
+	position: absolute;
+	top: -17px;
+	z-index: 99;
+	right: 5px;
+	font-size: 25px;
+}

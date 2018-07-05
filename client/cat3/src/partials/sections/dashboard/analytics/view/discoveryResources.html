@@ -1,0 +1,62 @@
+<form name="mapTag" ><div id="tagMappting">
+    <accordion>
+        <accordion-group ng-init="accGroupStatus = {opened: true}" is-open="accGroupStatus.opened">
+            <accordion-heading>
+                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                Instances
+            </accordion-heading>
+            <span class="pull-right" ng-show="organNewEnt.instanceType === 'Assigned' && selectInstanceRow.length >0">
+					<button type="button" title="Import" class="btn btn-xs cat-btn-update" ng-click="disResrc.importInstance($event);">
+                        <i class="fa fa-plus white"></i> Import
+                    </button>
+				</span>
+            <loading size="large" name="instLoader" type="block"></loading>
+
+
+            <input ng-if="!instLoader && disResrc.gridOptionInstances.data.length > 0"  ng-model='disResrc.filterValue' class="form-control with250" ng-change="filterInst()" placeholder="Search" />
+
+            <div ng-if="!instLoader && disResrc.gridOptionInstances.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-pagination ui-grid-selection ui-grid-edit  ui-grid-cellNav class="grid margintop15"></div>
+
+            <div ng-if="!instLoader && disResrc.gridOptionInstances.data.length === 0" class="alert alert-info text-center margintop15"> No Data Found!</div>
+        </accordion-group>
+
+
+
+        <!--<accordion-group ng-init="accGroupStatus1 = {opened: false}" is-open="accGroupStatus1.opened">-->
+            <!--<accordion-heading>-->
+                <!--<i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus1.opened,'fa-plus-circle':!accGroupStatus1.opened }"></i>-->
+                <!--RDS-->
+            <!--</accordion-heading>-->
+            <!--<div ng-if="disResrc.gridOptionRDS.data.length === 0" class="alert alert-info text-center"> No Data Found!</div>-->
+            <!--<div ng-if="disResrc.gridOptionRDS.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-edit  ui-grid-cellNav class="grid"></div>-->
+        <!--</accordion-group>-->
+
+        <!--<accordion-group ng-init="accGroupStatus2 = {opened: false}" is-open="accGroupStatus2.opened">-->
+            <!--<accordion-heading>-->
+                <!--<i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus2.opened,'fa-plus-circle':!accGroupStatus2.opened }"></i>-->
+                <!--S3-->
+            <!--</accordion-heading>-->
+            <!--<div ng-if="disResrc.gridOptionS3.data.length === 0" class="alert alert-info text-center"> No Data Found!</div>-->
+            <!--<div ng-if="disResrc.gridOptionS3.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-edit  ui-grid-cellNav class="grid"></div>-->
+        <!--</accordion-group>-->
+    </accordion>
+
+
+
+    <div class="clearfix"></div>
+
+</div></form>
+<style>
+    .editCell select{
+        height: 29px;
+        padding: 2px 10px;
+        font-size: 12px;
+        line-height: 1;
+
+    }
+
+    .ui-grid-viewport {
+         overflow-x: hidden !important;
+     }
+
+</style>

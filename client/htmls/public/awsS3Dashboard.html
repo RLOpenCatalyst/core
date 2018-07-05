@@ -1,0 +1,345 @@
+<html>
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/Dashboard.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/application.css">
+</head>
+<body>
+<div class="panel-group smart-accordion-default" id="mainPanelId">
+    <div class="panel panel-default" id="accordion-Infrastructure">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-Infrastructure" href="#collapseInfrastructure" >
+                    <i class="fa fa-fw fa-plus-circle txt-color-blue"></i>
+                    <i class="fa fa-fw fa-minus-circle txt-color-blue"></i>
+                    <b class="accordianName">Provider Information</b>
+                    <fieldset class="fieldsetCustomDashboard">
+                        <legend class="legendCustomDashboard legendCustomImp">Providers Annotation</legend>
+                        <span class="totalProviderLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <span class="font-size11 marginright15">Total AWS Provider</span>
+
+                        <span class="totalAwsLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <span class="font-size11 marginright15">AWS</span>
+
+                    </fieldset>
+                </a>
+            </h4>
+        </div>
+
+        <div class="row rowTemplate" style="display:none">
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-xs-6 childProviderTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>&nbsp;</h3>
+                    <p>
+                    <div class="margintop-15">Provider Name </div>
+                    <br>
+                    <span class="providerName font-bold"></span>
+                    </p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-th"></i>
+                </div>
+              <span class="small-box-footer managedUnmanagedCSS">
+              </span>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-xs-6 childTotalInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3 class="countTotalBuckets">0</h3>
+                    <p>Total <br>S3 Buckets</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-laptop"></i>
+                </div>
+                <span class="small-box-footer providerSpecificMoreInfo managedUnmanagedCSS">
+              </span>
+
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-xs-6 childS3ManagedInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3 class="countAssignedBuckets">0</h3>
+                    <p>Total <br>Assigned S3 Buckets</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-cube"></i>
+                </div>
+              <span id="assignedS3BucketsMoreInfo" class="small-box-footer  managedUnmanagedCSS">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-xs-6 childS3UnmanagedInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3 class="countUnAssignedBuckets">0</h3>
+                    <p>Total <br>UnAssigned S3 Buckets</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-external-link"></i>
+                </div>
+              <span id="unAssignedS3BucketsMoreInfo" class="small-box-footer footer-box-css">
+               More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
+            </div>
+        </div>
+
+        <div id="collapseInfrastructure" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div id="infrastructurecardview">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Number of Providers">
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                    <h3 id="totalProviders">&nbsp;</h3>
+                                    <p>Total <br>Providers</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-th"></i>
+                                </div>
+                      <span class="small-box-footer managedUnmanagedCSS">
+                      </span>
+                            </div>
+                        </div>
+                        <!--s3-->
+                        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Instances">
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                    <h3 id="totalBuckets">0</h3>
+                                    <p>Total <br>S3 Buckets</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-laptop"></i>
+                                </div>
+                                <span class="small-box-footer managedUnmanagedCSS">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Managed Instances">
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                    <h3 id="totalS3AssignedBuckets">0</h3>
+                                    <p>Total <br>Assigned S3 Buckets</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-cube"></i>
+                                </div>
+                     <span id="allAssignedS3BucketsMoreInfo" class="small-box-footer  managedUnmanagedCSS">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Spend in Today">
+                            <div class="small-box bg-aqua">
+                                <div class="inner">
+                                    <h3 id="totalS3UnAssignedBuckets">0</h3>
+                                    <p>Total <br>UnAssigned S3 Buckets</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fa fa-external-link"></i>
+                                </div>
+                       <span id="allUnAssignedS3BucketsMoreInfo" class="small-box-footer  managedUnmanagedCSS">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" noProviderView" style="display:none">
+                        <div id="noenvwarning" class="alert alert-warning noEnvWarning text-center">
+                            <span>Please add the provider details </span>
+                            <span>in Settings to get the complete dashboard.</span>
+                        </div>
+                    </div>
+                    <div id="awsProviderView">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--for s3-->
+<div id="assignedS3TableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">Assigned S3 Instances Details for the Provider :&nbsp;</span>
+                <span id="providerforAssignedS3Id" class="panelh4spanCSS"></span>
+            </h4>
+            <a id="backfromAssignedS3Instance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="assignedS3ListTable">
+            <thead>
+            <tr>
+                <th class="text-center">Bucket Name</th>
+                <th class="text-center">Bucket Owner</th>
+                <th class="text-center">Org</th>
+                <th class="text-center">Bg</th>
+                <th class="text-center">Project</th>
+                <th class="text-center">Env</th>
+                <th class="text-center">Size(MB)</th>
+                <th class="text-center">Created</th>
+            </tr>
+            </thead>
+            <tbody class="managedInstance">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="allAssignedS3TableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">All Assigned S3 Buckets Details</span>
+            </h4>
+            <a id="backfromAllAssignedS3Instance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="allAssignedS3ListTable">
+            <thead>
+            <tr>
+                <th class="text-center">Bucket Name</th>
+                <th class="text-center">Bucket Owner</th>
+                <th class="text-center">Org</th>
+                <th class="text-center">Bg</th>
+                <th class="text-center">Project</th>
+                <th class="text-center">Env</th>
+                <th class="text-center">Size(MB)</th>
+                <th class="text-center">Created</th>
+                <th class="text-center">Cost</th>
+                <th class="text-center">No. Of Objects</th>
+            </tr>
+            </thead>
+            <tbody class="managedInstance">
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="unAssignedS3TableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">UnAssigned S3 Instances Details for the Provider :&nbsp;</span>
+                <span id="providerforUnAssignedS3Id" class="panelh4spanCSS"></span>
+            </h4>
+            <a id="backfromUnAssignedS3Instance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="unassignedS3ListTable">
+        <thead>
+        <tr>
+            <th class="text-center">Bucket Name</th>
+            <th class="text-center">Bucket Owner</th>
+            <th class="text-center">Size(MB)</th>
+            <th class="text-center">Created</th>
+        </tr>
+        </thead>
+        <tbody class="managedInstance">
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div id="allUnAssignedS3TableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">All UnAssigned S3 Buckets Details </span>
+            </h4>
+            <a id="backfromAllUnAssignedS3Instance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="allUnassignedS3ListTable">
+            <thead>
+            <tr>
+                <th class="text-center">Bucket Name</th>
+                <th class="text-center">Bucket Owner</th>
+                <th class="text-center">Size(MB)</th>
+                <th class="text-center">Created</th>
+                <th class="text-center">Cost</th>
+                <th class="text-center">No. Of Objects</th>
+            </tr>
+            </thead>
+            <tbody class="managedInstance">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="specUsageModalContainer" aria-labelledby="specUsageModalLabel" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title font-size15" id="specUsageModalLabel">
+                    <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Usage Details
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="usagesArea">
+                    <table class="table table-hover table-bordered font-size12" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th class="text-left">Resource Metrics</th>
+                            <th class="text-center">Average</th>
+                            <th class="text-center">Minimum</th>
+                            <th class="text-center">Maximum</th>
+                        </tr>
+                        </thead>
+                        <tbody class="usagesTbody text-center">
+                        <tr>
+                            <td class="text-left">BucketSize&nbsp;<span style="margin-left:10px;">(Mega Bytes)</span></td>
+                            <td id="specBucketSizeAvg"></td>
+                            <td id="specBucketSizeMin"></td>
+                            <td id="specBucketSizeMax"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-left">NumberOfObjects&nbsp;<span style="margin-left:10px;">(Count)</span></td>
+                            <td id="specNumOfObjectsAvg"></td>
+                            <td id="specNumOfObjectsMin"></td>
+                            <td id="specNumOfObjectsMax"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--s3 ends here-->
+
+<script src="js/awsS3Dashboard.js"></script>
+</body>
+</html>

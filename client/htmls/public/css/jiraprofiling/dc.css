@@ -1,0 +1,347 @@
+div.dc-chart {float: left
+}
+
+.dc-chart rect.bar {
+	stroke: none;
+	cursor: pointer
+}
+
+.dc-chart rect.bar:hover {
+	fill-opacity: .5
+}
+
+.dc-chart rect.stack1 {
+	stroke: none;
+	fill: red
+}
+
+.dc-chart rect.stack2 {
+	stroke: none;
+	fill: green
+}
+
+.dc-chart rect.deselected {
+	stroke: none;
+	fill: #ccc
+}
+
+.dc-chart .pie-slice {
+	font-size: 12px;
+	cursor: pointer
+}
+
+.dc-chart .pie-slice.external {
+	fill: #000
+}
+
+.dc-chart .pie-slice :hover,.dc-chart .pie-slice.highlight {
+	fill-opacity: .8
+}
+
+.dc-chart .selected path {
+	stroke-width: 3;
+	stroke: #ccc;
+	fill-opacity: 1
+}
+
+.dc-chart .deselected path {
+	stroke: none;
+	fill-opacity: .5;
+	fill: #ccc
+}
+
+.axis line,.dc-chart .axis path {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges
+}
+
+.dc-chart .axis text {
+	font: 10px sans-serif
+}
+
+.dc-chart .grid-line,.dc-chart .grid-line line {
+	fill: none;
+	stroke: #ccc;
+	opacity: .5;
+	shape-rendering: crispEdges
+}
+
+.dc-chart .brush rect.background {
+	z-index: -999
+}
+
+.dc-chart .brush rect.extent {
+	fill: #4682b4;
+	fill-opacity: .125
+}
+
+.dc-chart .brush .resize path {
+	fill: #eee;
+	stroke: #666
+}
+
+.dc-chart path.line {
+	fill: none;
+	stroke-width: 1.5px
+}
+
+.dc-chart circle.dot {
+	stroke: none
+}
+
+.dc-chart g.dc-tooltip path {
+	fill: none;
+	stroke: grey;
+	stroke-opacity: .8
+}
+
+.dc-chart path.area {
+	fill-opacity: .3;
+	stroke: none
+}
+
+.dc-chart .node {
+	font-size: .7em;
+	cursor: pointer
+}
+
+.dc-chart .node :hover {
+	fill-opacity: .8
+}
+
+.dc-chart .selected circle {
+	stroke-width: 3;
+	stroke: #ccc;
+	fill-opacity: 1
+}
+
+.dc-chart .deselected circle {
+	stroke: none;
+	fill-opacity: .5;
+	fill: #ccc
+}
+
+.dc-chart .bubble {
+	stroke: none;
+	fill-opacity: .6
+}
+
+.dc-data-count {
+	float: right;
+	margin-top: 15px;
+	margin-right: 15px
+}
+
+.dc-data-count .filter-count,.dc-data-count .total-count {
+	color: #3182bd;
+	font-weight: 700
+}
+
+.dc-chart g.state {
+	cursor: pointer
+}
+
+.dc-chart g.state :hover {
+	fill-opacity: .8
+}
+
+.dc-chart g.state path {
+	stroke: #fff
+}
+
+.dc-chart g.deselected path {
+	fill: grey
+}
+
+.dc-chart g.deselected text {
+	display: none
+}
+
+.dc-chart g.county path {
+	stroke: #fff;
+	fill: none
+}
+
+.dc-chart g.debug rect {
+	fill: #00f;
+	fill-opacity: .2
+}
+
+.dc-chart g.row rect {
+	fill-opacity: .8;
+	cursor: pointer
+}
+
+.dc-chart g.row rect:hover {
+	fill-opacity: .6
+}
+
+.dc-chart g.row text {
+	font-size: 12px;
+	cursor: pointer
+}
+
+.dc-legend {
+	font-size: 11px
+}
+
+.dc-legend-item {
+	cursor: pointer
+}
+
+.dc-chart g.axis text {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	pointer-events: none
+}
+
+.dc-chart path.highlight {
+	stroke-width: 3;
+	fill-opacity: 1;
+	stroke-opacity: 1
+}
+
+.dc-chart .highlight {
+	fill-opacity: 1;
+	stroke-opacity: 1
+}
+
+.dc-chart .fadeout {
+	fill-opacity: .2;
+	stroke-opacity: .2
+}
+
+.dc-chart path.dc-symbol,g.dc-legend-item.fadeout {
+	fill-opacity: .5;
+	stroke-opacity: .5
+}
+
+.dc-hard .number-display {
+	float: none
+}
+
+.dc-chart .box text {
+	font: 10px sans-serif;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	pointer-events: none
+}
+
+.dc-chart .box circle,.dc-chart .box line {
+	fill: #fff;
+	stroke: #000;
+	stroke-width: 1.5px
+}
+
+.dc-chart .box rect {
+	stroke: #000;
+	stroke-width: 1.5px
+}
+
+.dc-chart .box .center {
+	stroke-dasharray: 3, 3
+}
+
+.dc-chart .box .outlier {
+	fill: none;
+	stroke: #ccc
+}
+
+.dc-chart .box.deselected .box {
+	fill: #ccc
+}
+
+.dc-chart .box.deselected {
+	opacity: .5
+}
+
+.dc-chart .symbol {
+	stroke: none
+}
+
+.dc-chart .heatmap .box-group.deselected rect {
+	stroke: none;
+	fill-opacity: .5;
+	fill: #ccc
+}
+
+.dc-chart .heatmap g.axis text {
+	pointer-events: all;
+	cursor: pointer
+}
+.d3_category10.i0, .d3_category10 .i0{background-color:#35b2c9}
+.d3_category10.i1, .d3_category10 .i1{background-color:#ff9437}
+.d3_category10.i2, .d3_category10 .i2{background-color:#2ca02c}
+.d3_category10.i3, .d3_category10 .i3{background-color:#d62728}
+.d3_category10.i4, .d3_category10 .i4{background-color:#9467bd}
+.d3_category10.i5, .d3_category10 .i5{background-color:#8c564b}
+.d3_category10.i6, .d3_category10 .i6{background-color:#e377c2}
+.d3_category10.i7, .d3_category10 .i7{background-color:#7f7f7f}
+.d3_category10.i8, .d3_category10 .i8{background-color:#bcbd22}
+.d3_category10.i9, .d3_category10 .i9{background-color:#17becf}
+.d3_category20.i0, .d3_category20 .i0{background-color:#1f77b4}
+.d3_category20.i1, .d3_category20 .i1{background-color:#aec7e8}
+.d3_category20.i2, .d3_category20 .i2{background-color:#ff7f0e}
+.d3_category20.i3, .d3_category20 .i3{background-color:#ffbb78}
+.d3_category20.i4, .d3_category20 .i4{background-color:#2ca02c}
+.d3_category20.i5, .d3_category20 .i5{background-color:#98df8a}
+.d3_category20.i6, .d3_category20 .i6{background-color:#d62728}
+.d3_category20.i7, .d3_category20 .i7{background-color:#ff9896}
+.d3_category20.i8, .d3_category20 .i8{background-color:#9467bd}
+.d3_category20.i9, .d3_category20 .i9{background-color:#c5b0d5}
+.d3_category20.i10, .d3_category20 .i10{background-color:#8c564b}
+.d3_category20.i11, .d3_category20 .i11{background-color:#c49c94}
+.d3_category20.i12, .d3_category20 .i12{background-color:#e377c2}
+.d3_category20.i13, .d3_category20 .i13{background-color:#f7b6d2}
+.d3_category20.i14, .d3_category20 .i14{background-color:#7f7f7f}
+.d3_category20.i15, .d3_category20 .i15{background-color:#c7c7c7}
+.d3_category20.i16, .d3_category20 .i16{background-color:#bcbd22}
+.d3_category20.i17, .d3_category20 .i17{background-color:#dbdb8d}
+.d3_category20.i18, .d3_category20 .i18{background-color:#17becf}
+.d3_category20.i19, .d3_category20 .i19{background-color:#9edae5}
+.d3_category20b.i0, .d3_category20b .i0{background-color:#393b79}
+.d3_category20b.i1, .d3_category20b .i1{background-color:#5254a3}
+.d3_category20b.i2, .d3_category20b .i2{background-color:#6b6ecf}
+.d3_category20b.i3, .d3_category20b .i3{background-color:#9c9ede}
+.d3_category20b.i4, .d3_category20b .i4{background-color:#637939}
+.d3_category20b.i5, .d3_category20b .i5{background-color:#8ca252}
+.d3_category20b.i6, .d3_category20b .i6{background-color:#b5cf6b}
+.d3_category20b.i7, .d3_category20b .i7{background-color:#cedb9c}
+.d3_category20b.i8, .d3_category20b .i8{background-color:#8c6d31}
+.d3_category20b.i9, .d3_category20b .i9{background-color:#bd9e39}
+.d3_category20b.i10, .d3_category20b .i10{background-color:#e7ba52}
+.d3_category20b.i11, .d3_category20b .i11{background-color:#e7cb94}
+.d3_category20b.i12, .d3_category20b .i12{background-color:#843c39}
+.d3_category20b.i13, .d3_category20b .i13{background-color:#ad494a}
+.d3_category20b.i14, .d3_category20b .i14{background-color:#d6616b}
+.d3_category20b.i15, .d3_category20b .i15{background-color:#e7969c}
+.d3_category20b.i16, .d3_category20b .i16{background-color:#7b4173}
+.d3_category20b.i17, .d3_category20b .i17{background-color:#a55194}
+.d3_category20b.i18, .d3_category20b .i18{background-color:#ce6dbd}
+.d3_category20b.i19, .d3_category20b .i19{background-color:#de9ed6}
+.d3_category20c.i0, .d3_category20c .i0{background-color:#3182bd}
+.d3_category20c.i1, .d3_category20c .i1{background-color:#6baed6}
+.d3_category20c.i2, .d3_category20c .i2{background-color:#9ecae1}
+.d3_category20c.i3, .d3_category20c .i3{background-color:#c6dbef}
+.d3_category20c.i4, .d3_category20c .i4{background-color:#e6550d}
+.d3_category20c.i5, .d3_category20c .i5{background-color:#fd8d3c}
+.d3_category20c.i6, .d3_category20c .i6{background-color:#fdae6b}
+.d3_category20c.i7, .d3_category20c .i7{background-color:#fdd0a2}
+.d3_category20c.i8, .d3_category20c .i8{background-color:#31a354}
+.d3_category20c.i9, .d3_category20c .i9{background-color:#74c476}
+.d3_category20c.i10, .d3_category20c .i10{background-color:#a1d99b}
+.d3_category20c.i11, .d3_category20c .i11{background-color:#c7e9c0}
+.d3_category20c.i12, .d3_category20c .i12{background-color:#756bb1}
+.d3_category20c.i13, .d3_category20c .i13{background-color:#9e9ac8}
+.d3_category20c.i14, .d3_category20c .i14{background-color:#bcbddc}
+.d3_category20c.i15, .d3_category20c .i15{background-color:#dadaeb}
+.d3_category20c.i16, .d3_category20c .i16{background-color:#636363}
+.d3_category20c.i17, .d3_category20c .i17{background-color:#969696}
+.d3_category20c.i18, .d3_category20c .i18{background-color:#bdbdbd}

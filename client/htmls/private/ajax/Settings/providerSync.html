@@ -1,0 +1,2441 @@
+<style>
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        border-top: 0px !important;
+    }
+
+    tr.show-settings:hover .settings{
+        display:block;
+    }
+
+    div.settings{
+        display:none;
+        width: 32px;
+        height: 18px;
+    }
+
+    .dropdown-content{
+        border-radius: 5px;
+        left: -30px;
+        min-width: 98px;
+        right: 0;
+    }
+
+    .show-settings input{
+        border: 1px solid #999;
+    }
+
+    .marginSpaceTop {
+        margin-top:20px;
+    }
+    .styleRight{
+        float:right;
+        margin-top: 4px;
+    }
+    .border-grey{
+        border: 1px solid #ddd;
+    }
+    .colorGreen{
+        color:green;
+    }
+    .spanformSaveCSS{
+        float: left;
+        margin-right: 7px;
+        margin-top: 7px;
+    }
+    .marginbottomCSS{
+        margin-bottom: 0px !important;
+    }
+    .margin-top10{
+        margin-top: 10px;
+    }
+    .margin-top45{
+        margin-top: 45px;
+    }
+    .marginbottom0{
+        margin-bottom: 0px;
+    }
+    .saveBtnTagsCSS{
+        float: right;
+        font-size: 10px;
+        padding: 2px 4px;
+    }
+    .fntsize13mrgtop45{
+        font-size:13px;
+        margin-top:45px !important;
+    }
+    .marginleft200{
+        margin-left:200px;
+    }
+    .left0{
+        left:0px !important;
+    }
+    .fnt14clr666{
+        color:#666;
+        font-size:14px;
+    }
+    .fntsize13mrgtop10{
+        font-size:13px;
+        margin-top:10px;
+    }
+    .marginleft5right25{
+        margin-left:5px;
+        margin-right:25px;
+    }
+    .marginleft14{
+        margin-left: 14px;
+    }
+    .margintop-25left250{
+        margin-top: -25px;
+        margin-left: 250px;
+    }
+    .width-90{
+        width:90%;
+    }
+    input[type=search] {
+        border-color: #ddd !important;
+    }
+    .tagsContainer .dataTables_wrapper .dataTables_paginate .paginate_button{
+        font-size: 12px !important;
+        padding: 7px;
+    }
+    #tagsTable_info{
+        font-size: 12px !important;
+    }
+</style>
+
+<!--button to navigate back to provider list-->
+<button class="btn btn-minier btn-primary styleRight" onclick="window.history.back();"><i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>&nbsp;List of Providers</button>
+
+<!--tabs start here-->
+<ul class="nav nav-tabs " role="tablist">
+    <li class="active">
+        <a href="#tagsId" role="tab" data-toggle="tab" data-toggle="tooltip" title="Tags">Tags</a>
+    </li>
+    <li id="mappingLiTabId">
+        <a href="#mappingsId" role="tab" data-toggle="tab" data-toggle="tooltip" title="Mappings">Mappings</a>
+    </li>
+    <li>
+        <a href="#instancesId" role="tab" data-toggle="tab" data-toggle="tooltip" title="Instances">Instances</a>
+    </li>
+    <li>
+        <a href="#rdsId" role="tab" data-toggle="tab" data-toggle="tooltip" title="RDS">RDS</a>
+    </li>
+    <li>
+        <a href="#s3Id" role="tab" data-toggle="tab" data-toggle="tooltip" title="S3">S3</a>
+    </li>
+</ul>
+
+<!--tab content starts here-->
+<div class="tab-content">
+    <!-- Tab panes -->
+    <div class="tab-pane active tagsContainer" id="tagsId">
+        <div class="tabContent table-responsive col-lg-6 left0" id="tagsIdDiv">
+            <table class="table table-hover table-bordered fntsize13mrgtop45" id="tagsTable">
+                <thead>
+                <tr>
+                    <th class="text-center">Tag Name</th>
+                    <th class="text-center">Description</th>
+                </tr>
+                </thead>
+                <tbody class="tagstblTbody">
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-6">
+            <div action="" id="tagsFormId">
+                <div class="widget-box margin-top45">
+                    <div class="widget-header">
+                        <h4 class="widget-margin fnt14clr666">Create tag name to catalyst entity mapping</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <section id="widget-grid-tag" class="">
+                                <div class="row">
+                                    <div class="jarviswidget" id="wid-id-tag" data-widget-editbutton="false" data-widget-custombutton="false">
+                                        <div>
+                                            <div class="widget-body no-padding">
+                                                <div class="col-lg-6 marginSpaceTop">
+                                                    <label for="bgNameLabel" id="bgNameLabelId" catalystEntitytype="bgName">Business Group</label>
+                                                    <div class="input-groups">
+                                                        <select id="tagsBgSelect"  class="width-100 form-control">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 marginSpaceTop">
+                                                    <label for="projectnameLabel" id="projectnameLabelId" catalystEntitytype="project">Project</label>
+                                                    <div class="input-groups">
+                                                        <select id="tagsProjectSelect"  class="width-100 form-control">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 marginSpaceTop">
+                                                    <label for="envnameLabel" id="envnameLabelId" catalystEntitytype="environment">Environment</label>
+                                                    <div class="input-groups">
+                                                        <select id="tagsEnvSelect" class="width-100 form-control" >
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="widget-toolbox clearfix">
+                        <div class="btn-group pull-right">
+                            <span id="spantagsformSaveId" class="colorGreen spanformSaveCSS"></span>
+                            <button class="btn btn-primary btn-mini btntagsFormSave">
+                                <i class="ace-icon fa fa-check bigger-110"></i>
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div  class="tab-pane mappingsListContainer" id="mappingsId">
+        <div class="row">
+
+            <div class="col-lg-6">
+                <div  class="tabContent table-responsive marginbottomCSS" id="mappingBgIdDiv">
+                    <table class="table table-hover table-bordered text-center fntsize13mrgtop10" id="mappingBgTable">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Catalyst Business Group</th>
+                            <th class="text-center">Business Group Tag Value</th>
+                        </tr>
+                        </thead>
+                        <tbody class="mappingbgtblTbody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="widget-toolbox clearfix">
+                    <div class="btn-group pull-right">
+                        <span id="spanbgMappingSaveId" class="colorGreen spanformSaveCSS"></span>
+                        <button class="btn btn-primary btn-mini btnbgMappingSave">
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div  class="tabContent table-responsive marginbottomCSS" id="mappingprojectIdDiv">
+                    <table class="table table-hover table-bordered text-center fntsize13mrgtop10" id="mappingprojectTable">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Catalyst Project</th>
+                            <th class="text-center">Project Tag Value</th>
+                        </tr>
+                        </thead>
+                        <tbody class="mappingprojecttblTbody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="widget-toolbox clearfix">
+                    <div class="btn-group pull-right">
+                        <span id="spanprojectMappingSaveId" class="colorGreen spanformSaveCSS"></span>
+                        <button class="btn btn-primary btn-mini btnprojectMappingSave">
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div  class="tabContent table-responsive marginbottomCSS" id="mappingenvIdDiv">
+                    <table class="table table-hover table-bordered text-center fntsize13mrgtop10" id="mappingenvTable">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Catalyst Environment</th>
+                            <th class="text-center">Environment Tag Value</th>
+                        </tr>
+                        </thead>
+                        <tbody class="mappingenvtblTbody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="widget-toolbox clearfix">
+                    <div class="btn-group pull-right">
+                        <span id="spanenvMappingSaveId" class="colorGreen spanformSaveCSS"></span>
+                        <button class="btn btn-primary btn-mini btnenvMappingSave">
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div  class="tab-pane instancesContainer" id="instancesId">
+        <div class="col-lg-6 col-md-6">
+            <label for="chooseCatalyst">Catalyst Status:</label>
+            <div class="input-groups">
+                <select id="chooseCtalystSelectId" name="" class="required width-100 form-control">
+                    <option val="Managed" data-catalystStatus="Managed">Managed</option>
+                    <option val="Assigned" data-catalystStatus="Assigned">Assigned</option>
+                    <option val="Unassigned" data-catalystStatus="Unassigned">Unassigned</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 margin-top10">
+            <div id="Managed">
+                <!--managed instances-->
+                <div  class="tab-pane active instancesListContainer" id="organiz">
+                    <div  class="tabContent table-responsive" id="instanceListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="instanceListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">InstanceId</th>
+                                <th class="text-center">OS</th>
+                                <th class="text-center">IP Address</th>
+                                <th class="text-center">Region</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Org</th>
+                                <th class="text-center">Bg</th>
+                                <th class="text-center">Project</th>
+                                <th class="text-center">Environment</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="managedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="Assigned" hidden>
+                <!--unmanaged instances-->
+                <div  class="tab-pane unmanagedInstancesListContainer" id="unmanaged">
+                    <div  class="tabContent table-responsive" id="unmanagedinstanceListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="unmanagedinstanceListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">InstanceId</th>
+                                <th class="text-center">OS</th>
+                                <th class="text-center">IP Address</th>
+                                <th class="text-center">Region</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Org</th>
+                                <th class="text-center">Bg</th>
+                                <th class="text-center">Project</th>
+                                <th class="text-center">Environment</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unManagedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer class="footer">
+                        <div class="clearfix form-actions text-center">
+                            <div>
+                                <input type="button" id="providerSyncBtn" value="Import Instances" class="btn btn-primary showChefImportNodesModalBtn marginleft200">
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+            <div id="Unassigned" hidden>
+                <div  class="tab-pane unassignedInstancesListContainer" id="unassigned">
+                    <div  class="tabContent table-responsive" id="unassignedinstanceListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="unassignedinstanceListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">InstanceId</th>
+                                <th class="text-center">OS</th>
+                                <th class="text-center">IP Address</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Bg Tag Value</th>
+                                <th class="text-center">Project Tag Value</th>
+                                <th class="text-center">Env. Tag Value</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unAssignedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer class="footer">
+                        <div class="clearfix form-actions text-center marginleft200 marginbottom0">
+                            <div>
+                                <input type="button" id="unassignedSyncBtn" value="Update Tags" class="btn btn-primary">
+                            </div>
+                            <div class="margintop-25left250">
+                                <span id="spanunassignedformSaveId" class="colorGreen marginleft14"></span>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--rds data-->
+    <div  class="tab-pane rdsContainer" id="rdsId">
+        <div class="col-lg-6 col-md-6">
+            <label for="chooseCatalyst">Catalyst Status:</label>
+            <div class="input-groups">
+                <select id="chooseCatalystRDSId" name="" class="required width-100 form-control">
+                    <option val="rdsAssigned" data-catalystStatus="rdsAssigned">Assigned</option>
+                    <option val="rdsUnassigned" data-catalystStatus="rdsUnassigned">Unassigned</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 margin-top10">
+            <div id="rdsAssigned">
+                <div class="tab-pane assignedRDSListContainer">
+                    <div class="tabContent table-responsive" id="assignedRDSListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="assignedRDSListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Instance</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Org</th>
+                                <th class="text-center">Bg</th>
+                                <th class="text-center">Project</th>
+                                <th class="text-center">Environment</th>
+                                <th class="text-center">Region</th>
+                                <th class="text-center">Instance Class</th>
+                                <th class="text-center">Multi-AZ</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unAssignedRDS">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="rdsUnassigned" hidden>
+                <div class="tab-pane unassignedRDSListContainer">
+                    <div class="tabContent table-responsive" id="unassignedRDSListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="unassignedRDSListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Instance</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Region</th>
+                                <th class="text-center">Bg Tag Value</th>
+                                <th class="text-center">Project Tag Value</th>
+                                <th class="text-center">Env. Tag Value</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unAssignedRDS">
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer class="footer">
+                        <div class="clearfix form-actions text-center marginleft200 marginbottom0">
+                            <div>
+                                <input type="button" id="rdsUnassignedSyncBtn" value="Update Tags" class="btn btn-primary">
+                            </div>
+                            <div class="margintop-25left250">
+                                <span id="spanRDSunassignedformSaveId" class="colorGreen marginleft14"></span>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--rds tab ends here-->
+    <!--s3 data-->
+    <div  class="tab-pane s3Container" id="s3Id">
+        <div class="col-lg-6 col-md-6">
+            <label for="chooseCatalyst">Catalyst Status:</label>
+            <div class="input-groups">
+                <select id="chooseCatalystS3Id" name="" class="required width-100 form-control">
+                    <option val="s3Assigned" data-catalystStatus="s3Assigned">Assigned</option>
+                    <option val="s3Unassigned" data-catalystStatus="s3Unassigned">Unassigned</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 margin-top10">
+            <div id="s3Assigned">
+                <div class="tab-pane assignedS3ListContainer">
+                    <div class="tabContent table-responsive" id="assignedS3ListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="assignedS3ListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Bucket Name</th>
+                                <th class="text-center">Bucket Owner</th>
+                                <th class="text-center">Org</th>
+                                <th class="text-center">Bg</th>
+                                <th class="text-center">Project</th>
+                                <th class="text-center">Environment</th>
+                                <th class="text-center">Size(MB)</th>
+                                <th class="text-center">Created</th>
+                            </tr>
+                            </thead>
+                            <tbody class="assignedS3">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="s3Unassigned" hidden>
+                <div class="tab-pane unassignedS3ListContainer">
+                    <div class="tabContent table-responsive" id="unassignedS3ListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="unassignedS3ListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Bucket Name</th>
+                                <th class="text-center">Bucket Owner</th>
+                                <th class="text-center">Size(MB)</th>
+                                <th class="text-center">Bg Tag Value</th>
+                                <th class="text-center">Project Tag Value</th>
+                                <th class="text-center">Env. Tag Value</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unAssignedS3">
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer class="footer">
+                        <div class="clearfix form-actions text-center marginleft200 marginbottom0">
+                            <div>
+                                <input type="button" id="s3UnassignedSyncBtn" value="Update Tags" class="btn btn-primary">
+                            </div>
+                            <div class="margintop-25left250">
+                                <span id="spanS3unassignedformSaveId" class="colorGreen marginleft14"></span>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--s3 data tab ends here-->
+</div>
+
+<!--import instance modal-->
+<div class="modal fade" id="providerSyncModal" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="" id="myForm12" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Import Instance</h4>
+                </div>
+                <div class="modal-body modalbody-height">
+                    <div class="col-lg-6">
+                        <label for="exampleInputEmail1">Organization</label>
+                        <div class="input-groups">
+                            <select id="providerSyncOrgSelect"  class="width-100 form-control" disabled>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="exampleInputEmail1">Business Groups<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncBgSelect"  class="width-100 form-control" cdata="catalyst" cat-validation="required" autofocus>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncProjectSelect"  class="width-100 form-control">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop">
+                        <label for="exampleInputEmail1">Environment<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncEnvSelect"  class="width-100 form-control" >
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Config Management<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncInfraManagerSelect"  class="width-100 form-control" >
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection marginSpaceTop" >
+                        <label for="exampleInputEmail1">Username<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <input type="text" name="importUsernameInput" class="form-control" id="importUsernameInput" required value="" autofocus>
+                            <b class="tooltip tooltip-top-right">
+                                <i class="fa fa-user txt-color-teal"></i> Please enter Instance Username</b>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="">Choose Authentication Type</label>
+                        <div class="input-groups">
+                            <select id="pemFileDropdown2"  class="authenticationType width-100 form-control" cdata="catalyst" cat-validation="required">
+                                <option value="password">Password</option>
+                                <option value="pemFile">Pem File</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection authPassword marginSpaceTop">
+                        <label for="exampleInputEmail1">Password</label>
+                        <div class="input-groups">
+                            <input type="password" class="form-control" id="importPasswordInput" required="true" cdata="catalyst" cat-validation="required"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                            <b class="tooltip tooltip-top-right">
+                                <i class="fa fa-lock txt-color-teal"></i> Please enter Instance Password</b>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection authPemFile marginSpaceTop" >
+                        <div class="smart-forms">
+                            <label for="exampleInputEmail1">Pem File</label>
+                            <div class="input-groups">
+                                <label for="" name="field" class="file">
+                                    <span class="button btn-primary">Browse</span>
+                                    <input id="importPemfileInput" type="file" class="gui-file" onchange="$(this).next().val(this.files[0].name)">
+                                    <input type="text" readonly="" class="gui-input">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 margintop15">
+                        <label for="">Monitoring:</label>
+                        <select id="monitorId" unique="true" name="monitorId" class="form-control width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="marginForButtons">
+                        <label id="saveSpinner" class="hidden"><img class="marginleft5right25" src="img/select2-spinner.gif"></label>
+                        <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                        <button type="button" class="btn btn-primary importNodesBtn">Sync</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<div class="modal fade" id="providerSyncResultModal" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Importing Instances</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+<!--tab content over-->
+<script type="text/javascript">
+    //initialising the datatable before DOM Ready...
+    if (!$.fn.dataTable.isDataTable('#tagsTable')) {
+        var $tagsDatatable = $('#tagsTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+        });
+    }
+    if (!$.fn.dataTable.isDataTable('#mappingBgTable')) {
+        var $mappingbgDatatable = $('#mappingBgTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+        });
+    }
+    if (!$.fn.dataTable.isDataTable('#mappingprojectTable')) {
+        var $mappingprojectDatatable = $('#mappingprojectTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+        });
+    }
+    if (!$.fn.dataTable.isDataTable('#mappingenvTable')) {
+        var $mappingenvDatatable = $('#mappingenvTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+        });
+    }
+    $(document).ready(function(e) {
+
+        var urlParams = {};
+        (window.onpopstate = function() {
+            var url = window.location.href;
+            var indexOfQues = url.lastIndexOf("?");
+            if (indexOfQues != -1) {
+                var sub = url.substring(indexOfQues + 1);
+                var params = sub.split('&')
+                for (var i = 0; i < params.length; i++) {
+                    var paramParts = params[i].split('=');
+                    urlParams[paramParts[0]] = paramParts[1];
+                }
+            }
+
+        })();
+        var urlproviderId = urlParams['provider'];
+        var urlorgName = urlParams['org'];
+
+        if (!urlproviderId) {
+            return;
+        }
+
+        function getMonitorValues(){
+            var orgValue = $('select#providerSyncOrgSelect').val();
+            $.get('../monitors?filterBy=orgId:' + orgValue,function(data){
+                var str = ' <option value="null">None</option>';
+                for(var i=0;i<data.length;i++){
+                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
+                }
+                $('#monitorId').html(str);
+            });
+        }
+
+        $('#assignedS3ListTable').DataTable( {
+            "processing": true,
+            "serverSide": true,
+            "destroy":true,
+            "ajax": {
+                "url": '/resources?filterBy=providerId:'+ urlproviderId +',resourceType:S3,category:assigned',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
+            "columns": [
+                {"data": "resourceDetails.bucketName", "orderable" : true},
+                {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
+                {"data": "masterDetails.orgName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.bgName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.projectName" ,"orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.envName" ,"orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "resourceDetails.bucketSize","orderable" : true  },
+                {"data": "resourceDetails.bucketCreatedOn","orderable" : true,
+                    "render": function (data) {
+                        var date = new Date().setTime(data.timestamp);
+                        var taskTimestamp = new Date(data).toLocaleString();
+                        return taskTimestamp;
+                    }
+                }
+            ]
+        } );
+
+        $('#instanceListTable').DataTable( {
+            "processing": true,
+            "serverSide": true,
+            "destroy":true,
+            "createdRow": function( row, data ) {
+                $( row ).attr({"data-id" : data._id})
+            },
+            "ajax": {
+                "url": '/providers/' + urlproviderId + '/managedInstanceList',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
+            "columns": [
+                {"data": "platformId","orderable" : true  },
+                {"data": "hardware.os","orderable" : false  },
+                {"data": "instanceIP","orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        if(full.instanceIP === null){
+                            if(full.privateIpAddress &&  full.privateIpAddress !== null){
+                                return full.privateIpAddress;
+                            }else{
+                                return '-';
+                            }
+                        }else{
+                            return full.instanceIP;
+                        }
+                    }
+                },
+                {"data": "","orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        return full.region?full.region:full.providerData?full.providerData.region:'-';
+                    }
+                },
+                {"data": "instanceState","orderable" : true  },
+                {"data": "" ,"orderable" : true ,
+                    "render":function(data, type, full, meta) {
+                        return full.orgName?full.orgName:'-';
+                    }
+                },
+                {"data": "" ,"orderable" : true ,
+                    "render":function(data, type, full, meta) {
+                        return full.bgName?full.bgName:'-';
+                    }
+                },
+                {"data": "" ,"orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        return full.projectName?full.projectName:'-';
+                    }
+                },
+                {"data": "","orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        return full.environmentName?full.environmentName:'-';
+                    }
+                },
+                {"data": "instanceState","orderable" : false,
+                    "render":function(data) {
+                        if (data === 'terminated') {
+                            return '<div class="btn-group marginleft14"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>';
+                        }else{
+                            return '';
+                        }
+                    }
+                }
+            ]
+        } );
+
+        $('#instanceListTable tbody').on( 'click', 'button', function(){
+            var $this = $(this);
+            var $tr = $this.parents('tr.managedInstance');
+            var id = $this.parents('tr').attr('data-id');
+            bootbox.confirm({
+                message: 'Are you sure you want to Delete Managed Instance -&nbsp;',
+                title: "Warning",
+                callback: function(result) {
+                    if (result) {
+                        $.ajax({
+                            url: '/instances/' + id,
+                            method: 'DELETE',
+                            success: function() {
+                                $('#instanceListTable').row($tr).remove().draw(false);
+                            },
+                            error: function(jxhr) {
+                                bootbox.alert(result);
+                                var msg = "Unable to Delete Managed Instances please try again later";
+                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                    msg = jxhr.responseJSON.message;
+                                } else if (jxhr.responseText) {
+                                    msg = jxhr.responseText;
+                                }
+                                bootbox.alert(msg);
+                            }
+                        });
+                    } else {
+                        return;
+                    }
+                }
+            });
+            return false;
+        });
+
+        $('#assignedRDSListTable').DataTable( {
+            "processing": true,
+            "serverSide": true,
+            "destroy":true,
+            "ajax": {
+                "url": '/resources?filterBy=providerId:'+ urlproviderId +',resourceType:RDS,category:assigned',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
+            "columns": [
+                {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
+                {"data": "resourceDetails.dbEngine","orderable" : true  },
+                {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
+                {"data": "masterDetails.orgName","orderable" : true,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.bgName","orderable" : true ,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.projectName","orderable" :true ,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.envName","orderable" : true ,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "resourceDetails.region","orderable" : false  },
+                {"data": "resourceDetails.dbInstanceClass","orderable" : false  },
+                {"data": "resourceDetails.multiAZ","orderable" : false,
+                    "render": function (data) {
+                        if(data === false){
+                            return 'false';
+                        }
+                        else{
+                            return 'true';
+                        }
+                    }
+                }
+            ]
+        } );
+
+
+
+        if(urlproviderId && urlproviderId.indexOf("#ajax") == -1){
+            getTagsListData(urlproviderId);
+            //getManagedInstances();
+            //calling the rds and s3 unassigned function to extract the data.
+            //getUnassignedRDSData();
+            //getUnassignedS3Data();
+        }
+        //loading Managed Data
+        function getTagsListData(providerId) {
+            $.get('/providers/' + providerId + '/tags', function(tagsList) {
+                loadTagsTabData(tagsList,providerId);
+            }).fail(function(jxhr) {
+                var msg = "Tags List Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        };
+
+
+
+        function loadTagsTabData(tagsListData,providerId) {
+            var $projecttagsList = $('#tagsProjectSelect');
+            var $envtagsList = $('#tagsEnvSelect');
+            var $bgtagsList = $('#tagsBgSelect');
+            $projecttagsList.empty();
+            $envtagsList.empty();
+            $bgtagsList.empty();
+            $tagsDatatable.clear().draw();
+
+            $projecttagsList.append($('<option></option>').val("").html("Choose Project"));
+            $envtagsList.append($('<option></option>').val("").html("Choose Environment"));
+            $bgtagsList.append($('<option></option>').val("").html("Choose Business Group"));
+            for (var i = 0; i < tagsListData.length; i++) {
+                var $tbody = $('#tagsTable tbody').empty();
+                //For Dropdown
+                $projecttagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
+                $envtagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
+                $bgtagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
+
+                //For Table
+                var $tr = $('<tr class=""></tr>');
+                var $tdName = $('<td class="tagName"></td>').append(tagsListData[i].name);
+                $tr.append($tdName);
+
+                if(tagsListData[i].description){
+                    var $inputTxt = '';
+                    var tagsDescription = tagsListData[i].description;
+                    $inputTxt = $('<input id="tagdescinputId'+i+'" value="'+tagsDescription+'" type="text" class="width-90 border-grey tagsDescInput"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
+                }else{
+                    var $inputTxt = '';
+                    $inputTxt = $('<input id="tagdescinputId'+i+'" type="text" class="width-90 border-grey tagsDescInput"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
+                }
+
+                var $tdDesc = $('<td></td>').append($inputTxt);
+                $tr.append($tdDesc);
+
+                $tagsDatatable.row.add($tr).draw();
+            }
+
+            $('#tagsTable').on('keypress','.tagsDescInput',function(event){
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if(keycode == '13'){
+                    var $this = $(this);
+                    var id = $this.attr('id');
+                    var tagName = $this.parents().eq(1).find('.tagName').html();
+                    var tagDesc = $this.parents().eq(1).find('input').val();
+
+                    //Send the body update tag
+                    var objupdatetagDesc = {};
+                    objupdatetagDesc["description"] = tagDesc;
+                    $.ajax({
+                        url: '/providers/'+ providerId +'/tags/'+ tagName,
+                        method: 'PUT',
+                        data: JSON.stringify(objupdatetagDesc),
+                        contentType: "application/json",
+                        success: function() {
+                            $('#'+id).css('background-color','lightyellow');
+                        },
+                        error: function(jxhr) {
+
+                        }
+                    });
+                }
+                //Stop the event from propogation to other handlers
+                //If this line will be removed, then keypress event handler attached
+                //at document level will also be triggered
+                event.stopPropagation();
+            });
+            $('#tagsTable').on('click','.saveBtnTagsCSS',function(event){
+                var $this = $(this);
+                var id = $this.parents().eq(1).find('input').attr('id');
+                var tagName = $this.parents().eq(1).find('.tagName').html();
+                var tagDesc = $this.parents().eq(1).find('input').val();
+
+                //Send the body update tag
+                var objupdatetagDesc = {};
+                objupdatetagDesc["description"] = tagDesc;
+                $.ajax({
+                    url: '/providers/'+ providerId +'/tags/'+ tagName,
+                    method: 'PUT',
+                    data: JSON.stringify(objupdatetagDesc),
+                    contentType: "application/json",
+                    success: function() {
+                        $('#'+id).css('background-color','lightyellow');
+                    },
+                    error: function(jxhr) {
+
+                    }
+                });
+            });
+        }
+        function loaddefaultTagMappingSelection(catalystEntityTypeListPassed){
+            $.ajax({
+                url: '/providers/'+urlproviderId+'/tag-mappings',
+                method: 'GET',
+                contentType: "application/json",
+                success: function(tagsListSelected) {
+                    //For tags tab.....
+                    var $projecttagsList = $('#tagsProjectSelect');
+                    var $envtagsList = $('#tagsEnvSelect');
+                    var $bgtagsList = $('#tagsBgSelect');
+                    var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
+                    var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
+                    var catalystEntityBgName = $('#bgNameLabelId').attr('catalystEntitytype');
+                    /*if(tagsListSelected.length > 0){
+                        $('.btnprojectMappingSave').attr('disabled',false);
+                    }else{
+                        $('.btnprojectMappingSave').attr('disabled',true);
+                    }*/
+
+                    for(var i=0;i<tagsListSelected.length;i++){
+                        var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
+                        var objtagName = tagsListSelected[i].tagName;
+                        var tagValues = tagsListSelected[i].tagValues;
+                        var catalystEntityMapping = tagsListSelected[i].catalystEntityMapping;
+
+                        if(objcatalystEntityType == catalystEntityBgName){
+                            $bgtagsList.val(objtagName);
+                        }
+                        if(objcatalystEntityType == catalystEntityProjName){
+                            //$('.btnprojectMappingSave').attr('disabled',false);
+                            $projecttagsList.val(objtagName);
+                            //For Mapping tab.....
+                            //For project catalystEntityType
+                            $mappingprojectDatatable.clear().draw();
+                            var $tbody = $('#mappingprojectTable tbody').empty();
+                            for(var j = 0; j < catalystEntityTypeListPassed.length; j++){
+                                //For Table
+                                var $tr = $('<tr id="'+catalystEntityTypeListPassed[j].rowid+'" class=""></tr>');
+
+                                var $tdprojectName = $('<td class="mappingprojectName"></td>').append(catalystEntityTypeListPassed[j].projectname);
+                                $tr.append($tdprojectName);
+
+
+                                var $mappingprojectSelectList= $('<select class="mappingprojectSelectId"></select>');
+                                $mappingprojectSelectList.empty();
+                                $mappingprojectSelectList.append($('<option></option>').val('').html('-- None --'));
+                                for(var k=0; k< tagValues.length; k++){
+                                    if(tagValues[k] !=''){
+                                        $mappingprojectSelectList.append($('<option></option>').val(tagValues[k]).html(tagValues[k]));
+                                    }
+                                }
+
+                                var $tdprojectTagName = $('<td class="mappingprojectTagName"></td>').append($mappingprojectSelectList);
+                                $tr.append($tdprojectTagName);
+
+                                $tbody.append($tr);
+                                $mappingprojectDatatable.row.add($tr).draw();
+
+                                for(var l = 0; l < catalystEntityMapping.length; l++){
+
+                                    if(catalystEntityTypeListPassed[j].rowid == catalystEntityMapping[l].catalystEntityId){
+                                        $mappingprojectSelectList.val(catalystEntityMapping[l].tagValue);
+                                    }
+                                }
+                            }
+                        }/*else{
+                            $('.btnprojectMappingSave').attr('disabled',true);
+                        }*/
+                        //For environment catalystEntityType
+                        if(objcatalystEntityType == catalystEntityEnvName){
+                            $envtagsList.val(objtagName);
+                        }
+                    }
+                },
+                error: function(jxhr) {
+                }
+            });
+
+        }
+        $('.btntagsFormSave').on('click',function(){
+            var $projecttagsList = $('#tagsProjectSelect');
+            var $envtagsList = $('#tagsEnvSelect');
+            var $bgtagsList = $('#tagsBgSelect');
+
+            var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
+            var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
+            var catalystEntityBgName = $('#bgNameLabelId').attr('catalystEntitytype');
+
+            var tagsProjSelectedVal = $projecttagsList.val();
+            var tagsenvSelectedVal = $envtagsList.val();
+            var tagsbgSelectedVal = $bgtagsList.val();
+            if(tagsbgSelectedVal === '' && tagsProjSelectedVal === '' && tagsenvSelectedVal === ''){
+                bootbox.alert("Please select at-least one value for catalyst entity mapping");
+                return false;
+            }
+            if((tagsbgSelectedVal !== '' && tagsbgSelectedVal === tagsProjSelectedVal)
+                    || (tagsenvSelectedVal !== '' && tagsenvSelectedVal === tagsbgSelectedVal)
+                    || (tagsProjSelectedVal !== '' && tagsProjSelectedVal === tagsenvSelectedVal)){
+                bootbox.alert("Tag name cannot be same to create catalyst entity mapping");
+                return false;
+            }
+            //Creating the data to Post for Save tags.
+            var tagsData = [{
+                "catalystEntityType": catalystEntityBgName,
+                "tagName": tagsbgSelectedVal
+            },{
+                "catalystEntityType": catalystEntityProjName,
+                "tagName": tagsProjSelectedVal
+            },{
+                    "catalystEntityType": catalystEntityEnvName,
+                    "tagName": tagsenvSelectedVal
+            }];
+            $.ajax({
+                url: '/providers/'+urlproviderId+'/tag-mappings',
+                method: 'POST',
+                data: JSON.stringify(tagsData),
+                contentType: "application/json",
+                success: function(tagsListPost) {
+                    $('#spantagsformSaveId').fadeIn();
+                    $('#spantagsformSaveId').html("Saved successfully");
+                    $('#spantagsformSaveId').delay(2000).fadeOut();
+                    getBgData();
+                    getprojectData();
+                    getenvironmentData();
+                },
+                error: function(jxhr) {
+
+                }
+            });
+        });
+
+        //Mapping tabs operation starts....
+        getBgData();
+        getprojectData();
+        getenvironmentData();
+        //For Business Group Mapping
+        function getBgData(){
+            $.get('/d4dMasters/readmasterjsonnew/2', function(bgList) {
+                var orgId = urlorgName;
+                var bgListArr = [];
+                for (var i = 0; i < bgList.length; i++) {
+                    if(orgId == bgList[i].orgname){
+                        bgListArr.push(bgList[i]);
+                    }
+                };
+                bgMappingList(bgListArr);
+            }).fail(function(jxhr) {
+                var msg = "Getting Business Group List Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+        //For Project Mapping
+        function getprojectData(){
+            $.get('/d4dMasters/readmasterjsonnew/4', function(projectist) {
+                var orgId = urlorgName;
+                var projectListArr = [];
+                for (var i = 0; i < projectist.length; i++) {
+                    for(var j=0;j<projectist[i].orgname.length;j++){
+                        if(orgId == projectist[i].orgname[j]){
+                            projectListArr.push(projectist[i]);
+                        }
+                    }
+                };
+                loaddefaultTagMappingSelection(projectListArr);
+            }).fail(function(jxhr) {
+                var msg = "Getting Project List Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+
+        //For Environment Mapping
+        function getenvironmentData(){
+            $.get('/d4dMasters/readmasterjsonnew/3', function(envList) {
+                var envListArr = [];
+                var orgId = urlorgName;
+                for (var i = 0; i < envList.length; i++) {
+                    for(var j=0;j<envList[i].orgname.length;j++){
+                        if(orgId == envList[i].orgname[j]){
+                            envListArr.push(envList[i]);
+                        }
+                    }
+                };
+                envMappingList(envListArr);
+            }).fail(function(jxhr) {
+                var msg = "Project Mapping Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+        function envMappingList(envList){
+            $mappingenvDatatable.clear().draw();
+
+            $.get('/providers/'+urlproviderId+'/tag-mappings/environment', function(data) {
+                if(data){
+                   // $('.btnenvMappingSave').attr('disabled',false);
+                    var $tbody = $('#mappingenvTable tbody').empty();
+                    for(var i = 0; i < envList.length; i++){
+                        //For Table
+                        var $tr = $('<tr id="'+envList[i].rowid+'" class=""></tr>');
+
+                        var $tdenvName = $('<td class="mappingenvName"></td>').append(envList[i].environmentname);
+                        $tr.append($tdenvName);
+
+                        var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
+                        $mappingenvSelectList.empty();
+                        $mappingenvSelectList.append($('<option></option>').val('').html('-- None --'));
+                        for(var j=0; j< data.tagValues.length; j++){
+                            if(data.tagValues[j] != ''){
+                                $mappingenvSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
+                            }
+                        }
+
+                        var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
+                        $tr.append($tdenvTagName);
+
+
+                        $tbody.append($tr);
+                        $mappingenvDatatable.row.add($tr).draw();
+
+                        for(var k = 0; k < data.catalystEntityMapping.length; k++){
+                            if(envList[i].rowid == data.catalystEntityMapping[k].catalystEntityId){
+                                $mappingenvSelectList.val(data.catalystEntityMapping[k].tagValue);
+                            }
+                        }
+                    }
+                }
+            }).fail(function(jxhr) {
+               // $('.btnenvMappingSave').attr('disabled',true);
+            });
+        }
+
+        function bgMappingList(bgList){
+            $mappingbgDatatable.clear().draw();
+
+            $.get('/providers/'+urlproviderId+'/tag-mappings/bgName', function(data) {
+                if(data){
+                    ///$('.btnbgMappingSave').attr('disabled',false);
+                    var $tbody = $('#mappingBgTable tbody').empty();
+                    for(var i = 0; i < bgList.length; i++){
+                        //For Table
+                        var $tr = $('<tr id="'+bgList[i].rowid+'" class=""></tr>');
+
+                        var $tdbgName = $('<td class="mappingbgName"></td>').append(bgList[i].productgroupname);
+                        $tr.append($tdbgName);
+
+                        var $mappingbgSelectList= $('<select class="mappingbgSelectId"></select>');
+                        $mappingbgSelectList.empty();
+                        $mappingbgSelectList.append($('<option></option>').val('').html('-- None --'));
+                        for(var j=0; j< data.tagValues.length; j++){
+                            if(data.tagValues[j] != ''){
+                                $mappingbgSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
+                            }
+                        }
+
+                        var $tdbgTagName = $('<td class="mappingbgTagName"></td>').append($mappingbgSelectList);
+                        $tr.append($tdbgTagName);
+
+
+                        $tbody.append($tr);
+                        $mappingbgDatatable.row.add($tr).draw();
+
+                        for(var k = 0; k < data.catalystEntityMapping.length; k++){
+                            if(bgList[i].rowid == data.catalystEntityMapping[k].catalystEntityId){
+                                $mappingbgSelectList.val(data.catalystEntityMapping[k].tagValue);
+                            }
+                        }
+                    }
+                }
+            }).fail(function(jxhr) {
+               /// $('.btnbgMappingSave').attr('disabled',true);
+            });
+        }
+        $('.btnbgMappingSave').on('click',function(){
+            var bgMappingObj = {
+                "catalystEntityMapping": []
+            };
+            var counter =0;
+            var bgMappingSequence = [];
+            $('#mappingBgTable tbody tr').each(function() {
+                counter++;
+                $tr = $(this);
+                var bgmappingcatalystEntityId = $tr.attr('id');
+                var mappingbgSelectTagName = $tr.find('.mappingbgSelectId :selected').val();
+                var mappingbgName = $tr.find('.mappingbgName').text();
+                if(mappingbgSelectTagName === '' && $('#mappingBgTable tbody tr').length === 1){
+                    bootbox.alert('Please select a value for updating Catalyst Business Group Tag');
+                    return false;
+                }
+                var objbgMapping = {};
+                objbgMapping["catalystEntityId"] = bgmappingcatalystEntityId;
+                objbgMapping["catalystEntityName"] = mappingbgName;
+                objbgMapping["tagValue"] = mappingbgSelectTagName;
+
+                bgMappingObj.catalystEntityMapping.push(objbgMapping);
+                if(counter == $('#mappingBgTable tbody tr').length){
+                    var checkBgNull = bgMappingObj.catalystEntityMapping;
+                    var checkNullFlag = true;
+                    for(var i = 0; i < checkBgNull.length;i++){
+                        if(checkBgNull[i].tagValue !== ''){
+                            checkNullFlag = false;
+                        }
+                    }
+                    if(checkNullFlag){
+                        bootbox.alert('Please select at-lease one value for updating Catalyst Business Group Tag');
+                        return false;
+                    }else {
+                        $.ajax({
+                            url: '/providers/' + urlproviderId + '/tag-mappings/bgName',
+                            data: JSON.stringify(bgMappingObj),
+                            type: 'PATCH',
+                            contentType: "application/json",
+                            success: function (data) {
+                                $('#spanbgMappingSaveId').fadeIn();
+                                $('#spanbgMappingSaveId').html('Saved successfully');
+                                $('#spanbgMappingSaveId').delay(2000).fadeOut();
+                            },
+                            error: function (jqxhr) {
+                                var msg = " ";
+                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                    msg = jxhr.responseJSON.message;
+                                } else if (jxhr.responseText) {
+                                    msg = jxhr.responseText;
+                                }
+                                $('#spanbgMappingSaveId').fadeIn();
+                                $('#spanbgMappingSaveId').html(msg);
+                                $('#spanbgMappingSaveId').delay(2000).fadeOut();
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        $('.btnprojectMappingSave').on('click',function(){
+            var projectMappingObj = {
+                "catalystEntityMapping": []
+            };
+            var counter =0;
+            $('#mappingprojectTable tbody tr').each(function() {
+                counter++;
+                $tr = $(this);
+                var projmappingcatalystEntityId = $tr.attr('id');
+                var mappingprojectSelectTagName = $tr.find('.mappingprojectSelectId :selected').val();
+                var mappingprojectName = $tr.find('.mappingprojectName').text();
+                if(mappingprojectSelectTagName === '' && $('#mappingprojectTable tbody tr').length === 1){
+                    bootbox.alert('Please select a value for updating Catalyst Project Tag');
+                    return false;
+                }
+                var objprojectMapping = {};
+                objprojectMapping["catalystEntityId"] = projmappingcatalystEntityId;
+                objprojectMapping["catalystEntityName"] = mappingprojectName;
+                objprojectMapping["tagValue"] = mappingprojectSelectTagName;
+
+                projectMappingObj.catalystEntityMapping.push(objprojectMapping);
+
+                if(counter == $('#mappingprojectTable tbody tr').length){
+                    var checkProjectNull = projectMappingObj.catalystEntityMapping;
+                    var checkNullFlag = true;
+                    for(var i = 0; i < checkProjectNull.length;i++){
+                        if(checkProjectNull[i].tagValue !== ''){
+                            checkNullFlag = false;
+                        }
+                    }
+                    if(checkNullFlag){
+                        bootbox.alert('Please select at-lease one value for updating Catalyst Project Tag');
+                        return false;
+                    }else {
+                        $.ajax({
+                            url: '/providers/' + urlproviderId + '/tag-mappings/project',
+                            data: JSON.stringify(projectMappingObj),
+                            type: 'PATCH',
+                            contentType: "application/json",
+                            success: function (data) {
+                                $('#spanprojectMappingSaveId').fadeIn();
+                                $('#spanprojectMappingSaveId').html('Saved successfully');
+                                $('#spanprojectMappingSaveId').delay(2000).fadeOut();
+                            },
+                            error: function (jqxhr) {
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+
+        $('.btnenvMappingSave').on('click',function(){
+            var envMappingObj = {
+                "catalystEntityMapping": []
+            };
+            var counter =0;
+            var envMappingSequence = [];
+            $('#mappingenvTable tbody tr').each(function() {
+                counter++;
+                $tr = $(this);
+                var envmappingcatalystEntityId = $tr.attr('id');
+                var mappingenvSelectTagName = $tr.find('.mappingenvSelectId :selected').val();
+                var mappingenvName = $tr.find('.mappingenvName').text();
+                if(mappingenvSelectTagName === '' && $('#mappingenvTable tbody tr').length === 1){
+                    bootbox.alert('Please select a value for updating Catalyst Environment Tag');
+                    return false;
+                }
+                var objenvMapping = {};
+                objenvMapping["catalystEntityId"] = envmappingcatalystEntityId;
+                objenvMapping["catalystEntityName"] = mappingenvName;
+                objenvMapping["tagValue"] = mappingenvSelectTagName;
+
+                envMappingObj.catalystEntityMapping.push(objenvMapping);
+                if(counter == $('#mappingenvTable tbody tr').length){
+                    var checkEnvNull = envMappingObj.catalystEntityMapping;
+                    var checkNullFlag = true;
+                    for(var i = 0; i < checkEnvNull.length;i++){
+                        if(checkEnvNull[i].tagValue !== ''){
+                            checkNullFlag = false;
+                        }
+                    }
+                    if(checkNullFlag){
+                        bootbox.alert('Please select at-lease one value for updating Catalyst Environment Tag');
+                        return false;
+                    }else {
+                        $.ajax({
+                            url: '/providers/' + urlproviderId + '/tag-mappings/environment',
+                            data: JSON.stringify(envMappingObj),
+                            type: 'PATCH',
+                            contentType: "application/json",
+                            success: function (data) {
+                                $('#spanenvMappingSaveId').fadeIn();
+                                $('#spanenvMappingSaveId').html('Saved successfully');
+                                $('#spanenvMappingSaveId').delay(2000).fadeOut();
+                            },
+                            error: function (jqxhr) {
+                                var msg = " ";
+                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                    msg = jxhr.responseJSON.message;
+                                } else if (jxhr.responseText) {
+                                    msg = jxhr.responseText;
+                                }
+                                $('#spanenvMappingSaveId').fadeIn();
+                                $('#spanenvMappingSaveId').html(msg);
+                                $('#spanenvMappingSaveId').delay(2000).fadeOut();
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        //Instances Tabs Starts here......
+        var $chooseCtalystSelectId = $('#chooseCtalystSelectId');
+        $chooseCtalystSelectId.change(function(e) {
+            var catalystStatusType = $('#chooseCtalystSelectId :selected').attr('data-catalystStatus');
+            if ($('#chooseCtalystSelectId :selected').text() === 'Managed') {
+                $('#Managed').show();
+                $('#Assigned').hide();
+                $('#Unassigned').hide();
+            } else if (catalystStatusType === 'Assigned') {
+                $('#Managed').hide();
+                $('#Assigned').show();
+                $('#Unassigned').hide();
+                getAssignedInstances();
+            } else if (catalystStatusType === 'Unassigned') {
+                $('#Managed').hide();
+                $('#Assigned').hide();
+                $('#Unassigned').show();
+                getUnassignedData('EC2');
+            }
+        });
+
+        //RDS Tabs Starts here......
+        var chooseCatalystRDSId = $('#chooseCatalystRDSId');
+        chooseCatalystRDSId.change(function(e) {
+            var catalystStatusType = $('#chooseCatalystRDSId :selected').attr('data-catalystStatus');
+            if ($('#chooseCatalystRDSId :selected').text() === 'Assigned') {
+                $('#rdsAssigned').show();
+                $('#rdsUnassigned').hide();
+            } else if (catalystStatusType === 'rdsUnassigned') {
+                $('#rdsAssigned').hide();
+                $('#rdsUnassigned').show();
+                getUnassignedData('RDS');
+            }
+        });
+
+        //S3 Tabs Starts here......
+        var chooseCatalystS3Id = $('#chooseCatalystS3Id');
+        chooseCatalystS3Id.change(function(e) {
+            var catalystStatusType = $('#chooseCatalystS3Id :selected').attr('data-catalystStatus');
+            if ($('#chooseCatalystS3Id :selected').text() === 'Assigned') {
+                $('#s3Assigned').show();
+                $('#s3Unassigned').hide();
+            } else if (catalystStatusType === 's3Unassigned') {
+                $('#s3Assigned').hide();
+                $('#s3Unassigned').show();
+                getUnassignedData('S3');
+            }
+        });
+
+        var $orgListInput = $('#providerSyncOrgSelect').attr('disabled', 'disabled');
+        var $bgList = $('#providerSyncBgSelect');
+        var $projectList = $('#providerSyncProjectSelect');
+        var $envList = $('#providerSyncEnvSelect');
+        var $infraManagerList = $('#providerSyncInfraManagerSelect');
+
+        $('#providerSyncBtn').click(function(e) {
+            $('#saveSpinner').addClass('hidden');
+            $('.importNodesBtn').removeAttr('disabled');
+            var perm = haspermission('instancelaunch', 'execute');
+
+            if (!perm) {
+                bootbox.alert('Insufficient permission to perform operation.');
+                $('#chefImportNodesModal').modal('hide');
+                return;
+            } else {
+                var $checkBoxes = $('.nodeCheckBox:checked');
+                if (!$checkBoxes.length) {
+                    bootbox.alert('Please Choose instances first');
+                    return;
+                }
+                getMonitorValues();
+                $('#providerSyncModal').modal('show');
+                $('#myForm12').trigger("reset");
+                $envList.empty();
+
+                $('#pemFileDropdown2').change();
+            }
+        });
+
+        $(".authPassword").show();
+        $(".authPemFile").hide();
+        $('.authenticationType').change(function(e) {
+            if (this.value == "password") {
+                $(".authPassword").show();
+                $(".authPemFile").hide();
+            } else {
+                $(".authPassword").hide();
+                $(".authPemFile").show();
+            }
+        });
+
+
+        var serviceURL = "../d4dMasters/";
+
+        function getRelatedValues_Top(jsonID, comparedField, filterByValue, outputField) {
+            var result = [];
+            readMasterJson_Top(jsonID);
+            if (d4ddata) {
+                $.each(d4ddata, function(k, v) {
+                    if (v[comparedField] == filterByValue && v[outputField]) {
+                        result.push(v['rowid'] + '|' + v[outputField]);
+                    }
+                });
+            }
+            return (result);
+        }
+
+        function getRelatedValues_Top_rowid(jsonID, comparedField, filterByValue, outputField) {
+            var result = [];
+            readMasterJson_Top(jsonID);
+            if (d4ddata) {
+                $.each(d4ddata, function(k, v) {
+                    if (v[comparedField] == filterByValue && v[outputField]) {
+                        var rowids = v[outputField + '_rowid'].split(',');
+                        var txts = v[outputField].split(',');
+                        for (var i = 0; i < txts.length; i++) {
+                            result.push(rowids[i] + '|' + txts[i]);
+                        }
+                    }
+                });
+            }
+            return (result);
+        }
+
+
+        function readMasterJson_Top(section) {
+            $.ajax({
+                type: "get",
+                dataType: "text",
+                async: false,
+                url: serviceURL + "readmasterjsonnew/" + section,
+                success: function(data) {
+                    d4ddata = JSON.parse(data);
+                },
+                failure: function(data) {
+                    bootbox.alert(data.toString());
+                }
+            });
+            return (d4ddata);
+        }
+
+
+        //loading provider with org
+        $.get('/providers/' + urlproviderId, function(provider) {
+            var org = provider.org
+            $orgListInput.append($('<option></option>').val(org.rowid).html(org.orgname).attr('selected', 'selected'));
+            $bgList.empty();
+            $bgList.append($('<option></option>').val('choose').html('Choose'));
+            var getBGs = getRelatedValues_Top(2, "orgname_rowid", org.rowid, "productgroupname");
+            for (var i = 0; i < getBGs.length; i++) {
+                if (getBGs[i].indexOf('|') >= 0) {
+                    var txtval = getBGs[i].split('|');
+                    $bgList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                }
+
+            }
+
+            $bgList.change(function(e) {
+                var bgName = $(this).val();
+                if (bgName == 'choose') {
+                    return;
+                }
+                $projectList.empty();
+                $projectList.append($('<option></option>').val('choose').html('Choose'));
+
+                var getProjs = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
+                for (var i = 0; i < getProjs.length; i++) {
+                    if (getProjs[i].indexOf('|') >= 0) {
+                        var txtval = getProjs[i].split('|');
+                        $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
+                }
+            });
+            $projectList.change(function(e) {
+                var projName = $(this).val();
+                if (projName == 'choose') {
+                    return;
+                }
+                var getEnvs_ = getRelatedValues_Top_rowid(4, "rowid", projName, "environmentname");
+                var getEnvs = getEnvs_.toString().replace(/"/g, '').split(',');
+                for (var i = 0; i < getEnvs.length; i++) {
+                    if (getEnvs[i].indexOf('|') >= 0) {
+                        var txtval = getEnvs[i].split('|');
+                        $envList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
+                }
+            });
+            // loading inframanagers
+            $.get(serviceURL + 'organization/' + org.rowid + '/configmanagement/list', function(configMgmntList) {
+                var $configManagementDropdown = $('#providerSyncInfraManagerSelect');
+                for (var i = 0; i < configMgmntList.length; i++) {
+                    var $options = $('<option></option>');
+                    var name;
+                    if (configMgmntList[i].configType === 'puppet') {
+                        name = configMgmntList[i].puppetservername;
+                    } else {
+                        name = configMgmntList[i].configname;
+                    }
+                    $options.html(name);
+                    $options.val(configMgmntList[i].rowid);
+                    $configManagementDropdown.append($options);
+                }
+            });
+
+        });
+        //loading UnAssigned Data
+        function getUnassignedData(key) {
+            $.get('/providers/'+ urlproviderId +'/tag-mappings', function(tagsListSelected) {
+                if(tagsListSelected){
+                    var envProjectMappingObject = {};
+                    var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
+                    var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
+                    var catalystEntitybgName = $('#bgNameLabelId').attr('catalystEntitytype');
+
+                    for(var i=0;i<tagsListSelected.length;i++){
+                        var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
+                        var objtagName = tagsListSelected[i].tagName;
+
+                        //Creating an object to map with unassigned instances(To get data for project and environment in every row)
+                        if(objcatalystEntityType == catalystEntityProjName){
+                            envProjectMappingObject['project'] = objtagName;
+                        }
+                        if(objcatalystEntityType == catalystEntityEnvName){
+                            envProjectMappingObject['environment'] = objtagName;
+                        }
+                        if(objcatalystEntityType == catalystEntitybgName){
+                            envProjectMappingObject['bgName'] = objtagName;
+                        }
+                    }
+                    if(key==='EC2'){
+                        getUnassignedInstancesWithProjectAndEnv(envProjectMappingObject);
+                    }else if(key ==='RDS'){
+                        getUnassignedDBInstancesWithProjectAndEnv(envProjectMappingObject);
+                    }else if(key ==='S3'){
+                        getUnassignedS3BucketsWithProjectAndEnv(envProjectMappingObject);
+                    }
+
+                }
+            }).fail(function(jxhr) {
+                var msg = "Tag mappings not loaded as behaved unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        };
+
+
+        function getAssignedInstances() {
+            $('#unmanagedinstanceListTable').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "destroy":true,
+                "createdRow": function( row, data ) {
+                    $( row ).attr({"instanceId" : data._id})
+                },
+                "ajax": {
+                    "url": '/providers/' + urlproviderId + '/unmanagedInstanceList',
+                    "data": function( result ) {
+                        var columnIndex = parseInt(result.order[0].column);
+                        var newResult = {
+                            draw:result.draw,
+                            page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                            pageSize:result.length,
+                            sortOrder:result.order[0].dir,
+                            sortBy:result.columns[columnIndex].data,
+                            filterBy:result.filterBy,
+                            search:result.search.value
+                        }
+                        return newResult;
+                    }
+                },
+                "columns": [
+                    {"data": "platformId","orderable" : true  },
+                    {"data": "os","orderable" : false  },
+                    {"data": "","orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            if(full.ip === null){
+                                if(full.privateIpAddress &&  full.privateIpAddress !== null){
+                                    return full.privateIpAddress;
+                                }else{
+                                    return '-';
+                                }
+                            }else{
+                                return full.ip;
+                            }
+                        }
+                    },
+                    {"data": "","orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            return full.region?full.region:full.providerData?full.providerData.region:'-';
+                        }
+                    },
+                    {"data": "state","orderable" : true  },
+                    {"data": "" ,"orderable" : true ,
+                        "render":function(data, type, full, meta) {
+                            return full.orgName?full.orgName:'-';
+                        }
+                    },
+                    {"data": "" ,"orderable" : true ,
+                        "render":function(data, type, full, meta) {
+                            return full.bgName?full.bgName:'-';
+                        }
+                    },
+                    {"data": "" ,"orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            return full.projectName?full.projectName:'-';
+                        }
+                    },
+                    {"data": "","orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            return full.environmentName?full.environmentName:'-';
+                        }
+                    },
+                    {"data": "","orderable" : false,
+                        "render":function(data, type, full, meta) {
+                            if (full.state === 'running') {
+                                return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full._id).html() + '">';
+                            }else{
+                                return '';
+                            }
+                        }
+                    }
+                ]
+            } );
+        }
+        function getUnassignedDBInstancesWithProjectAndEnv(envProjectMappingObject){
+            $('#unassignedRDSListTable').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "destroy":true,
+                "ajax": {
+                    "url": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
+                    "data": function( result ) {
+                        var columnIndex = parseInt(result.order[0].column);
+                        var newResult = {
+                            draw:result.draw,
+                            page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                            pageSize:result.length,
+                            sortOrder:result.order[0].dir,
+                            sortBy:result.columns[columnIndex].data,
+                            filterBy:result.filterBy,
+                            search:result.search.value
+                        }
+                        return newResult;
+                    }
+                },
+                "createdRow": function( row, data ) {
+                    $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
+                },
+                "columns": [
+                    {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
+                    {"data": "resourceDetails.dbEngine","orderable" : true  },
+                    {"data": "resourceDetails.region","orderable" : false  },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
+                                var tagValue = full.tags[envProjectMappingObject.bgName];
+                                return '<input class="form-control bgTagName" type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control bgTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
+                                var tagValue = full.tags[envProjectMappingObject.project];
+                                return '<input class="form-control projectTagName" type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control projectTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
+                                var tagValue = full.tags[envProjectMappingObject.environment];
+                                return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control envTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "","orderable" : false,
+                        "render":function(data,type,full,meta){
+                            if(full.resourceDetails.dbInstanceIdentifier){
+                                return '<input class="nodeCheckBox" type="checkbox" val=""/>';
+                            }else{
+                                return '';
+                            }
+                        }
+                    }
+                ]
+            });
+        }
+
+
+        function getUnassignedS3BucketsWithProjectAndEnv(envProjectMappingObject)  {
+            $('#unassignedS3ListTable').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "destroy":true,
+                "ajax": {
+                    "url": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
+                    "data": function( result ) {
+                        var columnIndex = parseInt(result.order[0].column);
+                        var newResult = {
+                            draw:result.draw,
+                            page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                            pageSize:result.length,
+                            sortOrder:result.order[0].dir,
+                            sortBy:result.columns[columnIndex].data,
+                            filterBy:result.filterBy,
+                            search:result.search.value
+                        }
+                        return newResult;
+                    }
+                },
+                "createdRow": function( row, data ) {
+                    $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
+                },
+                "columns": [
+                    {"data": "resourceDetails.bucketName", "orderable" : true},
+                    {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
+                    {"data": "resourceDetails.bucketSize","orderable" : true  },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
+                                var tagValue = full.tags[envProjectMappingObject.bgName];
+                                return '<input class="form-control bgTagName" type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control bgTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
+                                var tagValue = full.tags[envProjectMappingObject.project];
+                                return '<input class="form-control projectTagName" type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control projectTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
+                                var tagValue = full.tags[envProjectMappingObject.environment];
+                                return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control envTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "","orderable" : false,
+                        "render":function(data,type,full,meta){
+                            if(full.resourceDetails.bucketName){
+                                return '<input class="nodeCheckBox" type="checkbox" val=""/>';
+                            }else{
+                                return '';
+                            }
+                        }
+                    }
+                ]
+            });
+        }
+
+
+        function getUnassignedInstancesWithProjectAndEnv(envProjectMappingObject){
+            $('#unassignedinstanceListTable').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "destroy":true,
+                "ajax": {
+                    "url": '/providers/' + urlproviderId + '/unassigned-instances',
+                    "data": function( result ) {
+                        var columnIndex = parseInt(result.order[0].column);
+                        var newResult = {
+                            draw:result.draw,
+                            page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                            pageSize:result.length,
+                            sortOrder:result.order[0].dir,
+                            sortBy:result.columns[columnIndex].data,
+                            filterBy:result.filterBy,
+                            search:result.search.value
+                        }
+                        return newResult;
+                    }
+                },
+                "createdRow": function( row, data ) {
+                    $( row ).attr({"instanceId" : data._id,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
+                },
+                "columns": [
+                    {"data": "platformId","orderable" : true  },
+                    {"data": "os","orderable" : false  },
+                    {"data": "","orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            if(full.ip === null){
+                                if(full.privateIpAddress &&  full.privateIpAddress !== null){
+                                    return full.privateIpAddress;
+                                }else{
+                                    return '-';
+                                }
+                            }else{
+                                return full.ip;
+                            }
+                        }
+                    },
+                    {"data": "state","orderable" : true  },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
+                                var tagValue = full.tags[envProjectMappingObject.bgName];
+                                return '<input class="form-control bgTagName"  type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control bgTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
+                                var tagValue = full.tags[envProjectMappingObject.project];
+                                return '<input class="form-control projectTagName"  type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control projectTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.tags && envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
+                                var tagValue = full.tags[envProjectMappingObject.environment];
+                                return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control envTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "platformId","orderable" : false,
+                        "render":function(data,type,full,meta){
+                            if(full.platformId){
+                                return '<input class="nodeCheckBox" type="checkbox" val=""/>';
+                            }
+                        }
+                    }
+                ]
+            } );
+
+        }
+
+
+        $('#unassignedSyncBtn').on('click', function(e) {
+            var updateInstanceTagsObj = {};
+            var updateInstanceTagsArr = [];
+            var $checkBox_checked = $('#unassignedinstanceListTable').find('tbody tr').filter(':has(:checkbox:checked)');
+            if($checkBox_checked.length > 0) {
+                $('#unassignedinstanceListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
+                    //Batch update instances tags
+                    var updateUniqueInstanceTagsObj = {};
+                    var instanceId = $(this).attr("instanceId");
+                    var projectTagsMapName = $(this).attr("projectTagsMapName");
+                    var envTagsMapName = $(this).attr("envTagsMapName");
+                    var bgTagsMapName = $(this).attr("bgTagsMapName");
+                    var projectTagName = $(this).find('.projectTagName').val();
+                    var envTagName = $(this).find('.envTagName').val();
+                    var bgTagName = $(this).find('.bgTagName').val();
+                    updateUniqueInstanceTagsObj["id"] = instanceId;
+                    updateUniqueInstanceTagsObj["tags"] = {};
+                    if((typeof projectTagsMapName === 'undefined' || projectTagsMapName === '' || projectTagsMapName === null) &&
+                            (typeof envTagsMapName === 'undefined' || envTagsMapName === '' || envTagsMapName === null) &&
+                            (typeof bgTagsMapName === 'undefined' || bgTagsMapName === '' || bgTagsMapName === null)){
+                        bootbox.alert("Please configure tag-mapping for updating tags");
+                        return false;
+                    }
+                    if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
+                        bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
+                        return false;
+                    }
+                    if(projectTagName !== ''){
+                        updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    }
+                    if(envTagName !== ''){
+                        updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
+                    }
+                    if(bgTagName !== ''){
+                        updateUniqueInstanceTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    }
+                    updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
+                });
+                updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
+                $.ajax({
+                    url: '/providers/' + urlproviderId + '/unassigned-instances',
+                    data: JSON.stringify(updateInstanceTagsObj),
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    success: function (data) {
+                        $('.margintop-25left250').fadeIn();
+                        $('#spanunassignedformSaveId').text('Updated successfully');
+                        $('.margintop-25left250').delay(2000).fadeOut();
+                        //getUnassignedData('EC2');
+                    },
+                    error: function (jqxhr) {
+                        // if(jqxhr.responseJSON.message === 'Access Denied'){
+                        bootbox.alert(jqxhr.responseJSON.message);
+                        // getUnassignedData('EC2');
+                        // }
+                    }
+                });
+            }else{
+                bootbox.alert("Please select corresponding check-box for updating tags");
+                return false;
+            }
+        });
+
+        $('#s3UnassignedSyncBtn').on('click', function(e) {
+            var updateBucketTagsObj = {};
+            var updateBucketTagsArr = [];
+            var $checkBox_checked = $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)');
+            if($checkBox_checked.length > 0) {
+                $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
+                    //Batch update instances tags
+                    var updateUniqueBucketTagsObj = {};
+                    var resourceId = $(this).attr("resourceId");
+                    var resourceType = $(this).attr("resourceType");
+                    var projectTagsMapName = $(this).attr("projectTagsMapName");
+                    var envTagsMapName = $(this).attr("envTagsMapName");
+                    var bgTagsMapName = $(this).attr("bgTagsMapName");
+                    var projectTagName = $(this).find('.projectTagName').val();
+                    var envTagName = $(this).find('.envTagName').val();
+                    var bgTagName = $(this).find('.bgTagName').val();
+                    updateUniqueBucketTagsObj["id"] = resourceId;
+                    updateUniqueBucketTagsObj["tags"] = {};
+                    if((projectTagsMapName === 'undefined' || projectTagsMapName === '' || projectTagsMapName === null) &&
+                            (envTagsMapName === 'undefined' || envTagsMapName === '' || envTagsMapName === null) &&
+                            (bgTagsMapName === 'undefined' || bgTagsMapName === '' || bgTagsMapName === null)){
+                        bootbox.alert("Please configure tag-mapping for updating tags");
+                        return false;
+                    }
+                    if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
+                        bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
+                        return false;
+                    }
+                    if(projectTagName !== ''){
+                        updateUniqueBucketTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    }
+                    if(envTagName !== ''){
+                        updateUniqueBucketTagsObj["tags"][envTagsMapName] = envTagName;
+                    }
+                    if(bgTagName !== ''){
+                        updateUniqueBucketTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    }
+                    updateBucketTagsArr.push(updateUniqueBucketTagsObj);
+                });
+                updateBucketTagsObj["resources"] = updateBucketTagsArr;
+                $.ajax({
+                    url: '/resources?providerId=' + urlproviderId,
+                    data: JSON.stringify(updateBucketTagsObj),
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    success: function (data) {
+                        $('.margintop-25left250').fadeIn();
+                        $('#spanS3unassignedformSaveId').text('Updated successfully');
+                        $('.margintop-25left250').delay(2000).fadeOut();
+                        // getUnassignedData('S3');
+                    },
+                    error: function (jqxhr) {
+                        bootbox.alert(jqxhr.responseJSON.message);
+                        // getUnassignedData('S3');
+                    }
+                });
+            }else{
+                bootbox.alert("Please select corresponding check-box for updating tags");
+                return false;
+            }
+        });
+
+        $('#rdsUnassignedSyncBtn').on('click', function(e) {
+            var updateDBTagsObj = {};
+            var updateDBTagsArr = [];
+            var $checkBox_checked = $('#unassignedRDSListTable').find('tbody tr').filter(':has(:checkbox:checked)');
+            if($checkBox_checked.length > 0) {
+                $('#unassignedRDSListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
+                    //Batch update instances tags
+                    var updateUniqueDBTagsObj = {};
+                    var resourceId = $(this).attr("resourceId");
+                    var resourceType = $(this).attr("resourceType");
+                    var projectTagsMapName = $(this).attr("projectTagsMapName");
+                    var envTagsMapName = $(this).attr("envTagsMapName");
+                    var bgTagsMapName = $(this).attr("bgTagsMapName");
+                    var projectTagName = $(this).find('.projectTagName').val();
+                    var envTagName = $(this).find('.envTagName').val();
+                    var bgTagName = $(this).find('.bgTagName').val();
+                    updateUniqueDBTagsObj["id"] = resourceId;
+                    updateUniqueDBTagsObj["tags"] = {};
+                    if((projectTagsMapName === 'undefined' || projectTagsMapName === '' || projectTagsMapName === null) &&
+                            (envTagsMapName === 'undefined' || envTagsMapName === '' || envTagsMapName === null) &&
+                            (bgTagsMapName === 'undefined' || bgTagsMapName === '' || bgTagsMapName === null)){
+                        bootbox.alert("Please configure tag-mapping for updating tags");
+                        return false;
+                    }
+                    if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
+                        bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
+                        return false;
+                    }
+                    if(projectTagName !== ''){
+                        updateUniqueDBTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    }
+                    if(envTagName !== ''){
+                        updateUniqueDBTagsObj["tags"][envTagsMapName] = envTagName;
+                    }
+                    if(bgTagName !== ''){
+                        updateUniqueDBTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    }
+                    updateDBTagsArr.push(updateUniqueDBTagsObj);
+                });
+                updateDBTagsObj["resources"] = updateDBTagsArr;
+                $.ajax({
+                    url: '/resources?providerId=' + urlproviderId,
+                    data: JSON.stringify(updateDBTagsObj),
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    success: function (data) {
+                        $('.margintop-25left250').fadeIn();
+                        $('#spanRDSunassignedformSaveId').text('Updated successfully');
+                        $('.margintop-25left250').delay(2000).fadeOut();
+                        //getUnassignedData('RDS');
+                    },
+                    error: function (jqxhr) {
+                        bootbox.alert(jqxhr.responseJSON.message);
+                        //getUnassignedData('RDS');
+
+                    }
+                });
+            }else{
+                bootbox.alert("Please select corresponding check-box for updating tags");
+                return false;
+            }
+
+        });
+
+
+        $('.importNodesBtn').click(function(e) {
+            var $checkBoxes = $('.nodeCheckBox:checked');
+            var reqBody = {};
+            reqBody.orgId = $orgListInput.val();
+            reqBody.bgId = $bgList.val();
+            reqBody.projectId = $projectList.val();
+            reqBody.envId = $envList.val();
+            //Added By Durgesh
+            reqBody.orgName = $orgListInput.find('option:selected').text();
+            reqBody.bgName = $bgList.find('option:selected').text();
+            reqBody.projectName = $projectList.find('option:selected').text();
+            reqBody.environmentName = $envList.find('option:selected').text();
+            reqBody.monitorId = $('select#monitorId').val();
+            //End By Durgesh
+            reqBody.configManagmentId = $infraManagerList.val();
+
+
+            if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
+                bootbox.alert('Please Select a Business Group & Project');
+                return;
+            }
+
+            reqBody.instanceIds = [];
+            $checkBoxes.each(function() {
+                reqBody.instanceIds.push($(this).val());
+            });
+
+            reqBody.credentials = {};
+            reqBody.credentials.username = $('#importUsernameInput').val();
+
+            var $dropdown = $('#pemFileDropdown2');
+            if (!($dropdown.val() === 'pemFile')) {
+                reqBody.credentials.password = $('#importPasswordInput').val();
+                if (!reqBody.credentials.username) {
+                    bootbox.alert('Please Enter Username');
+                    return;
+                }
+                if (!reqBody.credentials.password) {
+                    bootbox.alert('Please Enter Password or Choose a Pem file');
+                    return;
+                }
+                makeRequest();
+            } else {
+                var pemFileInput = $('#importPemfileInput').get(0);
+                if (!reqBody.credentials.username) {
+                    bootbox.alert('Please Enter Username');
+                    return;
+                }
+                if (!pemFileInput.files.length) {
+                    bootbox.alert('Please Choose a Pem file');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    reqBody.credentials.pemFileData = e.target.result;
+                    makeRequest();
+                };
+                // Read in the image file as a data URL.
+                reader.readAsText(pemFileInput.files[0]);
+
+            }
+
+            function makeRequest() {
+                $('#saveSpinner').removeClass('hidden');
+                $('.importNodesBtn').attr('disabled', 'disabled');
+                $.post('../providers/' + urlproviderId + '/sync', reqBody, function(data) {
+                    $('#providerSyncModal').modal('hide');
+                    var $chefResultModalContainer = $('#providerSyncResultModal');
+                    var $modalBody = $chefResultModalContainer.find('.modal-body');
+                    $modalBody.empty();
+                    var $progressBar = $('<progress value="0" max="' + reqBody.instanceIds.length + '"></progress>').css({
+                        width: '100%'
+                    });
+                    var $msgDiv = $('<div class="messageDiv"></div>').css({
+                        width: '100%'
+                    });
+
+                    $modalBody.append($progressBar).append($msgDiv);
+                    $('#saveSpinner').addClass('hidden');
+
+                    $('#chefImportNodesModal').modal('hide');
+                    $chefResultModalContainer.modal('show');
+                    var timeout;
+                    var count = 0;
+
+                    function pollTaskStatus(taskId, timestamp) {
+                        timeout = setTimeout(function() {
+                            $.get('../taskstatus/' + taskId + '/status?timestamp=' + timestamp, function(data) {
+                                if (!data.completed) {
+                                    if (data.statusList && data.statusList.length) {
+
+                                        $progressBar.val(data.statusList.length);
+                                        $msgDiv.empty();
+                                        for (var i = 0; i < data.statusList.length; i++) {
+                                            $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                        }
+
+                                        pollTaskStatus(taskId, data.statusList[data.statusList.length - 1].timestamp);
+                                    } else {
+                                        pollTaskStatus(taskId, timestamp);
+                                    }
+                                } else {
+                                    if (data.statusList && data.statusList.length) {
+                                        $progressBar.val(data.statusList.length);
+                                        $msgDiv.empty();
+                                        for (var i = 0; i < data.statusList.length; i++) {
+                                            $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                        }
+                                    }
+                                    $progressBar.val(reqBody.selectedNodes.length);
+                                    if (reqBody.selectedNodes.length) {
+                                        var nodeData = $($checkBoxes[0]).data('node');
+                                        if (nodeData && nodeData.chef_environment) {
+                                        }
+                                    }
+                                }
+                            })
+                        }, 1000);
+
+                    }
+                    pollTaskStatus(data.taskId, 0);
+                    //Refreshing the workzone tree
+                }).error(function() {
+                    bootbox.alert('Unable to import instances. Please try again later');
+                });
+            }
+        });
+
+    });
+</script>
