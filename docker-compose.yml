@@ -1,0 +1,39 @@
+###########################################################################
+## Required Docker CE 17+
+## it can be started as follows
+##         docker stack deploy --compose-file docker-compose.yml neo
+##         docker stack remove neo
+###########################################################################
+
+# change DB_HOST to local system IP
+version: '3'  
+
+services:  
+  database:
+    image: mongo:3.4.4
+    volumes :
+      - ${PWD}/data/db:/data/db 
+    networks:
+      - neonet
+
+  application:
+    image: relevancelab/catalyst-core:latest
+    environment:
+      - DB_HOST=database
+    volumes:
+      - ${PWD}/data/catdata:/rlc/server/catdata
+      - ${PWD}/logs:/rlc/server/app/logs
+    networks:
+      - neonet
+    
+  web:
+    image: nginx:latest
+    ports:
+      - '80:80'
+    volumes:
+      - ${PWD}/config/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - neonet
+
+networks:
+  neonet:
