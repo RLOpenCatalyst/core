@@ -261,9 +261,22 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     function getInstanceList(req, res, next) {
         var reqData = {};
+        logger.debug("Enter get() for /instances with query ");
+
+        logger.info(JSON.stringify(req.query));
+
+
         async.waterfall(
             [
-
+                // function(next){
+                //     masterUtil.getActiveOrgs(req.session.user.cn,function(errao,orgs){
+                //         if(!errao){
+                //             req.query.orgId = {"$in":orgs}
+                //             logger.info('Filtering for '+JSON.stringify(orgs));
+                //             next();
+                //         }
+                //     })
+                // },
                 function (next) {
                     apiUtil.paginationRequest(req.query, 'instances', next);
                 },
@@ -271,7 +284,10 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     instanceService.parseInstanceMonitorQuery(paginationReq, next);
                 },
                 function (paginationReq, next) {
+                    paginationReq.filter = req.query;
                     reqData = paginationReq;
+
+                    logger.info(JSON.stringify(paginationReq));
                     instancesDao.getInstanceList(paginationReq, next);
                 },
                 function (instances, next) {
@@ -1032,6 +1048,46 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             }
         });
     });
+
+    app.get('/instances/find', function (req, res) {
+        // logger.debug("Enter get() for /instances/find/");
+        // var filter = {
+        //     // orgId: req.params.orgid,
+        //     //     envId: req.params.envid,
+        //     //     bgId: req.params.bgid,
+        //     //     projectId: req.params.projid
+        // }
+        // if(req.query["buid"])
+        //     filter.bgId = req.query["buid"]
+        // if(req.query["pid"])
+        //     filter.projectId = req.query["pid"]
+        //
+        // if(req.query["eid"])
+        //     filter.envId = req.query["eid"]
+        res.send(req.session);
+        //constructing the options object to narrow down search
+        // req.params.querytext = req.params.querytext.replace(/\"/g, '\\"');
+        // logger.debug('Query:' + req.params.querytext);
+        // var options = {
+        //     search: req.params.querytext,
+        //     filter: {
+        //         orgId: req.params.orgid,
+        //         envId: req.params.envid,
+        //         bgId: req.params.bgid,
+        //         projectId: req.params.projid
+        //     },
+        //     limit: 10000
+        // }
+        // logger.debug(JSON.stringify(options));
+        // instancesDao.searchInstances(req.params.querytext, options, function (err, data) {
+        //     if (!err) {
+        //         logger.debug('Received from search');
+        //         logger.debug(data.length);
+        //         res.send(data);
+        //     }
+        // });
+    });
+
     app.get('/instances/dockerimagepull/:instanceid/:dockerreponame/:imagename/:tagname/:runparams/:startparams', function (req, res) {
 
         logger.debug("Enter get() for /instances/dockerimagepull");
