@@ -872,7 +872,6 @@ var MasterUtil = function () {
             }
         });
     }
-    
     this.getJira = function(orgList, callback) {
         var jiraList = [];
         var rowIds = [];
@@ -886,7 +885,6 @@ var MasterUtil = function () {
             }
         }, function(err, jira) {
             if (jira) {
-                
                 configmgmtDao.getRowids(function(err, rowidlist) {
                     for (var i = 0; i < jira.length; i++) {
                         logger.debug(jira[i].id);
@@ -2618,9 +2616,8 @@ var MasterUtil = function () {
             return callback(null, templates);
         });
     };
-    
     this.getSensuCookbooks = function(){
-        var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]'];
+        var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]','recipe[consul-client-demo]'];
         return cookbooks;
     };
 

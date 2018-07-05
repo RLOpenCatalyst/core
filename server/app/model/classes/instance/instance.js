@@ -553,12 +553,14 @@ var InstancesDao = function () {
     this.getInstanceList = function getInstanceList(jsonData, callback) {
         if (jsonData && jsonData.pageSize) {
             jsonData['searchColumns'] = ['platformId', 'instanceState', 'bootStrapStatus', 'orgName', 'bgName', 'projectName', 'environmentName'];
+            logger.info(JSON.stringify(jsonData));
             apiUtils.databaseUtil(jsonData, function (err, databaseCall) {
                 if (err) {
                     var err = new Error('Internal server error');
                     err.status = 500;
                     return callback(err);
                 } else {
+                    databaseCall.queryObj = jsonData.filter;
                     databaseCall.queryObj.isDeleted =false;
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
                         if (err) {
