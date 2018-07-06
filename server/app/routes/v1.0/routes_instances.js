@@ -261,9 +261,22 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     function getInstanceList(req, res, next) {
         var reqData = {};
+        logger.debug("Enter get() for /instances with query ");
+
+        logger.info(JSON.stringify(req.query));
+
+
         async.waterfall(
             [
-
+                // function(next){
+                //     masterUtil.getActiveOrgs(req.session.user.cn,function(errao,orgs){
+                //         if(!errao){
+                //             req.query.orgId = {"$in":orgs}
+                //             logger.info('Filtering for '+JSON.stringify(orgs));
+                //             next();
+                //         }
+                //     })
+                // },
                 function (next) {
                     apiUtil.paginationRequest(req.query, 'instances', next);
                 },
@@ -271,7 +284,10 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     instanceService.parseInstanceMonitorQuery(paginationReq, next);
                 },
                 function (paginationReq, next) {
+                    paginationReq.filter = req.query;
                     reqData = paginationReq;
+
+                    logger.info(JSON.stringify(paginationReq));
                     instancesDao.getInstanceList(paginationReq, next);
                 },
                 function (instances, next) {

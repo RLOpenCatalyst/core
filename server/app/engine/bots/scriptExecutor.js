@@ -343,7 +343,8 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
             "data": replaceTextObj,
             "os": instance.hardware.os,
             "authentication": authenticationObj,
-            "environment": envObj
+            "environment": envObj,
+            "catalyst-node-reference": instance._id
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
         var options = {
