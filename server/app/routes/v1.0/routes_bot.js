@@ -104,6 +104,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.post('/bot/:botId/execute',function(req,res){
         var executionType = null;
+        logger.info("Reached execute " + req.params.botId);
         if(req.query.executionType && req.query.executionType !== null){
             executionType = req.query.executionType;
         }
@@ -145,6 +146,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 reqBody.nodeIds =  req.body.nodeIds;
             }
         }
+        logger.info("About to execute" + executionType);
         botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
             logger.info(JSON.stringify(reqBody));
             if (err) {

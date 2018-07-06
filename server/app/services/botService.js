@@ -353,18 +353,21 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
     var botId = null;
     var botRemoteServerDetails = {};
     var bots = [];
+    logger.info("Entering WF");
     async.waterfall([
         function(next) {
             botDao.getBotsByBotId(botsId, next);
         },
         function(botList, next) {
             bots = botList;
+            logger.info("Got Bots " + JSON.stringify(bots));
             if(schedulerCallCheck)
                 scheduledBots.getScheduledBotsByBotId(botsId, next);
             else next(null, []);
         },
         function(scheduledBots, next){
             if(bots.length > 0) {
+                logger.info("Got Bots " + JSON.stringify(scheduledBots));
                 botId = bots[0]._id;
                 if(scheduledBots.length > 0) {
                     //included check for params if empty.
@@ -406,6 +409,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             if(reqBody.nodeIds){
                 botObj.params.nodeIds = reqBody.nodeIds;
             }
+            logger.info("Updating bot details" + JSON.stringify(botObj));
             botDao.updateBotsDetail(botId,botObj, next);
         },
         function(updateStatus,next) {
@@ -413,6 +417,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
         },
         function(botDetails,next) {
             if(botDetails.length > 0){
+                logger.info("Executor in parallel " + JSON.stringify(botDetails));
                 async.parallel({
                     executor: function (callback) {
                         async.waterfall([
@@ -495,6 +500,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     }
                 });
             }else {
+                logger.info("No Botdetails found ");
                next(null,botDetails);
             }  
         }
@@ -504,6 +510,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             callback(err,null);
             return;
         }else{
+            logger.info("Completed Bot execution " + JSON.stringify(results));
             callback(null,results);
             return;
         }

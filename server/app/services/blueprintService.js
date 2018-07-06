@@ -809,6 +809,7 @@ blueprintService.deleteBlueprint = function deleteBlueprint(blueprintId, callbac
 
 blueprintService.getAllBlueprintsWithFilter = function getAllBlueprintsWithFilter(queryParam,callback){
     var reqData = {};
+    logger.info(JSON.stringify(queryParam));
     async.waterfall([
         function(next) {
             apiUtil.paginationRequest(queryParam, 'blueprints', next);
