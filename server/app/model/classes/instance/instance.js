@@ -560,8 +560,22 @@ var InstancesDao = function () {
                     err.status = 500;
                     return callback(err);
                 } else {
-                    databaseCall.queryObj = jsonData.filter;
-                    databaseCall.queryObj.isDeleted =false;
+                    if(jsonData.filter){
+                        //Convert to objects
+                        var jdkeys = Object.keys(jsonData.filter);
+                        var filter = {"$and":[]};
+                        for(var k=0;k< jdkeys.length;k++){
+                            var ky = jdkeys[k];
+                            filter.$and.push({[ky] : jsonData.filter[jdkeys[k]]});
+                        }
+
+                        filter.$and.push({"isDeleted":false});
+                        databaseCall.queryObj = filter;
+                    }
+                    else{
+                        databaseCall.queryObj.isDeleted =false;
+                    }
+                    logger.info("Final filter :"+JSON.stringify(databaseCall.queryObj));
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
                         if (err) {
                             logger.error(err);
