@@ -460,6 +460,10 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                     chefExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
                                 } else if (botDetails[0].type === 'blueprints') {
                                     reqBody = botDetails[0].params;
+                                    logger.info("About to execute " + botDetails[0].id);
+                                    logger.info("reqBody");
+                                    logger.info(reqBody);
+
                                     blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
                                     reqBody = botDetails[0].params;
