@@ -34,6 +34,7 @@ blueprintExecutor.execute = function execute(botId,auditTrail,reqBody,userName,c
                 var parallelBlueprintList=[];
                 for (var i = 0; i < reqBody.blueprintIds.length; i++) {
                     (function(blueprintId) {
+                        logger.info("Executing Blueprint");
                         parallelBlueprintList.push(function(callback){executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback);});
                         if(parallelBlueprintList.length === reqBody.blueprintIds.length){
                             if(parallelBlueprintList.length > 0) {
@@ -141,6 +142,8 @@ function executeBlueprint(botId,blueprintId,auditTrail,reqBody,userName,callback
                 if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
                     monitorId = reqBody.monitorId;
                 }
+                logger.info('Blueprint details:');
+                logger.info(JSON.stringify(blueprint));
                 blueprint.launch({
                     envId: reqBody.envId,
                     ver: reqBody.version,
