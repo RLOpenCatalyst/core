@@ -170,6 +170,7 @@ botService.getBotById = function getBotById(botId, callback) {
             return;
         } else if (bot.length > 0) {
             if (bot[0].ymlDocFileId && bot[0].ymlDocFileId !== null) {
+                logger.info("in botservice......");
                 fileUpload.getReadStreamFileByFileId(bot[0].ymlDocFileId, function (err, file) {
                     if (err) {
                         logger.error("Error in fetching YAML Documents for : " + bot[0].name + " " + err);
@@ -376,7 +377,9 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                         scheduledRequestBody.data = scheduledBots[0].params;
                     reqBody = scheduledRequestBody;
                 }
-                if (bots[0].type === 'script' || bots[0].type === 'chef') {
+                logger.info(bots[0].type);
+                //TO DO: There is no else condition, need to check...
+                if (bots[0].type === 'script' || bots[0].type === 'chef' || bots[0].type === 'blueprints') {
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
@@ -395,6 +398,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     });
 
                 }
+
             }else{
                 var error = new Error();
                 error.message = 'There is no record available in DB against BOT : '+botsId;
