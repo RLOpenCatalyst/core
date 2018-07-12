@@ -2633,7 +2633,9 @@ var MasterUtil = function () {
             'rabbitmq_username': monitorDetails.parameters.transportProtocolParameters.user,
             'rabbitmq_password': decryptedPassword,
             'rabbitmq_vhostname': monitorDetails.parameters.transportProtocolParameters.vhost,
-            'instance-id': instanceId
+            'instance-id': instanceId,
+            'stack_name':monitorDetails.parameters.stackName,
+            'tags-tenant-name':monitorDetails.parameters.orgName
         };
         logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
         return sensuAttributes;
