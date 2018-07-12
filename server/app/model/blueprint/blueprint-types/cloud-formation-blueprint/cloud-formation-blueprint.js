@@ -787,7 +787,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 {
                                                                                     launchParams.monitor.parameters.orgName = launchParams.orgName;
                                                                                 }
-                                                                                jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
+                                                                                //jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
+                                                                                //Changed based on new sensu and consul server configurations.
+                                                                                jsonAttributes['consul-client-demo'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
                                                                             }
 
                                                                             logger.debug("runlist: ", JSON.stringify(runlist));
