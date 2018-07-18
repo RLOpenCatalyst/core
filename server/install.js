@@ -177,6 +177,9 @@ function getDefaultsConfig() {
             regions: [{
                 region_name: "US East (N. Virginia)",
                 region: "us-east-1"
+            },{
+                region_name: "US East (Ohio)",
+                region: "us-east-2"
             }, {
                 region_name: "US West (Oregon)",
                 region: "us-west-2"
@@ -249,7 +252,7 @@ function getDefaultsConfig() {
                 NetworkOut: 'MB'
             },
             costData:{
-                regions:['us-east-1','us-west-2','us-west-1','eu-west-1','eu-central-1','ap-southeast-1','ap-northeast-1','ap-southeast-2','sa-east-1'],
+                regions:['us-east-1','us-east-2','us-west-2','us-west-1','eu-west-1','eu-central-1','ap-southeast-1','ap-northeast-1','ap-southeast-2','sa-east-1'],
                 productName1:['Amazon Elastic Compute Cloud','Amazon RDS Service','Amazon Redshift','Amazon ElastiCache'],
                 productName2:['Amazon CloudFront','Amazon Route 53','Amazon Simple Storage Service','Amazon Virtual Private Cloud']
             },
@@ -257,6 +260,9 @@ function getDefaultsConfig() {
             regionMappings: {
                 'us-east-1': {
                     name: 'US East (N. Virginia)'
+                },
+                'us-east-2': {
+                    name: 'US East (Ohio)'
                 },
                 'us-west-1': {
                     name: 'US West (N. California)'

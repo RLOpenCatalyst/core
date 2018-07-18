@@ -785,12 +785,29 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 }
                                                                                 if(launchParams.orgName)
                                                                                 {
-                                                                                    launchParams.monitor.parameters.orgName = launchParams.orgName;
+                                                                                    var orgNameString = launchParams.orgName;
+                                                                                    if(Array.isArray(orgNameString))
+                                                                                        orgNameString = orgNameString[0];
+                                                                                    launchParams.monitor.parameters.orgName = orgNameString;
+                                                                                    //Adding to sensu-client cookbook attribute.
+                                                                                    jsonAttributes['sensu-client'] = {
+                                                                                        "check-tenant-id": orgNameString
+                                                                                    }
                                                                                 }
                                                                                 //jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
                                                                                 //Changed based on new sensu and consul server configurations.
                                                                                 jsonAttributes['consul-client-demo'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
                                                                             }
+                                                                            //Adding ipAddress to Attributes of all instances. Required only for the demo cookbook
+                                                                            var ipAddresses = [];
+                                                                            for (var x = 0; x < instances.length; x++) {
+                                                                                ipAddresses.push(instances[x].PrivateIpAddress);
+                                                                            }
+                                                                            ipAddresses = ipAddresses.join(',');
+                                                                            jsonAttributes['cft-rlc-demo'] = {
+                                                                                "ipAddresses":ipAddresses
+                                                                            }
+                                                                            logger.debug('Attributes: ', JSON.stringify(jsonAttributes));
 
                                                                             logger.debug("runlist: ", JSON.stringify(runlist));
                                                                             launchParams.infraManager.bootstrapInstance({
