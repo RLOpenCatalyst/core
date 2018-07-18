@@ -2617,7 +2617,8 @@ var MasterUtil = function () {
         });
     };
     this.getSensuCookbooks = function(){
-        var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]','recipe[consul-client-demo]'];
+        //var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]','recipe[consul-client-demo]'];
+        var cookbooks = ['recipe[sensu-client]','recipe[consul-client-demo]','recipe[cft-rlc-demo]'];
         return cookbooks;
     };
 
