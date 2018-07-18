@@ -716,7 +716,17 @@ function startStopManagedInstance(instance,catUser,action,callback){
                             callback(err);
                             return;
                         }
-                        callback(null, keyPair[0].region);
+                        //Fix for additional regions added for provider - Vinod
+                        var foundRegion = false;
+                        for(var p = 0; p < keyPair.length; p++){
+                            if(keyPair[p].region == instance.region){
+                                foundRegion = true;
+                                callback(null, keyPair[p].region);
+
+                            }
+                        }
+                        if(!foundRegion) //to support old flow.
+                            callback(null, keyPair[0].region);
                     });
                 }
             }

@@ -407,49 +407,52 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                   Array.isArray(instId) ? instanceXId = instId[0] : instanceXId=results.id
                   var instancePollObject = setInterval(()=> {
                       instancesDao.getInstanceById(instanceXId, (err, resultx)=> {
-                      if(err) cbx(err)
-                      else{
-                          var result = resultx[0]
-                          if(result.instanceState === 'running' && !jobDone)
-                  {
-                      logger.info('Blueprint succesfully launched and bootstrapped')
-                      jobDone = true
-                      clearInterval(instancePollObject)
-                      async.each(result.appUrls, (urlObj, cb)=> {
-                          var hcUrl = urlObj.url
-                          var hcMod = hcUrl.replace('$host',result.instanceIP)
-                          logger.info('HEALTH CHECK URL '+ hcMod)
-                      var intervalBusService = setInterval(()=> {
-                          commandCentre.createBusinessService(hcMod, result.chefNodeName, result.chefNodeName, result.chefNodeName, (error, res) => {
+                          if(err) cbx(err)
+                          else {
+                              var result = resultx[0];
+                              if(result){
+                                if (result.instanceState) {
 
-                          if(!error){
-                      clearInterval(intervalBusService)
-                      logger.info('Business service event in DBoard triggered successfully for '+ result.instanceIP)
-                      cb()
-                  }
-                  else{
-                      logger.info(JSON.stringify(error))
-                  }
-                  })
-                  }, 3000, 5)
-                  }, (err)=> {
-                      if(!err){
-                          logger.info('Business Services set created successfully')
-                      }
-                      else{
-                          logger.info('No response from Command Center. Giving Up')
-                      }
-                  })
-                  }
-              else if (result.instanceState === 'failed'){
-                      jobDone = true
-                      logger.info('Blueprint launch failed')
-                      logger.info(result.body)
-                      clearInterval(instancePollObject)
-                  }
-              }
-              })
-              }, 10000)
+                                  if (result.instanceState === 'running' && !jobDone) {
+                                      logger.info('Blueprint succesfully launched and bootstrapped')
+                                      jobDone = true
+                                      clearInterval(instancePollObject)
+                                      async.each(result.appUrls, (urlObj, cb) => {
+                                          var hcUrl = urlObj.url
+                                          var hcMod = hcUrl.replace('$host', result.instanceIP)
+                                          logger.info('HEALTH CHECK URL ' + hcMod)
+                                          var intervalBusService = setInterval(() => {
+                                              commandCentre.createBusinessService(hcMod, result.chefNodeName, result.chefNodeName, result.chefNodeName, (error, res) => {
+                                                  if (!error) {
+                                                      clearInterval(intervalBusService)
+                                                      logger.info('Business service event in DBoard triggered successfully for ' + result.instanceIP)
+                                                      cb()
+                                                  }
+                                                  else {
+                                                      logger.info(JSON.stringify(error))
+                                                  }
+                                              })
+                                          }, 3000, 5)
+                                      }, (err) => {
+                                          if (!err) {
+                                              logger.info('Business Services set created successfully')
+                                          }
+                                          else {
+                                              logger.info('No response from Command Center. Giving Up')
+                                          }
+                                      })
+                                  }
+                                  else if (result.instanceState === 'failed') {
+                                      jobDone = true
+                                      logger.info('Blueprint launch failed')
+                                      logger.info(result.body)
+                                      clearInterval(instancePollObject)
+                                  }
+                              }
+                              }
+                          }
+                      })
+                  }, 10000)
                   callback(null, results);
                   return;
               }
