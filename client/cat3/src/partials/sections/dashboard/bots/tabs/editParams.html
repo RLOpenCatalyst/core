@@ -84,6 +84,28 @@
                         <!-- <input ng-if="value.type==='restricted'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/> -->
 		               </td>
 	               </tr>
+                   <tr ng-if = "gitRepository && gitRepository.length >0">
+                       <td>Source Repositories</td>
+                       <td>Multi Select</td>
+                       <td style="text-align: left">
+                           <select multiple class="form-control" ng-model="botEditParams['sourceGit']">
+                               <option ng-repeat="itm in gitRepository" value="{{itm._id}}">{{itm.repositoryName}}</option>
+                           </select>
+                           <!-- <input ng-if="value.type==='restricted'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/> -->
+                       </td>
+                   </tr>
+
+                   <tr ng-if = "cloudProviders && cloudProviders.length >0">
+                       <td>Cloud Providers</td>
+                       <td>Multi Select</td>
+                       <td style="text-align: left">
+                           <select multiple class="form-control" ng-model="botEditParams['sourceCloud']">
+                               <option ng-repeat="itms in cloudProviders;" value="{{itms}}">{{itms.providerName}}</option>
+                           </select>
+                           <!-- <input ng-if="value.type==='restricted'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/> -->
+                       </td>
+                   </tr>
+
 	            </tbody>
 	         </table>
       	</div>
