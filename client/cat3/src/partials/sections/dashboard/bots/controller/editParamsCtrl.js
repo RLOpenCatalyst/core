@@ -10,13 +10,34 @@
     angular.module('library.params', [])
         .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'responseFormatter', 'genericServices', 'botsCreateService', 'toastr', '$modal', function ($scope, $rootScope, $state, responseFormatter, genSevs, botsCreateService, toastr, $modal) {
             var items;
-
+            $scope.gitRepository=[];
+            $scope.cloudProviders=[];
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
             });
+            $scope.getRepository= function (Source,cloud) {
+                var param={
+                    url:'/botSource/' + Source
+                };
+                genSevs.promiseGet(param).then(function (response) {
+                    if(response){
+                        $scope.gitRepository=response;
+                    }
+                });
+
+                let cloudParam={
+                    url:'/cloudProviders/' + cloud
+                };
+                genSevs.promiseGet(cloudParam).then(function (response) {
+                    if(response){
+                        $scope.cloudProviders=response;
+                    }
+                });
+            }
 
             if($scope.templateSelected) {
                 items = $scope.templateSelected;
+                $scope.getRepository('botsfactoryNew','AzureFeb2018');
             }
 
             if($rootScope.organObject) {

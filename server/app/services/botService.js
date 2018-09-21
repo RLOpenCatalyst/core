@@ -40,6 +40,13 @@ const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 var gitHubService = require('_pr/services/gitHubService.js');
 var gitHubModel = require('_pr/model/github/github.js');
+
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
+var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
+var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+
 const errorType = 'botService';
 
 var botService = module.exports = {};
@@ -351,6 +358,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 }
 
 botService.executeBots = function executeBots(botsId, reqBody, userName, executionType, schedulerCallCheck, callback){
+    console.log('reqBody',reqBody);
     var botId = null;
     var botRemoteServerDetails = {};
     var bots = [];
@@ -1134,3 +1142,82 @@ function removeScriptFile(filePath) {
     })
 }
 
+botService.getBotBysource=function (source,callback){
+    gitHubModel.getGitRepository({"repositoryName": source},{ repositoryName: 1, _id: 1} ,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
+}
+botService.getBotBysource=function (source,callback){
+    gitHubModel.getGitRepository({"repositoryName": source},{ repositoryName: 1, _id: 1} ,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
+    botService.cloudProviders=function (name,callback) {
+        let cloudDetails=[];
+        AWSProvider.getName({providerName:name},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        openstackProvider.getName({providerName:name},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        hppubliccloudProvider.getName({providerName:name},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+        azurecloudProvider.getName({providerName:name},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+        vmwareProvider.getName({providerName:name},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        setTimeout(function () {
+            return callback(null, cloudDetails);
+        },2000)
+    }
+}
