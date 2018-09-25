@@ -395,13 +395,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                         } else if (botServerDetails !== null) {
                             botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                             botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                            let requestBody='';
-                            if(reqBody && reqBody.data && reqBody.data.sourceCloud || reqBody.data.sourceGit){
-                                requestBody=JSON.stringify(reqBody)
-                            }else {
-                                requestBody=reqBody
-                            }
-                            encryptedParam(requestBody, next);
+                            encryptedParam(reqBody, next);
                         } else {
                             var error = new Error();
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
@@ -987,9 +981,13 @@ function encryptedParam(paramDetails, callback) {
     var encryptedObj = {};
     if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
             Object.keys(paramDetails.data).forEach(function (key) {
-                var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
-                    cryptoConfig.decryptionEncoding);
-                encryptedObj[key] = encryptedText;
+                if(key && !key instanceof Array) {
+                    var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
+                        cryptoConfig.decryptionEncoding);
+                    encryptedObj[key] = encryptedText;
+                } else {
+                    encryptedObj[key]=paramDetails.data[key];
+                }
             });
             paramDetails.data = encryptedObj;
             callback(null, paramDetails);
