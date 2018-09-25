@@ -130,10 +130,10 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
                 Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-                    if(key && !key instanceof Array){
-                        var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                        replaceTextObj[key] = decryptedText;
-                    }
+                
+                       // var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        replaceTextObj[key] = botsScriptDetails.params.data[key];
+                
                 });;
             }
         }
@@ -190,7 +190,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             })
         }else{
             if (res.statusCode === 200){
-                console.log('reqBody-',botsScriptDetails);
+            
                 var auditQueueDetails = {
                     userName:userName,
                     botId:botsScriptDetails.id,
@@ -207,38 +207,47 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     env:"local",
                     retryCount:0
                 }
+                if(botsScriptDetails && botsScriptDetails.params && botsScriptDetails.params.data && botsScriptDetails.params.data.sourceCloud || botsScriptDetails.params.data.sourceGit){
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: false,
+                        log: "JSON file creation execution has started",
+                        timestamp: new Date().getTime()
+                    });
+                    // json file creation start
+                    fs.writeFileSync('../bot-execution.json', JSON.stringify(botsScriptDetails),(err) => {
+                        if (err){ 
+                            logsDao.insertLog({
+                                referenceId: logsReferenceIds,
+                                err: true,
+                                log: "Error in JSON file creation",
+                                timestamp: new Date().getTime()
+                            });
+                        } else {
+                        logsDao.insertLog({
+                            referenceId: logsReferenceIds,
+                            err: false,
+                            log: "JSON file creation execution has completed",
+                            timestamp: new Date().getTime()
+                        });
+                     }
+                    });
+                    
+                }
                 auditQueue.setAudit(auditQueueDetails);
                 return;
             }
             else {
                 console.log('botsScriptDetails-',botsScriptDetails);
                 var timestampEnded = new Date().getTime();
-                if(botsScriptDetails && botsScriptDetails.params && botsScriptDetails.params.data && botsScriptDetails.params.data.sourceCloud || botsScriptDetails.params.data.sourceGit){
-                    logsDao.insertLog({
-                        referenceId: logsReferenceIds,
-                        err: false,
-                        log: "JSON file creation execution has started",
-                        timestamp: timestampEnded
-                    });
-                    // json file creation start
-                    fs.writeFileSync('../bot-execution.json', JSON.stringify(botsScriptDetails),(err) => {
-                        if (err){ throw err;}
-                        console.log('Data written to file');
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: true,
-                            log: "Error in JSON file creation",
-                            timestamp: new Date().getTime()
-                        });
-                    });
-                } else {
+                
                     logsDao.insertLog({
                         referenceId: logsReferenceIds,
                         err: true,
                         log: "Error in Script executor",
                         timestamp: timestampEnded
                     });
-                }
+            
 
                 var resultTaskExecution = {
                     "actionStatus": 'failed',
