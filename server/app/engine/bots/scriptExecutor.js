@@ -130,11 +130,13 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
                 Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-                
-                       // var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                    if(botsScriptDetails.params.data[key] && !botsScriptDetails.params.data[key] instanceof Array) {
+                        var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        replaceTextObj[key] = decryptedText
+                    } else {
                         replaceTextObj[key] = botsScriptDetails.params.data[key];
-                
-                });;
+                    }
+                });
             }
         }
 
@@ -159,6 +161,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         body: reqBody
     };
     request.post(options, function (err, res, body) {
+        console.log('botsScriptDetails-',botsScriptDetails);
         if (err) {
             logger.error(err);
             var timestampEnded = new Date().getTime();
@@ -215,7 +218,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                         timestamp: new Date().getTime()
                     });
                     // json file creation start
-                    fs.writeFileSync('../bot-execution.json', JSON.stringify(botsScriptDetails),(err) => {
+                    fs.writeFileSync('../botExecution.json', JSON.stringify(botsScriptDetails),(err) => {
                         if (err){ 
                             logsDao.insertLog({
                                 referenceId: logsReferenceIds,
@@ -238,7 +241,33 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 return;
             }
             else {
-                console.log('botsScriptDetails-',botsScriptDetails);
+                // if(botsScriptDetails && botsScriptDetails.params && botsScriptDetails.params.data && botsScriptDetails.params.data.sourceCloud || botsScriptDetails.params.data.sourceGit){
+                //     logsDao.insertLog({
+                //         referenceId: logsReferenceIds,
+                //         err: false,
+                //         log: "JSON file creation execution has started",
+                //         timestamp: new Date().getTime()
+                //     });
+                //     // json file creation start
+                //     fs.writeFileSync('../botExecution.json', JSON.stringify(botsScriptDetails),(err) => {
+                //         if (err){
+                //             logsDao.insertLog({
+                //                 referenceId: logsReferenceIds,
+                //                 err: true,
+                //                 log: "Error in JSON file creation",
+                //                 timestamp: new Date().getTime()
+                //             });
+                //         } else {
+                //             logsDao.insertLog({
+                //                 referenceId: logsReferenceIds,
+                //                 err: false,
+                //                 log: "JSON file creation execution has completed",
+                //                 timestamp: new Date().getTime()
+                //             });
+                //         }
+                //     });
+                //
+                // }
                 var timestampEnded = new Date().getTime();
                 
                     logsDao.insertLog({
