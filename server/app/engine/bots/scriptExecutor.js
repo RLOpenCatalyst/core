@@ -107,10 +107,6 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 
 
 function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetails,callback) {
-    if(botsScriptDetails && botsScriptDetails.params){
-        botsScriptDetails.params=JSON.parse(botsScriptDetails.params);
-    }
-
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
@@ -215,6 +211,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 return;
             }
             else {
+                console.log('botsScriptDetails-',botsScriptDetails);
                 var timestampEnded = new Date().getTime();
                 if(botsScriptDetails && botsScriptDetails.params && botsScriptDetails.params.data && botsScriptDetails.params.data.sourceCloud || botsScriptDetails.params.data.sourceGit){
                     logsDao.insertLog({
