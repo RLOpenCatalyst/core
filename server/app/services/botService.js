@@ -46,7 +46,7 @@ var openstackProvider = require('_pr/model/classes/masters/cloudprovider/opensta
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
 var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
-
+var fs = require('fs');
 const errorType = 'botService';
 
 var botService = module.exports = {};
@@ -358,7 +358,6 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
 }
 
 botService.executeBots = function executeBots(botsId, reqBody, userName, executionType, schedulerCallCheck, callback){
-    console.log('reqBody',reqBody);
     var botId = null;
     var botRemoteServerDetails = {};
     var bots = [];
@@ -396,7 +395,13 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                         } else if (botServerDetails !== null) {
                             botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                             botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                            encryptedParam(reqBody, next);
+                            let requestBody='';
+                            if(reqBody && reqBody.data && reqBody.data.sourceCloud || reqBody.data.sourceGit){
+                                requestBody=JSON.stringify(reqBody)
+                            }else {
+                                requestBody=reqBody
+                            }
+                            encryptedParam(requestBody, next);
                         } else {
                             var error = new Error();
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
@@ -421,7 +426,6 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             if(reqBody.nodeIds){
                 botObj.params.nodeIds = reqBody.nodeIds;
             }
-            logger.info("Updating bot details" + JSON.stringify(botObj));
             botDao.updateBotsDetail(botId,botObj, next);
         },
         function(updateStatus,next) {
@@ -471,7 +475,6 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                     logger.info("About to execute " + botDetails[0].id);
                                     logger.info("reqBody");
                                     logger.info(reqBody);
-
                                     blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
                                     reqBody = botDetails[0].params;
