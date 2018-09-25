@@ -150,11 +150,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }
 
         logger.info("About to execute" + executionType);
-        gitHubModel.getGitRepository({ "_id": { $in: req.body.data.sourceGit } },{repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1},function(err,resultGit){
-            if(err){
-                return res.status(500).send(err);
-            }
-            reqBody.gitSource=resultGit;
+    
             botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
                 logger.info(JSON.stringify(reqBody));
                 if (err) {
@@ -163,7 +159,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     return res.status(200).send(data);
                 }
             })
-        });
+    
     });
 
     app.put('/bot/:botId/scheduler',function(req,res){

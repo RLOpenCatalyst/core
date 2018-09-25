@@ -37,7 +37,19 @@
 
             if($scope.templateSelected) {
                 items = $scope.templateSelected;
-                $scope.getRepository('botsfactoryNew','AzureFeb2018');
+                let cloud='';
+                let source='';
+                if(items && items.inputFormFields){
+                    items.inputFormFields.map(itm=>{
+                        if(itm && itm.name== 'source_repository'){
+                            source=itm.default.toLowerCase();
+                        }
+                        if(itm && itm.name=='cloud_providers'){
+                            cloud=itm.default.toLowerCase();
+                        }
+                    });
+                }
+                $scope.getRepository(source,cloud);
             }
 
             if($rootScope.organObject) {
