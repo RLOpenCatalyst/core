@@ -475,7 +475,6 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                     logger.info("About to execute " + botDetails[0].id);
                                     logger.info("reqBody");
                                     logger.info(reqBody);
-
                                     blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
                                     reqBody = botDetails[0].params;

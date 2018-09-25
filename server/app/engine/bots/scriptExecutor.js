@@ -215,7 +215,6 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 return;
             }
             else {
-                console.log('botsScriptDetails-',botsScriptDetails);
                 var timestampEnded = new Date().getTime();
                 if(botsScriptDetails && botsScriptDetails.params && botsScriptDetails.params.data && botsScriptDetails.params.data.sourceCloud || botsScriptDetails.params.data.sourceGit){
                     logsDao.insertLog({
