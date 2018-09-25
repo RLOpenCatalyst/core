@@ -29,7 +29,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
-var fs = require('fs');
+const fs = require('fs');
 var request = require('request');
 
 const errorType = 'scriptExecutor';
@@ -107,6 +107,10 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 
 
 function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetails,callback) {
+    if(botsScriptDetails && botsScriptDetails.params){
+        botsScriptDetails.params=JSON.parse(botsScriptDetails.params);
+    }
+
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
@@ -130,9 +134,11 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
                 Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-                    var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                    replaceTextObj[key] = decryptedText;
-                });
+                    if(key && !key instanceof Array){
+                        var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        replaceTextObj[key] = decryptedText;
+                    }
+                });;
             }
         }
 
@@ -188,6 +194,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             })
         }else{
             if (res.statusCode === 200){
+                console.log('reqBody-',botsScriptDetails);
                 var auditQueueDetails = {
                     userName:userName,
                     botId:botsScriptDetails.id,
@@ -208,13 +215,35 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 return;
             }
             else {
+                console.log('botsScriptDetails-',botsScriptDetails);
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
-                    referenceId: logsReferenceIds,
-                    err: true,
-                    log: "Error in Script executor",
-                    timestamp: timestampEnded
-                });
+                if(botsScriptDetails && botsScriptDetails.params && botsScriptDetails.params.data && botsScriptDetails.params.data.sourceCloud || botsScriptDetails.params.data.sourceGit){
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: false,
+                        log: "JSON file creation execution has started",
+                        timestamp: timestampEnded
+                    });
+                    // json file creation start
+                    fs.writeFileSync('../bot-execution.json', JSON.stringify(botsScriptDetails),(err) => {
+                        if (err){ throw err;}
+                        console.log('Data written to file');
+                        logsDao.insertLog({
+                            referenceId: logsReferenceIds,
+                            err: true,
+                            log: "Error in JSON file creation",
+                            timestamp: new Date().getTime()
+                        });
+                    });
+                } else {
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: true,
+                        log: "Error in Script executor",
+                        timestamp: timestampEnded
+                    });
+                }
+
                 var resultTaskExecution = {
                     "actionStatus": 'failed',
                     "status": 'failed',
