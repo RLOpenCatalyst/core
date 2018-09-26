@@ -183,7 +183,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/botSource/:source', function (req, res) {
-        botService.getBotBysource(req.params.source, function (err, data) {
+        let name=req.params.source.split(',');
+        botService.getBotBysource(name, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -193,7 +194,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/cloudProviders/:name',function (req, res) {
-        botService.cloudProviders(req.params.name,function (err, data) {
+        let name=req.params.name.split(',');
+        botService.cloudProviders(name,function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
