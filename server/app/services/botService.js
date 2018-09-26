@@ -1144,7 +1144,7 @@ function removeScriptFile(filePath) {
 }
 
 botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({"repositoryName": source},{ repositoryName: 1, _id: 1} ,(err, res) => {
+    gitHubModel.getGitRepository({"repositoryName":{$in:source} },{ repositoryName: 1, _id: 1} ,(err, res) => {
         if (!err) {
             return callback(null, res);
         }
@@ -1164,7 +1164,7 @@ botService.getBotBysource=function (source,callback){
     });
     botService.cloudProviders=function (name,callback) {
         let cloudDetails=[];
-        AWSProvider.getName({providerName:name},function (err,result) {
+        AWSProvider.getName({providerName:{$in: name}},function (err,result) {
             if (err) {
                 return callback(err, null)
             }
@@ -1175,7 +1175,7 @@ botService.getBotBysource=function (source,callback){
             }
         });
 
-        openstackProvider.getName({providerName:name},function (err,result) {
+        openstackProvider.getName({providerName:{$in: name}},function (err,result) {
             if (err) {
                 return callback(err, null)
             }
@@ -1186,7 +1186,7 @@ botService.getBotBysource=function (source,callback){
             }
         });
 
-        hppubliccloudProvider.getName({providerName:name},function (err,result) {
+        hppubliccloudProvider.getName({providerName:{$in: name}},function (err,result) {
             if (err) {
                 return callback(err, null)
             }
@@ -1196,7 +1196,7 @@ botService.getBotBysource=function (source,callback){
                 });
             }
         });
-        azurecloudProvider.getName({providerName:name},function (err,result) {
+        azurecloudProvider.getName({providerName:{$in: name}},function (err,result) {
             if (err) {
                 return callback(err, null)
             }
@@ -1206,7 +1206,7 @@ botService.getBotBysource=function (source,callback){
                 });
             }
         });
-        vmwareProvider.getName({providerName:name},function (err,result) {
+        vmwareProvider.getName({providerName:{$in: name}},function (err,result) {
             if (err) {
                 return callback(err, null)
             }

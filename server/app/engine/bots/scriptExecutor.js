@@ -155,7 +155,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             timestamp: new Date().getTime()
         });
         // json file creation start
-        fs.writeFileSync('../botExecution.json', JSON.stringify(botsScriptDetails),(err) => {
+        let JsonFileName='botExecution'+new Date().getTime()+'.json';
+        fs.writeFileSync('../'+JsonFileName, JSON.stringify(botsScriptDetails),(err) => {
             if (err){
                 logsDao.insertLog({
                     referenceId: logsReferenceIds,
@@ -172,8 +173,9 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 });
             }
         });
-
+        replaceTextObj['JsonFile']=JsonFileName;
     }
+
     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
     var reqBody = {
         "data": replaceTextObj
