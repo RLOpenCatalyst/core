@@ -25,7 +25,7 @@
                     }
                 });
 
-                let cloudParam={
+                var cloudParam={
                     url:'/cloudProviders/' + cloud
                 };
                 genSevs.promiseGet(cloudParam).then(function (response) {
