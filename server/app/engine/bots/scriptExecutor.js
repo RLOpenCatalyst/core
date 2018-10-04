@@ -170,9 +170,7 @@ if(replaceTextObj.sourceGit && replaceTextObj.sourceGit.length >0){
     replaceTextObj.sourceGit=newArr;
 }
 
-        logger.info("objecttttttttttttttt")
-       
-        logger.info(JSON.stringify(replaceTextObj));
+logger.info(JSON.stringify(replaceTextObj));
 
 
     // if(botsScriptDetails && botsScriptDetails.params && botsScriptDetails.params.data && botsScriptDetails.params.data.sourceCloud || botsScriptDetails.params.data.sourceGit){
