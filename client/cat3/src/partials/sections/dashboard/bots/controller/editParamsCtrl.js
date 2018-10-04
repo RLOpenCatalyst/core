@@ -37,8 +37,8 @@
 
             if($scope.templateSelected) {
                 items = $scope.templateSelected;
-                let cloud='';
-                let source='';
+                var cloud='';
+                var source='';
                 if(items && items.inputFormFields){
                     items.inputFormFields.map(itm=>{
                         if(itm && itm.name== 'source_repository'){
