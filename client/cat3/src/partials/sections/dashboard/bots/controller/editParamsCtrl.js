@@ -40,7 +40,7 @@
                 var cloud='';
                 var source='';
                 if(items && items.inputFormFields){
-                    items.inputFormFields.map(itm=>{
+                    angular.forEach(items.inputFormFields, function(itm, key) {
                         if(itm && itm.name== 'source_repository'){
                             source=itm.default.toLowerCase();
                         }
