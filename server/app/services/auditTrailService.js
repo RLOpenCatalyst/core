@@ -194,7 +194,7 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
    var snowbotsid = [];
    var count= new Array(31).fill(0);
    var name = [];
-     var totalcount={};
+    // var totalcount={};
     console.log(JSON.stringify(auditTrailQuery));
     async.waterfall([
         function(next){
@@ -242,7 +242,7 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
             queryObj.$and = [];
         
 
-            if(true){
+            
                 console.log(auditTrailQuery);
                 if(auditTrailQuery.startdate && auditTrailQuery.enddate){
                     console.log("making query");
@@ -316,7 +316,7 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
 
                 }
 
-            }
+            
             logger.info("Query obj build completed:"+JSON.stringify(queryObj));
             auditTrail.getAuditTrails(queryObj, function(err, data){
                 if(err){
@@ -325,24 +325,7 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
 
                  console.log(data);
 
-             // var audit=[];
-        //  for (var j=0;j<snowbotsid.length;j++)
-        //  { 
-        //      audit[snowbotsid[j]]=[];
-        //  }
-        //  console.log("snowbotsid++"+snowbotsid);
-        //  console.log("+++++++++++++++++++++"+JSON.stringify(audit));
-        //  for (var j=0;j<data.length;j++)
-        //  { 
-        //      var newDat= new Date(data[j].startedOn).toISOString;
-        //      audit[data[j].auditId].push({newDat:audit[data[j]].auditId.newDat++});
-        //  }
-
-        //  console.log("=============="+audit);
-
-
-
-        
+                 
                     for(var i=0;i<data.length-1;i++)
                     {
 
