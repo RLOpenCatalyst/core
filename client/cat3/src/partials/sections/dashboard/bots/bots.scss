@@ -1064,3 +1064,19 @@ fieldset#editParamPage legend {
       display: none;
     }
 }
+#botReport{
+.title{
+  font-size: 15px;
+}
+.btn{
+  margin: 23px 3px 0 0;
+}
+.table-striped>tbody>tr:nth-of-type(odd)
+{
+  background-color: #ecf7ee;
+}
+.grid {
+  width: 500px;
+  height: 400px;
+}
+}
