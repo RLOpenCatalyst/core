@@ -42,10 +42,10 @@
                 if(items && items.inputFormFields){
                     angular.forEach(items.inputFormFields, function(itm, key) {
                         if(itm && itm.name== 'source_repository'){
-                            source=itm.default;
+                            source=itm.default.toLowerCase();
                         }
                         if(itm && itm.name=='cloud_providers'){
-                            cloud=itm.default;
+                            cloud=itm.default.toLowerCase();
                         }
                     });
                 }
