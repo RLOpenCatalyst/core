@@ -1154,7 +1154,7 @@ botService.getBotBysource=function (source,callback){
     });
 }
 botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({"repositoryName": source},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1} ,(err, res) => {
+    gitHubModel.getGitRepository({"repositoryName": source},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1} ,(err, res) => {
         if (!err) {
             return callback(null, res);
         }
