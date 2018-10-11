@@ -572,9 +572,13 @@
         $scope.botsTableView = function(pageReset) {
             $scope.isBotLibraryPageLoading = true;
             $scope.isCardViewActive = false;
-            $scope.botsTableViewSelection = "bots-tab-active";
             $scope.botsCardViewSelection = "";
-            if(pageReset) {
+            if(pageReset=='reportBot'){
+                $scope.botsTableViewReport = "bots-tab-active";
+                $scope.botsReportView=true;
+            } else {
+                $scope.botsTableViewSelection = "bots-tab-active";
+                if(pageReset) {
                 $scope.botLibGridOptions.data = [];
                 $scope.paginationParams.page = 1;
                 $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
@@ -585,6 +589,9 @@
             } else {
                 $scope.botStatus();
             }
+            }
+            
+            
         };
 
 
