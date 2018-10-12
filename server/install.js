@@ -772,7 +772,7 @@ function createConfigFile(config) {
     fs.writeFileSync('app/config/catalyst-config.json', configJson);
 }
 console.log('Installing node packages required for installation');
-proc = spawn('npm', ['install', "command-line-args@0.5.3", 'mkdirp@0.5.0', 'fs-extra@0.18.0', 'ldapjs@0.7.1', 'mongodb@2.2.19']);
+proc = spawn('npm', ['install', "command-line-args@0.5.3", 'mkdirp@0.5.0', 'fs-extra@0.18.0', 'ldapjs@0.7.1', 'mongodb@2.1.4']);
 proc.on('close', function(code) {
     if (code !== 0) {
         throw "Unable to install packages"
