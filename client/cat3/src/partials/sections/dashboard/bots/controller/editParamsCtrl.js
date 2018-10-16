@@ -10,13 +10,46 @@
     angular.module('library.params', [])
         .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'responseFormatter', 'genericServices', 'botsCreateService', 'toastr', '$modal', function ($scope, $rootScope, $state, responseFormatter, genSevs, botsCreateService, toastr, $modal) {
             var items;
-
+            $scope.gitRepository=[];
+            $scope.cloudProviders=[];
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
             });
+            $scope.getRepository= function (Source,cloud) {
+                var param={
+                    url:'/botSource/' + Source
+                };
+                genSevs.promiseGet(param).then(function (response) {
+                    if(response){
+                        $scope.gitRepository=response;
+                    }
+                });
+
+                var cloudParam={
+                    url:'/cloudProviders/' + cloud
+                };
+                genSevs.promiseGet(cloudParam).then(function (response) {
+                    if(response){
+                        $scope.cloudProviders=response;
+                    }
+                });
+            }
 
             if($scope.templateSelected) {
                 items = $scope.templateSelected;
+                var cloud='';
+                var source='';
+                if(items && items.inputFormFields){
+                    angular.forEach(items.inputFormFields, function(itm, key) {
+                        if(itm && itm.name== 'source_repository'){
+                            source=itm.default.toLowerCase();
+                        }
+                        if(itm && itm.name=='cloud_providers'){
+                            cloud=itm.default.toLowerCase();
+                        }
+                    });
+                }
+                $scope.getRepository(source,cloud);
             }
 
             if($rootScope.organObject) {

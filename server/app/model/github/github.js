@@ -209,5 +209,17 @@ GitHubSchema.statics.deleteGitHub = function (gitHubId, callback) {
         }
     );
 };
+GitHubSchema.statics.getGitRepository = function (query,field, callback) {
+    this.find(query,field,
+        function (err, results) {
+            if (err) {
+                return callback(err);
+            } else {
+                return callback(null, results);
+            }
+        }
+    );
+};
+
 var GitHub = mongoose.model('github', GitHubSchema);
 module.exports = GitHub;

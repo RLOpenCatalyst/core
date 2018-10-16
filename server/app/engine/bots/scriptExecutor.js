@@ -29,7 +29,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
-var fs = require('fs');
+const fs = require('fs');
 var request = require('request');
 
 const errorType = 'scriptExecutor';
@@ -126,12 +126,17 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     }
     callback(null, botAuditTrailObj);
     if (botsScriptDetails.params && botsScriptDetails.params.data) {
+       
         //condition introduced based on encryption botservice -> encryptedParam
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
                 Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-                    var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                    replaceTextObj[key] = decryptedText;
+                    if(botsScriptDetails.params.data[key] && !botsScriptDetails.params.data[key] instanceof Array) {
+                        var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        replaceTextObj[key] = decryptedText
+                    } else {
+                        replaceTextObj[key] = botsScriptDetails.params.data[key];
+                    }
                 });
             }
         }
@@ -142,6 +147,61 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
         }
     }
+if(replaceTextObj.sourceCloud && replaceTextObj.sourceCloud.length >0){
+    let newArr=[];
+    replaceTextObj.sourceCloud.map(itm=>{
+        let obj=JSON.parse(itm);
+        var accessKey= cryptography.decryptText(obj["accessKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+        obj["accessKey"]=accessKey; 
+        var secretKey= cryptography.decryptText(obj["secretKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+        obj["secretKey"]=secretKey;
+        newArr.push(JSON.stringify(obj));
+    });
+    replaceTextObj.sourceCloud=newArr;
+}
+if(replaceTextObj.sourceGit && replaceTextObj.sourceGit.length >0){
+    let newArr=[];
+    replaceTextObj.sourceGit.map(itm=>{
+        let obj=JSON.parse(itm);
+        var repositoryPassword = cryptography.decryptText(obj["repositoryPassword"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+        obj["repositoryPassword"]=repositoryPassword; 
+        newArr.push(JSON.stringify(obj));
+    });
+    replaceTextObj.sourceGit=newArr;
+}
+
+logger.info(JSON.stringify(replaceTextObj));
+
+
+    // if(botsScriptDetails && botsScriptDetails.params && botsScriptDetails.params.data && botsScriptDetails.params.data.sourceCloud || botsScriptDetails.params.data.sourceGit){
+    //     logsDao.insertLog({
+    //         referenceId: logsReferenceIds,
+    //         err: false,
+    //         log: "JSON file creation execution has started",
+    //         timestamp: new Date().getTime()
+    //     });
+    //     // json file creation start
+    //     let JsonFileName='botExecution'+new Date().getTime()+'.json';
+    //     fs.writeFileSync('../'+JsonFileName, JSON.stringify(botsScriptDetails),(err) => {
+    //         if (err){
+    //             logsDao.insertLog({
+    //                 referenceId: logsReferenceIds,
+    //                 err: true,
+    //                 log: "Error in JSON file creation",
+    //                 timestamp: new Date().getTime()
+    //             });
+    //         } else {
+    //             logsDao.insertLog({
+    //                 referenceId: logsReferenceIds,
+    //                 err: false,
+    //                 log: "JSON file creation execution has completed",
+    //                 timestamp: new Date().getTime()
+    //             });
+    //         }
+    //     });
+    //     replaceTextObj['JsonFile']=JsonFileName;
+    // }
+
     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
     var reqBody = {
         "data": replaceTextObj
@@ -156,6 +216,12 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         json: true,
         body: reqBody
     };
+    logsDao.insertLog({
+        referenceId: logsReferenceIds,
+        err: false,
+        log: "BOT Engine execution",
+        timestamp: new Date().getTime()
+    });
     request.post(options, function (err, res, body) {
         if (err) {
             logger.error(err);
@@ -188,6 +254,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             })
         }else{
             if (res.statusCode === 200){
+            
                 var auditQueueDetails = {
                     userName:userName,
                     botId:botsScriptDetails.id,
@@ -209,12 +276,15 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             }
             else {
                 var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
-                    referenceId: logsReferenceIds,
-                    err: true,
-                    log: "Error in Script executor",
-                    timestamp: timestampEnded
-                });
+                
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: true,
+                        log: "Error in Script executor",
+                        timestamp: timestampEnded
+                    });
+            
+
                 var resultTaskExecution = {
                     "actionStatus": 'failed',
                     "status": 'failed',
@@ -455,8 +525,6 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
         })
     });
 }
-
-
 
 
 

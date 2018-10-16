@@ -21,8 +21,6 @@
             flag: false
         }
 
-
-
         if($scope.templateSelected) {
             items = $scope.templateSelected;
         }
@@ -49,7 +47,6 @@
         $scope.subType = items.subType;
         $scope.botInfo = $scope.templateSelected;
         $scope.executionDetails = items.execution;
-
         $scope.checkForScheduler = function() {
             if($scope.scheduleDetails.type === 'blueprints' && $scope.scheduleDetails.executionCount <=0) {
                 $scope.showForBlueprints = true;
