@@ -188,7 +188,9 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
     }
 }
 
-auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(auditTrailQuery,callback) {
+
+
+auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,period,callback) {
     var reqData = {};
     var result = [];
    var snowbotsid = [];
@@ -200,6 +202,7 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
         function(next){
 
             settingService.getOrgUserFilter(auditTrailQuery.user,function(err,orgIds){
+                
                 logger.info('Exiting Org user filter');
                 if(err){
                     next(err,null);
@@ -281,7 +284,6 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
 
                             //queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
                         }
-
                         else if(auditTrailQuery.actionStatus === "failed"){
                             //to fetch all tickets in failed states
                             //get all bots with sysid
@@ -308,6 +310,8 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
                             //queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
                         }
                     
+                      
+                    
                         else
                             queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
                     }
@@ -323,9 +327,9 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
                     next(err, null);
                 } else {
 
-                 console.log(data);
+               //  console.log(data);
 
-                 
+                 //Pushing the names in the array 
                     for(var i=0;i<data.length-1;i++)
                     {
 
@@ -350,45 +354,83 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
                             }
 
                             else{
+ 
 
-
+                                name.push(data[i].auditTrailConfig.name);
+                            }
                                                                                                                                                                                                                                                                                                                                                                     
-                        
-                      var startdateforfirst = new Date(data[i].startedOn);
-                      var indforfirst =  new Date(startdateforfirst).getDate();
-                      count[indforfirst]=1;
-                        console.log(startdateforfirst);
-                       for(var j=i+1;j<data.length;j++)
-                        {
-                            var startdateforsecond = new Date(data[j].startedOn);
+                        }      
+                     
 
-                            // For every particular BOT
-                           // console.log(startdateforsecond.getDate());
-                
-                        if(data[i].auditId === data[j].auditId)
-                        {
-                            
-                             var ind =  new Date(startdateforsecond).getDate();
-                         
-                            if(count[ind] == null || count[ind] == undefined)
-                            count[ind] = 1;
-                            else count[ind]++;
-                  
-                        }
-                     }
-                    
+                         //console.log(name);
+
+                      // Iterating array to get individual BOT Data monthly
+
+
+                      var sdt = new Date(auditTrailQuery.startdate).getTime();
+                      var edt = new Date(auditTrailQuery.enddate).getTime();
+                      var timestamp = 60*60*1000*24;
+
+                   for(var k=0;k<name.length;k++)
+                   {
+                       for(var j=0;j<data.length;j++)
+                       {
+                                     if(name[k] === data[j].auditTrailConfig.name)
+                                     {
+
+                 var startdateforfirst = new Date(data[j].startedOn);
+
+                 if(period === "monthly")
+                {
+                    //console.log("in month");
+                 var ind =  new Date(startdateforfirst).getMonth() +1;
+
+                 if(count[ind] == null || count[ind] == undefined)
+                 count[ind] = 1;
+                 else count[ind]++;
+                }else if(period === "weekly"){
+
+                    var currenttime = startdateforfirst.getTime();
+
+
+                    if((currenttime-sdt)>=0 && (currenttime-sdt)<(7*timestamp))
+                    {
+                        count[0]++;
                     }
-       
-
-                   name.push(data[i].auditTrailConfig.name);
-
-                     var item = {"name" : data[i].auditTrailConfig.name,"count" : count};
-                     count= new Array(31).fill(0);
-                     result.push(item);
-                
+                    else if((currenttime-sdt)>=7*timestamp && (currenttime-sdt)<(14*timestamp))
+                    {
+                         count[1]++;
                     }
-                console.log(JSON.stringify(result));
-                    
+                    else if((currenttime-sdt)>=14*timestamp && (currenttime-sdt)<(21*timestamp))
+                    {
+                        count[2]++;
+                    } else if((currenttime-sdt)>=21 && (currenttime-sdt)<(28*timestamp))
+                    {
+                          count[3]++;
+                    }
+
+                } 
+                         else if(period === "daily")
+                         {
+
+                            var index =  new Date(startdateforfirst).getDate();
+
+                            if(count[index] == null || count[index] == undefined)
+                            count[index] = 1;
+                            else count[index]++;
+
+
+                         }
+                // console.log(ind);
+                
+
+                                     }
+                       }
+                       var item = {"name" : name[k],"count" : count};
+                       count= new Array(31).fill(0);
+                       result.push(item);
+                   }
+
                 next(null, result);
                 }
             });
@@ -407,6 +449,9 @@ auditTrailService.getAuditTrailListforuppermetric = function getAuditTrailList(a
         return;
     });
 }
+
+
+
 
 
 

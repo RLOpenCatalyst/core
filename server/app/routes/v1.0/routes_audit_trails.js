@@ -59,12 +59,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
   
-    app.get('/audit-trail/botreporttable', function(req,res){
+
+    // API for Bot Report
+    app.get('/audit-trail/filterdata', function(req,res){
 
         //adding user to query
         req.query.user = req.session.user.cn;
         logger.info(req.query.user)
-        auditTrailService.getAuditTrailListforuppermetric(req.query,function(err,auditTrailList){
+        auditTrailService.getMonthWiseData(req.query,req.query.period,function(err,auditTrailList){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
@@ -72,7 +74,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             return res.status(200).send(auditTrailList);
         })
     });
-
 
 
 
