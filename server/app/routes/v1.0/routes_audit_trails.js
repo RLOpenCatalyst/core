@@ -42,6 +42,40 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
+//API for getting the upper metric   
+    
+    app.get('/audit-trail/uppermetric', function(req,res){
+
+        //adding user to query
+        req.query.user = req.session.user.cn;
+        logger.info(req.query.user)
+        auditTrailService.getAuditTrailListMod(req.query,function(err,auditTrailList){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(auditTrailList);
+        })
+    });
+
+  
+    app.get('/audit-trail/botreporttable', function(req,res){
+
+        //adding user to query
+        req.query.user = req.session.user.cn;
+        logger.info(req.query.user)
+        auditTrailService.getAuditTrailListforuppermetric(req.query,function(err,auditTrailList){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(auditTrailList);
+        })
+    });
+
+
+
+
     app.get('/audit-trail/:actionId/logs', function(req,res){
         auditTrailService.getAuditTrailActionLogs(req.params.actionId,req.query.timestamp,function(err,auditTrailActionLogs){
             if(err){
