@@ -392,19 +392,24 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
 
                     var currenttime = startdateforfirst.getTime();
 
-
+                    //For calculating the first week data
                     if((currenttime-sdt)>=0 && (currenttime-sdt)<(7*timestamp))
                     {
                         count[0]++;
                     }
+
+                    //For calculating second week data
                     else if((currenttime-sdt)>=7*timestamp && (currenttime-sdt)<(14*timestamp))
                     {
                          count[1]++;
                     }
+                    //For calculating third week data
                     else if((currenttime-sdt)>=14*timestamp && (currenttime-sdt)<(21*timestamp))
                     {
                         count[2]++;
-                    } else if((currenttime-sdt)>=21 && (currenttime-sdt)<(28*timestamp))
+                    } 
+                    // For calculating fourth week data
+                    else if((currenttime-sdt)>=21 && (currenttime-sdt)<(28*timestamp))
                     {
                           count[3]++;
                     }
@@ -501,8 +506,7 @@ auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQu
         },
         function(next) {
             var queryObj={};
-            //appending queryObj with auditTrailQuery
-            //queryObj.auditTrailQuery = auditTrailQuery;
+           
            queryObj.$and = [];
                 console.log(auditTrailQuery);
                 if(auditTrailQuery.startdate && auditTrailQuery.enddate){
@@ -674,7 +678,7 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
 
                             //queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
                         }else if(auditTrailQuery.actionStatus === "failed"){
-                            //to fetch all tickets in success states
+                            //to fetch all tickets in failed states
                             //get all bots with sysid
                             logger.info("in failure query " + snowbotsid);
 
