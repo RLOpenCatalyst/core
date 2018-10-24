@@ -8,9 +8,10 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botReportCtrl',['$scope','toastr','genericServices','uiGridConstants', function ($scope, toastr,genericServices,uiGridConstants) {
+    .controller('botReportCtrl',['$scope','toastr','genericServices','uiGridConstants','uiGridExporterConstants','uiGridExporterService', function ($scope, toastr,genericServices,uiGridConstants,uiGridExporterConstants,uiGridExporterService) {
         $scope.reportData={
             showColumnFooter: true,
+           
             columnDefs: [
                 { name: 'name', field: 'name' ,footerCellTemplate: '<div class="ui-grid-cell-contents">Total</div>', width: 250}
               ],
@@ -18,6 +19,7 @@
               onRegisterApi: function(gridApi) {
                 $scope.gridApi = gridApi;
         }
+       
         
         };
         
@@ -90,6 +92,7 @@
             
         }
 
+     
 
         $scope.reportTable=function (mode){
             let enddate=new Date();
@@ -109,12 +112,32 @@
     startdate= month + "/" + day + "/" + year;
        var date = new Date();//
 
-    var b=['Jan','Feb','Mar','Apr','May','Jun','July','Aug','Sept','Oct','Nov','Dec'];
+    var b=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 
 
     $scope.reportData={
         showColumnFooter: true,
+        enableGridMenu: true,
+        enableSelectAll: true,
+        exporterCsvFilename: 'Report.csv',
+        exporterPdfDefaultStyle: {fontSize: 9},
+        exporterPdfTableStyle: {margin: [20, 20, 20, 20]},
+        exporterPdfTableHeaderStyle: {fontSize: 10, bold: true, italics: true, color: 'red'},
+        exporterPdfHeader: { text: "Bot Report ", style: 'headerStyle' },
+        exporterPdfFooter: function ( currentPage, pageCount ) {
+          return { text: currentPage.toString() + ' of ' + pageCount.toString(), style: 'footerStyle' };
+        },
+        exporterPdfCustomFormatter: function ( docDefinition ) {
+          docDefinition.styles.headerStyle = { fontSize: 22, bold: true };
+          docDefinition.styles.footerStyle = { fontSize: 10, bold: true };
+          return docDefinition;
+        },
+        exporterPdfOrientation: 'landscape',
+        exporterPdfPageSize: 'A4',
+        exporterPdfMaxGridWidth: 450,
+        exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
+        
         columnDefs: [
             { name: 'name', field: 'name' ,footerCellTemplate: '<div class="ui-grid-cell-contents">Total</div>', width: 250}
           ],
@@ -193,11 +216,31 @@
     startdate= month + "/" + day + "/" + year;
        var date = new Date();//
 
-    var b=['null','Jan','Feb','Mar','Apr','May','Jun','July','Aug','Sept','Oct','Nov','Dec'];
+    var b=['null','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   //  console.log(startdate.getDate());
   $scope.reportData={
     showColumnFooter: true,
+    enableGridMenu: true,
+     enableSelectAll: true,
+    exporterCsvFilename: 'Report.csv',
+    exporterPdfDefaultStyle: {fontSize: 9},
+    exporterPdfTableStyle: {margin: [20, 20, 20, 20]},
+    exporterPdfTableHeaderStyle: {fontSize: 10, bold: true, italics: true, color: 'red'},
+    exporterPdfHeader: { text: "Bot Report Monthly", style: 'headerStyle' },
+    exporterPdfFooter: function ( currentPage, pageCount ) {
+      return { text: currentPage.toString() + ' of ' + pageCount.toString(), style: 'footerStyle' };
+    },
+    exporterPdfCustomFormatter: function ( docDefinition ) {
+      docDefinition.styles.headerStyle = { fontSize: 22, bold: true };
+      docDefinition.styles.footerStyle = { fontSize: 10, bold: true };
+      return docDefinition;
+    },
+    exporterPdfOrientation: 'landscape',
+    exporterPdfPageSize: 'A4',
+    exporterPdfMaxGridWidth: 450,
+    exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
+  
     columnDefs: [
         { name: 'name', field: 'name' ,footerCellTemplate: '<div class="ui-grid-cell-contents">Total</div>', width: 250}
       ],
@@ -247,15 +290,35 @@
     var year=last.getFullYear();
   //  var days=new Date(year, month, 0).getDate();
     startdate= month + "/" + day + "/" + year;
-       var date = new Date();//
+       var date = new Date();
 
     var week = ['Week1','Week2','Week3','Week4'];
 
   //  console.log(startdate.getDate());
   $scope.reportData={
     showColumnFooter: true,
+    enableGridMenu: true,
+    enableSelectAll: true,
+    exporterCsvFilename: 'Report.csv',
+    exporterPdfDefaultStyle: {fontSize: 9},
+     exporterPdfTableStyle: {margin: [20, 20, 20, 20]},
+    exporterPdfTableHeaderStyle: {fontSize: 10, bold: true, italics: true, color: 'red'},
+    exporterPdfHeader: { text: "Bot Report weekly", style: 'headerStyle' },
+    exporterPdfFooter: function ( currentPage, pageCount ) {
+      return { text: currentPage.toString() + ' of ' + pageCount.toString(), style: 'footerStyle' };
+    },
+    exporterPdfCustomFormatter: function ( docDefinition ) {
+      docDefinition.styles.headerStyle = { fontSize: 22, bold: true };
+      docDefinition.styles.footerStyle = { fontSize: 10, bold: true };
+      return docDefinition;
+    },
+    exporterPdfOrientation: 'landscape',
+    exporterPdfPageSize: 'A4',
+    exporterPdfMaxGridWidth: 450,
+    exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
+   
     columnDefs: [
-        { name: 'name', field: 'name' ,footerCellTemplate: '<div class="ui-grid-cell-contents">Total</div>', width: 250}
+        { name: 'name', field: 'name' ,footerCellTemplate: '<div class="ui-grid-cell-contents">Total</div>', width: 200}
       ],
       data:[],
       onRegisterApi: function(gridApi) {

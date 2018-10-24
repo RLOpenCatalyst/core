@@ -1075,8 +1075,31 @@ fieldset#editParamPage legend {
 {
   background-color: #ecf7ee;
 }
-.grid {
-  width: 500px;
-  height: 400px;
+
+.ui-grid-menu-button{
+  left: 1px;
+    right: 0;
+    width: 27px;
+    z-index: 2;
+    position: absolute;
+    background: #f3f3f3;
+    border: 0;
+    border-left: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+    cursor: pointer;
+    height: 32px;
+    font-weight: normal;
+}
+.ui-grid-menu-button .ui-grid-icon-container {
+  margin-top: 7px;
+  margin-left: 2px;
+}
+.ui-grid-icon-menu:before {
+  content: '\c363';
+}
+.ui-grid-menu-button .ui-grid-menu {
+  left: -13px;
+  top: 36px;
+  right: auto !important;
 }
 }
