@@ -24,7 +24,7 @@
         };
         
         $scope.filterDate=function (typ){
-            let enddate=new Date();
+            var enddate=new Date();
              //enddate.setDate(enddate.getDate() - 1);
              console.log(enddate);
             var monthforenddate = (enddate .getMonth() + 1);
@@ -32,7 +32,7 @@
     var year = (enddate .getFullYear());
     enddate= monthforenddate + "/" + day + "/" + year;
    console.log(enddate);
-           let startdate = new Date();
+           var startdate = new Date();
          // startdate.setDate(startdate.getDate() - 1);
             if(typ == 'day'){
                 console.log(startdate.getTime());
@@ -95,9 +95,9 @@
      
 
         $scope.reportTable=function (mode){
-            let enddate=new Date();
+            var enddate=new Date();
            // enddate.setDate(enddate.getDate() - 1);
-            let startdate = new Date();
+            var startdate = new Date();
             // startdate.setDate(startdate.getDate() - 1);
             var month = (enddate .getMonth() + 1);
     var day = (enddate .getDate());
@@ -151,8 +151,8 @@
   //  console.log(startdate.getDate());
 
     for(var a=1;a<=30;a++){
-        let curentDate=new Date(date.getTime()-(a * 24 * 60 * 60 * 1000));
-        let displayDate=b[curentDate.getMonth()]+' '+curentDate.getDate();
+        var curentDate=new Date(date.getTime()-(a * 24 * 60 * 60 * 1000));
+        var displayDate=b[curentDate.getMonth()]+' '+curentDate.getDate();
         $scope.reportData.columnDefs.push({'name':displayDate,field:'count['+curentDate.getDate()+']',aggregationType: uiGridConstants.aggregationTypes.sum,aggregationHideLabel: true,width:100});
 
        }
@@ -199,9 +199,9 @@
 
    
         $scope.showMonthlyData=function (){
-            let enddate=new Date();
+            var enddate=new Date();
            // enddate.setDate(enddate.getDate() - 1);
-            let startdate = new Date();
+            var startdate = new Date();
             // startdate.setDate(startdate.getDate() - 1);
             var month = (enddate .getMonth() + 1);
     var day = (enddate .getDate());
@@ -251,8 +251,8 @@
 
 };
     for(var a=1;a<=12;a++){
-       // let curentDate=new Date(date.getTime()-(a * 24 * 60 * 60 * 1000));
-        let displayDate=b[a];
+       
+        var displayDate=b[a];
         $scope.reportData.columnDefs.push({'name':displayDate,field:'count['+a+']',aggregationType: uiGridConstants.aggregationTypes.sum,aggregationHideLabel: true,width:100});
 
        }
@@ -275,9 +275,9 @@
 
 
         $scope.showWeeklyData=function (){
-            let enddate=new Date();
+            var enddate=new Date();
            // enddate.setDate(enddate.getDate() - 1);
-            let startdate = new Date();
+            var startdate = new Date();
             // startdate.setDate(startdate.getDate() - 1);
             var month = (enddate .getMonth() + 1);
     var day = (enddate .getDate());
@@ -327,8 +327,8 @@
 
 };
     for(var a=0;a<=3;a++){
-       // let curentDate=new Date(date.getTime()-(a * 24 * 60 * 60 * 1000));
-        let displayDate=week[a];
+     
+        var displayDate=week[a];
         $scope.reportData.columnDefs.push({'name':displayDate,field:'count['+a+']',aggregationType: uiGridConstants.aggregationTypes.sum,aggregationHideLabel: true,width:300});
 
        }

@@ -329,7 +329,7 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
 
                //  console.log(data);
 
-                 //Pushing the names in the array 
+                 // Pushing the names in the array 
                     for(var i=0;i<data.length-1;i++)
                     {
 
