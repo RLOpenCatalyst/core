@@ -36,6 +36,7 @@
     "format-message": "5.1.1",
     "fs": "0.0.2",
     "fs-extra": "^0.18.0",
+    "gcloud": "0.34.0",
     "glob": "^7.1.1",
     "gridfs-stream": "1.1.1",
     "jenkins-api": "0.2.6",
