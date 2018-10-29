@@ -981,13 +981,19 @@ function encryptedParam(paramDetails, callback) {
     var encryptedObj = {};
     if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
             Object.keys(paramDetails.data).forEach(function (key) {
-                //if(paramDetails.data[key] && !paramDetails.data[key] instanceof Array) {
-                    // var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
-                    //     cryptoConfig.decryptionEncoding);
+                if(paramDetails.data.nodeId && paramDetails.data.nodeIds.length >0){
+                    var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
+                        cryptoConfig.decryptionEncoding);
                     encryptedObj[key] = paramDetails.data[key];
-                // } else {
-                //     encryptedObj[key]=paramDetails.data[key];
-                // }
+                }else {
+                    if(paramDetails.data[key] && !paramDetails.data[key] instanceof Array) {
+                        var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
+                            cryptoConfig.decryptionEncoding);
+                        encryptedObj[key] = paramDetails.data[key];
+                    } else {
+                        encryptedObj[key]=paramDetails.data[key];
+                    }
+                }
             });
             paramDetails.data = encryptedObj;
             callback(null, paramDetails);
