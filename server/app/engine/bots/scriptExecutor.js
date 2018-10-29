@@ -131,12 +131,17 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
                 Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-                    //if(botsScriptDetails.params.data[key] && !botsScriptDetails.params.data[key] instanceof Array) {
-                        //var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                        replaceTextObj[key] = botsScriptDetails.params.data[key]
-                    // } else {
-                    //     replaceTextObj[key] = botsScriptDetails.params.data[key];
-                    // }
+                    if(botsScriptDetails.params.nodeId && botsScriptDetails.params.nodeIds.length >0){
+                            var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                            replaceTextObj[key] = botsScriptDetails.params.data[key]
+                    } else {
+                        if(botsScriptDetails.params.data[key] && !botsScriptDetails.params.data[key] instanceof Array) {
+                            var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                            replaceTextObj[key] = botsScriptDetails.params.data[key]
+                        } else {
+                            replaceTextObj[key] = botsScriptDetails.params.data[key];
+                        }
+                     }
                 });
             }
         }
