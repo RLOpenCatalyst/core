@@ -331,17 +331,7 @@ hppubliccloudProviderSchema.statics.gethppubliccloudProvidersByOrgId = function(
 
     });
 };
-hppubliccloudProviderSchema.statics.getName = function (query,callback) {
-    this.find(query,
-        function (err, results) {
-            if (err) {
-                return callback(err);
-            } else {
-                return callback(null, results);
-            }
-        }
-    );
-};
+
 var hppubliccloudProvider = mongoose.model('hppubliccloudprovider', hppubliccloudProviderSchema);
 
 module.exports = hppubliccloudProvider;
