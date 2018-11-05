@@ -261,17 +261,7 @@ vmwareProviderSchema.statics.getvmwareProvidersByOrgId = function(orgId, callbac
 
     });
 };
-vmwareProviderSchema.statics.getName = function (query,callback) {
-    this.find(query,
-        function (err, results) {
-            if (err) {
-                return callback(err);
-            } else {
-                return callback(null, results);
-            }
-        }
-    );
-};
+
 var vmwareProvider = mongoose.model('vmwareProvider', vmwareProviderSchema);
 
 module.exports = vmwareProvider;
