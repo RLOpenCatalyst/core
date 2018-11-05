@@ -176,7 +176,7 @@
    </form>
 	<div id="botEditFooter" class="pager margintop-5">
 		<button type="button" ng-if="botType !== 'UI' && botType !== 'blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='jenkins' && editParamsForm.$invalid || disableJenkinsExecute" ng-click="executeBot('instance')">
-			<i class="fa fa-check white"></i> Execute
+			<i class="fa fa-check white"></i> Execute 
 		</button>
       <button type="button" ng-if="botType ==='blueprints' && originalBlueprintList.length>0" class="marginright29 btn cat-btn-update" ng-click="executeBot('blueprints')">
          <i class="fa fa-check white"></i> Execute

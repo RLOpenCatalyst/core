@@ -130,19 +130,16 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         //condition introduced based on encryption botservice -> encryptedParam
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
-                Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-                    if(botsScriptDetails.params.nodeId && botsScriptDetails.params.nodeIds.length >0){
-                            var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                            replaceTextObj[key] = botsScriptDetails.params.data[key]
-                    } else {
-                        if(botsScriptDetails.params.data[key] && !botsScriptDetails.params.data[key] instanceof Array) {
-                            var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                            replaceTextObj[key] = botsScriptDetails.params.data[key]
-                        } else {
-                            replaceTextObj[key] = botsScriptDetails.params.data[key];
-                        }
-                     }
-                });
+                if(botsScriptDetails.params.data && botsScriptDetails.params.data.cloud_providers || botsScriptDetails.params.data.source_repository){
+                    Object.keys(botsScriptDetails.params.data).forEach(function (key) {
+                        replaceTextObj[key] = botsScriptDetails.params.data[key];
+                    });
+                } else {
+                    Object.keys(botsScriptDetails.params.data).forEach(function (key) {
+                        var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        replaceTextObj[key] = decryptedText;
+                    });
+                }
             }
         }
 

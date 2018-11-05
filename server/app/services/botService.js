@@ -980,21 +980,17 @@ function encryptedParam(paramDetails, callback) {
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
+        if(paramDetails.data && paramDetails.data.cloud_providers || paramDetails.data.source_repository){
             Object.keys(paramDetails.data).forEach(function (key) {
-                if(paramDetails.data.nodeId && paramDetails.data.nodeIds.length >0){
-                    var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
-                        cryptoConfig.decryptionEncoding);
-                    encryptedObj[key] = paramDetails.data[key];
-                }else {
-                    if(paramDetails.data[key] && !paramDetails.data[key] instanceof Array) {
-                        var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
-                            cryptoConfig.decryptionEncoding);
-                        encryptedObj[key] = paramDetails.data[key];
-                    } else {
-                        encryptedObj[key]=paramDetails.data[key];
-                    }
-                }
+                encryptedObj[key] = paramDetails.data[key];
             });
+        } else {
+            Object.keys(paramDetails.data).forEach(function (key) {
+                var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+                encryptedObj[key] = encryptedText;
+            });
+        }
             paramDetails.data = encryptedObj;
             callback(null, paramDetails);
     }else{
