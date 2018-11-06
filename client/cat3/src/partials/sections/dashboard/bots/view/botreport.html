@@ -1,0 +1,145 @@
+<div id="botReport" class="ng-scope">
+  <div class="page-name">
+     BOTs Report&nbsp;
+      <!--<span class="label label-warning"><small>Time Saved: </small>{{botSummary.totalSavedTimeForBots.days ? botSummary.totalSavedTimeForBots.days:0}}d {{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span>-->
+     <span class="pull-right">
+       <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
+       <i class="fa fa-refresh white"></i>
+       </button>
+       
+       <!-- <button type="button" title="Git Sync" class="btn btn-xs cat-btn-update marginright6" ui-sref="dashboard.bots.botsSync">
+         <i class="fa fa-refresh white"></i>
+         Sync
+       </button> -->
+         <!--Add new was hidden due to introduction of bitbucket sync : for SCLT-->
+      
+     </span>
+  </div>
+  <div class="borderTop"></div>
+
+  <!--panel description-->
+  <div class="container summary-container containerBox">
+      <div class="panel-group text-center">
+       
+
+
+
+        <div class="col-lg-3 col-sm-12">
+              <div class="cursor dashboard-stats__item dashboard-stats__item_blue" ng-click="landingBtnHide=false; reportTable('all')">
+               <i class="fa fa-list"></i>
+               <h3 class="dashboard-stats__title">
+                 <loading size="medium" name="isBotDetailsLoading" type="inline" classes="white" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                 <span  class="count-to ng-binding ng-scope">{{dayData}}</span><!-- end ngIf: !isBotDetailsLoading -->
+                 <small>Average Ticket Resolved Daily</small>
+               </h3>
+             </div>
+             <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ng-class="{'selected-section':totalBotsSelected}"></span>
+          </div> 
+
+          <div class="col-lg-3 col-sm-12">
+              <div class="cursor dashboard-stats__item dashboard-stats__item_green" ng-click="landingBtnHide=true; showWeeklyData()">
+               <i class="fa fa-cogs"></i>
+               <h3 class="dashboard-stats__title">
+                 <loading size="medium" name="isBotDetailsLoading" type="inline" classes="white" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                <span  class="count-to ng-binding ng-scope">{{weekData}}</span><!-- end ngIf: !isBotDetailsLoading -->
+                 <small>Average Ticket Resolved weekly</small>
+               </h3>
+             </div>
+              <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span>
+          </div>
+
+          <div class="col-lg-3 col-sm-12">
+              <div class="cursor dashboard-stats__item dashboard-stats__item_orange" ng-click="landingBtnHide=true; showMonthlyData()">
+                  <i class="fa fa-area-chart"></i>
+                  <h3 class="dashboard-stats__title">
+                      <loading size="medium" name="isBotDetailsLoading" type="inline" classes="white" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                      <span  class="count-to ng-binding ng-scope">{{monthData}}</span><!-- end ngIf: !isBotDetailsLoading -->
+                      <small>Average Ticket Resolved Monthly</small>
+                  </h3>
+              </div>
+              <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
+          </div>
+
+          <div class="col-lg-3 col-sm-12">
+            <div class="cursor dashboard-stats__item dashboard-stats__item_red" ng-click="landingBtnHide=true; showFailedBots('resetPage')">
+                <i class="fa fa-save"></i>
+                <h3 class="dashboard-stats__title">
+                    <loading size="medium" name="isBotDetailsLoading" type="inline" classes="white" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                    <span  class="count-to ng-binding ng-scope">{{monthDatatilldate}}</span><!-- end ngIf: !isBotDetailsLoading -->
+                    <small>Ticket Resolved this month till date</small>
+                </h3>
+            </div>
+            <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
+        </div>
+          
+          
+
+      </div>
+  </div>
+  <!--panel description along with search ends here-->
+  <!-- cards section-->
+   <div class="botsWidth">
+     <div class="marginleft35 margintop8 botsWidth  box-infobox" style="border-top-color:floralwhite"></div>
+     <div class="gallery-header top-stats marginCheck">
+       <span ng-show="noShowForServiceNow">
+         
+     </span>
+        <form class="pull-right firefoxForm marginright14 ng-pristine ng-valid" novalidate="" name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
+           <span class="bot-tickets-resolved-dates ng-hide" ng-show="!noShowForServiceNow">
+            
+               <label ng-if="!landingBtnHide">&nbsp;
+
+                  <button type="button" title="Today" class="btn btn-xs filter ticket-resolve-btn-margin cat-btn-update" ng-click="reportTable('all')">
+                          All
+                  </button>
+                   
+                   &nbsp;
+                   <button type="button" title="Current Week" class="btn btn-xs filter ticket-resolve-btn-margin cat-btn-update" ng-click="reportTable('success')">
+                           Success
+                  </button>
+                   
+                   &nbsp;
+                   <button type="button" title="Current Month" class="btn btn-xs filter ticket-resolve-btn-margin cat-btn-update" ng-click="reportTable('failed')">
+                    Failure
+                  </button>
+                   
+                    
+                  
+               </label>
+
+           </span>
+
+            <span class="bot-library-search" ng-show="noShowForServiceNow">
+           <!--<span class="bot-library-search" ng-show="!showForFailedRun">-->
+              <label>&nbsp;
+                 <input ng-model="botLibrarySearch" class="search-text bot-search ng-pristine ng-untouched ng-valid" ng-keyup="$event.keyCode == 13 &amp;&amp; searchBotNameCategory('pageNumber')" placeholder="Search" type="text">
+                 <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
+                 <i title="Clear Search" class="fa fa-close search-icon cancel-icon ng-hide" ng-show="searchText" ng-click="clearBotSearchText()"></i>
+              </label>
+           </span>
+        </form>
+     </div>
+     <loading size="large" name="isBotLibraryPageLoading" type="block" align="center" class="ng-scope" style="display: none;"><h1 class="catloader block ng-scope large"><i class="fa fa-cog fa-spin black"></i> Loading...</h1></loading>
+     
+   </div>   
+
+
+  <br>
+  <br>
+ 
+  <br>
+  <br>
+    <div>
+    <div class="row"><div ui-grid="reportData" ui-grid-selection ui-grid-exporter class="grid" class="grid"></div></div>
+    </div>
+    
+  
+<br>
+<br>
+<div style="    clear: both;
+width: 100%;
+margin: 10px;
+height: 100px;"></div>
+  <!--report list section here-->
+
+</div>
