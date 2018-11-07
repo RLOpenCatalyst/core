@@ -129,10 +129,17 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         //condition introduced based on encryption botservice -> encryptedParam
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
-                Object.keys(botsScriptDetails.params.data).forEach(function (key) {
-                    var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                    replaceTextObj[key] = decryptedText;
-                });
+                if(botsScriptDetails.params.data && botsScriptDetails.params.data.cloud_providers || botsScriptDetails.params.data.source_repository){
+                    Object.keys(botsScriptDetails.params.data).forEach(function (key) {
+                        replaceTextObj[key] = botsScriptDetails.params.data[key];
+                    });
+                } else {
+                    Object.keys(botsScriptDetails.params.data).forEach(function (key) {
+                        var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        replaceTextObj[key] = decryptedText;
+                    });
+                }
+
             }
         }
 
@@ -141,6 +148,28 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         for (var j = 0; j < botsScriptDetails.input.length; j++) {
             replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
         }
+    }
+    if(replaceTextObj.sourceCloud && replaceTextObj.sourceCloud.length >0){
+        let newArr=[];
+        replaceTextObj.sourceCloud.map(itm=>{
+            let obj=JSON.parse(itm);
+            var accessKey= cryptography.decryptText(obj["accessKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            obj["accessKey"]=accessKey; 
+            var secretKey= cryptography.decryptText(obj["secretKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            obj["secretKey"]=secretKey;
+            newArr.push(JSON.stringify(obj));
+        });
+        replaceTextObj.sourceCloud=newArr;
+    }
+    if(replaceTextObj.sourceGit && replaceTextObj.sourceGit.length >0){
+        let newArr=[];
+        replaceTextObj.sourceGit.map(itm=>{
+            let obj=JSON.parse(itm);
+            var repositoryPassword = cryptography.decryptText(obj["repositoryPassword"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            obj["repositoryPassword"]=repositoryPassword; 
+            newArr.push(JSON.stringify(obj));
+        });
+        replaceTextObj.sourceGit=newArr;
     }
     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
     var reqBody = {
@@ -156,6 +185,12 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         json: true,
         body: reqBody
     };
+    logsDao.insertLog({
+        referenceId: logsReferenceIds,
+        err: false,
+        log: "BOT Engine execution",
+        timestamp: new Date().getTime()
+    });
     request.post(options, function (err, res, body) {
         if (err) {
             logger.error(err);

@@ -41,6 +41,11 @@ const yamlJs= require('yamljs');
 var gitHubService = require('_pr/services/gitHubService.js');
 var gitHubModel = require('_pr/model/github/github.js');
 const errorType = 'botService';
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
+var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
+var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 
 var botService = module.exports = {};
 
@@ -975,11 +980,18 @@ function encryptedParam(paramDetails, callback) {
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
+        if(paramDetails.data && paramDetails.data.cloud_providers || paramDetails.data.source_repository){
+            Object.keys(paramDetails.data).forEach(function (key) {
+                encryptedObj[key] = paramDetails.data[key];
+
+            });
+        } else {
             Object.keys(paramDetails.data).forEach(function (key) {
                 var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
                     cryptoConfig.decryptionEncoding);
                 encryptedObj[key] = encryptedText;
             });
+        }
             paramDetails.data = encryptedObj;
             callback(null, paramDetails);
     }else{
@@ -1134,3 +1146,83 @@ function removeScriptFile(filePath) {
     })
 }
 
+
+botService.getBotBysource=function (source,callback){
+    gitHubModel.getGitRepository({"repositoryName":{$in:source} },{ repositoryName: 1, _id: 1} ,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
+}
+botService.getBotBysource=function (source,callback){
+    gitHubModel.getGitRepository({},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1} ,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
+    botService.cloudProviders=function (name,callback) {
+        let cloudDetails=[];
+        AWSProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        openstackProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        hppubliccloudProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+        azurecloudProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+        vmwareProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        setTimeout(function () {
+            return callback(null, cloudDetails);
+        },2000)
+    }
+}

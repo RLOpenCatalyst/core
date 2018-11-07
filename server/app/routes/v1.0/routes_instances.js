@@ -261,6 +261,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     function getInstanceList(req, res, next) {
         var reqData = {};
+        logger.info("requesttttttt"+JSON.stringify(req.query));
         logger.debug("Enter get() for /instances with query ");
 
         logger.info(JSON.stringify(req.query));
