@@ -15,7 +15,7 @@
 
 var logger = require('_pr/logger')(module);
 var botService = require('_pr/services/botService.js');
-
+var gitHubModel = require('_pr/model/github/github.js');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/bot*', sessionVerificationFunc);
 
@@ -175,5 +175,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return res.status(200).send(data);
             }
         })
+    });
+
+    app.get('/botSource/:source', function (req, res) {
+        let name=req.params.source.split(',');
+        botService.getBotBysource(name, function (err, data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
+
+    app.get('/cloudProviders/:name',function (req, res) {
+        let name=req.params.name.split(',');
+        botService.cloudProviders(name,function (err, data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
     });
 };

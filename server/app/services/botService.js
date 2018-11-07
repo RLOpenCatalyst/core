@@ -41,6 +41,11 @@ const yamlJs= require('yamljs');
 var gitHubService = require('_pr/services/gitHubService.js');
 var gitHubModel = require('_pr/model/github/github.js');
 const errorType = 'botService';
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
+var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
+var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 
 var botService = module.exports = {};
 
@@ -1142,6 +1147,16 @@ function removeScriptFile(filePath) {
 }
 
 
+botService.getBotBysource=function (source,callback){
+    gitHubModel.getGitRepository({"repositoryName":{$in:source} },{ repositoryName: 1, _id: 1} ,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
+}
 botService.getBotBysource=function (source,callback){
     gitHubModel.getGitRepository({},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1} ,(err, res) => {
         if (!err) {
