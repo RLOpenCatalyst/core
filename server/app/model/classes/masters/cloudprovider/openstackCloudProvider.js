@@ -326,7 +326,17 @@ openstackProviderSchema.statics.getopenstackProvidersByOrgId = function(orgId, c
 
     });
 };
-
+openstackProviderSchema.statics.getName = function (query,callback) {
+    this.find(query,
+        function (err, results) {
+            if (err) {
+                return callback(err);
+            } else {
+                return callback(null, results);
+            }
+        }
+    );
+};
 var openstackProvider = mongoose.model('openstackProvider', openstackProviderSchema);
 
 module.exports = openstackProvider;
