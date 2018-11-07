@@ -14,7 +14,6 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var gitHubModel = require('_pr/model/github/github.js');
 var botService = require('_pr/services/botService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -105,7 +104,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.post('/bot/:botId/execute',function(req,res){
         var executionType = null;
-        console.log(JSON.stringify(req.params));
         logger.info("Reached execute " + req.params.botId);
         if(req.query.executionType && req.query.executionType !== null){
             executionType = req.query.executionType;
@@ -148,18 +146,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 reqBody.nodeIds =  req.body.nodeIds;
             }
         }
-
         logger.info("About to execute" + executionType);
-    
-            botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
-                logger.info(JSON.stringify(reqBody));
-                if (err) {
-                    return res.status(500).send(err);
-                } else {
-                    return res.status(200).send(data);
-                }
-            })
-    
+        botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
+            logger.info(JSON.stringify(reqBody));
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
     });
 
     app.put('/bot/:botId/scheduler',function(req,res){
@@ -180,27 +175,5 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return res.status(200).send(data);
             }
         })
-    });
-
-    app.get('/botSource/:source', function (req, res) {
-        let name=req.params.source.split(',');
-        botService.getBotBysource(name, function (err, data) {
-            if (err) {
-                return res.status(500).send(err);
-            } else {
-                return res.status(200).send(data);
-            }
-        })
-    });
-
-    app.get('/cloudProviders/:name',function (req, res) {
-        let name=req.params.name.split(',');
-        botService.cloudProviders(name,function (err, data) {
-            if (err) {
-                return res.status(500).send(err);
-            } else {
-                return res.status(200).send(data);
-            }
-        });
     });
 };

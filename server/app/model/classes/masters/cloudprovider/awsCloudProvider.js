@@ -312,17 +312,7 @@ awsProviderSchema.statics.hasDefault = function hasDefault(orgId, callback) {
     });
 };
 
-awsProviderSchema.statics.getName = function (query,callback) {
-    this.find(query,
-        function (err, results) {
-            if (err) {
-                return callback(err);
-            } else {
-                return callback(null, results);
-            }
-        }
-    );
-};
+
 
 
 var AWSProvider = mongoose.model('AWSProvider', awsProviderSchema);

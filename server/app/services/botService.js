@@ -40,13 +40,6 @@ const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 var gitHubService = require('_pr/services/gitHubService.js');
 var gitHubModel = require('_pr/model/github/github.js');
-
-var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
-var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
-var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
-var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
-var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
-var fs = require('fs');
 const errorType = 'botService';
 
 var botService = module.exports = {};
@@ -420,6 +413,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             if(reqBody.nodeIds){
                 botObj.params.nodeIds = reqBody.nodeIds;
             }
+            logger.info("Updating bot details" + JSON.stringify(botObj));
             botDao.updateBotsDetail(botId,botObj, next);
         },
         function(updateStatus,next) {
@@ -469,6 +463,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                     logger.info("About to execute " + botDetails[0].id);
                                     logger.info("reqBody");
                                     logger.info(reqBody);
+
                                     blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
                                     reqBody = botDetails[0].params;
@@ -983,6 +978,7 @@ function encryptedParam(paramDetails, callback) {
         if(paramDetails.data && paramDetails.data.cloud_providers || paramDetails.data.source_repository){
             Object.keys(paramDetails.data).forEach(function (key) {
                 encryptedObj[key] = paramDetails.data[key];
+
             });
         } else {
             Object.keys(paramDetails.data).forEach(function (key) {
@@ -1145,82 +1141,3 @@ function removeScriptFile(filePath) {
     })
 }
 
-botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({"repositoryName":{$in:source} },{ repositoryName: 1, _id: 1} ,(err, res) => {
-        if (!err) {
-            return callback(null, res);
-        }
-        else {
-            return callback(err, null)
-        }
-    });
-}
-botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1} ,(err, res) => {
-        if (!err) {
-            return callback(null, res);
-        }
-        else {
-            return callback(err, null)
-        }
-    });
-    botService.cloudProviders=function (name,callback) {
-        let cloudDetails=[];
-        AWSProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        openstackProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        hppubliccloudProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-        azurecloudProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-        vmwareProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        setTimeout(function () {
-            return callback(null, cloudDetails);
-        },2000)
-    }
-}
