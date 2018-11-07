@@ -423,7 +423,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         }
                                     });
                                     if (launchParams.auditTrailId !== null) {
-
                                         var resultTaskExecution = {
                                             actionStatus: "failed",
                                             status: "failed",
@@ -438,7 +437,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         logsDao.insertLog({
                                             referenceId:logsReferenceIds,
                                             err: true,
-                                            log: 'BOT execution has failed for Blueprint BOT: ' + launchParams.blueprintData.name,
+                                            log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
                                             timestamp: new Date().getTime()
                                         });
                                     }
@@ -543,7 +542,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             logsDao.insertLog({
                                                 referenceId:logsReferenceIds,
                                                 err: true,
-                                                log: 'BOT execution has failed for Blueprint BOT: ' + launchParams.blueprintData.name,
+                                                log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
                                                 timestamp: new Date().getTime()
                                             });
                                         }
@@ -628,7 +627,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 logsDao.insertLog({
                                                     referenceId:logsReferenceIds,
                                                     err: true,
-                                                    log: 'BOT execution has failed for Blueprint BOT: ' +launchParams.blueprintData.name,
+                                                    log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
                                                     timestamp: new Date().getTime()
                                                 });
                                             }
@@ -746,7 +745,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         logsDao.insertLog({
                                                             referenceId:logsReferenceIds,
                                                             err: true,
-                                                            log: 'BOT execution has failed for Blueprint BOT: ' + launchParams.blueprintData.name,
+                                                            log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
                                                             timestamp: new Date().getTime()
                                                         });
                                                     }
@@ -971,7 +970,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             logsDao.insertLog({
                                                                 referenceId:logsReferenceIds,
                                                                 err: true,
-                                                                log: 'BOT execution has failed for Blueprint BOT: ' + launchParams.blueprintData.name,
+                                                                log: 'BOT execution has failed for Blueprint BOT:' + launchParams.bot_id,
                                                                 timestamp: new Date().getTime()
                                                             });
                                                         }
