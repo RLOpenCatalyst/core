@@ -1141,3 +1141,73 @@ function removeScriptFile(filePath) {
     })
 }
 
+
+botService.getBotBysource=function (source,callback){
+    gitHubModel.getGitRepository({},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1} ,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
+    botService.cloudProviders=function (name,callback) {
+        let cloudDetails=[];
+        AWSProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        openstackProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        hppubliccloudProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+        azurecloudProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+        vmwareProvider.getName({},function (err,result) {
+            if (err) {
+                return callback(err, null)
+            }
+            if(result &&  result.length >0){
+                result.map(itm=>{
+                    cloudDetails.push(itm);
+                });
+            }
+        });
+
+        setTimeout(function () {
+            return callback(null, cloudDetails);
+        },2000)
+    }
+}
