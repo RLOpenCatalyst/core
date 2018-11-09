@@ -775,6 +775,12 @@
                     $scope.setCardView();
                     $scope.getProviders();
                     $scope.getAllRegionsList();
+                    if ($rootScope.requestParams) {
+                        $scope.envParams = $rootScope.requestParams;
+                        $scope.initGrids();
+                        helper.setPaginationDefaults();
+                        $scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage') - gridBottomSpace;
+                    }
                 };
                 $scope.init();
             }
