@@ -151,8 +151,9 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     }
     if(replaceTextObj.sourceCloud && replaceTextObj.sourceCloud.length >0){
         let newArr=[];
+
         replaceTextObj.sourceCloud.map(itm=>{
-            let obj=JSON.parse(itm);
+            let obj=itm;
             var accessKey= cryptography.decryptText(obj["accessKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             obj["accessKey"]=accessKey; 
             var secretKey= cryptography.decryptText(obj["secretKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
@@ -164,13 +165,14 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     if(replaceTextObj.sourceGit && replaceTextObj.sourceGit.length >0){
         let newArr=[];
         replaceTextObj.sourceGit.map(itm=>{
-            let obj=JSON.parse(itm);
+            let obj=itm;
             var repositoryPassword = cryptography.decryptText(obj["repositoryPassword"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             obj["repositoryPassword"]=repositoryPassword; 
             newArr.push(JSON.stringify(obj));
         });
         replaceTextObj.sourceGit=newArr;
     }
+
     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
     var reqBody = {
         "data": replaceTextObj

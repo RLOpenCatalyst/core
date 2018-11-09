@@ -50,7 +50,7 @@ runbookService.getRunbookBots = function getRunbookBots(runbookId,callback) {
            for (var i=0;i< data[0].runbookYmlJson.bots_associated.length;i++){
                 ids.push(data[0].runbookYmlJson.bots_associated[i].id);
            }
-           bots.find({id:{$in:ids}},{"id":1,"input":1},function(err,result){
+           bots.find({id:{$in:ids}},{"id":1,"name":1,"input":1},function(err,result){
                if(err){
                    console.log(err);
                    callback(err,null);
