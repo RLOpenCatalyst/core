@@ -18,7 +18,7 @@
             });
             $scope.getRepository= function (Source,cloud) {
                 var param={
-                    url:'/botSource/' + Source
+                    url:'/botSource'
                 };
                 genSevs.promiseGet(param).then(function (response) {
                     if(response){
@@ -26,7 +26,7 @@
                     }
                 });
                  var cloudParam={
-                    url:'/cloudProviders/' + cloud
+                    url:'/cloudProviders'
                 };
                 genSevs.promiseGet(cloudParam).then(function (response) {
                     if(response){
@@ -312,6 +312,12 @@
                         reqBody.data = $scope.botEditParams;
                         if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
                             reqBody.nodeIds = $scope.selectedInstanceIds;
+                        }
+                        if(reqBody.data && reqBody.data.sourceCloud  && reqBody.data.sourceCloud.length>0) {
+                            reqBody.data.sourceCloud = reqBody.data.sourceCloud.join(',');
+                        }
+                        if(reqBody.data && reqBody.data.sourceGit  && reqBody.data.sourceGit.length>0) {
+                            reqBody.data.sourceGit = reqBody.data.sourceGit.join(',');
                         }
                     } else if($scope.botType === 'chef') {
                         if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
