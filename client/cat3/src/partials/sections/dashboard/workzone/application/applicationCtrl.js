@@ -326,18 +326,22 @@
 				$scope.appInfo(los);
 				$event.stopPropagation();
 			});
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, requestParamNames) {
+			$scope.init = function () {
 				$scope.isApplicationPageLoading = true; //Application data fetch from 2 apis is about to start
 				count = 0;
-				getApplicationPipeLineData(requestParams);
-				$scope.requestParams={params:requestParams,paramNames:requestParamNames};
-				$scope.envDetails = requestParams;
-				$scope.orgName = requestParamNames.org;
-				$scope.selectedEnv = requestParamNames.env;
-				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('applicationPage')-gridBottomSpace;
-				$scope.gridHeightSummary = workzoneUIUtils.makeTabScrollable('applicationPage')-gridBottomSpaceSummary;
+				getApplicationPipeLineData($rootScope.requestParams);
+				$scope.requestParams = {
+					params: $rootScope.requestParams,
+					paramNames: $rootScope.requestParamNames
+				};
+				$scope.envDetails = $rootScope.requestParams;
+				$scope.orgName = $rootScope.requestParamNames.org;
+				$scope.selectedEnv = $rootScope.requestParamNames.env;
+				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('applicationPage') - gridBottomSpace;
+				$scope.gridHeightSummary = workzoneUIUtils.makeTabScrollable('applicationPage') - gridBottomSpaceSummary;
 				workzoneUIUtils.makeTabScrollable('applicationPage');
-			});
+			}
+			$scope.init();
 		}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'applicationPermission',  function ($scope, $rootScope) {
 			var pipeLineData={
 				selectedCardClass:''
