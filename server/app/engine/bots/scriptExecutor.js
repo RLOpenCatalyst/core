@@ -129,7 +129,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         //condition introduced based on encryption botservice -> encryptedParam
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
-                if(botsScriptDetails.params.data && botsScriptDetails.params.data.sourceGit || botsScriptDetails.params.data.sourceCloud){
+                if(botsScriptDetails.params.data && (botsScriptDetails.params.data.sourceGit || botsScriptDetails.params.data.sourceCloud)){
                     Object.keys(botsScriptDetails.params.data).forEach(function (key) {
                         replaceTextObj[key] = botsScriptDetails.params.data[key];
                     });
