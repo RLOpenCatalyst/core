@@ -16,7 +16,9 @@
  */
 
 var logger = require('_pr/logger')(module);
+var fs = require('fs')
 var botDao = require('_pr/model/bots/1.1/bot.js');
+var runbookDao = require('../model/runbook/runbook');
 var scheduledBots = require('../model/scheduled-bots/scheduledBots');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
@@ -692,7 +694,109 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
         function(gitHubDetails,next){
             process.setMaxListeners(100);
             if(gitHubDetails.botSync !== null){
-                var botFactoryDirPath = appConfig.botCurrentFactoryDir;
+                var botFactoryDirPath = appConfig.botCurrentFactoryDir+"YAML";
+                var botFactoryDirPathRunbook = appConfig.botCurrentFactoryDir+"Runbook";
+
+
+              /*  fileHound.create()
+                    .path(botFactoryDirPathRunbook)
+                    .ext('yaml')
+                    .find((err, files) => {
+                        if (err) return console.error(err);
+                        else{
+
+                        }
+
+                        console.log(files);
+                    });*/
+
+
+
+
+              //run for all Runbook Yaml
+                fileHound.create()
+                    .paths(botFactoryDirPathRunbook)
+                    .ext('yaml')
+                    .find().then(function(runbookFiles){
+                    if(runbookFiles.length > 0){
+                        var runbookObjList = [];
+                        for(var i = 0; i < runbookFiles.length; i++){
+                            (function(runbookYmlFile){
+                                yamlJs.load(runbookYmlFile, function(result) {
+
+                                    if(result !== null){
+                                        fileUpload.uploadFile(result.metadata.name,runbookYmlFile,null,function(err,ymlDocFileId){
+                                            if(err){
+                                                runbookObjList.push(err);
+                                                logger.error("Error in uploading yaml documents.",err);
+                                                fileUpload.removeFileByFileId(ymlDocFileId,function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in removing YAML File. ",err);
+                                                    }
+                                                    if(runbookObjList.length === runbookFiles.length){
+                                                        next(null,runbookObjList);
+                                                        return;
+                                                    }
+                                                });
+                                            }else{
+                                                var runbookObj={
+                                                    name:result.metadata.name,
+                                                    runbookYmlJson:result,
+                                                    ymlDocFileId:ymlDocFileId,
+
+                                                }
+                                                runbookDao.getRunbookByName(result.metadata.name,function(err,runbookList){
+                                                    if(err){
+                                                        logger.error(err);
+                                                        runbookObjList.push(err);
+                                                        if(runbookObjList.length === runbookFiles.length){
+                                                            next(null,runbookObjList);
+                                                            return;
+                                                        }
+                                                    }else if(runbookList.length > 0){
+                                                        runbookDao.updateRunbookDetail(runbookList[0]._id,runbookObj,function(err,updateRunbook){
+                                                            if(err){
+                                                                logger.error(err);
+                                                            }
+                                                            runbookObjList.push(runbookObj);
+                                                            if(runbookObjList.length === runbookFiles.length){
+                                                                next(null,runbookObjList);
+                                                                return;
+                                                            }
+                                                        })
+                                                    }else{
+                                                        runbookDao.createNew(runbookObj,function(err,data){
+                                                            if(err){
+                                                                logger.error(err);
+                                                            }
+                                                            runbookObjList.push(runbookObj);
+                                                            if(runbookObjList.length === runbookFiles.length){
+                                                                next(null,runbookObjList);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }else{
+                                        runbookObjList.push(result);
+                                        if(runbookObjList.length === runbookFiles.length){
+                                            next(null,runbookObjList);
+                                            return;
+                                        }
+                                    }
+                                });
+                            })(runbookFiles[i]);
+
+                        }
+                    }
+
+                }).catch(function(err){
+                   console.log("No Runbook Directory Found");
+                });
+
+
                 fileHound.create()
                     .paths(botFactoryDirPath)
                     .ext('yaml')
@@ -980,7 +1084,7 @@ function encryptedParam(paramDetails, callback) {
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
-        if(paramDetails.data && paramDetails.data.cloud_providers || paramDetails.data.source_repository){
+        if(paramDetails.data && (paramDetails.data.sourceGit || paramDetails.data.sourceCloud)){
             Object.keys(paramDetails.data).forEach(function (key) {
                 encryptedObj[key] = paramDetails.data[key];
 
@@ -1148,81 +1252,85 @@ function removeScriptFile(filePath) {
 
 
 botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({"repositoryName":{$in:source} },{ repositoryName: 1, _id: 1} ,(err, res) => {
-        if (!err) {
-            return callback(null, res);
-        }
-        else {
-            return callback(err, null)
-        }
-    });
-}
-botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1} ,(err, res) => {
-        if (!err) {
-            return callback(null, res);
-        }
-        else {
-            return callback(err, null)
-        }
-    });
-    botService.cloudProviders=function (name,callback) {
-        let cloudDetails=[];
-        AWSProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        openstackProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        hppubliccloudProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-        azurecloudProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-        vmwareProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        setTimeout(function () {
-            return callback(null, cloudDetails);
-        },2000)
+    var query={};
+    var fields={repositoryName:1,_id: 1};
+    if(source){
+        var sourceName=source.split(',');
+        query={repositoryName:{$in: sourceName}};
+        fields={ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1};
     }
+    gitHubModel.getGitRepository(query,fields,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
 }
+
+botService.cloudProviders=function (source,callback) {
+    let cloudDetails=[];
+    var query={};
+    if(source){
+        var sourceName=source.split(',');
+        query={providerName:{$in: sourceName}};
+    }
+    AWSProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    openstackProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    hppubliccloudProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+    azurecloudProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+    vmwareProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    setTimeout(function () {
+        return callback(null, cloudDetails);
+    },2000)
+}
+
