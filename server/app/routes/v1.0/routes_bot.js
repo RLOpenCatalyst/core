@@ -147,7 +147,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         }
         logger.info("About to execute" + executionType);
-        if(reqBody.data && reqBody.data.sourceGit || reqBody.data.sourceCloud){
+        if(reqBody.data && (reqBody.data.sourceGit || reqBody.data.sourceCloud)){
                 botService.getBotBysource(req.body.data.sourceGit,function (err, sourceGitdata) {
                     if (err) {
                         return res.status(500).send(err);
