@@ -129,7 +129,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         //condition introduced based on encryption botservice -> encryptedParam
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
-                if(botsScriptDetails.params.data && botsScriptDetails.params.data.cloud_providers || botsScriptDetails.params.data.source_repository){
+                if(botsScriptDetails.params.data && botsScriptDetails.params.data.sourceGit || botsScriptDetails.params.data.sourceCloud){
                     Object.keys(botsScriptDetails.params.data).forEach(function (key) {
                         replaceTextObj[key] = botsScriptDetails.params.data[key];
                     });
@@ -172,7 +172,6 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         });
         replaceTextObj.sourceGit=newArr;
     }
-
     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
     var reqBody = {
         "data": replaceTextObj

@@ -1084,7 +1084,7 @@ function encryptedParam(paramDetails, callback) {
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
-        if(paramDetails.data && paramDetails.data.cloud_providers || paramDetails.data.source_repository){
+        if(paramDetails.data && paramDetails.data.sourceGit || paramDetails.data.sourceCloud){
             Object.keys(paramDetails.data).forEach(function (key) {
                 encryptedObj[key] = paramDetails.data[key];
 
