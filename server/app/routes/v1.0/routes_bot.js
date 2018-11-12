@@ -152,14 +152,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     if (err) {
                         return res.status(500).send(err);
                     } else {
-                        reqBody.data.sourceGit=sourceGitdata;
-                        console.log('reqBody.sourceCloud-',JSON.stringify(reqBody));
+                        if(reqBody.data.sourceGit){
+                            reqBody.data.sourceGit=sourceGitdata;
+                        }
                         if(reqBody.data && reqBody.data.sourceCloud){
                                 botService.cloudProviders(req.body.data.sourceCloud,function (err, sourceCloudData) {
                                     if (err) {
                                         return res.status(500).send(err);
                                     } else {
-                                        reqBody.data.sourceCloud=sourceCloudData;
+                                        if(reqBody.data.sourceCloud){
+                                            reqBody.data.sourceCloud=sourceCloudData;
+                                        }
+                                        
                                         botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
                                             logger.info(JSON.stringify(reqBody));
                                             if (err) {
