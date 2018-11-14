@@ -78,6 +78,7 @@
 	               <tr ng-repeat = "(key,value) in botInfo.inputFormFields">
 	                  <td>{{value.label}}</td>
 	                  <td>{{value.type}}</td>
+
 	                  <td ng-init="botEditParams[value.name] = value.default" style="text-align: left">
 		                	<input ng-if="value.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
 		                	<input ng-if="value.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
@@ -89,6 +90,7 @@
                             <option ng-repeat="itms in cloudProviders;" value="{{itms.providerName}}">{{itms.providerName}}</option>
                         </select>
 		               </td>
+
 	               </tr>
 	            </tbody>
 	         </table>
