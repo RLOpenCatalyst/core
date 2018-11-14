@@ -10,7 +10,12 @@
     angular.module('dashboard.bots')
     .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', 'moment','botsCreateService', '$rootScope', '$location', 'toastr', 'confirmbox', '$state', 'genericServices',
     function ($scope, uiGridOptionsClient, moment,botsCreateService, $rootScope, $location, toastr,confirmbox, $state, genSevs) {
-            var treeNames = ['BOTs','BOTs Description'];
+        if ($state.params.previousState && $state.params.previousState == 'runbookBots'){
+            var treeNames = ['Runbook', $state.params.runbook, $state.params.botDetail.name, 'BOTs Description'];
+        }else{
+             var treeNames = ['BOTs', 'BOTs Description'];
+        }
+       
         $rootScope.$emit('treeNameUpdate', treeNames);
         var botsTab = {
             tab: "Execute",
