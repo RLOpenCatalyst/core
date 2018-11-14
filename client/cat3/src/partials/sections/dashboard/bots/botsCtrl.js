@@ -50,7 +50,12 @@
 			templateUrl: "src/partials/sections/dashboard/bots/view/botsDescription.html",
 			controller: "botDescriptionCtrl as btsDescription",
 			parameters:{filterView:{botsDescription:true}},
-            params:{botDetail:[],listType:0},
+            params: {
+            	botDetail: [],
+            	listType: 0,
+				previousState: null,
+				runbook:null
+            },
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();

@@ -2,6 +2,9 @@
     <div class="page-name">
         {{runbookName}} Bots &nbsp;
         <span class="pull-right">
+<button type="button" title="Back" class="btn btn-xs cat-btn-update pull-right refresh-btn" ui-sref="dashboard.bots.runbook"><i
+        class="fa fa-chevron-left" style="color: #fff"></i><span class="marginleft5">Back</span>
+        </button>
             <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="refreshRunbookBots();">
                 <i class="fa fa-refresh white"></i>
             </button>
@@ -15,9 +18,9 @@
         <loading size="large" name="isRunbookBotPageLoading" type="block" align="center"></loading>
         <div class="col-lg-4 col-md-4 col-sm-6" ng-repeat="runBookBotDetail in runBookBots">
             <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
-                <a class="appnav" title="Go to Details" ui-sref="dashboard.bots.botsDescription({botDetail:runBookBotDetail,listType:0})">
+<a class="appnav" title="Go to Details" ui-sref="dashboard.bots.botsDescription({botDetail:runBookBotDetail,listType:0,previousState:'runbookBots',runbook:runbookName})">
                     <div class="image-cell two-tone-11">
-<img class="highlight" title="{{runBookBotDetail.category}}" alt="{{runBookBotDetail.category}}" ng-src="{{imageForCard(runBookBotDetail.category)}}">
+                        <img class="highlight" title="{{runBookBotDetail.category}}" alt="{{runBookBotDetail.category}}" ng-src="{{imageForCard(runBookBotDetail.category)}}">
                     </div>
                     <div class="info-cell">
                         <div title="{{runBookBotDetail.name}}" class="title">{{runBookBotDetail.name}}</div>
