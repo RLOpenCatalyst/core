@@ -194,12 +194,13 @@
 			$rootScope.$on('WZ_CONTAINER_SHOW_LATEST', function(){
 				helper.setPaginationDefaults();
 			});
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
-				$scope.envParams = requestParams;
+			$scope.init=function () {
+				$scope.envParams = $rootScope.requestParams;
 				$scope.initGrids();
 				helper.setPaginationDefaults();
-				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('containerPage')-gridBottomSpace;
-			});
+				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('containerPage') - gridBottomSpace;
+			}
+			$scope.init()
 		}])
 		.controller('dockercAdvisorCtrl',['$scope','$modalInstance','items','workzoneServices', '$sce', function($scope, $modalInstance ,items,workzoneServices, $sce){
 			$scope.items = items;            

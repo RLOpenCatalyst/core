@@ -100,6 +100,48 @@
 					return deferred.promise;
 				}]
 			}
+		}).state('dashboard.bots.runbook', {
+			url: "/runbook",
+			templateUrl: "src/partials/sections/dashboard/bots/view/runBook.html",
+			controller: "runBookCtrl as rbCtrl",
+			resolve: {
+				auth: ["$q", function ($q) {
+					var deferred = $q.defer();
+					// instead, go to a different page
+					if (modulePerms.serviceBool()) {
+						// everything is fine, proceed
+						deferred.resolve();
+					} else {
+						deferred.reject({
+							redirectTo: 'dashboard'
+						});
+					}
+					return deferred.promise;
+				}]
+			}
+		}).state('dashboard.bots.runbookBots', {
+			url: "/runbookBots/:runbook/:id",
+			templateUrl: "src/partials/sections/dashboard/bots/view/runbookBots.html",
+			controller: "runBookBotsCtrl as rbBotsCtrl",
+			params: {
+				runbook: '',
+				id: ''
+			},
+			resolve: {
+				auth: ["$q", function ($q) {
+					var deferred = $q.defer();
+					// instead, go to a different page
+					if (modulePerms.serviceBool()) {
+						// everything is fine, proceed
+						deferred.resolve();
+					} else {
+						deferred.reject({
+							redirectTo: 'dashboard'
+						});
+					}
+					return deferred.promise;
+				}]
+			}
 		});
 	}])
 	.controller('botsCtrl',['$scope', '$rootScope', '$state','genericServices', function ($scope, $rootScope, $state, genericServices) {

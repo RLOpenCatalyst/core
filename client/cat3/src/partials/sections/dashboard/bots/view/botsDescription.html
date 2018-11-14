@@ -16,7 +16,7 @@
          </div>
          <div class="pull-right" style="margin-top:-24px;">
             <button type="button" ng-if="templateSelected.source ==='GitHub' && templateSelected.repoMode === 'Git'" class="btn cat-btn-update btn-primary btnDescription" title="BOT Sync" ng-click="botSync(templateSelected)"><i style="color: #fff" ng-class="{'fa fa-refresh' : activeClass !== templateSelected, 'fa fa-refresh fa-spin' : activeClass === templateSelected}"></i><span class="marginleft5">Sync</span></button>
-            <button type="button" title="BOT List" class="btn cat-btn-update btn-primary btnDescription" ui-sref="dashboard.bots.library">
+<button type="button" title="BOT List" class="btn cat-btn-update btn-primary btnDescription" ng-click="goBack()">
                <i class="fa fa-chevron-left" style="color: #fff"></i><span class="marginleft5">Back</span>
             </button>
          </div> 

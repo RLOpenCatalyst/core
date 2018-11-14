@@ -24,13 +24,7 @@
 				$scope.paginationParams.page = 1;
 			};
 
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
-				$scope.isAzureARMPageLoading = true;
-				$scope.currentCardPage = $scope.paginationParams.page = 1;
-				$scope.envParams=requestParams;
-				$scope.azureListCardView();
-				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('azureARMPage')-gridBottomSpace;
-			});
+			
 
 			$rootScope.$on('WZ_AzureARM_SHOW_LATEST', function(){
 				//TO DO: Set sort params to show latest CFT in first page.
@@ -113,6 +107,15 @@
 					return colorRepresentationClass;
 				}
 			});
+			
+			$scope.init = function () {
+				$scope.isAzureARMPageLoading = true;
+				$scope.currentCardPage = $scope.paginationParams.page = 1;
+				$scope.envParams = $rootScope.requestParams;
+				$scope.azureListCardView();
+				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('azureARMPage') - gridBottomSpace;
+			}
+			$scope.init();
 		}
 	]);
 })(angular);

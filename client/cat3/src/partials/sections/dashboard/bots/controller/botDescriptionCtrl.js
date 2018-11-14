@@ -126,5 +126,8 @@
                     $scope.activeClass = {};
                 });
             };
+            $scope.goBack = function () {
+              window.history.back();
+            }
     }]);
 })(angular);
