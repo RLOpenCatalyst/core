@@ -1084,7 +1084,7 @@ function encryptedParam(paramDetails, callback) {
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
-        if(paramDetails.data && paramDetails.data.cloud_providers || paramDetails.data.source_repository){
+        if(paramDetails.data && (paramDetails.data.sourceGit || paramDetails.data.sourceCloud)){
             Object.keys(paramDetails.data).forEach(function (key) {
                 encryptedObj[key] = paramDetails.data[key];
 
@@ -1252,81 +1252,85 @@ function removeScriptFile(filePath) {
 
 
 botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({"repositoryName":{$in:source} },{ repositoryName: 1, _id: 1} ,(err, res) => {
-        if (!err) {
-            return callback(null, res);
-        }
-        else {
-            return callback(err, null)
-        }
-    });
-}
-botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1} ,(err, res) => {
-        if (!err) {
-            return callback(null, res);
-        }
-        else {
-            return callback(err, null)
-        }
-    });
-    botService.cloudProviders=function (name,callback) {
-        let cloudDetails=[];
-        AWSProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        openstackProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        hppubliccloudProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-        azurecloudProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-        vmwareProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        setTimeout(function () {
-            return callback(null, cloudDetails);
-        },2000)
+    var query={};
+    var fields={repositoryName:1,_id: 1};
+    if(source){
+        var sourceName=source.split(',');
+        query={repositoryName:{$in: sourceName}};
+        fields={ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1};
     }
+    gitHubModel.getGitRepository(query,fields,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
 }
+
+botService.cloudProviders=function (source,callback) {
+    let cloudDetails=[];
+    var query={};
+    if(source){
+        var sourceName=source.split(',');
+        query={providerName:{$in: sourceName}};
+    }
+    AWSProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    openstackProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    hppubliccloudProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+    azurecloudProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+    vmwareProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    setTimeout(function () {
+        return callback(null, cloudDetails);
+    },2000)
+}
+

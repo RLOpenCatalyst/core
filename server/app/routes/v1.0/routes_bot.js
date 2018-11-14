@@ -147,16 +147,58 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         }
         logger.info("About to execute" + executionType);
-        botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
-            logger.info(JSON.stringify(reqBody));
-            if (err) {
-                return res.status(500).send(err);
-            } else {
-                return res.status(200).send(data);
-            }
-        })
-    });
+        if(reqBody.data && (reqBody.data.sourceGit || reqBody.data.sourceCloud)){
+                botService.getBotBysource(req.body.data.sourceGit,function (err, sourceGitdata) {
+                    if (err) {
+                        return res.status(500).send(err);
+                    } else {
+                        if(reqBody.data.sourceGit){
+                            reqBody.data.sourceGit=sourceGitdata;
+                        }
+                        if(reqBody.data && reqBody.data.sourceCloud){
+                                botService.cloudProviders(req.body.data.sourceCloud,function (err, sourceCloudData) {
+                                    if (err) {
+                                        return res.status(500).send(err);
+                                    } else {
+                                        if(reqBody.data.sourceCloud){
+                                            reqBody.data.sourceCloud=sourceCloudData;
+                                        }
+                                        
+                                        botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
+                                            logger.info(JSON.stringify(reqBody));
+                                            if (err) {
+                                                return res.status(500).send(err);
+                                            } else {
+                                                return res.status(200).send(data);
+                                            }
+                                        })
+                                    }
+                                });
+                        } else{
+                            botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
+                                logger.info(JSON.stringify(reqBody));
+                                if (err) {
+                                    return res.status(500).send(err);
+                                } else {
+                                    return res.status(200).send(data);
+                                }
+                            })
+                        }
+                    }
+                })
+        }else{
+            botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
+                logger.info(JSON.stringify(reqBody));
+                if (err) {
+                    return res.status(500).send(err);
+                } else {
+                    return res.status(200).send(data);
+                }
+            })
+        }
 
+
+    });
     app.put('/bot/:botId/scheduler',function(req,res){
         botService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
             if (err) {
@@ -177,9 +219,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/botSource/:source', function (req, res) {
-        let name=req.params.source.split(',');
-        botService.getBotBysource(name, function (err, data) {
+    app.get('/botSource', function (req, res) {
+        botService.getBotBysource(req.query.source, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -188,9 +229,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/cloudProviders/:name',function (req, res) {
-        let name=req.params.name.split(',');
-        botService.cloudProviders(name,function (err, data) {
+    app.get('/cloudProviders',function (req, res) {
+        botService.cloudProviders(req.query.name,function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -198,4 +238,5 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
+
 };

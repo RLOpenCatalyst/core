@@ -129,7 +129,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         //condition introduced based on encryption botservice -> encryptedParam
         if(botsScriptDetails.params.category){
             if(botsScriptDetails.params.category === 'script'){
-                if(botsScriptDetails.params.data && botsScriptDetails.params.data.cloud_providers || botsScriptDetails.params.data.source_repository){
+                if(botsScriptDetails.params.data && (botsScriptDetails.params.data.sourceGit || botsScriptDetails.params.data.sourceCloud)){
                     Object.keys(botsScriptDetails.params.data).forEach(function (key) {
                         replaceTextObj[key] = botsScriptDetails.params.data[key];
                     });
@@ -151,8 +151,9 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     }
     if(replaceTextObj.sourceCloud && replaceTextObj.sourceCloud.length >0){
         let newArr=[];
+
         replaceTextObj.sourceCloud.map(itm=>{
-            let obj=JSON.parse(itm);
+            let obj=itm;
             var accessKey= cryptography.decryptText(obj["accessKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             obj["accessKey"]=accessKey; 
             var secretKey= cryptography.decryptText(obj["secretKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
@@ -164,7 +165,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     if(replaceTextObj.sourceGit && replaceTextObj.sourceGit.length >0){
         let newArr=[];
         replaceTextObj.sourceGit.map(itm=>{
-            let obj=JSON.parse(itm);
+            let obj=itm;
             var repositoryPassword = cryptography.decryptText(obj["repositoryPassword"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             obj["repositoryPassword"]=repositoryPassword; 
             newArr.push(JSON.stringify(obj));
