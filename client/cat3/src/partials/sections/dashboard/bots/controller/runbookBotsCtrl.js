@@ -12,7 +12,7 @@
             function ($scope, $rootScope, $timeout, $filter, $state, botsCreateService,$stateParams) {
                 $scope.runbookName = $stateParams.runbook;
                 $scope.runbookId = $stateParams.id;
-                var treeNames = ['Runbook', $scope.runbookName, 'Bots'];
+                var treeNames = ['Runbook', $scope.runbookName, 'BOTs'];
                 $rootScope.$emit('treeNameUpdate', treeNames);                
                 $scope.isRunbookBotsDetailsLoading = true;
                 $scope.isRunbookBotPageLoading = true;
