@@ -1,6 +1,6 @@
 <!--top description, name along with filter and refresh-->
 <loading size="large" name="pageLoadBot" type="block" align="center"></loading>
-<div id="botLibraryPage" ng-if="!pageLoadBot">
+<div id="botLibraryPage" ng-show="!pageLoadBot">
    <div class="page-name">
       BOTs Library&nbsp;
        <!--<span class="label label-warning"><small>Time Saved: </small>{{botSummary.totalSavedTimeForBots.days ? botSummary.totalSavedTimeForBots.days:0}}d {{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span>-->
@@ -30,7 +30,7 @@
             <div class="repo-job-details-wrapper-inner marginbottom10">Filter</div>
             <div class="col-lg-12 col-md-12 form-group">
                <label for="">Functionality:</label>
-               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="$parent.botLibCategory">
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibCategory">
                   <option selected="selected" value="">All</option>
                   <option value="User Management">User Management</option>
                   <option value="DB management">DB Management</option>
@@ -38,7 +38,7 @@
                   <option value="Application Management">Application Management</option>
                </select>
                <label for="">Action:</label>
-               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="$parent.botLibAction">
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibAction">
                   <option selected="selected" value="">All</option>
                   <option value="run" ="botType">Run</option>
                   <option value="check">Check</option>
@@ -46,7 +46,7 @@
                   <option value="utility">Utility</option>
                </select>
                <label for="">Type:</label>
-               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="$parent.botLibType">
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibType">
                   <option selected="selected" value="">All</option>
                   <option value="UI">UI</option>
                   <option value="chef">Chef</option>
