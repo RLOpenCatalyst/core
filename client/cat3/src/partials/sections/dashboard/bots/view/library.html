@@ -1,5 +1,6 @@
 <!--top description, name along with filter and refresh-->
-<div id="botLibraryPage">
+<loading size="large" name="pageLoadBot" type="block" align="center"></loading>
+<div id="botLibraryPage" ng-if="!pageLoadBot">
    <div class="page-name">
       BOTs Library&nbsp;
        <!--<span class="label label-warning"><small>Time Saved: </small>{{botSummary.totalSavedTimeForBots.days ? botSummary.totalSavedTimeForBots.days:0}}d {{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span>-->
@@ -29,7 +30,7 @@
             <div class="repo-job-details-wrapper-inner marginbottom10">Filter</div>
             <div class="col-lg-12 col-md-12 form-group">
                <label for="">Functionality:</label>
-               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibCategory">
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="$parent.botLibCategory">
                   <option selected="selected" value="">All</option>
                   <option value="User Management">User Management</option>
                   <option value="DB management">DB Management</option>
@@ -37,7 +38,7 @@
                   <option value="Application Management">Application Management</option>
                </select>
                <label for="">Action:</label>
-               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibAction">
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="$parent.botLibAction">
                   <option selected="selected" value="">All</option>
                   <option value="run" ="botType">Run</option>
                   <option value="check">Check</option>
@@ -45,7 +46,7 @@
                   <option value="utility">Utility</option>
                </select>
                <label for="">Type:</label>
-               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibType">
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="$parent.botLibType">
                   <option selected="selected" value="">All</option>
                   <option value="UI">UI</option>
                   <option value="chef">Chef</option>
@@ -140,13 +141,13 @@
               List
           </button>
          <span style="margin-left:30px;" ng-if="botLibCategory" class="box-title font-size-15"><span>Functionality</span>
-         <span class="badge">{{botLibCategory}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibCategory)">×</span></span>
+            <span class="badge">{{botLibCategory}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibCategory)">×</span></span>
          </span>
          <span ng-if="botLibAction" class="marginleft10 box-title font-size-15"><span>Action</span>
-         <span class="badge">{{botLibAction}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibAction)">×</span></span>
+            <span class="badge">{{botLibAction}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibAction)">×</span></span>
          </span>
          <span ng-if="botLibType" class="marginleft10 box-title font-size-15"><span>Type</span>
-         <span class="badge">{{botLibType}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
+             <span class="badge">{{botLibType}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
          </span>
       </span>
          <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
