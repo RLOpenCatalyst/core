@@ -14,18 +14,16 @@
                 $scope.runbookId = $stateParams.id;
                 var treeNames = ['Runbook', $scope.runbookName, 'BOTs'];
                 $rootScope.$emit('treeNameUpdate', treeNames);                
-                $scope.isRunbookBotsDetailsLoading = true;
                 $scope.isRunbookBotPageLoading = true;
                 $scope.botsCardViewSelection = "bots-tab-active";
 
                 $scope.getRunbookBots=function(runbookid) {
                     botsCreateService.getRunBookDetailById(runbookid).then(function (bots) {
-                                $scope.runBookBots = bots;
-                                $scope.isRunbookBotsDetailsLoading = false;
-                                $scope.isRunbookBotPageLoading = false;
-                                $scope.showRecords = true;
-                    $scope.statusBar = "Showing " + ($scope.runBookBots.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.runBookBots.length) + " of " + $filter('number')($scope.runBookBots.length) + " entries";
-                    })
+                             $scope.runBookBots = bots;
+                             $scope.isRunbookBotPageLoading = false;
+                             $scope.showRecords = true;
+                             $scope.statusBar = "Showing " + ($scope.runBookBots.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.runBookBots.length) + " of " + $filter('number')($scope.runBookBots.length) + " entries";
+                                })
                 }
 
                 $scope.refreshRunbookBots = function () {
