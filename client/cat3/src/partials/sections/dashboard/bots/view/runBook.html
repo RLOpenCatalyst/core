@@ -32,7 +32,7 @@
         <div class="marginleft35 margintop8 botsWidth  box-infobox" style="border-top-color:floralwhite"></div>
 
         <loading size="large" name="isRunbookPageLoading" type="block" align="center"></loading>
-        <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive" ng-repeat="runBookDetail in runBooks">
+        <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive" ng-repeat="runBookDetail in runBooks" ng-if="!isRunbookPageLoading">
             <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
                 <a class="appnav" title="Go to Details" ui-sref="dashboard.bots.runbookBots({runbook:runBookDetail.name,id:runBookDetail._id})">
                     <div class="image-cell two-tone-11">
@@ -41,10 +41,8 @@
                     <div class="info-cell">
                         <div title="{{runBookDetail.name}}" class="title">{{runBookDetail.name}}</div>
                         <div class="desc-cell">
-                            <div title="{{runBookDetail.desc ? runBookDetail.desc:runBookDetail.botDesc}}" class="description">{{runBookDetail.desc
-                                ? runBookDetail.desc:runBookDetail.botDesc}}</div>
+                            <div title="{{runBookDetail.runbookYmlJson.metadata.desc}}" class="description">{{runBookDetail.runbookYmlJson.metadata.desc}}</div>
                         </div>
-
                     </div>
                     <div class="publisher">
                     </div>
@@ -54,13 +52,13 @@
         <div class="clearfix"></div>
         <div class="col-lg-5"></div>
         <div class="col-lg-2">
-            <div class="text-center" ng-show="showLoadMore && isCardViewActive">
+        <div class="text-center" ng-show="showLoadMore && isCardViewActive && !isRunbookPageLoading">
                 <a class="font-size-16 cursor" ng-model="currentCardPage" ng-click="cardPaginationChange()" ;>Load More</a>
             </div>
         </div>
         <div class="col-lg-3"></div>
         <div class="col-lg-2 pull-right">
-            <div ng-show="showRecords && isCardViewActive">
+        <div ng-show="showRecords && isCardViewActive && !isRunbookPageLodepHealthActiveIndexading">
                 <h4 class="margintop-2"><small>{{statusBar}}</small></h4>
             </div>
         </div>

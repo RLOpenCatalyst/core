@@ -16,14 +16,14 @@
                                 $scope.isRunbookPageLoading = true;
                                 $scope.isCardViewActive = true;
                                 $scope.botsCardViewSelection = "bots-tab-active";
-                                $scope.getRunbooks = function () {
+                                $scope.getRunbooks = function () {                                        
                                         botsCreateService.getRunBooks().then(function (runbooks) {
                                                 $scope.runBooks = runbooks;
                                                 $scope.isRunbookDetailsLoading = false;
                                                 $scope.isRunbookPageLoading = false;
                                                 $scope.showRecords = true;
                                                 $scope.statusBar = "Showing " + ($scope.runBooks.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.runBooks.length) + " of " + $filter('number')($scope.runBooks.length) + " entries";
-                                        })
+                                })
                                 }
                                 $scope.refreshRunbooks = function () {
                                          $scope.isRunbookDetailsLoading = true;
