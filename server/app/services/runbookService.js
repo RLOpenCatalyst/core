@@ -23,7 +23,7 @@ var runbookService = module.exports = {};
 runbookService.getRunbookYAML = function getRunbookYAML(callback) {
 
     runbook.find({},{
-        "name": 1, "runbookYmlJson.bots_associated": 1
+        "name": 1, "runbookYmlJson.bots_associated": 1,"runbookYmlJson.metadata.desc":1
     },function(err,data){
         if(err){
             console.log(err);
