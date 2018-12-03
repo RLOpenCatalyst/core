@@ -26,7 +26,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     // Get  AppData by Project and Env
     app.get('/runbooks', function(req, res) {
-        runbookService.getRunbookYAML(function(err, data) {
+        runbookService.getRunbookYAML(req.query, function(err, data) {
             if (err) {
                 res.status(500).send(err);
                 return;
