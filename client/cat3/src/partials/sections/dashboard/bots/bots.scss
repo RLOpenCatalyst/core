@@ -1106,4 +1106,48 @@ fieldset#editParamPage legend {
   top: 36px;
   right: auto !important;
 }
+.glyphicon-triangle-bottom:before {
+  content: "\e252";
+}
+}
+#sensureport{
+
+  .weekPick {
+    position: absolute;
+    left: 24%;
+    background: #FFFFFF;
+    width: 217px;
+    z-index: 999;
+    padding: 7px 17px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 2px;
+  }
+  .nav-tabs {
+    border-bottom-width: 1px;
+    border-color: #40BAF1;
+
+    li.active {
+      a, a:hover {
+        border-bottom-width: 0px;
+        border-top-width: 3px;
+        @include theme-border-color;
+        background: #fcfcfc;
+      }
+    }
+}
+.nav-tabs li {
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+.nav-tabs > li.active > a:first-child {
+  color: #337ab7;
+}
+.form-control{
+  height: 29px;
+  padding: 2px 10px;
+  font-size: 12px;
+  line-height: 1;
+}
+
 }

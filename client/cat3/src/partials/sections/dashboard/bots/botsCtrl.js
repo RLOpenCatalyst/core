@@ -105,6 +105,24 @@
 					return deferred.promise;
 				}]
 			}
+		}).state('dashboard.bots.sensureports', {
+			url: "/sensureports",
+			templateUrl: "src/partials/sections/dashboard/bots/view/sensureport.html",
+			controller: "sensuReportCtrl as sensuctrl",
+			parameters:{filterView:{audittrail:true}},
+			resolve: {
+				auth: ["$q", function ($q) {
+					var deferred = $q.defer();
+					// instead, go to a different page
+					if (modulePerms.serviceBool()) {
+						// everything is fine, proceed
+						deferred.resolve();
+					} else {
+						deferred.reject({redirectTo: 'dashboard'});
+					}
+					return deferred.promise;
+				}]
+			}
 		}).state('dashboard.bots.runbook', {
 			url: "/runbook",
 			templateUrl: "src/partials/sections/dashboard/bots/view/runBook.html",
