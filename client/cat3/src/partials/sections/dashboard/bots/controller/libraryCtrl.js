@@ -20,9 +20,9 @@
         $scope.isBotDetailsLoading = true;
         $scope.botCategoryList = [];
         $scope.customSetDate = true;
-        botsCreateService.getBotCategoryList().then(function (catList) {
-            $scope.botCategoryList=catList.data;
-        });
+       // botsCreateService.getBotCategoryList().then(function (catList) {
+           // $scope.botCategoryList=catList.data;
+       // });
         var botLibraryUIGridDefaults = uiGridOptionsService.options();
         $scope.paginationParams = botLibraryUIGridDefaults.pagination;
         $scope.paginationParams=[];

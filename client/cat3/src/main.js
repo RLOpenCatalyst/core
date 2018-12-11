@@ -123,11 +123,11 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
 	$scope.checkForNotification = function() {
 		var socketClient = io('/notify')
         socketClient.on('connect',function(){
-        	authenticationAPI.getUserPermissions().then(function(response){
+        	/*authenticationAPI.getUserPermissions().then(function(response){
 				$scope.userName = response.data.cn;
 				socketClient.emit('join','client-'+$scope.userName);
 				socketClient.emit('onLoad',$scope.userName);
-			});
+			});*/
         });
         
         $scope.notificationList = [];
