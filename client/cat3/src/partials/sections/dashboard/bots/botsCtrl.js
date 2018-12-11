@@ -154,12 +154,12 @@
 		$scope.$watch(function() {
 			$rootScope.stateItems = $state.current.name;
 		});
-		genericServices.getTreeNew().then(function (orgs) {
-			$rootScope.organObject=orgs;
-			$rootScope.organNewEnt=[];
-			$rootScope.organNewEnt.org = orgs[0];
-			$rootScope.organNewEnt.buss = orgs[0].businessGroups[0];
-			$rootScope.organNewEnt.proj = orgs[0].businessGroups[0].projects[0];
-		});
+		// genericServices.getTreeNew().then(function (orgs) {
+		// 	$rootScope.organObject=orgs;
+		// 	$rootScope.organNewEnt=[];
+		// 	$rootScope.organNewEnt.org = orgs[0];
+		// 	$rootScope.organNewEnt.buss = orgs[0].businessGroups[0];
+		// 	$rootScope.organNewEnt.proj = orgs[0].businessGroups[0].projects[0];
+		// });
 	}]);
 })(angular);
