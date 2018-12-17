@@ -31,6 +31,7 @@ var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
 var fs = require('fs');
 var request = require('request');
+var botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary');
 
 const errorType = 'scriptExecutor';
 
@@ -73,6 +74,19 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                     log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id + " on Remote",
                                     timestamp: new Date().getTime()
                                 });
+                                var d = new Date();
+                                var year = d.getUTCFullYear();
+                                var month = d.getUTCMonth();
+                                var day = d.getUTCDate();
+                                var startHour =Date.UTC(year,month,day,0,0,0,0);
+                                botAuditTrailSummary.update({
+                                    botID: botDetails._id.toString(),
+                                    user: userName,
+                                    date: startHour,
+                                }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                                    if(err) logger.error(JSON.stringify(err))
+                                    else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+                                })
                                 auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
@@ -222,6 +236,19 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 });
                 return;
             })
+            var d = new Date();
+            var year = d.getUTCFullYear();
+            var month = d.getUTCMonth();
+            var day = d.getUTCDate();
+            var startHour =Date.UTC(year,month,day,0,0,0,0);
+            botAuditTrailSummary.update({
+                botID: botsScriptDetails._id.toString(),
+                user: userName,
+                date: startHour,
+            }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                if(err) logger.error(JSON.stringify(err))
+                else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+            })
         }else{
             if (res.statusCode === 200){
                 var auditQueueDetails = {
@@ -270,6 +297,19 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                         }
                     });
                     return;
+                })
+                var d = new Date();
+                var year = d.getUTCFullYear();
+                var month = d.getUTCMonth();
+                var day = d.getUTCDate();
+                var startHour =Date.UTC(year,month,day,0,0,0,0);
+                botAuditTrailSummary.update({
+                    botID: botsScriptDetails._id.toString(),
+                    user: userName,
+                    date: startHour,
+                }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                    if(err) logger.error(JSON.stringify(err))
+                    else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
                 })
             }
         }
@@ -410,6 +450,19 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                     log: "Unable to upload script file " + botDetails.id,
                     timestamp: new Date().getTime()
                 };
+                var d = new Date();
+                var year = d.getUTCFullYear();
+                var month = d.getUTCMonth();
+                var day = d.getUTCDate();
+                var startHour =Date.UTC(year,month,day,0,0,0,0);
+                botAuditTrailSummary.update({
+                    botID: botDetails._id.toString(),
+                    user: userName,
+                    date: startHour,
+                }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                    if(err) logger.error(JSON.stringify(err))
+                    else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+                })
                 instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                     if (err) {
                         logger.error("Failed to create or update instanceLog: ", err);
@@ -472,6 +525,19 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                             logger.error("Failed to create or update instanceLog: ", err);
                         }
                     });
+                    var d = new Date();
+                    var year = d.getUTCFullYear();
+                    var month = d.getUTCMonth();
+                    var day = d.getUTCDate();
+                    var startHour =Date.UTC(year,month,day,0,0,0,0);
+                    botAuditTrailSummary.update({
+                        botID: botDetails._id.toString(),
+                        user: userName,
+                        date: startHour,
+                    }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                        if(err) logger.error(JSON.stringify(err))
+                        else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+                    })
                     callback(err, null);
                     if (decryptedCredentials.pemFileLocation){
                         apiUtil.removeFile(decryptedCredentials.pemFileLocation);

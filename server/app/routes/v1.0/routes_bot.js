@@ -28,7 +28,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
             serviceNowCheck = true;
         }
-        botService.getBotsList(req.query,actionStatus,serviceNowCheck,loggedUser, function(err,data){
+        botService.getBotsList(req.query, actionStatus, serviceNowCheck, loggedUser,function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

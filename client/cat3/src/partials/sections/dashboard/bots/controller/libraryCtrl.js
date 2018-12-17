@@ -244,12 +244,12 @@
             if($scope.failedBotsselected)
                 var param={
                     inlineLoader:true,
-                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&actionStatus=failed&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder + '&filterBy=actionStatus:failed'
                 };
             else if($scope.scheduledBotsSelected)
                 var param={
                     inlineLoader:true,
-                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&actionStatus=success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&filterBy=actionStatus:success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
             else if($scope.runningBotsselected)
                 var param={
@@ -321,7 +321,7 @@
             genSevs.promiseGet(param).then(function (result) {
                 $scope.pageLoadBot=false;
                 $scope.botSummary = result;
-                $scope.totalRuns = result.totalNoOfRunningBots+result.totalNoOfSuccessBots+result.totalNoOfFailedServiceNowTickets;
+                $scope.totalRuns = result.totalRuns;
                 $scope.timeSaved = result.totalSavedTimeForBots;
             }, function (error) {
                 $scope.pageLoadBot=false;

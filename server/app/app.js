@@ -30,6 +30,7 @@ var passport = require('passport');
 var passportLdapStrategy = require('./lib/ldapPassportStrategy.js');
 var passportADStrategy = require('./lib/adPassportStrategy.js');
 var globalData = require('_pr/config/global-data.js');
+var botAuditTrailSummary = require('_pr/db-script/botAuditTrailSummarize');
 var Tail = require('tail').Tail;
 
 // express middleware
@@ -44,10 +45,6 @@ var appConfig = require('_pr/config');
 var mongoose = require('mongoose');
 var MongoStore = require('connect-mongo')(expressSession);
 var mongoDbConnect = require('_pr/lib/mongodb');
-var mongoose = require('mongoose');
-
-
-
 
 logger.debug('Starting Catalyst');
 logger.debug('Logger Initialized');
@@ -93,14 +90,18 @@ var dboptions = {
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };
-mongoDbConnect(dboptions, function(err) {
-    if (err) {
-        logger.error("Unable to connect to mongo db >>" + err);
-        throw new Error(err);
-    } else {
-        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-    }
-});
+
+
+if(mongoose.connection.readyState == 0) {
+    mongoDbConnect(dboptions, function (err) {
+        if (err) {
+            logger.error("Unable to connect to mongo db >>" + err);
+            throw new Error(err);
+        } else {
+            logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
+        }
+    })
+}
 globalData.init();
 var mongoStore = new MongoStore({
     mongooseConnection: mongoose.connection
@@ -233,6 +234,7 @@ catalystSync.executeParallelScheduledTasks();
 catalystSync.executeScheduledBots();
 catalystSync.executeNewScheduledBots();
 catalystSync.getBotAuditLogData();
+botAuditTrailSummary.createCronJob();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
     require('_pr/services/noticeService.js').init(io,server.address());
