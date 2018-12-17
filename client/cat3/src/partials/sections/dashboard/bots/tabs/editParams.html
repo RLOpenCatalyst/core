@@ -78,17 +78,19 @@
 	               <tr ng-repeat = "(key,value) in botInfo.inputFormFields">
 	                  <td>{{value.label}}</td>
 	                  <td>{{value.type}}</td>
+
 	                  <td ng-init="botEditParams[value.name] = value.default" style="text-align: left">
 		                	<input ng-if="value.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
 		                	<input ng-if="value.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
                         <!-- <input ng-if="value.type==='restricted'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/> -->
-                        <select ng-if = "value.name == 'source_repository' " multiple class="form-control" ng-model="botEditParams['sourceGit']">
-                            <option ng-repeat="itm in gitRepository" value="{{itm}}">{{itm.repositoryName}}</option>
+                        <select ng-if = "value.type == 'Repo Credentials' " multiple class="form-control" ng-model="botEditParams['sourceGit']">
+                            <option ng-repeat="itm in gitRepository" value="{{itm.repositoryName}}">{{itm.repositoryName}}</option>
                         </select>
-                        <select ng-if = "value.name == 'cloud_providers'" multiple class="form-control" ng-model="botEditParams['sourceCloud']">
-                            <option ng-repeat="itms in cloudProviders;" value="{{itms}}">{{itms.providerName}}</option>
+                        <select ng-if = "value.type == 'Cloud Credentials'" multiple class="form-control" ng-model="botEditParams['sourceCloud']">
+                            <option ng-repeat="itms in cloudProviders;" value="{{itms.providerName}}">{{itms.providerName}}</option>
                         </select>
 		               </td>
+
 	               </tr>
 	            </tbody>
 	         </table>

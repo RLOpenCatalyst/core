@@ -33,7 +33,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         //adding user to query
         req.query.user = req.session.user.cn;
         logger.info(req.query.user)
-        auditTrailService.getAuditTrailList(req.query,function(err,auditTrailList){
+        auditTrailService.getAuditTrail(req.query,function(err,auditTrailList){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
@@ -105,7 +105,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         }
         //end session caching.
-        auditTrailService.getBOTsSummary(req.query,'BOT',loggedUser,function(err,botSummary){
+        auditTrailService.getBotSummary(req.query,'BOT',loggedUser,function(err,botSummary){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);

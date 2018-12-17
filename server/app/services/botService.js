@@ -16,7 +16,9 @@
  */
 
 var logger = require('_pr/logger')(module);
+var fs = require('fs')
 var botDao = require('_pr/model/bots/1.1/bot.js');
+var runbookDao = require('../model/runbook/runbook');
 var scheduledBots = require('../model/scheduled-bots/scheduledBots');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
@@ -24,6 +26,7 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var auditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary')
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
@@ -46,6 +49,7 @@ var openstackProvider = require('_pr/model/classes/masters/cloudprovider/opensta
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
 var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary');
 
 var botService = module.exports = {};
 
@@ -234,7 +238,8 @@ botService.getBotById = function getBotById(botId, callback) {
         }
     })
  }
-botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
+
+botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNowCheck, userName, callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -247,56 +252,53 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
-            if(actionStatus !== null){
+            if(actionStatus !== null) {
                 var query = {
-                    auditType: 'BOT',
                     actionStatus: actionStatus,
                     isDeleted:false
                 };
                 var botsIds = [];
-                auditTrail.getAuditTrails(query, function(err,botsAudits){
-                    if(err){
+                auditTrail.getAuditTrails(query, function(err,botsAudits) {
+                    if(err) {
                         next(err,null);
-                    }else if (botsAudits.length > 0) {
+                    } else if (botsAudits.length > 0) {
                         for (var i = 0; i < botsAudits.length; i++) {
                             if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
                                 botsIds.push(botsAudits[i].auditId);
                             }
                         }
                         queryObj.queryObj._id = {$in:botsIds};
-                        settingService.getOrgUserFilter(userName,function(err,orgIds){
-                            if(err){
+                        settingService.getOrgUserFilter(userName,function(err,orgIds) {
+                            if(err) {
                                 next(err,null);
-                            }else if(orgIds.length > 0){
+                            } else if(orgIds.length > 0) {
                                 queryObj.queryObj['orgId'] = {$in:orgIds};
                                 botDao.getBotsList(queryObj, next);
-                            }else{
+                            } else {
                                 botDao.getBotsList(queryObj, next);
                             }
                         });
-                    }else {
+                    } else {
                         queryObj.queryObj._id = null;
-                        settingService.getOrgUserFilter(userName,function(err,orgIds){
-                            if(err){
+                        settingService.getOrgUserFilter(userName,function(err,orgIds)  {
+                            if(err) {
                                 next(err,null);
-                            }else if(orgIds.length > 0){
+                            } else if(orgIds.length > 0) {
                                 queryObj.queryObj['orgId'] = {$in:orgIds};
                                 botDao.getBotsList(queryObj, next);
-                            }else{
+                            } else {
                                 botDao.getBotsList(queryObj, next);
                             }
                         });
                     }
                 });
-            }else if(serviceNowCheck === true){
+            } else if(serviceNowCheck === true) {
                 delete queryObj.queryObj;
                 delete queryObj.options.select;
-
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
-                    if(err){
+                settingService.getOrgUserFilter(userName,function(err,orgIds) {
+                    if(err) {
                         next(err,null);
-                    }else if(orgIds.length > 0){
-
+                    } else if(orgIds.length > 0) {
                         queryObj.queryObj = {
                             auditType: 'BOT',
                             actionStatus: 'success',
@@ -305,7 +307,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                             'masterDetails.orgId': {$in:orgIds}
                         };
                         //adding filter by startdate and enddate
-                        if(botsQuery.ticketsdate && botsQuery.ticketedate){
+                        if(botsQuery.ticketsdate && botsQuery.ticketedate) {
                             //queryObj.queryObj.auditTrailConfig.serviceNowTicketRefObj.
                             var sdate = new Date(botsQuery.ticketsdate);
                             sdate = Math.floor(sdate/1000);
@@ -454,6 +456,19 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                         tableName: reqBody.tableName
                                     }
                                 }
+                                var d = new Date();
+                                var year = d.getUTCFullYear();
+                                var month = d.getUTCMonth();
+                                var day = d.getUTCDate();
+                                var startHour =Date.UTC(year,month,day,0,0,0,0);
+                                botAuditTrailSummary.update({
+                                    botID: botDetails[0]._id.toString(),
+                                    user: userName,
+                                    date: startHour,
+                                }, { $inc: { "runningCount": 1 } }, {upsert: true}, function (err, data) {
+                                    if(err) logger.error(JSON.stringify(err))
+                                    else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+                                })
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
                             function(auditTrail,next) {
@@ -692,7 +707,109 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
         function(gitHubDetails,next){
             process.setMaxListeners(100);
             if(gitHubDetails.botSync !== null){
-                var botFactoryDirPath = appConfig.botCurrentFactoryDir;
+                var botFactoryDirPath = appConfig.botCurrentFactoryDir+"YAML";
+                var botFactoryDirPathRunbook = appConfig.botCurrentFactoryDir+"Runbook";
+
+
+              /*  fileHound.create()
+                    .path(botFactoryDirPathRunbook)
+                    .ext('yaml')
+                    .find((err, files) => {
+                        if (err) return console.error(err);
+                        else{
+
+                        }
+
+                        console.log(files);
+                    });*/
+
+
+
+
+              //run for all Runbook Yaml
+                fileHound.create()
+                    .paths(botFactoryDirPathRunbook)
+                    .ext('yaml')
+                    .find().then(function(runbookFiles){
+                    if(runbookFiles.length > 0){
+                        var runbookObjList = [];
+                        for(var i = 0; i < runbookFiles.length; i++){
+                            (function(runbookYmlFile){
+                                yamlJs.load(runbookYmlFile, function(result) {
+
+                                    if(result !== null){
+                                        fileUpload.uploadFile(result.metadata.name,runbookYmlFile,null,function(err,ymlDocFileId){
+                                            if(err){
+                                                runbookObjList.push(err);
+                                                logger.error("Error in uploading yaml documents.",err);
+                                                fileUpload.removeFileByFileId(ymlDocFileId,function(err,data){
+                                                    if(err){
+                                                        logger.error("Error in removing YAML File. ",err);
+                                                    }
+                                                    if(runbookObjList.length === runbookFiles.length){
+                                                        next(null,runbookObjList);
+                                                        return;
+                                                    }
+                                                });
+                                            }else{
+                                                var runbookObj={
+                                                    name:result.metadata.name,
+                                                    runbookYmlJson:result,
+                                                    ymlDocFileId:ymlDocFileId,
+
+                                                }
+                                                runbookDao.getRunbookByName(result.metadata.name,function(err,runbookList){
+                                                    if(err){
+                                                        logger.error(err);
+                                                        runbookObjList.push(err);
+                                                        if(runbookObjList.length === runbookFiles.length){
+                                                            next(null,runbookObjList);
+                                                            return;
+                                                        }
+                                                    }else if(runbookList.length > 0){
+                                                        runbookDao.updateRunbookDetail(runbookList[0]._id,runbookObj,function(err,updateRunbook){
+                                                            if(err){
+                                                                logger.error(err);
+                                                            }
+                                                            runbookObjList.push(runbookObj);
+                                                            if(runbookObjList.length === runbookFiles.length){
+                                                                next(null,runbookObjList);
+                                                                return;
+                                                            }
+                                                        })
+                                                    }else{
+                                                        runbookDao.createNew(runbookObj,function(err,data){
+                                                            if(err){
+                                                                logger.error(err);
+                                                            }
+                                                            runbookObjList.push(runbookObj);
+                                                            if(runbookObjList.length === runbookFiles.length){
+                                                                next(null,runbookObjList);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }else{
+                                        runbookObjList.push(result);
+                                        if(runbookObjList.length === runbookFiles.length){
+                                            next(null,runbookObjList);
+                                            return;
+                                        }
+                                    }
+                                });
+                            })(runbookFiles[i]);
+
+                        }
+                    }
+
+                }).catch(function(err){
+                   console.log("No Runbook Directory Found");
+                });
+
+
                 fileHound.create()
                     .paths(botFactoryDirPath)
                     .ext('yaml')
@@ -980,7 +1097,7 @@ function encryptedParam(paramDetails, callback) {
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
-        if(paramDetails.data && paramDetails.data.cloud_providers || paramDetails.data.source_repository){
+        if(paramDetails.data && (paramDetails.data.sourceGit || paramDetails.data.sourceCloud)){
             Object.keys(paramDetails.data).forEach(function (key) {
                 encryptedObj[key] = paramDetails.data[key];
 
@@ -1148,81 +1265,85 @@ function removeScriptFile(filePath) {
 
 
 botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({"repositoryName":{$in:source} },{ repositoryName: 1, _id: 1} ,(err, res) => {
-        if (!err) {
-            return callback(null, res);
-        }
-        else {
-            return callback(err, null)
-        }
-    });
-}
-botService.getBotBysource=function (source,callback){
-    gitHubModel.getGitRepository({},{ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1} ,(err, res) => {
-        if (!err) {
-            return callback(null, res);
-        }
-        else {
-            return callback(err, null)
-        }
-    });
-    botService.cloudProviders=function (name,callback) {
-        let cloudDetails=[];
-        AWSProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        openstackProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        hppubliccloudProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-        azurecloudProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-        vmwareProvider.getName({},function (err,result) {
-            if (err) {
-                return callback(err, null)
-            }
-            if(result &&  result.length >0){
-                result.map(itm=>{
-                    cloudDetails.push(itm);
-                });
-            }
-        });
-
-        setTimeout(function () {
-            return callback(null, cloudDetails);
-        },2000)
+    var query={};
+    var fields={repositoryName:1,_id: 1};
+    if(source){
+        var sourceName=source.split(',');
+        query={repositoryName:{$in: sourceName}};
+        fields={ repositoryBranch:1,repositoryUserName:1,repositoryPassword:1,repositoryName:1, _id: 1, repositoryOwner:1};
     }
+    gitHubModel.getGitRepository(query,fields,(err, res) => {
+        if (!err) {
+            return callback(null, res);
+        }
+        else {
+            return callback(err, null)
+        }
+    });
 }
+
+botService.cloudProviders=function (source,callback) {
+    let cloudDetails=[];
+    var query={};
+    if(source){
+        var sourceName=source.split(',');
+        query={providerName:{$in: sourceName}};
+    }
+    AWSProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    openstackProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    hppubliccloudProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+    azurecloudProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+    vmwareProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+
+    setTimeout(function () {
+        return callback(null, cloudDetails);
+    },2000)
+}
+

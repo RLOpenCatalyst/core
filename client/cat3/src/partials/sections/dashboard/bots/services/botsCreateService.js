@@ -137,6 +137,20 @@
 				} 
 				return genericServices.promiseGet(params);
 			};
+			botService.getRunBooks = function () {
+				var params = {
+					url: '/runbooks/',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+			botService.getRunBookDetailById = function (runbookId) {
+				var params = {
+					url: '/runbooks/bots?runbookId=' + runbookId,
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
 
         }]);
 })(angular);
