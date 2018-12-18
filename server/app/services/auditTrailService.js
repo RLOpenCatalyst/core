@@ -31,7 +31,6 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var serviceNow = require('_pr/model/servicenow/servicenow.js');
 var settingService = require('_pr/services/settingsService');
-var botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary.js');
 var topBotList = [];
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {

@@ -81,6 +81,7 @@ function botAuditTrailSummarize() {
                     var summaryObj = botAuditTrailSummaryData[index];
                     var successCount = summaryObj.successCount;
                     var failedCount = summaryObj.failedCount;
+                    var runningCount = 0;
                     if(bat.actionStatus == 'success') successCount++;
                     else if(bat.actionStatus == 'failed') failedCount++;
                     else runningCount++;
