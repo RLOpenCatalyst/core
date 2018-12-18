@@ -309,7 +309,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     date: startHour,
                 }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
                     if(err) logger.error(JSON.stringify(err))
-                    else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+                    else logger.info("Running count of bot ", botsScriptDetails[0].name, "incremented successfully")
                 })
             }
         }
