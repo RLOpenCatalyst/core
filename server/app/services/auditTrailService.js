@@ -24,7 +24,7 @@ var botDao = require('_pr/model/bots/1.1/bot.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 const errorType = 'auditTrailService';
-
+const botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary')
 var auditTrailService = module.exports = {};
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
@@ -187,8 +187,6 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
         }, null);
     }
 }
-
-
 
 auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,period,callback) {
     var reqData = {};
@@ -455,12 +453,6 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
     });
 }
 
-
-
-
-
-
-
 auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQuery,callback) {
     var reqData = {};
     var snowbotsid = [];
@@ -580,14 +572,6 @@ auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQu
         return;
     });
 }
-
-
-
-
-
-
-
-
 
 auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery,callback) {
     var reqData = {};
@@ -715,17 +699,33 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-
+auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
+    var reqData = {}
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(query, 'auditTrails', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            auditTrail.getAuditTrailList(queryObj, next);
+        },
+        function(auditTrailList, next) {
+            apiUtil.paginationResponse(auditTrailList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
+    });
+}
 
 auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceNow(auditTrailId,callback){
     var srnTicketNo = null;
@@ -1128,6 +1128,149 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
                 }
                 logger.info("Exiting all counts.")
                 next(null,data);
+            })
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        logger.info("Exiting all counts final.")
+        callback(null,results);
+        return;
+    })
+}
+
+auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, userName, callback) {
+    async.waterfall([
+        function(next){
+            apiUtil.queryFilterBy(queryParam,next);
+        },
+        function(filterQuery,next) {
+            filterQuery.isDeleted = false;
+            if(BOTSchema === 'BOTOLD') {
+                settingService.getOrgUserFilter(userName,function(err, orgIds) {
+                    logger.info('Exiting Org user filter')
+                    if(err) {
+                        next(err,null)
+                    } else if(orgIds.length > 0) {
+                        filterQuery['orgId'] = {$in:orgIds}
+                        botOld.getAllBots(filterQuery, next)
+                    } else {
+                        botOld.getAllBots(filterQuery, next)
+                    }
+                })
+            } else {
+                settingService.getOrgUserFilter(userName,function(err,orgIds) {
+                    logger.info('Exiting Org user filter')
+                    if(err) {
+                        next(err,null)
+                    } else if(orgIds.length > 0) {
+                        filterQuery['orgId'] = { $in: orgIds }
+                        botDao.getAllBots(filterQuery, next)
+                    } else {
+                        botDao.getAllBots(filterQuery, next)
+                    }
+                })
+            }
+        },
+        function(botsList, next) {
+            var totalBots = botsList.length;
+            var botIdList = [];
+            var snowBotId = [];
+            for(let bot of botsList) {
+                botIdList.push(bot._id.toString());
+                if(bot.input){
+                    for(let ip of bot.input){
+                        if(ip["name"] == "sysid"){
+                            snowBotId.push(bot._id.toString())
+                        }
+                    }
+                }
+            }
+            var query = [];
+            var snowQuery = []
+            if(queryParam.startdate){
+                var sdt = new Date(queryParam.startdate).getTime();
+                var obj = {
+                    $match: {
+                        date: { $gte: sdt}
+                    }
+                }
+                query.push(obj)
+                snowQuery.push(obj)
+            }
+            if(queryParam.enddate){
+                var edt = new Date(queryParam.enddate).getTime();
+                if(sdt === edt) edt = edt+86400000;
+                var obj = {
+                    $match: {
+                        date: { $lte: edt}
+                    }
+                }
+                query.push(obj)
+                snowQuery.push(obj)
+            }
+            query.push({
+                $match: {
+                    botID: { $in: botIdList}
+                }
+            })
+            snowQuery.push({
+                "$match": {
+                    "botID": {
+                        "$in": snowBotId
+                    }
+                }
+            })
+            query.push({
+                $group: {
+                    _id: {},
+                    failedCount: {$sum: "$failedCount"},
+                    successCount: {$sum: "$successCount"},
+                    runningCount: {$sum: "$runningCount"},
+                    timeSaved: {$sum: "$timeSaved"},
+                }
+            })
+            snowQuery.push({
+                $group: {
+                    "_id":{},
+                    "snowCount": {$sum: "$successCount"}
+                }
+            })
+            async.parallel({
+                snowSummaryData: function (childCallback) {
+                    botAuditTrailSummary.aggregate(snowQuery, function (err, snowSummaryData) {
+                        if (err) childCallback(err, null)
+                        else childCallback(null, snowSummaryData)
+                    })
+                },
+                summaryData: function (childCallback) {
+                    botAuditTrailSummary.aggregate(query, function (err, summaryData) {
+                        if (err) childCallback(err, null)
+                        else childCallback(null, summaryData)
+                    })
+                }
+            }, function (err, summarizedData) {
+                if(err) next(err, null)
+                else {
+                    var result = {}
+                    result['totalNoOfBots'] = totalBots
+                    result['totalNoOfFailedServiceNowTickets'] = summarizedData.summaryData[0].failedCount //Calculated failed count, Displayed as failed count in UI
+                    result['totalRuns'] = summarizedData.summaryData[0].failedCount + summarizedData.summaryData[0].successCount + summarizedData.summaryData[0].runningCount
+                    var days = Math.floor(summarizedData.summaryData[0].timeSaved / (1000*60*60*24))
+                    var hours = Math.floor((summarizedData.summaryData[0].timeSaved - days*1000*60*60*24) / (1000*60*60))
+                    var minutes =  Math.floor((summarizedData.summaryData[0].timeSaved - days*1000*60*60*24 - hours* 1000*60*60) / (1000*60*60))
+                    var totalSavedTimeForBots = {
+                        days: days,
+                        hours: hours,
+                        minutes: minutes
+                    }
+                    result['totalNoOfServiceNowTickets'] = summarizedData.snowSummaryData[0].snowCount
+                    result['totalSavedTimeForBots'] = totalSavedTimeForBots
+                    next(null, result)
+                }
             })
         }
     ],function(err,results){
