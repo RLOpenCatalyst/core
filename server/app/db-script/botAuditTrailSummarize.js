@@ -24,7 +24,6 @@ var apiUtil = require('_pr/lib/utils/apiUtil');
 var logger = require('_pr/logger')(module);
 var cronTab = require('node-crontab');
 var mongoose = require('mongoose');
-var botAuditTrailSummaryData = [];
 
 var botAuditTrailSummary = module.exports = {
     createCronJob: createCronJob
@@ -36,10 +35,15 @@ var dboptions = {
     dbName: appConfig.db.dbName
 }
 
-function botAuditTrailSummarize() {
+function botAuditTrailSummarize(date) {
+    var botAuditTrailSummaryData = [];
     async.parallel({
         botAuditTrailData: function (callback) {
-            botAuditTrail.find({}, function (err, botAuditTrailData) {
+            var query = {}
+            if(date) {
+                query["$and"] = [{ "startedOn": { $lte: getEndOfDay(date)}}, { "startedOn": { $gte: getStartOfDay(date)}}];
+            }
+            botAuditTrail.find(query, function (err, botAuditTrailData) {
                 if(err) callback(err)
                 else callback(null, botAuditTrailData)
             })
@@ -56,15 +60,11 @@ function botAuditTrailSummarize() {
             for(let bat of data.botAuditTrailData) {
                 var manualExecution = manualExecutionBot(bat.auditId, data.botList)
                 var summaryObj = {};
-                var d = new Date(bat.startedOn);
-                var year = d.getUTCFullYear();
-                var month = d.getUTCMonth();
-                var day = d.getUTCDate();
-                var startHour =Date.UTC(year,month,day,0,0,0,0);
+                var startHour = getStartOfDay(bat.startedOn)
                 summaryObj['user'] = bat.user;
                 summaryObj['botID'] = bat.auditId;
                 summaryObj['date'] = startHour;
-                var index = getFromData(summaryObj);
+                var index = getFromData(botAuditTrailSummaryData, summaryObj);
                 if(index == -1) {
                     var successCount = 0;
                     var failedCount = 0;
@@ -126,17 +126,13 @@ function summarize() {
     }
 }
 
-function getFromData(obj) {
-    var index = botAuditTrailSummaryData.findIndex(function (x) {
+function getFromData(summaryArr, obj) {
+    var index = summaryArr.findIndex(function (x) {
         return x.user == obj.user
             && x.botID == obj.botID
             && x.date == obj.date
     })
     return index;
-}
-
-function isEqualDate(dateStr, date) {
-
 }
 
 function manualExecutionBot(botID, botList) {
@@ -147,17 +143,35 @@ function manualExecutionBot(botID, botList) {
     return 0;
 }
 
+function getStartOfDay(date) {
+    var d = new Date(date);
+    var year = d.getUTCFullYear();
+    var month = d.getUTCMonth();
+    var day = d.getUTCDate();
+    var startHour =Date.UTC(year,month,day,0,0,0,0);
+    return startHour;
+}
+
+function getEndOfDay(date) {
+    var d = new Date(date);
+    var year = d.getUTCFullYear();
+    var month = d.getUTCMonth();
+    var day = d.getUTCDate();
+    var endHour =Date.UTC(year, month, day,25,59,59,59);
+    return endHour;
+}
+
 function createCronJob() {
     var cronConfig = {
-        cronRepeatEvery: 1,
-        cronFrequency: 'Hourly',
-        cronMinute: 0,
-        cronHour: 1
+        cronRepeatEvery: 30,
+        cronFrequency: 'Minutes',
+        cronMinute: 30,
+        cronHour: 0
     }
     var cronPattern = apiUtil.createCronJobPattern(cronConfig);
     logger.info("Bot Audit trail summarize job started with interval ==> " + cronPattern.cronPattern);
     cronTab.scheduleJob(cronPattern.cronPattern, function () {
-        botAuditTrailSummarize()
+        botAuditTrailSummarize(getStartOfDay(new Date()))
     })
 }
 
