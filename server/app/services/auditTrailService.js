@@ -506,19 +506,14 @@ auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQu
                 $lte: edt
             };
             match['user'] = auditTrailQuery.user;
-            project = {
-                _id: 0
-            };
+            
             aggregateQuery.push({
                 $match: match
             })
             aggregateQuery.push({
                 $group: group
             })
-            aggregateQuery.push({
-                $project: project
-            })
-            console.log(aggregateQuery);
+           
             botAuditTrailSummary.aggregate(aggregateQuery, function (err, data) {
                 if (err) {
                     next(err, null);
