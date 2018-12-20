@@ -1111,7 +1111,10 @@ fieldset#editParamPage legend {
 }
 }
 #sensureport{
-
+  margin: 0 4px;
+  .nav-tabs > li > a::after{
+    background: none !important;
+  }
   .weekPick {
     position: absolute;
     left: 24%;
@@ -1124,15 +1127,15 @@ fieldset#editParamPage legend {
     margin: 2px;
   }
   .nav-tabs {
-    border-bottom-width: 1px;
-    border-color: #40BAF1;
+    border-bottom: solid #40BAF1 1px !important;
 
     li.active {
       a, a:hover {
-        border-bottom-width: 0px;
-        border-top-width: 3px;
-        @include theme-border-color;
+        border-bottom: 0px !important;
+        border-top: solid #40BAF1 3px !important;
+        border-color: #40BAF1;
         background: #fcfcfc;
+        border: 1px solid #40BAF1;
       }
     }
 }
@@ -1149,5 +1152,36 @@ fieldset#editParamPage legend {
   font-size: 12px;
   line-height: 1;
 }
+.ticket-resolve-date{
+  width:95px;
+  outline: 0;
+  border: 1px solid #101010 !important;
+  display: inline;
+  border-radius:5px 0px 0px 5px;
+  padding-bottom: 0px;
+}
+
+.ticket-resolve-date1{
+  width:95px;
+  outline: 0;
+  border: 2px solid #40BAF1 !important;
+  display: inline;
+  border-radius:8px 0px 0px 8px;
+  //padding-bottom: 0px;
+  //padding-top: 0px;
+  padding-left: 9px;
+}
+
+.ticket-resolve-date2{
+  width:95px;
+  outline: 0;
+  border: 2px solid #40BAF1 !important;
+  display: inline;
+  border-radius:0px 8px 8px 0px;
+  padding-left: 9px;
+  //padding-bottom: 0px;
+  //padding-top: 0px;
+}
+
 
 }

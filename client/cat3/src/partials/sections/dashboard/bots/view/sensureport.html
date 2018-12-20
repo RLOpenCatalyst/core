@@ -1,70 +1,197 @@
-
 <div id="sensureport" class="ng-scope">
-<ul class="nav nav-tabs">
-<li ng-hide="stateItems.dashboardHide" ng-class="{'active':analytic.tabShowChat === true}" class="active">
-    <a ng-click="analytic.tabShow(true,false)" class=""><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Dashboard</a>
-</li>
-<li ng-hide="stateItems.reportHide" ng-class="{'active':analytic.tabShowReport === true}" class="">
-    <a ng-click="analytic.tabShow(false,true)" class=""><i class="fa fa-file-text fa-2" aria-hidden="true"></i> Reports</a>
-</li>
-<li class="form-group pull-right filter-btn">
-        <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
+    <ul class="nav nav-tabs">
+        <li ng-class="{'active':tabShowChat === true}" class="active ">
+            <a class=""><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Service Now Report</a>
+        </li>
+        <!-- <li ng-hide="stateItems.reportHide" ng-class="{'active':tabShowReport === true}" class="">
+    <a ng-click="tabShow(false,true)" class=""><i class="fa fa-file-text fa-2" aria-hidden="true"></i> Reports</a>
+</li> -->
+        <li class="form-group pull-right filter-btn">
+            <!-- <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
             <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
-        </button>
-    </li>
+        </button> -->
+        </li>
     </ul>
-   
-    <div class="well" id="well" >
-        <div class="col-lg-6 col-md-6 col-sm-12 btn-group" role="group" aria-label="...">
-            <span  ng-hide="stateItems.filterView.period">
-                <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class="{'active':filterNewEnt.period === 'day'}"  ng-click="applyFilter(true,'day')">DAY</button>
-                <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'week'}"  ng-click="applyFilter(true,'week')">WEEK</button>
-                <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'month'}" ng-click="applyFilter(true,'month')">MONTH</button>
-                <!--<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="applyFilter(true,'year')">YEAR</button>-->
-                <!--<input  class="form-control " ng-model="filterNewEnt.StartDate" style="display: table-cell;width: 120px" readonly   />-->
-                <input id="date-select" class="form-control " ng-click="showPick=true" ng-model="filterNewEnt.date" style="display:inherit;width: 120px"  placeholder="From Date" ng-change="applyFilter(true,filterNewEnt.period);" title="End Date" />
-                <div class="weekPick" ng-show="showPick">
-                    <span ng-show="filterNewEnt.period === 'day'"> <label for="" >Select Date</label>
-                        <input  class="form-control marginbottom10" id="date-cost" ng-model="filterNewEnt.endDate.day"   />
-                    </span>
 
-                    <span ng-show="filterNewEnt.period === 'week'"> <label for="" >Select Week</label>
-                        <select class="form-control marginbottom10" ng-model="filterNewEnt.endDate.week">
-                            <option ng-repeat="w in [{v:0,l:'1st'},{v:1,l:'2nd'},{v:2,l:'3rd'},{v:3,l:'4th'},{v:4,l:'5th'}]" value="{{w.v}}">{{w.l}}</option>
-                        </select>
-                    </span>
-                    <span ng-show="filterNewEnt.period === 'month'|| filterNewEnt.period === 'week'">
-                        <label for="">Select Month</label>
-                        <select class="form-control marginbottom10" ng-model="filterNewEnt.endDate.month">
-                            <option ng-repeat="m in ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']" value="{{m}}">{{m}}</option>
-                        </select>
-                        <label for="">Select Year</label>
-                        <select class="form-control marginbottom10" ng-model="filterNewEnt.endDate.year">
-                            <option ng-repeat="y in [2017,2016,2015,2014,2013]" value="{{y}}">{{y}}</option>
-                        </select>
-                    </span>
-                    <button type="button" class="btn btn-sm btn-primary cat-btn-update pull-left"  ng-click="showPick=false;">Close</button>
-                    <button type="button" class="btn btn-sm btn-primary cat-btn-update pull-right"  ng-click="showPick=false;applyFilter(true,filterNewEnt.period)">Ok</button>
-                    <!--<input  class="form-control " ng-model="filterNewEnt.StartDate" style="display: table-cell;width: 120px" readonly   />-->
-                </div>
+    <div class="well" id="well">
+
+
+        <span ng-hide="stateItems.filterView.period">
+
+
+            <input id="date-select" class="form-control pull-right" ng-click="showPick=true" ng-model="filterNewEnt.date"
+                style="display:inherit;width: 120px" placeholder="From Date" ng-change="applyFilter(true,filterNewEnt.period);"
+                title="End Date" />
+
+            <span ng-show="customSetDate">
+                &nbsp;
+
+                &nbsp;
+                <button type="button" title="Clear" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save pull-right"
+                    ng-model="customSetDate" ng-click="resetFields();customSetDate=!customSetDate" style="
+                    margin-right: 6px;">
+                    <i class="fa fa-times fa-2 white" aria-hidden="true"></i>
+                    <!--<i class="fa fa-close fa-2 red" aria-hidden="true"></i>&nbsp;-->
+                    <!--Clear-->
+                </button>
+                <button type="button" title="Filter" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save pull-right"
+                    ng-click="showScheduledTasks()" style="
+                    margin-right: 6px;
+                ">
+                    <!--<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;-->
+                    <i class="fa fa-search fa-2 white" aria-hidden="true"></i>
+                    <!--Filter-->
+                </button>
+                <span>&nbsp;
+                    <input id="ticket-resolve-end" ng-change="dateChange()" type="text" ng-model="ticketsResolveEndsOn"
+                        placeholder="End Date" class="form-control-date ticket-resolve-date2 pull-right" style="
+                            margin-right: 6px;
+                        ">
+
+
+                </span>&nbsp;
+
+                <span>&nbsp;
+                    <input id="ticket-resolve-start" ng-change="dateChange()" type="text" ng-model="ticketsResolveStartsOn"
+                        placeholder="Start Date" class="form-control-date ticket-resolve-date1 pull-right" style="
+                        margin-right: 6px;
+                    ">
+                </span>
             </span>
+
+            <button type="button" title="Custom" class="btn btn-sm btn-primary cat-btn-update pull-right" ng-click="$event.stopPropagation();customSetDate=!customSetDate"
+                style="
+            margin-right: 7px;">
+                CUSTOM
+            </button>
+
+            <button type="button" class="btn btn-sm btn-primary cat-btn-update pull-right" ng-class=" {'active':filterNewEnt.period === 'monthly'}"
+                ng-click="applyFilter(true,'monthly')" style="
+                margin-right: 7px;">MONTH</button>
+
+
+            <button type="button" class="btn btn-sm btn-primary cat-btn-update pull-right" ng-class="{'active':filterNewEnt.period === 'daily'}"
+                ng-click="applyFilter(true,'daily')" style="
+                margin-right: 7px;">DAY</button>
+
+
+            <!--<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="applyFilter(true,'year')">YEAR</button>-->
+            <!--<input  class="form-control " ng-model="filterNewEnt.StartDate" style="display: table-cell;width: 120px" readonly   />-->
+
+            <div class="weekPick" ng-show="showPick" style="left: 82%;top: 90px;">
+                <span ng-show="filterNewEnt.period === 'daily'"> <label for="">Select Date</label>
+                    <input class="form-control marginbottom10" id="date-cost" ng-model="filterNewEnt.endDate.day" />
+                </span>
+
+                <span ng-show="filterNewEnt.period === 'monthly'">
+                    <label for="">Select Month</label>
+                    <select class="form-control marginbottom10" ng-model="filterNewEnt.endDate.month">
+                        <option ng-repeat="m in ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']"
+                            value="{{m}}">{{m}}</option>
+                    </select>
+                    <label for="">Select Year</label>
+                    <select class="form-control marginbottom10" ng-model="filterNewEnt.endDate.year">
+                        <option ng-repeat="y in [2018,2017,2016,2015]" value="{{y}}">{{y}}</option>
+                    </select>
+                </span>
+                <button type="button" class="btn btn-sm btn-primary cat-btn-update pull-left" ng-click="showPick=false;">Close</button>
+                <button type="button" class="btn btn-sm btn-primary cat-btn-update pull-right" ng-click="showPick=false;applyFilter(true,filterNewEnt.period)">Ok</button>
+                <!--<input  class="form-control " ng-model="filterNewEnt.StartDate" style="display: table-cell;width: 120px" readonly   />-->
+            </div>
+
+            <!--<input  class="form-control " ng-model="filterNewEnt.StartDate" style="display: table-cell;width: 120px" readonly   />-->
+        </span>
+
+
+
+    </div>
+</div>
+<div class="clearfix" style="padding:4px;"></div>
+<div ui-view></div>
+<div class="clearfix"></div>
+<div>
+
+    <div class="row">
+        <div class="clearfix"></div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="box box-infobox box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title font-size-15"><i class="fa fa-bar-chart"></i> Tickets Resolved per person</h3>
+
+                </div>
+                <div class="box-body">
+                    <nvd3 ng-show="tabShowChat" ng-click="gotoBottom()" options="barChart.options" data="barChart.data"></nvd3>
+                </div>
+            </div>
         </div>
-        <div ui-view></div>
-     <div class="clearfix"></div>
-     <div >
-         <div class="row">
-             <div class="clearfix"></div>
-            
-             <div class="col-lg-12 col-md-12 col-sm-12" >
-                 <div class="box box-infobox box-info">
-                     <div class="box-header with-border"><h3 class="box-title font-size-15"><i class="fa fa-bar-chart"></i> Tickets Resolved per person</h3>
 
-                     </div>
-                     <div class="box-body" ><nvd3 options="options" data="data"></nvd3></div>
-                 </div>
-             </div>
-            
-         </div>
-     </div>
+    </div>
 
-     
+    <div class="row" ng-show="childData">
+        <div class="clearfix"></div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="box box-infobox box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title font-size-15"><i class="fa fa-bar-chart"></i> Different Task Resolved</h3>
+                    <button type="button" title="Close" class="btn btn-xs cat-btn-update pull-right " ng-click="childData=false;">
+                        <i class="fa fa-times white" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div class="box-body">
+                    <nvd3 ng-show="tabShowChat" options="insidebarChart.options" data="insidebarChart.data"></nvd3>
+                    <a id="{{ids}}"></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#ticket-resolve-end').bootstrapMaterialDatePicker({
+                format: 'MM/DD/YYYY ',
+                weekStart: 1,
+                time: false,
+                switchOnClick: true,
+                nowButton: true,
+                clearButton: true,
+                maxDate: new Date()
+            });
+            $('#ticket-resolve-start').bootstrapMaterialDatePicker({
+                format: 'MM/DD/YYYY',
+                weekStart: 1,
+                time: false,
+                switchOnClick: true,
+                nowButton: true,
+                clearButton: true,
+                maxDate: new Date()
+            }).on('change', function (e, date) {
+                $('#ticket-resolve-end').bootstrapMaterialDatePicker('setMinDate', date);
+            });
+            $.material.init();
+            $(document).on('click', 'input.time', function () {
+                var $this = $(this);
+                setTimeout(function () {
+                    $this.bootstrapMaterialDatePicker({
+                        format: 'HH:mm',
+                        date: false,
+                        switchOnClick: true,
+                    });
+                }, 100);
+
+            });
+        });
+        $(document).ready(function () {
+            $('#date-cost').bootstrapMaterialDatePicker({
+                format: 'MM-DD-YYYY',
+                weekStart: 1,
+                time: false,
+                switchOnClick: true,
+                nowButton: true,
+            });
+        });
+
+    </script>
