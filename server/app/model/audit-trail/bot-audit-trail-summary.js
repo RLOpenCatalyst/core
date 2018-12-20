@@ -27,6 +27,9 @@ var BotAuditTrailSummarySchema= new Schema ({
         type: String,
         required: true
     },
+    isResolved:{
+        type: Boolean
+    },
     date: {
         type: Date,
         required: false

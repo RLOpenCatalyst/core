@@ -110,8 +110,11 @@ function botAuditTrailSummarize(date) {
 }
 
 function summarize() {
-    if(mongoose.connection.readyState == 1)
-        botAuditTrailSummarize()
+    if(mongoose.connection.readyState == 1){
+        addResolvetoBot()
+     //   botAuditTrailSummarize();
+
+    }        
     else {
         mongoDbConnect(dboptions, function(err) {
             if (err) {
@@ -120,7 +123,7 @@ function summarize() {
             } else {
                 logger.info('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
                 logger.info('Start Time ', new Date())
-                botAuditTrailSummarize()
+            //    botAuditTrailSummarize()
             }
         })
     }
@@ -175,5 +178,13 @@ function createCronJob() {
     })
 }
 
+
+function addResolvetoBot(){   
+    console.log('inside addResolvetoBot================================================================')
+    botModel.find({"ymlJson.input.form.name":"sysid"},function(err,result){
+        console.log(err,result)
+    })
+
+}
 summarize();
 

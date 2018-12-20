@@ -196,39 +196,16 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
     var botsWithCounts = []
     var botnames = {};
     var result = [];
-
-    console.log(JSON.stringify(auditTrailQuery));
     async.waterfall([
-        function (next) {
-            settingService.getOrgUserFilter(auditTrailQuery.user, function (err, orgIds) {
-                logger.info('Exiting Org user filter');
-                if (err) {
-                    next(err, null);
-                } else {
-                    var filterQuery = [];
-                    filterQuery['orgId'] = {
-                        $in: orgIds
-                    };
-                    botDao.getAllBots(filterQuery, function (errbots, topBotList) {
+        function (next) {            
+                    botDao.find({isResolved:true}).distinct('_id', function (errbots, ids) {
                         if (errbots) {
                             next(errbots)
                         } else {
-                            snowbotsid = topBotList.map((item) => {
-                                if (item.input && item.input.length > 0) {
-                                    var sysIds = item.input.filter((item) => {
-                                        return item['name'] == 'sysid'
-                                    });
-                                    if (sysIds.length > 0) {
-                                        return item._id.toString();
-                                    }
-                                }
-                            }).filter(Boolean);
+                            snowbotsid = ids.map((item)=>{return item.toString()});
                             next();
                         }
-                    });
-                }
-
-            });
+                    });            
         },
         function (next) {
             var match = {};
@@ -250,7 +227,6 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                 sdt = new Date(new Date(auditTrailQuery.startdate).setHours(0, 0, 0, 0));
                 edt = new Date(new Date(auditTrailQuery.enddate).setHours(0, 0, 0, 0));
             }
-
             match['botID'] = {
                 $in: snowbotsid
             }
@@ -365,14 +341,14 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                         if (botIds.length > 0) {
                             next(null, [])
                         } else {
-                            next();
+                            next(null,null);
                         }
 
 
                     }
                 });
         },
-        function (s, next) {
+        function (s,next) {
             botDao.find({
                 _id: {
                     $in: botIds
@@ -383,10 +359,10 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                 bots.forEach((item) => {
                     botnames[item._id.toString()] = item.name
                 });
-                next()
+                next(null,null)
             })
         },
-        function (next) {
+        function (s,next) {
             botsWithCounts.forEach((item) => {
                 result.push({
                     name: botnames[item.name],
@@ -413,34 +389,15 @@ auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQu
     console.log(JSON.stringify(auditTrailQuery));
     async.waterfall([
         function (next) {
-            settingService.getOrgUserFilter(auditTrailQuery.user, function (err, orgIds) {
-                logger.info('Exiting Org user filter');
-                if (err) {
-                    next(err, null);
-                } else {
-                    var filterQuery = [];
-                    filterQuery['orgId'] = {
-                        $in: orgIds
-                    };
-                    botDao.getAllBots(filterQuery, function (errbots, topBotList) {
+                    botDao.find({isResolved:true}).distinct('_id',function (errbots, ids) {
                         if (errbots) {
                             next(errbots)
                         } else {
-                            snowbotsid = topBotList.map((item) => {
-                                if (item.input && item.input.length > 0) {
-                                    var sysIds = item.input.filter((item) => {
-                                        return item['name'] == 'sysid'
-                                    });
-                                    if (sysIds.length > 0) {
-                                        return item._id.toString();
-                                    }
-                                }
-                            }).filter(Boolean);
+                            snowbotsid =  ids.map((item)=>{return item.toString()});
                             next();
                         }
-                    });
-                }
-            });
+                    });               
+            
         },
         function (next) {
             var aggregateQuery = [];
