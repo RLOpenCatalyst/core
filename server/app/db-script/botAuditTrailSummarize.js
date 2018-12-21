@@ -110,8 +110,11 @@ function botAuditTrailSummarize(date) {
 }
 
 function summarize() {
-    if(mongoose.connection.readyState == 1)
-        botAuditTrailSummarize()
+    if(mongoose.connection.readyState == 1){
+     botAuditTrailSummarize()
+     addResolvetagforSnowBots()
+
+    }
     else {
         mongoDbConnect(dboptions, function(err) {
             if (err) {
@@ -120,7 +123,8 @@ function summarize() {
             } else {
                 logger.info('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
                 logger.info('Start Time ', new Date())
-                botAuditTrailSummarize()
+                 botAuditTrailSummarize()
+                 addResolvetagforSnowBots()
             }
         })
     }
@@ -173,6 +177,19 @@ function createCronJob() {
     cronTab.scheduleJob(cronPattern.cronPattern, function () {
         botAuditTrailSummarize(getStartOfDay(new Date()))
     })
+}
+
+/** Temp script for add tag if bot has sysid */
+function addResolvetagforSnowBots(){
+logger.info('inside addResolvetagforSnowBots')
+botModel.update({"input.name":"sysid"},{"isResolved":true},{upsert:true,multi:true},function(err,result){
+    if(err){
+        logger.err('err at addResolvetagforSnowBots'+JSON.stringify(err))
+    }else{
+        logger.info('asdResolvetagforSnowBots result'+JSON.stringify(result))
+
+    }
+})
 }
 
 summarize();
