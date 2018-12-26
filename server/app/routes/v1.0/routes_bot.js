@@ -14,9 +14,8 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var gitHubModel = require('_pr/model/github/github.js');
 var botService = require('_pr/services/botService.js');
-
+var gitHubModel = require('_pr/model/github/github.js');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/bot*', sessionVerificationFunc);
 
@@ -105,7 +104,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.post('/bot/:botId/execute',function(req,res){
         var executionType = null;
-        console.log(JSON.stringify(req.params));
         logger.info("Reached execute " + req.params.botId);
         if(req.query.executionType && req.query.executionType !== null){
             executionType = req.query.executionType;
@@ -148,9 +146,47 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 reqBody.nodeIds =  req.body.nodeIds;
             }
         }
-
         logger.info("About to execute" + executionType);
-    
+        if(reqBody.data && (reqBody.data.sourceGit || reqBody.data.sourceCloud)){
+                botService.getBotBysource(req.body.data.sourceGit,function (err, sourceGitdata) {
+                    if (err) {
+                        return res.status(500).send(err);
+                    } else {
+                        if(reqBody.data.sourceGit){
+                            reqBody.data.sourceGit=sourceGitdata;
+                        }
+                        if(reqBody.data && reqBody.data.sourceCloud){
+                                botService.cloudProviders(req.body.data.sourceCloud,function (err, sourceCloudData) {
+                                    if (err) {
+                                        return res.status(500).send(err);
+                                    } else {
+                                        if(reqBody.data.sourceCloud){
+                                            reqBody.data.sourceCloud=sourceCloudData;
+                                        }
+                                        
+                                        botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
+                                            logger.info(JSON.stringify(reqBody));
+                                            if (err) {
+                                                return res.status(500).send(err);
+                                            } else {
+                                                return res.status(200).send(data);
+                                            }
+                                        })
+                                    }
+                                });
+                        } else{
+                            botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
+                                logger.info(JSON.stringify(reqBody));
+                                if (err) {
+                                    return res.status(500).send(err);
+                                } else {
+                                    return res.status(200).send(data);
+                                }
+                            })
+                        }
+                    }
+                })
+        }else{
             botService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
                 logger.info(JSON.stringify(reqBody));
                 if (err) {
@@ -159,9 +195,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     return res.status(200).send(data);
                 }
             })
-    
-    });
+        }
 
+
+    });
     app.put('/bot/:botId/scheduler',function(req,res){
         botService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
             if (err) {
@@ -182,8 +219,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/botSource/:source', function (req, res) {
-        botService.getBotBysource(req.params.source, function (err, data) {
+    app.get('/botSource', function (req, res) {
+        botService.getBotBysource(req.query.source, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -192,8 +229,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/cloudProviders/:name',function (req, res) {
-        botService.cloudProviders(req.params.name,function (err, data) {
+    app.get('/cloudProviders',function (req, res) {
+        botService.cloudProviders(req.query.name,function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -201,4 +238,5 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
+
 };

@@ -12,21 +12,21 @@
             var items;
             $scope.gitRepository=[];
             $scope.cloudProviders=[];
+
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
             });
             $scope.getRepository= function (Source,cloud) {
                 var param={
-                    url:'/botSource/' + Source
+                    url:'/botSource'
                 };
                 genSevs.promiseGet(param).then(function (response) {
                     if(response){
                         $scope.gitRepository=response;
                     }
                 });
-
-                let cloudParam={
-                    url:'/cloudProviders/' + cloud
+                 var cloudParam={
+                    url:'/cloudProviders'
                 };
                 genSevs.promiseGet(cloudParam).then(function (response) {
                     if(response){
@@ -37,10 +37,10 @@
 
             if($scope.templateSelected) {
                 items = $scope.templateSelected;
-                let cloud='';
-                let source='';
+                var cloud='';
+                var source='';
                 if(items && items.inputFormFields){
-                    items.inputFormFields.map(itm=>{
+                    angular.forEach(items.inputFormFields, function(itm, key) {
                         if(itm && itm.name== 'source_repository'){
                             source=itm.default.toLowerCase();
                         }
@@ -129,8 +129,8 @@
 
             $scope.getInstanceList = function() {
                 if($scope.IMGNewEnt){
-                    botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
-                        $scope.originalInstanceList=[];
+                    botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){  
+                    $scope.originalInstanceList=[];
                         if(response.instances){
                             angular.forEach(response.instances, function(value) {
                                 if($scope.selectedInstanceIds.indexOf(value._id) === -1) {
@@ -303,12 +303,21 @@
             $scope.executeBot = function(type){
                 $scope.executeTaskForSave = true;
                 var reqBody = {};
+                
                 reqBody.type = $scope.botType;
+                console.log("reqBody------",$scope.botType)
                 if(type === 'instance') {
                     if($scope.botType === 'script') {
+                       // if($scope.botEditParams && $scope.botEditParams.data)
                         reqBody.data = $scope.botEditParams;
                         if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
                             reqBody.nodeIds = $scope.selectedInstanceIds;
+                        }
+                        if(reqBody.data && reqBody.data.sourceCloud  && reqBody.data.sourceCloud.length>0) {
+                            reqBody.data.sourceCloud = reqBody.data.sourceCloud.join(',');
+                        }
+                        if(reqBody.data && reqBody.data.sourceGit  && reqBody.data.sourceGit.length>0) {
+                            reqBody.data.sourceGit = reqBody.data.sourceGit.join(',');
                         }
                     } else if($scope.botType === 'chef') {
                         if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
@@ -335,6 +344,7 @@
                             reqBody.choiceParam =  $scope.choiceParam;
                         }
                     }
+                    console.log("-------Data",reqBody)
                     $scope.botExecuteMethod(items.id,reqBody);
                 } else if (type === 'blueprints') {
                     reqBody.blueprintIds = [$scope.originalBlueprintList[0]._id];

@@ -220,6 +220,5 @@ GitHubSchema.statics.getGitRepository = function (query,field, callback) {
         }
     );
 };
-
 var GitHub = mongoose.model('github', GitHubSchema);
 module.exports = GitHub;

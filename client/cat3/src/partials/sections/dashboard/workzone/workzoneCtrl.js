@@ -205,6 +205,8 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
                     workzoneNode.setWorkzoneNode(node);
                     workzoneEnvironment.setEnvParams(requestParams);
                     $rootScope.$emit('WZ_ENV_CHANGE_START', requestParams, requestParamNames);
+                    $rootScope.requestParams = requestParams;
+                    $rootScope.requestParamNames = requestParamNames;
                     var treeNames = ['Workzone', requestParamNames.org, requestParamNames.bg, requestParamNames.proj, requestParamNames.env];
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 }

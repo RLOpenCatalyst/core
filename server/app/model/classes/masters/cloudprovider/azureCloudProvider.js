@@ -308,6 +308,7 @@ azurecloudProviderSchema.statics.getName = function (query,callback) {
         }
     );
 };
+
 var azurecloudProvider = mongoose.model('azurecloudprovider', azurecloudProviderSchema);
 
 module.exports = azurecloudProvider;

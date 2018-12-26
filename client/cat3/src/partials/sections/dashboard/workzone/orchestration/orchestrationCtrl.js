@@ -309,17 +309,19 @@
 			$rootScope.$on("CREATE_NEW_JOB", function(){
 				$scope.createNewTask('new');
 			});
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
-				$scope.isOrchestrationPageLoading = true;
-				$scope.envParams=requestParams;
-				$scope.initGrids();
-				helper.setPaginationDefaults();
-				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('orchestrationPage')-gridBottomSpace;
-				workzoneUIUtils.makeTabScrollable('orchestrationPage');
-			});
+			
 			$rootScope.$on('WZ_ORCHESTRATION_SHOW_LATEST', function(){
 				helper.setPaginationDefaults();
 			});
+			$scope.init = function () {
+				$scope.isOrchestrationPageLoading = true;
+				$scope.envParams = $rootScope.requestParams;
+				$scope.initGrids();
+				helper.setPaginationDefaults();
+				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('orchestrationPage') - gridBottomSpace;
+				workzoneUIUtils.makeTabScrollable('orchestrationPage');
+			}
+			$scope.init()
 		}
 	]);
 })(angular);

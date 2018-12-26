@@ -30,7 +30,7 @@
 }
 
 .marginleft-8 {
-  margin-left: -8px; 
+  margin-left: -8px;
 }
 
 .marginleft10 {
@@ -120,7 +120,7 @@
   }
 
   .search-icon {
-    margin-left: -26px; 
+    margin-left: -26px;
     cursor: pointer;
   }
 
@@ -299,7 +299,7 @@
     padding: 0 5px;
   }
 
-  
+
 
   .margin-21 {
     margin: 0 20px;
@@ -382,7 +382,7 @@
   text-align: center;
   font-size: 45px;
   line-height: 90px;
-  background: rgba(0,0,0,0.2); 
+  background: rgba(0,0,0,0.2);
 }
 
 .info-box-content {
@@ -573,8 +573,8 @@ body .botDescriptionPage {
 
 .nav-tabs li.active a, .nav-tabs li.active a:hover {
   border-bottom-width: 0px;
-  border-top-width: 3px; 
-  border-color: #40BAF1; 
+  border-top-width: 3px;
+  border-color: #40BAF1;
   background: #fcfcfc;
 }
 
@@ -660,8 +660,8 @@ body .botDescriptionPage {
 
 .top-stats {
   .badge {
-    margin-right: 2px; 
-    background: #40baf1; 
+    margin-right: 2px;
+    background: #40baf1;
     padding: .2em 0.9em .2em;
     font-size: 14px;
     margin-top: -3px;
@@ -792,8 +792,12 @@ body .botDescriptionPage {
 }
 
 #botsPage {
-  height: 550px;
-  overflow-y: auto!important;
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  top: 79px;
+  overflow: auto;
+  z-index: 9;
 }
 
 .scriptExecution {
@@ -815,7 +819,7 @@ body .botDescriptionPage {
 
 .paddingForScreen {
   padding-left: 2.4%;
-  margin-bottom: 50px;
+  margin-bottom: 10px;
 }
 
 fieldset#editParamPage{
@@ -846,13 +850,13 @@ fieldset#editParamPage legend {
 
 @-moz-document url-prefix() {
     .search-icon {
-      margin-left: -24px!important; 
+      margin-left: -24px!important;
       cursor: pointer;
     }
 
     .cancel-icon {
-      margin-left: -18px!important; 
-      cursor: pointer; 
+      margin-left: -18px!important;
+      cursor: pointer;
     }
 
     .firefoxForm {
@@ -1018,7 +1022,7 @@ fieldset#editParamPage legend {
     }
     #botLibraryPage .section-bottom-glyph {
       left: 170px;
-      
+
     }
     .agent-card .info-cell, .agent-card .desc-cell {
       width: 335px;
@@ -1063,4 +1067,43 @@ fieldset#editParamPage legend {
       font-size: 22px;
       display: none;
     }
+}
+#botReport{
+.title{
+  font-size: 15px;
+}
+.btn{
+  margin: 23px 3px 0 0;
+}
+.table-striped>tbody>tr:nth-of-type(odd)
+{
+  background-color: #ecf7ee;
+}
+
+.ui-grid-menu-button{
+  left: 1px;
+    right: 0;
+    width: 27px;
+    z-index: 2;
+    position: absolute;
+    background: #f3f3f3;
+    border: 0;
+    border-left: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+    cursor: pointer;
+    height: 32px;
+    font-weight: normal;
+}
+.ui-grid-menu-button .ui-grid-icon-container {
+  margin-top: 7px;
+  margin-left: 2px;
+}
+.ui-grid-icon-menu:before {
+  content: '\c363';
+}
+.ui-grid-menu-button .ui-grid-menu {
+  left: -13px;
+  top: 36px;
+  right: auto !important;
+}
 }

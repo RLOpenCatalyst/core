@@ -61,6 +61,7 @@
     "mongoose-validator": "1.2.5",
     "newrelic": "2.7.1",
     "node-crontab": "0.0.8",
+    "node-pre-gyp": "^0.11.0",
     "node-rest-client": "1.5.1",
     "node-string-pad": "0.0.4",
     "node-uuid": "1.4.2",
