@@ -211,14 +211,15 @@
                      <span ng-show="!customSetDate" >
                         &nbsp;
                         <span>&nbsp;
-                            <input id="ticket-resolve-start"  ng-change="dateChange()"   type="text"  ng-model="ticketsResolveStartsOn" placeholder="Start Date" class="form-control-date ticket-resolve-date1"  >
+                            <input id="ticket-resolve-start"  ng-change="dateChange(StartsOn,'StartsOn')"   type="text"  ng-model="StartsOn" placeholder="Start Date" class="form-control-date ticket-resolve-date1"  >
                             <!--<span class="glyphicon-calendar glyphicon"></span>-->
+                            <input type="hidden" ng-model="ticketsResolveStartsOn">
 
                         </span>&nbsp;
                         -
                         <span>&nbsp;
-                            <input id="ticket-resolve-end"  ng-change="dateChange()"   type="text"  ng-model="ticketsResolveEndsOn" placeholder="End Date" class="form-control-date ticket-resolve-date2"  >
-
+                            <input id="ticket-resolve-end"  ng-change="dateChange(EndsOn,'EndsOn')"   type="text"  ng-model="EndsOn" placeholder="End Date" class="form-control-date ticket-resolve-date2"  >
+                            <input type="hidden" ng-model="ticketsResolveEndsOn">
 
                         </span>
                          &nbsp;
@@ -335,7 +336,7 @@
 <script>
     $(document).ready(function () {
         $('#ticket-resolve-end').bootstrapMaterialDatePicker({
-            format: 'MM/DD/YYYY ',
+            format: 'DD/MM/YYYY ',
             weekStart: 1,
             time: false,
             switchOnClick : true,
@@ -344,7 +345,7 @@
             maxDate: new Date()
         });
         $('#ticket-resolve-start').bootstrapMaterialDatePicker({
-            format: 'MM/DD/YYYY',
+            format: 'DD/MM/YYYY',
             weekStart: 1,
             time: false,
             switchOnClick : true,
