@@ -475,7 +475,12 @@ auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQu
             botAuditTrailSummary.aggregate(aggregateQuery, function (err, data) {
                 if (err) {
                     next(err, null);
-                } else {
+                } else if(data.length==0){
+                    var data=[{
+                        "totalticketsresolved": 0
+                         }]
+                    next(null, data);
+                }else{
                     next(null, data);
                 }
             });
