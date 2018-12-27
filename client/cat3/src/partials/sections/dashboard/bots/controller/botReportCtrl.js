@@ -46,8 +46,10 @@
                 var param={
                     url:'/audit-trail/uppermetric?startdate='+startdate+'&enddate='+enddate+'&actionStatus=success'
                 }
+                $scope.loadingDaily=true;
                 genericServices.promiseGet(param).then(function(response) {
-                    $scope.dayData=response[0].totalticketsresolved/30|0;
+                   $scope.dayData=response[0].totalticketsresolved/30|0;
+                   $scope.loadingDaily=false;
                 })
             } else if(typ == 'week'){
                 var last = new Date(startdate.getTime() - (30 * 24 * 60 * 60 * 1000));
@@ -58,8 +60,10 @@
                 var param={
                     url:'/audit-trail/uppermetric?startdate='+startdate+'&enddate='+enddate+'&actionStatus=success'
                 }
+                $scope.loadingWeekly=true;
                 genericServices.promiseGet(param).then(function(response) {
                     $scope.weekData=response[0].totalticketsresolved/4|0;
+                    $scope.loadingWeekly=false;
                 })
             } else if(typ == 'month'){
                 var last = new Date(startdate.getTime());
@@ -70,9 +74,10 @@
                 var param={
                     url:'/audit-trail/uppermetric?startdate='+startdate+'&enddate='+enddate+'&actionStatus=success'
                 }
+                $scope.loadingMonthly=true;
                 genericServices.promiseGet(param).then(function(response) {
                     $scope.monthData=response[0].totalticketsresolved/(last.getMonth()+1)|0;
-            
+                    $scope.loadingMonthly=false;
                 })
             } else if(typ == 'monthtilldate'){
                 var last = new Date(startdate.getTime());
@@ -83,8 +88,10 @@
                 var param={
                     url:'/audit-trail/uppermetric?startdate='+startdate+'&enddate='+enddate+'&actionStatus=success'
                 }
+                $scope.loadingTill=true;
                 genericServices.promiseGet(param).then(function(response) {
                     $scope.monthDatatilldate=response[0].totalticketsresolved;
+                    $scope.loadingTill=false;
             
                 })
             }
@@ -166,11 +173,11 @@
                 var param={
                     url:'/audit-trail/filterdata?startdate='+startdate+'&enddate='+enddate+'&actionStatus=success&period=daily'
                 }
-                genericServices.promiseGet(param).then(function(response) {
-                
-                    $scope.reportData.data = response;
+                genericServices.promiseGet(param).then(function(response) {     
 
-                   
+                    $scope.reportData.data = response;     
+                    
+                    
                     
                 })
             } else if(mode == 'failed'){
@@ -179,17 +186,17 @@
                     url:'/audit-trail/filterdata?startdate='+startdate+'&enddate='+enddate+'&actionStatus=failed&period=daily'
                 }
                 genericServices.promiseGet(param).then(function(response) {
-                    $scope.reportData.data = response;
-
-                  
+                    $scope.reportData.data = response; 
+                    
+                    
                 })
             } else {
                 
                 var param={
                     url:'/audit-trail/filterdata?startdate='+startdate+'&enddate='+enddate+'&actionStatus=all&period=daily'
                 }
-                genericServices.promiseGet(param).then(function(response) {
-                   
+                genericServices.promiseGet(param).then(function(response) {    
+                                   
                     $scope.reportData.data = response;
                 })
             }
@@ -263,9 +270,9 @@
                 genericServices.promiseGet(param).then(function(response) {
                 
                     $scope.reportData.data = response;
-
                    
                     
+
                 })
             
             
@@ -335,16 +342,37 @@
 
                 var param={
                     url:'/audit-trail/filterdata?startdate='+startdate+'&enddate='+enddate+'&actionStatus=success&period=weekly'
-                }
-                genericServices.promiseGet(param).then(function(response) {
-                
-                    $scope.reportData.data = response;
+                }            
+                genericServices.promiseGet(param).then(function(response) {    
 
-                   
+                    $scope.reportData.data = response;     
                     
+                    
+
                 })
             
             
+        }
+        
+        /**
+         * Refresh Data 
+         */
+        $scope.refreshData=function(){
+        $scope.filterDate('day');
+        $scope.filterDate('week');
+        $scope.filterDate('month');
+        $scope.filterDate('monthtilldate');
+        $scope.selectedCard='daily';
+
+            if($scope.selectedCard=='daily'){
+                $scope.reportTable('all');
+            }else if($scope.selectedCard=='weekly'){
+                $scope.showWeeklyData()
+            }else if($scope.selectedCard=='monthly'){
+                $scope.showMonthlyData();
+            }else{
+                $scope.reportTable('all')
+            }
         }
 
 
@@ -353,8 +381,9 @@
         $scope.filterDate('week');
         $scope.filterDate('month');
         $scope.filterDate('monthtilldate');
-
-
-            $scope.reportTable('all');
+        
+        
+        $scope.reportTable('all');
+        $scope.selectedCard='daily';
     }]);
 })(angular);
