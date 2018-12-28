@@ -602,7 +602,8 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                                         input: result.input && result.input !==null ? result.input[0].form:null,
                                         output: result.output,
                                         ymlDocFileId: ymlDocFileId,
-                                        source: "GitHub"
+                                        source: "GitHub",
+                                        isResolved:result.input?hassysid(result.input[0].form):false
                                     }
 
                                     botDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
@@ -861,7 +862,8 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                                     orgId:gitHubDetails.botSync.orgId,
                                                     isParameterized:result.isParameterized?result.isParameterized:false,
                                                     orgName:gitHubDetails.botSync.orgName,
-                                                    source:"GitHub"
+                                                    source:"GitHub",
+                                                    isResolved:result.input?hassysid(result.input[0].form):false
                                                 }
                                                 botDao.getBotsByBotId(result.id,function(err,botsList){
                                                     if(err){
@@ -1347,3 +1349,15 @@ botService.cloudProviders=function (source,callback) {
     },2000)
 }
 
+/**
+ * 
+ * return true if bot is snowbot
+ */
+function hassysid(input){
+    if(!input){
+        return false;
+    }else{
+        var obj = input.find(o => o.name === 'sysid');
+        return obj?true:false;
+    }
+}
