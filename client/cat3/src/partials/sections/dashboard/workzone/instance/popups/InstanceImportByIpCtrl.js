@@ -8,13 +8,24 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('instanceImportByIpCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices','$rootScope','workzoneEnvironment','toastr', function($scope, $modalInstance, items, workzoneServices,$rootScope,workzoneEnvironment,toastr) {
+		.controller('instanceImportByIpCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices',genericServices,'$rootScope','workzoneEnvironment','toastr', function($scope, $modalInstance, items, workzoneServices,genSevs,$rootScope,workzoneEnvironment,toastr) {
 			var configAvailable = items[0].data;
 			var osList = items[1].data;
 			var configList = items[2].data;
 			var reqBody = {};
-			$scope.monitorList = [];
-			//$scope.tagSerSelected = 'Monitoring';
+            $scope.region='';
+            $scope.providerId='';
+            $scope.cloudProviders=[];
+            $scope.monitorList = [];
+
+            var cloudParam={url:'/cloudProviders'};
+            genSevs.promiseGet(cloudParam).then(function (response) {
+                if(response){
+                    $scope.cloudProviders=response;
+                    }
+                });
+
+            //$scope.tagSerSelected = 'Monitoring';
 			if (!configAvailable.length) {
 				$scope.cancel();
 				toastr.error('Chef Or Puppet is not Available');
@@ -72,6 +83,15 @@
 					if($scope.monitorId === 'null') {
 		                $scope.monitorId = null;
 		            }
+		            if($scope.providerId !==  "No Provider"){
+                        var index = $scope.cloudProviders.findIndex( cloud => cloud._id === $scope.providerId );
+                        reqBody.providerType =$scope.cloudProviders[index].providerType;
+
+
+					}
+
+                    reqBody.providerid=$scope.providerId;
+                    reqBody.region=$scope.region;
 					reqBody.fqdn = $scope.ipAddress;
 					reqBody.os = $scope.os;
 					reqBody.configManagmentId = $scope.selectedConfig;
