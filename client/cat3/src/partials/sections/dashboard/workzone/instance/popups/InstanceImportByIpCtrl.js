@@ -17,6 +17,7 @@
             $scope.providerId='';
             $scope.cloudProviders=[];
             $scope.monitorList = [];
+            console.log("here");
 
             var cloudParam={url:'/cloudProviders'};
             genSevs.promiseGet(cloudParam).then(function (response) {
@@ -98,8 +99,8 @@
 
 
 
-                    reqBody.providerType =$scope.cloudProviders[index].providerType
-
+                    /*reqBody.providerType =$scope.cloudProviders[index].providerType*/
+                    reqBody.providerType="aws";
 
                     reqBody.providerid=$scope.providerId;
                     reqBody.region=$scope.region;
