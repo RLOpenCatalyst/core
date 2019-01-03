@@ -107,7 +107,7 @@
 								</span>
 							</label>
 							<div class="input-groups">
-								<input type="text"  class="form-control form-controls" ng-model="$parent.region" name="region"  required="">
+								<input type="text"  class="form-control form-controls" ng-model="region" name="region"  required="">
 							</div>
 						</div>
 
@@ -118,7 +118,7 @@
 								</span>
 							</label>
 							<div class="input-groups">
-								<select  class="form-control" ng-model="$parent.provideId">
+								<select  class="form-control" ng-model="providerId">
 									<option value="" >Select</option>
                                     <option value="No Proivder" >No Proivder</option>
 									<option ng-repeat="itms in cloudProviders;" value="{{itms._id}}">{{itms.providerName}}</option>
