@@ -94,6 +94,8 @@
 						}
 					}
 
+					console.log($scope.cloudProviders);
+
                     reqBody.providerType =$scope.cloudProviders[index].providerType
 
 
