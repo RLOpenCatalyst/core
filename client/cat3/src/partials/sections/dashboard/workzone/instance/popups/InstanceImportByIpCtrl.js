@@ -89,18 +89,20 @@
 
 					var index;
 					if($scope.providerId !==  "No Provider"){
-						for(var i=0;i<$scope.cloudProviders.length;i++){
+						/*for(var i=0;i<$scope.cloudProviders.length;i++){
 							if($scope.cloudProviders[i]._id === $scope.providerId){
 								index = i;
 								i=$scope.cloudProviders.length;
 							}
-						}
+						}*/
+
+                        reqBody.providerType="aws";
 					}
 
 
 
                     /*reqBody.providerType =$scope.cloudProviders[index].providerType*/
-                    reqBody.providerType="aws";
+
 
                     reqBody.providerid=$scope.providerId;
                     reqBody.region=$scope.region;
