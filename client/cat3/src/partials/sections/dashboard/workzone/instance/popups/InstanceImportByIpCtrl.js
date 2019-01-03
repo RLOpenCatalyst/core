@@ -8,7 +8,7 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('instanceImportByIpCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices',genericServices,'$rootScope','workzoneEnvironment','toastr', function($scope, $modalInstance, items, workzoneServices,genSevs,$rootScope,workzoneEnvironment,toastr) {
+		.controller('instanceImportByIpCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices','genericServices','$rootScope','workzoneEnvironment','toastr', function($scope, $modalInstance, items, workzoneServices,genSevs,$rootScope,workzoneEnvironment,toastr) {
 			var configAvailable = items[0].data;
 			var osList = items[1].data;
 			var configList = items[2].data;
@@ -83,12 +83,19 @@
 					if($scope.monitorId === 'null') {
 		                $scope.monitorId = null;
 		            }
-		            if($scope.providerId !==  "No Provider"){
-                        var index = $scope.cloudProviders.findIndex( cloud => cloud._id === $scope.providerId );
-                        reqBody.providerType =$scope.cloudProviders[index].providerType;
 
-
+					var index;
+					if($scope.providerId !==  "No Provider"){
+						for(var i=0;i<$scope.cloudProviders.length;i++){
+							if($scope.cloudProviders[i]._id === $scope.providerId){
+								index = i;
+								i=$scope.cloudProviders.length;
+							}
+						}
 					}
+
+                    reqBody.providerType =$scope.cloudProviders[index].providerType
+
 
                     reqBody.providerid=$scope.providerId;
                     reqBody.region=$scope.region;
