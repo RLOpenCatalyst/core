@@ -23,6 +23,8 @@
                 if(response){
                     $scope.cloudProviders=response;
                     }
+
+                console.log($scope.cloudProviders);
                 });
 
             //$scope.tagSerSelected = 'Monitoring';
@@ -94,7 +96,7 @@
 						}
 					}
 
-					console.log($scope.cloudProviders);
+
 
                     reqBody.providerType =$scope.cloudProviders[index].providerType
 
