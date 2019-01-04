@@ -462,7 +462,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                 var day = d.getUTCDate();
                                 var startHour =Date.UTC(year,month,day,0,0,0,0);
                                 botAuditTrailSummary.update({
-                                    botID: botDetails[0]._id.toString(),
+                                    botID: botDetails[0].id,
                                     user: userName,
                                     date: startHour,
                                 }, { $inc: { "runningCount": 1 } }, {upsert: true}, function (err, data) {

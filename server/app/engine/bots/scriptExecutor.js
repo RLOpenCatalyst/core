@@ -80,7 +80,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                 var day = d.getUTCDate();
                                 var startHour =Date.UTC(year,month,day,0,0,0,0);
                                 botAuditTrailSummary.update({
-                                    botID: botDetails._id.toString(),
+                                    botID: botDetails.id,
                                     user: userName,
                                     date: startHour,
                                 }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
@@ -242,7 +242,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             var day = d.getUTCDate();
             var startHour =Date.UTC(year,month,day,0,0,0,0);
             botAuditTrailSummary.update({
-                botID: botsScriptDetails._id.toString(),
+                botID: botsScriptDetails.id,
                 user: userName,
                 date: startHour,
             }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
@@ -304,7 +304,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 var day = d.getUTCDate();
                 var startHour =Date.UTC(year,month,day,0,0,0,0);
                 botAuditTrailSummary.update({
-                    botID: botsScriptDetails._id.toString(),
+                    botID: botsScriptDetails.id,
                     user: userName,
                     date: startHour,
                 }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
@@ -456,7 +456,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                 var day = d.getUTCDate();
                 var startHour =Date.UTC(year,month,day,0,0,0,0);
                 botAuditTrailSummary.update({
-                    botID: botDetails._id.toString(),
+                    botID: botDetails.id,
                     user: userName,
                     date: startHour,
                 }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
@@ -531,7 +531,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                     var day = d.getUTCDate();
                     var startHour =Date.UTC(year,month,day,0,0,0,0);
                     botAuditTrailSummary.update({
-                        botID: botDetails._id.toString(),
+                        botID: botDetails.id,
                         user: userName,
                         date: startHour,
                     }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
