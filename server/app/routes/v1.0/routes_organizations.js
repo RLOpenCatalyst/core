@@ -1317,7 +1317,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                         }
                                                     }
 
-                                                    if(req.body.providerId != "No Provider"){
+                                                    if(req.body.providerid != "No Provider"){
 
 
                                                         organizationService.getProviderConfigForOrganisation(req.body, function(err,instanceData) {
