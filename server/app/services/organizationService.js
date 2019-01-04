@@ -615,6 +615,7 @@ organizationService.getProviderConfigForOrganisation= function getProviderConfig
     switch (data.providerType.toLowerCase()){
         case "aws" :
             AWSProvider.getAWSProviderById(data.providerid, function (err,result) {
+
             if (err) {
                 logger.error("error in fetching provider details" + err);
                 /*res.status(400).send({
@@ -665,7 +666,7 @@ organizationService.getProviderConfigForOrganisation= function getProviderConfig
                     } else {
                         var instance={}
 
-                        instance["providerId"] = instanceData.Reservations[0].Instances[0].InstanceId;
+                        instance["platformId"] = instanceData.Reservations[0].Instances[0].InstanceId;
                         instance["providerType"] = provType.toLowerCase();
                         callback(null,instance);
                     }

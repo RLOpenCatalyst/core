@@ -1278,7 +1278,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                         projectName: project[0].projectname,
                                                         envId: req.params.envId,
                                                         environmentName: envName,
-                                                        platformId: req.body.fqdn,
                                                         instanceIP: req.body.fqdn,
                                                         instanceState: nodeAlive,
                                                         bootStrapStatus: 'waiting',
@@ -1328,9 +1327,9 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                             message: err
                                                                         });
                                                                     } else {
-
-                                                                        instance["providerId"]=instanceData.providerId;
-                                                                        instance["providerType"]=instanceData.provType;
+                                                                       instance["providerId"]=req.body.providerid;
+                                                                       instance["platformId"]=instanceData.platformId;
+                                                                       instance["providerType"]=instanceData.providerType;
 
                                                                         createInstanceByImport(instance,encryptedCredentials,infraManagerDetails,envName,project,nodeAlive);
 
@@ -1340,8 +1339,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                             }
 
                                                     else{
-                                                        instance["providerId"]=uuid.v4();
-                                                        instance["providerType"]="";
+                                                        instance["platformId"]=uuid.v4();
 
                                                         createInstanceByImport(instance,encryptedCredentials,infraManagerDetails,envName,project,nodeAlive)
                                                     }
