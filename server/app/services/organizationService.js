@@ -614,7 +614,7 @@ organizationService.getProviderConfigForOrganisation= function getProviderConfig
 
     switch (data.providerType.toLowerCase()){
         case "aws" :
-            AWSProvider.getAWSProviderById(data.providerId, function (err,result) {
+            AWSProvider.getAWSProviderById(data.providerid, function (err,result) {
             if (err) {
                 logger.error("error in fetching provider details" + err);
                 /*res.status(400).send({
