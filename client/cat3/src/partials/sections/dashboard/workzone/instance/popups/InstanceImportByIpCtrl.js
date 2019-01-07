@@ -97,12 +97,13 @@
 						}
 
                         reqBody.providerType=$scope.cloudProviders[index].providerType;
-                        reqBody.region=$scope.region;
+
 					}
 
 
 
                     /*reqBody.providerType =$scope.cloudProviders[index].providerType*/
+                    reqBody.region=$scope.region;
 
 
                     reqBody.providerid=$scope.providerId;
