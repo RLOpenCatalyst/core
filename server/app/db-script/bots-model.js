@@ -131,7 +131,7 @@ async.parallel({
                                 for(var i = 0; i < taskHistories.length;i++){
                                     (function(taskHistory){
                                         var auditTrailObj = {
-                                            auditId: task._id,
+                                            auditId: task.id,
                                             auditType: 'BOTOLD',
                                             masterDetails:{
                                                 orgId: task.orgId,

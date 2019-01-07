@@ -22,6 +22,9 @@ var appConfig = require('_pr/config');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
+var AWS = require('aws-sdk');
+var ip = require('ip');
 const errorType = 'organizationService';
 
 var organizationService = module.exports = {};
@@ -605,6 +608,80 @@ function syncWorkZoneTreeWithProjectAndEnv(orgId, orgName, bgId, bgName, callbac
             callback(null, resultObj);
         }
     })
+}
+
+organizationService.getProviderConfigForOrganisation= function getProviderConfigForOrganisation(data,callback){
+
+    switch (data.providerType.toLowerCase()){
+        case "aws" :
+            AWSProvider.getAWSProviderById(data.providerId, function (err,result) {
+            if (err) {
+                logger.error("error in fetching provider details" + err);
+                /*res.status(400).send({
+                    message: "Error in fetching provider details"
+                });*/
+                callback(err,null);
+            }
+            else {
+                console.log("provider details:" + result)
+                var params = {};
+                params["region"] = data.region;
+                params["accessKeyId"] = result.accessKey;
+                params["secretAccessKey"] = result.secretKey;
+                var provType = result.providerType;
+
+                if (ip.isPrivate(data.fqdn)) {
+                    var para = {
+                        Filters: [
+                            {
+                                Name: "network-interface.addresses.private-ip-address",
+                                Values: [
+                                    data.fqdn
+                                ]
+                            }
+                        ]
+                    };
+                } else {
+                    var para = {
+                        Filters: [
+                            {
+                                Name: 'ip-address',
+                                Values: [
+                                    data.fqdn
+                                ]
+                            }
+                        ]
+                    }
+                }
+
+                var ec2 = new AWS.EC2(params);
+                ec2.describeInstances(para, function (err, instanceData) {
+                    if (err) {
+                        logger.error("Error", err.stack);
+                        /*  res.status(400).send({
+                              message: "Credential Error: failed to login with provider details"
+                          });*/
+                        callback(err,null);
+                    } else {
+                        var instance={}
+
+                        instance["providerId"] = instanceData.Reservations[0].Instances[0].InstanceId;
+                        instance["providerType"] = provType.toLowerCase();
+                        callback(null,instance);
+                    }
+                });
+
+            }
+        });
+            break;
+
+        default:
+            var err = {message:data.providerType +" provider type not supported "};
+            callback(err,null);
+
+
+    }
+
 }
 
 

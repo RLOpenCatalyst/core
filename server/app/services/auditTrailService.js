@@ -35,7 +35,7 @@ var topBotList = [];
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
     var auditTrailObj = {
-        auditId: auditDetails._id,
+        auditId: auditDetails.id,
         auditType: actionObj.auditType,
         actionLogId:auditTrailConfig.actionLogId?auditTrailConfig.actionLogId:null,
         masterDetails:{
@@ -198,11 +198,11 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
     var result = [];
     async.waterfall([
         function (next) {            
-                    botDao.find({isResolved:true}).distinct('_id', function (errbots, ids) {
+                    botDao.find({isResolved:true}).distinct('id', function (errbots, ids) {
                         if (errbots) {
                             next(errbots)
                         } else {
-                            snowbotsid = ids.map((item)=>{return item.toString()});
+                            snowbotsid = ids.map((item)=>{return item});
                             next();
                         }
                     });            
@@ -267,7 +267,7 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                         for (i in data) {
                             var item = data[i]
                             if (period == 'daily') {
-                                var counts = new Array(31).fill(0);
+                                var counts = new Array(32).fill(0);
                                 for (j in item.summary) {
                                     var smry = item.summary[j];
                                     var day = new Date(smry.date).getDate()
@@ -335,8 +335,8 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                             }
                         }
                         botsWithCounts = result;
-                        botIds = result.map((item) => {
-                            return ObjectId(item.name)
+                        botIds = result.map((item) => {                           
+                                return item.name
                         })
                         if (botIds.length > 0) {
                             next(null, [])
@@ -350,24 +350,28 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
         },
         function (s,next) {
             botDao.find({
-                _id: {
+                id: {
                     $in: botIds
                 }
             }, {
-                name: 1
+                name: 1,id:1
             }, function (err, bots) {
+                
                 bots.forEach((item) => {
-                    botnames[item._id.toString()] = item.name
+
+                    botnames[item.id] = item.name
                 });
                 next(null,null)
             })
         },
         function (s,next) {
-            botsWithCounts.forEach((item) => {
-                result.push({
-                    name: botnames[item.name],
-                    count: item.count
-                })
+            botsWithCounts.forEach((item) => {    
+                if(botnames[item.name])   {
+                    result.push({
+                        name: botnames[item.name],
+                        count: item.count
+                    })
+                }   
             })
             next(null, result)
         }
@@ -381,7 +385,6 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
         return;
     });
 }
-
 auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQuery, callback) {
     var reqData = {};
     var snowbotsid = [];
@@ -389,11 +392,11 @@ auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQu
     console.log(JSON.stringify(auditTrailQuery));
     async.waterfall([
         function (next) {
-                    botDao.find({isResolved:true}).distinct('_id',function (errbots, ids) {
+                    botDao.find({isResolved:true}).distinct('id',function (errbots, ids) {
                         if (errbots) {
                             next(errbots)
                         } else {
-                            snowbotsid =  ids.map((item)=>{return item.toString()});
+                            snowbotsid =  ids.map((item)=>{return item});
                             next();
                         }
                     });               
@@ -474,7 +477,12 @@ auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQu
             botAuditTrailSummary.aggregate(aggregateQuery, function (err, data) {
                 if (err) {
                     next(err, null);
-                } else {
+                } else if(data.length==0){
+                    var data=[{
+                        "totalticketsresolved": 0
+                         }]
+                    next(null, data);
+                }else{
                     next(null, data);
                 }
             });
@@ -1097,11 +1105,11 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
             var botIdList = [];
             var snowBotId = [];
             for(let bot of botsList) {
-                botIdList.push(bot._id.toString());
+                botIdList.push(bot.id);
                 if(bot.input){
                     for(let ip of bot.input){
                         if(ip["name"] == "sysid"){
-                            snowBotId.push(bot._id.toString())
+                            snowBotId.push(bot.id)
                         }
                     }
                 }
@@ -1159,8 +1167,13 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
             async.parallel({
                 snowSummaryData: function (childCallback) {
                     botAuditTrailSummary.aggregate(snowQuery, function (err, snowSummaryData) {
-                        if (err) childCallback(err, null)
-                        else childCallback(null, snowSummaryData)
+                        if (err){childCallback(err, null)} 
+                        else if(snowSummaryData.length==0){
+                             childCallback(null,[{snowCount:0}])
+                        }else{
+                            childCallback(null, snowSummaryData)
+                        }
+                      
                     })
                 },
                 summaryData: function (childCallback) {

@@ -24,6 +24,7 @@ var openstackProvider = require('_pr/model/classes/masters/cloudprovider/opensta
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
 var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var digitalOceanProvider = require('_pr/model/classes/masters/cloudprovider/digitalOceanProvider.js');
 var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var blueprintModel = require('_pr/model/blueprint/blueprint.js');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
@@ -45,7 +46,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     app.all('/vmware/*', sessionVerificationFunc);
     app.all('/azure/*', sessionVerificationFunc);
     app.all('/openstack/*', sessionVerificationFunc);
-
+    app.all('/digitalocean/*', sessionVerificationFunc);
 
 
     // Return AWS Provider respect to id.
@@ -3306,18 +3307,39 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                 }
                                             } else {
                                                 providersList.azureProviders = [];
-                                                res.send(200, providersList);
-                                                return;
+                                                // res.send(200, providersList);
+                                                // return;
                                             }
+                                            digitalOceanProvider.getDigitalOceanProvidersForOrg(orgList, function (err, digitalOceanProviders) {
+                                                if (err) {
+                                                    logger.error(err);
+                                                    res.status(500).send(errorResponses.db.error);
+                                                    return;
+                                                }
+                                                if (digitalOceanProviders != null) {
+                                                    for (var i = 0; i < digitalOceanProviders.length; i++) {
+                                                        digitalOceanProviders[i]['providerType'] = digitalOceanProviders[i]['providerType'].toUpperCase();
+                                                    }
+                                                    if (digitalOceanProviders.length > 0) {
+                                                        console.log("Digitalllll-----",digitalOceanProviders)
+                                                        providersList.digitalOceanProviders = digitalOceanProviders;
+                                                        res.send(providersList);
+                                                    }
+                                                } else {
+                                                    providersList.digitalOceanProviders = [];
+                                                    res.send(200, providersList);
+                                                    return;
+                                                }
                                         });
-
                                     });
-
+                                
                                 });
 
                             });
 
                         });
+
+                    });
                     } else {
                         res.status(200).send([]);
                         return;
@@ -3629,6 +3651,229 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             makeRequest(req.body.accessKey, req.body.secretKey);
         }
     });
+
+
+    //Create DigitalOcean Provider
+    app.post('/digitalocean/providers', function(req, res){
+        logger.debug("Enter post() for /digitalocean.providers.");
+        var user = req.session.user;
+        var category = configmgmtDao.getCategoryFromID("9");
+        var permissionto = 'create';
+        var digitalOceantoken = req.body.digitaloceantoken;
+        var providerName = req.body.providerName;
+        var providerType = req.body.providerType;
+        var pemFileName = null;
+        var orgId = req.body.orgId;
+
+        if (typeof digitalOceantoken === 'undefined' || digitalOceantoken.length === 0) {
+            res.status(400).send("Please Enter Digital Ocean token.");
+            return;
+        }
+        if (typeof providerName === 'undefined' || providerName.length === 0) {
+            res.status(400).send("Please Enter Name.");
+            return;
+        }
+        if (typeof providerType === 'undefined' || providerType.length === 0) {
+            res.status(400).send("Please Enter ProviderType.");
+            return;
+        }
+        if (typeof orgId === 'undefined' || orgId.length === 0) {
+            res.status(400).send("Please Select Any Organization.");
+            return;
+        }
+
+        usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function (err, data) {
+            if (!err) {
+                logger.debug('Returned from haspermission : ' + data + ' : ' + (data == false));
+                if (data == false) {
+                    logger.debug('No permission to ' + permissionto + ' on ' + category);
+                    res.status(400).send("You don't have permission to perform this operation.");
+                    return;
+                }
+            } else {
+                logger.error("Hit and error in haspermission:", err);
+                res.send(500);
+                return;
+            }
+
+            masterUtil.getLoggedInUser(user.cn, function (err, anUser) {
+                if (err) {
+                    res.status(500).send("Failed to fetch User.");
+                    return;
+                }
+                logger.debug("LoggedIn User: ", JSON.stringify(anUser));
+                if (anUser) {
+
+                    var providerData = {
+                        id: 9,
+                        token: digitalOceantoken,
+                        providerName: providerName,
+                        providerType: providerType,
+                        orgId: orgId
+                    };
+                    digitalOceanProvider.getdigitalOceanProviders(providerData.providerName, providerData.orgId, function (err, prov) {
+                        if (err) {
+                            logger.error("Error while fetching vmware: ", err);
+                            res.status(500).send("Error while fetching vmware");
+                            return;
+                        }
+                        if (prov) {
+                            logger.error("Provider name already exist: ");
+                            res.status(409).send("Provider name already exist.");
+                            return;
+                        }
+                        digitalOceanProvider.createNew(providerData, function (err, provider) {
+                            if (err) {
+                                logger.error("Failed to create Provider: ", err);
+                                res.status(500).send("Failed to create Provider.");
+                                return;
+                            }
+                            masterUtil.getOrgByRowId(providerData.orgId, function (err, orgs) {
+                                if (err) {
+                                    res.status(500).send("Not able to fetch org.");
+                                    return;
+                                }
+                                trackSettingWizard(providerData.orgId, function (err, data) {
+                                    if (err) {
+                                        res.status(500).send("Not able to update wizards.");
+                                        return;
+                                    }
+                                    if (orgs.length > 0) {
+                                        var dommyProvider = {
+                                            _id: provider._id,
+                                            id: 9,
+                                            token: digitalOceantoken,
+                                            providerName: provider.providerName,
+                                            providerType: provider.providerType,
+                                            orgId: orgs[0].rowid,
+                                            orgName: orgs[0].orgname,
+                                            __v: provider.__v,
+                                        };
+                                        res.send(dommyProvider);
+                                        return;
+                                    }
+                                });
+                            });
+
+                            logger.debug("Exit post() for /providers");
+                        });
+                    });
+
+                } //end anuser
+            });
+        });
+
+    });
+   // Get DigitalOcean Provider
+    app.get('/digitalocean/providers', function(req, res){
+
+        logger.debug("Enter get() for /providers");
+        var loggedInUser = req.session.user.cn;
+        masterUtil.getLoggedInUser(loggedInUser, function (err, anUser) {
+            if (err) {
+                res.status(500).send("Failed to fetch User.");
+                return;
+            }
+            if (!anUser) {
+                res.status(500).send("Invalid User.");
+                return;
+            }
+            if (anUser.orgname_rowid[0] === "") {
+                masterUtil.getAllActiveOrg(function (err, orgList) {
+                    if (err) {
+                        res.status(500).send('Not able to fetch Orgs.');
+                        return;
+                    }
+                    if (orgList) {
+                        digitalOceanProvider.getDigitalOceanProvidersForOrg(orgList, function (err, providers) {
+                            if (err) {
+                                logger.error(err);
+                                res.status(500).send(errorResponses.db.error);
+                                return;
+                            }
+                            var providersList = [];
+                            if (providers && providers.length > 0) {
+                                res.send(providers);
+                                return;
+                            } else {
+                                res.send(200, []);
+                                return;
+                            }
+                        });
+                    } else {
+                        res.send(200, []);
+                        return;
+                    }
+                });
+            } else {
+                masterUtil.getOrgs(loggedInUser, function (err, orgList) {
+                    if (err) {
+                        res.status(500).send('Not able to fetch Orgs.');
+                        return;
+                    }
+                    if (orgList) {
+                        digitalOceanProvider.getDigitalOceanProvidersForOrg(orgList, function (err, providers) {
+                            if (err) {
+                                logger.error(err);
+                                res.status(500).send(errorResponses.db.error);
+                                return;
+                            }
+                            var providersList = [];
+                            if (providers === null) {
+                                res.send(providersList);
+                                return;
+                            }
+                            if (providers.length > 0) {
+                                res.send(providers);
+                                return;
+                            } else {
+                                res.send(providersList);
+                                return;
+                            }
+                        });
+                    } else {
+                        res.send(200, []);
+                        return;
+                    }
+                });
+            }
+        });
+    })
+
+    //start: Get DigitalOcean Provider by id
+    app.get('/digitalocean/providers/:providerId', function (req, res) {
+
+            var providerId = req.params.providerId.trim();
+            if (typeof providerId === 'undefined' || providerId.length === 0) {
+                res.status(500).send("Please Enter ProviderId.");
+                return;
+            }
+            digitalOceanProvider.getDigitalOceanProviderById(providerId, function (err, aProvider) {
+                if (err) {
+                    logger.error(err);
+                    res.status(500).send(errorResponses.db.error);
+                    return;
+                }
+                if (aProvider) {
+                    masterUtil.getOrgByRowId(aProvider.orgId[0], function (err, orgs) {
+                        if (err) {
+                            res.status(500).send("Not able to fetch org.");
+                            return;
+                        }
+                        aProvider.orgname = orgs[0].orgname;
+                        if (orgs.length > 0) {
+                            aProvider.password = undefined;
+                            res.send(aProvider);
+                            return;
+                        }
+                    });
+    
+                } else {
+                    res.send(404);
+                    return;
+                }
+            });
+        });
 }
 
 function trackSettingWizard(orgId, callback) {

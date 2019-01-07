@@ -798,7 +798,16 @@ function applyFilterAjax(param){
             $scope.botServiceNowLibraryGridView();
             // $scope.customSetDate=!$scope.customSetDate;
         }
-
+        $scope.dateChange= function(dates,types){
+            if(types=='EndsOn'){
+                dates=dates.split('/')
+                $scope.ticketsResolveEndsOn=dates[1]+'/'+dates[0]+'/'+dates[2];
+            }
+            if(types=='StartsOn'){
+                dates=dates.split('/')
+                $scope.ticketsResolveStartsOn=dates[1]+'/'+dates[0]+'/'+dates[2];
+            }
+        }
         $scope.showScheduledBotsFilterDate = function() {
             if(!$scope.ticketsResolveStartsOn){
                 if(!$scope.ticketsResolveEndsOn){

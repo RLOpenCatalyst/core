@@ -218,6 +218,10 @@ var BotSchema = new Schema ({
         type: String,
         required: false,
         trim: true
+    },
+    isResolved:{
+        type:Boolean,
+        default:false
     }
 });
 BotSchema.plugin(mongoosePaginate);

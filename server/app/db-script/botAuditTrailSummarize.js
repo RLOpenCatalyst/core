@@ -111,10 +111,10 @@ function botAuditTrailSummarize(date) {
 
 function summarize() {
     if(mongoose.connection.readyState == 1){
-        addResolvetoBot()
-     //   botAuditTrailSummarize();
+     botAuditTrailSummarize()
+     addResolvetagforSnowBots()
 
-    }        
+    }
     else {
         mongoDbConnect(dboptions, function(err) {
             if (err) {
@@ -123,7 +123,8 @@ function summarize() {
             } else {
                 logger.info('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
                 logger.info('Start Time ', new Date())
-            //    botAuditTrailSummarize()
+                 botAuditTrailSummarize()
+                 addResolvetagforSnowBots()
             }
         })
     }
@@ -178,13 +179,18 @@ function createCronJob() {
     })
 }
 
+/** Temp script for add tag if bot has sysid */
+function addResolvetagforSnowBots(){
+logger.info('inside addResolvetagforSnowBots')
+botModel.update({"input.name":"sysid"},{"isResolved":true},{upsert:true,multi:true},function(err,result){
+    if(err){
+        logger.err('err at addResolvetagforSnowBots'+JSON.stringify(err))
+    }else{
+        logger.info('asdResolvetagforSnowBots result'+JSON.stringify(result))
 
-function addResolvetoBot(){   
-    console.log('inside addResolvetoBot================================================================')
-    botModel.find({"ymlJson.input.form.name":"sysid"},function(err,result){
-        console.log(err,result)
-    })
-
+    }
+})
 }
+
 summarize();
 
