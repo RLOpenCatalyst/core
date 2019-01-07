@@ -252,13 +252,13 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                     } else {
                         function getCount(successCount, failedCount) {
                             if (auditTrailQuery.actionStatus && auditTrailQuery.actionStatus == 'all') {
-                                return successCount + failedCount
+                                return successCount + failedCount?successCount + failedCount:0
                             } else if (auditTrailQuery.actionStatus && auditTrailQuery.actionStatus == 'success') {
-                                return successCount
+                                return successCount?successCount:0
                             } else if (auditTrailQuery.actionStatus && auditTrailQuery.actionStatus == 'failed') {
-                                return failedCount
+                                return failedCount?failedCount:0
                             } else {
-                                return successCount + failedCount
+                                return successCount + failedCount ?successCount + failedCount:0
                             }
 
                         }
