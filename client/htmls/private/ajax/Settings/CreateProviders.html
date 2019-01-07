@@ -29,6 +29,7 @@
                                                                 <option value="OPENSTACK">OPENSTACK</option>
                                                                 <option value="VMWARE">VMWARE</option>
                                                                 <option value="AZURE">AZURE</option>
+                                                                <option value="DIGITALOCEAN">DIGITALOCEAN</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-lg-6 col-md-6">
@@ -105,6 +106,14 @@
                                                             <input name="vmwaredc" id="vmwaredc" class="form-control" type="text" cdata="catalyst" cat-validation-vmware="required" placeholder="Enter the Host">
                                                         </div>
                                                     </div>
+
+                                                    <div class="row fordigitalocean">
+                                                        <div class="col-lg-6 col-md-6 appNameLabel">
+                                                            <label for="">Token:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <input name="digitaloceantoken" id="digitaloceantoken" class="form-control" type="text" cdata="catalyst" cat-validation-digitalocean="required" placeholder="Enter Token">
+                                                        </div>
+                                                    </div>
+
                                                     <div class="row foropenstack">
                                                         <div class="col-lg-6 col-md-6 appNameLabel">
                                                             <label for="">Username:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
@@ -320,6 +329,7 @@
                 $('.foraws').hide();
                 $('.addNewRegion').hide();
                 $('.forvmware').hide();
+                $('.fordigitalocean').hide();
                 $('.forazure').show();
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/aws/g, 'azure'));
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/vmware/g, 'azure'));
@@ -332,6 +342,7 @@
                 $('.addNewRegion').hide();
                 $('.forvmware').hide();
                 $('.forazure').hide();
+                $('.fordigitalocean').hide();
                 $('#openstackinstancepem').closest('div').hide();
                 $('#openstackkeyname').closest('div').hide();
 
@@ -346,6 +357,7 @@
                 $('.addNewRegion').hide();
                 $('.forvmware').hide();
                 $('.forazure').hide();
+                $('.fordigitalocean').hide();
                 $('#openstackinstancepem').closest('div').show();
                 $('#openstackkeyname').closest('div').show();
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/aws/g, 'openstack'));
@@ -358,11 +370,25 @@
                 $('.foraws').hide();
                 $('.forvmware').show();
                 $('.addNewRegion').hide();
+                $('.fordigitalocean').hide();
                 $('.forazure').hide();
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/aws/g, 'vmware'));
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/openstack/g, 'vmware'));
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/hppubliccloud/g, 'vmware'));
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/azure/g, 'vmware'));
+            } else if (pv == 'DIGITALOCEAN') {
+                $('.foropenstack').hide();
+                $('.forhppubliccloud').hide();
+                $('.foraws').hide();
+                $('.forvmware').hide();
+                $('.fordigitalocean').show();
+                $('.addNewRegion').hide();
+                $('.forazure').hide();
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/aws/g, 'digitalocean'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/openstack/g, 'digitalocean'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/vmware/g, 'digitalocean'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/hppubliccloud/g, 'digitalocean'));
+                $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/azure/g, 'digitalocean'));
             } else {
                 $('.foropenstack').hide();
                 $('.forhppubliccloud').hide();
@@ -370,6 +396,7 @@
                 $('.addNewRegion').show();
                 $('.forvmware').hide();
                 $('.forazure').hide();
+                $('.fordigitalocean').hide();
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/openstack/g, 'aws'));
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/vmware/g, 'aws'));
                 $('#myForm54').attr('action', $('#myForm54').attr('action').replace(/hppubliccloud/g, 'aws'));
@@ -610,6 +637,20 @@
 
     }
 
+    function setValuesdigitalOcean(data) {
+        $('.foraws').hide();
+        $('.forvmware').hide();
+        $('.fordigitalocean').show();
+        $('#providertype').val(data.providerType.toUpperCase()).select2();
+        $('#providertype').trigger('change');
+        $('#name').val(data.providerName);
+        $('#digitaloceantoken').val(data.username);
+        $('#orgId').val(data.orgId[0]).attr({
+            'answer': data.orgId[0]
+        }).select2().attr('disabled', 'disabled');
+
+    }
+
     function setValues(data) {
         $('#name').val(data.providerName);
         $('#accessKey').val(data.accessKey);
@@ -763,6 +804,10 @@
                         return true;
                     } else
                         return false;
+                }else if ($('#providertype').val() == 'DIGITALOCEAN') {
+                    if (isFormValidAzure(null, 'cat-validation-digitalocean'))
+                        appendLoader();
+                        return true;
                 } else {
                     if (isFormValid()) {
                         appendLoader();
@@ -859,7 +904,7 @@
                         bootbox.alert(data);
                     }
                 });
-
+                arr
             }
             var getValueshppubliccloud = function() {
 
@@ -918,6 +963,7 @@
                         d4ddata = data;
 
                         setValuesvmware(data);
+                        getValuesDigitalOcean();
                         removeLoader();
                         bootbox.alert(jqxhr.status);
                     },
@@ -928,6 +974,31 @@
 
                     },
                     failure: function(data) {
+
+                        bootbox.alert(data);
+                    }
+                });
+
+            }
+
+            //get DigitalOcean Providers
+            var getValuesDigitalOcean = function () {
+
+                $.ajax({
+                    method: "GET",
+                    url: "/digitalocean/providers/" + UtilityMethods.getIdFromURL(),
+                    success: function (data, success) {
+                        data = typeof data == "string" ? JSON.parse(data) : data;
+                        d4ddata = data;
+
+                        setValuesdigitalOcean(data);
+                        removeLoader();
+                        bootbox.alert(jqxhr.status);
+                    },
+                    error: function (jqxhr) {
+                        removeLoader();
+                    },
+                    failure: function (data) {
 
                         bootbox.alert(data);
                     }
