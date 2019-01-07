@@ -742,6 +742,8 @@ organizationService.getProviderConfigForOrganisation= function getProviderConfig
 
             });
 
+            break;
+
 
         default:
             var err = {message:data.providerType +" provider type not supported "};
