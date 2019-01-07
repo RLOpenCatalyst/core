@@ -100,16 +100,7 @@
 							</div>
 						</div>
 
-						<div class="col-lg-6 col-md-6 authPemFile control-margin">
-							<label for="autenticationPemfile">Region
-								<span class="control-label red">&nbsp;*</span>
-								<span ng-show="InstanceImportbyIPForm.autenticationPemfile.$touched && InstanceImportbyIPForm.autenticationPemfile.$error.required" class="inputValidationMsg">required
-								</span>
-							</label>
-							<div class="input-groups">
-								<input type="text"  class="form-control form-controls" ng-model="region" name="region"  required="">
-							</div>
-						</div>
+
 
 						<div class="col-lg-6 col-md-6 authPemFile control-margin">
 							<label for="autenticationPemfile">Provider
@@ -118,11 +109,22 @@
 								</span>
 							</label>
 							<div class="input-groups">
-								<select  class="form-control" ng-model="providerId">
+								<select  class="form-control" ng-model="providerId" required>
 									<option value="" >Select</option>
-                                    <option value="No Provider" >No Proivder</option>
+                                    <option value="No Provider" >No Provider</option>
 									<option ng-repeat="itms in cloudProviders;" value="{{itms._id}}">{{itms.providerName}}</option>
 								</select>
+							</div>
+						</div>
+
+						<div ng-if="providerId && providerId !== 'No Provider'" class="col-lg-6 col-md-6 authPemFile control-margin">
+							<label for="autenticationPemfile">Region
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.autenticationPemfile.$touched && InstanceImportbyIPForm.autenticationPemfile.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							<div class="input-groups">
+								<input type="text"  class="form-control form-controls" ng-model="region" name="region"  required="">
 							</div>
 						</div>
 
