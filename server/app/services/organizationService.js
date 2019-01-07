@@ -724,7 +724,7 @@ organizationService.getProviderConfigForOrganisation= function getProviderConfig
                             var resData= httpResponse.body.droplets;
                             var instance={};
                             for(var i=0;i< resData.length;i++){
-                                if(resData[i].networks.v4[0].ip_address == "159.89.174.171"){
+                                if(resData[i].networks.v4[0].ip_address == data.fqdn){
 
                                     instance["platformId"] = resData[i].id;
                                     instance["providerType"] = provType.toLowerCase();
