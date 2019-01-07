@@ -175,141 +175,20 @@ digitalOceanProviderSchema.statics.getDigitalOceanProvidersByOrgId = function (o
     });
 };
 
-// digitalOceanProviderSchema.statics.getopenstackProviderById = function(providerId, callback) {
-//     logger.debug("Enter getAWSProviderById");
-//     this.find({
-//         "_id": new ObjectId(providerId)
-//     }, function(err, aProvider) {
-//         if (err) {
-//             logger.error(err);
-//             callback(err, null);
-//             return;
-//         }
-//         if (aProvider.length) {
-//             logger.debug("Exit getopenstackProviderById with provider present");
-//             callback(null, aProvider[0]);
-//             return;
-//         } else {
-//             logger.debug("Exit getopenstackProviderById with no provider present");
-//             callback(null, null);
-//             return;
-//         }
 
-//     });
-// };
+digitalOceanProviderSchema.statics.getName = function (query,callback) {
+    this.find(query,
+        function (err, results) {
+            if (err) {
+                return callback(err);
+            } else {
+                return callback(null, results);
+            }
+        }
+    );
+};
 
-// digitalOceanProviderSchema.statics.getopenstackProviderByName = function(providerName, orgId, callback) {
-//     logger.debug("Enter getopenstackProviderById");
-//     this.find({
-//         "providerName": providerName,
-//         "orgId": orgId
-//     }, function(err, aProvider) {
-//         if (err) {
-//             logger.error(err);
-//             callback(err, null);
-//             return;
-//         }
-//         if (aProvider.length) {
-//             logger.debug("Exit getopenstackProviderById with provider present");
-//             callback(null, aProvider[0]);
-//             return;
-//         } else {
-//             logger.debug("Exit getopenstackProviderById with no provider present");
-//             callback(null, null);
-//             return;
-//         }
 
-//     });
-// };
-
-// digitalOceanProviderSchema.statics.updateopenstackProviderById = function(providerId, providerData, callback) {
-//     logger.debug("Enter updateopenstackProviderById");
-//     this.update({
-//         "_id": new ObjectId(providerId)
-//     }, {
-//         $set: {
-//             id: providerData.id,
-//             providerName: providerData.providerName,
-//             username: providerData.username,
-//             password: providerData.password,
-//             host: providerData.host,
-//             tenantid: providerData.tenantid,
-//             tenantname: providerData.tenantname,
-//             keyname: providerData.keyname,
-//             serviceendpoints: {
-//                 compute: providerData.serviceendpoints.compute,
-//                 network: providerData.serviceendpoints.network,
-//                 image: providerData.serviceendpoints.image,
-//                 ec2: providerData.serviceendpoints.ec2,
-//                 identity: providerData.serviceendpoints.identity
-//             }
-//         }
-//     }, {
-//         upsert: false
-//     }, function(err, updateCount) {
-//         if (err) {
-//             logger.debug("Exit updateopenstackProviderById with no update.");
-//             callback(err, null);
-//             return;
-//         }
-//         logger.debug("Exit updateopenstackProviderById with update success.");
-//         callback(null, updateCount);
-//         return;
-
-//     });
-// };
-
-// digitalOceanProviderSchema.statics.removeopenstackProviderById = function(providerId, callback) {
-//     logger.debug("Enter removeAWSProviderById");
-//     this.remove({
-//         "_id": new ObjectId(providerId)
-//     }, function(err, deleteCount) {
-//         if (err) {
-//             logger.debug("Exit removeopenstackProviderById with error.");
-//             callback(err, null);
-//             return;
-//         }
-//         logger.debug("Exit removeopenstackProviderById with delete success.");
-//         callback(null, deleteCount);
-//         return;
-
-//     });
-// };
-
-// digitalOceanProviderSchema.statics.getopenstackProvidersByOrgId = function(orgId, callback) {
-//     logger.debug("Enter getopenstackProvidersByOrgId");
-//     logger.debug("org id: ", orgId);
-//     this.find({
-//         orgId: orgId
-//     }, function(err, providers) {
-//         if (err) {
-//             logger.error(err);
-//             callback(err, null);
-//             return;
-//         }
-//         if (providers.length) {
-//             logger.debug("Exit getopenstackProvidersByOrgId with providers present");
-//             callback(null, providers);
-//             return;
-//         } else {
-//             logger.debug("Exit getopenstackProvidersByOrgId with no providers present");
-//             callback(null, null);
-//             return;
-//         }
-
-//     });
-// };
-// digitalOceanProviderSchema.statics.getName = function (query,callback) {
-//     this.find(query,
-//         function (err, results) {
-//             if (err) {
-//                 return callback(err);
-//             } else {
-//                 return callback(null, results);
-//             }
-//         }
-//     );
-// };
 var digitalOceanProvider = mongoose.model('digitalOceanProvider', digitalOceanProviderSchema);
 
 module.exports = digitalOceanProvider;
