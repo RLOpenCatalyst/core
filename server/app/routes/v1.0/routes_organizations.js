@@ -1340,6 +1340,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
 
                                                     else{
                                                         instance["platformId"]=uuid.v4();
+                                                        instance["providerId"]=req.body.fqdn;
 
                                                         createInstanceByImport(instance,encryptedCredentials,infraManagerDetails,envName,project,nodeAlive)
                                                     }
@@ -1877,7 +1878,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 res.send(500);
                 return;
             }
-            logger.debug("Provider Id: ", req.body.providerId);
+            logger.debug("Provider Id: ", req.body.providerid);
             var blueprintData = req.body.blueprintData;
             blueprintData.orgId = req.params.orgId;
             blueprintData.bgId = req.params.bgId;
