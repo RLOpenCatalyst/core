@@ -1167,19 +1167,25 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
             async.parallel({
                 snowSummaryData: function (childCallback) {
                     botAuditTrailSummary.aggregate(snowQuery, function (err, snowSummaryData) {
-                        if (err){childCallback(err, null)} 
-                        else if(snowSummaryData.length==0){
-                             childCallback(null,[{snowCount:0}])
-                        }else{
+                        if (err) { childCallback(err, null) }
+                        else if (!snowSummaryData || snowSummaryData.length == 0) {
+                            var snowSummaryData= [{ "_id": {}, "snowCount": 0 }];                            childCallback(null, snowSummaryData)
+                        } else {
                             childCallback(null, snowSummaryData)
                         }
-                      
+
                     })
                 },
                 summaryData: function (childCallback) {
                     botAuditTrailSummary.aggregate(query, function (err, summaryData) {
-                        if (err) childCallback(err, null)
-                        else childCallback(null, summaryData)
+                        if (err) {childCallback(err, null)}
+                        else if(!summaryData || summaryData.length==0){
+                            var summaryData=[{ "_id": {}, "failedCount": 0, "successCount": 0, "runningCount": 0, "timeSaved": 0 }] 
+                            childCallback(null, summaryData)
+                        }else{
+                            childCallback(null, summaryData)
+                        }
+                        
                     })
                 }
             }, function (err, summarizedData) {
