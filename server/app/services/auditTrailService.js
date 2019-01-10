@@ -267,6 +267,7 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                         for (i in data) {
                             var item = data[i]
                             if (period == 'daily') {
+                                // to calculate weekly data
                                 var counts = new Array(32).fill(0);
                                 for (j in item.summary) {
                                     var smry = item.summary[j];
@@ -278,6 +279,7 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                                     count: counts
                                 })
                             } else if (period == 'weekly') {
+                                // to calculate weekly data
                                 var sday = new Date(auditTrailQuery.startdate).getDate();
                                 var eday = new Date(auditTrailQuery.enddate).getDate();
                                 var smth = new Date(auditTrailQuery.startdate).getMonth() + 1;
@@ -310,6 +312,7 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                                     count: counts
                                 })
                             } else if (period == 'monthly') {
+                                // to calculate monthly data
                                 var counts = new Array(31).fill(0);
                                 for (j in item.summary) {
                                     var smry = item.summary[j];
@@ -349,6 +352,7 @@ auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,
                 });
         },
         function (s,next) {
+            //to get botnames from bots tables by bot id
             botDao.find({
                 id: {
                     $in: botIds
@@ -389,14 +393,13 @@ auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQu
     var reqData = {};
     var snowbotsid = [];
     var result = [];
-    console.log(JSON.stringify(auditTrailQuery));
     async.waterfall([
         function (next) {
                     botDao.find({isResolved:true}).distinct('id',function (errbots, ids) {
                         if (errbots) {
                             next(errbots)
                         } else {
-                            snowbotsid =  ids.map((item)=>{return item});
+                            snowbotsid =  ids.map((item)=>{return item});  // get serviceNow bots ids
                             next();
                         }
                     });               
@@ -1104,6 +1107,8 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
             var totalBots = botsList.length;
             var botIdList = [];
             var snowBotId = [];
+
+            // filter only serviceNow Bots id
             for(let bot of botsList) {
                 botIdList.push(bot.id);
                 if(bot.input){
@@ -1117,15 +1122,17 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
             var query=[];
             var snowQuery=[];
             if(queryParam.startdate){
-                var sdt = new Date(new Date(queryParam.startdate).setHours(0,0,0,0)); 
+                var sdt = new Date(new Date(queryParam.startdate).setHours(0,0,0,0));  
             }
             if(queryParam.enddate){
                 var edt = new Date(new Date(queryParam.enddate).setHours(24,0,0,0));
             }
             var querymatch={};
             var snowQueryMatch={}
+            // add date based into query when quer is Date based
             if(sdt && edt){
-                querymatch['date']={$gte:sdt,$lte:edt}                
+                querymatch['date']={$gte:sdt,$lte:edt}   
+                snowQueryMatch['date']={$gte:sdt,$lte:edt}       
             }
             querymatch["botID"]={"$in":botIdList};            
             snowQueryMatch["botID"]={"$in":snowBotId};
@@ -1310,6 +1317,10 @@ function checkServiceNowTicketPriority(priority){
     }
     return priorityState;
 }
+
+/** 
+ * Convert Milliseconds to days,hours,minutes,seconds
+ */
 function convertMS( milliseconds ) {
     var day, hour, minute, seconds;
     seconds = Math.floor(milliseconds / 1000);
