@@ -1114,41 +1114,24 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
                     }
                 }
             }
-            var query = [];
-            var snowQuery = []
+            var query=[];
+            var snowQuery=[];
             if(queryParam.startdate){
-                var sdt = new Date(queryParam.startdate).getTime();
-                var obj = {
-                    $match: {
-                        date: { $gte: sdt}
-                    }
-                }
-                query.push(obj)
-                snowQuery.push(obj)
+                var sdt = new Date(new Date(queryParam.startdate).setHours(0,0,0,0)); 
             }
             if(queryParam.enddate){
-                var edt = new Date(queryParam.enddate).getTime();
-                if(sdt === edt) edt = edt+86400000;
-                var obj = {
-                    $match: {
-                        date: { $lte: edt}
-                    }
-                }
-                query.push(obj)
-                snowQuery.push(obj)
+                var edt = new Date(new Date(queryParam.enddate).setHours(24,0,0,0));
             }
-            query.push({
-                $match: {
-                    botID: { $in: botIdList}
-                }
-            })
-            snowQuery.push({
-                "$match": {
-                    "botID": {
-                        "$in": snowBotId
-                    }
-                }
-            })
+            var querymatch={};
+            var snowQueryMatch={}
+            if(sdt && edt){
+                querymatch['date']={$gte:sdt,$lte:edt}                
+            }
+            querymatch["botID"]={"$in":botIdList};            
+            snowQueryMatch["botID"]={"$in":snowBotId};
+            
+            query.push({$match:querymatch})
+            snowQuery.push({$match:snowQueryMatch})
             query.push({
                 $group: {
                     _id: {},
@@ -1169,7 +1152,8 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
                     botAuditTrailSummary.aggregate(snowQuery, function (err, snowSummaryData) {
                         if (err) { childCallback(err, null) }
                         else if (!snowSummaryData || snowSummaryData.length == 0) {
-                            var snowSummaryData= [{ "_id": {}, "snowCount": 0 }];                            childCallback(null, snowSummaryData)
+                            var snowSummaryData= [{ "_id": {}, "snowCount": 0 }]; 
+                            childCallback(null, snowSummaryData)
                         } else {
                             childCallback(null, snowSummaryData)
                         }
@@ -1195,14 +1179,8 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
                     result['totalNoOfBots'] = totalBots
                     result['totalNoOfFailedServiceNowTickets'] = summarizedData.summaryData[0].failedCount //Calculated failed count, Displayed as failed count in UI
                     result['totalRuns'] = summarizedData.summaryData[0].failedCount + summarizedData.summaryData[0].successCount + summarizedData.summaryData[0].runningCount
-                    var days = Math.floor(summarizedData.summaryData[0].timeSaved / (1000*60*60*24))
-                    var hours = Math.floor((summarizedData.summaryData[0].timeSaved - days*1000*60*60*24) / (1000*60*60))
-                    var minutes =  Math.floor((summarizedData.summaryData[0].timeSaved - days*1000*60*60*24 - hours* 1000*60*60) / (1000*60*60))
-                    var totalSavedTimeForBots = {
-                        days: days,
-                        hours: hours,
-                        minutes: minutes
-                    }
+                    var totalSavedTimeForBots = convertMS(summarizedData.summaryData[0].timeSaved)
+                    
                     result['totalNoOfServiceNowTickets'] = summarizedData.snowSummaryData[0].snowCount
                     result['totalSavedTimeForBots'] = totalSavedTimeForBots
                     next(null, result)
@@ -1331,4 +1309,20 @@ function checkServiceNowTicketPriority(priority){
             break;
     }
     return priorityState;
+}
+function convertMS( milliseconds ) {
+    var day, hour, minute, seconds;
+    seconds = Math.floor(milliseconds / 1000);
+    minute = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+    hour = Math.floor(minute / 60);
+    minute = minute % 60;
+    day = Math.floor(hour / 24);
+    hour = hour % 24;
+    return {
+        days: day,
+        hours: hour,
+        minutes: minute,
+        seconds: seconds
+    };
 }
