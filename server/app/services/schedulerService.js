@@ -37,6 +37,8 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('../lib/utils/cryptography');
 var vmWareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var digitalOceanProvider = require('_pr/model/classes/masters/cloudprovider/digitalOceanProvider.js');
+var digitalocean = require('_pr/lib/utils/digitalOceanUtil.js')
 var vmWare = require('_pr/lib/vmware');
 var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var azureCloud = require('_pr/lib/azure');
@@ -1057,7 +1059,70 @@ function startStopManagedInstance(instance,catUser,action,callback){
                 });
             }
         });
-    }else{
+    }else if(instance.providerType === 'digitalocean'){
+        digitalOceanProvider.getDigitalOceanProviderById(instance.providerId, function (err, providerdata) {
+            var timestampStarted = new Date().getTime();
+            var actionLog = instancesDao.insertStartActionLog(instance._id, catUser, timestampStarted);
+            var logReferenceIds = [instance._id];
+            if (actionLog) {
+                logReferenceIds.push(actionLog._id);
+            }
+            var digitalOceanConfig = {
+                token: ''
+            };
+            if (providerdata) {
+                digitalOceanConfig.token = providerdata.token;
+                //vmWareConfig.serviceHost = appConfig.vmware.serviceHost;
+            } else {
+                digitalOceanConfig = null;
+            }
+            if (digitalOceanConfig) {
+                if (action === 'Start') {
+                    digitalocean.startDigitalOcean([instance.platformId], digitalOceanConfig.token, function (err, state) {
+                        if (err) {
+                            checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                                callback(err, null);
+                                return;
+                            })
+                        }
+                        checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            }
+                            logger.debug("Exit get() for /instances/%s/startInstance", instance._id);
+                                callback(null, {
+                                            instanceCurrentState: state,
+                                            actionLogId: actionLog._id
+                                        });
+                                        return;
+                        })
+                    });
+                } else {
+                    digitalocean.stopDigitalOcean([instance.platformId], digitalOceanConfig.token, function (err, state) {
+                        if (err) {
+                            checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                                callback(err, null);
+                                return;
+                            })
+                        }
+                        checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, {
+                                instanceCurrentState: state,
+                                actionLogId: actionLog._id
+                            });
+                            return;
+                        })
+                    });
+                }
+            }
+        })
+    }
+    else{
         checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,function(err){
             callback(err, null);
             return;

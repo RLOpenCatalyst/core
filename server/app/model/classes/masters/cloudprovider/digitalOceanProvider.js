@@ -175,17 +175,73 @@ digitalOceanProviderSchema.statics.getDigitalOceanProvidersByOrgId = function (o
     });
 };
 
+//     });
+// };
 
-digitalOceanProviderSchema.statics.getName = function (query,callback) {
-    this.find(query,
-        function (err, results) {
-            if (err) {
-                return callback(err);
-            } else {
-                return callback(null, results);
-            }
+// digitalOceanProviderSchema.statics.getopenstackProviderByName = function(providerName, orgId, callback) {
+//     logger.debug("Enter getopenstackProviderById");
+//     this.find({
+//         "providerName": providerName,
+//         "orgId": orgId
+//     }, function(err, aProvider) {
+//         if (err) {
+//             logger.error(err);
+//             callback(err, null);
+//             return;
+//         }
+//         if (aProvider.length) {
+//             logger.debug("Exit getopenstackProviderById with provider present");
+//             callback(null, aProvider[0]);
+//             return;
+//         } else {
+//             logger.debug("Exit getopenstackProviderById with no provider present");
+//             callback(null, null);
+//             return;
+//         }
+
+//     });
+// };
+
+digitalOceanProviderSchema.statics.updatedigitalOceanProviderById = function(providerId, providerData, callback) {
+    logger.debug("Enter updatedigitalOceanProviderById");
+    this.update({
+        "_id": new ObjectId(providerId)
+    }, {
+        $set: {
+            id: providerData.id,
+            providerName: providerData.providerName,
+            token:providerData.token
         }
-    );
+    }, {
+        upsert: false
+    }, function(err, updateCount) {
+        if (err) {
+            logger.debug("Exit updatedigitalOceanProviderById with no update.");
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit updatedigitalOceanProviderById with update success.");
+        callback(null, updateCount);
+        return;
+
+    });
+};
+
+digitalOceanProviderSchema.statics.removedigitalOceanProviderById = function(providerId, callback) {
+    logger.debug("Enter removedigitalOceanProviderById");
+    this.remove({
+        "_id": new ObjectId(providerId)
+    }, function(err, deleteCount) {
+        if (err) {
+            logger.debug("Exit removedigitalOceanProviderById with error.");
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit removedigitalOceanProviderById with delete success.");
+        callback(null, deleteCount);
+        return;
+
+    });
 };
 
 
