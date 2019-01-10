@@ -70,8 +70,8 @@ function stopDigitalOcean(instanceId, token, callback) {
     request(options, function (error, response, body) {
         logger.debug("response.statusCode: ", response.statusCode);
         if (err) {
-            logger.error(JSON.stringify(err))
-            callback(err, null)
+            logger.error(JSON.stringify(error))
+            callback(error, null)
         }
         if (response.statusCode == '201') {
             logger.debug("STOP DROPLETS...")
