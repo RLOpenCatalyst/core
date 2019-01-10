@@ -45,6 +45,7 @@ var gitHubService = require('_pr/services/gitHubService.js');
 var gitHubModel = require('_pr/model/github/github.js');
 const errorType = 'botService';
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var digitalOceanProvider = require('_pr/model/classes/masters/cloudprovider/digitalOceanProvider');
 var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
 var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
@@ -1334,6 +1335,16 @@ botService.cloudProviders=function (source,callback) {
         }
     });
     vmwareProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
+    digitalOceanProvider.getName(query,function (err,result) {
         if (err) {
             return callback(err, null)
         }

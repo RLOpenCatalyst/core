@@ -23,8 +23,10 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
+var digitalOceanProvider = require('_pr/model/classes/masters/cloudprovider/digitalOceanProvider');
 var AWS = require('aws-sdk');
 var ip = require('ip');
+var request = require('request');
 var credentialCryptography = require('_pr/lib/credentialcryptography');
 const errorType = 'organizationService';
 
@@ -686,6 +688,62 @@ organizationService.getProviderConfigForOrganisation= function getProviderConfig
             }
         });
             break;
+
+
+
+        case "digitalocean" :
+            digitalOceanProvider.getDigitalOceanProviderById(data.providerid,function(err,result){
+                if (err) {
+                    logger.error("error in fetching provider details" + err);
+
+                    callback(err,null);
+                }
+                else{
+                    var token = result.token;
+                    var provType = result.providerType;
+                    var url="https://api.digitalocean.com/v2/droplets";
+
+                    var options = {
+                        url: url,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer '+token
+                        },
+                        json: true,
+                    };
+
+                    request.get(options, function (err, httpResponse, body){
+
+                        if(err){
+                            logger.error("error in fetching provider details from digital ocean" + err);
+                            callback(err,null);
+                        }
+                        else if(httpResponse.body.droplets.length == 0){
+                            callback(null,null);
+                        }else{
+                            var resData= httpResponse.body.droplets;
+                            var instance={};
+                            for(var i=0;i< resData.length;i++){
+                                if(resData[i].networks.v4[0].ip_address == data.fqdn){
+
+                                    instance["platformId"] = resData[i].id;
+                                    instance["providerType"] = provType.toLowerCase();
+                                    i=resData.length;
+                                }
+                            }
+                            callback(null,instance);
+                        }
+
+
+                    });
+
+
+                }
+
+            });
+
+            break;
+
 
         default:
             var err = {message:data.providerType +" provider type not supported "};

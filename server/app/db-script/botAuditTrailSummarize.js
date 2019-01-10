@@ -141,7 +141,7 @@ function getFromData(summaryArr, obj) {
 
 function manualExecutionBot(botID, botList) {
     for(let bot of botList) {
-        if(bot._id.toString() == botID)
+        if(bot.id == botID)
             return bot.manualExecutionTime
     }
     return 0;
