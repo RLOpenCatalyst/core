@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 var request = require('request');
+var logger = require('_pr/logger')(module);
 
 module.exports = { 
     startDigitalOcean: startDigitalOcean,

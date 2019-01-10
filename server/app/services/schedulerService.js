@@ -572,24 +572,27 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
         },
         function(instanceDetails,next){
             var currentDate = new Date().getTime();
-            if(instanceDetails[0].instanceState === 'terminated'){
-                callback({
-                    errCode:201,
-                    errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
-                })
-                return;
-            }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
-                instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
-                    if (err) {
-                        logger.error("Failed to update Instance Scheduler: ", err);
-                        next(err,null);
-                        return;
-                    }
-                    logger.debug("Scheduler is ended on for Instance. "+instanceDetails[0].platformId);
-                    next(null,updatedData);
+            if(instanceDetails.length > 0) {
+                if(instanceDetails[0].instanceState === 'terminated'){
+                    callback({
+                        errCode:201,
+                        errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
+                    })
                     return;
-                });
-            }else if(!instanceDetails[0].providerId){
+                }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
+                    instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
+                        if (err) {
+                            logger.error("Failed to update Instance Scheduler: ", err);
+                            next(err,null);
+                            return;
+                        }
+                        logger.debug("Scheduler is ended on for Instance. "+instanceDetails[0].platformId);
+                        next(null,updatedData);
+                        return;
+                    });
+                }
+            }
+else if(!instanceDetails[0].providerId){
                 var error = new Error("Provider is not associated with Instance.");
                 error.status = 500;
                 next(error, null);
