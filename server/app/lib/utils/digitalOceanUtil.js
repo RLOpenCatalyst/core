@@ -69,7 +69,7 @@ function stopDigitalOcean(instanceId, token, callback) {
     }
     request(options, function (error, response, body) {
         logger.debug("response.statusCode: ", response.statusCode);
-        if (err) {
+        if (error) {
             logger.error(JSON.stringify(error))
             callback(error, null)
         }
