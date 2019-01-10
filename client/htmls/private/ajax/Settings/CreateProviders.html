@@ -110,7 +110,7 @@
                                                     <div class="row fordigitalocean">
                                                         <div class="col-lg-6 col-md-6 appNameLabel">
                                                             <label for="">Token:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                                            <input name="digitaloceantoken" id="digitaloceantoken" class="form-control" type="text" cdata="catalyst" cat-validation-digitalocean="required" placeholder="Enter Token">
+                                                            <input name="digitaloceantoken" id="digitaloceantoken" class="form-control secretInfo" type="text"   cdata="catalyst" cat-validation-digitalocean="required" placeholder="Enter Token">
                                                         </div>
                                                     </div>
 
@@ -644,7 +644,8 @@
         $('#providertype').val(data.providerType.toUpperCase()).select2();
         $('#providertype').trigger('change');
         $('#name').val(data.providerName);
-        $('#digitaloceantoken').val(data.username);
+        $('#digitaloceantoken').val(data.token);
+        $('#digitaloceantoken').attr('disabled', 'disabled');
         $('#orgId').val(data.orgId[0]).attr({
             'answer': data.orgId[0]
         }).select2().attr('disabled', 'disabled');
@@ -702,6 +703,7 @@
         var $vmwareInputs = $secretInfo.filter('[cat-validation-vmware]');
         var $azureInputs = $secretInfo.filter('[cat-validation-azure]');
         var $openStack = $secretInfo.filter('[cat-validation-openstack]');
+        var $digitalocean = $secretInfo.filter('[cat-validation-digitalocean]');
 
         $("input[name='isDefault']").change(function() {
             if ($("#credentials-IAMRole").is(":checked")) {
@@ -727,6 +729,7 @@
                 $vmwareInputs.attr('cat-validation-vmware', 'required');
                 $azureInputs.attr('cat-validation-azure', 'required');
                 $openStack.attr('cat-validation-openstack', 'required');
+                $digitalocean.attr('cat-validation-digitalocean','required');
             } else {
                 var regionNameOnEdit = $('#regionNameHidden').val();
                 var keyPairNameOnEdit = $('#keyPairNameHidden').val();
@@ -736,7 +739,7 @@
                 $('input.filename').attr('disabled', 'disabled').val(keyPairFileNameOnEdit).removeAttr('cat-validation');
                 $('input.file').attr('disabled', 'disabled').removeAttr('cat-validation');
                 $secretInfo.attr('disabled', 'disabled');
-                $secretInfo.removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
+                $secretInfo.removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack').removeAttr('cat-validation-digitalocean');
                 $secretInfo.val('');
             }
         });
@@ -805,7 +808,7 @@
                     } else
                         return false;
                 }else if ($('#providertype').val() == 'DIGITALOCEAN') {
-                    if (isFormValidAzure(null, 'cat-validation-digitalocean'))
+                    if (isFormValidDigitalOcean(null, 'cat-validation-digitalocean'))
                         appendLoader();
                         return true;
                 } else {
@@ -904,7 +907,7 @@
                         bootbox.alert(data);
                     }
                 });
-                arr
+                
             }
             var getValueshppubliccloud = function() {
 
@@ -971,7 +974,7 @@
 
 
                         removeLoader();
-
+                        getValuesDigitalOcean();
                     },
                     failure: function(data) {
 

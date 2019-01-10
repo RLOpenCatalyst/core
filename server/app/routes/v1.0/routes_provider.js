@@ -3873,7 +3873,221 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     return;
                 }
             });
+        
         });
+
+    
+
+    
+    app.post('/digitalocean/providers/:providerId/update', function (req, res) {
+
+        logger.debug("Enter post() for /providers/digitalocean/%s/update", req.params.providerId);
+        var user = req.session.user;
+        var category = configmgmtDao.getCategoryFromID("9");
+        var permissionto = 'create';
+        var digitalOceantoken = req.body.digitaloceantoken;
+        var providerName = req.body.providerName;
+        var providerType = req.body.providerType;
+        var pemFileName = null;
+        var orgId = req.body.orgId;
+    
+        if (typeof digitalOceantoken === 'undefined' || digitalOceantoken.length === 0) {
+            res.status(400).send("Please Enter digitalOceantoken.");
+            return;
+        }
+        if (typeof providerName === 'undefined' || providerName.length === 0) {
+            res.status(400).send("Please Enter Name.");
+            return;
+        }
+        if (typeof orgId === 'undefined' || orgId.length === 0) {
+            res.status(400);
+            res.send("Please Select Any Organization.");
+            return;
+        }
+    
+    
+        function updateDb(providerData) {
+            digitalOceanProvider.updatedigitalOceanProviderById(req.params.providerId, providerData, function (err, updateCount) {
+                if (err) {
+                    logger.error(err);
+                    res.status(500).send(errorResponses.db.error);
+                    return;
+                }
+                masterUtil.getOrgByRowId(providerData.orgId, function (err, orgs) {
+                    if (err) {
+                        res.status(500).send("Not able to fetch org.");
+                        return;
+                    }
+                    if (orgs.length > 0) {
+                        var dommyProvider = {
+                            _id: req.params.providerId,
+                            id: 9,
+                            providerType: providerData.providerType,
+                            token:providerData.token,
+                            providerName: providerName,
+                            orgId: orgs[0].rowid,
+                            orgName: orgs[0].orgname
+                        };
+                        res.send(dommyProvider);
+                        return;
+                    }
+                });
+            });
+        }
+    
+    
+    
+        usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function (err, data) {
+            if (!err) {
+                logger.debug('Returned from haspermission : ' + data + ' : ' + (data == false));
+                if (data == false) {
+                    logger.debug('No permission to ' + permissionto + ' on ' + category);
+                    res.send(401, "You don't have permission to perform this operation.");
+                    return;
+                }
+            } else {
+                logger.error("Hit and error in haspermission:", err);
+                res.send(500);
+                return;
+            }
+    
+            masterUtil.getLoggedInUser(user.cn, function (err, anUser) {
+                if (err) {
+                    res.status(500).send("Failed to fetch User.");
+                }
+                if (anUser) {
+                    if (digitalOceantoken) {
+                        var providerData = {
+                            id: 9,
+                            token: digitalOceantoken,
+                            providerName: providerName,
+                            providerType: providerType,
+                            orgId: orgId
+                        };
+                        logger.debug("provider data %s", JSON.stringify(providerData));
+                        updateDb(providerData);
+                    } else {
+                        digitalOceanProvider.getDigitalOceanProviderById(req.params.providerId, function (err, aProvider) {
+                            if (err) {
+                                res.status(500).send("Not able to fetch org.");
+                                return;
+                            }
+                            var providerData = {
+                                id: 9,
+                                token: digitalOceantoken,
+                                providerName: providerName,
+                                providerType: providerType,
+                                orgId: orgId
+                            };
+                            logger.debug("provider data %s", JSON.stringify(providerData));
+                            updateDb(providerData);
+                        });
+    
+                    }
+                }
+            });
+        });
+    });
+
+    app.delete('/digitalocean/providers/:providerId', function (req, res) {
+        logger.debug("Enter delete() for digitalocean/providers/%s", req.params.providerId);
+        var user = req.session.user;
+        var category = configmgmtDao.getCategoryFromID("9");
+        var permissionto = 'delete';
+        var providerId = req.params.providerId.trim();
+
+        if (typeof providerId === 'undefined' || providerId.length === 0) {
+            res.status(500).send("Please Enter ProviderId.");
+            return;
+        }
+
+        usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function (err, data) {
+            if (!err) {
+                logger.debug('Returned from haspermission : ' + data + ' : ' + (data == false));
+                if (data == false) {
+                    logger.debug('No permission to ' + permissionto + ' on ' + category);
+                    res.send(401, "You don't have permission to perform this operation.");
+                    return;
+                }
+            } else {
+                logger.error("Hit and error in haspermission:", err);
+                res.send(500);
+                return;
+            }
+
+            masterUtil.getLoggedInUser(user.cn, function (err, anUser) {
+                if (err) {
+                    res.status(500).send("Failed to fetch User.");
+                    return;
+                }
+                if (anUser) {
+                    digitalOceanProvider.getDigitalOceanProviderById(providerId, function (err, aProvider) {
+                        if (err) {
+                            logger.error(err);
+                            res.status(500).send(errorResponses.db.error);
+                            return;
+                        }
+                        if (aProvider) {
+                            // VMImage.getImageByProviderId(providerId, function (err, anImage) {
+                            //     if (err) {
+                            //         logger.error(err);
+                            //         res.status(500).send(errorResponses.db.error);
+                            //         return;
+                            //     }
+                            //     if (anImage) {
+                            //         res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
+                            //         return;
+                            //     }
+                            //     blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
+                            //         if (err) {
+                            //             logger.error(err);
+                            //             res.status(500).send(errorResponses.db.error);
+                            //             return;
+                            //         }
+                            //         if (providers.length > 0) {
+                            //             res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
+                            //             return;
+                            //         }
+                                    digitalOceanProvider.removedigitalOceanProviderById(providerId, function (err, deleteCount) {
+                                        if (err) {
+                                            logger.error(err);
+                                            res.status(500).send(errorResponses.db.error);
+                                            return;
+                                        }
+                                        if (deleteCount) {
+                                            instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+                                                if (err) {
+                                                    logger.error(err);
+                                                    res.status(500).send(errorResponses.db.error);
+                                                    return;
+                                                } else {
+                                                    settingsService.trackSettingWizard('provider', aProvider.orgId[0], function (err, results) {
+                                                        if (err) {
+                                                            logger.error(err);
+                                                            res.status(500).send(errorResponses.db.error);
+                                                            return;
+                                                        } else {
+                                                            logger.debug("Enter delete() for digitalOcean/providers/%s", req.params.providerId);
+                                                            res.status(200).send({
+                                                                deleteCount: deleteCount
+                                                            });
+                                                        }
+                                                    })
+                                                }
+                                            })
+                                        } else {
+                                            res.send(400);
+                                        }
+                                    });
+                            //     });
+                            // });
+                        }
+                    });
+                }
+            });
+        });
+    });
+    
 }
 
 function trackSettingWizard(orgId, callback) {

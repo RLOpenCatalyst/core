@@ -753,7 +753,10 @@
             provname = 'vmware';
         } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "HPPUBLICCLOUD") {
             provname = 'hppubliccloud';
+        }else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "DIGITALOCEAN") {
+            provname = 'digitalocean';
         }
+        //debugger;
 
         bootbox.confirm('You are about to remove this item \" ' + $(button).closest('tr').find('td').first().html() + ' \"', function (result) {
             if (result) {
@@ -763,7 +766,8 @@
                     async: false,
                     url: "/" + provname + "/providers/" + value,
                     success: function (data) {
-                        // $('#refreshpage').click();
+                        // $('#refreshpage').click();\
+                        //debugger;
                         if (data != '401') {
                             var $tr = $(button).closest('tr');
                             //$tr.addClass('hidden').remove();
