@@ -564,52 +564,50 @@ schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTa
     }
 }
 
-schedulerService.startStopInstance= function startStopInstance(instanceId,catUser,action,callback){
+schedulerService.startStopInstance = function startStopInstance(instanceId, catUser, action, callback) {
     logger.debug(action + " is Starting");
     async.waterfall([
-        function(next){
+        function(next) {
             instancesDao.getInstanceById(instanceId, next);
         },
-        function(instanceDetails,next){
+        function(instanceDetails,next) {
             var currentDate = new Date().getTime();
             if(instanceDetails.length > 0) {
                 logger.info("Found instance with id", instanceId)
-                if(instanceDetails[0].instanceState === 'terminated'){
+                if(instanceDetails[0].instanceState === 'terminated') {
                     callback({
-                        errCode:201,
+                       errCode:201,
                         errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
                     })
-                    return;
                 } else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
                     instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
                         if (err) {
                             logger.error("Failed to update Instance Scheduler: ", err);
-                            next(err,null);
-                            return;
+                            next(err,null)
                         }
                         logger.debug("Scheduler is ended on for Instance. "+instanceDetails[0].platformId);
                         next(null,updatedData);
-                        return;
-                    });
+                    })
+                } else if(!instanceDetails[0].providerId) {
+                    var error = new Error("Provider is not associated with Instance.");
+                    error.status = 500;
+                    next(error, null)
+                } else {
+                    startStopManagedInstance(instanceDetails[0], catUser, action, next);
                 }
-            } else if(!instanceDetails[0].providerId) {
-                var error = new Error("Provider is not associated with Instance.");
-                error.status = 500;
-                next(error, null);
-                return;
             } else {
-                startStopManagedInstance(instanceDetails[0], catUser, action, next);
+                logger.info("Could not Found instance with id", instanceId)
+                next({message: "No instance found with id" + instanceId}, null)
             }
         }
-    ],function(err,results){
-        if(err){
+    ],function(err,results) {
+        if(err) {
             logger.error(err);
             callback(err,null);
-            return;
+        } else {
+            logger.debug(action+ " is Completed");
+            callback(null,results)
         }
-        logger.debug(action+ " is Completed");
-        callback(null,results);
-        return;
     })
 }
 
