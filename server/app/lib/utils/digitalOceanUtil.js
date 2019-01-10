@@ -54,6 +54,7 @@ function startDigitalOcean(instanceId, token, callback) {
 }
 
 function stopDigitalOcean(instanceId, token, callback) {
+    logger.info("Inside stop digital ocean")
     var options = { 
         method: 'POST',
         url: "https://api.digitalocean.com/v2/droplets/"+ instanceId +"/actions",
@@ -61,25 +62,26 @@ function stopDigitalOcean(instanceId, token, callback) {
                     Authorization: "Bearer "+ token,
                     'Content-Type': 'application/json' 
                 },
-    body: { type: 'power_off' },
-    json: true };
-
+        body: { 
+            type: 'power_off'
+        },
+        json: true 
+    }
     request(options, function (error, response, body) {
         logger.debug("response.statusCode: ", response.statusCode);
-
         if (err) {
-            callback(err, null);
-            return;
+            logger.error(JSON.stringify(err))
+            callback(err, null)
         }
-
         if (response.statusCode == '201') {
             logger.debug("STOP DROPLETS...")
             logger.debug("Status------", JSON.stringify(response.status, response.type))
             callback(null, response.status);
             return;
         } else {
+            logger.info(JSON.stringify(body))
             callback(body, null);
             return;
         }
-});
+    })
 }
