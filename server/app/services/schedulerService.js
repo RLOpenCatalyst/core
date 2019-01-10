@@ -565,7 +565,7 @@ schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTa
 }
 
 schedulerService.startStopInstance= function startStopInstance(instanceId,catUser,action,callback){
-    logger.debug(action+ " is Starting");
+    logger.debug(action + " is Starting");
     async.waterfall([
         function(next){
             instancesDao.getInstanceById(instanceId, next);
@@ -573,13 +573,14 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
         function(instanceDetails,next){
             var currentDate = new Date().getTime();
             if(instanceDetails.length > 0) {
+                logger.info("Found instance with id", instanceId)
                 if(instanceDetails[0].instanceState === 'terminated'){
                     callback({
                         errCode:201,
                         errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
                     })
                     return;
-                }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
+                } else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
                     instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
                         if (err) {
                             logger.error("Failed to update Instance Scheduler: ", err);
@@ -591,14 +592,13 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
                         return;
                     });
                 }
-            }
-else if(!instanceDetails[0].providerId){
+            } else if(!instanceDetails[0].providerId) {
                 var error = new Error("Provider is not associated with Instance.");
                 error.status = 500;
                 next(error, null);
                 return;
-            }else{
-                startStopManagedInstance(instanceDetails[0],catUser,action,next);
+            } else {
+                startStopManagedInstance(instanceDetails[0], catUser, action, next);
             }
         }
     ],function(err,results){
@@ -1064,6 +1064,7 @@ function startStopManagedInstance(instance,catUser,action,callback){
         });
     }else if(instance.providerType === 'digitalocean'){
         digitalOceanProvider.getDigitalOceanProviderById(instance.providerId, function (err, providerdata) {
+            logger.info("Inside Digital ocean start/stop")
             var timestampStarted = new Date().getTime();
             var actionLog = instancesDao.insertStartActionLog(instance._id, catUser, timestampStarted);
             var logReferenceIds = [instance._id];
@@ -1081,6 +1082,7 @@ function startStopManagedInstance(instance,catUser,action,callback){
             }
             if (digitalOceanConfig) {
                 if (action === 'Start') {
+                    logger.info("Inside digital ocean start")
                     digitalocean.startDigitalOcean([instance.platformId], digitalOceanConfig.token, function (err, state) {
                         if (err) {
                             checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
@@ -1102,6 +1104,7 @@ function startStopManagedInstance(instance,catUser,action,callback){
                         })
                     });
                 } else {
+                    logger.info("Inside digital ocean stop")
                     digitalocean.stopDigitalOcean([instance.platformId], digitalOceanConfig.token, function (err, state) {
                         if (err) {
                             checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
@@ -1111,16 +1114,12 @@ function startStopManagedInstance(instance,catUser,action,callback){
                         }
                         checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
                             if (err) {
-                                callback(err, null);
-                                return;
+                                callback(err, null)
+                            } else {
+                                callback(null, {instanceCurrentState: state, actionLogId: actionLog._id})
                             }
-                            callback(null, {
-                                instanceCurrentState: state,
-                                actionLogId: actionLog._id
-                            });
-                            return;
                         })
-                    });
+                    })
                 }
             }
         })
