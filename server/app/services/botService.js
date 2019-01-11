@@ -425,7 +425,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             botDao.updateBotsDetail(botId,botObj, next);
         },
         function(updateStatus,next) {
-            botDao.getBotsByBotId(botId, next);
+            botDao.getBotsById(botId, next);
         },
         function(botDetails,next) {
             if(botDetails.length > 0){
@@ -1007,7 +1007,7 @@ botService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
 botService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
-            botDao.getBotsByBotId(botId,next);
+            botDao.getBotsById(botId,next);
         },
         function(bots,next){
             if(bots.length > 0) {
@@ -1062,7 +1062,7 @@ botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(b
 botService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(botId,status,callback){
     async.waterfall([
         function(next){
-            botDao.getBotsByBotId(botId,next);
+            botDao.getBotsById(botId,next);
         },
         function(bots,next){
             if(bots.length > 0) {
@@ -1178,7 +1178,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         }
                     })
                 }else{
-                    botDao.getBotsByBotId(bot.auditId, function (err, botDetails) {
+                    botDao.getBotsById(bot.auditId, function (err, botDetails) {
                         if (err) {
                             logger.error("Error in fetching BOT Details for _id: " + bot.auditId + " " + err);
                         }else {
