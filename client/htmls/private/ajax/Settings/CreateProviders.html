@@ -110,7 +110,7 @@
                                                     <div class="row fordigitalocean">
                                                         <div class="col-lg-6 col-md-6 appNameLabel">
                                                             <label for="">Token:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                                            <input name="digitaloceantoken" id="digitaloceantoken" class="form-control secretInfo" type="text"   cdata="catalyst" cat-validation-digitalocean="required" placeholder="Enter Token">
+                                                            <input name="digitaloceantoken" id="digitaloceantoken" class="form-control secretInfo" type="text"  value=""   cdata="catalyst" cat-validation-digitalocean="required" placeholder="Enter Token">
                                                         </div>
                                                     </div>
 
@@ -740,7 +740,6 @@
                 $('input.file').attr('disabled', 'disabled').removeAttr('cat-validation');
                 $secretInfo.attr('disabled', 'disabled');
                 $secretInfo.removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack').removeAttr('cat-validation-digitalocean');
-                $secretInfo.val('');
             }
         });
 
@@ -752,7 +751,7 @@
             $('#accessCredentialsRequired').parent().parent().remove();
             $('.secretInfo').attr('disabled', 'disabled');
 
-            $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
+            $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack').removeAttr('cat-validation-digitalocean');;
 
         } else {
             $('#updateSecretInfo').parent().parent().hide();
@@ -762,6 +761,7 @@
         $("#name").focus();
         $('#accessKey').blur(KeyChangeHandler);
         $('#secretKey').blur(KeyChangeHandler);
+        $('#digitaloceantoken').blur(KeyChangeHandler);
         $('select').select2();
 
         $('#providertype').val('AWS').trigger('change');
@@ -773,6 +773,8 @@
             $('input#accessKey').attr('type', 'password');
             $('input#secretKey').removeAttr('type');
             $('input#secretKey').attr('type', 'password');
+            $('input#digitaloceantoken').removeAttr('type');
+            $('input#digitaloceantoken').attr('type', 'password');
         }
         $('#myForm54').ajaxForm({
             beforeSubmit: function(arr, $form, options) {
@@ -808,6 +810,11 @@
                     } else
                         return false;
                 }else if ($('#providertype').val() == 'DIGITALOCEAN') {
+                     var name=arr.filter(function(item){ return item.name=='digitaloceantoken'})
+                    if(name.length==0){
+                    arr.push({name:"digitaloceantoken",value:$('#digitaloceantoken').val()});                        
+                     }
+                   
                     if (isFormValidDigitalOcean(null, 'cat-validation-digitalocean'))
                         appendLoader();
                         return true;
@@ -833,7 +840,6 @@
             },
             error: function(jqxhr) {
                 removeLoader();
-                console.log(jqxhr);
                 if (jqxhr.status == 409) {
                     errormessageforInput('name', jqxhr.responseText);
                 } else {
@@ -843,7 +849,6 @@
             },
             failure: function(data) {
                 removeLoader();
-                console.log(jqxhr);
                 if (jqxhr.status == 409) {
                     errormessageforInput('name', jqxhr.responseText);
                 } else {
