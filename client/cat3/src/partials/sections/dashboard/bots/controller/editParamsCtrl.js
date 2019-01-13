@@ -278,6 +278,7 @@
                     if($scope.botType === 'jenkins') {
                         genSevs.showLogsForJenkins(response);
                     } else {
+                        response.botId=itemsId
                         genSevs.showLogsForBots(response);
                     }
                     $rootScope.$emit('BOTS_LIBRARY_REFRESH');

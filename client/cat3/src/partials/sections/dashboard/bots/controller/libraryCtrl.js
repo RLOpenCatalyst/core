@@ -288,6 +288,7 @@
                                 reqBody.tagServer = blueprintObj.tagServer;
                                 reqBody.stackName = blueprintObj.stackName;
                                 botsCreateService.botExecute(botsDetails.id,reqBody).then(function (response) {
+                                    response.botId=botsDetails.id;
                                     genSevs.showLogsForBots(response);
                                     $rootScope.$emit('BOTS_LIBRARY_REFRESH');
                                 },

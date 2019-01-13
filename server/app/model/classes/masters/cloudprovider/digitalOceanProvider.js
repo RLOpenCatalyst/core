@@ -175,32 +175,17 @@ digitalOceanProviderSchema.statics.getDigitalOceanProvidersByOrgId = function (o
     });
 };
 
-//     });
-// };
-
-// digitalOceanProviderSchema.statics.getopenstackProviderByName = function(providerName, orgId, callback) {
-//     logger.debug("Enter getopenstackProviderById");
-//     this.find({
-//         "providerName": providerName,
-//         "orgId": orgId
-//     }, function(err, aProvider) {
-//         if (err) {
-//             logger.error(err);
-//             callback(err, null);
-//             return;
-//         }
-//         if (aProvider.length) {
-//             logger.debug("Exit getopenstackProviderById with provider present");
-//             callback(null, aProvider[0]);
-//             return;
-//         } else {
-//             logger.debug("Exit getopenstackProviderById with no provider present");
-//             callback(null, null);
-//             return;
-//         }
-
-//     });
-// };
+digitalOceanProviderSchema.statics.getName = function (query,callback) {
+    this.find(query,
+        function (err, results) {
+            if (err) {
+                return callback(err);
+            } else {
+                return callback(null, results);
+            }
+        }
+    );
+};
 
 digitalOceanProviderSchema.statics.updatedigitalOceanProviderById = function(providerId, providerData, callback) {
     logger.debug("Enter updatedigitalOceanProviderById");
