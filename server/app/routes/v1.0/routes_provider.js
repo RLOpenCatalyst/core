@@ -25,6 +25,7 @@ var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hpp
 var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var digitalOceanProvider = require('_pr/model/classes/masters/cloudprovider/digitalOceanProvider.js');
+var digitalOCeanUtil = require('_pr/lib/utils/digitalOceanUtil.js');
 var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var blueprintModel = require('_pr/model/blueprint/blueprint.js');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
@@ -3711,53 +3712,62 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         providerType: providerType,
                         orgId: orgId
                     };
-                    digitalOceanProvider.getdigitalOceanProviders(providerData.providerName, providerData.orgId, function (err, prov) {
-                        if (err) {
-                            logger.error("Error while fetching vmware: ", err);
-                            res.status(500).send("Error while fetching vmware");
+                    digitalOCeanUtil.verifyDigitalOceanCredentials(digitalOceantoken,function (err, validData){
+                        if(err){
+                            logger.error("Not a valid digitalOcean Token: ", err);
+                            res.status(500).send("Not a valid digitalOcean Token:");
                             return;
                         }
-                        if (prov) {
-                            logger.error("Provider name already exist: ");
-                            res.status(409).send("Provider name already exist.");
-                            return;
-                        }
-                        digitalOceanProvider.createNew(providerData, function (err, provider) {
-                            if (err) {
-                                logger.error("Failed to create Provider: ", err);
-                                res.status(500).send("Failed to create Provider.");
-                                return;
-                            }
-                            masterUtil.getOrgByRowId(providerData.orgId, function (err, orgs) {
+                        if(validData) {
+                            digitalOceanProvider.getdigitalOceanProviders(providerData.providerName, providerData.orgId, function (err, prov) {
                                 if (err) {
-                                    res.status(500).send("Not able to fetch org.");
+                                    logger.error("Error while fetching digitalOceanDetails: ", err);
+                                    res.status(500).send("Error while fetching vmware");
                                     return;
                                 }
-                                trackSettingWizard(providerData.orgId, function (err, data) {
+                                if (prov) {
+                                    logger.error("Provider name already exist: ");
+                                    res.status(409).send("Provider name already exist.");
+                                    return;
+                                }
+                                digitalOceanProvider.createNew(providerData, function (err, provider) {
                                     if (err) {
-                                        res.status(500).send("Not able to update wizards.");
+                                        logger.error("Failed to create Provider: ", err);
+                                        res.status(500).send("Failed to create Provider.");
                                         return;
                                     }
-                                    if (orgs.length > 0) {
-                                        var dommyProvider = {
-                                            _id: provider._id,
-                                            id: 9,
-                                            token: digitalOceantoken,
-                                            providerName: provider.providerName,
-                                            providerType: provider.providerType,
-                                            orgId: orgs[0].rowid,
-                                            orgName: orgs[0].orgname,
-                                            __v: provider.__v,
-                                        };
-                                        res.send(dommyProvider);
-                                        return;
-                                    }
+                                    masterUtil.getOrgByRowId(providerData.orgId, function (err, orgs) {
+                                        if (err) {
+                                            res.status(500).send("Not able to fetch org.");
+                                            return;
+                                        }
+                                        trackSettingWizard(providerData.orgId, function (err, data) {
+                                            if (err) {
+                                                res.status(500).send("Not able to update wizards.");
+                                                return;
+                                            }
+                                            if (orgs.length > 0) {
+                                                var dommyProvider = {
+                                                    _id: provider._id,
+                                                    id: 9,
+                                                    token: digitalOceantoken,
+                                                    providerName: provider.providerName,
+                                                    providerType: provider.providerType,
+                                                    orgId: orgs[0].rowid,
+                                                    orgName: orgs[0].orgname,
+                                                    __v: provider.__v,
+                                                };
+                                                res.send(dommyProvider);
+                                                return;
+                                            }
+                                        });
+                                    });
+        
+                                    logger.debug("Exit post() for /providers");
                                 });
                             });
-
-                            logger.debug("Exit post() for /providers");
-                        });
-                    });
+                        }
+                    })
 
                 } //end anuser
             });
