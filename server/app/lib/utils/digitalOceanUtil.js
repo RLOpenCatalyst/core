@@ -19,7 +19,8 @@ var logger = require('_pr/logger')(module);
 
 module.exports = { 
     startDigitalOcean: startDigitalOcean,
-    stopDigitalOcean: stopDigitalOcean
+    stopDigitalOcean: stopDigitalOcean,
+    verifyDigitalOceanCredentials: verifyDigitalOceanCredentials
 }
 
 function startDigitalOcean(instanceId, token, callback) {
@@ -85,3 +86,45 @@ function stopDigitalOcean(instanceId, token, callback) {
         }
     })
 }
+
+function getDigitalOcean(token, callback) {
+    logger.info("Inside Verify digital ocean")
+    var options = { 
+        method: 'GET',
+        url: "https://api.digitalocean.com/v2/droplets",
+        headers: { 
+                    Authorization: "Bearer "+ token,
+                    'Content-Type': 'application/json' 
+                },
+        json: true 
+    }
+    request(options, function (error, response, body) {
+        if (error) {
+            logger.error(JSON.stringify(error))
+            callback(error, null)
+        }
+        if (response.statusCode == '200') {
+            logger.debug("Verified digital ocean")
+            logger.debug("response.statusCode: ", response.statusCode);
+            callback(null, response);
+            return;
+        } else {
+            logger.info(JSON.stringify(body))
+            callback(body, null);
+            return;
+        }
+    })
+}
+
+
+function verifyDigitalOceanCredentials(token, callback) {
+    getDigitalOcean(token, function (err, res) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        } else {
+            logger.info("Digital Ocean account was able to validate the provided access credentials"); 
+            callback(null,{statusCode: 200, message:"Digital Ocean account was able to validate the provided access credentials"}); 
+        }
+    });
+};
