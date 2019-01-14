@@ -782,6 +782,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 if(launchParams.stackName)
                                                                                 {
                                                                                     launchParams.monitor.parameters.stackName = launchParams.stackName;
+                                                                                    jsonAttributes['sensu-client'] = {
+                                                                                        "service-name": launchParams.stackName
+                                                                                    }                                                                                
                                                                                 }
                                                                                 if(launchParams.orgName)
                                                                                 {
@@ -790,9 +793,8 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         orgNameString = orgNameString[0];
                                                                                     launchParams.monitor.parameters.orgName = orgNameString;
                                                                                     //Adding to sensu-client cookbook attribute.
-                                                                                    jsonAttributes['sensu-client'] = {
-                                                                                        "check-tenant-id": orgNameString
-                                                                                    }
+                                                                                    jsonAttributes['sensu-client']['check-tenant-id'] =  orgNameString
+                                                                                    
                                                                                 }
                                                                                 //jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
                                                                                 //Changed based on new sensu and consul server configurations.
