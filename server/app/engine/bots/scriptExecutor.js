@@ -49,7 +49,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                         return;
                     } else if (instances.length > 0) {
                         logsDao.insertLog({
-                            referenceId: [actionLogId,botsDetails._id],
+                            referenceId: [actionLogId,botsDetails.id],
                             err: false,
                             log: 'BOT execution has started for Script BOTs  ' + botsDetails.id +" on Remote",
                             timestamp: new Date().getTime()
@@ -69,7 +69,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                     "actionLogId": actionLogId
                                 };
                                 logsDao.insertLog({
-                                    referenceId: [actionLogId, botsDetails._id],
+                                    referenceId: [actionLogId, botsDetails.id],
                                     err: true,
                                     log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id + " on Remote",
                                     timestamp: new Date().getTime()
@@ -124,7 +124,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
-    var logsReferenceIds = [botsScriptDetails._id, actionId];
+    var logsReferenceIds = [botsScriptDetails.id, actionId];
     var replaceTextObj = {
         node:'local'
     };
