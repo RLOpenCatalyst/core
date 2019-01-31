@@ -249,7 +249,7 @@
             else if($scope.scheduledBotsSelected)
                 var param={
                     inlineLoader:true,
-                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&filterBy=actionStatus:success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&filterBy=actionStatus:success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&type=snow'
                 };
             else if($scope.runningBotsselected)
                 var param={
@@ -532,6 +532,7 @@ function applyFilterAjax(param){
             }
 
             var curr = new Date();
+            
 
             if(period == 'today'){
                 $scope.ticketsResolveStartsOn = formatD(curr);

@@ -628,17 +628,41 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
 }
 
 auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
-    var reqData = {}
+    var reqData = {};
+    var snowbotsids=[];
     async.waterfall([
-        function(next) {
-            apiUtil.paginationRequest(query, 'auditTrails', next);
+        function(next) {            
+            if(query.type && query.type=='snow'){
+                botDao.find({isResolved:true}).distinct("id",function(err,ids){
+                    if(err){
+                        logger.error(err);
+                    }else{
+                        snowbotsids=ids;
+                        apiUtil.paginationRequest(query, 'auditTrails', next);
+                    }
+                })
+            }else{
+                apiUtil.paginationRequest(query, 'auditTrails', next);
+            }
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            paginationReq['searchColumns'] = ['startedOn','status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
+            if(query.startdate && query.enddate){
+                var sdt=new Date(query.startdate).getTime()
+                var edt=new Date(query.enddate).getTime()+86400000
+                queryObj.queryObj['$and'].push({startedOn:{$gte:sdt,$lte:edt}})
+            }
+            if(query.user){
+                queryObj.queryObj['$and'].push({user:query.user})
+            }
+            if(query.type && query.type=='snow'){
+                queryObj.queryObj['$and'].push({auditId:{$in:snowbotsids}})
+            }
+           
             auditTrail.getAuditTrailList(queryObj, next);
         },
         function(auditTrailList, next) {
