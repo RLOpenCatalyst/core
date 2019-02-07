@@ -1007,7 +1007,7 @@ botService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
 botService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
-            botDao.getBotsById(botId,next);
+            botDao.getBotsByBotId(botId,next);
         },
         function(bots,next){
             if(bots.length > 0) {
