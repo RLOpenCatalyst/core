@@ -40,13 +40,16 @@
         $scope.ticketsResolveStartsOn = '';
         $scope.ticketsResolveEndsOn = '';
         $scope.botSummary = {};
+        $scope.setClass='total';
         $scope.showLoadRecord = function() {
             $scope.showLoadMore = false;
             $scope.showRecords = false;
         };
         $scope.resetDateFields = function(){
             $scope.ticketsResolveStartsOn = '';
-            $scope.ticketsResolveEndsOn = '';
+            $scope.ticketsResolveEndsOn = '';   
+            $scope.StartsOn='';
+            $scope.EndsOn='';        
         }
         $scope.showLoadRecord();
         $scope.initGrids = function(){
@@ -249,12 +252,12 @@
             else if($scope.scheduledBotsSelected)
                 var param={
                     inlineLoader:true,
-                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&filterBy=actionStatus:success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&type=snow'
+                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&filterBy=actionStatus:success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=startedOn&sortOrder=' + $scope.paginationParams.sortOrder+'&type=snow'
                 };
             else if($scope.runningBotsselected)
                 var param={
                     inlineLoader:true,
-                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=startedOn&sortOrder=' + $scope.paginationParams.sortOrder
                 };
 
             $scope.dataTransform(param);
@@ -405,7 +408,7 @@
             } else if($scope.runningBotsselected) {
                  param={
                     inlineLoader: true,
-                    url:'/audit-trail?page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/audit-trail?page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=startedOn&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.scheduledBotsSelected) {
                  //var datefilter = "";
@@ -422,7 +425,7 @@
             } else if($scope.failedBotsselected) {
                  param={
                     inlineLoader: true,
-                    url:'/audit-trail?actionStatus=failed&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/audit-trail?actionStatus=failed&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=startedOn&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             }
             genSevs.promiseGet(param).then(function (result) {
@@ -518,6 +521,10 @@ function applyFilterAjax(param){
         };
 
         $scope.setResolveDates = function(period){
+            $scope.customSetDate=true;
+            $scope.setClass=period;
+            $scope.StartsOn;
+            $scope.EndsOn;
             $scope.botLibGridOptions.data = $scope.tempData;
             $scope.isBotServiceNowPageLoading = true;
             var formatD = function(dt){
@@ -795,10 +802,11 @@ function applyFilterAjax(param){
         }
         // Filter function added for Ticket Resolved and Failed Runs - By RLE0534
 
-        $scope.resetFields = function(){
+        $scope.resetFields = function(){            
+            $scope.customSetDate=true;
             $scope.resetDateFields();
             $scope.botServiceNowLibraryGridView();
-            // $scope.customSetDate=!$scope.customSetDate;
+          
         }
         $scope.dateChange= function(dates,types){
             if(types=='EndsOn'){
