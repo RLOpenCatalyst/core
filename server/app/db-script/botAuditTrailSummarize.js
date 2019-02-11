@@ -111,7 +111,6 @@ function botAuditTrailSummarize(date) {
 
 function summarize() {
     if(mongoose.connection.readyState == 1){
-     botAuditTrailSummarize()
      addResolvetagforSnowBots()
 
     }
@@ -123,7 +122,6 @@ function summarize() {
             } else {
                 logger.info('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
                 logger.info('Start Time ', new Date())
-                 botAuditTrailSummarize()
                  addResolvetagforSnowBots()
             }
         })
@@ -192,5 +190,5 @@ botModel.update({"input.name":"sysid"},{"isResolved":true},{upsert:true,multi:tr
 })
 }
 
-summarize();
+ summarize();
 
