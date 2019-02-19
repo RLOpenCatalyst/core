@@ -64,7 +64,7 @@ noticeSchema.statics.createNew = function(noticedetails,callback){
     });
 }
 noticeSchema.statics.getAllNotices = function(user_id,callback) {
-    notice.find({user_id:{$in:[user_id,'system']},read_Flag:false},{},{sort:{createdOn:-1}},function(err,noticeList){
+    notice.find({user_id:{$in:[user_id,'system']},read_Flag:false},{message:1,_id:0}).sort({createdOn:-1}).limit(100).exec(function(err,noticeList){
         if(err) {
             logger.error(err);
             var error = new Error('Internal server error');
