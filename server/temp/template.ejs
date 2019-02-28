@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+
+   <style>
+      .uppertable {
+         border-collapse: collapse;
+         width: 90%;
+
+      }
+
+      .font-family {
+         letter-spacing: 2px;
+         font-family: Montserrat, sans-serif;
+      }
+
+      tr:nth-child(odd) {
+         background: #0000001c;
+      }
+
+      .uppertable th,
+      .uppertable td {
+         padding: 8px;
+         text-align: center;
+         border-bottom: 1px solid #ddd;
+      }
+
+
+
+      .uppertable th {
+         background-color: rgb(108, 122, 108);
+         color: white;
+      }
+
+
+      /* Bootstrap */
+
+
+      .container {
+         padding-right: 15px;
+         padding-left: 15px;
+         margin-right: auto;
+         margin-left: auto;
+      }
+
+
+
+      @media (min-width: 768px) {
+         .container {
+            width: 547px;
+         }
+      }
+
+      @media (min-width: 992px) {
+         .container {
+            width: 970px;
+         }
+      }
+
+      @media (min-width: 1200px) {
+         .container {
+            width: 900px;
+         }
+      }
+
+
+
+      .container-fluid {
+         padding-right: 15px;
+         padding-left: 15px;
+         margin-right: auto;
+         margin-left: auto;
+      }
+
+      .row {
+         margin-right: -15px;
+         margin-left: -15px;
+      }
+
+      .col-xs-1,
+      .col-sm-1,
+      .col-md-1,
+      .col-lg-1,
+      .col-xs-2,
+      .col-sm-2,
+      .col-md-2,
+      .col-lg-2,
+      .col-xs-3,
+      .col-sm-3,
+      .col-md-3,
+      .col-lg-3,
+      .col-xs-4,
+      .col-sm-4,
+      .col-md-4,
+      .col-lg-4,
+      .col-xs-5,
+      .col-sm-5,
+      .col-md-5,
+      .col-lg-5,
+      .col-xs-6,
+      .col-sm-6,
+      .col-md-6,
+      .col-lg-6,
+      .col-xs-7,
+      .col-sm-7,
+      .col-md-7,
+      .col-lg-7,
+      .col-xs-8,
+      .col-sm-8,
+      .col-md-8,
+      .col-lg-8,
+      .col-xs-9,
+      .col-sm-9,
+      .col-md-9,
+      .col-lg-9,
+      .col-xs-10,
+      .col-sm-10,
+      .col-md-10,
+      .col-lg-10,
+      .col-xs-11,
+      .col-sm-11,
+      .col-md-11,
+      .col-lg-11,
+      .col-xs-12,
+      .col-sm-12,
+      .col-md-12,
+      .col-lg-12 {
+         position: relative;
+         min-height: 1px;
+         padding-right: 15px;
+         padding-left: 15px;
+      }
+
+      .col-xs-1,
+      .col-xs-2,
+      .col-xs-3,
+      .col-xs-4,
+      .col-xs-5,
+      .col-xs-6,
+      .col-xs-7,
+      .col-xs-8,
+      .col-xs-9,
+      .col-xs-10,
+      .col-xs-11,
+      .col-xs-12 {
+         float: left;
+      }
+
+      .col-xs-12 {
+         width: 100%;
+      }
+
+      .col-xs-11 {
+         width: 91.66666667%;
+      }
+
+      .col-xs-10 {
+         width: 83.33333333%;
+      }
+
+      .col-xs-9 {
+         width: 75%;
+      }
+
+      .col-xs-8 {
+         width: 66.66666667%;
+      }
+
+      .col-xs-7 {
+         width: 58.33333333%;
+      }
+
+      .col-xs-6 {
+         width: 50%;
+      }
+
+      .col-xs-5 {
+         width: 41.66666667%;
+      }
+
+      .col-xs-4 {
+         width: 33.33333333%;
+      }
+
+      .col-xs-3 {
+         width: 25%;
+      }
+
+      .col-xs-2 {
+         width: 16.66666667%;
+      }
+
+      .col-xs-1 {
+         width: 8.33333333%;
+      }
+
+
+      @media (min-width: 768px) {
+
+         .col-sm-1,
+         .col-sm-2,
+         .col-sm-3,
+         .col-sm-4,
+         .col-sm-5,
+         .col-sm-6,
+         .col-sm-7,
+         .col-sm-8,
+         .col-sm-9,
+         .col-sm-10,
+         .col-sm-11,
+         .col-sm-12 {
+            float: left;
+         }
+
+         .col-sm-12 {
+            width: 100%;
+         }
+
+         .col-sm-11 {
+            width: 91.66666667%;
+         }
+
+         .col-sm-10 {
+            width: 83.33333333%;
+         }
+
+         .col-sm-9 {
+            width: 75%;
+         }
+
+         .col-sm-8 {
+            width: 66.66666667%;
+         }
+
+         .col-sm-7 {
+            width: 58.33333333%;
+         }
+
+         .col-sm-6 {
+            width: 50%;
+         }
+
+         .col-sm-5 {
+            width: 41.66666667%;
+         }
+
+         .col-sm-4 {
+            width: 33.33333333%;
+         }
+
+         .col-sm-3 {
+            width: 25%;
+         }
+
+         .col-sm-2 {
+            width: 16.66666667%;
+         }
+
+         .col-sm-1 {
+            width: 8.33333333%;
+         }
+
+
+
+
+
+      }
+
+      @media (min-width: 992px) {
+
+         .col-md-1,
+         .col-md-2,
+         .col-md-3,
+         .col-md-4,
+         .col-md-5,
+         .col-md-6,
+         .col-md-7,
+         .col-md-8,
+         .col-md-9,
+         .col-md-10,
+         .col-md-11,
+         .col-md-12 {
+            float: left;
+         }
+
+         .col-md-12 {
+            width: 100%;
+         }
+
+         .col-md-11 {
+            width: 91.66666667%;
+         }
+
+         .col-md-10 {
+            width: 83.33333333%;
+         }
+
+         .col-md-9 {
+            width: 75%;
+         }
+
+         .col-md-8 {
+            width: 66.66666667%;
+         }
+
+         .col-md-7 {
+            width: 58.33333333%;
+         }
+
+         .col-md-6 {
+            width: 50%;
+         }
+
+         .col-md-5 {
+            width: 41.66666667%;
+         }
+
+         .col-md-4 {
+            width: 33.33333333%;
+         }
+
+         .col-md-3 {
+            width: 25%;
+         }
+
+         .col-md-2 {
+            width: 16.66666667%;
+         }
+
+         .col-md-1 {
+            width: 8.33333333%;
+         }
+      }
+
+      @media (min-width: 1200px) {
+
+         .col-lg-1,
+         .col-lg-2,
+         .col-lg-3,
+         .col-lg-4,
+         .col-lg-5,
+         .col-lg-6,
+         .col-lg-7,
+         .col-lg-8,
+         .col-lg-9,
+         .col-lg-10,
+         .col-lg-11,
+         .col-lg-12 {
+            float: left;
+         }
+
+         .col-lg-12 {
+            width: 100%;
+         }
+
+         .col-lg-11 {
+            width: 91.66666667%;
+         }
+
+         .col-lg-10 {
+            width: 83.33333333%;
+         }
+
+         .col-lg-9 {
+            width: 75%;
+         }
+
+         .col-lg-8 {
+            width: 66.66666667%;
+         }
+
+         .col-lg-7 {
+            width: 58.33333333%;
+         }
+
+         .col-lg-6 {
+            width: 50%;
+         }
+
+         .col-lg-5 {
+            width: 41.66666667%;
+         }
+
+         .col-lg-4 {
+            width: 33.33333333%;
+         }
+
+         .col-lg-3 {
+            width: 25%;
+         }
+
+         .col-lg-2 {
+            width: 16.66666667%;
+         }
+
+         .col-lg-1 {
+            width: 8.33333333%;
+         }
+
+      }
+
+
+
+      .dashboard-stats__item {
+         position: relative;
+         overflow: hidden;
+         padding: 30px 20px;
+         margin-bottom: 15px;
+         border-radius: 38px;
+         max-height: 72px;
+         min-height: 72px;
+         box-shadow: 4px 5px #ccc;
+      }
+
+
+
+
+      .dashboard-stats__item>.fa {
+         position: absolute;
+         bottom: -14%;
+         /*-20*/
+         left: 0%;
+         /*-5*/
+         font-size: 100px;
+         color: hsla(0, 0%, 100%, .15);
+      }
+
+      .dashboard-stats__item.dashboard-stats__item_blue {
+         background-color: #00c0ef
+      }
+
+      .dashboard-stats__item.dashboard-stats__item_red {
+         background-color: #ef5350
+      }
+
+      .dashboard-stats__item.dashboard-stats__item_orange {
+         background-color: #ffa726
+      }
+
+      .dashboard-stats__item.dashboard-stats__item_green {
+         background-color: #66bb6a
+      }
+
+      .dashboard-stats__item.dashboard-stats__item_bg-blue {
+         background-color: #2980b9
+      }
+
+      .dashboard-stats__title {
+         margin: 0;
+         text-align: center;
+         font-size: 34px;
+         font-weight: 300;
+         color: #fff
+      }
+
+      .dashboard-stats__title>small {
+         display: block;
+         font-size: 14px;
+         text-transform: uppercase;
+         color: #fff;
+      }
+
+      .fa-cogs:before {
+         content: "\f085"
+      }
+   </style>
+
+</head>
+
+<body style="background-color: #d1e3e885;">
+
+
+   <div class="container" style="margin:0;padding:0;">
+      <div class="row">
+
+
+         <div style="    border: 0;
+         font-size: 15px!important;
+         line-height: 1.42857143!important;
+         letter-spacing: 2px;
+         border-radius: 0;
+         font-family: Montserrat,sans-serif;
+         background-color: #f4511e;
+         color: #fff;
+         padding: 6px;
+         text-align: left;">
+            SERVICENOW BOTS AUTOMATION REPORT FOR
+            THE MONTH OF FEB TILL DATE-
+            <%= todaydate%>
+
+         </div>
+
+         <div>
+            <h3 class="font-family" style="    padding-left: 11px;">Group -
+               <%= groupname%>
+            </h3>
+            <h4 style="border-bottom: 1px solid #ccc;    padding-left: 11px; letter-spacing: 2px;
+            font-family: Montserrat,sans-serif;">BOT
+               Statistics Last Day</h4>
+
+
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_blue" style="height: 72px;">
+                  <h3 class="dashboard-stats__title" style="margin-bottom: -10px;">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastdayTableStatistics[0].inboundTickets %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>INBOUND
+                        TICKETS</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_red" style="height: 72px;">
+                  <h3 class="dashboard-stats__title" style="margin-bottom: -10px;">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastdayTableStatistics[0].automatedTickets %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>TICKETS
+                        AUTOMATED</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_orange">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastdayTableStatistics[0].manual %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>Manual Tickets</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_green">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastdayTableStatistics[0].BOTvsFTE %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>BOT
+                        VS FTE</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastdayTableStatistics[0].PassRate %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>%
+                        PASS RATE</small>
+                  </h3>
+               </div>
+            </div>
+         </div>
+
+
+         <%if(failedTasksAndIncidentLastday.length>0){%>
+         <div>
+            <h4 style="padding-left: 11px;"><b style=" letter-spacing: 2px;
+               font-family: Montserrat,sans-serif;">Failed
+                  Runs Last 24 Hour</b></h4>
+
+
+
+            <table class="uppertable">
+               <tr>
+                  <th>Ticket Number</th>
+                  <th> BOT Name</th>
+                  <th>BOT Status</th>
+
+
+               </tr>
+
+               <% for (var i = 0; i < failedTasksAndIncidentLastday.length; /* I save the data in a variable 'quotation', I don't know how you named your variable  */  i++) { %>
+               <%if(i%2==0){%>
+               <tr style="background-color: #b8bcd278">
+
+                  <%}else{%>
+               <tr>
+                  <%}%>
+                  <td><b>
+                        <a href="https://scholastic.service-now.com/sc_task.do?sys_id="<%= failedTasksAndIncidentLastday[i].sysid %>>
+                           <%= failedTasksAndIncidentLastday[i].tasknumber %></a>
+                     </b>
+                  </td>
+                  <td>
+                     <%= failedTasksAndIncidentLastday[i].name %>
+                  </td>
+                  <td>
+                     <%= failedTasksAndIncidentLastday[i].reason %>
+                  </td>
+
+
+               </tr>
+               <% } %>
+            </table>
+
+         </div>
+         <%}%>
+
+         <div>
+            <h3 style="padding-left: 11px;"><b style="border-bottom: 1px solid #ccc; letter-spacing: 2px;
+               font-family: Montserrat,sans-serif;">Resource
+                  Productivity Till Date</b></h3>
+            <h4 style=" border-bottom: 1px solid #ccc;padding-left: 11px; letter-spacing: 2px;
+            font-family: Montserrat,sans-serif;"><u>Total
+                  Resources-
+                  <%= resourcecount%></u></h4>
+
+            <table class="uppertable">
+               <tr>
+                  <th>Name</th>
+                  <th>Incidents</th>
+                  <th>Tasks</th>
+                  <th>Total</th>
+                  <th>Avg per day</th>
+
+               </tr>
+
+               <% for (var i = 0; i < userTable.length; /* I save the data in a variable 'quotation', I don't know how you named your variable  */  i++) { %>
+
+               <tr>
+
+
+                  <td><b>
+                        <%= userTable[i].name %>
+                     </b>
+                  </td>
+                  <td>
+                     <%= userTable[i].incidents %>
+                  </td>
+                  <td>
+                     <%= userTable[i].tasks  %>
+                  </td>
+                  <td>
+                     <%= userTable[i].total  %>
+                  </td>
+                  <td bgcolor="#B8E9DE">
+                     <%= userTable[i].avgperday  %>
+                  </td>
+
+               </tr>
+               <% } %>
+            </table>
+         </div>
+         <!-- 
+         <div>
+            <table class="uppertable">
+               <tr>
+                  <th>State</th>
+                  <th>Incidents</th>
+                  <th>Tasks</th>
+                  <th>Total</th>
+
+
+               </tr>
+
+               <% for (var i = 0; i < totalstatisticstable.length; /* I save the data in a variable 'quotation', I don't know how you named your variable  */  i++) { %>
+
+               <% if(i%2 === 0) {%>
+
+               <tr bgcolor="#97FE8F">
+                  <%}else{%>
+               <tr bgcolor="yellow">
+                  <%}%>
+                  <td><b>
+                        <%= totalstatisticstable[i].state %>
+                     </b>
+                  </td>
+                  <td>
+                     <%= totalstatisticstable[i].incidents %>
+                  </td>
+                  <td>
+                     <%= totalstatisticstable[i].tasks  %>
+                  </td>
+                  <td>
+                     <%= totalstatisticstable[i].total  %>
+                  </td>
+
+               </tr>
+               <% } %>
+            </table>
+
+         </div> -->
+
+         <!-- Template for past week -->
+
+         <div>
+            <h3 style="border-bottom: 1px solid #ccc;padding-left: 11px; letter-spacing: 2px;
+            font-family: Montserrat,sans-serif;">BOT
+               Statistics Last Week</h3>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_blue">
+                  <h3 class="dashboard-stats__title" style="margin-bottom: -10px;">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastWeekTableStatistics[0].inboundTickets %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>INBOUND
+                        TICKETS</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_red">
+                  <h3 class="dashboard-stats__title" style="margin-bottom: -10px;">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastWeekTableStatistics[0].automatedTickets %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>TICKETS AUTOMATED</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_orange">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastWeekTableStatistics[0].manual %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>Manual Tickets</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_green">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastWeekTableStatistics[0].BOTvsFTE %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>BOT VS FTE</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= lastWeekTableStatistics[0].PassRate %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>% PASS RATE</small>
+                  </h3>
+               </div>
+            </div>
+         </div>
+
+
+
+         <!-- Template for current MOnth -->
+         <div>
+            <h3 class="font-family" style="border-bottom: 1px solid #ccc;padding-left: 11px;">BOT Statistics Current
+               Month Till Date</h3>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_blue">
+                  <h3 class="dashboard-stats__title" style="margin-bottom: -10px;">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= currentMonthstatisticstable[0].inboundTickets %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>INBOUND TICKETS</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_red">
+                  <h3 class="dashboard-stats__title" style="margin-bottom: -10px;">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= currentMonthstatisticstable[0].automatedTickets %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>TICKETS AUTOMATED</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_orange">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= currentMonthstatisticstable[0].manual %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>Manual Tickets</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_green">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= currentMonthstatisticstable[0].BOTvsFTE %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>BOT VS FTE</small>
+                  </h3>
+               </div>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12 col-xs-12">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue">
+                  <h3 class="dashboard-stats__title">
+                     <span class="count-to ng-binding ng-scope">
+                        <%= currentMonthstatisticstable[0].PassRate %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>% PASS RATE</small>
+                  </h3>
+               </div>
+            </div>
+         </div>
+
+
+
+         <!-- <%if(failedTasksandINcidentCurrentMonth.length>0){%>
+         <div>
+            <h4 style="padding-left: 11px;"><b style=" letter-spacing: 2px;
+                  font-family: Montserrat,sans-serif;">Failed
+                  Runs Current Month</b></h4>
+
+
+
+            <table class="uppertable">
+               <tr>
+                  <th>Ticket Number</th>
+                  <th> BOT Name</th>
+
+
+               </tr>
+
+               <% for (var i = 0; i < failedTasksandINcidentCurrentMonth.length; /* I save the data in a variable 'quotation', I don't know how you named your variable  */  i++) { %>
+               <%if(i%2==0){%>
+               <tr style="background-color: #b8bcd278">
+
+                  <%}else{%>
+               <tr>
+                  <%}%>
+                  <td><b>
+                        <a href="https://scholasticdev.service-now.com/nav_to.do?uri=%2Fsc_task_list.do">
+                           <%= failedTasksandINcidentCurrentMonth[i].tasknumber %></a>
+                     </b>
+                  </td>
+                  <td>
+                     <%= failedTasksandINcidentCurrentMonth[i].name %>
+                  </td>
+
+
+               </tr>
+               <% } %>
+            </table>
+
+         </div>
+         <%}%> -->
+
+
+         <div>
+            <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+               <div style="background-color:aqua;   border-bottom-left-radius:50%;
+            border-bottom-right-radius:50%;">
+                  <h3 class="font-family" style="text-align: center;"><u>Automation Statistics For Current Month</u></h3>
+               </div>
+               <img style="background-color: antiquewhite;width: 450px;" src="cid:image1">
+            </div>
+            <div class="col-md-5 col-lg-5 col-sm-12 col-xs-12">
+               <div style="background-color:aqua;   border-bottom-left-radius:50%;
+            border-bottom-right-radius:50%;">
+                  <h3 class="font-family" style="text-align: center;"><u>Inbound Task and Incident</u></h3>
+               </div>
+               <img src="cid:image2" style="width: 370px;background-color: antiquewhite;">
+            </div>
+            <div class="w-100"></div>
+            <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+               <div style="background-color:aqua;   border-bottom-left-radius:50%;
+            border-bottom-right-radius:50%;">
+                  <h3 class="font-family" style="text-align: center;"><u>Automation Statistics Past Six Months</u></h3>
+               </div>
+               <img src="cid:image4" style="background-color: antiquewhite;width: 450px;">
+            </div>
+            <div class="col-md-5 col-lg-5 col-sm-12 col-xs-12">
+               <div style="background-color:aqua;   border-bottom-left-radius:50%;
+            border-bottom-right-radius:50%;">
+                  <h3 class="font-family" style="text-align: center;"><u>Tickets Automated Category Based</u></h3>
+               </div>
+               <img src="cid:image3" style="background-color: antiquewhite;width: 430px;">
+            </div>
+
+         </div>
+      </div>
+
+   </div>
+
+
+   <div style="
+         clear: both;
+     "></div>
+
+</body>
+
+</html>

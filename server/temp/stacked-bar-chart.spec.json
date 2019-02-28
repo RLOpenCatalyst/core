@@ -1,0 +1,169 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+  "width": 400,
+  "height": 200,
+  "padding": 10,
+  "data": [
+    {
+      "name": "table",
+      "values": [],
+      "transform": [
+        {
+          "type": "stack",
+          "groupby": [
+            "x"
+          ],
+          "sort": {
+            "field": "c"
+          },
+          "field": "y"
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "x",
+      "type": "band",
+      "range": "width",
+      "domain": {
+        "data": "table",
+        "field": "x"
+      }
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "range": "height",
+      "nice": true,
+      "zero": true,
+      "domain": {
+        "data": "table",
+        "field": "y1"
+      }
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "range": "category",
+      "domain": {
+        "data": "table",
+        "field": "c"
+      }
+    }
+  ],
+  "axes": [
+    {
+      "orient": "left",
+      "scale": "y",
+      "title": "",
+      "encode": {
+        "title": {
+          "update": {
+            "fontSize": {
+              "value": 10
+            }
+          }
+        }
+      },
+      "zindex": 1
+    },
+    {
+      "orient": "bottom",
+      "scale": "x",
+      "zindex": 1,
+      "labelFontSize": 10,
+      "labelAngle": -30
+    }
+  ],
+  "marks": [
+    {
+      "type": "rect",
+      "from": {
+        "data": "table"
+      },
+      "encode": {
+        "enter": {
+          "x": {
+            "scale": "x",
+            "field": "x"
+          },
+          "width": {
+            "scale": "x",
+            "band": 1,
+            "offset": -1
+          },
+          "y": {
+            "scale": "y",
+            "field": "y0"
+          },
+          "y2": {
+            "scale": "y",
+            "field": "y1"
+          },
+          "fill": {
+            "scale": "color",
+            "field": "c"
+          }
+        },
+        "update": {
+          "fillOpacity": {
+            "value": 1
+          }
+        },
+        "hover": {
+          "fillOpacity": {
+            "value": 0.5
+          }
+        }
+      }
+    }
+  ],
+  "legends": [
+    {
+      "fill": "color",
+      "encode": {
+        "title": {
+          "update": {
+            "fontSize": {
+              "value": 14
+            }
+          }
+        },
+        "labels": {
+          "interactive": true,
+          "update": {
+            "fontSize": {
+              "value": 12
+            },
+            "fill": {
+              "value": "black"
+            }
+          },
+          "hover": {
+            "fill": {
+              "value": "firebrick"
+            }
+          }
+        },
+        "symbols": {
+          "update": {
+            "stroke": {
+              "value": "transparent"
+            }
+          }
+        },
+        "legend": {
+          "update": {
+            "stroke": {
+              "value": "#ccc"
+            },
+            "strokeWidth": {
+              "value": 1.5
+            }
+          }
+        }
+      }
+    }
+  ]
+}

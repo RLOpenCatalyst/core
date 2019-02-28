@@ -1,0 +1,128 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+  "width": 400,
+  "height": 300,
+  "data": [
+			{	"name": "data_table",
+				"values": [
+				
+				],
+				"transform": [
+					{	"type": "collect",
+						"sort": {
+							"field": ["browserFamily", "browserMajorVer"],
+							"order": ["ascending", "ascending"]
+						}
+					}
+				]	
+			},
+			
+			{	"name": "data_table_pie_inner",
+				"source": "data_table",
+				"transform": [
+								{	"type": "aggregate",
+									"groupby": ["browserFamily"],
+									"fields": ["percent"],
+									"ops": ["sum"],
+									"as": ["ff_sum_percent"]
+								},
+								{	"type": "pie", 
+									"field": "ff_sum_percent",
+									"as": ["ff_inner_startAngle", "ff_inner_endAngle"]
+								}
+							]
+			},
+			
+			{	"name": "data_table_pie_outer",
+				"source": "data_table",
+				"transform": [
+								{	"type": "pie", 
+									"field": "percent",
+									"as": ["ff_outer_startAngle", "ff_outer_endAngle"]
+								}
+							]
+			}
+	],
+  
+  "scales": [
+		{	"name": "scale_color",
+			"type": "ordinal",
+			"range": {"scheme": "category10"},
+			"domain": {"data": "data_table", "field": "browserFamily"}
+		}
+	],
+  
+ "marks": [
+  
+		{	"name": "mark_inner_ring",
+			"type": "arc",
+			"from": {"data": "data_table_pie_inner"},
+			"encode": {
+				"enter": {
+						"x": {"signal": "width / 2"},
+						"y": {"signal": "height / 2"},
+				
+						"fill": {"scale": "scale_color",  "field": "browserFamily"},
+						"fillOpacity": {"value": 0.8},
+						"stroke": {"value": "white"},
+
+						"startAngle": {"field": "ff_inner_startAngle"},
+						"endAngle": {"field": "ff_inner_endAngle"},
+						"innerRadius": {"value": 40},
+						"outerRadius": {"value": 100}
+					
+					
+					}
+					
+
+			}
+		},
+		
+		{
+			"name": "mark_text_os_version",
+			"type": "text",
+			"from": {"data": "data_table_pie_outer"},
+			"encode": {
+				"enter": {
+
+					"text": {"signal": "datum['percent']"},
+				
+					"x": {"signal": "width / 2"},
+					"y": {"signal": "height / 2"},
+	
+					"radius": {"value": 115},
+					"theta": {"signal": "(datum['ff_outer_startAngle'] + datum['ff_outer_endAngle'])/2"},
+					
+					"fill": {"value": "black"},
+					"font": {"value": "Helvetica"},
+					"fontSize": {"value": 12},
+					
+					"align": {"value": "center"},
+					"baseline": {"value": "middle"}
+				}
+			  }
+		}
+		
+	],
+		
+	"legends": [
+		{
+		  "fill": "scale_color",
+		  "title": "Automation Statistics",
+		  "orient": "right",
+		  "encode": {
+			"symbols": {
+			  "enter": {
+				"fillOpacity": {"value": 0.5}
+			  }
+			},
+			"labels": {
+			  "update": {
+				"text": {"field": "value"}
+			  }
+			}
+		  }
+		}
+	]
+}
+

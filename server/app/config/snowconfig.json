@@ -1,0 +1,171 @@
+{
+    "Create or modify the OTC account": {
+        "category": "OTC Provisioning",
+        "automated": false
+    },
+    "Regular GSuite Account": {
+        "category": "Gsuite Provisioning",
+        "automated": true,
+        "botid": "gsuite_security_group"
+    },
+    "Deletion Review": {
+        "category": "Termination",
+        "automated": true,
+        "botid": ""
+    },
+    "Verify Account in Active Directory": {
+        "category": "Termination",
+        "automated": false
+    },
+    "Terminate": {
+        "category": "Termination",
+        "automated": true,
+        "botid": "ad_remove_user"
+    },
+    "Emp Account Deletions - No Network/Email": {
+        "category": "Termination",
+        "automated": false
+    },
+    "User Add to the SSO_Jira Group": {
+        "category": "Jira Provisioning",
+        "automated": true,
+        "botid": "ad_security_group"
+    },
+    "Please proceed with AS400 password reset": {
+        "category": "AS400 Password Request",
+        "automated": true,
+        "botid": "as400_password_reset"
+    },
+    "Request to Extend ID has been approved": {
+        "category": "Account Extension",
+        "automated": true,
+        "botid": ""
+    },
+    "Distribution Group - Add/Remove Users": {
+        "category": "ADD Remove User TO DL",
+        "automated": true,
+        "botid": "ad_security_group_multiuser"
+    },
+    "Security": {
+        "category": "Add user to Security Group",
+        "automated": true,
+        "botid": "ad_security_group"
+    },
+    "Request has been approved - Please add user to appropriate AD Group": {
+        "category": "AWS Access",
+        "automated": true,
+        "botid": "ad_security_group"
+    },
+    "Remove External Vendor Access": {
+        "category": "Oracle Fusion",
+        "automated": true,
+        "botid": "okta_fusion_ext_user"
+    },
+    "Modify a Distribution Group": {
+        "category": "Modify DL",
+        "automated": false
+    },
+    "Grant Access to Oracle ERP": {
+        "category": "Oracle ERP",
+        "automated": false
+    },
+    "Expire AD User Account": {
+        "category": "Non Employee AD/HOC Termination",
+        "automated": true,
+        "botid": "ad_expire_user"
+    },
+    "Emp Account Deletions - No Accounts Found": {
+        "category": "Termination",
+        "automated": true,
+        "botid": "ad_remove_user"
+    },
+    "Emp Account Deletions - Legal Review": {
+        "category": "Termination",
+        "automated": false
+    },
+    "Emp Account Deletions - Investigation if there is no Manager Response": {
+        "category": "Termination",
+        "automated": true,
+        "botid": "ad_remove_user"
+    },
+    "Emp Account Deletions - Delegate Access": {
+        "category": "Termination",
+        "automated": false
+    },
+    "Request has been been approved to add or modify AS400 User": {
+        "category": "AS400 Access",
+        "automated": false
+    },
+    "STS GSuite Account for STS Dept Users": {
+        "category": "Gsuite Provisioning",
+        "automated": true,
+        "botid": "gsuite_security_group"
+    },
+    "User Add to the SSO_InnotasPPM Group": {
+        "category": "Innotas Provisioning",
+        "automated": true,
+        "botid": "ad_security_group"
+    },
+    "Access key is required. ": {
+        "category": "AWS Access",
+        "automated": false
+    },
+    "Add User to Okta Group: MFA - Okta Verify 2FA Enrollment Policy - AWS": {
+        "category": "AWS Access",
+        "automated": true,
+        "botid": "enable_okta_mfa"
+    },
+    "Create Network/Email": {
+        "category": "Non Employee Account Creation",
+        "automated": true,
+        "botid": "adaccount"
+    },
+    "Create Network/Email for Employee": {
+        "category": "Intranet Employee Account Creation",
+        "automated": true,
+        "botid": "adaccount_sc"
+    },
+    "Create New Distribution Group": {
+        "category": "Creation of DL",
+        "automated": false
+    },
+    "Create Sales Force Account": {
+        "category": "SalesForce Access",
+        "automated": true,
+        "botid": "ad_security_group"
+    },
+    "Determine the Correct Manager": {
+        "category": "Termination",
+        "automated": false
+    },
+    "Taleo": {
+        "botid": ""
+    },
+    "accessAndCompliance": "7d2a89b30a0a3cde01a870794dbb2d5c",
+    "serviceDesk": "d625dccec0a8016700a222a0f7900d06",
+    "operationsServiceDesk": "ad3ee23a4f9b5b0084cb42fd0210c75d",
+    "all": [
+        "7d2a89b30a0a3cde01a870794dbb2d5c",
+        "d625dccec0a8016700a222a0f7900d06",
+        "ad3ee23a4f9b5b0084cb42fd0210c75d"
+    ],
+    "filters": [
+        "user",
+        "category"
+    ],
+    "username": "TDMSAutoBOT",
+    "password": "BOT123",
+    "mailList": [
+        "harshit.narang@relevancelab.com"
+    ],
+    "TDMSBOTSysId": "22bda11f6f957200b484bc5dbb3ee44f",
+    "filterNames": [
+        "Lisa Tarsi",
+        "Michael Young"
+    ],
+    "SenderEmailAddress": "harshit.narang@relevancelab.com",
+    "SenderEmailPassword": "Rlgmail@1234",
+    "scholasticApi": "http://neo.rlcatalyst.com",
+    "catalystUsername": "superadmin",
+    "catalystPassword": "superadmin@123"
+}

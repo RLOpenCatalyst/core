@@ -20,6 +20,8 @@ var crontab = require('node-crontab');
 var logger = require('_pr/logger')(module);
 var costAggregation = require('_pr/cronjobs/aws-cost-aggregation');
 var capacityAggregation = require('_pr/cronjobs/aws-capacity-aggregation');
+var sendEmail = require('_pr/cronjobs/snow-send-email');
+var saveSnowDatatoMongo = require('_pr/cronjobs/snow-mongo-update');
 var usageAggregation = require('_pr/cronjobs/aws-usage-aggregation');
 var providerSync = require('_pr/cronjobs/provider-sync');
 var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');
@@ -30,39 +32,48 @@ var taskSync = require('_pr/cronjobs/task-sync');
 
 module.exports.start = function start() {
 
-	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
+	logger.info('Cost aggregation started with interval ==> ' + costAggregation.getInterval());
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
 
-	logger.info('Capacity aggregation started with interval ==> '+ capacityAggregation.getInterval());
+	logger.info('Capacity aggregation started with interval ==> ' + capacityAggregation.getInterval());
 	var capacityAggregationJobId
 		= crontab.scheduleJob(capacityAggregation.getInterval(), capacityAggregation.execute);
 
-	logger.info('Usage aggregation started with interval ==> '+ usageAggregation.getInterval());
+	logger.info('Usage aggregation started with interval ==> ' + usageAggregation.getInterval());
 	var usageAggregationJobId
 		= crontab.scheduleJob(usageAggregation.getInterval(), usageAggregation.execute);
 
-	logger.info('Provider Sync started with interval ==> '+ providerSync.getInterval());
+	logger.info('Provider Sync started with interval ==> ' + providerSync.getInterval());
 	var providerSyncJobId = crontab.scheduleJob(providerSync.getInterval(), providerSync.execute);
 
-	logger.info('Tags aggregation started with interval ==> '+ providerTagsAggregation.getInterval());
+	logger.info('Tags aggregation started with interval ==> ' + providerTagsAggregation.getInterval());
 	var providerTagsAggregationJobId
 		= crontab.scheduleJob(providerTagsAggregation.getInterval(), providerTagsAggregation.execute);
 
-	logger.info('Docker Container Sync started with interval ==> '+ dockerContainerSync.getInterval());
+	logger.info('Docker Container Sync started with interval ==> ' + dockerContainerSync.getInterval());
 	var dockerContainerSyncJobId
 		= crontab.scheduleJob(dockerContainerSync.getInterval(), dockerContainerSync.execute);
 
-	 logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
+	logger.info('AWS S3 and RDS Provider Sync started with interval ==> ' + awsRDSS3ProviderSync.getInterval());
 	var awsRDSS3ProviderSyncJobId
 		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);
 
-	logger.info('Chef Sync started with interval ==> '+ chefSync.getInterval());
+	logger.info('Chef Sync started with interval ==> ' + chefSync.getInterval());
 	var chefSyncJobId
 		= crontab.scheduleJob(chefSync.getInterval(), chefSync.execute);
 
-	logger.info('Task Sync started with interval ==> '+ taskSync.getInterval());
+	logger.info('Task Sync started with interval ==> ' + taskSync.getInterval());
 	var taskSyncJobId
 		= crontab.scheduleJob(taskSync.getInterval(), taskSync.execute);
+
+	logger.info('Snow SEnd Email Cron Job Started ==> ' + sendEmail.getInterval());
+	var SnowSendEmailSync
+		= crontab.scheduleJob(sendEmail.getInterval(), sendEmail.execute);
+
+	// 	logger.info('Snow update Mongo Cron Job Started ==> ' + sendEmail.getInterval());
+	// var SnowMongoUpdateSync
+	// 	= crontab.scheduleJob(saveSnowDatatoMongo.getInterval(), saveSnowDatatoMongo.execute);
+
 
 }
