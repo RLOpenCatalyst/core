@@ -12,7 +12,11 @@
 .header-name {
   text-align: center;
 }
+.filterhighlightbutton,.filterhighlightbutton:focus{
+ background-color: rgb(3, 3, 83);
+}
 
+ 
 .marginleft23 {
   margin-left: 23px;
 }
@@ -189,7 +193,7 @@
   }
 }
 
-#botLibraryPage, #botsDescriptionPage, #botAuditTrailPage {
+#botLibraryPage, #botsDescriptionPage, #botAuditTrailPage,#botReport {
   .summary-container {
     width: 96%;
   }
@@ -570,18 +574,15 @@ body .botDescriptionPage {
   cursor: pointer;
   margin-bottom: -1px!important;
 }
-
 .nav-tabs li.active a, .nav-tabs li.active a:hover {
   border-bottom-width: 0px;
   border-top-width: 3px;
   border-color: #40BAF1;
   background: #fcfcfc;
 }
-
 .nav-tabs {
   border-bottom: 0px!important;
 }
-
 .nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
   background: none!important;
   border: none!important;
@@ -1106,82 +1107,4 @@ fieldset#editParamPage legend {
   top: 36px;
   right: auto !important;
 }
-.glyphicon-triangle-bottom:before {
-  content: "\e252";
-}
-}
-#sensureport{
-  margin: 0 4px;
-  .nav-tabs > li > a::after{
-    background: none !important;
-  }
-  .weekPick {
-    position: absolute;
-    left: 24%;
-    background: #FFFFFF;
-    width: 217px;
-    z-index: 999;
-    padding: 7px 17px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin: 2px;
-  }
-  .nav-tabs {
-    border-bottom: solid #40BAF1 1px !important;
-
-    li.active {
-      a, a:hover {
-        border-bottom: 0px !important;
-        border-top: solid #40BAF1 3px !important;
-        border-color: #40BAF1;
-        background: #fcfcfc;
-        border: 1px solid #40BAF1;
-      }
-    }
-}
-.nav-tabs li {
-  margin-bottom: -1px;
-  cursor: pointer;
-}
-.nav-tabs > li.active > a:first-child {
-  color: #337ab7;
-}
-.form-control{
-  height: 29px;
-  padding: 2px 10px;
-  font-size: 12px;
-  line-height: 1;
-}
-.ticket-resolve-date{
-  width:95px;
-  outline: 0;
-  border: 1px solid #101010 !important;
-  display: inline;
-  border-radius:5px 0px 0px 5px;
-  padding-bottom: 0px;
-}
-
-.ticket-resolve-date1{
-  width:95px;
-  outline: 0;
-  border: 2px solid #40BAF1 !important;
-  display: inline;
-  border-radius:8px 0px 0px 8px;
-  //padding-bottom: 0px;
-  //padding-top: 0px;
-  padding-left: 9px;
-}
-
-.ticket-resolve-date2{
-  width:95px;
-  outline: 0;
-  border: 2px solid #40BAF1 !important;
-  display: inline;
-  border-radius:0px 8px 8px 0px;
-  padding-left: 9px;
-  //padding-bottom: 0px;
-  //padding-top: 0px;
-}
-
-
 }
