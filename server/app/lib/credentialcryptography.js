@@ -86,9 +86,15 @@ module.exports.decryptCredential = function(credentials, callback) {
 
         });
 
-    } else {
+    } else if(credentials.secretKey){
+        decryptedCredentials.secretKey = cryptography.decryptText(credentials.secretKey, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+        decryptedCredentials.accessKey = cryptography.decryptText(credentials.accessKey, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+        callback(null, decryptedCredentials);
+    }
+    else {
         decryptedCredentials.password = cryptography.decryptText(credentials.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
         callback(null, decryptedCredentials);
     }
+
 
 };

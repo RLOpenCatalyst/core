@@ -77,8 +77,8 @@ noticeService.notice = function notice(userid, message, severity, callback) {
             var error = new Error('Internal server error');
             error.status = 500;
             callback(error, null);
-        } else {
-            socketClient.emit('notice', data)
+        } else {            
+            socketClient.emit('notice', {message:{title:data.message.title,body:data.message.body}})
             callback(null, {msg: 'successfully noticed'});
         }
     })

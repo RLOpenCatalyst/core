@@ -22,6 +22,12 @@ var appConfig = require('_pr/config');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
+var digitalOceanProvider = require('_pr/model/classes/masters/cloudprovider/digitalOceanProvider');
+var AWS = require('aws-sdk');
+var ip = require('ip');
+var request = require('request');
+var credentialCryptography = require('_pr/lib/credentialcryptography');
 const errorType = 'organizationService';
 
 var organizationService = module.exports = {};
@@ -605,6 +611,147 @@ function syncWorkZoneTreeWithProjectAndEnv(orgId, orgName, bgId, bgName, callbac
             callback(null, resultObj);
         }
     })
+}
+
+organizationService.getProviderConfigForOrganisation= function getProviderConfigForOrganisation(data,callback){
+
+    switch (data.providerType.toLowerCase()){
+        case "aws" :
+            AWSProvider.getAWSProviderById(data.providerid, function (err,result) {
+
+            if (err) {
+                logger.error("error in fetching provider details" + err);
+                /*res.status(400).send({
+                    message: "Error in fetching provider details"
+                });*/
+                callback(err,null);
+            }
+            else {
+                credentialCryptography.decryptCredential(result, function (err, decryptedCredentials) {
+                    if(err){
+                        callback(err,null);
+                    }
+                    else{
+
+
+                        console.log("provider details:" + decryptedCredentials)
+                        var params = {};
+                        params["region"] = data.region;
+                        params["accessKeyId"] = decryptedCredentials.accessKey;
+                        params["secretAccessKey"] = decryptedCredentials.secretKey;
+                        var provType = result.providerType;
+
+                        if (ip.isPrivate(data.fqdn)) {
+                            var para = {
+                                Filters: [
+                                    {
+                                        Name: "network-interface.addresses.private-ip-address",
+                                        Values: [
+                                            data.fqdn
+                                        ]
+                                    }
+                                ]
+                            };
+                        } else {
+                            var para = {
+                                Filters: [
+                                    {
+                                        Name: 'ip-address',
+                                        Values: [
+                                            data.fqdn
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+
+                        var ec2 = new AWS.EC2(params);
+                        ec2.describeInstances(para, function (err, instanceData) {
+                            if (err) {
+                                logger.error("Error", err.stack);
+                                /*  res.status(400).send({
+                                      message: "Credential Error: failed to login with provider details"
+                                  });*/
+                                callback(err,null);
+                            } else {
+                                var instance={}
+
+                                instance["platformId"] = instanceData.Reservations[0].Instances[0].InstanceId;
+                                instance["providerType"] = provType.toLowerCase();
+                                callback(null,instance);
+                            }
+                        });
+                    }
+
+                });
+
+            }
+        });
+            break;
+
+
+
+        case "digitalocean" :
+            digitalOceanProvider.getDigitalOceanProviderById(data.providerid,function(err,result){
+                if (err) {
+                    logger.error("error in fetching provider details" + err);
+
+                    callback(err,null);
+                }
+                else{
+                    var token = result.token;
+                    var provType = result.providerType;
+                    var url="https://api.digitalocean.com/v2/droplets";
+
+                    var options = {
+                        url: url,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer '+token
+                        },
+                        json: true,
+                    };
+
+                    request.get(options, function (err, httpResponse, body){
+
+                        if(err){
+                            logger.error("error in fetching provider details from digital ocean" + err);
+                            callback(err,null);
+                        }
+                        else if(httpResponse.body.droplets.length == 0){
+                            callback(null,null);
+                        }else{
+                            var resData= httpResponse.body.droplets;
+                            var instance={};
+                            for(var i=0;i< resData.length;i++){
+                                if(resData[i].networks.v4[0].ip_address == data.fqdn){
+
+                                    instance["platformId"] = resData[i].id;
+                                    instance["providerType"] = provType.toLowerCase();
+                                    i=resData.length;
+                                }
+                            }
+                            callback(null,instance);
+                        }
+
+
+                    });
+
+
+                }
+
+            });
+
+            break;
+
+
+        default:
+            var err = {message:data.providerType +" provider type not supported "};
+            callback(err,null);
+
+
+    }
+
 }
 
 

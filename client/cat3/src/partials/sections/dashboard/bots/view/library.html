@@ -175,11 +175,19 @@
                     <!--<a class="btn btn-xs ticket-resolve-btn-margin" ng-click="setResolveDates('custom');$event.stopPropagation()">-->
                     <!--<strong>Custom</strong>-->
                     <!--</a>-->
-
+                    <button
+                           type="button"
+                           title="Todal"
+                           class="btn btn-sm btn-info"
+                           ng-class="{'total':'filterhighlightbutton'}[setClass]"
+                           ng-click="resetFields();$event.stopPropagation();setClass='total'">
+                            Total
+                   </button>
                    <button
                            type="button"
                            title="Today"
-                           class="btn btn-xs filter ticket-resolve-btn-margin cat-btn-update"
+                           class="btn btn-sm btn-info"
+                           ng-class="{'today':'filterhighlightbutton'}[setClass]"
                            ng-click="setResolveDates('today');$event.stopPropagation()">
                             Day
                    </button>
@@ -190,7 +198,8 @@
                     <button
                             type="button"
                             title="Current Week"
-                            class="btn btn-xs filter ticket-resolve-btn-margin cat-btn-update"
+                            class="btn btn-sm btn-info"
+                            ng-class="{'week':'filterhighlightbutton'}[setClass]"
                             ng-click="setResolveDates('week');$event.stopPropagation()">
                             Week
                    </button>
@@ -201,7 +210,8 @@
                     <button
                             type="button"
                             title="Current Month"
-                            class="btn btn-xs filter ticket-resolve-btn-margin cat-btn-update"
+                            class="btn btn-sm btn-info"
+                            ng-class="{'month':'filterhighlightbutton'}[setClass]"
                             ng-click="setResolveDates('month');$event.stopPropagation()">
                             Month
                    </button>
@@ -211,23 +221,24 @@
                      <span ng-show="!customSetDate" >
                         &nbsp;
                         <span>&nbsp;
-                            <input id="ticket-resolve-start"  ng-change="dateChange()"   type="text"  ng-model="ticketsResolveStartsOn" placeholder="Start Date" class="form-control-date ticket-resolve-date1"  >
+                            <input id="ticket-resolve-start"  ng-change="dateChange(StartsOn,'StartsOn')"   type="text"  ng-model="StartsOn" placeholder="Start Date" class="form-control-date ticket-resolve-date1"  >
                             <!--<span class="glyphicon-calendar glyphicon"></span>-->
+                            <input type="hidden" ng-model="ticketsResolveStartsOn">
 
                         </span>&nbsp;
                         -
                         <span>&nbsp;
-                            <input id="ticket-resolve-end"  ng-change="dateChange()"   type="text"  ng-model="ticketsResolveEndsOn" placeholder="End Date" class="form-control-date ticket-resolve-date2"  >
-
+                            <input id="ticket-resolve-end"  ng-change="dateChange(EndsOn,'EndsOn')"   type="text"  ng-model="EndsOn" placeholder="End Date" class="form-control-date ticket-resolve-date2"  >
+                            <input type="hidden" ng-model="ticketsResolveEndsOn">
 
                         </span>
                          &nbsp;
-                        <button type="button" title="Filter" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-click="showScheduledBotsFilterDate()">
+                        <button type="button" title="Filter" class="btn btn-sm ticket-resolve-btn-margin cat-btn-save " ng-click="showScheduledBotsFilterDate()">
                            <!--<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;-->
                            <i class="fa fa-search fa-2 white" aria-hidden="true"></i>
                             <!--Filter-->
                         </button>
-                        <button type="button" title="Clear" class="btn btn-xs ticket-resolve-btn-margin cat-btn-save " ng-model="customSetDate" ng-click="resetFields();customSetDate=!customSetDate">
+                        <button type="button" title="Clear" class="btn btn-sm ticket-resolve-btn-margin cat-btn-save "  ng-click="resetFields()">
                            <i class="fa fa-times fa-2 white" aria-hidden="true"></i>
                             <!--<i class="fa fa-close fa-2 red" aria-hidden="true"></i>&nbsp;-->
                             <!--Clear-->
@@ -237,8 +248,9 @@
                     <button
                             type="button"
                             title="Custom"
-                            class="btn btn-xs filter ticket-resolve-btn-margin cat-btn-update"
-                            ng-click="$event.stopPropagation();customSetDate=!customSetDate">
+                            class="btn btn-sm btn-info"
+                            ng-class="{'custom':'filterhighlightbutton'}[setClass]"
+                            ng-click="$event.stopPropagation();customSetDate=!customSetDate;resetDateFields();setClass='custom'">
                             Custom
                         </button>
                 </label>
@@ -335,7 +347,7 @@
 <script>
     $(document).ready(function () {
         $('#ticket-resolve-end').bootstrapMaterialDatePicker({
-            format: 'MM/DD/YYYY ',
+            format: 'DD/MM/YYYY ',
             weekStart: 1,
             time: false,
             switchOnClick : true,
@@ -344,7 +356,7 @@
             maxDate: new Date()
         });
         $('#ticket-resolve-start').bootstrapMaterialDatePicker({
-            format: 'MM/DD/YYYY',
+            format: 'DD/MM/YYYY',
             weekStart: 1,
             time: false,
             switchOnClick : true,

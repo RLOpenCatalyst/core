@@ -34,7 +34,7 @@
             } 
 
             $scope.botDetail = items;
-            $scope.botId = items._id
+            $scope.botId = items.id
             
             var botHistoryGrid = uiGridOptionsService.options();
             $scope.paginationParams = botHistoryGrid.pagination;

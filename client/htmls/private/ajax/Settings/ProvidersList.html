@@ -411,6 +411,7 @@
                     d4ddata.push(data[u]);
                 }
                 getProviderDatavmware();
+                getProviderDataDigitalOcean();
                 // getOrganizationList();
                 // getOrganizationList(function(){
                 //      startup();
@@ -426,6 +427,38 @@
             }
         });
     }
+
+   function getProviderDataDigitalOcean() {
+        var reqBody = {};
+        reqBody.name = ''
+        reqBody.token = '';
+        reqBody.providerType = '';
+        $.ajax({
+            method: "GET",
+            url: "/digitalocean/providers",
+            data: reqBody,
+            success: function (data, success) {
+                data = typeof data == "string" ? JSON.parse(data) : data;
+                for (var u = 0; u < data.length; u++) {
+                    d4ddata.push(data[u]);
+                }
+                //getProviderDatavmware();
+                // getOrganizationList();
+                // getOrganizationList(function(){
+                //      startup();
+                //  });
+
+            },
+            error: function (jqxhr) {
+                removeLoader();
+                bootbox.alert(jqxhr.status);
+            },
+            failure: function (data) {
+                bootbox.alert(data);
+            }
+        });
+    }
+
 
     function startup() {
         //setting the addnew button to launch popup
@@ -700,8 +733,6 @@
                 }
             }
 
-
-            console.log('-----------');
             var sRow = $(".rowtemplate").clone();
             sRow.removeClass("hidden");
             sRow.removeClass("rowtemplate");
@@ -722,7 +753,10 @@
             provname = 'vmware';
         } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "HPPUBLICCLOUD") {
             provname = 'hppubliccloud';
+        }else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "DIGITALOCEAN") {
+            provname = 'digitalocean';
         }
+        //debugger;
 
         bootbox.confirm('You are about to remove this item \" ' + $(button).closest('tr').find('td').first().html() + ' \"', function (result) {
             if (result) {
@@ -732,7 +766,8 @@
                     async: false,
                     url: "/" + provname + "/providers/" + value,
                     success: function (data) {
-                        // $('#refreshpage').click();
+                        // $('#refreshpage').click();\
+                        //debugger;
                         if (data != '401') {
                             var $tr = $(button).closest('tr');
                             //$tr.addClass('hidden').remove();

@@ -24,7 +24,7 @@ var botDao = require('_pr/model/bots/1.1/bot.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 const errorType = 'auditTrailService';
-
+const botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary')
 var auditTrailService = module.exports = {};
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
@@ -35,7 +35,7 @@ var topBotList = [];
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
     var auditTrailObj = {
-        auditId: auditDetails._id,
+        auditId: auditDetails.id,
         auditType: actionObj.auditType,
         actionLogId:auditTrailConfig.actionLogId?auditTrailConfig.actionLogId:null,
         masterDetails:{
@@ -189,405 +189,317 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
 }
 
 
+auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery, period, callback) {
 
-auditTrailService.getMonthWiseData = function getAuditTrailList(auditTrailQuery,period,callback) {
-    var reqData = {};
+    var snowbotsid = [];
+    var botIds = [];
+    var botsWithCounts = []
+    var botnames = {};
     var result = [];
-   var snowbotsid = [];
-   var count= new Array(31).fill(0);
-   var name = [];
-    // var totalcount={};
-    console.log(JSON.stringify(auditTrailQuery));
     async.waterfall([
-        function(next){
-
-            settingService.getOrgUserFilter(auditTrailQuery.user,function(err,orgIds){
-                
-                logger.info('Exiting Org user filter');
-                if(err){
-                    next(err,null);
-                }else{
-                    var filterQuery = [];
-                    filterQuery['orgId'] = { $in: orgIds };
-                    botDao.getAllBots(filterQuery, function(errbots,topBotList){
-                        if(errbots){
+        function (next) {            
+                    botDao.find({isResolved:true}).distinct('id', function (errbots, ids) {
+                        if (errbots) {
                             next(errbots)
-                        }
-                        else{
-                        
-                            for(var i = 0; i < topBotList.length;i++){
-                                if(topBotList[i].input){
-                                    logger.info("Found one with input " + topBotList[i].input.length);
-                                    for(var j = 0; j < topBotList[i].input.length; j++){
-                                       // logger.info(topBotList[i].input[j]["name"]);
-                                        if(topBotList[i].input[j]["name"] == "sysid"){
-                                            snowbotsid.push(topBotList[i]._id);
-                                        }
-                                    }
-                                }
-                            }
-                           // logger.info("Fetched snowbots:" + snowbotsid);
+                        } else {
+                            snowbotsid = ids.map((item)=>{return item});
                             next();
-                            //snowbotsid.push(snowbots[i]._id);
                         }
-                    });
-                }
-
- 
-
-            });
+                    });            
         },
-        function(next) {
-            var queryObj={};
-            
-            //appending queryObj with auditTrailQuery
-            //queryObj.auditTrailQuery = auditTrailQuery;
-            queryObj.$and = [];
-        
-
-            
-                console.log(auditTrailQuery);
-                if(auditTrailQuery.startdate && auditTrailQuery.enddate){
-                    console.log("making query");
-                    var sdt = new Date(auditTrailQuery.startdate).getTime();
-                    var edt = new Date(auditTrailQuery.enddate).getTime();
-                    if(auditTrailQuery.startdate === auditTrailQuery.enddate){
-                        edt = edt+86400000;
-                        console.log("query object with and");
-                        queryObj.$and.push({"startedOn":{$gte:sdt,$lt:edt}});
-                    }
-                    else {
-                        queryObj.$and.push({"startedOn": {$gte: sdt, $lt: edt}});
-                    }
+        function (next) {
+            var match = {};
+            var group = {
+                "_id": "$botID",
+                "summary": {
+                    "$push": "$$ROOT"
                 }
-                console.log(JSON.stringify(queryObj));
-                if(auditTrailQuery.startdate && !auditTrailQuery.enddate){
-                    var sdt = new Date(auditTrailQuery.startdate).getTime();
+            };
+            var project = {
+                "name": "$_id",
+                "summary": 1,
+                "_id": 0
+            }
 
-                    queryObj.$and.push({"startedOn":{$gte:sdt}});
-                }
+            var edt = new Date(new Date().setHours(24, 0, 0, 0));
+            var sdt = new Date(new Date().setHours(0, 0, 0, 0));
+            if (auditTrailQuery.startdate && auditTrailQuery.enddate) {
+                sdt = new Date(new Date(auditTrailQuery.startdate).setHours(0, 0, 0, 0));
+                edt = new Date(new Date(auditTrailQuery.enddate).setHours(0, 0, 0, 0));
+            }
+            match['botID'] = {
+                $in: snowbotsid
+            }
+            match['user'] = auditTrailQuery.user;
+            match['date'] = {
+                $gte: sdt,
+                $lte: edt
+            };
 
-                if(auditTrailQuery.actionStatus){
-                    var actionStatusList= auditTrailQuery.actionStatus.split(',');
-                    if(actionStatusList.length > 1)
-                        queryObj.$and.push({"actionStatus":{$in:actionStatusList}});
-                    else{
-                        if(auditTrailQuery.actionStatus === "success"){
-                            //to fetch all tickets in success states
-                            //get all bots with sysid
-                            logger.info("in success query " + snowbotsid);
-
-                            //actionStatus:'success',
-
-                            queryObj.$and.push({auditId : {$in:snowbotsid}});
-                            queryObj.$and.push({"actionStatus" : "success"});
-
-                            //queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
-                        }
-                        else if(auditTrailQuery.actionStatus === "failed"){
-                            //to fetch all tickets in failed states
-                            //get all bots with sysid
-                            logger.info("in failed query " + snowbotsid);
-
-                            //actionStatus:'success',
-
-                            queryObj.$and.push({auditId : {$in:snowbotsid}});
-                            queryObj.$and.push({"actionStatus" : "failed"});
-
-                            //queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
-                        }
-
-                        else if(auditTrailQuery.actionStatus === "all"){
-                            //to fetch all tickets 
-                            //get all bots with sysid
-                            logger.info("in all query " + snowbotsid);
-
-                            //actionStatus:'success',
-
-                            queryObj.$and.push({auditId : {$in:snowbotsid}});
-                          //  queryObj.$and.push({"actionStatus" : "failed"});
-
-                            //queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
-                        }
-                    
-                      
-                    
-                        else
-                            queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
-                    }
-
-                    // queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
-
-                }
-
-            
-            logger.info("Query obj build completed:"+JSON.stringify(queryObj));
-            auditTrail.getAuditTrails(queryObj, function(err, data){
-                if(err){
-                    next(err, null);
-                } else {
-
-               //  console.log(data);
-
-                 // Pushing the names in the array 
-                    for(var i=0;i<data.length-1;i++)
+            botAuditTrailSummary.aggregate([{
+                        $match: match
+                    },
                     {
+                        $group: group
+                    },
+                    {
+                        $project: project
+                    }
+                ],
+                function (err, data) {
+                    if (err) {
+                        next(err, null);
+                    } else {
+                        function getCount(successCount, failedCount) {
+                            if (auditTrailQuery.actionStatus && auditTrailQuery.actionStatus == 'all') {
+                                return successCount + failedCount?successCount + failedCount:0
+                            } else if (auditTrailQuery.actionStatus && auditTrailQuery.actionStatus == 'success') {
+                                return successCount?successCount:0
+                            } else if (auditTrailQuery.actionStatus && auditTrailQuery.actionStatus == 'failed') {
+                                return failedCount?failedCount:0
+                            } else {
+                                return successCount + failedCount ?successCount + failedCount:0
+                            }
 
-                        var flag = 0;
-                        if (name.length != 0) {
-                            // array empty or does not exist
-                        
-                        for(var l=0;l<name.length;l++)
-                                {
-                               
-                                if (data[i].auditTrailConfig.name === name[l]) {
+                        }
 
-                                 flag=1;
-                                  break;
+                        var result = []
+                        for (i in data) {
+                            var item = data[i]
+                            if (period == 'daily') {
+                                // to calculate weekly data
+                                var counts = new Array(32).fill(0);
+                                for (j in item.summary) {
+                                    var smry = item.summary[j];
+                                    var day = new Date(smry.date).getDate()
+                                    counts[day] = getCount(smry.successCount, smry.failedCount);
                                 }
+                                result.push({
+                                    name: item.name,
+                                    count: counts
+                                })
+                            } else if (period == 'weekly') {
+                                // to calculate weekly data
+                                var sday = new Date(auditTrailQuery.startdate).getDate();
+                                var eday = new Date(auditTrailQuery.enddate).getDate();
+                                var smth = new Date(auditTrailQuery.startdate).getMonth() + 1;
+                                var emth = new Date(auditTrailQuery.enddate).getMonth() + 1;
+                                var counts = new Array(31).fill(0);
+                                for (j in item.summary) {
+                                    var smry = item.summary[j];
+                                    var dt = new Date(smry.date).getDate();
+                                    var mth = new Date(smry.date).getMonth() + 1;
+                                    if (mth == emth) {
+                                        var day = (30 - eday) + dt
+                                    } else {
+                                        var day = dt - sday
+                                    }
+                                    if (day <= 7) {
+                                        var week = 0;
+                                    } else if (14 > day && day > 7) {
+                                        var week = 1;
+                                    } else if (21 > day && day > 14) {
+                                        var week = 2;
+                                    } else if (28 > day && day > 21) {
+                                        var week = 3;
+                                    } else {
+                                        var week = 4;
+                                    }
+                                    counts[week] = counts[week] + getCount(smry.successCount, smry.failedCount);;
+                                }
+                                result.push({
+                                    name: item.name,
+                                    count: counts
+                                })
+                            } else if (period == 'monthly') {
+                                // to calculate monthly data
+                                var counts = new Array(31).fill(0);
+                                for (j in item.summary) {
+                                    var smry = item.summary[j];
+                                    var month = new Date(smry.date).getMonth() + 1;
+                                    counts[month] = counts[month] + getCount(smry.successCount, smry.failedCount);;
+                                }
+                                result.push({
+                                    name: item.name,
+                                    count: counts
+                                })
 
-                            }      
+                            } else {
+                                var counts = new Array(31).fill(0);
+                                for (j in item.summary) {
+                                    var smry = item.summary[j];
+                                    var day = new Date(smry.date).getDate()
+                                    counts[day] = getCount(smry.successCount, smry.failedCount);;
+                                }
+                                result.push({
+                                    name: item.name,
+                                    count: counts
+                                })
+                            }
                         }
-                            if(flag === 1)
-                            {
-                                continue;
-                            }
-
-                            else{
- 
-
-                                name.push(data[i].auditTrailConfig.name);
-                            }
-                                                                                                                                                                                                                                                                                                                                                                    
-                        }      
-                     
-
-                         //console.log(name);
-
-                      // Iterating array to get individual BOT Data monthly
+                        botsWithCounts = result;
+                        botIds = result.map((item) => {                           
+                                return item.name
+                        })
+                        if (botIds.length > 0) {
+                            next(null, [])
+                        } else {
+                            next(null,null);
+                        }
 
 
-                      var sdt = new Date(auditTrailQuery.startdate).getTime();
-                      var edt = new Date(auditTrailQuery.enddate).getTime();
-                      var timestamp = 60*60*1000*24;
-
-                   for(var k=0;k<name.length;k++)
-                   {
-                       for(var j=0;j<data.length;j++)
-                       {
-                                     if(name[k] === data[j].auditTrailConfig.name)
-                                     {
-
-                 var startdateforfirst = new Date(data[j].startedOn);
-
-                 if(period === "monthly")
-                {
-                    //console.log("in month");
-                 var ind =  new Date(startdateforfirst).getMonth() +1;
-
-                 if(count[ind] == null || count[ind] == undefined)
-                 count[ind] = 1;
-                 else count[ind]++;
-                }else if(period === "weekly"){
-
-                    var currenttime = startdateforfirst.getTime();
-
-                    //For calculating the first week data
-                    if((currenttime-sdt)>=0 && (currenttime-sdt)<(7*timestamp))
-                    {
-                        count[0]++;
                     }
-
-                    //For calculating second week data
-                    else if((currenttime-sdt)>=7*timestamp && (currenttime-sdt)<(14*timestamp))
-                    {
-                         count[1]++;
-                    }
-                    //For calculating third week data
-                    else if((currenttime-sdt)>=14*timestamp && (currenttime-sdt)<(21*timestamp))
-                    {
-                        count[2]++;
-                    } 
-                    // For calculating fourth week data
-                    else if((currenttime-sdt)>=21 && (currenttime-sdt)<(28*timestamp))
-                    {
-                          count[3]++;
-                    }
-
-                } 
-                         else if(period === "daily")
-                         {
-
-                            var index =  new Date(startdateforfirst).getDate();
-
-                            if(count[index] == null || count[index] == undefined)
-                            count[index] = 1;
-                            else count[index]++;
-
-
-                         }
-                // console.log(ind);
-                
-
-                                     }
-                       }
-                       var item = {"name" : name[k],"count" : count};
-                       count= new Array(31).fill(0);
-                       result.push(item);
-                   }
-
-                next(null, result);
+                });
+        },
+        function (s,next) {
+            //to get botnames from bots tables by bot id
+            botDao.find({
+                id: {
+                    $in: botIds
                 }
-            });
+            }, {
+                name: 1,id:1
+            }, function (err, bots) {
+                
+                bots.forEach((item) => {
+
+                    botnames[item.id] = item.name
+                });
+                next(null,null)
+            })
+        },
+        function (s,next) {
+            botsWithCounts.forEach((item) => {    
+                if(botnames[item.name])   {
+                    result.push({
+                        name: botnames[item.name],
+                        count: item.count
+                    })
+                }   
+            })
+            next(null, result)
         }
-
-
-
-    ],function(err, results) {  
-        if (err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
         }
-        console.log(results);
-        callback(null,results)
+        callback(null, results)
         return;
     });
 }
-
-
-
-
-
-
-
-auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQuery,callback) {
+auditTrailService.getAuditTrailListMod = function getAuditTrailList(auditTrailQuery, callback) {
     var reqData = {};
     var snowbotsid = [];
     var result = [];
-    console.log(JSON.stringify(auditTrailQuery));
     async.waterfall([
-        function(next){
-
-            settingService.getOrgUserFilter(auditTrailQuery.user,function(err,orgIds){
-                logger.info('Exiting Org user filter');
-                if(err){
-                    next(err,null);
-                }else{
-                    var filterQuery = [];
-                    filterQuery['orgId'] = { $in: orgIds };
-                    botDao.getAllBots(filterQuery, function(errbots,topBotList){
-                        if(errbots){
+        function (next) {
+                    botDao.find({isResolved:true}).distinct('id',function (errbots, ids) {
+                        if (errbots) {
                             next(errbots)
-                        }
-                        else{
-                        
-                            for(var i = 0; i < topBotList.length;i++){
-                                if(topBotList[i].input){
-                                    logger.info("Found one with input " + topBotList[i].input.length);
-                                    for(var j = 0; j < topBotList[i].input.length; j++){
-                                       // logger.info(topBotList[i].input[j]["name"]);
-                                        if(topBotList[i].input[j]["name"] == "sysid"){
-                                            snowbotsid.push(topBotList[i]._id);
-                                        }
-                                    }
-                                }
-                            }
-                           // logger.info("Fetched snowbots:" + snowbotsid);
+                        } else {
+                            snowbotsid =  ids.map((item)=>{return item});  // get serviceNow bots ids
                             next();
-                            //snowbotsid.push(snowbots[i]._id);
                         }
-                    });
-                }
-
- 
-
-            });
-        },
-        function(next) {
-            var queryObj={};
-           
-           queryObj.$and = [];
-                console.log(auditTrailQuery);
-                if(auditTrailQuery.startdate && auditTrailQuery.enddate){
-                    console.log("making query");
-                    var sdt = new Date(auditTrailQuery.startdate).getTime();
-                    var edt = new Date(auditTrailQuery.enddate).getTime();
-                    if(auditTrailQuery.startdate === auditTrailQuery.enddate){
-                        edt = edt+86400000;
-                        console.log("query object with and");
-                        queryObj.$and.push({"startedOn":{$gte:sdt,$lt:edt}});
-                    }
-                    else {
-                        queryObj.$and.push({"startedOn": {$gte: sdt, $lt: edt}});
-                    }
-                }
-                console.log(JSON.stringify(queryObj));
-                if(auditTrailQuery.startdate && !auditTrailQuery.enddate){
-                    var sdt = new Date(auditTrailQuery.startdate).getTime();
-
-                    queryObj.$and.push({"startedOn":{$gte:sdt}});
-                }
-
-                if(auditTrailQuery.actionStatus){
-                    var actionStatusList= auditTrailQuery.actionStatus.split(',');
-                    if(actionStatusList.length > 1)
-                        queryObj.$and.push({"actionStatus":{$in:actionStatusList}});
-                    else{
-                        if(auditTrailQuery.actionStatus === "success"){
-                            //to fetch all tickets in success states
-                            //get all bots with sysid
-                            logger.info("in success query " + snowbotsid);
-
-                            //actionStatus:'success',
-
-                            queryObj.$and.push({auditId : {$in:snowbotsid}});
-                            queryObj.$and.push({"actionStatus" : "success"});
-
-                            //queryObj.queryObj.$and.push({"auditTrailConfig.serviceNowTicketRefObj.state":"Closed"});
-                        }
-                    
-                        else
-                            queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
-                    }
-
-                    // queryObj.queryObj.$and.push({"actionStatus":auditTrailQuery.actionStatus});
-
-                }
-
+                    });               
             
-            logger.info("Query obj build completed:"+JSON.stringify(queryObj));
-            auditTrail.getAuditTrails(queryObj, function(err, data){
-                if(err){
+        },
+        function (next) {
+            var aggregateQuery = [];
+            var match = {};
+            var group = {};
+            var project = {};
+            var sdt = new Date(new Date().setHours(0, 0, 0, 0));
+            var edt = new Date(new Date().setHours(24, 0, 0, 0));
+            if (auditTrailQuery.startdate && auditTrailQuery.enddate) {
+                sdt = new Date(new Date(auditTrailQuery.startdate).setHours(0, 0, 0, 0));
+                edt = new Date(new Date(auditTrailQuery.enddate).setHours(24, 0, 0, 0));
+            }
+            if (auditTrailQuery.actionStatus) {
+                var status = auditTrailQuery.actionStatus.split(',');
+                if (status.length > 1) {
+                    group = {
+                        _id: null,
+                        totalticketsresolved: {
+                            $sum: {
+                                $sum: ['$successCount', '$failedCount']
+                            }
+                        }
+                    };
+                } else if (auditTrailQuery.actionStatus == 'success') {
+                    match['botID'] = {
+                        $in: snowbotsid
+                    };
+                    group = {
+                        _id: null,
+                        totalticketsresolved: {
+                            $sum: '$successCount'
+                        }
+                    };
+                } else if (auditTrailQuery.actionStatus == 'failed') {
+                    group = {
+                        _id: null,
+                        totalticketsresolved: {
+                            $sum: '$failedCount'
+                        }
+                    };
+                } else {
+                    group = {
+                        _id: null,
+                        totalticketsresolved: {
+                            $sum: {
+                                $sum: ['$successCount', '$failedCount']
+                            }
+                        }
+                    };
+                }
+            } else {
+                group = {
+                    _id: null,
+                    totalticketsresolved: {
+                        $sum: {
+                            $sum: ['$successCount', '$failedCount']
+                        }
+                    }
+                };
+            }
+            match['date'] = {
+                $gte: sdt,
+                $lte: edt
+            };
+            match['user'] = auditTrailQuery.user;
+            
+            aggregateQuery.push({
+                $match: match
+            })
+            aggregateQuery.push({
+                $group: group
+            })
+           
+            botAuditTrailSummary.aggregate(aggregateQuery, function (err, data) {
+                if (err) {
                     next(err, null);
+                } else if(data.length==0){
+                    var data=[{
+                        "totalticketsresolved": 0
+                         }]
+                    next(null, data);
                 }else{
-                             console.log(data.length);
-                var item = {"totalticketsresolved" : data.length};
-                result.push(item);
-
-                next(null, result);
+                    next(null, data);
                 }
             });
         }
-    ],function(err, results) {
-        if (err){
+    ], function (err, results) {
+        if (err) {
             logger.error(err);
-            callback(err,null);
+            callback(err, null);
             return;
         }
-        console.log(results);
-        callback(null,results)
+        callback(null, results)
         return;
     });
 }
-
-
-
-
-
-
-
-
 
 auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery,callback) {
     var reqData = {};
@@ -715,17 +627,57 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-
+auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
+    var reqData = {};
+    var snowbotsids=[];
+    async.waterfall([
+        function(next) {            
+            if(query.type && query.type=='snow'){
+                botDao.find({isResolved:true}).distinct("id",function(err,ids){
+                    if(err){
+                        logger.error(err);
+                    }else{
+                        snowbotsids=ids;
+                        apiUtil.paginationRequest(query, 'auditTrails', next);
+                    }
+                })
+            }else{
+                apiUtil.paginationRequest(query, 'auditTrails', next);
+            }
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['startedOn','status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            if(query.startdate && query.enddate){
+                var sdt=new Date(query.startdate).getTime()
+                var edt=new Date(query.enddate).getTime()+86400000
+                queryObj.queryObj['$and'].push({startedOn:{$gte:sdt,$lte:edt}})
+            }
+            if(query.user){
+                queryObj.queryObj['$and'].push({user:query.user})
+            }
+            if(query.type && query.type=='snow'){
+                queryObj.queryObj['$and'].push({auditId:{$in:snowbotsids}})
+            }
+           
+            auditTrail.getAuditTrailList(queryObj, next);
+        },
+        function(auditTrailList, next) {
+            apiUtil.paginationResponse(auditTrailList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
+    });
+}
 
 auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceNow(auditTrailId,callback){
     var srnTicketNo = null;
@@ -1142,6 +1094,142 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam, BOTSchema
     })
 }
 
+auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, userName, callback) {
+    async.waterfall([
+        function(next){
+            apiUtil.queryFilterBy(queryParam,next);
+        },
+        function(filterQuery,next) {
+            filterQuery.isDeleted = false;
+            if(BOTSchema === 'BOTOLD') {
+                settingService.getOrgUserFilter(userName,function(err, orgIds) {
+                    logger.info('Exiting Org user filter')
+                    if(err) {
+                        next(err,null)
+                    } else if(orgIds.length > 0) {
+                        filterQuery['orgId'] = {$in:orgIds}
+                        botOld.getAllBots(filterQuery, next)
+                    } else {
+                        botOld.getAllBots(filterQuery, next)
+                    }
+                })
+            } else {
+                settingService.getOrgUserFilter(userName,function(err,orgIds) {
+                    logger.info('Exiting Org user filter')
+                    if(err) {
+                        next(err,null)
+                    } else if(orgIds.length > 0) {
+                        filterQuery['orgId'] = { $in: orgIds }
+                        botDao.getAllBots(filterQuery, next)
+                    } else {
+                        botDao.getAllBots(filterQuery, next)
+                    }
+                })
+            }
+        },
+        function(botsList, next) {
+            var totalBots = botsList.length;
+            var botIdList = [];
+            var snowBotId = [];
+
+            // filter only serviceNow Bots id
+            for(let bot of botsList) {
+                botIdList.push(bot.id);
+                if(bot.input){
+                    for(let ip of bot.input){
+                        if(ip["name"] == "sysid"){
+                            snowBotId.push(bot.id)
+                        }
+                    }
+                }
+            }
+            var query=[];
+            var snowQuery=[];
+            if(queryParam.startdate){
+                var sdt = new Date(new Date(queryParam.startdate).setHours(0,0,0,0));  
+            }
+            if(queryParam.enddate){
+                var edt = new Date(new Date(queryParam.enddate).setHours(24,0,0,0));
+            }
+            var querymatch={};
+            var snowQueryMatch={}
+            // add date based into query when quer is Date based
+            if(sdt && edt){
+                querymatch['date']={$gte:sdt,$lte:edt}   
+                snowQueryMatch['date']={$gte:sdt,$lte:edt}       
+            }
+            querymatch["botID"]={"$in":botIdList};            
+            snowQueryMatch["botID"]={"$in":snowBotId};
+            
+            query.push({$match:querymatch})
+            snowQuery.push({$match:snowQueryMatch})
+            query.push({
+                $group: {
+                    _id: {},
+                    failedCount: {$sum: "$failedCount"},
+                    successCount: {$sum: "$successCount"},
+                    runningCount: {$sum: "$runningCount"},
+                    timeSaved: {$sum: "$timeSaved"},
+                }
+            })
+            snowQuery.push({
+                $group: {
+                    "_id":{},
+                    "snowCount": {$sum: "$successCount"}
+                }
+            })
+            async.parallel({
+                snowSummaryData: function (childCallback) {
+                    botAuditTrailSummary.aggregate(snowQuery, function (err, snowSummaryData) {
+                        if (err) { childCallback(err, null) }
+                        else if (!snowSummaryData || snowSummaryData.length == 0) {
+                            var snowSummaryData= [{ "_id": {}, "snowCount": 0 }]; 
+                            childCallback(null, snowSummaryData)
+                        } else {
+                            childCallback(null, snowSummaryData)
+                        }
+
+                    })
+                },
+                summaryData: function (childCallback) {
+                    botAuditTrailSummary.aggregate(query, function (err, summaryData) {
+                        if (err) {childCallback(err, null)}
+                        else if(!summaryData || summaryData.length==0){
+                            var summaryData=[{ "_id": {}, "failedCount": 0, "successCount": 0, "runningCount": 0, "timeSaved": 0 }] 
+                            childCallback(null, summaryData)
+                        }else{
+                            childCallback(null, summaryData)
+                        }
+                        
+                    })
+                }
+            }, function (err, summarizedData) {
+                if(err) next(err, null)
+                else {
+                    var result = {}
+                    result['totalNoOfBots'] = totalBots
+                    result['totalNoOfFailedServiceNowTickets'] = summarizedData.summaryData[0].failedCount //Calculated failed count, Displayed as failed count in UI
+                    result['totalRuns'] = summarizedData.summaryData[0].failedCount + summarizedData.summaryData[0].successCount + summarizedData.summaryData[0].runningCount
+                    var totalSavedTimeForBots = convertMS(summarizedData.summaryData[0].timeSaved)
+                    
+                    result['totalNoOfServiceNowTickets'] = summarizedData.snowSummaryData[0].snowCount
+                    result['totalSavedTimeForBots'] = totalSavedTimeForBots
+                    next(null, result)
+                }
+            })
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        logger.info("Exiting all counts final.")
+        callback(null,results);
+        return;
+    })
+}
+
 auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){
     var query={
         auditType:'BOTOLD',
@@ -1252,4 +1340,24 @@ function checkServiceNowTicketPriority(priority){
             break;
     }
     return priorityState;
+}
+
+/** 
+ * Convert Milliseconds to days,hours,minutes,seconds
+ */
+function convertMS( milliseconds ) {
+    var day, hour, minute, seconds;
+    seconds = Math.floor(milliseconds / 1000);
+    minute = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+    hour = Math.floor(minute / 60);
+    minute = minute % 60;
+    day = Math.floor(hour / 24);
+    hour = hour % 24;
+    return {
+        days: day,
+        hours: hour,
+        minutes: minute,
+        seconds: seconds
+    };
 }

@@ -37,6 +37,8 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('../lib/utils/cryptography');
 var vmWareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var digitalOceanProvider = require('_pr/model/classes/masters/cloudprovider/digitalOceanProvider.js');
+var digitalocean = require('_pr/lib/utils/digitalOceanUtil.js')
 var vmWare = require('_pr/lib/vmware');
 var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var azureCloud = require('_pr/lib/azure');
@@ -562,49 +564,50 @@ schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTa
     }
 }
 
-schedulerService.startStopInstance= function startStopInstance(instanceId,catUser,action,callback){
-    logger.debug(action+ " is Starting");
+schedulerService.startStopInstance = function startStopInstance(instanceId, catUser, action, callback) {
+    logger.debug(action + " is Starting");
     async.waterfall([
-        function(next){
+        function(next) {
             instancesDao.getInstanceById(instanceId, next);
         },
-        function(instanceDetails,next){
+        function(instanceDetails,next) {
             var currentDate = new Date().getTime();
-            if(instanceDetails[0].instanceState === 'terminated'){
-                callback({
-                    errCode:201,
-                    errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
-                })
-                return;
-            }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
-                instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
-                    if (err) {
-                        logger.error("Failed to update Instance Scheduler: ", err);
-                        next(err,null);
-                        return;
-                    }
-                    logger.debug("Scheduler is ended on for Instance. "+instanceDetails[0].platformId);
-                    next(null,updatedData);
-                    return;
-                });
-            }else if(!instanceDetails[0].providerId){
-                var error = new Error("Provider is not associated with Instance.");
-                error.status = 500;
-                next(error, null);
-                return;
-            }else{
-                startStopManagedInstance(instanceDetails[0],catUser,action,next);
+            if(instanceDetails.length > 0) {
+                logger.info("Found instance with id", instanceId)
+                if(instanceDetails[0].instanceState === 'terminated') {
+                    callback({
+                       errCode:201,
+                        errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
+                    })
+                } else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
+                    instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
+                        if (err) {
+                            logger.error("Failed to update Instance Scheduler: ", err);
+                            next(err,null)
+                        }
+                        logger.debug("Scheduler is ended on for Instance. "+instanceDetails[0].platformId);
+                        next(null,updatedData);
+                    })
+                } else if(!instanceDetails[0].providerId) {
+                    var error = new Error("Provider is not associated with Instance.");
+                    error.status = 500;
+                    next(error, null)
+                } else {
+                    startStopManagedInstance(instanceDetails[0], catUser, action, next);
+                }
+            } else {
+                logger.info("Could not Found instance with id", instanceId)
+                next({message: "No instance found with id" + instanceId}, null)
             }
         }
-    ],function(err,results){
-        if(err){
+    ],function(err,results) {
+        if(err) {
             logger.error(err);
             callback(err,null);
-            return;
+        } else {
+            logger.debug(action+ " is Completed");
+            callback(null,results)
         }
-        logger.debug(action+ " is Completed");
-        callback(null,results);
-        return;
     })
 }
 
@@ -1057,7 +1060,69 @@ function startStopManagedInstance(instance,catUser,action,callback){
                 });
             }
         });
-    }else{
+    }else if(instance.providerType === 'digitalocean'){
+        digitalOceanProvider.getDigitalOceanProviderById(instance.providerId, function (err, providerdata) {
+            logger.info("Inside Digital ocean start/stop")
+            var timestampStarted = new Date().getTime();
+            var actionLog = instancesDao.insertStartActionLog(instance._id, catUser, timestampStarted);
+            var logReferenceIds = [instance._id];
+            if (actionLog) {
+                logReferenceIds.push(actionLog._id);
+            }
+            var digitalOceanConfig = {
+                token: ''
+            };
+            if (providerdata) {
+                digitalOceanConfig.token = providerdata.token;
+                //vmWareConfig.serviceHost = appConfig.vmware.serviceHost;
+            } else {
+                digitalOceanConfig = null;
+            }
+            if (digitalOceanConfig) {
+                if (action === 'Start') {
+                    logger.info("Inside digital ocean start")
+                    digitalocean.startDigitalOcean([instance.platformId], digitalOceanConfig.token, function (err, state) {
+                        if (err) {
+                            checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                                callback(err, null);
+                                return;
+                            })
+                        }
+                        checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            }
+                            logger.debug("Exit get() for /instances/%s/startInstance", instance._id);
+                                callback(null, {
+                                            instanceCurrentState: state,
+                                            actionLogId: actionLog._id
+                                        });
+                                        return;
+                        })
+                    });
+                } else {
+                    logger.info("Inside digital ocean stop")
+                    digitalocean.stopDigitalOcean([instance.platformId], digitalOceanConfig.token, function (err, state) {
+                        if (err) {
+                            checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                                callback(err, null);
+                                return;
+                            })
+                        }
+                        checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
+                            if (err) {
+                                callback(err, null)
+                            } else {
+                                callback(null, {instanceCurrentState: state, actionLogId: actionLog._id})
+                            }
+                        })
+                    })
+                }
+            }
+        })
+    }
+    else{
         checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,function(err){
             callback(err, null);
             return;

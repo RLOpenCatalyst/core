@@ -150,6 +150,7 @@ awsProviderSchema.statics.getAWSProvidersForOrg = function (orgList, callback) {
 
 awsProviderSchema.statics.getAWSProviderById = function (providerId, callback) {
     logger.debug("Enter getAWSProviderById");
+    logger.debug ("providerID =="+ providerId);
     if (!providerId) {
         process.nextTick(function () {
             callback({

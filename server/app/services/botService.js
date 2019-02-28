@@ -26,6 +26,7 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var auditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary')
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
@@ -44,10 +45,12 @@ var gitHubService = require('_pr/services/gitHubService.js');
 var gitHubModel = require('_pr/model/github/github.js');
 const errorType = 'botService';
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var digitalOceanProvider = require('_pr/model/classes/masters/cloudprovider/digitalOceanProvider');
 var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
 var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary');
 
 var botService = module.exports = {};
 
@@ -236,7 +239,8 @@ botService.getBotById = function getBotById(botId, callback) {
         }
     })
  }
-botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,userName,callback) {
+
+botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNowCheck, userName, callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -249,56 +253,53 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
-            if(actionStatus !== null){
+            if(actionStatus !== null) {
                 var query = {
-                    auditType: 'BOT',
                     actionStatus: actionStatus,
                     isDeleted:false
                 };
                 var botsIds = [];
-                auditTrail.getAuditTrails(query, function(err,botsAudits){
-                    if(err){
+                auditTrail.getAuditTrails(query, function(err,botsAudits) {
+                    if(err) {
                         next(err,null);
-                    }else if (botsAudits.length > 0) {
+                    } else if (botsAudits.length > 0) {
                         for (var i = 0; i < botsAudits.length; i++) {
                             if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
                                 botsIds.push(botsAudits[i].auditId);
                             }
                         }
                         queryObj.queryObj._id = {$in:botsIds};
-                        settingService.getOrgUserFilter(userName,function(err,orgIds){
-                            if(err){
+                        settingService.getOrgUserFilter(userName,function(err,orgIds) {
+                            if(err) {
                                 next(err,null);
-                            }else if(orgIds.length > 0){
+                            } else if(orgIds.length > 0) {
                                 queryObj.queryObj['orgId'] = {$in:orgIds};
                                 botDao.getBotsList(queryObj, next);
-                            }else{
+                            } else {
                                 botDao.getBotsList(queryObj, next);
                             }
                         });
-                    }else {
+                    } else {
                         queryObj.queryObj._id = null;
-                        settingService.getOrgUserFilter(userName,function(err,orgIds){
-                            if(err){
+                        settingService.getOrgUserFilter(userName,function(err,orgIds)  {
+                            if(err) {
                                 next(err,null);
-                            }else if(orgIds.length > 0){
+                            } else if(orgIds.length > 0) {
                                 queryObj.queryObj['orgId'] = {$in:orgIds};
                                 botDao.getBotsList(queryObj, next);
-                            }else{
+                            } else {
                                 botDao.getBotsList(queryObj, next);
                             }
                         });
                     }
                 });
-            }else if(serviceNowCheck === true){
+            } else if(serviceNowCheck === true) {
                 delete queryObj.queryObj;
                 delete queryObj.options.select;
-
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
-                    if(err){
+                settingService.getOrgUserFilter(userName,function(err,orgIds) {
+                    if(err) {
                         next(err,null);
-                    }else if(orgIds.length > 0){
-
+                    } else if(orgIds.length > 0) {
                         queryObj.queryObj = {
                             auditType: 'BOT',
                             actionStatus: 'success',
@@ -307,7 +308,7 @@ botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowC
                             'masterDetails.orgId': {$in:orgIds}
                         };
                         //adding filter by startdate and enddate
-                        if(botsQuery.ticketsdate && botsQuery.ticketedate){
+                        if(botsQuery.ticketsdate && botsQuery.ticketedate) {
                             //queryObj.queryObj.auditTrailConfig.serviceNowTicketRefObj.
                             var sdate = new Date(botsQuery.ticketsdate);
                             sdate = Math.floor(sdate/1000);
@@ -456,6 +457,19 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                         tableName: reqBody.tableName
                                     }
                                 }
+                                var d = new Date();
+                                var year = d.getUTCFullYear();
+                                var month = d.getUTCMonth();
+                                var day = d.getUTCDate();
+                                var startHour =Date.UTC(year,month,day,0,0,0,0);
+                                botAuditTrailSummary.update({
+                                    botID: botDetails[0].id,
+                                    user: userName,
+                                    date: startHour,
+                                }, { $inc: { "runningCount": 1 } }, {upsert: true}, function (err, data) {
+                                    if(err) logger.error(JSON.stringify(err))
+                                    else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+                                })
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
                             function(auditTrail,next) {
@@ -589,7 +603,8 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,ca
                                         input: result.input && result.input !==null ? result.input[0].form:null,
                                         output: result.output,
                                         ymlDocFileId: ymlDocFileId,
-                                        source: "GitHub"
+                                        source: "GitHub",
+                                        isResolved:result.input?hassysid(result.input[0].form):false
                                     }
 
                                     botDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
@@ -848,7 +863,8 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                                     orgId:gitHubDetails.botSync.orgId,
                                                     isParameterized:result.isParameterized?result.isParameterized:false,
                                                     orgName:gitHubDetails.botSync.orgName,
-                                                    source:"GitHub"
+                                                    source:"GitHub",
+                                                    isResolved:result.input?hassysid(result.input[0].form):false
                                                 }
                                                 botDao.getBotsByBotId(result.id,function(err,botsList){
                                                     if(err){
@@ -991,7 +1007,7 @@ botService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
 botService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
-            botDao.getBotsById(botId,next);
+            botDao.getBotsByBotId(botId,next);
         },
         function(bots,next){
             if(bots.length > 0) {
@@ -1021,7 +1037,7 @@ botService.getParticularBotsHistory = function getParticularBotsHistory(botId,hi
 botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
     async.waterfall([
         function(next){
-            botDao.getBotsById(botId,next);
+            botDao.getBotsByBotId(botId,next);
         },
         function(bots,next){
             if(bots.length > 0) {
@@ -1328,9 +1344,31 @@ botService.cloudProviders=function (source,callback) {
             });
         }
     });
+    digitalOceanProvider.getName(query,function (err,result) {
+        if (err) {
+            return callback(err, null)
+        }
+        if(result &&  result.length >0){
+            result.map(itm=>{
+                cloudDetails.push(itm);
+            });
+        }
+    });
 
     setTimeout(function () {
         return callback(null, cloudDetails);
     },2000)
 }
 
+/**
+ * 
+ * return true if bot is snowbot
+ */
+function hassysid(input){
+    if(!input){
+        return false;
+    }else{
+        var obj = input.find(o => o.name === 'sysid');
+        return obj?true:false;
+    }
+}
