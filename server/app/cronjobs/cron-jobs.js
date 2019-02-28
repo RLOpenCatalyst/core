@@ -21,7 +21,6 @@ var logger = require('_pr/logger')(module);
 var costAggregation = require('_pr/cronjobs/aws-cost-aggregation');
 var capacityAggregation = require('_pr/cronjobs/aws-capacity-aggregation');
 var sendEmail = require('_pr/cronjobs/snow-send-email');
-var saveSnowDatatoMongo = require('_pr/cronjobs/snow-mongo-update');
 var usageAggregation = require('_pr/cronjobs/aws-usage-aggregation');
 var providerSync = require('_pr/cronjobs/provider-sync');
 var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');

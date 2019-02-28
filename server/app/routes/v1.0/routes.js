@@ -70,7 +70,6 @@ var reports = require('./routes_reports')
 var trendUsage = require('./routes_trendUsage');
 var cors = require('cors');
 var auditTrail = require('./routes_audit_trails');
-var snowtask = require('./routes_snowtask');
 var scripts = require('./routes_scripts');
 var fileUpload = require('./routes_fileUpload');
 var settingWizard = require('./routes_setting_wizard');
@@ -114,8 +113,6 @@ module.exports.setRoutes = function(app) {
     users.setRoutes(app, sessionVerificationFunc);
 
     tasks.setRoutes(app, sessionVerificationFunc);
-
-    snowtask.setRoutes(app, sessionVerificationFunc);
 
     taskStatus.setRoutes(app, sessionVerificationFunc);
 
