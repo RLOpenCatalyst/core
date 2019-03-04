@@ -141,6 +141,11 @@
     "Taleo": {
         "botid": ""
     },
+    "Delete":{
+        "category": "Termination",
+        "automated": true,
+        "botid": "ad_remove_user"
+    },
     "accessAndCompliance": "7d2a89b30a0a3cde01a870794dbb2d5c",
     "serviceDesk": "d625dccec0a8016700a222a0f7900d06",
     "operationsServiceDesk": "ad3ee23a4f9b5b0084cb42fd0210c75d",
@@ -161,7 +166,8 @@
     "TDMSBOTSysId": "22bda11f6f957200b484bc5dbb3ee44f",
     "filterNames": [
         "Lisa Tarsi",
-        "Michael Young"
+        "Michael Young",
+        "Mary Wilson (ADMIN)"
     ],
     "SenderEmailAddress": "harshit.narang@relevancelab.com",
     "SenderEmailPassword": "Rlgmail@1234",

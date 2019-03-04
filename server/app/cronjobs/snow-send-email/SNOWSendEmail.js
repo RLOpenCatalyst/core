@@ -22,7 +22,7 @@ var snowTaskEmailService = require('_pr/services/snowTaskEmailService');
 
 // Change here to SnowTaskEmailData
 var SNOWEmaildata = Object.create(CatalystCronJob)
-SNOWEmaildata.interval = '*/2 * * * *';
+SNOWEmaildata.interval = '*/3 * * * *';
 SNOWEmaildata.execute = sendEmail;
 
 var date = new Date()
@@ -35,13 +35,14 @@ function sendEmail() {
     var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
     var starttimeDiff = Math.abs(firstDay.getTime() - date.getTime());
     var startdiffdays = Math.ceil(starttimeDiff / (1000 * 3600 * 24));
-    var queryobjfortabularmail = { "startdiff": startdiffdays - 1, "enddiff": "0", "assignmentgroup": "Access and Compliance" };
+    console.log(startdiffdays);
+    var queryobjfortabularmail = { "startdiff": startdiffdays-1, "enddiff": "0", "assignmentgroup": appConfig.accessAndCompliance };
 
     console.log("0-9-0" + startdiffdays)
     // We can add the assignment group here
 
     logger.debug("SEndEmail cron started");
-    snowTaskEmailService.saveSnowTask(queryobjfortabularmail.startdiff, queryobjfortabularmail.enddiff, function (err, result) {
+    snowTaskEmailService.saveSnowTask(queryobjfortabularmail.startdiff, queryobjfortabularmail.enddiff,queryobjfortabularmail.assignmentgroup, function (err, result) {
 
         var transporter = nodeMailer.createTransport({
 
