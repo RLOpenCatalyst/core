@@ -487,7 +487,7 @@
          padding: 6px;
          text-align: left;">
             SERVICENOW BOTS AUTOMATION REPORT FOR
-            THE MONTH OF FEB TILL DATE-
+            THE MONTH OF <%= currentmonth%> TILL DATE-
             <%= todaydate%>
 
          </div>
@@ -544,9 +544,9 @@
                <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue">
                   <h3 class="dashboard-stats__title">
                      <span class="count-to ng-binding ng-scope">
-                        <%= lastdayTableStatistics[0].PassRate %></span><!-- end ngIf: !isBotDetailsLoading -->
-                     <small>%
-                        PASS RATE</small>
+                        <%= lastdayTableStatistics[0].failtaskandincident %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>
+                        Failed Tickets</small>
                   </h3>
                </div>
             </div>
@@ -729,8 +729,8 @@
                <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue">
                   <h3 class="dashboard-stats__title">
                      <span class="count-to ng-binding ng-scope">
-                        <%= lastWeekTableStatistics[0].PassRate %></span><!-- end ngIf: !isBotDetailsLoading -->
-                     <small>% PASS RATE</small>
+                        <%= lastWeekTableStatistics[0].failtaskandincident %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>Failed Tickets</small>
                   </h3>
                </div>
             </div>
@@ -782,8 +782,8 @@
                <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue">
                   <h3 class="dashboard-stats__title">
                      <span class="count-to ng-binding ng-scope">
-                        <%= currentMonthstatisticstable[0].PassRate %></span><!-- end ngIf: !isBotDetailsLoading -->
-                     <small>% PASS RATE</small>
+                        <%= currentMonthstatisticstable[0].failtaskandincident %></span><!-- end ngIf: !isBotDetailsLoading -->
+                     <small>Failed Tickets</small>
                   </h3>
                </div>
             </div>
