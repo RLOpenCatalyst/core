@@ -1,4 +1,4 @@
-FROM node:6.10.2
+FROM node:6.17.1
 RUN apt-get update -qq && apt-get install -y build-essential libpq-dev libkrb5-dev make g++ ruby libstdc++6 ruby-all-dev
 
 RUN npm install -g kerberos
