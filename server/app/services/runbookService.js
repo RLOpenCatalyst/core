@@ -21,72 +21,48 @@ const bots = require('../model/bots/1.1/bot');
 var runbookService = module.exports = {};
 
 runbookService.getRunbookYAML = function getRunbookYAML(query, callback) {
-    runbook.find(query,{
-        "name": 1, "runbookYmlJson.metadata.desc":1,"runbookYmlJson.bots_associated": 1
-    },function(err,data){
-        if(err){
-            console.log(err);
+    runbook.find(query, function(err,data) {
+        if(err) {
             callback(err,null)
-        }
-        else{
+        } else {
             callback(null,data);
         }
     })
-
-
 }
 
-
-
 runbookService.getRunbookBots = function getRunbookBots(runbookId,callback) {
-   runbook.find({"_id":runbookId},{
+    runbook.find({"_id":runbookId}, {
        "runbookYmlJson.bots_associated.id": 1,"_id": 0
-   },function(err,data){
-       if(err){
-           console.log(err,null)
-       }else if(data.length>0){
+   }, function(err,data) {
+       if(err) {
+           callback(err, null)
+       } else if(data.length > 0) {
            var ids=[];
-           for (var i=0;i< data[0].runbookYmlJson.bots_associated.length;i++){
+           for (var i=0;i< data[0].runbookYmlJson.bots_associated.length;i++) {
                 ids.push(data[0].runbookYmlJson.bots_associated[i].id);
            }
-           bots.find({id:{$in:ids}},{"id":1,"name":1,"input":1,"desc":1,"category":1},function(err,result){
-               if(err){
-                   console.log(err);
+           bots.find({id: {$in: ids}}, {"id":1, "name":1, "input":1, "desc":1, "category":1}, function(err, result) {
+               if(err) {
                    callback(err,null);
-               }
-               else{
+               } else {
                    callback(null,result);
                }
            })
-       }
-       else{
-           callback(null,data);
+       } else{
+           callback(null, data);
        }
    })
-
 }
-
-
-
 
 runbookService.getRunbookCredentials = function getRunbookCredentials(runbookId,callback) {
-
- runbook.find({"_id":runbookId},{"runbookYmlJson.providers.name": 1,"_id": 0},function(err,credData){
-     if(err){
-         console.log(err);
-         callback(err,null);
-     }
-     else{
-         callback(null,credData);
-     }
- })
-
+    runbook.find({"_id":runbookId},{"runbookYmlJson.providers.name": 1,"_id": 0},function(err,credData){
+        if(err) {
+            callback(err,null);
+        } else {
+            callback(null,credData);
+        }
+    })
 }
 
-
 runbookService.createNewOrUpdate = function createNewOrUpdate(){
-
-
-
-
 }
