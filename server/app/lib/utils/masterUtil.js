@@ -194,7 +194,7 @@ var MasterUtil = function () {
 
     this.getEnvironmentsByprojectId = function (projectId, callback) {
         d4dModelNew.d4dModelMastersEnvironments.find({
-            projectname_rowid: {$regex: projectId},
+            projectname_rowid: { $regex: projectId },
             id: '3'
         }, function (err, environmentData) {
             if (err) {
@@ -459,8 +459,8 @@ var MasterUtil = function () {
         }, function (err, templateTypes) {
             if (err) {
                 callback(err, null);
-            }else if (templateTypes.length > 0) {
-                templateTypes.forEach(function(templateType){
+            } else if (templateTypes.length > 0) {
+                templateTypes.forEach(function (templateType) {
                     var templateTypeObj = {
                         templatetypename: templateType.templatetypename,
                         designtemplateicon_filename: templateType.designtemplateicon_filename,
@@ -469,17 +469,17 @@ var MasterUtil = function () {
                         active: templateType.active,
                         templatetype: templateType.templatetype
                     }
-                    var findTempCheck =false;
-                    if(templateTypeList.length > 0) {
+                    var findTempCheck = false;
+                    if (templateTypeList.length > 0) {
                         templateTypeList.forEach(function (template) {
                             if (template.templatetypename === templateTypeObj.templatetypename) {
                                 findTempCheck = true;
                             }
                         })
-                        if(findTempCheck === false){
+                        if (findTempCheck === false) {
                             templateTypeList.push(templateTypeObj);
                         }
-                    }else{
+                    } else {
                         templateTypeList.push(templateTypeObj);
                     }
                 })
@@ -526,8 +526,8 @@ var MasterUtil = function () {
         });
     }
 
-    this.getDashboardServerByHost = function(dashboardServer,callback){
-        cicdDashboardService.getcicdDashboardServerByHost(dashboardServer,callback);
+    this.getDashboardServerByHost = function (dashboardServer, callback) {
+        cicdDashboardService.getcicdDashboardServerByHost(dashboardServer, callback);
 
     }
 
@@ -629,7 +629,7 @@ var MasterUtil = function () {
         });
     }
 
-    this.getBotRemoteServerDetails = function(orgList, callback) {
+    this.getBotRemoteServerDetails = function (orgList, callback) {
         var botRemoteServerList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -640,12 +640,12 @@ var MasterUtil = function () {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, remoteServerList) {
+        }, function (err, remoteServerList) {
             if (remoteServerList) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < remoteServerList.length; i++) {
                         if (remoteServerList[i].id === '32') {
-                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist) 
+                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist)
                             remoteServerList[i].orgname = names;
                             botRemoteServerList.push(remoteServerList[i]);
                         }
@@ -660,7 +660,7 @@ var MasterUtil = function () {
         });
     }
 
-    this.getAnsibleServerDetails = function(orgList, callback) {
+    this.getAnsibleServerDetails = function (orgList, callback) {
         var ansibleServerList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -671,9 +671,9 @@ var MasterUtil = function () {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, remoteServerList) {
+        }, function (err, remoteServerList) {
             if (remoteServerList) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < remoteServerList.length; i++) {
                         if (remoteServerList[i].id === '32') {
                             var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist)
@@ -694,7 +694,7 @@ var MasterUtil = function () {
 
 
     // Return all Bitbucket
-    this.getBitbucket = function(orgList, callback) {
+    this.getBitbucket = function (orgList, callback) {
         var bitbucketList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -705,9 +705,9 @@ var MasterUtil = function () {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, bitbucket) {
+        }, function (err, bitbucket) {
             if (bitbucket) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < bitbucket.length; i++) {
                         if (bitbucket[i].id === '27') {
                             names = configmgmtDao.convertRowIDToValue(bitbucket[i].orgname_rowid, rowidlist)
@@ -726,7 +726,7 @@ var MasterUtil = function () {
         });
     }
 
-    this.getOctopus = function(orgList, callback) {
+    this.getOctopus = function (orgList, callback) {
         var octopusList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -737,9 +737,9 @@ var MasterUtil = function () {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, octopus) {
+        }, function (err, octopus) {
             if (octopus) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < octopus.length; i++) {
                         if (octopus[i].id === '28') {
                             names = configmgmtDao.convertRowIDToValue(octopus[i].orgname_rowid, rowidlist)
@@ -758,7 +758,7 @@ var MasterUtil = function () {
         });
     }
 
-    this.getFunctionalTest = function(orgList, callback) {
+    this.getFunctionalTest = function (orgList, callback) {
         var functionaltestList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -769,9 +769,9 @@ var MasterUtil = function () {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, functionaltest) {
+        }, function (err, functionaltest) {
             if (functionaltest) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < functionaltest.length; i++) {
                         if (functionaltest[i].id === '29') {
                             names = configmgmtDao.convertRowIDToValue(functionaltest[i].orgname_rowid, rowidlist)
@@ -790,7 +790,7 @@ var MasterUtil = function () {
         });
     }
 
-    this.getBotRemoteServerDetails = function(orgList, callback) {
+    this.getBotRemoteServerDetails = function (orgList, callback) {
         var botRemoteServerList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -801,9 +801,9 @@ var MasterUtil = function () {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, remoteServerList) {
+        }, function (err, remoteServerList) {
             if (remoteServerList) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < remoteServerList.length; i++) {
                         if (remoteServerList[i].id === '32') {
                             var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist)
@@ -822,57 +822,137 @@ var MasterUtil = function () {
         });
     }
 
-    this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
-        d4dModelNew.d4dModelMastersBOTsRemoteServer.findOne({
+    // this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
+    //     d4dModelNew.d4dModelMastersBOTsRemoteServer.find({
+    //         orgname_rowid: orgId,
+    //         id:'32'
+    //     },
+    //      function(err, remoteServerDetails) {
+    //         if (err){
+    //             logger.error(err);
+    //             callback(err, null);
+    //             return;
+    //         }else if(remoteServerDetails !== null){
+
+    //             console.log(JSON.stringify(remoteServerDetails));
+    //             var options = {
+    //                 url: "http://"+remoteServerDetails["hostIP"]+":"+remoteServerDetails["hostPort"],
+    //                 headers: {
+    //                     'Content-Type': 'application/json'
+    //                 }
+    //             };
+    //             request.get(options,function(err,response,body){
+    //                 if(err){
+    //                     logger.error("Unable to connect remote server");
+    //                     d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+    //                         orgname_rowid: orgId,
+    //                         id:'32'
+    //                     }, {$set:{active:false}}, function (err, data) {
+    //                         if (err) {
+    //                             logger.error('Error in Updating State of Bot-Engine', err);
+    //                         }
+    //                         callback(null,null);
+    //                         return;
+    //                     });
+    //                 }else{
+    //                     callback(null,remoteServerDetails);
+    //                     if(remoteServerDetails.active === false){
+    //                         d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+    //                             orgname_rowid: orgId,
+    //                             id:'32'
+    //                         }, {$set:{active:true}}, function (err, data) {
+    //                             if (err) {
+    //                                 logger.error('Error in Updating State of Bot-Engine', err);
+    //                             }
+    //                         });
+    //                     }
+    //                     return;
+    //                 }
+    //             });
+    //         }else{
+    //             callback(null,remoteServerDetails);
+    //             return;
+    //         }
+    //     });
+    // }
+
+    this.getBotRemoteServerDetailByOrgId = function (orgId, callback) {
+        d4dModelNew.d4dModelMastersBOTsRemoteServer.find({
             orgname_rowid: orgId,
-            id:'32'
-        }, function(err, remoteServerDetails) {
-            if (err){
-                logger.error(err);
-                callback(err, null);
-                return;
-            }else if(remoteServerDetails !== null){
-                var options = {
-                    url: "http://"+remoteServerDetails["hostIP"]+":"+remoteServerDetails["hostPort"],
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                };
-                request.get(options,function(err,response,body){
-                    if(err){
-                        logger.error("Unable to connect remote server");
+            id: '32'
+        },
+            function (err, remoteServerDetails) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                } else if (remoteServerDetails !== null) {
+                    let activeExecutor=[];
+                    var self = this;
+                    var promise1 = remoteServerDetails.map(function(remoteServerDetail){
+                        return dummyfunction(remoteServerDetail, orgId);
+                    })
+                    Promise.all(promise1)
+                        .then((response) => {
+                            activeExecutor = response.filter((res) => {
+                                if(res !== null) return res;
+                            })
+                            callback(null, activeExecutor);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        })
+                }
+                else {
+                    callback(null, remoteServerDetails);
+                    return;
+                }
+            });
+    }
+
+
+    var dummyfunction = function (remoteServerDetails, orgId) {
+        return new Promise((resolve, reject) => {
+            var options = {
+                url: "http://" + remoteServerDetails["hostIP"] + ":" + remoteServerDetails["hostPort"],
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+    
+            request.get(options, function (err, response, body) {
+                if (err) {
+                    logger.error("Unable to connect remote server");
+                    d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                        orgname_rowid: orgId,
+                        id: '32'
+                    }, { $set: { active: false } }, function (err, data) {
+                        if (err) {
+                            logger.error('Error in Updating State of Bot-Engine', err);
+                        }
+                        resolve(null);
+                    });
+                } else {
+    
+                    if (remoteServerDetails.active === false) {
                         d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
                             orgname_rowid: orgId,
-                            id:'32'
-                        }, {$set:{active:false}}, function (err, data) {
+                            id: '32'
+                        }, { $set: { active: true } }, function (err, data) {
                             if (err) {
                                 logger.error('Error in Updating State of Bot-Engine', err);
                             }
-                            callback(null,null);
-                            return;
                         });
-                    }else{
-                        callback(null,remoteServerDetails);
-                        if(remoteServerDetails.active === false){
-                            d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
-                                orgname_rowid: orgId,
-                                id:'32'
-                            }, {$set:{active:true}}, function (err, data) {
-                                if (err) {
-                                    logger.error('Error in Updating State of Bot-Engine', err);
-                                }
-                            });
-                        }
-                        return;
                     }
-                });
-            }else{
-                callback(null,remoteServerDetails);
-                return;
-            }
-        });
+                    resolve(remoteServerDetails);
+                }
+            });
+        })
+       
+
     }
-    this.getJira = function(orgList, callback) {
+
+    this.getJira = function (orgList, callback) {
         var jiraList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -883,9 +963,9 @@ var MasterUtil = function () {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, jira) {
+        }, function (err, jira) {
             if (jira) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < jira.length; i++) {
                         logger.debug(jira[i].id);
                         if (jira[i].id === '23') {
@@ -1116,12 +1196,12 @@ var MasterUtil = function () {
         logger.debug("org rowids: ", rowIds);
         d4dModelNew.d4dModelMastersUsers.find({
             $or: [{
-                    orgname_rowid: {
-                        $in: rowIds
-                    }
-                }, {
-                    orgname_rowid: [""]
-                }]
+                orgname_rowid: {
+                    $in: rowIds
+                }
+            }, {
+                orgname_rowid: [""]
+            }]
         }, function (err, users) {
             if (users) {
                 configmgmtDao.getRowids(function (err, rowidlist) {
@@ -1186,12 +1266,12 @@ var MasterUtil = function () {
         });
     }
 
-    this.getOrgById = function(orgId, callback) {
+    this.getOrgById = function (orgId, callback) {
         var orgList = [];
         logger.debug("Incomming orgid: ", orgId);
         d4dModelNew.d4dModelMastersOrg.find({
             _id: new ObjectId(orgId)
-        }, function(err, orgs) {
+        }, function (err, orgs) {
             if (orgs) {
                 for (var i = 0; i < orgs.length; i++) {
                     if (orgs[i].id === '1') {
@@ -1405,16 +1485,16 @@ var MasterUtil = function () {
                                                         next(null, catObj);
                                                     })
                                                 }], function (err, results) {
-                                                if (err) {
-                                                    callback(err, null);
-                                                }
-                                                returnObj.push(catObj);
-                                                catObj = {};
-                                                if (returnObj.length === teams.length) {
-                                                    callback(null, returnObj);
-                                                    return;
-                                                }
-                                            })
+                                                    if (err) {
+                                                        callback(err, null);
+                                                    }
+                                                    returnObj.push(catObj);
+                                                    catObj = {};
+                                                    if (returnObj.length === teams.length) {
+                                                        callback(null, returnObj);
+                                                        return;
+                                                    }
+                                                })
                                         }
                                     })(teams[j]);
                                 }
@@ -1649,18 +1729,6 @@ var MasterUtil = function () {
                 orgname_rowid: orgId,
                 id: '2'
             }, {
-                $set: {
-                    orgname: orgName
-                }
-            }, function (err, aBody) {
-                if (err) {
-                    logger.debug("Error to update Settings.");
-                }
-
-                d4dModelNew.d4dModelMastersProjects.update({
-                    orgname_rowid: orgId,
-                    id: '4'
-                }, {
                     $set: {
                         orgname: orgName
                     }
@@ -1669,22 +1737,10 @@ var MasterUtil = function () {
                         logger.debug("Error to update Settings.");
                     }
 
-                    d4dModelNew.d4dModelMastersEnvironments.update({
+                    d4dModelNew.d4dModelMastersProjects.update({
                         orgname_rowid: orgId,
-                        id: '3'
+                        id: '4'
                     }, {
-                        $set: {
-                            orgname: orgName
-                        }
-                    }, function (err, aBody) {
-                        if (err) {
-                            logger.debug("Error to update Settings.");
-                        }
-
-                        d4dModelNew.d4dModelMastersConfigManagement.update({
-                            orgname_rowid: orgId,
-                            id: '10'
-                        }, {
                             $set: {
                                 orgname: orgName
                             }
@@ -1692,21 +1748,11 @@ var MasterUtil = function () {
                             if (err) {
                                 logger.debug("Error to update Settings.");
                             }
-                            d4dModelNew.d4dModelMastersDockerConfig.update({
+
+                            d4dModelNew.d4dModelMastersEnvironments.update({
                                 orgname_rowid: orgId,
-                                id: '18'
+                                id: '3'
                             }, {
-                                $set: {
-                                    orgname: orgName
-                                }
-                            }, function (err, aBody) {
-                                if (err) {
-                                    logger.debug("Error to update Settings.");
-                                }
-                                d4dModelNew.d4dModelMastersUsers.update({
-                                    orgname_rowid: orgId,
-                                    id: '7'
-                                }, {
                                     $set: {
                                         orgname: orgName
                                     }
@@ -1714,21 +1760,11 @@ var MasterUtil = function () {
                                     if (err) {
                                         logger.debug("Error to update Settings.");
                                     }
-                                    d4dModelNew.d4dModelMastersUserroles.update({
+
+                                    d4dModelNew.d4dModelMastersConfigManagement.update({
                                         orgname_rowid: orgId,
-                                        id: '6'
+                                        id: '10'
                                     }, {
-                                        $set: {
-                                            orgname: orgName
-                                        }
-                                    }, function (err, aBody) {
-                                        if (err) {
-                                            logger.debug("Error to update Settings.");
-                                        }
-                                        d4dModelNew.d4dModelMastersDesignTemplateTypes.update({
-                                            orgname_rowid: orgId,
-                                            id: '16'
-                                        }, {
                                             $set: {
                                                 orgname: orgName
                                             }
@@ -1736,21 +1772,10 @@ var MasterUtil = function () {
                                             if (err) {
                                                 logger.debug("Error to update Settings.");
                                             }
-                                            d4dModelNew.d4dModelMastersTemplatesList.update({
+                                            d4dModelNew.d4dModelMastersDockerConfig.update({
                                                 orgname_rowid: orgId,
-                                                id: '17'
+                                                id: '18'
                                             }, {
-                                                $set: {
-                                                    orgname: orgName
-                                                }
-                                            }, function (err, aBody) {
-                                                if (err) {
-                                                    logger.debug("Error to update Settings.");
-                                                }
-                                                d4dModelNew.d4dModelMastersServicecommands.update({
-                                                    orgname_rowid: orgId,
-                                                    id: '19'
-                                                }, {
                                                     $set: {
                                                         orgname: orgName
                                                     }
@@ -1758,53 +1783,108 @@ var MasterUtil = function () {
                                                     if (err) {
                                                         logger.debug("Error to update Settings.");
                                                     }
-                                                    d4dModelNew.d4dModelJenkinsConfig.update({
+                                                    d4dModelNew.d4dModelMastersUsers.update({
                                                         orgname_rowid: orgId,
-                                                        id: '20'
+                                                        id: '7'
                                                     }, {
-                                                        $set: {
-                                                            orgname: orgName
-                                                        }
-                                                    }, function (err, aBody) {
-                                                        if (err) {
-                                                            logger.debug("Error to update Settings.");
-                                                        }
-                                                        d4dModelNew.d4dModelMastersTeams.find({
-                                                            orgname_rowid: orgId,
-                                                            id: '21'
-                                                        }, function (err, teams) {
-                                                            if (err) {
-                                                                logger.debug("Error to get Settings.");
+                                                            $set: {
+                                                                orgname: orgName
                                                             }
-
-                                                            d4dModelNew.d4dModelMastersTeams.update({
-                                                                orgname_rowid: {
-                                                                    $in: orgId
-                                                                },
-                                                                id: '21'
+                                                        }, function (err, aBody) {
+                                                            if (err) {
+                                                                logger.debug("Error to update Settings.");
+                                                            }
+                                                            d4dModelNew.d4dModelMastersUserroles.update({
+                                                                orgname_rowid: orgId,
+                                                                id: '6'
                                                             }, {
-                                                                $set: {
-                                                                    orgname: orgName
-                                                                }
-                                                            }, function (err, aBody) {
-                                                                if (err) {
-                                                                    logger.debug("Error to update Settings.");
-                                                                }
-                                                                callback(null, aBody);
-                                                                return;
-                                                            });
+                                                                    $set: {
+                                                                        orgname: orgName
+                                                                    }
+                                                                }, function (err, aBody) {
+                                                                    if (err) {
+                                                                        logger.debug("Error to update Settings.");
+                                                                    }
+                                                                    d4dModelNew.d4dModelMastersDesignTemplateTypes.update({
+                                                                        orgname_rowid: orgId,
+                                                                        id: '16'
+                                                                    }, {
+                                                                            $set: {
+                                                                                orgname: orgName
+                                                                            }
+                                                                        }, function (err, aBody) {
+                                                                            if (err) {
+                                                                                logger.debug("Error to update Settings.");
+                                                                            }
+                                                                            d4dModelNew.d4dModelMastersTemplatesList.update({
+                                                                                orgname_rowid: orgId,
+                                                                                id: '17'
+                                                                            }, {
+                                                                                    $set: {
+                                                                                        orgname: orgName
+                                                                                    }
+                                                                                }, function (err, aBody) {
+                                                                                    if (err) {
+                                                                                        logger.debug("Error to update Settings.");
+                                                                                    }
+                                                                                    d4dModelNew.d4dModelMastersServicecommands.update({
+                                                                                        orgname_rowid: orgId,
+                                                                                        id: '19'
+                                                                                    }, {
+                                                                                            $set: {
+                                                                                                orgname: orgName
+                                                                                            }
+                                                                                        }, function (err, aBody) {
+                                                                                            if (err) {
+                                                                                                logger.debug("Error to update Settings.");
+                                                                                            }
+                                                                                            d4dModelNew.d4dModelJenkinsConfig.update({
+                                                                                                orgname_rowid: orgId,
+                                                                                                id: '20'
+                                                                                            }, {
+                                                                                                    $set: {
+                                                                                                        orgname: orgName
+                                                                                                    }
+                                                                                                }, function (err, aBody) {
+                                                                                                    if (err) {
+                                                                                                        logger.debug("Error to update Settings.");
+                                                                                                    }
+                                                                                                    d4dModelNew.d4dModelMastersTeams.find({
+                                                                                                        orgname_rowid: orgId,
+                                                                                                        id: '21'
+                                                                                                    }, function (err, teams) {
+                                                                                                        if (err) {
+                                                                                                            logger.debug("Error to get Settings.");
+                                                                                                        }
+
+                                                                                                        d4dModelNew.d4dModelMastersTeams.update({
+                                                                                                            orgname_rowid: {
+                                                                                                                $in: orgId
+                                                                                                            },
+                                                                                                            id: '21'
+                                                                                                        }, {
+                                                                                                                $set: {
+                                                                                                                    orgname: orgName
+                                                                                                                }
+                                                                                                            }, function (err, aBody) {
+                                                                                                                if (err) {
+                                                                                                                    logger.debug("Error to update Settings.");
+                                                                                                                }
+                                                                                                                callback(null, aBody);
+                                                                                                                return;
+                                                                                                            });
+                                                                                                    });
+                                                                                                });
+                                                                                        });
+                                                                                });
+                                                                        });
+                                                                });
                                                         });
-                                                    });
                                                 });
-                                            });
                                         });
-                                    });
                                 });
-                            });
                         });
-                    });
-                });
-            }); // bu
+                }); // bu
         });
     }
 
@@ -1840,16 +1920,16 @@ var MasterUtil = function () {
                             rowid: teams[t].rowid,
                             id: '21'
                         }, {
-                            $set: {
-                                teamname: teamName,
-                                descriptions: teamDescription
-                            }
-                        }, function (err, aBody) {
-                            if (err) {
-                                logger.debug("Error to update Settings.");
-                            }
-                            logger.debug("Settings Updated: ", JSON.stringify(aBody));
-                        });
+                                $set: {
+                                    teamname: teamName,
+                                    descriptions: teamDescription
+                                }
+                            }, function (err, aBody) {
+                                if (err) {
+                                    logger.debug("Error to update Settings.");
+                                }
+                                logger.debug("Settings Updated: ", JSON.stringify(aBody));
+                            });
                     }
 
                 }
@@ -2362,19 +2442,19 @@ var MasterUtil = function () {
             id: "4",
             rowid: projectData.projectId
         }, {
-            $set: {
-                environmentname: projectData.envNames,
-                environmentname_rowid: projectData.envIds
-            }
-        }, {
-            upsert: false
-        }, function (err, projects) {
-            if (err) {
-                callback(err, null);
-            } else {
-                callback(null, projects);
-            }
-        });
+                $set: {
+                    environmentname: projectData.envNames,
+                    environmentname_rowid: projectData.envIds
+                }
+            }, {
+                upsert: false
+            }, function (err, projects) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(null, projects);
+                }
+            });
     }
 
 
@@ -2556,6 +2636,33 @@ var MasterUtil = function () {
                             rowid: projectId,
                             id: '4'
                         }, {
+                                $push: {
+                                    "appdeploy": {
+                                        applicationname: appName,
+                                        appdescription: appDescription
+                                    }
+                                }
+                            }, {
+                                upsert: false
+                            }, function (err, data) {
+                                if (err) {
+                                    logger.debug('Err while updating d4dModelMastersProjects' + err);
+                                    callback(err, null);
+                                    return;
+                                }
+                                logger.debug('Updated project ');
+                                callback(null, data);
+                                return;
+                            });
+                    } else {
+                        callback(null, []);
+                        return;
+                    }
+                } else {
+                    d4dModelNew.d4dModelMastersProjects.update({
+                        rowid: projectId,
+                        id: '4'
+                    }, {
                             $push: {
                                 "appdeploy": {
                                     applicationname: appName,
@@ -2574,33 +2681,6 @@ var MasterUtil = function () {
                             callback(null, data);
                             return;
                         });
-                    } else {
-                        callback(null, []);
-                        return;
-                    }
-                } else {
-                    d4dModelNew.d4dModelMastersProjects.update({
-                        rowid: projectId,
-                        id: '4'
-                    }, {
-                        $push: {
-                            "appdeploy": {
-                                applicationname: appName,
-                                appdescription: appDescription
-                            }
-                        }
-                    }, {
-                        upsert: false
-                    }, function (err, data) {
-                        if (err) {
-                            logger.debug('Err while updating d4dModelMastersProjects' + err);
-                            callback(err, null);
-                            return;
-                        }
-                        logger.debug('Updated project ');
-                        callback(null, data);
-                        return;
-                    });
                 }
             }
         });
@@ -2616,9 +2696,9 @@ var MasterUtil = function () {
             return callback(null, templates);
         });
     };
-    this.getSensuCookbooks = function(){
+    this.getSensuCookbooks = function () {
         //var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]','recipe[consul-client-demo]'];
-        var cookbooks = ['recipe[sensu-client]','recipe[consul-client-demo]','recipe[cft-rlc-demo]'];
+        var cookbooks = ['recipe[sensu-client]', 'recipe[consul-client-demo]', 'recipe[cft-rlc-demo]'];
         return cookbooks;
     };
 
@@ -2635,8 +2715,8 @@ var MasterUtil = function () {
             'rabbitmq_password': decryptedPassword,
             'rabbitmq_vhostname': monitorDetails.parameters.transportProtocolParameters.vhost,
             'instance-id': instanceId,
-            'stack_name':monitorDetails.parameters.stackName,
-            'tags-tenant-name':monitorDetails.parameters.orgName
+            'stack_name': monitorDetails.parameters.stackName,
+            'tags-tenant-name': monitorDetails.parameters.orgName
         };
         logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
         return sensuAttributes;
