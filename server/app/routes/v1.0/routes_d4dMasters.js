@@ -3035,7 +3035,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         });
                                     }else if (req.params.id === '32') {
                                         var options = {
-                                            url: "http://"+bodyJson["hostIP"]+":"+bodyJson["hostPort"]+":"+bodyJson["osType"],
+                                            url: "http://"+bodyJson["hostIP"]+":"+bodyJson["hostPort"],
                                             headers: {
                                                 'Content-Type': 'application/json'
                                             }
@@ -3410,7 +3410,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                     }
                                     if (req.params.id === '32') {
                                         var options = {
-                                            url: "http://"+bodyJson["hostIP"]+":"+bodyJson["hostPort"]+":"+bodyJson["osType"],
+                                            url: "http://"+bodyJson["hostIP"]+":"+bodyJson["hostPort"],
                                             headers: {
                                                 'Content-Type': 'application/json'
                                             }
@@ -3423,8 +3423,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                     hostIP:bodyJson["hostIP"],
                                                     hostPort:bodyJson["hostPort"],
                                                     active:false,
-                                                    name:bodyJson["name"],
-                                                    osType:bodyJson["osType"]
+                                                    name:bodyJson["name"]
                                                 };
                                                 d4dModelNew.find({rowid:bodyJson["rowid"],id:'32'},function(err,serverDetails){
                                                     if(err){

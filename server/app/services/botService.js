@@ -388,16 +388,16 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                 logger.info(bots[0].type);
                 //TO DO: There is no else condition, need to check...
                 if (bots[0].type === 'script' || bots[0].type === 'chef' || bots[0].type === 'blueprints') {
-                    console.log("bots log-----------------",bots[0].execution[0].os);
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
                             callback(err, null);
                             return;
-                        }else if (botServerDetails !== null) {
-                            conditionCheck(botServerDetails,botRemoteServerDetails,bots);
+                        } else if (botServerDetails !== null) {
+                            botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                            botRemoteServerDetails.hostPort = botServerDetails.hostPort;
                             encryptedParam(reqBody, next);
-                        }else {
+                        } else {
                             var error = new Error();
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
                             error.status = 403;
@@ -544,29 +544,6 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             return;
         }
     });
-}
-function conditionCheck(botServerDetails,botRemoteServerDetails,bots) {
-    let found = false;
-    for(let botServerDetail of  botServerDetails){
-        let botType = bots[0].execution[0].type.toLowerCase();
-        let botOSType = bots[0].execution[0].os.toLowerCase();
-        let botServerOSType = botServerDetail.osType.toLowerCase();
-        if(botType === botOSType || 
-            (botServerOSType==='powershell' && botServerOSType ==="windows") ||
-            (botType==='bash' && botServerOSType ==="ubuntu")||
-            botType==='python'){
-            found = true;
-            botRemoteServerDetails.hostIP = botServerDetail.hostIP;
-            botRemoteServerDetails.hostPort = botServerDetail.hostPort;
-            break;
-        }
-    }
-    if(!found){
-        botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
-        botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
-    }  
-    
-    return botRemoteServerDetails;    
 }
 
 botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,callback){
