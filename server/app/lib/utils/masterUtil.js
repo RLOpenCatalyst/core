@@ -822,56 +822,56 @@ var MasterUtil = function () {
         });
     }
 
-    this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
-        d4dModelNew.d4dModelMastersBOTsRemoteServer.findOne({
-            orgname_rowid: orgId,
-            id:'32'
-        }, function(err, remoteServerDetails) {
-            if (err){
-                logger.error(err);
-                callback(err, null);
-                return;
-            }else if(remoteServerDetails !== null){
-                var options = {
-                    url: "http://"+remoteServerDetails["hostIP"]+":"+remoteServerDetails["hostPort"],
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                };
-                request.get(options,function(err,response,body){
-                    if(err){
-                        logger.error("Unable to connect remote server");
-                        d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
-                            orgname_rowid: orgId,
-                            id:'32'
-                        }, {$set:{active:false}}, function (err, data) {
-                            if (err) {
-                                logger.error('Error in Updating State of Bot-Engine', err);
-                            }
-                            callback(null,null);
-                            return;
-                        });
-                    }else{
-                        callback(null,remoteServerDetails);
-                        if(remoteServerDetails.active === false){
-                            d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
-                                orgname_rowid: orgId,
-                                id:'32'
-                            }, {$set:{active:true}}, function (err, data) {
-                                if (err) {
-                                    logger.error('Error in Updating State of Bot-Engine', err);
-                                }
-                            });
-                        }
-                        return;
-                    }
-                });
-            }else{
-                callback(null,remoteServerDetails);
-                return;
-            }
-        });
-    }
+    // this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
+    //     d4dModelNew.d4dModelMastersBOTsRemoteServer.findOne({
+    //         orgname_rowid: orgId,
+    //         id:'32'
+    //     }, function(err, remoteServerDetails) {
+    //         if (err){
+    //             logger.error(err);
+    //             callback(err, null);
+    //             return;
+    //         }else if(remoteServerDetails !== null){
+    //             var options = {
+    //                 url: "http://"+remoteServerDetails["hostIP"]+":"+remoteServerDetails["hostPort"],
+    //                 headers: {
+    //                     'Content-Type': 'application/json'
+    //                 }
+    //             };
+    //             request.get(options,function(err,response,body){
+    //                 if(err){
+    //                     logger.error("Unable to connect remote server");
+    //                     d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+    //                         orgname_rowid: orgId,
+    //                         id:'32'
+    //                     }, {$set:{active:false}}, function (err, data) {
+    //                         if (err) {
+    //                             logger.error('Error in Updating State of Bot-Engine', err);
+    //                         }
+    //                         callback(null,null);
+    //                         return;
+    //                     });
+    //                 }else{
+    //                     callback(null,remoteServerDetails);
+    //                     if(remoteServerDetails.active === false){
+    //                         d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+    //                             orgname_rowid: orgId,
+    //                             id:'32'
+    //                         }, {$set:{active:true}}, function (err, data) {
+    //                             if (err) {
+    //                                 logger.error('Error in Updating State of Bot-Engine', err);
+    //                             }
+    //                         });
+    //                     }
+    //                     return;
+    //                 }
+    //             });
+    //         }else{
+    //             callback(null,remoteServerDetails);
+    //             return;
+    //         }
+    //     });
+    // }
     this.getJira = function(orgList, callback) {
         var jiraList = [];
         var rowIds = [];
@@ -2641,6 +2641,81 @@ var MasterUtil = function () {
         logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
         return sensuAttributes;
     };
+    this.getBotRemoteServerDetailByOrgId = function (orgId, callback) {
+        d4dModelNew.d4dModelMastersBOTsRemoteServer.find({
+            orgname_rowid: orgId,
+            id: '32'
+        },
+            function (err, remoteServerDetails) {
+                if (remoteServerDetails.length===0) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                } else if (remoteServerDetails !== null) {
+                    let activeExecutor=[];
+                    var self = this;
+                    var promise1 = remoteServerDetails.map(function(remoteServerDetail){
+                        return dummyfunction(remoteServerDetail, orgId);
+                    })
+                    Promise.all(promise1)
+                        .then((response) => {
+                            activeExecutor = response.filter((res) => {
+                                if(res !== null) return res;
+                            })
+                            callback(null, activeExecutor);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        })
+                }
+                else {
+                    callback(null, remoteServerDetails);
+                    return;
+                }
+            });
+    }
+
+
+    var dummyfunction = function (remoteServerDetails, orgId) {
+        return new Promise((resolve, reject) => {
+            var options = {
+                url: "http://" + remoteServerDetails["hostIP"] + ":" + remoteServerDetails["hostPort"],
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+    
+            request.get(options, function (err, response, body) {
+                if (err) {
+                    logger.error("Unable to connect remote server");
+                    d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                        orgname_rowid: orgId,
+                        id: '32'
+                    }, { $set: { active: false } }, function (err, data) {
+                        if (err) {
+                            logger.error('Error in Updating State of Bot-Engine', err);
+                        }
+                        resolve(null);
+                    });
+                } else {
+    
+                    if (remoteServerDetails.active === false) {
+                        d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                            orgname_rowid: orgId,
+                            id: '32'
+                        }, { $set: { active: true } }, function (err, data) {
+                            if (err) {
+                                logger.error('Error in Updating State of Bot-Engine', err);
+                            }
+                        });
+                    }
+                    resolve(remoteServerDetails);
+                }
+            });
+        })
+       
+
+    }
 }
 
 module.exports = new MasterUtil();

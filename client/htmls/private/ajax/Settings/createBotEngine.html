@@ -13,7 +13,7 @@
                         <h4 class="widget-margin" style="color:black;">BOT Executor Configuration</h4>
                     </div>
                     <div class="widget-body">
-                        <div class="widget-main" style="min-height:200px">
+                        <div class="widget-main" style="min-height:250px">
                             <section id="widget-grid" class="">
                                 <!-- START ROW -->
                                 <div class="row">
@@ -42,6 +42,14 @@
 													<label for="name">Host Port:<span class="control-label redSpan">&nbsp;*</span></label>
 													<input name="hostPort" value="" id="hostPort" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
 												</div>
+												<div class="col-lg-6 col-md-6 margintop15">
+													<label for="name">osType:<span class="control-label redSpan">&nbsp;*</span></label>
+													<select id="osType" class="chooseOrganization width-100" cdata="catalyst"  cat-validation="required">
+													   <option value="">Type of BOT Executor</option>
+													   <option value="windows">windows</option>
+													   <option value="ubuntu">ubuntu</option>
+													</select>
+												 </div>
                                                 <div class="col-lg-6 margintop15 orgactive hidden">
                                                     <label for="name">BOT Executor Status:</label>
                                                     <div class="clearfix" style="border:1px solid silver" >
