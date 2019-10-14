@@ -213,7 +213,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             logsDao.insertLog({
                 referenceId: logsReferenceIds,
                 err: true,
-                log: "BOT Engine is not responding, Please check "+serverUrl,
+                log: "Configure appropriate bot executor with proper osType ",
                 timestamp: timestampEnded
             });
             var resultTaskExecution = {

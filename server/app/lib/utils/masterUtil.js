@@ -2655,7 +2655,7 @@ var MasterUtil = function () {
                     let activeExecutor=[];
                     var self = this;
                     var promise1 = remoteServerDetails.map(function(remoteServerDetail){
-                        return dummyfunction(remoteServerDetail, orgId);
+                        return getActiveExecutor(remoteServerDetail, orgId);
                     })
                     Promise.all(promise1)
                         .then((response) => {
@@ -2676,7 +2676,7 @@ var MasterUtil = function () {
     }
 
 
-    var dummyfunction = function (remoteServerDetails, orgId) {
+    var getActiveExecutor = function (remoteServerDetails, orgId) {
         return new Promise((resolve, reject) => {
             var options = {
                 url: "http://" + remoteServerDetails["hostIP"] + ":" + remoteServerDetails["hostPort"],
@@ -2687,7 +2687,7 @@ var MasterUtil = function () {
     
             request.get(options, function (err, response, body) {
                 if (err) {
-                    logger.error("Unable to connect remote server");
+                    //logger.error("Unable to connect remote server");
                     d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
                         orgname_rowid: orgId,
                         id: '32'

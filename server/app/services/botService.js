@@ -52,6 +52,7 @@ var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureC
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary');
 
+var appConfig = require('_pr/config');
 var botService = module.exports = {};
 
 botService.createNew = function createNew(reqBody,callback) {
@@ -395,7 +396,16 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             callback(err, null);
                             return;
                         }else if (botServerDetails !== null) {
-                            conditionCheck(botServerDetails,botRemoteServerDetails,bots);
+                            logger.info("Checking flag status--->",appConfig.enableBotExecuterOsCheck)
+                            if(appConfig.enableBotExecuterOsCheck==="true" || process.env.enableBotExecuterOsCheck==="true"){
+                                logger.info("Inn OS check condition");
+                                executorOsTypeConditionCheck(botServerDetails,botRemoteServerDetails,bots);
+                            }else{
+
+                                botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
+                                botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
+                                logger.info("Default Details as working without Multiple executor feature",botRemoteServerDetails.hostIP,botRemoteServerDetails.hostPort);
+                            }
                             encryptedParam(reqBody, next);
                         }else {
                             var error = new Error();
@@ -545,7 +555,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
         }
     });
 }
-function conditionCheck(botServerDetails,botRemoteServerDetails,bots) {
+function executorOsTypeConditionCheck(botServerDetails,botRemoteServerDetails,bots) {
     let found = false;
     for(let botServerDetail of  botServerDetails){
         let botType = bots[0].execution[0].type.toLowerCase();
@@ -563,8 +573,7 @@ function conditionCheck(botServerDetails,botRemoteServerDetails,bots) {
     }
     logger.info("BOTENGINE Details",botRemoteServerDetails);
     if(!found){
-        botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
-        botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
+        logger.info('configure appropriate bot executor with proper osType');
     }  
     
     return botRemoteServerDetails;    
