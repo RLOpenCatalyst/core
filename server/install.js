@@ -33,6 +33,7 @@ function getDefaultsConfig() {
             secret: "jwtSecr3t",
             expiresInSec: 604800
         },
+        enableBotExecuterOsCheck : false,
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
@@ -615,6 +616,11 @@ function parseArguments() {
         type: String,
         description: "Application license key"
     }
+    ,{
+          name: "enableBotExecuterOsCheck",
+          type: Boolean,
+          description: "enableBotExecuterOsCheck"
+      }
     ]);
 
     var options = cli.parse();
@@ -633,6 +639,7 @@ function parseArguments() {
 }
 
 function getConfig(config, options) {
+    console.log("option-----------",options);
     //parsing arguments
     if (options['catalyst-port']) {
         var catalystPort = parseInt(options['catalyst-port']);
@@ -644,6 +651,8 @@ function getConfig(config, options) {
     config.db.host = options['db-host'] ? options['db-host'] : config.db.host;
     config.db.port = options['db-port'] ? options['db-port'] : config.db.port;
     config.db.dbName = options['db-name'] ? options['db-name'] : config.db.dbName;
+    config.enableBotExecuterOsCheck = options['enableBotExecuterOsCheck'] ? options['enableBotExecuterOsCheck'] : config.enableBotExecuterOsCheck;
+    console.log("config--------------->",config);
     //config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
     //config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
     if (options['max-instance-count']) {
