@@ -566,7 +566,7 @@ function executorOsTypeConditionCheck(botServerDetails,botRemoteServerDetails,bo
     for(let botServerDetail of  botServerDetails){
         if(botServerDetail.osType.toLowerCase() === botOSType){
             if(Object.keys(allowedOsCombination).indexOf(botOSType)){
-                if(allowedOsCombination[botOSType].indexOf(botType)>0){
+                if(allowedOsCombination[botOSType].indexOf(botType) > -1){
                     botRemoteServerDetails.hostIP = botServerDetail.hostIP;
                     botRemoteServerDetails.hostPort = botServerDetail.hostPort;  
                     found = true; 
