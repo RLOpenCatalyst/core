@@ -556,26 +556,33 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
     });
 }
 function executorOsTypeConditionCheck(botServerDetails,botRemoteServerDetails,bots) {
+    let botType = bots[0].execution[0].type.toLowerCase();
+    let botOSType = bots[0].execution[0].os.toLowerCase();
+    
+    var allowedOsCombination={windows : ["powershell","python","chef"],
+                              ubuntu : ["bash","python","chef"]}
     let found = false;
+
     for(let botServerDetail of  botServerDetails){
-        let botType = bots[0].execution[0].type.toLowerCase();
-        let botOSType = bots[0].execution[0].os.toLowerCase();
-        let botServerOSType = botServerDetail.osType.toLowerCase();
-        if(botServerOSType === botOSType || 
-            (botType==='powershell' && botServerOSType ==="windows") ||
-            (botType==='bash' && botServerOSType ==="ubuntu")||
-            botType==='python'){
-            found = true;
-            botRemoteServerDetails.hostIP = botServerDetail.hostIP;
-            botRemoteServerDetails.hostPort = botServerDetail.hostPort;
+        if(botServerDetail.osType.toLowerCase() === botOSType){
+            if(Object.keys(allowedOsCombination).indexOf(botOSType)){
+                if(allowedOsCombination[botOSType].indexOf(botType)>0){
+                    botRemoteServerDetails.hostIP = botServerDetail.hostIP;
+                    botRemoteServerDetails.hostPort = botServerDetail.hostPort;  
+                    found = true; 
+                }else{
+                    logger.info(`Bot type ${botType} is not present in ${botOSType} as per config.`);
+                }
+            }else{
+                logger.info(`OS type ${botOSType} is not present in config.`);
+            }
             break;
         }
     }
-    logger.info("BOTENGINE Details",botRemoteServerDetails);
     if(!found){
         logger.info('configure appropriate bot executor with proper osType');
-    }  
-    
+    } 
+    logger.info("BOTENGINE Details",botRemoteServerDetails);
     return botRemoteServerDetails;    
 }
 
