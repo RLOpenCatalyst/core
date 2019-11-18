@@ -78,17 +78,12 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
-/*
-var dboptions = {
-    host: appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-*/
+
 var dboptions = {
     host: process.env.DB_HOST || appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
+    port: process.env.DB_PORT || appConfig.db.port,
+    dbName: process.env.DB_NAME || appConfig.db.dbName,
+    ssl: process.env.DB_SSL || appConfig.db.ssl
 };
 
 

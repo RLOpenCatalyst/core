@@ -32,6 +32,7 @@ module.exports = function(options, callback) {
     connectionString += options.host;
     connectionString += ':' + options.port;
     connectionString += '/' + options.dbName;
+    connectionString += '/?ssl=' + options.ssl;
     logger.debug(connectionString);
     var connectWithRetry = function() {
         return mongoose.connect(connectionString, function(err) {
