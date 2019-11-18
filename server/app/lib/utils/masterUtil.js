@@ -2703,7 +2703,7 @@ var MasterUtil = function () {
                         d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
                             orgname_rowid: orgId,
                             id: '32'
-                        }, { $set: { active: true } }, function (err, data) {
+                        }, { $set: { active: false } }, function (err, data) {
                             if (err) {
                                 logger.error('Error in Updating State of Bot-Engine', err);
                             }
