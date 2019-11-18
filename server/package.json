@@ -54,7 +54,7 @@
         "node-rest-client": "1.5.1",
         "yamljs": "0.2.3",
         "xml2json": "0.9.0",
-        "request": "2.65.0",
+        "request": "2.88.0",
         "mongoose-paginate": "5.0.0",
         "adal-node": "0.1.17",
         "node-string-pad": "0.0.4",
