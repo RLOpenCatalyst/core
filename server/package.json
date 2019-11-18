@@ -71,7 +71,7 @@
 		"fs":"0.0.2",
         "cors": "2.7.1",
         "events": "1.1.1",
-        "moment": "2.14.1",
+        "moment": "2.24.0",
         "json2csv": "3.6.3",
         "gridfs-stream":"1.1.1",
         "mongoose-double": "0.0.1",
