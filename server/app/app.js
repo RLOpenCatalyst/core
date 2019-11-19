@@ -44,33 +44,34 @@ var MongoStore = require('connect-mongo')(expressSession);
 var mongoDbConnect = require('_pr/lib/mongodb');
 var mongoose = require('mongoose');
 
-
+const dotenv = require('dotenv');
+dotenv.config();
 
 
 logger.debug('Starting Catalyst');
 logger.debug('Logger Initialized');
-var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
-var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-LDAPUser.getLdapUser(function(err, ldapData) {
-    if (err) {
-        logger.error("Failed to get ldap-user: ", err);
-        return;
-    }
-    if (ldapData.length) {
-        // setting up up passport authentication strategy
-        var ldapUser = ldapData[0];
-        passport.use(new passportLdapStrategy({
-            host: ldapUser.host,
-            port: ldapUser.port,
-            baseDn: ldapUser.baseDn,
-            ou: ldapUser.ou,
-            usernameField: 'username',
-            passwordField: 'pass'
-        }));
-    } else {
-        logger.debug("No Ldap User found.");
-    }
-});
+// var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
+// var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
+// LDAPUser.getLdapUser(function(err, ldapData) {
+//     if (err) {
+//         logger.error("Failed to get ldap-user: ", err);
+//         return;
+//     }
+//     if (ldapData.length) {
+//         // setting up up passport authentication strategy
+//         var ldapUser = ldapData[0];
+//         passport.use(new passportLdapStrategy({
+//             host: ldapUser.host,
+//             port: ldapUser.port,
+//             baseDn: ldapUser.baseDn,
+//             ou: ldapUser.ou,
+//             usernameField: 'username',
+//             passwordField: 'pass'
+//         }));
+//     } else {
+//         logger.debug("No Ldap User found.");
+//     }
+// });
 
 passport.serializeUser(function(user, done) {
     done(null, user);
@@ -79,18 +80,15 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
-/*
-var dboptions = {
-    host: appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-*/
+
 var dboptions = {
     host: process.env.DB_HOST || appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
+    port: process.env.DB_PORT || appConfig.db.port,
+    dbName: process.env.DB_NAME || appConfig.db.dbName,
+    ssl: process.env.DB_SSL || appConfig.db.ssl
 };
+
+
 mongoDbConnect(dboptions, function(err) {
     if (err) {
         logger.error("Unable to connect to mongo db >>" + err);
@@ -174,17 +172,17 @@ app.all('*', function(req, res, next) {
 
 
 logger.debug('Setting up application routes');
-var routes = require('./routes/v1.0/routes.js');
-var routerV1 = express.Router();
-routes.setRoutes(routerV1);
+// var routes = require('./routes/v1.0/routes.js');
+// var routerV1 = express.Router();
+// routes.setRoutes(routerV1);
 
-app.use(routerV1);
-app.use('/api/v1.0', routerV1);
+// app.use(routerV1);
+// app.use('/api/v1.0', routerV1);
 
 
 logger.debug('setting up version 2 routes');
-var routerV2 = require('./routes/v2.0');
-app.use('/api/v2.0', routerV2);
+// var routerV2 = require('./routes/v2.0');
+// app.use('/api/v2.0', routerV2);
 
 
 app.use(function(req, res, next) {
@@ -198,34 +196,39 @@ app.use(function(req, res, next) {
     }
 });
 
-var socketIORoutes = require('./routes/v1.0/socket.io/routes.js');
-socketIORoutes.setRoutes(io);
-io.set('log level', 1);
-io.sockets.on('connection', function(socket) {
-    var dt = new Date();
-    var month = dt.getMonth() + 1;
-    if (month < 10)
-        month = '0' + month;
-    logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate());
-    var tail;
-    if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'))
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'); //catalyst.log.2015-06-19
-    else if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'))
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'); //catalyst.log.2015-06-19
-    else
-        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate()); //catalyst.log.2015-06-19
-    tail.on('line', function(line) {
-        socket.emit('log', line);
-    });
+// var socketIORoutes = require('./routes/v1.0/socket.io/routes.js');
+// socketIORoutes.setRoutes(io);
+// io.set('log level', 1);
+// io.sockets.on('connection', function(socket) {
+//     var dt = new Date();
+//     var month = dt.getMonth() + 1;
+//     if (month < 10)
+//         month = '0' + month;
+//     logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate());
+//     var tail;
+//     if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'))
+//         tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'); //catalyst.log.2015-06-19
+//     else if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'))
+//         tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'); //catalyst.log.2015-06-19
+//     else
+//         tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate()); //catalyst.log.2015-06-19
+//     tail.on('line', function(line) {
+//         socket.emit('log', line);
+//     });
+// });
+
+
+// var cronTabManager = require('_pr/cronjobs');
+// cronTabManager.start();
+// catalystSync.executeScheduledInstances();
+// catalystSync.executeSerialScheduledTasks();
+// catalystSync.executeParallelScheduledTasks();
+// catalystSync.executeScheduledBots();
+server.listen(app.get('port'), function() {
+    logger.debug('Express server listening on port ' + app.get('port'));
 });
 
 
-var cronTabManager = require('_pr/cronjobs');
-cronTabManager.start();
-catalystSync.executeScheduledInstances();
-catalystSync.executeSerialScheduledTasks();
-catalystSync.executeParallelScheduledTasks();
-catalystSync.executeScheduledBots();
-server.listen(app.get('port'), function() {
-    logger.debug('Express server listening on port ' + app.get('port'));
+process.on('uncaughtException', (err) => {
+    console.log(err.message)
 });
