@@ -16,18 +16,10 @@ limitations under the License.
 
 
 var logger = require('_pr/logger')(module);
-var mongoose = require('mongoose');
-var extend = require('extend');
-var defaults = {
-    host: 'localhost',
-    port: '27017',
-    dbName: 'test'
-};
-module.exports = function(options, callback) {
-    var def = extend({}, defaults);
-    options = extend(def, options);
-    logger.debug(options);
-    logger.debug(defaults);
+var mongoose = require('mongoose'); 
+
+module.exports = function(options, callback) { 
+    logger.debug(JSON.stringify(options)); 
     var connectionString = 'mongodb://';
     connectionString += options.host;
     connectionString += ':' + options.port;
