@@ -277,8 +277,10 @@ function readMasterJson(id) {
 function readMasterJsontv(id) {
 	// debugger;
 	//alert(url);
+
 	if ((url.indexOf('List') >= 0 || url.indexOf('Create') >= 0) && url.indexOf('OrgList.html') < 0) {
 		// alert('in 1');
+        console.log('readmasterjsonnew'+url);
 		$.ajax({
 			type: "get",
 			dataType: "text",
@@ -297,6 +299,7 @@ function readMasterJsontv(id) {
 		return (d4ddata);
 	}
 	if (url.indexOf('OrgList.html') > 0) {
+        console.log('readmasterjsonneworglist'+url);
 		//alert('in 1');
 		$.ajax({
 			type: "get",
@@ -315,7 +318,6 @@ function readMasterJsontv(id) {
 		});
 		return (d4ddata);
 	} else {
-
 		$.ajax({
 			type: "get",
 			dataType: "text",
@@ -572,6 +574,8 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 						if (inputC.attr('datatype') == 'list') {
 							v = v.replace(/,/g, "<br/>");
 							inputC.html('<a style="pointer:" data-toggle="popover" data-content="' + v + '" id="cellitem_' + i + '_' + k + '">View</a>');
+						}else if(inputC.attr('datatype') == 'link'){
+							inputC.html('<a target="new" href="' + v + '">Open</a>' );
 						} else {
 							inputC.html(v);
 						}
@@ -733,6 +737,14 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 					if (haspermission('puppetserver', 'modify')) {
 						hasEditPermission = true;
 					}
+				}else if (createFileName === 'CreateCICDDashboard.html') {
+					if (haspermission('services', 'modify')) {
+						hasEditPermission = true;
+					}
+				}else if (createFileName === 'createBotEngine.html') {
+					if (haspermission('services', 'modify')) {
+						hasEditPermission = true;
+					}
 				}
 				//user has no permission to edit
 				if (!hasEditPermission) {
@@ -851,6 +863,14 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 					}
 				} else if (createFileName === 'CreateNexusServer.html') {
 					if (haspermission('puppetserver', 'delete')) {
+						hasDeletePermission = true;
+					}
+				}else if (createFileName === 'CreateCICDDashboard.html') {
+					if (haspermission('services', 'delete')) {
+						hasDeletePermission = true;
+					}
+				}else if (createFileName === 'createBotEngine.html') {
+					if (haspermission('services', 'delete')) {
 						hasDeletePermission = true;
 					}
 				}
@@ -3191,6 +3211,89 @@ function isFormValidAzure(formid, option) {
 
 	return (isValid);
 }
+function isFormValidDigitalOcean(formid, option) {
+	var isValid = true;
+
+	if ($('input[unique="true"], select[unique="true"]').length > 0) {
+		// alert('in isFormValid');
+		$('input[unique="true"], select[unique="true"]').each(function() {
+			$(this).trigger('blur');
+
+			if ($(this).closest('div').find('span[id*="unique_"]').length > 0 && $(this).closest('div').find('span[id*="unique_"]').text().indexOf('available') < 0) {
+				// alert('pusing isvalid false');
+				isValid = false;
+			}
+		});
+	}
+   
+	$('[' + option + ']').each(function(itm) {
+		var currCtrl = $(this);
+		var valiarr = $(this).attr(option).split(',');
+		//$('#unique_loginname').text().indexOf('NOT') > 0
+		if ($('#unique_' + currCtrl.attr('id')).text().indexOf('NOT') > 0) {
+			//There is an error message displayed. Do not save form
+			isValid = false;
+		}
+
+		//alert(currCtrl.attr('id'));
+		$.each(valiarr, function(vali) {
+			switch (valiarr[vali]) {
+				case "required":
+					if (currCtrl.val() == '') {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "&nbsp;<i>Required.</i>");
+						currCtrl.focus();
+					}
+					break;
+				case "nospecial":
+					var str = currCtrl.val();
+					if (/^[a-zA-Z0-9_-]*$/.test(str) == false) {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "special chars not allowed");
+						currCtrl.focus();
+					}
+					break;
+				case "min3":
+					if (currCtrl.val().length < 3) {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "atleast 3 characters required..");
+						currCtrl.focus();
+					}
+					break;
+				case "max24":
+					if (currCtrl.val().length > 24) {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "limited to 24 chars.");
+						currCtrl.focus();
+					}
+					break;
+				case "nospace":
+					var str = currCtrl.val();
+					if (str.indexOf(' ') > 0 || str.charAt(0) === " ") {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "space(s) not allowed");
+						currCtrl.focus();
+					}
+					break;
+				case "numeric":
+					var str = currCtrl.val();
+					if (/^[0-9]*$/.test(str) == false) {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "non numeric not allowed");
+						currCtrl.focus();
+					}
+					break; //
+
+			}
+
+		});
+
+	});
+
+	return (isValid);
+}
+
+// DgitalOcean form validation
 
 //run validation tests on inputs 
 function isFormValidOpenStack(formid, option) {
@@ -3419,6 +3522,14 @@ function isFormValid(formid) {
 					if (currCtrl.val().length < 6) {
 						isValid = false;
 						errormessageforInput(currCtrl.attr('id'), "Atleast 6 characters required.");
+						currCtrl.focus();
+					}
+					break;
+				case "ipAddressCheck":
+					var str = currCtrl.val();
+					if(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str) == false && str != '') {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "Please enter a valid IP Address");
 						currCtrl.focus();
 					}
 					break;

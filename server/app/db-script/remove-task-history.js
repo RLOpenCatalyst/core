@@ -26,20 +26,6 @@ var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var Tasks = require('_pr/model/classes/tasks/tasks.js');
 var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
 
-var dboptions = {
-    host: appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-mongoDbConnect(dboptions, function(err) {
-    if (err) {
-        logger.error("Unable to connect to mongo db >>" + err);
-        process.exit();
-    } else {
-        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-    }
-});
-
 TaskHistory.listHistory(function(err, histories) {
     if (err) {
         logger.error("Failed to fetch Task Histories: ", err);

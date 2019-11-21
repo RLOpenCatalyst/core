@@ -81,6 +81,5 @@ mkdirp.sync(config.scriptDir);
 
 var chefRepoLocation = mkdirp.sync(config.chef.chefReposLocation);
 logger.debug('chef repo location ==>', config.chef.chefReposLocation);
-
-
+config.enableBotExecuterOsCheck = process.env.enableBotExecuterOsCheck || config.enableBotExecuterOsCheck;
 module.exports = config;

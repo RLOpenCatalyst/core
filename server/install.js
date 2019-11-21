@@ -33,17 +33,23 @@ function getDefaultsConfig() {
             secret: "jwtSecr3t",
             expiresInSec: 604800
         },
+        enableBotExecuterOsCheck : false,
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
+        currentDir:currentDirectory,
         javaLibDir: currentDirectory + '/app',
-        gitHubDir: currentDirectory + '/gitHub/',
+        gitHubDirName: 'gitHub',
+        botLogDir: currentDirectory + '/app/logs/',
+        botFactory: '.botsfactory',
+        botCurrentFactory: '.botsfactory/current',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
         scriptDirName :'scriptDir',
         staticUploadDir: '/var/chef/cache/uploads',
         app_run_secure_port: 443,
+        botEngineTimeOut:440,
         cryptoSettings: {
             algorithm: "aes192",
             password: "pass@!@#",
@@ -67,6 +73,17 @@ function getDefaultsConfig() {
             get cookbooksDir() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
+        },
+        dboardConfig: {
+          baseURl: "http://cc.rlcatalyst.com",
+          authPath: "/user/login",
+          servicePath: "/business_service",
+          interval: "Minutes",
+          repeat_every: 1
+        },
+         newRelic:{
+         appName: "New Catalyst App",
+         licenseKey: "bd20baf865971e73848ee1f4e827ab4c43077786"
         },
         settingWizardSteps:[{name :'Introduction',isCompleted:true},
             {name :'Org Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Organization',isCompleted:false,mandatoryCheck:true},
@@ -119,6 +136,7 @@ function getDefaultsConfig() {
                 "containerLogs":"createdOn",
                 "bots":"createdOn",
                 "gitHub":"createdOn",
+                "notice":"createdOn",
                 "resourceMap":"createdOn"
             },
             skip_Records : 1,
@@ -160,6 +178,9 @@ function getDefaultsConfig() {
             regions: [{
                 region_name: "US East (N. Virginia)",
                 region: "us-east-1"
+            },{
+                region_name: "US East (Ohio)",
+                region: "us-east-2"
             }, {
                 region_name: "US West (Oregon)",
                 region: "us-west-2"
@@ -232,7 +253,7 @@ function getDefaultsConfig() {
                 NetworkOut: 'MB'
             },
             costData:{
-                regions:['us-east-1','us-west-2','us-west-1','eu-west-1','eu-central-1','ap-southeast-1','ap-northeast-1','ap-southeast-2','sa-east-1'],
+                regions:['us-east-1','us-east-2','us-west-2','us-west-1','eu-west-1','eu-central-1','ap-southeast-1','ap-northeast-1','ap-southeast-2','sa-east-1'],
                 productName1:['Amazon Elastic Compute Cloud','Amazon RDS Service','Amazon Redshift','Amazon ElastiCache'],
                 productName2:['Amazon CloudFront','Amazon Route 53','Amazon Simple Storage Service','Amazon Virtual Private Cloud']
             },
@@ -240,6 +261,9 @@ function getDefaultsConfig() {
             regionMappings: {
                 'us-east-1': {
                     name: 'US East (N. Virginia)'
+                },
+                'us-east-2': {
+                    name: 'US East (Ohio)'
                 },
                 'us-west-1': {
                     name: 'US West (N. California)'
@@ -447,6 +471,7 @@ function getDefaultsConfig() {
         features: {
             appcard: false
         },
+        licenseKey: '',
         maxInstanceCount: 0,
         catalystEntityTypes: ['ORGANIZATION', 'BUSINESS_UNIT', 'PROJECT', 'PROVIDER_TYPE',
             'PROVIDER', 'ENVIRONMENT', 'RESOURCE_TYPE', 'RESOURCE'],
@@ -529,6 +554,15 @@ function getDefaultsConfig() {
         },
         get scriptDir() {
             return this.catalystHome + this.scriptDirName + "/";
+        },
+        get gitHubDir() {
+            return this.catalystHome + this.gitHubDirName + "/";
+        },
+        get botFactoryDir() {
+            return this.catalystHome + this.botFactory + "/";
+        },
+        get botCurrentFactoryDir() {
+            return this.catalystHome + this.botCurrentFactory + "/";
         }
     };
     return config;
@@ -577,7 +611,17 @@ function parseArguments() {
         name: "max-instance-count",
         type: Number,
         description: "Maximum number of instance allowed to be launch"
-    }]);
+    },{
+        name: "license-key",
+        type: String,
+        description: "Application license key"
+    }
+    ,{
+          name: "enableBotExecuterOsCheck",
+          type: Boolean,
+          description: "enableBotExecuterOsCheck"
+      }
+    ]);
 
     var options = cli.parse();
 
@@ -595,6 +639,7 @@ function parseArguments() {
 }
 
 function getConfig(config, options) {
+    console.log("option-----------",options);
     //parsing arguments
     if (options['catalyst-port']) {
         var catalystPort = parseInt(options['catalyst-port']);
@@ -606,6 +651,8 @@ function getConfig(config, options) {
     config.db.host = options['db-host'] ? options['db-host'] : config.db.host;
     config.db.port = options['db-port'] ? options['db-port'] : config.db.port;
     config.db.dbName = options['db-name'] ? options['db-name'] : config.db.dbName;
+    config.enableBotExecuterOsCheck = options['enableBotExecuterOsCheck'] ? options['enableBotExecuterOsCheck'] : config.enableBotExecuterOsCheck;
+    console.log("config--------------->",config);
     //config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
     //config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
     if (options['max-instance-count']) {
@@ -613,6 +660,9 @@ function getConfig(config, options) {
         if (maxInstanceCount) {
             config.maxInstanceCount = maxInstanceCount;
         }
+    }
+    if (options["license-key"]){
+        config.licenseKey = options["license-key"];
     }
     return config;
 }
@@ -745,6 +795,10 @@ proc.on('close', function(code) {
         mkdirp.sync(config.catalystHome);
         mkdirp.sync(config.instancePemFilesDir);
         mkdirp.sync(config.tempDir);
+        mkdirp.sync(config.scriptDir);
+        mkdirp.sync(config.gitHubDir);
+        mkdirp.sync(config.botFactoryDir);
+        mkdirp.sync(config.botCurrentFactoryDir);
         mkdirp.sync(config.chef.chefReposLocation);
         mkdirp.sync(config.chef.cookbooksDir);
         mkdirp.sync(config.puppet.puppetReposLocation);

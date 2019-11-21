@@ -78,7 +78,7 @@
 			var init = function () {
 				//get the details of one chef history entry
 				var param = {
-					url : '/bots/' + items.taskId + '/bots-history/' + items.historyId
+					url : '/bots/' + items.taskId + '/bot-history/' + items.historyId
 				};
 				genSevs.promiseGet(param).then(function (response) {
 					chefLogData.createInstanceList(response);

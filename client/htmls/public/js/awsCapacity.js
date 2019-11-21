@@ -230,9 +230,9 @@ $(document).ready(function() {
     function loadAllManagedInstances() {
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
+            urlManagedNoProvider = "/tracked-instances?category=managed&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId +",providerType:aws";
+            urlManagedProvider = "/tracked-instances?category=managed&filterBy=orgId:" + orgId +",providerType:aws";
         }
         $('.footer').addClass('hidden');
         $('#instanceListTable').DataTable({
@@ -240,7 +240,7 @@ $(document).ready(function() {
             "serverSide": true,
             "destroy": true,
             "ajax": {
-                "url": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
+                "url":  urlManagedNoProvider ? urlManagedNoProvider : urlManagedProvider,
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
@@ -302,9 +302,9 @@ $(document).ready(function() {
     function loadAllUnManagedInstances() {
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId +  ",providerId:" + orgProviderId;
+            urlManagedNoProvider = "/tracked-instances?category=assigned&filterBy=orgId:" + orgId +  ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
+            urlManagedProvider = "/tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
         }
         $('.footer').addClass('hidden');
         $('#instanceAssignedTable').DataTable({
@@ -312,7 +312,7 @@ $(document).ready(function() {
             "serverSide": true,
             "destroy": true,
             "ajax": {
-                "url": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
+                "url":  urlManagedNoProvider ? urlManagedNoProvider : urlManagedProvider,
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
@@ -415,7 +415,7 @@ $(document).ready(function() {
             "serverSide": true,
             "destroy": true,
             "ajax": {
-                "url": url,
+                "url":  url,
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {

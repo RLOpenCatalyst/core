@@ -25,20 +25,6 @@ var Blueprints = require('_pr/model/blueprint');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 
-var dboptions = {
-    host: appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-mongoDbConnect(dboptions, function(err) {
-    if (err) {
-        logger.error("Unable to connect to mongo db >>" + err);
-        process.exit();
-    } else {
-        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-    }
-});
-
 instancesDao.listInstances(function(err, instances) {
     if (err) {
         logger.error("Got error while fetching instances: ", err);

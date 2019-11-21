@@ -12,7 +12,7 @@
 			$scope.parentItemDetail=items;
 			var botExecLogCtrl={};
 			botExecLogCtrl.taskLogType=items.taskType;
-			botExecLogCtrl.cancelAll=function(){
+			$scope.cancel=function(){
 				$scope.$broadcast ('closeWindow');
 				$modalInstance.dismiss('cancel');
 				return $scope.close;

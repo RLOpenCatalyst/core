@@ -27,20 +27,6 @@ var permissionsetsdao = require('_pr/model/dao/permissionsetsdao.js');
 var userRole = require('_pr/model/user-roles.js');
 var LDAPUser = require('../model/ldap-user/ldap-user.js');
 
-var dboptions = {
-    host: appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-mongoDbConnect(dboptions, function(err) {
-    if (err) {
-        logger.error("Unable to connect to mongo db >>" + err);
-        throw new Error(err);
-    } else {
-        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-    }
-});
-
 // to modify ldap values.
     var modifyLdap = false;
 

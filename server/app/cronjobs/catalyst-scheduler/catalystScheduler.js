@@ -1,10 +1,12 @@
 var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
-var botsDao = require('_pr/model/bots/1.0/bots.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
 var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 var cronTab = require('node-crontab');
+var auditQueue = require('_pr/config/global-data.js');
 var catalystSync = module.exports = {};
 
 catalystSync.executeScheduledInstances = function executeScheduledInstances() {
@@ -138,7 +140,7 @@ catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks(
 }
 
 catalystSync.executeScheduledBots = function executeScheduledBots() {
-    botsDao.getScheduledBots(function(err, bots) {
+    botOld.getScheduledBots(function(err, bots) {
         if (err) {
             logger.error("Failed to fetch bots: ", err);
             return;
@@ -173,6 +175,82 @@ catalystSync.executeScheduledBots = function executeScheduledBots() {
             return;
         }
     });
+}
+
+
+catalystSync.executeNewScheduledBots = function executeNewScheduledBots() {
+    botDao.getScheduledBots(function(err, bots) {
+        if (err) {
+            logger.error("Failed to fetch bots: ", err);
+            return;
+        }
+        if (bots && bots.length) {
+            var botsList=[];
+            for (var i = 0; i < bots.length; i++) {
+                (function(bot) {
+                    if(bot.cronJobId && bot.cronJobId !== null){
+                        cronTab.cancelJob(bot.cronJobId);
+                    }
+                    botsList.push(function(callback){schedulerService.executeNewScheduledBots(bot,callback);});
+                    if(botsList.length === bots.length){
+                        if(botsList.length > 0) {
+                            async.parallel(botsList, function (err, results) {
+                                if (err) {
+                                    logger.error(err);
+                                    return;
+                                }
+                                logger.debug("New Bots Scheduler Completed");
+                                return;
+                            })
+                        }else{
+                            logger.debug("There is no scheduled New Bots right now.");
+                            return;
+                        }
+                    }
+                })(bots[i]);
+            }
+        }else{
+            logger.debug("There is no scheduled Bots right now.");
+            return;
+        }
+    });
+}
+
+catalystSync.getBotAuditLogData = function getBotAuditLogData(){
+    logger.debug("Get Bot Audit log Data updating.....")
+    var limitLogdisplay = 1;
+    setInterval( function () {
+        var logQueue = auditQueue.getAudit();
+        if(logQueue.length > 0){
+            var auditList = [];
+            logQueue.forEach(function(log){
+                if(log.remoteAuditId) {
+                    auditList.push(log.remoteAuditId);
+                }
+            });
+            if(auditList.length > 0 && (logQueue[0].serverUrl !=='undefined' || typeof logQueue[0].serverUrl !=='undefined')) {
+                schedulerService.getExecutorAuditTrailDetails(auditList, logQueue[0].serverUrl, function (err, data) {
+                    if (err) {
+                        logger.error("Error in Getting Audit-Trail Details:", err);
+                        return;
+                    } else {
+                        logger.debug("BOT Audit Trail is Successfully Executed");
+                        return;
+                    }
+                });
+            }else{
+                logger.debug("Audit-Queue is not valid: ",auditList,logQueue[0].serverUrl);
+                return;
+            }
+        }else{
+            if(limitLogdisplay % 10 == 0){
+                logger.debug("There is no Audit Trails Data");
+                limitLogdisplay = 1;
+            }
+            limitLogdisplay++;
+            return;
+        }
+    },5000)
 }
 
 function cancelOldCronJobs(ids){

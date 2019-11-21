@@ -15,6 +15,8 @@ const reportsService = require('_pr/services/reportsService')
 const async = require('async')
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
+    app.all('/reports*', sessionVerificationFunc);
+
 
     // @TODO Reconsider providing different end points for trend and aggregate
     /**

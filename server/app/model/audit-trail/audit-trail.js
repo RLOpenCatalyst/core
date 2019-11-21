@@ -42,6 +42,45 @@ AuditTrailSchema.statics.getAuditTrails = function(queryObj,callback){
             logger.error(err);
             var error = new Error('Internal server error');
             error.status = 500;
+            return callback(error, null);
+        }
+        return callback(null, auditTrailList);
+    });
+};
+
+AuditTrailSchema.statics.getBOTReport = function(queryObj,callback){
+    AuditTrail.find(queryObj, function(err, auditTrailList) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error, null);
+        }
+        return callback(null, auditTrailList);
+    });
+};
+
+
+
+
+AuditTrailSchema.statics.getAuditTrailsCount = function (queryObj, callback) {
+    AuditTrail.count(queryObj, function (err, auditTrailCount) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, auditTrailCount);
+    });
+};
+
+AuditTrailSchema.statics.getAuditTrailsById = function(auditTrailId,callback){
+    AuditTrail.find({_id:new ObjectId(auditTrailId)}, function(err, auditTrailList) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
             return callback(error);
         }
         return callback(null, auditTrailList);

@@ -6,9 +6,15 @@ var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var commons=appConfig.constantData;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
+var formatMessage = require('format-message')
 var fileIo = require('_pr/lib/utils/fileio');
 
 var ApiUtil = function() {
+
+    this.messageFormatter=function(formattedMessage,replaceTextObj,callback){
+        var resultMessage = formatMessage(formattedMessage,replaceTextObj);
+        callback(null,resultMessage);
+    }
     this.errorResponse=function(code,field){
         var errObj={};
         if(code==400){
@@ -42,7 +48,25 @@ var ApiUtil = function() {
             }
         })
     };
+
+    this.writeFile = function(filePath,data,callback){
+        fileIo.writeFile(filePath, JSON.stringify(data), false, function (err) {
+            if (err) {
+                logger.error("Unable to write file");
+                callback(err,null);
+                return;
+            } else {
+                logger.debug("getTreeForNew is Done");
+                callback(null,true);
+                return;
+            }
+        })
+    };
+
     this.createCronJobPattern= function(scheduler){
+        if(!scheduler.cronRepeatEvery){
+            scheduler.cronRepeatEvery = 0;
+        }
         scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery);
         var startOn = null,endOn = null;
         if(scheduler.cronStartOn === scheduler.cronEndOn){
@@ -55,19 +79,39 @@ var ApiUtil = function() {
             endOn = scheduler.cronEndOn;
         }
         if(scheduler.cronFrequency ==='Minutes'){
-            scheduler.pattern = '*/'+scheduler.cronRepeatEvery+' * * * *';
+            if(scheduler.cronRepeatEvery){
+                scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery)
+                if(scheduler.cronRepeatEvery > 30){
+                    scheduler.pattern = scheduler.cronRepeatEvery+' * * * *';
+                }
+                else{
+                    scheduler.pattern = '*/'+scheduler.cronRepeatEvery+' * * * *';
+                }
+            }
+
+
         }else if(scheduler.cronFrequency ==='Hourly'){
-            scheduler.pattern = '0 */'+scheduler.cronRepeatEvery+' * * *';
+            if(scheduler.cronMinute)
+                scheduler.pattern = parseInt(scheduler.cronMinute) + ' */'+scheduler.cronHour+' * * *';
+            else
+                scheduler.pattern = '0 */'+scheduler.cronRepeatEvery+' * * *';
         }else if(scheduler.cronFrequency ==='Daily'){
             scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' */'+scheduler.cronRepeatEvery+' * *';
         }else if(scheduler.cronFrequency ==='Weekly') {
-            if(scheduler.cronRepeatEvery === 2) {
-                scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 8-14 * ' + parseInt(scheduler.cronWeekDay);
-            }else if(scheduler.cronRepeatEvery === 3) {
-                scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 15-21 * ' + parseInt(scheduler.cronWeekDay);
-            }else if(scheduler.cronRepeatEvery === 4) {
-                scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 22-28 * ' + parseInt(scheduler.cronWeekDay);
-            }else{
+            if(!scheduler.cronAlternateExecute){
+                if(scheduler.cronRepeatEvery === 2) {
+                    scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 8-14 * ' + parseInt(scheduler.cronWeekDay);
+                }else if(scheduler.cronRepeatEvery === 3) {
+                    scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 15-21 * ' + parseInt(scheduler.cronWeekDay);
+                }else if(scheduler.cronRepeatEvery === 4) {
+                    scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' 22-28 * ' + parseInt(scheduler.cronWeekDay);
+                }else{
+                    scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' * * ' + parseInt(scheduler.cronWeekDay);
+                }
+            }
+            else{
+                //if repeatEvery = 1 then odd week, if repeatEvery = 2 then even week and ignoring repeat every
+                //logic handled during execution.
                 scheduler.pattern = parseInt(scheduler.cronMinute)+' '+parseInt(scheduler.cronHour)+' * * ' + parseInt(scheduler.cronWeekDay);
             }
         }else if(scheduler.cronFrequency ==='Monthly') {
@@ -90,7 +134,8 @@ var ApiUtil = function() {
             "cronDate":scheduler.cronDate ? parseInt(scheduler.cronDate):0,
             "cronWeekDay":scheduler.cronWeekDay ? parseInt(scheduler.cronWeekDay):0,
             "cronMonth":scheduler.cronMonth ? scheduler.cronMonth: null,
-            "cronYear":scheduler.cronYear ? scheduler.cronYear: null
+            "cronYear":scheduler.cronYear ? scheduler.cronYear: null,
+            "cronAlternateExecute": scheduler.cronAlternateExecute ? scheduler.cronAlternateExecute: false
         }
         return cronScheduler;
     }
@@ -175,6 +220,8 @@ var ApiUtil = function() {
             page: jsonData.page > 0 ? jsonData.page : 1 ,
             limit: jsonData.pageSize
         };
+        if (jsonData.select)
+            options.select = jsonData.select;  
         databaseCall['queryObj']=queryObj;
         databaseCall['options']=options;
         callback(null, databaseCall);
@@ -193,14 +240,13 @@ var ApiUtil = function() {
             }
         }
         if(('search' in req) && (req.search !== '' || req.search !== null)){
-            reqObj['search'] =   req.search;
+         reqObj['search'] =   req.search;
         }
         if('filterBy' in req){
             reqObj['filterBy'] =   req.filterBy;
         }
         callback(null,reqObj);
     };
-
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {
@@ -280,6 +326,59 @@ var ApiUtil = function() {
         }else{
             callback(null, filterByObj);
         }
+    }
+
+    this.writeLogFile = function(desPath,data,callback){
+        fileIo.exists(desPath,function(err,existFlag){
+            if(err){
+                logger.error("Error in checking File Exists or not.",err);
+                callback(err,null);
+                return;
+            }else if(existFlag === true){
+                fileIo.appendToFile(desPath,data,function(err,dataAppend){
+                    if(err){
+                        logger.error("Error in Appending Data in exist File.",err);
+                        callback(err,null);
+                        return;
+                    }else{
+                        callback(null,dataAppend);
+                        return;
+                    }
+                })
+            }else{
+                fileIo.writeFile(desPath, data, false, function (err, fileWrite) {
+                    if (err) {
+                        logger.error("Error in Writing File.", err);
+                        callback(err, null);
+                        return;
+                    } else {
+                        callback(null, fileWrite);
+                        return;
+                    }
+                });
+            }
+
+        })
+    }
+
+    this.getWeekOfMonth = function (date) {
+        let adjustedDate = date.getDate()+date.getDay();
+        let prefixes = ['0', '1', '2', '3', '4', '5'];
+        return (parseInt(prefixes[0 | adjustedDate / 7])+1);
+    }
+
+    this.getWeekNumber = function (d) {
+        // Copy date so don't modify original
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        // Set to nearest Thursday: current date + 4 - current day number
+        // Make Sunday's day number 7
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+        // Get first day of year
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+        // Calculate full weeks to nearest Thursday
+        var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+        // Return array of year and week number
+        return weekNo;
     }
 
 

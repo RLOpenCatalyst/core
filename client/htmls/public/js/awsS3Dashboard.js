@@ -304,22 +304,7 @@ $(document).ready(function() {
           "processing": true,
           "serverSide": true,
           "destroy":true,
-          "ajax": {
-              "url": '/resources?filterBy=providerId:'+ providerId +',resourceType:S3,category:unassigned',
-              "data": function( result ) {
-                  var columnIndex = parseInt(result.order[0].column);
-                  var newResult = {
-                      draw:result.draw,
-                      page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
-                      pageSize:result.length,
-                      sortOrder:result.order[0].dir,
-                      sortBy:result.columns[columnIndex].data,
-                      filterBy:result.filterBy,
-                      search:result.search.value
-                  }
-                  return newResult;
-              }
-          },
+          "ajax": '/resources?filterBy=providerId:'+ providerId +',resourceType:S3,category:unassigned',
           "createdRow": function( row, data ) {
               $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
           },
@@ -343,22 +328,7 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": {
-                "url":'/resources?filterBy=resourceType:S3,category:unassigned',
-                "data": function( result ) {
-                    var columnIndex = parseInt(result.order[0].column);
-                    var newResult = {
-                        draw:result.draw,
-                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
-                        pageSize:result.length,
-                        sortOrder:result.order[0].dir,
-                        sortBy:result.columns[columnIndex].data,
-                        filterBy:result.filterBy,
-                        search:result.search.value
-                    }
-                    return newResult;
-                }
-            },
+            "ajax": '/resources?filterBy=resourceType:S3,category:unassigned',
             "createdRow": function( row, data ) {
                 $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
             },

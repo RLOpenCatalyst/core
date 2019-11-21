@@ -1,0 +1,154 @@
+{
+	"bots": [{
+		"_id": "58f457305188c127225c8303",
+		"name": "RLCatalyst:Jenkins TestMail BOT",
+		"gitHubId": "58e764e1e90166bf59812e34",
+		"id": "rl_jenkins_testmail_bot",
+		"desc": "RL Jenkins TestMail BOT",
+		"action": "run",
+		"category": "Service Management",
+		"type": "jenkins",
+		"inputFormFields": [{
+			"reference": "Catalyst.jenkinServer",
+			"default": "jenkinsServer",
+			"type": "list",
+			"label": "Server Name",
+			"name": "server_name"
+		}, {
+			"reference": "Catalyst.jobName",
+			"default": "testmail",
+			"type": "text",
+			"label": "Job Name",
+			"name": "job_name"
+		}, {
+			"reference": "Catalyst.jobURL",
+			"default": "http://jenkins.rlcatalyst.com/job/testmail/",
+			"type": "text",
+			"label": "Job URL",
+			"name": "job_url"
+		}],
+		"outputOptions": {
+			"msgs": {
+				"mail": "JOB Name  : ${job_name}\nServer Name : ${server_name}\n",
+				"text": "${job_name} job is successfully build on ${server_name}"
+			},
+			"logs": ["/var/log/${bot_run_id}/jenkin_operation.log"]
+		},
+		"ymlDocFileId": "bb80557e-d8ad-4bd7-862b-ca1cbac67da4",
+		"orgId": "aeb4a50c-eda5-43db-8e76-dce148cca72c",
+		"orgName": "SINTL",
+		"ymlFileName": "rl_jenkins_testmail_bot",
+		"ymlFileData": "## ID - auto generated or manual alpha numeric, must be unique across RLC\nid: rl_jenkins_testmail_bot\n## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)\nname: RLCatalyst:Jenkins TestMail BOT \n## Desc - Few line brief about the BOT and its characteristics.\ndesc:  RL Jenkins TestMail BOT\nfunctionality: Service Management\n## Action -> Check, Run, Meta, Predict...\naction: run\n## Type ->  Chef, Script, UI, etc...\ntype: jenkins\n## Parameters check for taking parameters at run time.\nisParameterized: false\n## Manual Execution Time is in Minutes.\nmanualExecutionTime: 5\n## Sample input form\n##    form    - its form based input\n##    name    - variable name\n##    label   - label text\n##    type    - text, password, file, list\n##    default - sample grayed text to help user\n\ninput:\n  - form:\n    - name: server_name\n      label: Server Name\n      type: list\n      default: jenkinsServer\n      reference: Catalyst.jenkinServer\n    - name: job_name\n      label: Job Name\n      type: text\n      default: testmail\n      reference: Catalyst.jobName\n    - name: job_url\n      label: Job URL\n      type: text\n      default: http://jenkins.rlcatalyst.com/job/testmail/\n      reference: Catalyst.jobURL\n      \nexecution: \n  - \n    os: ubuntu\n    stage: jenkins\n    entrypoint: testmail\n    param: ${job_name} ${server_name}\n    type: jenkins\n## Sample output collection\n##    images  - list of images and its locations\n##    logs    - list of text logs\n##    msg     - information to convey back to user\n##    {}      - data list should be as much as {}\n##              fudged in order\n\noutput:\n   logs:\n    - /var/log/${bot_run_id}/jenkin_operation.log\n\n   msgs:\n        text: \"${job_name} job is successfully build on ${server_name}\"\n        mail: | \n              JOB Name  : ${job_name}\n              Server Name : ${server_name}\n",
+		"isScheduled": false,
+		"manualExecutionTime": 5,
+		"executionCount": 2,
+		"scheduler": {},
+		"createdOn": 1493123578358,
+		"lastRunTime": 1493124464173,
+		"savedTime": {
+			"hours": 0,
+			"minutes": 5
+		},
+		"source": "GitHub",
+		"lastExecutionStatus": "success",
+		"srnTicketNo": "INC0000001",
+		"srnTicketLink": "https://ven01745.service-now.com/api/now/table/incident?number=INC0000001",
+		"srnTicketShortDesc": "Can't read email",
+		"srnTicketDesc": "User can't access email on mail.company.com.",
+		"srnTicketStatus": "Closed",
+		"srnTicketPriority": "1-Critical",
+		"srnTicketResolvedBy": "admin",
+		"srnTicketResolvedAt": 1458051972,
+		"srnTicketCreatedOn": 1405428853,
+		"srnTicketClosedAt": 1450201206,
+		"srnTicketOpenedAt": 1450114791,
+		"srnTicketUpdatedOn": 1458053167,
+		"srnTicketCategory": "network"
+	}, {
+		"_id": "58f457305188c127225c8303",
+		"name": "RLCatalyst:Jenkins TestMail BOT",
+		"gitHubId": "58e764e1e90166bf59812e34",
+		"id": "rl_jenkins_testmail_bot",
+		"desc": "RL Jenkins TestMail BOT",
+		"action": "run",
+		"category": "Service Management",
+		"type": "jenkins",
+		"inputFormFields": [{
+			"reference": "Catalyst.jenkinServer",
+			"default": "jenkinsServer",
+			"type": "list",
+			"label": "Server Name",
+			"name": "server_name"
+		}, {
+			"reference": "Catalyst.jobName",
+			"default": "testmail",
+			"type": "text",
+			"label": "Job Name",
+			"name": "job_name"
+		}, {
+			"reference": "Catalyst.jobURL",
+			"default": "http://jenkins.rlcatalyst.com/job/testmail/",
+			"type": "text",
+			"label": "Job URL",
+			"name": "job_url"
+		}],
+		"outputOptions": {
+			"msgs": {
+				"mail": "JOB Name  : ${job_name}\nServer Name : ${server_name}\n",
+				"text": "${job_name} job is successfully build on ${server_name}"
+			},
+			"logs": ["/var/log/${bot_run_id}/jenkin_operation.log"]
+		},
+		"ymlDocFileId": "bb80557e-d8ad-4bd7-862b-ca1cbac67da4",
+		"orgId": "aeb4a50c-eda5-43db-8e76-dce148cca72c",
+		"orgName": "SINTL",
+		"ymlFileName": "rl_jenkins_testmail_bot",
+		"ymlFileData": "## ID - auto generated or manual alpha numeric, must be unique across RLC\nid: rl_jenkins_testmail_bot\n## Name - human readable name (e.g., Install MongoDB, Change JIRA password...)\nname: RLCatalyst:Jenkins TestMail BOT \n## Desc - Few line brief about the BOT and its characteristics.\ndesc:  RL Jenkins TestMail BOT\nfunctionality: Service Management\n## Action -> Check, Run, Meta, Predict...\naction: run\n## Type ->  Chef, Script, UI, etc...\ntype: jenkins\n## Parameters check for taking parameters at run time.\nisParameterized: false\n## Manual Execution Time is in Minutes.\nmanualExecutionTime: 5\n## Sample input form\n##    form    - its form based input\n##    name    - variable name\n##    label   - label text\n##    type    - text, password, file, list\n##    default - sample grayed text to help user\n\ninput:\n  - form:\n    - name: server_name\n      label: Server Name\n      type: list\n      default: jenkinsServer\n      reference: Catalyst.jenkinServer\n    - name: job_name\n      label: Job Name\n      type: text\n      default: testmail\n      reference: Catalyst.jobName\n    - name: job_url\n      label: Job URL\n      type: text\n      default: http://jenkins.rlcatalyst.com/job/testmail/\n      reference: Catalyst.jobURL\n      \nexecution: \n  - \n    os: ubuntu\n    stage: jenkins\n    entrypoint: testmail\n    param: ${job_name} ${server_name}\n    type: jenkins\n## Sample output collection\n##    images  - list of images and its locations\n##    logs    - list of text logs\n##    msg     - information to convey back to user\n##    {}      - data list should be as much as {}\n##              fudged in order\n\noutput:\n   logs:\n    - /var/log/${bot_run_id}/jenkin_operation.log\n\n   msgs:\n        text: \"${job_name} job is successfully build on ${server_name}\"\n        mail: | \n              JOB Name  : ${job_name}\n              Server Name : ${server_name}\n",
+		"isScheduled": false,
+		"manualExecutionTime": 5,
+		"executionCount": 2,
+		"scheduler": {},
+		"createdOn": 1493123578358,
+		"lastRunTime": 1493124464173,
+		"savedTime": {
+			"hours": 0,
+			"minutes": 5
+		},
+		"source": "GitHub",
+		"lastExecutionStatus": "success",
+		"srnTicketNo": "INC0000001",
+		"srnTicketLink": "https://ven01745.service-now.com/api/now/table/incident?number=INC0000001",
+		"srnTicketShortDesc": "Can't read email",
+		"srnTicketDesc": "User can't access email on mail.company.com.",
+		"srnTicketStatus": "Closed",
+		"srnTicketPriority": "1-Critical",
+		"srnTicketResolvedBy": "admin",
+		"srnTicketResolvedAt": 1458051972,
+		"srnTicketCreatedOn": 1405428853,
+		"srnTicketClosedAt": 1450201206,
+		"srnTicketOpenedAt": 1450114791,
+		"srnTicketUpdatedOn": 1458053167,
+		"srnTicketCategory": "network"
+	}],
+	"metaData": {
+		"totalRecords": 2,
+		"pageSize": 24,
+		"page": 1,
+		"totalPages": 1,
+		"sortBy": "lastRunTime",
+		"sortOrder": "desc"
+	},
+	"botSummary": {
+		"totalNoOfBots": 84,
+		"totalSavedTimeForBots": {
+			"days": 0,
+			"hours": 0,
+			"minutes": 5
+		},
+		"totalNoOfServiceNowTickets": 2,
+		"totalNoOfSuccessBots": 2,
+		"totalNoOfRunningBots": 0,
+		"totalNoOfFailedBots": 0,
+		"totalNoOfFailedServiceNowTickets": 0
+	}
+}

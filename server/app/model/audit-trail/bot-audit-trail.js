@@ -62,6 +62,7 @@ var BotAuditTrailSchema = new BaseAuditTrail({
             type: Number,
             required: false
         },
+        serviceNowTicketRefObj:Schema.Types.Mixed,
         nodeIdsWithActionLog:[Schema.Types.Mixed]
     }
 });

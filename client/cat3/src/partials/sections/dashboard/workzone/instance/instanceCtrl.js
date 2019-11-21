@@ -189,7 +189,7 @@
                             width: 160,
                             enableSorting: false,
                             cellTemplate: 'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'
-                        }],
+                        }]
                     });
                 };
                 /*APIs registered are triggered as ui-grid is configured 
@@ -230,7 +230,7 @@
                             $scope.cardsPerPage = pageSize;
                             $scope.instancesListCardView();
                         });
-                    },
+                    }
                 });
                 $scope.cardPaginationChange = function() {
                     $scope.paginationParams.page = $scope.currentCardPage;
@@ -775,8 +775,14 @@
                     $scope.setCardView();
                     $scope.getProviders();
                     $scope.getAllRegionsList();
+                    if ($rootScope.requestParams) {
+                        $scope.envParams = $rootScope.requestParams;
+                        $scope.initGrids();
+                        helper.setPaginationDefaults();
+                        $scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage') - gridBottomSpace;
+                    }
                 };
                 $scope.init();
             }
         ]);
-})(angular);
+}(angular));

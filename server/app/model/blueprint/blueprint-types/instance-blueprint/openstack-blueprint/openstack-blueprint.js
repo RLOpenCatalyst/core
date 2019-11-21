@@ -278,7 +278,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                 instance.id = data._id;
                 var timestampStarted = new Date().getTime();
                 var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
-                var logsReferenceIds = [instance.id, actionLog._id];
+                var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
                 logsDao.insertLog({
                     referenceId: logsReferenceIds,
                     err: false,
@@ -287,7 +287,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                 });
                 if(launchParams.auditTrailId !== null){
                     var resultTaskExecution={
-                        "actionLogId":logsReferenceIds[1],
+                        "actionLogId":launchParams.actionLogId,
                         "auditTrailConfig.nodeIdsWithActionLog":[{
                             "actionLogId" : logsReferenceIds[1],
                             "nodeId" : logsReferenceIds[0]
@@ -298,7 +298,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                         "masterDetails.projectName":launchParams.projectName,
                         "masterDetails.envName":launchParams.envName
                     }
-                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                    auditTrailService.updateAuditTrail(launchParams.auditType,launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                         if (err) {
                             logger.error("Failed to create or update bots Log: ", err);
                         }
@@ -484,9 +484,10 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             var resultTaskExecution={
                                                 actionStatus : "failed",
                                                 status:"failed",
-                                                endedOn : new Date().getTime()
+                                                endedOn : new Date().getTime(),
+                                                actionLogId:launchParams.actionLogId
                                             }
-                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                            auditTrailService.updateAuditTrail(launchParams.auditType,launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                 if (err) {
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }
@@ -520,14 +521,15 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             var resultTaskExecution={
                                                 actionStatus : "success",
                                                 status:"success",
-                                                endedOn : new Date().getTime()
+                                                endedOn : new Date().getTime(),
+                                                actionLogId:launchParams.actionLogId
                                             }
-                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                            auditTrailService.updateAuditTrail(launchParams.auditType,launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                 if (err) {
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }
-                                                var botService = require('_pr/services/botsService');
-                                                botService.updateSavedTimePerBots(launchParams.blueprintData._id,function(err,data){
+                                                var botOldService = require('_pr/services/botOldService');
+                                                botOldService.updateSavedTimePerBots(launchParams.botId,launchParams,auditType,function(err,data){
                                                     if (err) {
                                                         logger.error("Failed to update bots saved Time: ", err);
                                                     }
@@ -601,9 +603,10 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             var resultTaskExecution={
                                                 actionStatus : "failed",
                                                 status:"failed",
-                                                endedOn : new Date().getTime()
+                                                endedOn : new Date().getTime(),
+                                                actionLogId:launchParams.actionLogId
                                             }
-                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                            auditTrailService.updateAuditTrail(launchParams.auditType,launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                 if (err) {
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }

@@ -11,6 +11,7 @@
 		<link rel="stylesheet" type="text/css" href="lib/angular-ui-grid/ui-grid.css" />
 		<!-- Application stylesheets -->
 		<link rel="stylesheet" type="text/css" href="styles/default.css" />
+
 		<link rel="stylesheet" type="text/css" href="catalyst/partials/global.css" />
 		<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/header/header.css" />
 		<link rel='stylesheet' type='text/css' href='catalyst/partials/sections/login/login.css'>
@@ -23,16 +24,20 @@
 		<script src="lib/angular/angular.min.js"></script>
 		<script src="lib/angular-ui-router/angular-ui-router.min.js"></script>
 		<script src="lib/angular-ui-grid/ui-grid.min.js"></script>
+		<script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
+		<script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
 		<script src="lib/angular-touch/angular-touch.min.js"></script>
 		<script src="customlib/dateTime/js/material.min.js"></script>
 		<script src="customlib/dateTime/js/moment-with-locales.min.js"></script>
 		<script src="customlib/dateTime/js/bootstrap-material-datetimepicker.js"></script>
-		<script src="customlib/ui-bootstrap-custom-0.13.4.min.js"></script>
-		<script src="customlib/ui-bootstrap-custom-tpls-0.13.4.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.4/ui-bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.4/ui-bootstrap-tpls.min.js"></script>
 		<script src="lib/angular-strap/angular-strap.min.js"></script>
 		<script src="customlib/maxcdn-bootstrap.min.js"></script>
 		<script src="lib/angular-sanitize/angular-sanitize.min.js"></script>
 		<script src="customlib/angular-messages.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+		<script src="customlib/moment.min.js"></script>
 		<script src="lib/lodash/lodash/lodash.min.js"></script>
 		<script src="lib/ng-file-upload/ng-file-upload.min.js"></script>
 		<script src="src/partials/globals/toaster/angular-toastr.tpls.js"></script>
@@ -119,11 +124,20 @@
 		<script src="src/partials/sections/dashboard/bots/controller/botDescriptionCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/botHistoryCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/botLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/scheduledBotCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/botScheduleCtrl.js"></script>
         <script src="src/partials/sections/dashboard/bots/controller/libraryCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/editParamsCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/botExecutionLogsCtrl.js"></script>
 	    <script src="src/partials/sections/dashboard/bots/controller/botChefLogCtrl.js"></script>
+	    <script src="src/partials/sections/dashboard/bots/controller/botsExecutionLogsNewCtrl.js"></script>
+	     <script src="src/partials/sections/dashboard/bots/controller/botReportCtrl.js"></script>
+	    <script src="src/partials/sections/dashboard/bots/controller/instanceInfoCtrl.js"></script>
+	    <script src="src/partials/sections/dashboard/bots/controller/jenkinsLogCtrlForBots.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/newBotCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/runBookCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/runbookBotsCtrl.js"></script>
+	    <script src="src/partials/sections/dashboard/bots/services/botsCreateService.js"></script>
 		<script src="src/partials/sections/dashboard/design/aDesignCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/controllers/addDockerTemplateCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/controllers/appUrlCreateCtrl.js"></script>
@@ -138,7 +152,9 @@
 		<script src="src/partials/sections/dashboard/setting/organization/organizationCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationListCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationNewCtrl.js"></script>
-		<script src="src/partials/sections/dashboard/setting/settingCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/setting/asettingCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/setting/controller/createDashboard.js"></script>
+		<script src="src/partials/sections/dashboard/setting/controller/dashboardList.js"></script>
 		<script src="src/partials/sections/dashboard/track/trackCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/application/applicationCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/application/applicationHistoryCtrl.js"></script>

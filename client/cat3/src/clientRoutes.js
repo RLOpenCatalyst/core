@@ -19,11 +19,11 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 	$stateProvider.state('signinDefault', {
 		url: "",
 		templateUrl: "src/partials/sections/login/login.html",
-		controller: "loginCtrl"
+		controller: "loginCtrl as logD"
 	}).state('signin', {
 		url: "/signin",
 		templateUrl: "src/partials/sections/login/login.html",
-		controller: "loginCtrl"
+		controller: "loginCtrl as logD"
 	}).state('dashboard', {
 		url: "/dashboard",
 		template: "<div ui-view></div>",
@@ -90,9 +90,10 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 			}]
 		}
 	}).state('dashboard.bots', {
-		url: "/bots",
+		url: "/bots/library",
 		templateUrl: "src/partials/sections/dashboard/bots/bots.html",
 		controller: "botsCtrl as bts",
+        abstract: true,
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();

@@ -12,7 +12,7 @@
         <div class="widget-box">
             <div class="widget-header">
                 <h5 class="widget-title widgetColor">
-                    <strong>List of GitHub Repo</strong>
+                    <strong>List of Git Repo</strong>
                 </h5>
                 <div class="widget-toolbar no-border">
                     <div>
@@ -33,7 +33,8 @@
                                 <td>Catalyst Organization</td>
                                 <td>Repository User/Organization</td>
                                 <td>Repository Type</td>
-                                <td style="width:180px;">Action</td>
+                                <td>Repository Branch</td>
+                                <td style="width:200px;">Action</td>
                             </tr>
                             </thead>
                             <tbody id="githubInput">
@@ -63,13 +64,20 @@
                 </div>
                 <div class="modal-body">
                     <fieldset class="fieldsetCustom">
-                        <div class="col-lg-6 col-md-6 col-xs-6">
+                        <div class="col-lg-12 col-md-12 margintop15">
+                            <label for="gitUrl">Repository URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="gitUrl" class="required gitUrl form-control" id="gitUrl">
+                                <label for="gitUrl">Ex: https://user@service/organization/repository</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden">
                             <label for="gitName">Repository Name:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
                                 <input type="text" name="gitName" class="required gitName form-control" id="gitName">
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-xs-6">
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
                             <label for="gitDescription">Description:</label>
                             <div class="input-groups">
                                 <input type="text" name="gitDescription" class="gitDescription form-control" id="gitDescription">
@@ -81,14 +89,34 @@
                                 <select id="orgName" name="orgName" class="required form-control width-100" style="vertical-align:central"></select>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 margintop15">
+                        <div class="col-lg-6 col-md-6 margintop15 hidden">
                             <label for="gitRepoOwner">Repository User/Organization:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
                                 <input type="text" name="gitRepoOwner" class="required gitRepoOwner form-control" id="gitRepoOwner">
                             </div>
                         </div>
+
+
+                        <div class="col-lg-6 col-md-6 margintop15">
+                            <label for="gitRepoOwner">Repository Branch:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="gitRepoBranch" class="required gitRepoBranch form-control" id="gitRepoBranch">
+                            </div>
+                        </div>
                         <hr/>
-                        <div class="col-lg-12 col-md-12 col-xs-12 margintop15 isAuthenticated">
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 repoMode hidden">
+                            <label for="">Repository Mode:</label>
+                            <div class="input-groups">
+                                <div class="radio radioInline">
+                                    <label><input type="radio" value="Git" checked="true" name="repoMode" >Github</label>
+                                </div>
+                                <div class="radio radioInline marginleft5 marginTop8">
+                                    <label><input type="radio"  value="Bitbucket" name="repoMode">Bitbucket</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 isAuthenticated">
                             <label for="">Repository Type:</label>
                             <div class="input-groups">
                                 <div class="radio radioInline">
@@ -99,6 +127,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-lg-12 col-lg-12 col-xs-12 margintop15 isAunthenticatedSection hidden">
                             <label for="authenticationType">Authentication Type:</label>
                             <select id="authenticationType" name="authenticationType" class="form-control width-100" style="vertical-align:central">
@@ -109,7 +138,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForUser">
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForUserToken">
                             <label for="protocolUser">User Name:</label>
                             <input type="text" name="protocolUser" class="protocolUser form-control" id="protocolUser">
                         </div>
@@ -160,4 +189,48 @@
     </div>
 </div>
 <!--model ends here-->
+
+<div class="modal fade" id="modalForGitImport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog " style="">
+      <div class="modal-content">
+        <form role="form" id="gitCloneImport">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">
+               <i class="ace-icon fa fa-download bigger-120"></i> Import BOTs
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div class="col-lg-12">
+               <div id="gitImpLoader" style="display:none">
+                  <img class="center-block" style="height: 50px; width: 50px;margin-top:10px;" src="img/loading.gif" />
+                </div>
+               <table id="gitImportTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+                  <thead>
+                     <tr class="rowCustomStyle">
+                        <td style="width:200px;">BOT(s) Name</td>
+                        <td>Repository Name</td>
+                        <td>Action&nbsp;<input type="checkbox" id="selectAllCheckbox"/></td>
+                     </tr>
+                  </thead>
+                  <tbody id="importBotsList">
+                  </tbody>
+                  <input type="hidden" id="gitEditImportHiddenInputId">
+               </table>
+               <div id="noDataAvailable" style="display:none" class="alert alert-info text-center">No Data Found</div>
+               <div class="clearfix"></div>
+               
+            </div>
+            <div class="clearfix"></div>
+         </div>
+         <div class="modal-footer">
+            <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+            <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
+            <button type="submit" id="gitCloneImportSave" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Clone</button>
+         </div>
+         
+     </form>
+      </div>
+   </div>
+</div>
 <script src="js/gitHubList.js"></script>

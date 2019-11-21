@@ -21,7 +21,7 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-var schemaValidator = require('../../../dao/schema-validator');
+var schemaValidator = require('_pr/model/dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
 
 var Schema = mongoose.Schema;
@@ -150,6 +150,7 @@ awsProviderSchema.statics.getAWSProvidersForOrg = function (orgList, callback) {
 
 awsProviderSchema.statics.getAWSProviderById = function (providerId, callback) {
     logger.debug("Enter getAWSProviderById");
+    logger.debug ("providerID =="+ providerId);
     if (!providerId) {
         process.nextTick(function () {
             callback({
@@ -312,7 +313,17 @@ awsProviderSchema.statics.hasDefault = function hasDefault(orgId, callback) {
     });
 };
 
-
+awsProviderSchema.statics.getName = function (query,callback) {
+    this.find(query,
+        function (err, results) {
+            if (err) {
+                return callback(err);
+            } else {
+                return callback(null, results);
+            }
+        }
+    );
+};
 
 
 var AWSProvider = mongoose.model('AWSProvider', awsProviderSchema);

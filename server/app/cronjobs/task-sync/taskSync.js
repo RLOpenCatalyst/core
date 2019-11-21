@@ -4,7 +4,6 @@ var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var async = require('async');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var taskHistory = require('_pr/model/classes/tasks/taskHistory.js');
-var botsDao = require('_pr/model/bots/1.0/bots.js');
 var TaskSync = Object.create(CatalystCronJob);
 TaskSync.interval = '*/2 * * * *';
 TaskSync.execute = taskSync;
@@ -16,7 +15,15 @@ function taskSync(){
     async.parallel({
         botSync  : function(callback){
             var query={
-                auditType:'BOTs',
+                auditType:'BOTOLD',
+                actionStatus:'running',
+                isDeleted:false
+            };
+            executeTaskSyncForBotHistory(query,callback);
+        },
+        botNewSync  : function(callback){
+            var query={
+                auditType:'BOT',
                 actionStatus:'running',
                 isDeleted:false
             };

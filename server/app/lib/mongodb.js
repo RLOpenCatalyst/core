@@ -16,23 +16,16 @@ limitations under the License.
 
 
 var logger = require('_pr/logger')(module);
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'); 
 
-module.exports = function(options, callback) {
-    logger.debug(JSON.stringify(options));
-
+module.exports = function(options, callback) { 
+    logger.info(JSON.stringify(options));
     var connectionString = 'mongodb://';
-
     connectionString += options.host;
-
     connectionString += ':' + options.port;
-
     connectionString += '/' + options.dbName;
-
-    connectionString += '/?ssl=' + options.ssl;
-
-    logger.debug(connectionString);
-
+    connectionString += '?ssl=' + options.ssl;
+    logger.info(connectionString);
     var connectWithRetry = function() {
         return mongoose.connect(connectionString, function(err, res) {
           if (err) {
@@ -42,7 +35,7 @@ module.exports = function(options, callback) {
         });
     };
     connectWithRetry();
-
+    mongoose.Promise = require('bluebird');
     mongoose.connection.on('connected', function() {
         callback(null);
     });

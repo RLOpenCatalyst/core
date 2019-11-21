@@ -1,0 +1,79 @@
+<div id="botLibraryPage">
+    <div class="page-name">
+<span style="text-transform: capitalize"> {{runbookName}}</span> BOTs &nbsp;
+        <span class="pull-right">
+<button type="button" title="Back" class="btn btn-xs cat-btn-update pull-right refresh-btn" ui-sref="dashboard.bots.runbook"><i
+        class="fa fa-chevron-left" style="color: #fff"></i><span class="marginleft5">Back</span>
+        </button>
+            <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="refreshRunbookBots();">
+                <i class="fa fa-refresh white"></i>
+            </button>
+
+
+        </span>
+    </div>
+    <div class="borderTop"></div>
+    <div class="botsWidth">
+        <div class="marginleft35 margintop8 botsWidth  box-infobox" style="border-top-color:floralwhite"></div>  
+        <loading size="large" name="isRunbookBotPageLoading" type="block" align="center"></loading>
+<div class="col-lg-4 col-md-4 col-sm-6" ng-repeat="runBookBotDetail in runBookBots" ng-if="!isRunbookBotPageLoading">
+            <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
+<a class="appnav" title="Go to Details" ui-sref="dashboard.bots.botsDescription({botDetail:runBookBotDetail,listType:0,previousState:'runbookBots',runbook:runbookName})">
+                    <div class="image-cell two-tone-11">
+                        <img class="highlight" title="{{runBookBotDetail.category}}" alt="{{runBookBotDetail.category}}" ng-src="{{imageForCard(runBookBotDetail.category)}}">
+                    </div>
+                    <div class="info-cell">
+                        <div title="{{runBookBotDetail.name}}" class="title">{{runBookBotDetail.name}}</div>
+                        <div class="desc-cell">
+                            <div title="{{runBookBotDetail.desc ? runBookBotDetail.desc:runBookBotDetail.botDesc}}" class="description">{{runBookBotDetail.desc
+                                ? runBookBotDetail.desc:runBookBotDetail.botDesc}}</div>
+                        </div>
+
+                    </div>
+                    <div class="publisher">
+                    </div>
+                    <ul class="ul-vert-bar pull-left botsExecution" ng-if="runBookBotDetail.executionCount">
+                        <li class="publisher" title="{{runBookBotDetail.executionCount}}">Runs:&nbsp;{{runBookBotDetail.executionCount}}</li>
+                        <li class="publisher" title="{{runBookBotDetail.lastRunTime | timestampToLocaleTime}}"><i class="fa fa-clock-o"></i>&nbsp;<span
+                                am-time-ago="runBookBotDetail.lastRunTime">
+                                {{runBookBotDetail.lastRunTime}} &nbsp;&nbsp;</span>
+                    </ul>
+                    <div class="pull-right" style="margin-top:8px;">
+                        <a ng-if="runBookBotDetail.type ==='blueprints'" class="margin10 cursor" title="Execute"><i class="fa fa-play font-size-16"
+                                ng-click="blueprintExecute(runBookBotDetail)"></i></a>
+                        <a ng-if="runBookBotDetail.type !=='blueprints'" class="margin10 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:runBookBotDetail,listType:0})"
+                            title="Execute"><i class="fa fa-play font-size-16"></i></a>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-lg-5"></div>
+        <div class="col-lg-2">
+            <div class="text-center" ng-show="showLoadMore && !isRunbookBotPageLoading">
+                <a class="font-size-16 cursor" ng-model="currentCardPage" ng-click="cardPaginationChange()" ;>Load More</a>
+            </div>
+        </div>
+        <div class="col-lg-3"></div>
+        <div class="col-lg-2 pull-right">
+            <div ng-show="showRecords && !isRunbookBotPageLoading">
+                <h4 class="margintop-2"><small>{{statusBar}}</small></h4>
+            </div>
+        </div>
+
+
+        <!--table section starts here-->
+        <div class="col-lg-12 paddingForScreen">
+            <div class="alert alert-info text-center no-data" ng-if="!runBookBots.length > 0 && !isRunbookBotPageLoading">
+                No data Available
+            </div>          
+        </div>
+        <!--table section ends here -->
+
+
+
+
+
+
+    </div>
+</div>

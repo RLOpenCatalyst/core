@@ -1,0 +1,84 @@
+{
+  "CPUUtilization": {
+    "unit": "Percentage",
+    "symbol": "%",
+    "dataPoints": [
+      {
+        "fromTime": "2016-07-29T00:00:01",
+        "toTime": "2016-07-29T00:01:00",
+        "maximum": 0.83,
+        "minimum": 0,
+        "average": 0.035
+      },
+      {
+        "fromTime": "2016-07-29T00:01:01",
+        "toTime": "2016-07-29T00:02:00",
+        "maximum": 0.82,
+        "minimum": 0.81,
+        "average": 0.81
+      },
+      {
+        "fromTime": "2016-07-29T00:02:01",
+        "toTime": "2016-07-29T00:03:00",
+        "maximum": 0.35,
+        "minimum": 0.33,
+        "average": 0.34
+      },
+      {
+        "fromTime": "2016-07-29T00:03:01",
+        "toTime": "2016-07-29T00:04:00",
+        "maximum": 0,
+        "minimum": 0,
+        "average": 0
+      },
+      {
+        "fromTime": "2016-07-29T00:04:01",
+        "toTime": "2016-07-29T00:05:00",
+        "maximum": 0.12,
+        "minimum": 0.12,
+        "average": 0.12
+      }
+    ]
+  },
+  "DiskReadBytes": {
+    "unit": "Bytes",
+    "symbol": "Bytes",
+    "dataPoints": [
+      {
+        "fromTime": "2016-07-29T00:00:01",
+        "toTime": "2016-07-29T00:01:00",
+        "maximum": 0,
+        "minimum": 0,
+        "average": 0
+      },
+      {
+        "fromTime": "2016-07-29T00:01:01",
+        "toTime": "2016-07-29T00:02:00",
+        "maximum": 200,
+        "minimum": 200,
+        "average": 200
+      },
+      {
+        "fromTime": "2016-07-29T00:02:01",
+        "toTime": "2016-07-29T00:03:00",
+        "maximum": 1000,
+        "minimum": 500,
+        "average": 750
+      },
+      {
+        "fromTime": "2016-07-29T00:03:01",
+        "toTime": "2016-07-29T00:04:00",
+        "maximum": 400,
+        "minimum": 400,
+        "average": 400
+      },
+      {
+        "fromTime": "2016-07-29T00:04:01",
+        "toTime": "2016-07-29T00:05:00",
+        "maximum": 625,
+        "minimum": 620,
+        "average": 623
+      }
+    ]
+  }
+}

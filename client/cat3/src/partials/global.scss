@@ -405,8 +405,20 @@ $imagePath : "../../../../../../cat3/images";
 .cat-btn-update, .cat-btn-save {
     color: #fff;
     border-color: #40BAF1 !important;
-    @include btn-theme; 
+    @include btn-theme;
 }
+
+//.cat-btn-update:hover {
+//    color: #333;
+//    background-color: #e6e6e6;
+//    border-color: #adadad;
+//}
+//
+//.cat-btn-update:active {
+//    color: #333;
+//    background-color: #e6e6e6;
+//    border-color: #adadad;
+//}
 
 .cat-btn-cancel, .cat-btn-close { 
     color: #333; 
@@ -1432,19 +1444,19 @@ label {
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
 
-div::-webkit-scrollbar-track
+div::-webkit-scrollbar-track, ul::-webkit-scrollbar-track
 {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     background-color: #F5F5F5;
 }
 
-div::-webkit-scrollbar
+div::-webkit-scrollbar, ul::-webkit-scrollbar
 {
     width: 10px;
     background-color: #F5F5F5;
 }
 
-div::-webkit-scrollbar-thumb
+div::-webkit-scrollbar-thumb, ul::-webkit-scrollbar-thumb
 {
     background-color: #40BAF1;
     background-image: -webkit-linear-gradient(45deg,
@@ -1461,6 +1473,59 @@ div::-webkit-scrollbar-thumb
 }
 input[type="text"].ui-grid-filter-input{
     color: #000000;
+}
+
+.paramRow {
+    background:#636363 !important;
+    color: #fff!important;
+}
+
+.paramRow > th {
+    font-weight: 500;
+}
+
+.bots-panel-body {
+    max-height: 230px;
+    min-height: 230px;
+    overflow-y:auto!important;
+}
+
+.boxed-group {
+    position: relative;
+    margin-bottom: 30px;
+    border-radius: 3px;
+}
+
+.boxed-group.dangerzone>h3 {
+    color: #fff;
+    background-color: #d73a49;
+    border: 1px solid #9e1c23;
+}
+
+.boxed-group.schedulerZone>h3 {
+    color: #fff;
+    background-color: #636363;
+}
+
+.boxed-group>h3, .boxed-group .heading {
+    display: block;
+    padding: 9px 10px 10px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 17px;
+    background-color: #f6f8fa;
+    border: 1px solid rgba(27,31,35,0.15);
+    border-bottom: 0;
+    border-radius: 3px 3px 0 0;
+}
+
+.boxed-group-inner {
+    margin-top: 15px;
+}
+
+.boxed-action {
+    float: right;
+    margin-left: 10px;
 }
 
 // grid view tab class
@@ -1480,4 +1545,164 @@ input[type="text"].ui-grid-filter-input{
 .show-grid {
     visibility: inherit;
     height: auto;
+}
+
+.search-text{
+    border-radius: 21px;
+    height: 31px;
+    width: 221px;
+    padding: 8px;
+    font-weight: 200 !important;
+    font-size: 12px !important;
+    outline: none;
+}
+
+.marginright6 {
+    margin-right: 6px;
+}
+
+.marginLeftRight10 {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#rightMenu {
+    .navbar-top-links {
+        margin-right: 0;
+    }
+    .navbar-top-links li {
+        display: inline-block;
+    }
+    .navbar-top-links li a {
+        padding: 15px;
+        min-height: 49px;
+    }
+    .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+        background-color: #525961;
+        border-color: #fff;
+    }
+    .navbar-top-links .dropdown-menu li {
+        display: block;
+    }
+    .navbar-top-links .dropdown-menu li a {
+        
+        min-height: 0;
+    }
+    .nav>li>a:hover {    
+        text-decoration: none;    
+        background-color: #525961;
+    }
+    .dropdown-menu {
+        color: #000;
+        background: #fff;
+        padding: 6px;
+        min-width: 100px;
+        line-height: 2;
+    }
+}
+
+.pluginBlueprintImageLogo {
+    height: 28px;
+}
+
+// calender
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #40BAF1 !important;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+    border-bottom: 1px solid #ccc;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #40BAF1 !important;
+    color: #fff;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #40BAF1 !important;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #40BAF1 !important;
+    color: #fff;
+}
+#dtp-svg-clock {
+    line {
+     stroke: #40BAF1 !important;
+    }
+    circle{
+         fill: #40BAF1 !important;
+    }
+}
+
+.font-size-16{
+  font-size: 16px !important;
+}
+
+.padding6 {
+    padding: 6.5px!important
+}
+
+@media (min-width: 1550px) {
+    .bots-panel-body {
+        max-height: 350px;
+        min-height: 350px;
+        overflow-y:auto!important;
+    }
+}
+
+.form-controlSelect {
+    display: inline;
+    width: 60%;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 1.428571429;
+    color: #555;
+    vertical-align: middle;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    height: 30px;
+}
+
+.lable-align {
+    vertical-align: middle;
+}
+
+.jenkins-auto-sync-radio, .jenkins-job-parameter-text {
+    margin-left: 15px;
+    float: left;
+    padding: 6px 0;
+}
+
+.select-nodes {
+    border: 1px solid #dddddd;
+    list-style: none outside none;
+    height: 150px;
+    overflow-y: auto;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.check-list {
+    margin: 5px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.checkboxall-right {
+    margin-left: 2px !important;
+}
+
+.checkboxStyling {
+    float: right;
+    margin-right: 14px !important;
+    margin-top: 2px !important;
+}
+
+.checkbox-list {
+    margin-top: 3px;
 }

@@ -226,7 +226,7 @@ $(document).ready(function () {
             "serverSide": true,
             "destroy": true,
             "ajax": {
-                "url": '/providers/' + providerId + '/managedInstanceList',
+                "url":'/providers/' + providerId + '/managedInstanceList',
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {
@@ -442,7 +442,7 @@ $(document).ready(function () {
                 $(row).attr({"data-id": data._id})
             },
             "ajax": {
-                "url":  '/providers/' + providerId + '/unassigned-instances',
+                "url":'/providers/' + providerId + '/unassigned-instances',
                 "data": function( result ) {
                     var columnIndex = parseInt(result.order[0].column);
                     var newResult = {

@@ -59,28 +59,37 @@
 							Applications
 						</a>
 					</li>
+					<!--<li ng-class="{active:tab.isSet('Dashboard')}">-->
+						<!--<a ng-click="tab.setTab('Dashboard');removeActive()">-->
+                            <!--<i class="fa fa-tachometer black"></i>-->
+							<!--Dashboard-->
+						<!--</a>-->
+					<!--</li>-->
 				</ul>
-				<div class="{{tab.isSet('Instances')? 'show-grid-tab':'hide-grid'}}">
-					 <div ng-include="tab.templates.instance.url"></div>
+				<div class="{{tab.isSet('Instances')? 'show-grid-tab':'hide-grid'}}" ng-if="tab.isSet('Instances')">
+					<div ng-include="tab.templates.instance.url"></div>
 				</div>
-				<div ng-show="tab.isSet('Blueprints')">
-					  <div ng-include="tab.templates.blueprint.url"></div>
+				<div ng-if="tab.isSet('Blueprints')">
+					<div ng-include="tab.templates.blueprint.url"></div>
 				</div>
-				<div ng-show="tab.isSet('CloudFormation')">
-					  <div ng-include="tab.templates.cloudFormation.url"></div>
+				<div ng-if="tab.isSet('CloudFormation')">
+					<div ng-include="tab.templates.cloudFormation.url"></div>
 				</div>
-				<div ng-show="tab.isSet('AzureARM')">
-					  <div ng-include="tab.templates.azureARM.url"></div>
+				<div ng-if="tab.isSet('AzureARM')">
+					<div ng-include="tab.templates.azureARM.url"></div>
 				</div>
-				<div class="{{tab.isSet('Containers')? 'show-grid-tab':'hide-grid'}}">
-					  <div ng-include="tab.templates.container.url"></div>
+				<div class="{{tab.isSet('Containers')? 'show-grid-tab':'hide-grid'}}" ng-if="tab.isSet('Containers')">
+					<div ng-include="tab.templates.container.url"></div>
 				</div>
-				<div class="{{tab.isSet('Orchestration')? 'show-grid-tab':'hide-grid'}}">
-					  <div ng-include="tab.templates.orchestration.url"></div>
+				<div class="{{tab.isSet('Orchestration')? 'show-grid-tab':'hide-grid'}}" ng-if="tab.isSet('Orchestration')">
+					<div ng-include="tab.templates.orchestration.url"></div>
 				</div>
-				<div class="{{tab.isSet('Applications')? 'show-grid-tab':'hide-grid'}}">
-					  <div ng-include="tab.templates.application.url"></div>
+				<div class="{{tab.isSet('Applications')? 'show-grid-tab':'hide-grid'}}" ng-if="tab.isSet('Applications')">
+					<div ng-include="tab.templates.application.url"></div>
 				</div>
+                <!--<div class="{{tab.isSet('Dashboard')? 'show-grid-tab':'hide-grid'}}">-->
+                    <!--<iFrame src="{{dashboardUrlWZ | trustAsResourceUrl}}" frameborder="0" width="100%" height="800" allowfullscreen></iFrame>-->
+                <!--</div>-->
 			</div>
 		</div>
 	</div>

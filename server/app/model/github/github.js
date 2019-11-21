@@ -54,6 +54,11 @@ var GitHubSchema = new Schema({
         trim: true,
         required: false
     },
+    repositoryBranch:{
+        type: String,
+        trim: true,
+        required: false
+    },
     repositoryPassword: {
         type: String,
         trim: true,
@@ -73,6 +78,12 @@ var GitHubSchema = new Schema({
         type: String,
         trim: true,
         required: false
+    },
+    repoMode: {
+        type: String,
+        trim: true,
+        required: false,
+        default: "Git"
     },
     isRepoCloned:{
         type: Boolean,
@@ -194,6 +205,17 @@ GitHubSchema.statics.deleteGitHub = function (gitHubId, callback) {
                 return callback(err, null);
             } else {
                 return callback(null, true);
+            }
+        }
+    );
+};
+GitHubSchema.statics.getGitRepository = function (query,field, callback) {
+    this.find(query,field,
+        function (err, results) {
+            if (err) {
+                return callback(err);
+            } else {
+                return callback(null, results);
             }
         }
     );

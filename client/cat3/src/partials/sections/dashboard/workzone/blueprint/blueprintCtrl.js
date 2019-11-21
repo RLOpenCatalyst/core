@@ -71,12 +71,6 @@
 			/*Initialising First Accordian-group open on load*/
 			$scope.isFirstOpen = true;
 
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
-				$scope.requestParams=requestParams;
-				$scope.isBlueprintPageLoading = true;
-				$scope.blueprintListCards();
-				$scope.getAllCompsiteBlueprint();
-			});
 			
 			angular.extend($scope, {
 				blueprintListCards: function() {
@@ -252,7 +246,7 @@
 				},
 				getAllCompsiteBlueprint:function(){
 					workzoneServices.getAllCompsiteBlueprint().success(function(compBlue){
-						$scope.compositeBlueprints=compBlue.compositeBlueprints;
+						$scope.compositeBlueprints=compBlue.blueprints;
 					});
 				},
 				deleteCompositeBlueprint:function(compositeBlueprintId){
@@ -295,6 +289,14 @@
 				}
 
 			});
+
+			$scope.init = function () {
+				$scope.requestParams = $rootScope.requestParams;
+				$scope.isBlueprintPageLoading = true;
+				$scope.blueprintListCards();
+				$scope.getAllCompsiteBlueprint();
+			}
+			$scope.init();
 
 		}
 	]);

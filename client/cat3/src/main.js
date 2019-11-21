@@ -12,7 +12,7 @@
  * All modules/feature will be through
  * */
 
-var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
+var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','angularMoment',
 	'global.login',
 	'global.breadcrumb',
 	'authentication',
@@ -72,7 +72,7 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window'
 	}
 ]);
 
-angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, $http, $log, $location, $window, auth, $state, modulePerms) {
+angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'authenticationAPI', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, moment, authenticationAPI,$http, $log, $location, $window, auth, $state, modulePerms) {
 	'use strict';
 	//global Scope Constant Defined;
 	$rootScope.app = $rootScope.app || {};
@@ -86,7 +86,8 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 			settings: modulePerms.settingsAccess(),
 			track: modulePerms.trackAccess(),
 			analyticsBool: modulePerms.analyticsBool(),
-			serviceBool: modulePerms.serviceBool()
+			serviceBool: modulePerms.serviceBool(),
+            workFlowBool: true
 		};
 		$rootScope.workZoneBool = _permSet.workzone;
 		$rootScope.designBool = _permSet.design;
@@ -94,6 +95,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 		$rootScope.trackBool = _permSet.track;
 		$rootScope.analyticsBool = _permSet.analyticsBool;
 		$rootScope.serviceBool = _permSet.serviceBool;
+        $rootScope.workFlowBool = _permSet.workFlowBool;
 	});
 	$scope.$watch(function() {
 		$rootScope.moduleSelection = $state.params;
@@ -117,4 +119,48 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 	$rootScope.$on('USER_LOGOUT', function () {
 		$scope.doLogout();
 	});
+
+	$scope.checkForNotification = function() {
+		var socketClient = io('/notify')
+        socketClient.on('connect',function(){
+        	authenticationAPI.getUserPermissions().then(function(response){
+				$scope.userName = response.data.cn;
+				socketClient.emit('join','client-'+$scope.userName);
+				socketClient.emit('onLoad',$scope.userName);
+			});
+        });
+        
+        $scope.notificationList = [];
+        $scope.checkTimeForNotification = [];
+        socketClient.on('noticelist',function(data){
+        	$scope.notificationCount = data.count;
+            $scope.notificationList = data.data;
+        });
+
+        socketClient.on('notice',function(data){
+        	$scope.notificationList.unshift(data);
+    		$scope.$apply(function () {
+	            $scope.notificationCount = $scope.notificationCount + 1;
+	        });
+        });
+
+        socketClient.on('update',function(data){
+       
+        });
+
+        $scope.userClick = function() {
+        	socketClient.emit('noticeack',$scope.userName);
+        };
+
+        socketClient.on('disconnect',function(){
+            socketClient.emit('leave','client-'+$scope.userName);
+        });
+	};
+
+	$scope.notificationCheck = function() {
+		$scope.userClick();
+        $scope.notificationCount = 0;
+	};
+
+	$scope.checkForNotification();
 }]);

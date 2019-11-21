@@ -1,7 +1,9 @@
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.track', [])
-	.controller('trackCtrl',['$scope', function ($scope) {
-		$scope.Text = 'Track page';
+	angular.module('dashboard.track', []).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
+         modulePermissionProvider.$get();
+    }]).controller('trackCtrl',[ function () {
+        // create left tree
+
 	}]);
 })(angular);

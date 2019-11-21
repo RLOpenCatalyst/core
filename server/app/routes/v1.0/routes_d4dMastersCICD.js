@@ -43,18 +43,18 @@ var parser = require('xml2json');
 var util = require('util');
 var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
-var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
+var appDeployPipelineService = require('_pr/services/appDeployPipelineService');
 
 
 module.exports.setRoutes = function(app) {
 
     //app.all('/d4dMasters/*', sessionVerification);
 
-    
+
 
     app.get('/d4dMastersCICD/readmasterjsonnew/:id', function(req, res) {
         logger.debug("Enter get() for /d4dMastersCICD/readmasterjsonnew/%s", req.params.id);
-//        logger.debug("Logged in user: ", );
+        //        logger.debug("Logged in user: ", );
         logger.debug("incomming id: ", req.params.id);
         var loggedInUser = 'superadmin';
         masterUtil.getLoggedInUser(loggedInUser, function(err, anUser) {
@@ -119,7 +119,14 @@ module.exports.setRoutes = function(app) {
                             if (err) {
                                 res.status(500).send('Not able to fetch ConfigManagement.');
                             }
-                            res.send(configMgmtList);
+                            var hygProp = '';
+                            if (configMgmtList[0]) {
+                                hygProp += 'chef.chefServerUrl=' + configMgmtList[0].url + '\n';
+                                hygProp += 'chef.username=' + configMgmtList[0].loginname + '\n';
+                                hygProp += 'chef.id=' + configMgmtList[0].rowid + '\n';
+                                hygProp += 'chef.orgId=' + configMgmtList[0].orgname_rowid[0] + '\n';
+                            }
+                            res.send(hygProp);
                             return;
                         });
 
@@ -166,33 +173,64 @@ module.exports.setRoutes = function(app) {
                         });
 
                     } else if (req.params.id === '20') {
+
+                        //Get the host name
+                        logger.debug(JSON.stringify(req.headers["dashboard-host"]));
+                        var hostname = req.headers["dashboard-host"];
+                        //logger.debug(req.ip);
                         // For Jenkins
-                        masterUtil.getJenkins(orgList, function(err, jenkinList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch Jenkins.');
-                            }
-                            //res.send(jenkinList);
-			                var hygProp = '';
-                            if(jenkinList[0]){
-                                hygProp += 'jenkins.servers[0]=' + jenkinList[0].jenkinsurl + '\n';
-                                hygProp += 'jenkins.username=' + jenkinList[0].jenkinsusername + '\n';
-                                hygProp += 'jenkins.apiKey=' + jenkinList[0].jenkinspassword + '\n';
-                            }
-                            res.send(hygProp);
-                            return;
+                        masterUtil.getDashboardServerByHost(hostname,function(err,dashboardServer){
+                            logger.debug(JSON.stringify(dashboardServer));
+                            var filterByServer = null;
+                            if(dashboardServer)
+                                filterByServer  = dashboardServer.jenkinsServerId;
+
+                            logger.debug(filterByServer);
+                            masterUtil.getJenkins(orgList, function(err, jenkinList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch Jenkins.');
+                                }
+                                //res.send(jenkinList);
+                                var hygProp = '';
+                                logger.debug(JSON.stringify(jenkinList));
+                                if(!filterByServer){
+                                    if (jenkinList[0]) {
+                                        hygProp += 'jenkins.servers[0]=' + jenkinList[0].jenkinsurl + '\n';
+                                        hygProp += 'jenkins.username=' + jenkinList[0].jenkinsusername + '\n';
+                                        hygProp += 'jenkins.apiKey=' + jenkinList[0].jenkinspassword + '\n';
+                                    }
+                                    res.send(hygProp);
+                                }
+                                else{
+                                    for(var i = 0; i < jenkinList.length; i++){
+                                        if(jenkinList[i]['rowid'] == filterByServer){
+                                            logger.debug('hit filter');
+                                            hygProp += 'jenkins.servers[0]=' + jenkinList[i].jenkinsurl + '\n';
+                                            hygProp += 'jenkins.username=' + jenkinList[i].jenkinsusername + '\n';
+                                            hygProp += 'jenkins.apiKey=' + jenkinList[i].jenkinspassword + '\n';
+                                            res.send(hygProp);
+                                            return;
+                                        }
+                                    }
+
+                                }
+                                
+                                return;
+                            });
                         });
 
                     } else if (req.params.id === '27') {
                         // For Jenkins
+
                         masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Bitbucket.');
                             }
-		                  //res.send("test\ntest");
-                          var hygProp = '';
-                            if(bitbucketList[0]){
-                              hygProp += 'git.username=' + bitbucketList[0].bitbucketusername + '\n';
-                              hygProp += 'git.password=' + bitbucketList[0].bitbucketpassword + '\n';
+                            //res.send("test\ntest");
+                            var hygProp = '';
+                            if (bitbucketList[0]) {
+                                hygProp += 'git.username=' + bitbucketList[0].bitbucketusername + '\n';
+                                hygProp += 'git.password=' + bitbucketList[0].bitbucketpassword + '\n';
                             }
                             res.send(hygProp);
                             //res.send(bitbucketList);
@@ -205,16 +243,16 @@ module.exports.setRoutes = function(app) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Octopus.');
                             }
-			             var hygProp = '';
+                            var hygProp = '';
                             // if(octopusList[0]){
                             //   hygProp += 'octopus.url=' + octopusList[0].octopusurl + '\n';
                             //   hygProp += 'octopus.apiKey=' + octopusList[0].octopuskey + '\n';
                             // }
-                            if(octopusList){
-                                for(var oi = 0; oi < octopusList.length;oi++){
-                                      hygProp += 'octopus.url[' + oi + ']=' + octopusList[oi].octopusurl + '\n';
-                                      hygProp += 'octopus.apiKey[' + oi + ']=' + octopusList[oi].octopuskey + '\n';
-                                      hygProp += 'octopus.environments[' + oi + ']=' + octopusList[oi].octopusenvs + '\n';
+                            if (octopusList) {
+                                for (var oi = 0; oi < octopusList.length; oi++) {
+                                    hygProp += 'octopus.url[' + oi + ']=' + octopusList[oi].octopusurl + '\n';
+                                    hygProp += 'octopus.apiKey[' + oi + ']=' + octopusList[oi].octopuskey + '\n';
+                                    hygProp += 'octopus.environments[' + oi + ']=' + octopusList[oi].octopusenvs + '\n';
                                 }
                             }
                             res.send(hygProp);
@@ -231,35 +269,117 @@ module.exports.setRoutes = function(app) {
                             }
                             logger.debug(functionaltestList);
                             var functionalProp = '';
-                            if(functionaltestList[0]){
-                              functionalProp += 'sbux.url=' + functionaltestList[0].functionaltesturl + '\n';
-                              functionalProp += 'sbux.days=' + functionaltestList[0].functionaltestdays + '\n';
+                            if (functionaltestList[0]) {
+                                functionalProp += 'sbux.url=' + functionaltestList[0].functionaltesturl + '\n';
+                                functionalProp += 'sbux.days=' + functionaltestList[0].functionaltestdays + '\n';
                             }
                             res.send(functionalProp);
                             //res.send(octopusList);
                             return;
                         });
 
-                    }
-                    else if (req.params.id === '23') {
+                    } else if (req.params.id === '23') {
                         // For Jira
                         logger.debug("Entering getJira");
-                        masterUtil.getJira(orgList, function(err, jiraList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch Jira.');
-                            }
-                            var hygProp = '';
-                            if (jiraList[0]) {
-                                jiraList = JSON.parse(JSON.stringify(jiraList));
-                                hygProp += 'feature.jiraBaseUrl=' + jiraList[0].jiraurl + '\n';
-                                hygProp += 'feature.jiraCredentials=' + jiraList[0].jirakey + '\n';
-                            }
-                            res.send(hygProp);
-                            return;
+
+                        //Get the host name
+                        logger.debug(JSON.stringify(req.headers["dashboard-host"]));
+                        var hostname = req.headers["dashboard-host"];
+                        //logger.debug(req.ip);
+                        // For Jenkins
+                        masterUtil.getDashboardServerByHost(hostname,function(err,dashboardServer){
+                            logger.debug(JSON.stringify(dashboardServer));
+                            var filterByServer = null;
+                            if(dashboardServer)
+                                filterByServer  = dashboardServer.jiraServerId;
+
+                                logger.debug(filterByServer);
+
+                                masterUtil.getJira(orgList, function(err, jiraList) {
+                                    if (err) {
+                                        res.status(500).send('Not able to fetch Jira.');
+                                    }
+                                    var hygProp = '';
+                                    if(!filterByServer){
+                                        if (jiraList[0]) {
+                                            jiraList = JSON.parse(JSON.stringify(jiraList));
+                                            hygProp += 'feature.jiraBaseUrl=' + jiraList[0].jiraurl + '\n';
+                                            hygProp += 'feature.jiraCredentials=' + jiraList[0].jirakey + '\n';
+                                        }
+                                        res.send(hygProp);
+                                    }
+                                    else{
+                                        jiraList = JSON.parse(JSON.stringify(jiraList));
+                                        for(var i = 0; i < jiraList.length; i++){
+                                            if(jiraList[i]['rowid'] == filterByServer){
+                                                logger.debug('hit filter');
+                                           
+                                                hygProp += 'feature.jiraBaseUrl=' + jiraList[i].jiraurl + '\n';
+                                                hygProp += 'feature.jiraCredentials=' + jiraList[i].jirakey + '\n';
+
+                                            }
+                                        }
+                                        res.send(hygProp);
+                                    }
+                                    return;
+                                });
                         });
 
-                    } 
-                    else if (req.params.id === '6') {
+                    }else if (req.params.id === '31') {
+                        // For Jira
+                        logger.debug("Entering getSonar");
+                        //Get the host name
+                        logger.debug(JSON.stringify(req.headers["dashboard-host"]));
+                        var hostname = req.headers["dashboard-host"];
+                        //logger.debug(req.ip);
+                        // For Jenkins
+                        masterUtil.getDashboardServerByHost(hostname,function(err,dashboardServer){
+                            logger.debug(JSON.stringify(dashboardServer));
+                            var filterByServer = null;
+                            if(dashboardServer)
+                                filterByServer  = dashboardServer.sonarServerId;
+
+                            logger.debug(filterByServer);
+                            masterUtil.getSonarqube(orgList, function(err, sonarqubeList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch Sonarqube.');
+                                }
+                                var hygProp = '';
+                                // if(octopusList[0]){
+                                //   hygProp += 'octopus.url=' + octopusList[0].octopusurl + '\n';
+                                //   hygProp += 'octopus.apiKey=' + octopusList[0].octopuskey + '\n';
+                                // }
+                                if(!filterByServer){
+                                    if (sonarqubeList) {
+
+                                            for (var oi = 0; oi < sonarqubeList.length; oi++) {
+                                                hygProp += 'sonar.servers[' + oi + ']=' + sonarqubeList[oi].sonarqubeurl + '\n';
+                                                hygProp += 'sonar.username=' + sonarqubeList[oi].sonarqubeusername + '\n';
+                                                hygProp += 'octopus.password=' + sonarqubeList[oi].sonarqubepassword + '\n';
+                                            }
+                                    }
+                                    res.send(hygProp);
+                                }else{
+                                    var oi = 0;
+
+                                    if (sonarqubeList) {
+                                        for(var i = 0; i < sonarqubeList.length; i++){
+                                            if(sonarqubeList[i]['rowid'] == filterByServer){
+                                                logger.debug('hit filter');
+                                                hygProp += 'sonar.servers[' + oi + ']=' + sonarqubeList[i].sonarqubeurl + '\n';
+                                                hygProp += 'sonar.username=' + sonarqubeList[i].sonarqubeusername + '\n';
+                                                hygProp += 'octopus.password=' + sonarqubeList[i].sonarqubepassword + '\n';
+                                                oi++;
+                                            }
+                                        }
+                                    }
+                                    res.send(hygProp);
+                                }
+                                return;
+                            });
+                        });
+
+                    } else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function(err, userRoleList) {
                             if (err) {
@@ -425,7 +545,7 @@ module.exports.setRoutes = function(app) {
                             return;
                         });
 
-                    }else if (req.params.id === '28') {
+                    } else if (req.params.id === '28') {
                         // For Octopus
                         masterUtil.getOctopus(orgList, function(err, octopusList) {
                             if (err) {
@@ -435,24 +555,23 @@ module.exports.setRoutes = function(app) {
                             return;
                         });
 
-                    }else if (req.params.id === '29') {
+                    } else if (req.params.id === '29') {
                         // For Functional Test
                         masterUtil.getFunctionalTest(orgList, function(err, functionaltestList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Functional Test.');
                             }
                             var functionalProp = '';
-                            if(functionaltestList[0]){
-                              functionalProp += 'sbux.url=' + functionaltestList[0].functionaltesturl + '\n';
-                              functionalProp += 'sbux.days=' + functionaltestList[0].functionaltestdays + '\n';
+                            if (functionaltestList[0]) {
+                                functionalProp += 'sbux.url=' + functionaltestList[0].functionaltesturl + '\n';
+                                functionalProp += 'sbux.days=' + functionaltestList[0].functionaltestdays + '\n';
                             }
                             res.send(functionalProp);
                             //res.send(octopusList);
                             return;
                         });
 
-                    }
-                    else if (req.params.id === '23') {
+                    } else if (req.params.id === '23') {
                         // For Jira
                         masterUtil.getJira(orgList, function(err, jiraList) {
                             if (err) {
@@ -462,7 +581,7 @@ module.exports.setRoutes = function(app) {
                             return;
                         });
 
-                    }else if (req.params.id === '6') {
+                    } else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function(err, userRoleList) {
                             if (err) {
@@ -509,6 +628,29 @@ module.exports.setRoutes = function(app) {
                             res.send(pList);
                             return;
                         });
+                    } else if (req.params.id === '31') {
+                        // For Jira
+                        logger.debug("Entering getSonar");
+                        masterUtil.getSonarqube(orgList, function(err, sonarqubeList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Sonarqube.');
+                            }
+                            var hygProp = '';
+                            // if(octopusList[0]){
+                            //   hygProp += 'octopus.url=' + octopusList[0].octopusurl + '\n';
+                            //   hygProp += 'octopus.apiKey=' + octopusList[0].octopuskey + '\n';
+                            // }
+                            if (sonarqubeList) {
+                                for (var oi = 0; oi < sonarqubeList.length; oi++) {
+                                    hygProp += 'sonar.servers[' + oi + ']=' + sonarqubeList[oi].sonarqubeurl + '\n';
+                                    hygProp += 'sonar.username=' + sonarqubeList[oi].sonarqubeusername + '\n';
+                                    hygProp += 'octopus.password=' + sonarqubeList[oi].sonarqubepassword + '\n';
+                                }
+                            }
+                            res.send(hygProp);
+                            return;
+                        });
+
                     } else {
                         logger.debug('nothin here');
                         res.send([]);
@@ -519,7 +661,23 @@ module.exports.setRoutes = function(app) {
 
     });
 
-    
+    app.get('/d4dMastersCICD/chef/pemFile/:chefServerId', function(req, res) {
+
+        configmgmtDao.getChefServerDetails(req.params.chefServerId, function(err, data) {
+            if(err) {
+                return res.status(500).send("error occured");
+            }
+
+            fileIo.readFile(data.userpemfile,function(err,fileData){
+               if(err) {
+                 return res.status(500).send("error occured");
+               }
+               res.status(200).send(fileData);
+            });
+
+        });
+
+    });
+
 
 }
-

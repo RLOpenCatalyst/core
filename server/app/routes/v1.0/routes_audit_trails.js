@@ -23,12 +23,17 @@ var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var moment = require('moment');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/audit-trail/*', sessionVerificationFunc);
+    app.all('/audit-trail*', sessionVerificationFunc);
 
     app.get('/audit-trail', function(req,res){
-        auditTrailService.getAuditTrailList(req.query,function(err,auditTrailList){
+
+        //adding user to query
+        req.query.user = req.session.user.cn;
+        logger.info(req.query.user)
+        auditTrailService.getAuditTrail(req.query,function(err,auditTrailList){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
@@ -36,6 +41,41 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             return res.status(200).send(auditTrailList);
         })
     });
+
+//API for getting the upper metric   
+    
+    app.get('/audit-trail/uppermetric', function(req,res){
+
+        //adding user to query
+        req.query.user = req.session.user.cn;
+        logger.info(req.query.user)
+        auditTrailService.getAuditTrailListMod(req.query,function(err,auditTrailList){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(auditTrailList);
+        })
+    });
+
+  
+
+    // API for Bot Report
+    app.get('/audit-trail/filterdata', function(req,res){
+
+        //adding user to query
+        req.query.user = req.session.user.cn;
+        logger.info(req.query.user)
+        auditTrailService.getMonthWiseData(req.query,req.query.period,function(err,auditTrailList){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(auditTrailList);
+        })
+    });
+
+
 
     app.get('/audit-trail/:actionId/logs', function(req,res){
         auditTrailService.getAuditTrailActionLogs(req.params.actionId,req.query.timestamp,function(err,auditTrailActionLogs){
@@ -48,12 +88,53 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/audit-trail/bots-summary', function(req,res){
-        auditTrailService.getBOTsSummary(req.query,'BOTs',function(err,botSummary){
+        var loggedUser = req.session.user.cn;
+        logger.info('Entered - bots-summary')
+        //Enabling session caching for summary data.
+        if(req.session.botcache){
+            if(moment().diff(req.session.botcache.lastrequestdate,'minutes') < 5){
+                //read from cache if query matches
+                if(JSON.stringify(req.session.botcache.lastquery) === JSON.stringify(req.query) && req.session.botcache.botSummary){
+                    logger.info('Serving from cache..last request was sooner ');
+                    logger.info('Exited - bots-summary');
+                    return res.status(200).send(req.session.botcache.botSummary);
+                }
+                else{
+                    req.session.botcache.lastquery = req.query;
+                }
+            }
+        }
+        //end session caching.
+        auditTrailService.getBotSummary(req.query,'BOT',loggedUser,function(err,botSummary){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
             }
+            logger.info('Exited - bots-summary');
+            if(req.session.botcache){
+                req.session.botcache.lastrequestdate = moment();
+                req.session.botcache.lastquery = req.query;
+                req.session.botcache.botSummary = botSummary;
+
+            }
+            else
+                botSummary.lastrequestdate = new Date();
+            req.session.botcache = {
+                lastrequestdate : moment(),
+                lastquery : req.query,
+                botSummary : botSummary
+            }
             return res.status(200).send(botSummary);
+        })
+    });
+
+    app.get('/audit-trail/:auditId/srnTicketSync', function(req,res){
+        auditTrailService.syncCatalystWithServiceNow(req.params.auditId,function(err,srnTicketSync){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(srnTicketSync);
         })
     });
 

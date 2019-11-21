@@ -11,13 +11,14 @@
  limitations under the License.
  */
 var gitHubService = require('_pr/services/gitHubService');
+var noticeService = require('_pr/services/noticeService');
 var async = require('async');
 var validate = require('express-validation');
 var gitHubValidator = require('_pr/validators/gitHubValidator');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-    app.all('/git-hub/*', sessionVerificationFunc);
+    app.all('/git-hub*', sessionVerificationFunc);
 
     /**
      * @api {get} /git-hub/ List all Git-Hub Repository
@@ -93,9 +94,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get("/git-hub", getGitHubList);
 
     function getGitHubList(req, res) {
+        var loggedUser = req.session.user.cn;
         async.waterfall([
             function(next) {
-                gitHubService.getGitHubList(req.query, next);
+                gitHubService.getGitHubList(req.query,loggedUser, next);
             }
         ], function(err, monitors) {
             if (err) {
@@ -242,7 +244,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.getGitHubSync(req.params.gitHubId, next);
+                    gitHubService.getGitHubSync(req.params.gitHubId,'sync', next);
                 }
             ],
             function(err, results) {
@@ -255,6 +257,76 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
+    app.get('/git-hub/:gitHubId/import', getGitHubImport);
+    function getGitHubImport(req, res) {
+        async.waterfall(
+            [
+                function(next) {
+                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
+                },
+                function(gitHub,next) {
+                    gitHubService.getGitHubSync(req.params.gitHubId,'import', next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    res.status(err.status).send(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
+    app.post('/git-hub/:gitHubId/copy',gitHubcopy);
+    function gitHubcopy(req,res) {
+        async.waterfall(
+            [
+                function(next) {
+                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
+                },
+                function(gitHub,next) {
+                    gitHubService.gitHubCopy(req.params.gitHubId, req.body.gitHubBody, next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    res.status(err.status).send(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
+    app.get('/git-hub/:gitHubId/content/:botId', getGitHubSingleImport);
+    function getGitHubSingleImport(req, res) {
+        async.waterfall(
+            [
+                function(next) {
+                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
+                },
+                function(gitHub,next) {
+                    gitHubService.gitHubContentSync(req.params.gitHubId, req.params.botId, next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' is synced unsuccessful'},"error",function(err,data){
+                    if(err){
+                        return res.sendStatus(500);
+                    }});
+                    res.status(err.status).send(err);
+                } else {
+                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' is synced successful'},"success",function(err,data){
+                    if(err){
+                        return res.sendStatus(500);
+                    }});
+                    return res.sendStatus(200);
+                }
+            }
+        );
+    }
     /**
      * @api {post} /git-hub/ Create a Git-Hub Repository
      * @apiName /git-hub
@@ -496,4 +568,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         );
     }
+
+    
 };

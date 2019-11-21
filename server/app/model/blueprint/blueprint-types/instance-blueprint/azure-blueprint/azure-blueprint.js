@@ -21,8 +21,6 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var CHEFInfraBlueprint = require('../chef-infra-manager/chef-infra-manager');
-
-
 var instancesDao = require('_pr/model/classes/instance/instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Docker = require('_pr/model/docker.js');
@@ -37,9 +35,7 @@ var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var fs = require('fs');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var auditTrailService = require('_pr/services/auditTrailService');
-
 var Schema = mongoose.Schema;
-
 var CLOUD_PROVIDER_TYPE = {
     AWS: 'aws',
     AZURE: 'azure'
@@ -51,6 +47,7 @@ var INFRA_MANAGER_TYPE = {
 };
 
 var azureInstanceBlueprintSchema = new Schema({
+    _id:false,
     cloudProviderType: {
         type: String,
         required: true,
@@ -83,22 +80,28 @@ var azureInstanceBlueprintSchema = new Schema({
     },
     instanceType: {
         type: String,
-        //  required: true
+        required: false,
+        trim: true
     },
     instanceOS: {
         type: String,
-        // required: true
+        required: false,
+        trim: true
     },
     instanceCount: {
         type: String,
+        required: false,
+        trim: true
     },
     instanceAmiid: {
         type: String,
-        //  required: true
+        required: false,
+        trim: true
     },
     imageId: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     cloudProviderData: Schema.Types.Mixed,
     infraMangerType: String,
@@ -189,7 +192,8 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                             password: decryptedCredentials.password,
                             sshPort: "22",
                             endpoints: self.securityGroupIds,
-                            os: self.instanceOS
+                            os: self.instanceOS,
+                            providerdata:providerdata
                         }
 
                         logger.debug("blueprint.blueprintConfig.instanceOS >>>", self.instanceOS);
@@ -233,7 +237,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                 var azureCloud = new AzureCloud(options);
 
-                                azureCloud.createServer(launchparamsazure, function(err, instanceData) {
+                                azureCloud.createServerClassic(launchparamsazure, function(err, instanceData) {
                                     if (err) {
                                         logger.error('azure createServer error', err);
                                         callback({
@@ -333,7 +337,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             instance.id = data._id;
                                             var timestampStarted = new Date().getTime();
                                             var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
-                                            var logsReferenceIds = [instance.id, actionLog._id];
+                                            var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
                                             logsDao.insertLog({
                                                 referenceId: logsReferenceIds,
                                                 err: false,
@@ -391,7 +395,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             }
                                             if(launchParams.auditTrailId !== null){
                                                 var resultTaskExecution={
-                                                    "actionLogId":logsReferenceIds[1],
+                                                    "actionLogId":launchParams.actionLogId,
                                                     "auditTrailConfig.nodeIdsWithActionLog":[{
                                                         "actionLogId" : logsReferenceIds[1],
                                                         "nodeId" : logsReferenceIds[0]
@@ -402,7 +406,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     "masterDetails.projectName":launchParams.projectName,
                                                     "masterDetails.envName":launchParams.envName
                                                 }
-                                                auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                auditTrailService.updateAuditTrail(launchParams.auditType,launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                     if (err) {
                                                         logger.error("Failed to create or update bots Log: ", err);
                                                     }
@@ -529,9 +533,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     var resultTaskExecution={
                                                                         actionStatus : "failed",
                                                                         status:"failed",
-                                                                        endedOn : new Date().getTime()
+                                                                        endedOn : new Date().getTime(),
+                                                                        actionLogId:launchParams.actionLogId
                                                                     }
-                                                                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                    auditTrailService.updateAuditTrail(launchParams.auditType,launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                         if (err) {
                                                                             logger.error("Failed to create or update bots Log: ", err);
                                                                         }
@@ -570,14 +575,15 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     var resultTaskExecution={
                                                                         actionStatus : "success",
                                                                         status:"success",
-                                                                        endedOn : new Date().getTime()
+                                                                        endedOn : new Date().getTime(),
+                                                                        actionLogId:launchParams.actionLogId
                                                                     }
-                                                                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                    auditTrailService.updateAuditTrail(launchParams.auditType,launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                         if (err) {
                                                                             logger.error("Failed to create or update bots Log: ", err);
                                                                         }
-                                                                        var botService = require('_pr/services/botsService');
-                                                                        botService.updateSavedTimePerBots(launchParams.blueprintData._id,function(err,data){
+                                                                        var botOldService = require('_pr/services/botOldService');
+                                                                        botOldService.updateSavedTimePerBots(launchParams.botId,launchParams.auditType,function(err,data){
                                                                             if (err) {
                                                                                 logger.error("Failed to update bots saved Time: ", err);
                                                                             }
@@ -652,9 +658,10 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     var resultTaskExecution={
                                                                         actionStatus : "failed",
                                                                         status:"failed",
-                                                                        endedOn : new Date().getTime()
+                                                                        endedOn : new Date().getTime(),
+                                                                        actionLogId:launchParams.actionLogId
                                                                     }
-                                                                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                    auditTrailService.updateAuditTrail(launchParams.auditType,launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                         if (err) {
                                                                             logger.error("Failed to create or update bots Log: ", err);
                                                                         }

@@ -54,7 +54,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send( errorResponses.db.error);
                 return;
             }
-            logger.debug('puppet db ==> ', puppetData);
+            
             if (!puppetData || puppetData.configType !== 'puppet') {
                 res.send(404, {
                     message: "puppet server not found"
@@ -72,7 +72,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send( errorResponses.db.error);
                 return;
             }
-            logger.debug('puppet db ==> ', puppetData);
+            
             if (!puppetData || puppetData.configType !== 'puppet') {
                 res.send(404, {
                     message: "puppet server not found"
@@ -108,7 +108,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send( errorResponses.db.error);
                 return;
             }
-            logger.debug('puppet db ==> ', puppetData);
+           
             if (!puppetData || puppetData.configType !== 'puppet') {
                 res.send(404, {
                     message: "puppet server not found"
@@ -145,7 +145,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send( errorResponses.db.error);
                 return;
             }
-            logger.debug('puppet db ==> ', puppetData);
+           
             if (!puppetData || puppetData.configType !== 'puppet') {
                 res.send(404, {
                     message: "puppet server not found"
@@ -182,7 +182,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send( errorResponses.db.error);
                 return;
             }
-            logger.debug('puppet db ==> ', puppetData);
+           
             if (!puppetData || puppetData.configType !== 'puppet') {
                 res.send(404, {
                     message: "puppet server not found"
@@ -234,6 +234,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
         }
 
         var insertNodeInMongo = function(node, nodeIp, nodeValues, nodeName) {
+           
             var platformId = '';
             if (!node.automatic) {
                 node.automatic = {};
@@ -385,8 +386,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
         };
 
-        function importNodes(nodeList) {
+        function importNodes(nodeList,puppetData) {
             logger.debug("Importing nodes");
+           
             taskStatusModule.getTaskStatus(null, function(err, obj) {
                 if (err) {
                     res.send(500);
@@ -406,10 +408,21 @@ module.exports.setRoutes = function(app, verificationFunc) {
                             } else {
 
 
-                                logger.debug('creating env ==>', node.environment);
+                                logger.debug('creating env ==>', node.parameters.environment);
                                 logger.debug('orgId ==>', orgId);
                                 logger.debug('bgid ==>', bgId);
-                                environmentsDao.createEnv(node.environment, orgId, bgId, projectId, function(err, data) {
+                                var envObj = {
+                                    projectname: reqBody.projectName,
+                                    projectname_rowid: projectId,
+                                    orgname: reqBody.orgName,
+                                    orgname_rowid: orgId,
+                                    configname: puppetData.puppetservername,
+                                    configname_rowid: puppetData.rowid,
+                                    environmentname: node.parameters.environment,
+                                    id: '3'
+                                };
+                              
+                                environmentsDao.createEnv(envObj, function(err, data) {
                                     if (err) {
                                         logger.debug(err, 'occured in creating environment in mongo');
                                         updateTaskStatusNode(nodeName, "Error while creating environment in catalyst. Unable to import node : " + nodeName, true, count);
@@ -456,7 +469,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                         if (nodeValues.operatingsystem && nodeValues.operatingsystem.toLowerCase().indexOf('windows') !== -1) {
                                             openport = 5985;
                                         }
-                                        logger.debug('checking port for node with ip : ' + nodeIp);
+                                        logger.debug('checking port for node with ip : ' + nodeIp +" "+openport);
                                         waitForPort(nodeIp, openport, function(err) {
                                             if (err) {
                                                 logger.debug(err);
@@ -504,7 +517,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
             puppet = new Puppet(puppetSettings);
             if (reqBody.selectedNodes.length) {
-                importNodes(reqBody.selectedNodes);
+                importNodes(reqBody.selectedNodes,puppetData);
             } else {
                 res.send(400);
                 return;

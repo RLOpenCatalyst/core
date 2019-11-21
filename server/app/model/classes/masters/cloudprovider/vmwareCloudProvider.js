@@ -21,7 +21,7 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-var schemaValidator = require('../../../dao/schema-validator');
+var schemaValidator = require('_pr/model/dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
 
 
@@ -261,7 +261,17 @@ vmwareProviderSchema.statics.getvmwareProvidersByOrgId = function(orgId, callbac
 
     });
 };
-
+vmwareProviderSchema.statics.getName = function (query,callback) {
+    this.find(query,
+        function (err, results) {
+            if (err) {
+                return callback(err);
+            } else {
+                return callback(null, results);
+            }
+        }
+    );
+};
 var vmwareProvider = mongoose.model('vmwareProvider', vmwareProviderSchema);
 
 module.exports = vmwareProvider;

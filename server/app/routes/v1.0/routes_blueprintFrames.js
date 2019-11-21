@@ -23,6 +23,7 @@ var userService = require('_pr/services/userService');
 var async = require('async');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
+    app.all('/blueprint-frames/*', sessionVerificationFunc);
     /**
      * @api {post} /blueprint-launch-frames                                 Create blueprint launch frame
      * @apiName createBlueprintLaunchFrame
