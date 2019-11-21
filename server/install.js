@@ -689,8 +689,16 @@ function installPackageJson() {
 
 function restoreSeedData(config, callback) {
     var mongoDbClient = require('mongodb');
+    const dboptions = {
+        host: process.env.DB_HOST || config.db.host,
+        port: process.env.DB_PORT || config.db.port,
+        dbName: process.env.DB_NAME || config.db.dbName,
+        ssl: process.env.DB_SSL || config.db.ssl
+    };
 
-    mongoDbClient.connect('mongodb://' + config.db.host + ':' + config.db.port + '/' + config.db.dbName, function(err, db) {
+    const connectionString = 'mongodb://' + dboptions.host + ':' + dboptions.port + '/' + dboptions.dbName + '?ssl=' + dboptions.ssl;
+    logger.info(connectionString);
+    mongoDbClient.connect(connectionString, function(err, db) {
         if (err) {
             throw "unable to connect to mongodb"
             return;
