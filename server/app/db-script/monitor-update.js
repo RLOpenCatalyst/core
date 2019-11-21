@@ -24,20 +24,6 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 
-var dboptions = {
-    host: process.env.DB_HOST || appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-mongoDbConnect(dboptions, function(err) {
-    if (err) {
-        logger.error("Unable to connect to mongo db >>" + err);
-        process.exit();
-    } else {
-        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-    }
-});
-
 var instaces = ['i-5c03de9f','i-7bc992b9','i-ca1f6d01', 'i-ce4c3105', 'i-d3411313'];
 
 monitorsModel.getMonitors({}, function(err, monitors) {

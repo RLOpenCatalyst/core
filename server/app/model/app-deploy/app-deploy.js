@@ -142,7 +142,7 @@ AppDeploySchema.statics.getDistinctAppDeployAppNameVersionByProjectId = function
         [
             { $match: { projectId: jsonData.projectId } },
             { $group: { "_id": { name: "$applicationName", version: "$applicationVersion" } } }
-        ],function(err,appNameVersion) {
+        ],function(err,appNameVersion) { 
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;

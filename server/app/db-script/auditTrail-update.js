@@ -6,21 +6,6 @@ var appConfig = require('_pr/config');
 var botOld = require('_pr/model/bots/1.0/botOld.js');
 var botOldService = require('_pr/services/botOldService.js');
 
-var dbOptions = {
-    host: process.env.DB_HOST || appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-mongodbConnect(dbOptions, function(err) {
-    if (err) {
-        logger.error("Unable to connect to mongo db >>" + err);
-        process.exit();
-    } else {
-        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dbOptions.host, dbOptions.port, dbOptions.dbName);
-    }
-});
-
-
 botOld.getAllBots({isDeleted:false}, function(err, bots) {
     if (err) {
         logger.error("Failed to fetch Bots: ", err);

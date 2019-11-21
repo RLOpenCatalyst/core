@@ -7,21 +7,6 @@ var Schema = mongoose.Schema;
 var authemaildao = require('_pr/model/dao/authemaildao');
 var emailService = require('_pr/services/emailService.js')
 
-
-var dboptions = {
-    host: process.env.DB_HOST || appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-mongoDbConnect(dboptions, function(err) {
-    if (err) {
-        logger.error("Unable to connect to mongo db >>" + err);
-        throw new Error(err);
-    } else {
-        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-    }
-});
-
 function parseArguments() {
     var cliArgs = require("command-line-args");
     var cli = cliArgs([{
