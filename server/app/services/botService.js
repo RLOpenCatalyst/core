@@ -395,10 +395,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             logger.error("Error while fetching BOTs Server Details");
                             callback(err, null);
                             return;
-                        }if(botServerDetails[0].active===false){
-                            logger.error("Inactive BOTEngine");
-                            callback(err, null);
-                            return;
+
                         }else if (botServerDetails !== null) {
                             logger.info("Checking flag status--->",appConfig.enableBotExecuterOsCheck)
                             if(appConfig.enableBotExecuterOsCheck==="true" || process.env.enableBotExecuterOsCheck==="true"){
