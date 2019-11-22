@@ -2698,8 +2698,7 @@ var MasterUtil = function () {
                         resolve(null);
                     });
                 } else {
-    
-                    if (remoteServerDetails.active === false) {
+                    if (!remoteServerDetails.active) {
                         d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
                             orgname_rowid: orgId,
                             id: '32'
@@ -2707,9 +2706,11 @@ var MasterUtil = function () {
                             if (err) {
                                 logger.error('Error in Updating State of Bot-Engine', err);
                             }
+                            resolve(null);
                         });
+                    }else{
+                        resolve(remoteServerDetails);
                     }
-                    resolve(remoteServerDetails);
                 }
             });
         })
