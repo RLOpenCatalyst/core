@@ -396,7 +396,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             callback(err, null);
                             return;
 
-                        }else if (botServerDetails !== null) {
+                        }else if (botServerDetails !== null && botServerDetails.length > 0) {
                             logger.info("Checking flag status--->",appConfig.enableBotExecuterOsCheck)
                             if(appConfig.enableBotExecuterOsCheck==="true" || process.env.enableBotExecuterOsCheck==="true"){
                                 logger.info("Inn OS check condition");

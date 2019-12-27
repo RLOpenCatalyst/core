@@ -3415,75 +3415,107 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 'Content-Type': 'application/json'
                                             }
                                         };
-                                        request.get(options,function(err,response,body){
+                                        //Check botengine only when the active state is true
+                                        d4dModelNew.d4dModelMastersBOTsRemoteServer.find({"rowid":bodyJson["rowid"]},function(err,botserver){
                                             if(err){
-                                                logger.error("Unable to connect remote server");
-                                                //var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
-                                                var botServerObj = {
-                                                    hostIP:bodyJson["hostIP"],
-                                                    hostPort:bodyJson["hostPort"],
-                                                    active:false,
-                                                    name:bodyJson["name"],
-                                                    osType:bodyJson["osType"]
-                                                };
-                                                d4dModelNew.find({rowid:bodyJson["rowid"],id:'32'},function(err,serverDetails){
-                                                    if(err){
-                                                        logger.error('Hit Save error', err);
-                                                        res.send(500);
-                                                        return;
-                                                    }else if(serverDetails.length > 0){
-                                                        serverDetails[0].update({rowid:bodyJson["rowid"],id:'32'},
-                                                            {$set:botServerObj},
-                                                            function (err, data) {
+                                                logger.error('Hit Read error', err);
+                                                res.send(500);
+                                                return;
+                                            }
+                                            else{
+                                                if(botserver){
+                                                    if(botserver[0].active) {
+                                                        request.get(options,function(err,response,body){
+                                                            if(err){
+                                                                logger.error("Unable to connect remote server");
+                                                                //var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
+                                                                var botServerObj = {
+                                                                    hostIP:bodyJson["hostIP"],
+                                                                    hostPort:bodyJson["hostPort"],
+                                                                    active:false,
+                                                                    name:bodyJson["name"],
+                                                                    osType:bodyJson["osType"]
+                                                                };
+                                                                d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                                                                    rowid: bodyJson["rowid"],
+                                                                    "id": "32"
+                                                                }, {
+                                                                    $set: botServerObj
+                                                                }, {
+                                                                    upsert: false
+                                                                }, function (err, saveddata) {
+                                                                    if (err) {
+                                                                        logger.error('Hit Save error', err);
+                                                                        res.send(500);
+                                                                        return;
+                                                                    }
+                                                                    res.send(200);
+                                                                    return;
+                                                                });
+                                                                
+                                                            }else{
+                                                                //var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
+                                                                var botServerObj = {
+                                                                    hostIP:bodyJson["hostIP"],
+                                                                    hostPort:bodyJson["hostPort"],
+                                                                    active:true,
+                                                                    name:bodyJson["name"]
+                                                                };
+                                                                d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                                                                    rowid: bodyJson["rowid"],
+                                                                    "id": "32"
+                                                                }, {
+                                                                    $set: botServerObj
+                                                                }, {
+                                                                    upsert: false
+                                                                }, function (err, saveddata) {
+                                                                    if (err) {
+                                                                        logger.error('Hit Save error', err);
+                                                                        res.send(500);
+                                                                        return;
+                                                                    }
+                                                                    res.send(200);
+                                                                    return;
+                                                                });
+                                                                
+                                                            }
+                                                        });
+                                                    }
+                                                    else{
+                                                        //Previously set to inactive not updating state.
+                                                        var botServerObj = {
+                                                            hostIP:bodyJson["hostIP"],
+                                                            hostPort:bodyJson["hostPort"],
+                                                            active:false,
+                                                            name:bodyJson["name"],
+                                                            osType:bodyJson["osType"]
+                                                        };
+                                                        d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
+                                                            rowid: bodyJson["rowid"],
+                                                            "id": "32"
+                                                        }, {
+                                                            $set: botServerObj
+                                                        }, {
+                                                            upsert: false
+                                                        }, function (err, saveddata) {
                                                             if (err) {
                                                                 logger.error('Hit Save error', err);
                                                                 res.send(500);
                                                                 return;
-                                                            }else{
-                                                                res.send(200);
-                                                                return;
                                                             }
+                                                            res.send(200);
+                                                            return;
                                                         });
-                                                    }else{
-                                                        logger.debug("No records are available for corresponding report.")
-                                                        res.send(200);
-                                                        return;
                                                     }
-                                                });
-                                            }else{
-                                                //var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
-                                                var botServerObj = {
-                                                    hostIP:bodyJson["hostIP"],
-                                                    hostPort:bodyJson["hostPort"],
-                                                    active:true,
-                                                    name:bodyJson["name"]
-                                                };
-                                                d4dModelNew.find({rowid:bodyJson["rowid"],id:'32'},function(err,serverDetails){
-                                                    if(err){
-                                                        logger.error('Hit Save error', err);
-                                                        res.send(500);
-                                                        return;
-                                                    }else if(serverDetails.length > 0){
-                                                        serverDetails[0].update({rowid:bodyJson["rowid"],id:'32'},
-                                                            {$set:botServerObj},
-                                                            function (err, data) {
-                                                                if (err) {
-                                                                    logger.error('Hit Save error', err);
-                                                                    res.send(500);
-                                                                    return;
-                                                                }else{
-                                                                    res.send(200);
-                                                                    return;
-                                                                }
-                                                            });
-                                                    }else{
-                                                        logger.debug("No records are available for corresponding report.")
-                                                        res.send(200);
-                                                        return;
-                                                    }
-                                                });
+                                                }
+                                                else{
+                                                    logger.error('No Bot server found', err);
+                                                    res.send(500);
+                                                    return;
+                                                }
                                             }
                                         });
+                                        
                                     }
                                     if (req.params.id === "7") {
                                         d4dModelNew.d4dModelMastersUsers.find({
@@ -4415,6 +4447,15 @@ module.exports.setRoutes = function (app, sessionVerification) {
             }
         });
     });
+
+    // app.post('/d4dMasters/botengine/pause/:botengineid', function (req, res) {
+    //     logger.debug("Enter get() for /d4dMasters/botengine/pause/");
+    //     var bodyJson = JSON.parse(JSON.stringify(req.body));
+    //     if(bodyJson){
+    //         if(bodyJson.)
+    //     }
+    //     logger.debug("Exit get() for /d4dMasters/mastersjson");
+    // });
 };
 
 function updateOrgTree(userName,callback){
