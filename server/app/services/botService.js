@@ -390,7 +390,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                 logger.info(bots[0].type);
                 //TO DO: There is no else condition, need to check...
                 if (bots[0].type === 'script' || bots[0].type === 'chef' || bots[0].type === 'blueprints') {
-                    logger.info("Executing BOTs Deatails", bots[0].execution[0].os, bots[0].execution[0].type);
+                    //logger.info("Executing BOTs Deatails", bots[0].execution[0].os, bots[0].execution[0].type);
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
@@ -399,14 +399,19 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
 
                         } else if (botServerDetails !== null && botServerDetails.length > 0) {
                             logger.info("Checking flag status--->", appConfig.enableBotExecuterOsCheck)
-                            if (appConfig.enableBotExecuterOsCheck === true || process.env.enableBotExecuterOsCheck === true) {
-                                logger.info("Inn OS check condition");
-                                executorOsTypeConditionCheck(botServerDetails, botRemoteServerDetails, bots);
-                            } else {
-
+                            if (bots[0].type === 'blueprints') {
                                 botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
                                 botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
-                                logger.info("Default Details as working without Multiple executor feature", botRemoteServerDetails.hostIP, botRemoteServerDetails.hostPort);
+                            } else {
+                                if (appConfig.enableBotExecuterOsCheck === true || process.env.enableBotExecuterOsCheck === true) {
+                                    logger.info("Inn OS check condition");
+                                    executorOsTypeConditionCheck(botServerDetails, botRemoteServerDetails, bots);
+                                } else {
+
+                                    botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
+                                    botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
+                                    logger.info("Default Details as working without Multiple executor feature", botRemoteServerDetails.hostIP, botRemoteServerDetails.hostPort);
+                                }
                             }
                             encryptedParam(reqBody, next);
                         } else {
