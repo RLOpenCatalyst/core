@@ -37,10 +37,10 @@ const errorType = 'scriptExecutor';
 
 var scriptExecutor = module.exports = {};
 
-scriptExecutor.execute = function execute(botsDetails, auditTrail, userName, executionType, botHostDetails, callback) {
-    if (botsDetails.params && botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0) {
+scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
+    if(botsDetails.params && botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
         var actionLogId = uuid.v4();
-        for (var i = 0; i < botsDetails.params.nodeIds.length; i++) {
+        for(var i = 0 ;i < botsDetails.params.nodeIds.length; i++) {
             (function (nodeId) {
                 instanceModel.getInstanceById(nodeId, function (err, instances) {
                     if (err) {
@@ -49,9 +49,9 @@ scriptExecutor.execute = function execute(botsDetails, auditTrail, userName, exe
                         return;
                     } else if (instances.length > 0) {
                         logsDao.insertLog({
-                            referenceId: [actionLogId, botsDetails.id],
+                            referenceId: [actionLogId,botsDetails.id],
                             err: false,
-                            log: 'BOT execution has started for Script BOTs  ' + botsDetails.id + " on Remote",
+                            log: 'BOT execution has started for Script BOTs  ' + botsDetails.id +" on Remote",
                             timestamp: new Date().getTime()
                         });
                         var botAuditTrailObj = {
@@ -59,8 +59,8 @@ scriptExecutor.execute = function execute(botsDetails, auditTrail, userName, exe
                             actionId: actionLogId
                         }
                         callback(null, botAuditTrailObj);
-                        executeScriptOnRemote(instances[0], botsDetails, actionLogId, auditTrail._id, userName, botHostDetails, function (err, data) {
-                            if (err) {
+                        executeScriptOnRemote(instances[0],botsDetails,actionLogId,auditTrail._id,userName,botHostDetails,function(err,data){
+                            if(err){
                                 logger.error("Error in Executor", err);
                                 var resultTaskExecution = {
                                     "actionStatus": 'failed',
@@ -78,13 +78,13 @@ scriptExecutor.execute = function execute(botsDetails, auditTrail, userName, exe
                                 var year = d.getUTCFullYear();
                                 var month = d.getUTCMonth();
                                 var day = d.getUTCDate();
-                                var startHour = Date.UTC(year, month, day, 0, 0, 0, 0);
+                                var startHour =Date.UTC(year,month,day,0,0,0,0);
                                 botAuditTrailSummary.update({
                                     botID: botDetails.id,
                                     user: userName,
                                     date: startHour,
-                                }, { $inc: { "failedCount": 1, "runningCount": -1 } }, function (err, data) {
-                                    if (err) logger.error(JSON.stringify(err))
+                                }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                                    if(err) logger.error(JSON.stringify(err))
                                     else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
                                 })
                                 auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
@@ -93,26 +93,26 @@ scriptExecutor.execute = function execute(botsDetails, auditTrail, userName, exe
                                     }
                                     return;
                                 });
-                            } else {
+                            }else{
                                 logger.debug("BOT Execution is going on:::::");
                                 return;
                             }
                         });
-                    } else {
+                    }else{
                         logger.debug("No Instance Detail Available.");
                         return;
                     }
                 })
             })(botsDetails.params.nodeIds[i])
         }
-    } else {
-        executeScriptOnLocal(botsDetails, auditTrail, userName, botHostDetails, function (err, data) {
-            if (err) {
+    }else{
+        executeScriptOnLocal(botsDetails,auditTrail,userName,botHostDetails,function(err,data){
+            if(err){
                 logger.error(err);
-                callback(err, null);
+                callback(err,null);
                 return;
-            } else {
-                callback(null, data);
+            }else{
+                callback(null,data);
                 return;
             }
         });
@@ -120,13 +120,13 @@ scriptExecutor.execute = function execute(botsDetails, auditTrail, userName, exe
 }
 
 
-function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDetails, callback) {
+function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetails,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails.id, actionId];
     var replaceTextObj = {
-        node: 'local'
+        node:'local'
     };
     logsDao.insertLog({
         referenceId: logsReferenceIds,
@@ -141,9 +141,9 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
     callback(null, botAuditTrailObj);
     if (botsScriptDetails.params && botsScriptDetails.params.data) {
         //condition introduced based on encryption botservice -> encryptedParam
-        if (botsScriptDetails.params.category) {
-            if (botsScriptDetails.params.category === 'script') {
-                if (botsScriptDetails.params.data && (botsScriptDetails.params.data.sourceGit || botsScriptDetails.params.data.sourceCloud)) {
+        if(botsScriptDetails.params.category){
+            if(botsScriptDetails.params.category === 'script'){
+                if(botsScriptDetails.params.data && (botsScriptDetails.params.data.sourceGit || botsScriptDetails.params.data.sourceCloud)){
                     Object.keys(botsScriptDetails.params.data).forEach(function (key) {
                         replaceTextObj[key] = botsScriptDetails.params.data[key];
                     });
@@ -155,10 +155,6 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
                 }
 
             }
-        } else {
-            for (var j = 0; j < botsScriptDetails.input.length; j++) {
-                replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
-            }
         }
 
 
@@ -167,28 +163,28 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
             replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
         }
     }
-    if (replaceTextObj.sourceCloud && replaceTextObj.sourceCloud.length > 0) {
-        let newArr = [];
+    if(replaceTextObj.sourceCloud && replaceTextObj.sourceCloud.length >0){
+        let newArr=[];
 
-        replaceTextObj.sourceCloud.map(itm => {
-            let obj = itm;
-            var accessKey = cryptography.decryptText(obj["accessKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            obj["accessKey"] = accessKey;
-            var secretKey = cryptography.decryptText(obj["secretKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            obj["secretKey"] = secretKey;
+        replaceTextObj.sourceCloud.map(itm=>{
+            let obj=itm;
+            var accessKey= cryptography.decryptText(obj["accessKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            obj["accessKey"]=accessKey; 
+            var secretKey= cryptography.decryptText(obj["secretKey"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            obj["secretKey"]=secretKey;
             newArr.push(JSON.stringify(obj));
         });
-        replaceTextObj.sourceCloud = newArr;
+        replaceTextObj.sourceCloud=newArr;
     }
-    if (replaceTextObj.sourceGit && replaceTextObj.sourceGit.length > 0) {
-        let newArr = [];
-        replaceTextObj.sourceGit.map(itm => {
-            let obj = itm;
+    if(replaceTextObj.sourceGit && replaceTextObj.sourceGit.length >0){
+        let newArr=[];
+        replaceTextObj.sourceGit.map(itm=>{
+            let obj=itm;
             var repositoryPassword = cryptography.decryptText(obj["repositoryPassword"], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            obj["repositoryPassword"] = repositoryPassword;
+            obj["repositoryPassword"]=repositoryPassword; 
             newArr.push(JSON.stringify(obj));
         });
-        replaceTextObj.sourceGit = newArr;
+        replaceTextObj.sourceGit=newArr;
     }
     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
     var reqBody = {
@@ -196,7 +192,7 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
     };
     var executorUrl = '/bot/' + botsScriptDetails.id + '/exec';
     var options = {
-        url: serverUrl + executorUrl,
+        url: serverUrl+executorUrl,
         headers: {
             'Content-Type': 'application/json',
             'charset': 'utf-8'
@@ -233,9 +229,9 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
                 noticeService.notice(userName, {
                     title: "Script BOT Execution",
                     body: "Bot Enginge is not running"
-                }, "error", function (err, data) {
-                    if (err) {
-                        logger.error("Error in Notification Service, ", err);
+                }, "error",function(err,data){
+                    if(err){
+                        logger.error("Error in Notification Service, ",err);
                     }
                 });
                 return;
@@ -244,32 +240,32 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
             var year = d.getUTCFullYear();
             var month = d.getUTCMonth();
             var day = d.getUTCDate();
-            var startHour = Date.UTC(year, month, day, 0, 0, 0, 0);
+            var startHour =Date.UTC(year,month,day,0,0,0,0);
             botAuditTrailSummary.update({
                 botID: botsScriptDetails.id,
                 user: userName,
                 date: startHour,
-            }, { $inc: { "failedCount": 1, "runningCount": -1 } }, function (err, data) {
-                if (err) logger.error(JSON.stringify(err))
+            }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                if(err) logger.error(JSON.stringify(err))
                 else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
             })
-        } else {
-            if (res.statusCode === 200) {
+        }else{
+            if (res.statusCode === 200){
                 var auditQueueDetails = {
-                    userName: userName,
-                    botId: botsScriptDetails.id,
-                    bot_id: botsScriptDetails._id,
-                    logRefId: logsReferenceIds,
-                    auditId: actionId,
-                    instanceLog: '',
-                    instanceIP: '',
-                    auditTrailId: auditTrail._id,
-                    remoteAuditId: body.ref,
-                    link: body.link,
-                    status: "pending",
-                    serverUrl: serverUrl,
-                    env: "local",
-                    retryCount: 0
+                    userName:userName,
+                    botId:botsScriptDetails.id,
+                    bot_id:botsScriptDetails._id,
+                    logRefId:logsReferenceIds,
+                    auditId:actionId,
+                    instanceLog:'',
+                    instanceIP:'',
+                    auditTrailId:auditTrail._id,
+                    remoteAuditId:body.ref,
+                    link:body.link,
+                    status:"pending",
+                    serverUrl:serverUrl,
+                    env:"local",
+                    retryCount:0
                 }
                 auditQueue.setAudit(auditQueueDetails);
                 return;
@@ -295,9 +291,9 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
                     noticeService.notice(userName, {
                         title: "Script BOT Execution",
                         body: "Error in Script executor"
-                    }, "error", function (err, data) {
-                        if (err) {
-                            logger.error("Error in Notification Service, ", err);
+                    }, "error",function(err,data){
+                        if(err){
+                            logger.error("Error in Notification Service, ",err);
                         }
                     });
                     return;
@@ -306,23 +302,23 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
                 var year = d.getUTCFullYear();
                 var month = d.getUTCMonth();
                 var day = d.getUTCDate();
-                var startHour = Date.UTC(year, month, day, 0, 0, 0, 0);
+                var startHour =Date.UTC(year,month,day,0,0,0,0);
                 botAuditTrailSummary.update({
                     botID: botsScriptDetails.id,
                     user: userName,
                     date: startHour,
-                }, { $inc: { "failedCount": 1, "runningCount": -1 } }, function (err, data) {
-                    if (err) logger.error(JSON.stringify(err))
+                }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                    if(err) logger.error(JSON.stringify(err))
                     else logger.info("Running count of bot ", botsScriptDetails[0].name, "incremented successfully")
                 })
             }
         }
     });
-
+   
 };
 
 
-function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, userName, botHostDetails, callback) {
+function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,userName,botHostDetails,callback) {
     var timestampStarted = new Date().getTime();
     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
     instance.tempActionLogId = actionLog._id;
@@ -370,7 +366,7 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
                 logger.error("Failed to create or update instanceLog: ", err);
             }
         });
-        callback({ errCode: 400, errMsg: "Instance IP is not defined. Chef Client run failed" }, null);
+        callback({errCode:400,errMsg:"Instance IP is not defined. Chef Client run failed"}, null);
         return;
     }
     credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
@@ -386,7 +382,7 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
             authenticationObj.authType = "pem";
             authenticationObj.auth = {
                 "username": decryptedCredentials.username,
-                "fileData": fs.readFileSync(decryptedCredentials.pemFileLocation, 'Base64')
+                "fileData": fs.readFileSync(decryptedCredentials.pemFileLocation,'Base64')
             }
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Pem_Based_Authentication";
@@ -402,7 +398,7 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
             envObj.authReference = "Password_Based_Authentication";
         }
         var replaceTextObj = {
-            node: instance.instanceIP
+            node:instance.instanceIP
         };
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -416,9 +412,9 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
                 replaceTextObj[botDetails.input[j].name] = botDetails.input[j].default;
             }
         }
-
+        
         var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-
+        
         var reqBody = {
             "data": replaceTextObj,
             "os": instance.hardware.os,
@@ -428,7 +424,7 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
         var options = {
-            url: serverUrl + executorUrl,
+            url: serverUrl+executorUrl,
             headers: {
                 'Content-Type': 'application/json',
                 'charset': 'utf-8'
@@ -443,7 +439,7 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
                 logsDao.insertLog({
                     referenceId: logsReferenceIds,
                     err: true,
-                    log: "BOT Engine is not responding, Please check " + serverUrl,
+                    log: "BOT Engine is not responding, Please check "+serverUrl,
                     timestamp: timestampEnded
                 });
                 instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
@@ -458,13 +454,13 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
                 var year = d.getUTCFullYear();
                 var month = d.getUTCMonth();
                 var day = d.getUTCDate();
-                var startHour = Date.UTC(year, month, day, 0, 0, 0, 0);
+                var startHour =Date.UTC(year,month,day,0,0,0,0);
                 botAuditTrailSummary.update({
                     botID: botDetails.id,
                     user: userName,
                     date: startHour,
-                }, { $inc: { "failedCount": 1, "runningCount": -1 } }, function (err, data) {
-                    if (err) logger.error(JSON.stringify(err))
+                }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                    if(err) logger.error(JSON.stringify(err))
                     else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
                 })
                 instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
@@ -473,42 +469,42 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
                     }
                 });
                 callback(err, null);
-                if (decryptedCredentials.pemFileLocation) {
+                if (decryptedCredentials.pemFileLocation){
                     apiUtil.removeFile(decryptedCredentials.pemFileLocation);
                 }
                 noticeService.notice(userName,
                     {
                         title: "Script BOT Execution",
                         body: "Bot Enginge is not running"
-                    }, "error", function (err, data) {
-                        if (err) {
-                            logger.error("Error in Notification Service, ", err);
+                    }, "error",function(err,data){
+                        if(err){
+                            logger.error("Error in Notification Service, ",err);
                         }
                     });
                 return;
             } else {
-                if (res.statusCode === 200) {
+                if(res.statusCode === 200){
                     var auditQueueDetails = {
-                        userName: userName,
-                        botId: botDetails.id,
-                        bot_id: botDetails._id,
-                        logRefId: logsReferenceIds,
-                        auditId: actionLogId,
-                        instanceLog: instanceLog,
-                        instanceIP: instance.instanceIP,
-                        auditTrailId: auditTrailId,
-                        remoteAuditId: res.body.ref,
-                        link: res.body.link,
-                        status: "pending",
-                        serverUrl: serverUrl,
-                        env: "remote",
-                        retryCount: 0
+                        userName:userName,
+                        botId:botDetails.id,
+                        bot_id:botDetails._id,
+                        logRefId:logsReferenceIds,
+                        auditId:actionLogId,
+                        instanceLog:instanceLog,
+                        instanceIP:instance.instanceIP,
+                        auditTrailId:auditTrailId,
+                        remoteAuditId:res.body.ref,
+                        link:res.body.link,
+                        status:"pending",
+                        serverUrl:serverUrl,
+                        env:"remote",
+                        retryCount:0
                     }
                     auditQueue.setAudit(auditQueueDetails);
-                    callback(null, null);
+                    callback(null,null);
                     return;
                 }
-                else {
+                else{
                     var timestampEnded = new Date().getTime();
                     logsDao.insertLog({
                         referenceId: logsReferenceIds,
@@ -533,26 +529,26 @@ function executeScriptOnRemote(instance, botDetails, actionLogId, auditTrailId, 
                     var year = d.getUTCFullYear();
                     var month = d.getUTCMonth();
                     var day = d.getUTCDate();
-                    var startHour = Date.UTC(year, month, day, 0, 0, 0, 0);
+                    var startHour =Date.UTC(year,month,day,0,0,0,0);
                     botAuditTrailSummary.update({
                         botID: botDetails.id,
                         user: userName,
                         date: startHour,
-                    }, { $inc: { "failedCount": 1, "runningCount": -1 } }, function (err, data) {
-                        if (err) logger.error(JSON.stringify(err))
+                    }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
+                        if(err) logger.error(JSON.stringify(err))
                         else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
                     })
                     callback(err, null);
-                    if (decryptedCredentials.pemFileLocation) {
+                    if (decryptedCredentials.pemFileLocation){
                         apiUtil.removeFile(decryptedCredentials.pemFileLocation);
                     }
                     noticeService.notice(userName,
                         {
                             title: "Script BOT Execution",
                             body: "Error in Script executor"
-                        }, "error", function (err, data) {
-                            if (err) {
-                                logger.error("Error in Notification Service, ", err);
+                        }, "error",function(err,data){
+                            if(err){
+                                logger.error("Error in Notification Service, ",err);
                             }
                         });
                     return;
