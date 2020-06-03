@@ -385,7 +385,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     var scheduledRequestBody = {};
                     if (bots[0].params)
                         scheduledRequestBody.data = scheduledBots[0].params;
-                    //reqBody = scheduledRequestBody;
+                    reqBody = scheduledRequestBody;
                 }
                 logger.info(bots[0].type);
                 //TO DO: There is no else condition, need to check...
@@ -491,7 +491,6 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             },
                             function (auditTrail, next) {
                                 var uuid = require('node-uuid');
-                                botDetails[0].params.category = botDetails[0].type;
                                 auditTrail.actionId = uuid.v4();
                                 if (botDetails[0].type === 'script') {
                                     scriptExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);

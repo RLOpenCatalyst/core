@@ -61,22 +61,22 @@ var emailService = require('./emailService');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 
-schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance, callback) {
-    logger.debug("Instance Scheduler is started for Instance. " + instance.platformId);
-    logger.debug("Instance current state is  " + instance.instanceState);
+schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
+    logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
+    logger.debug("Instance current state is  "+instance.instanceState);
     var catUser = 'system';
-    if (instance.catUser) {
+    if(instance.catUser){
         catUser = instance.catUser;
     }
     async.parallel({
-        instanceStart: function (callback) {
+        instanceStart : function(callback){
             var resultList = [];
             for (var i = 0; i < instance.instanceStartScheduler.length; i++) {
-                (function (interval) {
-                    resultList.push(function (callback) { createCronJob(interval.cronPattern, instance._id, catUser, 'Start', callback) });
+                (function(interval){
+                    resultList.push(function(callback){createCronJob(interval.cronPattern,instance._id,catUser,'Start',callback)});
                 })(instance.instanceStartScheduler[i])
             }
-            if (resultList.length === instance.instanceStartScheduler.length) {
+            if(resultList.length === instance.instanceStartScheduler.length) {
                 async.parallel(resultList, function (err, results) {
                     if (err) {
                         logger.error(err);
@@ -88,14 +88,14 @@ schedulerService.executeSchedulerForInstances = function executeSchedulerForInst
                 })
             }
         },
-        instanceStop: function (callback) {
+        instanceStop : function(callback){
             var resultList = [];
             for (var j = 0; j < instance.instanceStopScheduler.length; j++) {
-                (function (interval) {
-                    resultList.push(function (callback) { createCronJob(interval.cronPattern, instance._id, catUser, 'Stop', callback) });
+                (function(interval){
+                    resultList.push(function(callback){createCronJob(interval.cronPattern,instance._id,catUser,'Stop',callback)});
                 })(instance.instanceStopScheduler[j]);
             }
-            if (resultList.length === instance.instanceStopScheduler.length) {
+            if(resultList.length === instance.instanceStopScheduler.length){
                 async.parallel(resultList, function (err, results) {
                     if (err) {
                         logger.error(err);
@@ -107,40 +107,40 @@ schedulerService.executeSchedulerForInstances = function executeSchedulerForInst
                 })
             }
         }
-    }, function (err, results) {
-        if (err) {
+    },function(err,results){
+        if(err){
             logger.error(err);
-            callback(err, null);
+            callback(err,null);
             return;
         }
-        callback(null, results);
+        callback(null,results);
         return;
     })
 }
 
-schedulerService.executeParallelScheduledTasks = function executeParallelScheduledTasks(task, callback) {
-    logger.debug("Task Scheduler is started for Parallel Task. " + task.name);
+schedulerService.executeParallelScheduledTasks = function executeParallelScheduledTasks(task,callback) {
+    logger.debug("Task Scheduler is started for Parallel Task. "+task.name);
     var currentDate = new Date().getTime();
-    if (currentDate >= task.taskScheduler.cronEndOn) {
+    if(currentDate >= task.taskScheduler.cronEndOn){
         crontab.cancelJob(task.cronJobId);
-        taskDao.updateTaskScheduler(task._id, function (err, updatedData) {
+        taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
             if (err) {
                 logger.error("Failed to update Task Scheduler: ", err);
-                callback(err, null);
+                callback(err,null);
                 return;
             }
-            logger.debug("Scheduler is ended on for Task. " + task.name);
-            callback(null, updatedData);
+            logger.debug("Scheduler is ended on for Task. "+task.name);
+            callback(null,updatedData);
             return;
         });
-    } else {
+    }else{
         var cronJobId = cronTab.scheduleJob(task.taskScheduler.cronPattern, function () {
-            taskDao.updateCronJobIdByTaskId(task._id, cronJobId, function (err, data) {
-                if (err) {
-                    logger.error("Error in updating cron job Ids. " + err);
+            taskDao.updateCronJobIdByTaskId(task._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            taskService.executeTask(task._id, "system", "undefined", "undefined", "undefined", "undefined", "undefined", function (err, historyData) {
+            taskService.executeTask(task._id, "system", "undefined", "undefined", "undefined","undefined","undefined",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
                     return;
@@ -155,7 +155,7 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
     }
 }
 
-schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDetails(auditList, url, callback) {
+schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDetails(auditList,url,callback) {
     var options = {
         url: url + "/bot/audit",
         headers: {
@@ -171,15 +171,15 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
             return;
         } else if (res.statusCode === 200 && body.length > 0) {
             var count = 0;
-            body.forEach(function (auditTrailDetail) {
-                var auditData = auditQueue.getAuditDetails("remoteAuditId", auditTrailDetail.bot_run_id);
-                if ((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'terminated' || auditTrailDetail.state === 'failed')) {
+            body.forEach(function(auditTrailDetail){
+                var auditData = auditQueue.getAuditDetails("remoteAuditId",auditTrailDetail.bot_run_id);
+                if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'terminated' || auditTrailDetail.state === 'failed')) {
                     var timestampEnded = new Date().getTime();
                     count++;
                     if (auditTrailDetail.log !== '...' || auditTrailDetail.log !== '') {
                         var logList = auditTrailDetail.log.split("\n");
                         logList.forEach(function (log) {
-                            if (log !== null && log !== '') {
+                            if(log !== null && log !== '') {
                                 logsDao.insertLog({
                                     referenceId: auditData.logRefId,
                                     err: auditTrailDetail.state === 'terminated' ? false : true,
@@ -281,8 +281,8 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
-                            if (!auditTrailDetail.state === 'terminated')
-                                emailService.sendEmail("BOT Execution failed on Node " + auditData.instanceIP);
+                            if(!auditTrailDetail.state === 'terminated')
+                                emailService.sendEmail( "BOT Execution failed on Node " + auditData.instanceIP);
                             noticeService.notice(auditData.userName, {
                                 title: "BOT Execution",
                                 body: auditTrailDetail.state === 'terminated' ? auditTrailDetail.status.text : "BOT Execution is failed on Node " + auditData.instanceIP
@@ -293,11 +293,11 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                             });
                         });
                     }
-                    if (count === body.length) {
-                        callback(null, null);
+                    if(count ===body.length){
+                        callback(null,null);
                     }
                 }
-                else if ((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'active')) {
+                else if((auditData !== null || auditData !== 'undefined' || typeof auditData !== 'undefined') && (auditTrailDetail.state === 'active' )) {
                     var timestampEnded = new Date().getTime();
                     count++;
                     console.log(auditData.retryCount);
@@ -393,16 +393,16 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
                                 });
                             });
                         }
-                    } else {
+                    }else{
                         auditQueue.incRetryCount('auditId', auditData.auditId);
                     }
-                    if (count === body.length) {
-                        callback(null, null);
+                    if(count ===body.length){
+                        callback(null,null);
                     }
-                } else {
+                } else{
                     count++;
-                    if (count === body.length) {
-                        callback(null, null);
+                    if(count ===body.length){
+                        callback(null,null);
                     }
                 }
             });
@@ -417,52 +417,49 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
 
 
 
-schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots, callback) {
+schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots,callback) {
     var currentDate = new Date().getTime();
-    if (bots.isScheduled === false && bots.cronJobId) {
+    if(bots.isScheduled === false && bots.cronJobId){        
+        crontab.cancelJob(bots.cronJobId);        
+         logger.debug("Bots Scheduler has ended for - "+bots.name);
+        callback(null,null);    
+    }else if(currentDate >= bots.scheduler.cronEndOn && bots.isScheduled === true){
         crontab.cancelJob(bots.cronJobId);
-        logger.debug("Bots Scheduler has ended for - " + bots.name);
-        callback(null, null);
-    } else if (currentDate >= bots.scheduler.cronEndOn && bots.isScheduled === true) {
-        crontab.cancelJob(bots.cronJobId);
-        botDao.updateBotsScheduler(bots._id, function (err, updatedData) {
+        botDao.updateBotsScheduler(bots._id,function(err, updatedData) {
             if (err) {
                 logger.error("Failed to update Bots Scheduler: ", err);
-                callback(err, null);
+                callback(err,null);
                 return;
             }
-            logger.debug("Scheduler has ended on for New Bots. " + bots.name);
-            callback(null, updatedData);
+            logger.debug("Scheduler has ended on for New Bots. "+bots.name);
+            callback(null,updatedData);
             return;
         });
-    } else {
-        logger.debug("New Bots Scheduler has started for - " + bots.name);
-        logger.info('bots.scheduler.cronPattern', JSON.stringify(bots.scheduler.cronPattern));
+    }else{
+        logger.debug("New Bots Scheduler has started for - "+bots.name);
+        logger.info('bots.scheduler.cronPattern',JSON.stringify(bots.scheduler.cronPattern));
         var cronJobId = cronTab.scheduleJob(bots.scheduler.cronPattern, function () {
-            botDao.updateCronJobIdByBotId(bots._id, cronJobId, function (err, data) {
-                if (err) {
-                    logger.error("Error in updating cron job Ids. " + err);
+            botDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
                 }
             });
             //Pre-condition check before execution. Alternative logic
             var skip = false;
-            if (bots.scheduler.cronFrequency === "Weekly" && bots.scheduler.cronAlternateExecute) {
+            if(bots.scheduler.cronFrequency === "Weekly" && bots.scheduler.cronAlternateExecute){
                 var tod = new Date();
                 //check for repeat every for odd and even weeks
-                if (bots.scheduler.cronRepeatEvery == 1) {
-                    if (apiUtil.getWeekNumber(tod) % 2 == 0) //runs for odd
+                if(bots.scheduler.cronRepeatEvery == 1){
+                    if(apiUtil.getWeekNumber(tod) % 2 == 0) //runs for odd
                         skip = true;
-                } else {
-                    if (apiUtil.getWeekNumber(tod) % 2 != 0) //runs for even
+                }else{
+                    if(apiUtil.getWeekNumber(tod) % 2 != 0) //runs for even
                         skip = true;
                 }
 
             }
-            if (!skip) {
-                var reqBody = {};
-                reqBody.category = bots.type;
-                reqBody.data = bots.params.data;
-                botService.executeBots(bots.id, reqBody, 'system', 'bots-console', true, function (err, historyData) {
+            if(!skip){
+                botService.executeBots(bots.id, null, 'system', 'bots-console', true, function (err, historyData) {
                     if (err) {
                         logger.error("Failed to execute New Bots.", err);
                         return;
@@ -473,38 +470,38 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
                     }
                 });
             }
-            else {
+            else{
                 logger.info("Skipped ")
             }
         });
-        logger.info('cronJobId', cronJobId);
+        logger.info('cronJobId',cronJobId);
     }
 }
 
-schedulerService.executeScheduledBots = function executeScheduledBots(bots, callback) {
-    logger.debug("Bots Scheduler is started for - " + bots.botName);
+schedulerService.executeScheduledBots = function executeScheduledBots(bots,callback) {
+    logger.debug("Bots Scheduler is started for - "+bots.botName);
     var currentDate = new Date().getTime();
-    if (currentDate >= bots.botScheduler.cronEndOn) {
+    if(currentDate >= bots.botScheduler.cronEndOn){
         crontab.cancelJob(bots.cronJobId);
-        botOld.updateBotsScheduler(bots._id, function (err, updatedData) {
+        botOld.updateBotsScheduler(bots._id,function(err, updatedData) {
             if (err) {
                 logger.error("Failed to update Bots Scheduler: ", err);
-                callback(err, null);
+                callback(err,null);
                 return;
             }
-            logger.debug("Scheduler is ended on for Bots. " + bots.botName);
-            callback(null, updatedData);
+            logger.debug("Scheduler is ended on for Bots. "+bots.botName);
+            callback(null,updatedData);
             return;
         });
-    } else {
+    }else{
         var cronJobId = cronTab.scheduleJob(bots.botScheduler.cronPattern, function () {
             logger.info(JSON.stringify(bots));
-            botOld.updateCronJobIdByBotId(bots._id, cronJobId, function (err, data) {
-                if (err) {
-                    logger.error("Error in updating cron job Ids. " + err);
+            botOld.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            if (bots.botLinkedCategory === 'Blueprint') {
+            if(bots.botLinkedCategory === 'Blueprint') {
                 botOldService.executeBots(bots.botId, bots.runTimeParams, function (err, historyData) {
                     if (err) {
                         logger.error("Failed to execute Bots.", err);
@@ -513,8 +510,8 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots, call
                     logger.debug("Bots Execution Success for - ", bots.botName);
                     return;
                 });
-            } else {
-                botOldService.executeBots(bots.botId, null, function (err, historyData) {
+            }else{
+                botOldService.executeBots(bots.botId,null,function (err, historyData) {
                     if (err) {
                         logger.error("Failed to execute Bots.", err);
                         return;
@@ -527,40 +524,40 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots, call
     }
 }
 
-schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTasks(task, callback) {
-    logger.debug("Task Scheduler is started for Serial Task. " + task.name);
+schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTasks(task,callback) {
+    logger.debug("Task Scheduler is started for Serial Task. "+task.name);
     var currentDate = new Date().getTime();
-    if (currentDate >= task.taskScheduler.cronEndOn) {
+    if(currentDate >= task.taskScheduler.cronEndOn){
         crontab.cancelJob(task.cronJobId);
-        taskDao.updateTaskScheduler(task._id, function (err, updatedData) {
+        taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
             if (err) {
                 logger.error("Failed to update Task Scheduler: ", err);
-                callback(err, null);
+                callback(err,null);
                 return;
             }
-            logger.debug("Scheduler is ended on for Task. " + task.name);
-            callback(null, updatedData);
+            logger.debug("Scheduler is ended on for Task. "+task.name);
+            callback(null,updatedData);
             return;
         });
-    } else {
+    }else{
         var cronJobId = cronTab.scheduleJob(task.taskScheduler.cronPattern, function () {
-            taskDao.updateCronJobIdByTaskId(task._id, cronJobId, function (err, data) {
-                if (err) {
-                    logger.error("Error in updating cron job Ids. " + err);
+            taskDao.updateCronJobIdByTaskId(task._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            taskService.executeTask(task._id, "system", "undefined", "undefined", "undefined", "undefined", "undefined", function (err, historyData) {
+            taskService.executeTask(task._id, "system", "undefined", "undefined", "undefined","undefined","undefined",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
-                    callback(err, null);
+                    callback(err,null);
                     return;
                 } else if (err) {
                     logger.error("Failed to execute task.", err);
-                    callback(err, null);
+                    callback(err,null);
                     return;
                 }
                 logger.debug("Task Execution Success: ", task.name);
-                callback(null, cronJobId);
+                callback(null,cronJobId);
                 return;
             });
         });
@@ -570,28 +567,28 @@ schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTa
 schedulerService.startStopInstance = function startStopInstance(instanceId, catUser, action, callback) {
     logger.debug(action + " is Starting");
     async.waterfall([
-        function (next) {
+        function(next) {
             instancesDao.getInstanceById(instanceId, next);
         },
-        function (instanceDetails, next) {
+        function(instanceDetails,next) {
             var currentDate = new Date().getTime();
-            if (instanceDetails.length > 0) {
+            if(instanceDetails.length > 0) {
                 logger.info("Found instance with id", instanceId)
-                if (instanceDetails[0].instanceState === 'terminated') {
+                if(instanceDetails[0].instanceState === 'terminated') {
                     callback({
-                        errCode: 201,
-                        errMsg: "Instance is already in " + instanceDetails[0].instanceState + " state. So no need to do any action."
+                       errCode:201,
+                        errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
                     })
                 } else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
-                    instancesDao.updateInstanceScheduler(instanceDetails[0]._id, function (err, updatedData) {
+                    instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
                         if (err) {
                             logger.error("Failed to update Instance Scheduler: ", err);
-                            next(err, null)
+                            next(err,null)
                         }
-                        logger.debug("Scheduler is ended on for Instance. " + instanceDetails[0].platformId);
-                        next(null, updatedData);
+                        logger.debug("Scheduler is ended on for Instance. "+instanceDetails[0].platformId);
+                        next(null,updatedData);
                     })
-                } else if (!instanceDetails[0].providerId) {
+                } else if(!instanceDetails[0].providerId) {
                     var error = new Error("Provider is not associated with Instance.");
                     error.status = 500;
                     next(error, null)
@@ -600,27 +597,27 @@ schedulerService.startStopInstance = function startStopInstance(instanceId, catU
                 }
             } else {
                 logger.info("Could not Found instance with id", instanceId)
-                next({ message: "No instance found with id" + instanceId }, null)
+                next({message: "No instance found with id" + instanceId}, null)
             }
         }
-    ], function (err, results) {
-        if (err) {
+    ],function(err,results) {
+        if(err) {
             logger.error(err);
-            callback(err, null);
+            callback(err,null);
         } else {
-            logger.debug(action + " is Completed");
-            callback(null, results)
+            logger.debug(action+ " is Completed");
+            callback(null,results)
         }
     })
 }
 
-function createCronJob(cronPattern, instanceId, catUser, action, callback) {
+function createCronJob(cronPattern,instanceId,catUser,action,callback){
     var schedulerService = require('_pr/services/schedulerService');
-    logger, info('cron pattern', cronPattern);
+    logger,info('cron pattern',cronPattern);
     var cronJobId = cronTab.scheduleJob(cronPattern, function () {
-        instancesDao.updateCronJobIdByInstanceId(instanceId, cronJobId, function (err, data) {
-            if (err) {
-                logger.error("Error in updating cron job Ids. " + err);
+        instancesDao.updateCronJobIdByInstanceId(instanceId,cronJobId,function(err,data){
+            if(err){
+                logger.error("Error in updating cron job Ids. "+err);
             }
         })
         schedulerService.startStopInstance(instanceId, catUser, action, function (err, data) {
@@ -632,32 +629,32 @@ function createCronJob(cronPattern, instanceId, catUser, action, callback) {
     });
 }
 
-function startStopManagedInstance(instance, catUser, action, callback) {
-    var actionStartLog = '', actionCompleteLog = '', actionFailedLog = '', vmWareAction = '', instanceState = '', actionLog = null;
+function startStopManagedInstance(instance,catUser,action,callback){
+    var actionStartLog = '',actionCompleteLog='',actionFailedLog='',vmWareAction='',instanceState='',actionLog = null;
     var timestampStarted = new Date().getTime();
-    if (instanceState !== '' && instanceState === instance.instanceState) {
+    if(instanceState !== '' && instanceState === instance.instanceState){
         callback({
-            errCode: 201,
-            errMsg: "Instance is already in " + instanceState + " state. So no need to do same action again"
+            errCode:201,
+            errMsg:"Instance is already in "+instanceState+" state. So no need to do same action again"
         })
         return;
-    } else if (action === 'Start') {
+    }else if(action === 'Start'){
         actionStartLog = 'Instance Starting';
         actionCompleteLog = 'Instance Started';
-        actionFailedLog = 'Unable to start instance';
-        vmWareAction = 'poweron';
-        instanceState = 'running';
+        actionFailedLog='Unable to start instance';
+        vmWareAction='poweron';
+        instanceState='running';
         actionLog = instancesDao.insertStartActionLog(instance._id, catUser, timestampStarted);
-    } else if (action === 'Stop') {
+    }else if(action === 'Stop'){
         actionStartLog = 'Instance Stopping';
         actionCompleteLog = 'Instance Stopped';
-        actionFailedLog = 'Unable to stop instance';
-        vmWareAction = 'poweroff';
-        instanceState = 'stopped';
+        actionFailedLog='Unable to stop instance';
+        vmWareAction='poweroff';
+        instanceState='stopped';
         actionLog = instancesDao.insertStopActionLog(instance._id, catUser, timestampStarted);
-    } else {
-        logger.debug("Action is not matched for corresponding operation. " + action);
-        callback(null, null);
+    }else{
+        logger.debug("Action is not matched for corresponding operation. "+action);
+        callback(null,null);
     }
     var instanceLog = {
         actionId: "",
@@ -702,7 +699,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
             logger.error("Failed to create or update instanceLog: ", err);
         }
     });
-    if (instance.providerType === 'aws') {
+    if(instance.providerType === 'aws') {
         AWSProvider.getAWSProviderById(instance.providerId, function (err, providerData) {
             if (err) {
                 logger.error(err);
@@ -724,14 +721,14 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                         }
                         //Fix for additional regions added for provider - Vinod
                         var foundRegion = false;
-                        for (var p = 0; p < keyPair.length; p++) {
-                            if (keyPair[p].region == instance.region) {
+                        for(var p = 0; p < keyPair.length; p++){
+                            if(keyPair[p].region == instance.region){
                                 foundRegion = true;
                                 callback(null, keyPair[p].region);
 
                             }
                         }
-                        if (!foundRegion) //to support old flow.
+                        if(!foundRegion) //to support old flow.
                             callback(null, keyPair[0].region);
                     });
                 }
@@ -824,7 +821,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                 }
             });
         });
-    } else if (instance.providerType === 'vmware') {
+    }else if(instance.providerType === 'vmware'){
         vmWareProvider.getvmwareProviderById(instance.providerId, function (err, providerdata) {
             var timestampStarted = new Date().getTime();
             var actionLog = instancesDao.insertStartActionLog(instance._id, catUser, timestampStarted);
@@ -872,11 +869,11 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                 });
             }
         })
-    } else if (instance.providerType === 'azure') {
+    }else if(instance.providerType === 'azure'){
         azureProvider.getAzureCloudProviderById(instance.providerId, function (err, providerdata) {
             if (err) {
                 logger.error('getAzureCloudProviderById ', err);
-                callback(err, null);
+                callback(err,null);
                 return;
             }
             providerdata = JSON.parse(providerdata);
@@ -892,13 +889,13 @@ function startStopManagedInstance(instance, catUser, action, callback) {
             cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function (err) {
                 if (err) {
                     logger.error('Pem file decryption failed>> ', err);
-                    callback(err, null);
+                    callback(err,null);
                     return;
                 }
                 cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function (err) {
                     if (err) {
                         logger.error('key file decryption failed>> ', err);
-                        callback(err, null);
+                        callback(err,null);
                         return;
                     }
                     var options = {
@@ -907,7 +904,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                         keyLocation: decryptedKeyFile
                     };
                     var azureCloud = new azureCloud(options);
-                    if (action === 'Start') {
+                    if(action === 'Start') {
                         azureCloud.startVM(instance.chefNodeName, function (err, currentState) {
                             if (err) {
                                 checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
@@ -939,7 +936,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                                 return;
                             })
                         });
-                    } else {
+                    }else{
                         azureCloud.shutDownVM(instance.chefNodeName, function (err, currentState) {
                             if (err) {
                                 checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
@@ -975,7 +972,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                 });
             });
         })
-    } else if (instance.providerType === 'gcp') {
+    }else if(instance.providerType === 'gcp'){
         providerService.getProvider(instance.providerId, function (err, provider) {
             if (err) {
                 var error = new Error("Error while fetching Provider.");
@@ -997,7 +994,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                 "zone": data[0].zone,
                 "name": data[0].name
             }
-            if (action === 'Start') {
+            if(action === 'Start') {
                 gcp.startVM(gcpParam, function (err, vmResponse) {
                     if (err) {
                         checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
@@ -1029,7 +1026,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                         return;
                     });
                 });
-            } else {
+            }else{
                 gcp.stopVM(gcpParam, function (err, vmResponse) {
                     if (err) {
                         checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
@@ -1063,7 +1060,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                 });
             }
         });
-    } else if (instance.providerType === 'digitalocean') {
+    }else if(instance.providerType === 'digitalocean'){
         digitalOceanProvider.getDigitalOceanProviderById(instance.providerId, function (err, providerdata) {
             logger.info("Inside Digital ocean start/stop")
             var timestampStarted = new Date().getTime();
@@ -1097,11 +1094,11 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                                 return;
                             }
                             logger.debug("Exit get() for /instances/%s/startInstance", instance._id);
-                            callback(null, {
-                                instanceCurrentState: state,
-                                actionLogId: actionLog._id
-                            });
-                            return;
+                                callback(null, {
+                                            instanceCurrentState: state,
+                                            actionLogId: actionLog._id
+                                        });
+                                        return;
                         })
                     });
                 } else {
@@ -1117,7 +1114,7 @@ function startStopManagedInstance(instance, catUser, action, callback) {
                             if (err) {
                                 callback(err, null)
                             } else {
-                                callback(null, { instanceCurrentState: state, actionLogId: actionLog._id })
+                                callback(null, {instanceCurrentState: state, actionLogId: actionLog._id})
                             }
                         })
                     })
@@ -1125,15 +1122,15 @@ function startStopManagedInstance(instance, catUser, action, callback) {
             }
         })
     }
-    else {
-        checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+    else{
+        checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,function(err){
             callback(err, null);
             return;
         });
     }
 }
 
-function checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, callback) {
+function checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,callback) {
     var timestampEnded = new Date().getTime();
     logsDao.insertLog({
         referenceId: logReferenceIds,
@@ -1163,7 +1160,7 @@ function checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog
     return;
 }
 
-function checkSuccessInstanceAction(logReferenceIds, instanceState, instanceLog, actionCompleteLog, callback) {
+function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,actionCompleteLog,callback){
     instancesDao.updateInstanceState(logReferenceIds[0], instanceState, function (err, updateCount) {
         if (err) {
             logger.error("update instance state err ==>", err);
@@ -1190,21 +1187,21 @@ function checkSuccessInstanceAction(logReferenceIds, instanceState, instanceLog,
     instanceLogModel.createOrUpdate(logReferenceIds[1], logReferenceIds[0], instanceLog, function (err, logData) {
         if (err) {
             logger.error("Failed to create or update instanceLog: ", err);
-            callback(err, null);
+            callback(err,null);
         }
-        callback(null, logData);
+        callback(null,logData);
     });
 }
 
 
-schedulerService.testUpdateServiceNow = function testUpdateServiceNow(ticketno, configname, callback) {
+schedulerService.testUpdateServiceNow = function testUpdateServiceNow(ticketno,configname,callback){
     CMDBConfig.findOne({
         configname: configname
-    }, function (err, data) {
-        if (err || data == null) callback('Can not find service now config details', null);
+    }, function(err, data) {
+        if(err || data == null) callback('Can not find service now config details', null);
         else {
-            var snowticketupdate = function (tablename, callback) {
-                var url = "https://" + data.servicenowusername + ':' + data.servicenowpassword + '@' + data.url.substring(8, data.url.length) + "/api/now/v1/table/" + tablename + "/" + ticketno + "?sysparam_exclude_ref_link=true";
+            var snowticketupdate = function(tablename, callback){
+                var url = "https://" + data.servicenowusername + ':' + data.servicenowpassword + '@' + data.url.substring(8, data.url.length) +"/api/now/v1/table/" + tablename + "/"+ ticketno + "?sysparam_exclude_ref_link=true";
                 var postData = {
                     work_notes: 'BOT failed to create account. A&C team please investigate.'
                 }
@@ -1218,57 +1215,58 @@ schedulerService.testUpdateServiceNow = function testUpdateServiceNow(ticketno, 
                     body: postData
                 };
                 request.put(options, function (err, res) {
-                    if (err) {
+                    if(err )
+                    {
 
                         callback(err, null);
                     }
                     else {
-                        if (res.statusCode == 200) {
+                        if(res.statusCode == 200) {
                             logger.info('Service Now ticket updated successfully');
-                            callback(null, res);
+                            callback(null,res);
                         }
 
                         else {
                             logger.info('Some error occurred during service now ticket update');
-                            callback(null, res);
+                            callback(null,res);
                         }
                     }
                 });
             }
-            snowticketupdate("incident", function (err, res) {
-                if (err) {
-                    callback(err, null);
-                }
-                else {
-                    if (res.statusCode == 200) {
-                        callback(null, res);
+            snowticketupdate("incident", function(err,res){
+                    if(err){
+                        callback(err,null);
                     }
                     else {
-                        if (res.body.error) {
-                            if (res.body.error.message.indexOf('No Record found') >= 0) {
-                                logger.info('No Record found in incident for ' + ticketno);
-                                //attempt to update next table
-                                snowticketupdate("sc_task", function (err, res) {
-                                    if (err) {
-                                        callback(err, null);
-                                    }
-                                    else {
-                                        if (res.statusCode == 200) {
-                                            callback(null, res);
+                        if(res.statusCode == 200){
+                            callback(null,res);
+                        }
+                        else{
+                            if(res.body.error){
+                                if(res.body.error.message.indexOf('No Record found') >= 0){
+                                    logger.info('No Record found in incident for ' + ticketno);
+                                    //attempt to update next table
+                                    snowticketupdate("sc_task",function(err,res){
+                                        if(err){
+                                            callback(err,null);
                                         }
                                         else {
-                                            logger.info('No Record found in task for ' + ticketno);
-                                            callback(res.body.error, null);
+                                            if (res.statusCode == 200) {
+                                                callback(null,res);
+                                            }
+                                            else{
+                                                logger.info('No Record found in task for ' + ticketno);
+                                                callback(res.body.error,null);
 
+                                            }
                                         }
-                                    }
-                                })
+                                    })
+                                }
                             }
-                        }
 
-                        //  if(res.)
+                          //  if(res.)
+                        }
                     }
-                }
             });
         }
     });
@@ -1282,19 +1280,19 @@ function updateServiceNow(botInstanceId, actionLogId, callback) {
         actionLogId: actionLogId
     }
     botAuditTrail.find(obj, function (err, auditTrailData) {
-        if (err) callback(err, null)
+        if(err) callback(err, null)
         else {
-            if (auditTrailData.length == 0) {
+            if(auditTrailData.length == 0) {
                 logger.info('No audit data found');
                 callback(null, auditTrailData);
-            } else if (auditTrailData[0].auditTrailConfig && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName) {
+            } else if(auditTrailData[0].auditTrailConfig && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo && auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName) {
                 CMDBConfig.findOne({
                     configname: auditTrailData[0].auditTrailConfig.serviceNowTicketRefObj.configName
-                }, function (err, data) {
-                    if (err || data == null) callback('Can not find service now config details', null);
+                }, function(err, data) {
+                    if(err || data == null) callback('Can not find service now config details', null);
                     else {
-                        var snowticketupdate = function (tablename, callback) {
-                            var url = "https://" + data.servicenowusername + ':' + data.servicenowpassword + '@' + data.url.substring(8, data.url.length) + "/api/now/v1/table/" + tablename + "/" + ticketno + "?sysparam_exclude_ref_link=true";
+                        var snowticketupdate = function(tablename, callback){
+                            var url = "https://" + data.servicenowusername + ':' + data.servicenowpassword + '@' + data.url.substring(8, data.url.length) +"/api/now/v1/table/" + tablename + "/"+ ticketno + "?sysparam_exclude_ref_link=true";
                             var postData = {
                                 work_notes: 'BOT failed to create account. A&C team please investigate.'
                             }
@@ -1308,47 +1306,48 @@ function updateServiceNow(botInstanceId, actionLogId, callback) {
                                 body: postData
                             };
                             request.put(options, function (err, res) {
-                                if (err) {
+                                if(err )
+                                {
 
                                     callback(err, null);
                                 }
                                 else {
-                                    if (res.statusCode == 200) {
+                                    if(res.statusCode == 200) {
                                         logger.info('Service Now ticket updated successfully');
-                                        callback(null, res);
+                                        callback(null,res);
                                     }
 
                                     else {
                                         logger.info('Some error occurred during service now ticket update');
-                                        callback(null, res);
+                                        callback(null,res);
                                     }
                                 }
                             });
                         }
-                        snowticketupdate("incident", function (err, res) {
-                            if (err) {
-                                callback(err, null);
+                        snowticketupdate("incident", function(err,res){
+                            if(err){
+                                callback(err,null);
                             }
                             else {
-                                if (res.statusCode == 200) {
-                                    callback(null, res);
+                                if(res.statusCode == 200){
+                                    callback(null,res);
                                 }
-                                else {
-                                    if (res.body.error) {
-                                        if (res.body.error.message.indexOf('No Record found') >= 0) {
+                                else{
+                                    if(res.body.error){
+                                        if(res.body.error.message.indexOf('No Record found') >= 0){
                                             logger.info('No Record found in incident for ' + ticketno);
                                             //attempt to update next table
-                                            snowticketupdate("sc_task", function (err, res) {
-                                                if (err) {
-                                                    callback(err, null);
+                                            snowticketupdate("sc_task",function(err,res){
+                                                if(err){
+                                                    callback(err,null);
                                                 }
                                                 else {
                                                     if (res.statusCode == 200) {
-                                                        callback(null, res);
+                                                        callback(null,res);
                                                     }
-                                                    else {
+                                                    else{
                                                         logger.info('No Record found in task for ' + ticketno);
-                                                        callback(res.body.error, null);
+                                                        callback(res.body.error,null);
 
                                                     }
                                                 }
