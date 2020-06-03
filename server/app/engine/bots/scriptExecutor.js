@@ -139,6 +139,7 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
         actionId: actionId
     }
     callback(null, botAuditTrailObj);
+    // replaceTextObj.actionId = actionId;
     if (botsScriptDetails.params && botsScriptDetails.params.data) {
         //condition introduced based on encryption botservice -> encryptedParam
         if (botsScriptDetails.params.category) {
@@ -155,11 +156,12 @@ function executeScriptOnLocal(botsScriptDetails, auditTrail, userName, botHostDe
                 }
 
             }
-        } else {
-            for (var j = 0; j < botsScriptDetails.input.length; j++) {
-                replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
-            }
         }
+        // else {
+        //     for (var j = 0; j < botsScriptDetails.input.length; j++) {
+        //         replaceTextObj[botsScriptDetails.input[j].name] = botsScriptDetails.input[j].default;
+        //     }
+        // }
 
 
     } else {
