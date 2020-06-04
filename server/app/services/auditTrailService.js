@@ -15,6 +15,7 @@
  */
 
 var logger = require('_pr/logger')(module);
+var appConfig = require('_pr/config');
 var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js');
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
@@ -656,7 +657,7 @@ auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
                 var edt=new Date(query.enddate).getTime()+86400000
                 queryObj.queryObj['$and'].push({startedOn:{$gte:sdt,$lte:edt}})
             }
-            if(query.user){
+            if(query.user !== appConfig.user){
                 queryObj.queryObj['$and'].push({user:query.user})
             }
             if(query.type && query.type=='snow'){
