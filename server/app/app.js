@@ -14,42 +14,67 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//require('@risingstack/trace');
+// Load application npm package
+// require('@risingstack/trace');
 require('newrelic')
-var express = require("express");
-var app = express();
-var path = require("path");
-var http = require("http");
-var https = require("https");
-var fs = require('fs');
-var childProcess = require('child_process');
-var socketIo = require('_pr/socket.io');
-var logger = require('_pr/logger')(module);
-var expressLogger = require('_pr/logger').ExpressLogger();
-var passport = require('passport');
-var passportLdapStrategy = require('./lib/ldapPassportStrategy.js');
-var passportADStrategy = require('./lib/adPassportStrategy.js');
-var globalData = require('_pr/config/global-data.js');
-var botAuditTrailSummary = require('_pr/db-script/botAuditTrailSummarize');
-var Tail = require('tail').Tail;
+const express = require("express");
+const app = express();
+const path = require("path");
+const http = require("http");
+const https = require("https");
+const fs = require('fs');
+const childProcess = require('child_process');
 
-// express middleware
-var expressCompression = require('compression');
-var expressFavicon = require('serve-favicon');
-var expressCookieParser = require('cookie-parser');
-var expressSession = require('express-session');
-var expressBodyParser = require('body-parser');
-var multipart = require('connect-multiparty');
-var expressMultipartMiddleware = multipart();
-var appConfig = require('_pr/config');
-var mongoose = require('mongoose');
-var MongoStore = require('connect-mongo')(expressSession);
-var mongoDbConnect = require('_pr/lib/mongodb');
+// Load application express-middleware
+const expressCompression = require('compression');
+const expressFavicon = require('serve-favicon');
+const expressCookieParser = require('cookie-parser');
+const expressSession = require('express-session');
+const expressBodyParser = require('body-parser');
+const multipart = require('connect-multiparty');
+const expressMultipartMiddleware = multipart();
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')(expressSession);
+const passport = require('passport');
+const Tail = require('tail').Tail;
+
+// Load application secret credentials
+const appConfig = require('_pr/config');
+const dboptions = {
+    host: process.env.DB_HOST || appConfig.db.host,
+    port: process.env.DB_PORT || appConfig.db.port,
+    dbName: process.env.DB_NAME || appConfig.db.dbName,
+    ssl: process.env.DB_SSL || appConfig.db.ssl
+};
+
+// Initialise the mongodb connections along with that mongoose ORM would be configure
+const mongoDbConnect = require('_pr/lib/mongodb');
+mongoDbConnect(dboptions, function (err) {
+    if (err) {
+        logger.error("Unable to connect to mongo db >>" + err);
+        throw new Error(err);
+    } else {
+        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
+    }
+});
+
+
+// Load application customize package
+const socketIo = require('_pr/socket.io');
+const logger = require('_pr/logger')(module);
+const expressLogger = require('_pr/logger').ExpressLogger();
+
+const botAuditTrailSummary = require('_pr/db-script/botAuditTrailSummarize');
+const passportLdapStrategy = require('./lib/ldapPassportStrategy.js');
+const passportADStrategy = require('./lib/adPassportStrategy.js');
+const globalData = require('_pr/config/global-data.js');
+const LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
+const catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 logger.debug('Starting Catalyst');
 logger.debug('Logger Initialized');
-var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
-var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
+
+
 LDAPUser.getLdapUser(function(err, ldapData) {
     if (err) {
         logger.error("Failed to get ldap-user: ", err);
@@ -71,41 +96,18 @@ LDAPUser.getLdapUser(function(err, ldapData) {
     }
 });
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
     done(null, user);
 });
 
-passport.deserializeUser(function(user, done) {
+passport.deserializeUser(function (user, done) {
     done(null, user);
 });
-/*
-var dboptions = {
-    host: appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-*/
-var dboptions = {
-    host: process.env.DB_HOST || appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
 
-
-if(mongoose.connection.readyState == 0) {
-    mongoDbConnect(dboptions, function (err) {
-        if (err) {
-            logger.error("Unable to connect to mongo db >>" + err);
-            throw new Error(err);
-        } else {
-            logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-        }
-    })
-}
 globalData.init();
 var mongoStore = new MongoStore({
     mongooseConnection: mongoose.connection
-}, function() {
+}, function () {
 
 });
 
@@ -146,7 +148,7 @@ app.use(expressBodyParser.json({
 app.use(passport.initialize());
 app.use(passport.session());
 
-//app.use(app.router);
+// app.use(app.router);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -162,12 +164,12 @@ var server = http.createServer(app);
 //getting socket connection
 var io = socketIo.getInstance(server, {
     log: false,
-    authFunc: function(socket, next) {
+    authFunc: function (socket, next) {
         sessionMiddleware(socket.request, socket.request.res, next);
     }
 });
 
-app.all('*', function(req, res, next) {
+app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
 
@@ -189,7 +191,7 @@ var routerV2 = require('./routes/v2.0');
 app.use('/api/v2.0', routerV2);
 
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     if (req.accepts('json')) {
         var errorResponse = {
             'status': 404,
@@ -235,8 +237,9 @@ catalystSync.executeScheduledBots();
 catalystSync.executeNewScheduledBots();
 catalystSync.getBotAuditLogData();
 botAuditTrailSummary.createCronJob();
-server.listen(app.get('port'), function() {
+server.listen(app.get('port'), function () {
     logger.debug('Express server listening on port ' + app.get('port'));
     require('_pr/services/noticeService.js').init(io,server.address());
-    //require('_pr/services/noticeService.js').test();
+    require('_pr/services/noticeService.js').test();
 });
+

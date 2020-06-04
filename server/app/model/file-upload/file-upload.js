@@ -1,13 +1,22 @@
-
 var fs = require('fs');
 var Grid = require('gridfs-stream');
 var appConfig = require('_pr/config');
 var logger = require('_pr/logger')(module);
-var     gfs = null;
+var gfs = null;
 var mongoDbClient = require('mongodb');
 var uuid = require('node-uuid');
-var dbHost = process.env.DB_HOST || appConfig.db.host;
-mongoDbClient.connect('mongodb://' + dbHost + ':' + appConfig.db.port + '/' + appConfig.db.dbName, function (err, db) {
+
+const dboptions = {
+    host: process.env.DB_HOST || appConfig.db.host,
+    port: process.env.DB_PORT || appConfig.db.port,
+    dbName: process.env.DB_NAME || appConfig.db.dbName,
+    ssl: process.env.DB_SSL || appConfig.db.ssl
+};
+
+const connectionString = 'mongodb://' + dboptions.host + ':' + dboptions.port + '/' + dboptions.dbName + '?ssl=' + dboptions.ssl;
+logger.info(connectionString);
+
+mongoDbClient.connect(connectionString, function (err, db) {
     if (err) {
         throw "unable to connect to mongodb"
         return;
@@ -18,7 +27,7 @@ mongoDbClient.connect('mongodb://' + dbHost + ':' + appConfig.db.port + '/' + ap
 var fileUpload = module.exports = {};
 
 fileUpload.uploadFile = function uploadFile(filename, filePath, fileId, callback) {
-    if(fileId === null){
+    if (fileId === null) {
         fileId = uuid.v4();
     }
     var writeStream = gfs.createWriteStream({
@@ -54,11 +63,11 @@ fileUpload.getReadStreamFileByFileId = function getReadStreamFileByFileId(fileId
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
-            return callback(err,null);
+            return callback(err, null);
         } else if (!file) {
             var err = new Error('File not found');
             err.status = 404;
-            return callback(err,null);
+            return callback(err, null);
         } else {
             var readStream = gfs.createReadStream({
                 _id: file._id

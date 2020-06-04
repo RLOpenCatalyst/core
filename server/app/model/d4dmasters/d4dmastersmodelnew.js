@@ -1682,6 +1682,11 @@ var d4dMastersRemoteBotServer = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
+    },
+    osType: {
+        type: String,
+        required: true,
+        trim: true
     }
 }, {
     collection: 'd4dmastersnew'

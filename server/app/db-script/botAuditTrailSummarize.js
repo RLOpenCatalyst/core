@@ -27,13 +27,7 @@ var mongoose = require('mongoose');
 
 var botAuditTrailSummary = module.exports = {
     createCronJob: createCronJob
-}
-
-var dboptions = {
-    host: process.env.DB_HOST || appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-}
+};
 
 function botAuditTrailSummarize(date) {
     var botAuditTrailSummaryData = [];
@@ -110,22 +104,7 @@ function botAuditTrailSummarize(date) {
 }
 
 function summarize() {
-    if(mongoose.connection.readyState == 1){
-     addResolvetagforSnowBots()
-
-    }
-    else {
-        mongoDbConnect(dboptions, function(err) {
-            if (err) {
-                logger.error("Unable to connect to mongo db >>" + err);
-                throw new Error(err);
-            } else {
-                logger.info('connected to mongodb - host = %s, port = %s, database = %s', dboptions.host, dboptions.port, dboptions.dbName);
-                logger.info('Start Time ', new Date())
-                 addResolvetagforSnowBots()
-            }
-        })
-    }
+    addResolvetagforSnowBots();
 }
 
 function getFromData(summaryArr, obj) {
@@ -190,5 +169,5 @@ botModel.update({"input.name":"sysid"},{"isResolved":true},{upsert:true,multi:tr
 })
 }
 
- summarize();
+summarize();
 

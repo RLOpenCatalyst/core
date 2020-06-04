@@ -92,6 +92,7 @@
                 }
             }
             $scope.tab = botsTab;
+            $scope.tab.tab="Execute";
         }, function (error) {
             toastr.error(error);
             $scope.errorMessage = "No Records found";

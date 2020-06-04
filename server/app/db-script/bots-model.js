@@ -11,20 +11,6 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var async = require('async');
 
-var dbOptions = {
-    host: process.env.DB_HOST || appConfig.db.host,
-    port: appConfig.db.port,
-    dbName: appConfig.db.dbName
-};
-mongodbConnect(dbOptions, function(err) {
-    if (err) {
-        logger.error("Unable to connect to mongo db >>" + err);
-        process.exit();
-    } else {
-        logger.debug('connected to mongodb - host = %s, port = %s, database = %s', dbOptions.host, dbOptions.port, dbOptions.dbName);
-    }
-});
-
 async.parallel({
     taskSync: function(callback){
         taskDao.getAllServiceDeliveryTask(true,function(err,tasks){

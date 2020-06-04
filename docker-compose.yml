@@ -20,6 +20,7 @@ services:
     image: relevancelab/catalyst-core:latest
     environment:
       - DB_HOST=database
+      - enableBotExecuterOsCheck=true
     volumes:
       - ${PWD}/data/catdata:/rlc/server/catdata
       - ${PWD}/logs:/rlc/server/app/logs

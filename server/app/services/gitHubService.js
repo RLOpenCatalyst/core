@@ -639,8 +639,8 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                                     next(err, null);
                                                     return;
                                                 } else if (botServerDetails !== null) {
-                                                    botRemoteServerDetails.hostIP = botServerDetails.hostIP;
-                                                    botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                                                    botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
+                                                    botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
                                                     next(null,botRemoteServerDetails);
                                                 } else {
                                                     var error = new Error();
