@@ -459,7 +459,10 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
 
             }
             if(!skip){
-                botService.executeBots(bots.id, null, 'system', 'bots-console', true, function (err, historyData) {
+                var reqBody = {};
+                reqBody.category = bots.type;
+                reqBody.data = bots.params.data;
+                botService.executeBots(bots.id, reqBody, 'system', 'bots-console', true, function (err, historyData) {
                     if (err) {
                         logger.error("Failed to execute New Bots.", err);
                         return;
