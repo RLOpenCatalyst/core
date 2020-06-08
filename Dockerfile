@@ -9,8 +9,8 @@ RUN npm install -g grunt-cli
 ##RUN npm install -g npm
 ##RUN npm install forever --global
 RUN gem install sass
-RUN curl -L https://www.opscode.com/chef/install.sh |  bash
-RUN /opt/chef/embedded/bin/gem install knife-windows
+RUN curl -L https://www.opscode.com/chef/install.sh |  bash -s -- -v 14.1.12	
+RUN /opt/chef/embedded/bin/gem install knife-windows -v 1.5.0
 
 RUN mkdir -p /rlc/client
 RUN mkdir -p /rlc/server
@@ -33,3 +33,5 @@ EXPOSE 3001
 # CMD forever start app.js
 WORKDIR /rlc/server/app
 CMD node app.js
+
+
