@@ -26,7 +26,7 @@ node ('master') {
             app.push("latest")
         }
     }
-    
+
     stage('Cleanup'){
         // Cleanup docker images
         sh 'echo "Cleaning images"'
