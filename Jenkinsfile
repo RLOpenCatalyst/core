@@ -9,26 +9,43 @@ node ('master') {
         version = readFile('version.txt').trim()
     }
     
-    stage('Building Docker image') {
+    /*stage('Building Docker image') {
         app = docker.build("relevancelab/catalyst-core")
-    }
+    }*/
 
-    stage('Quality Check') {
-         /*input "Confirm the quality?"*/
-        app.inside {
-            sh 'echo "Manualy test passed"'
+  stage('SonarQube Analysis') {
+        def scannerHome = tool 'SonarQube Scanner 3.1';
+        withSonarQubeEnv('SonarQube01') {
+            sh "${scannerHome}/bin/sonar-scanner"
         }
     }
 
-    stage('Push Docker image') {
+    stage("Quality Gate") {
+        timeout(time: 20, unit: 'MINUTES') {
+            def qg = waitForQualityGate()
+            if (qg.status != 'OK') {
+                notifyFailed()
+                error "Pipeline aborted due to SonarQube quality gate failure: ${qg.status}"
+            }
+        }
+    }
+
+    /*stage('Quality Check') {
+         input "Confirm the quality?"
+        app.inside {
+            sh 'echo "Manualy test passed"'
+        }
+    }*/
+
+    /*stage('Push Docker image') {
         docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
             app.push("${version}_b${env.BUILD_NUMBER}")
             app.push("latest")
         }
-    }
+    }*/
     
-    stage('Cleanup'){
+    /*stage('Cleanup'){
         // Cleanup docker images
         sh 'echo "Cleaning images"'
-    }
+    }*/
 }
