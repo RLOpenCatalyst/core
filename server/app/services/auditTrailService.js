@@ -519,7 +519,6 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
                             next(errbots)
                         }
                         else{
-                            console.log("TopbotList",topBotList);
                             for(var i = 0; i < topBotList.length;i++){
                                 if(topBotList[i].input){
                                    // logger.info("Found one with input " + topBotList[i].input.length);
@@ -646,7 +645,7 @@ auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
             }
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['startedOn','status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },

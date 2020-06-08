@@ -697,7 +697,7 @@ function restoreSeedData(config, callback) {
     };
 
     const connectionString = 'mongodb://' + dboptions.host + ':' + dboptions.port + '/' + dboptions.dbName + '?ssl=' + dboptions.ssl;
-    logger.info(connectionString);
+    //logger.info(connectionString);
     mongoDbClient.connect(connectionString, function(err, db) {
         if (err) {
             throw "unable to connect to mongodb"
