@@ -48,6 +48,7 @@ function getDefaultsConfig() {
         tempDirName: 'temp',
         scriptDirName :'scriptDir',
         staticUploadDir: '/var/chef/cache/uploads',
+        authIdpDirName: 'authIdp',
         app_run_secure_port: 443,
         botEngineTimeOut:440,
         cryptoSettings: {
@@ -74,6 +75,7 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
+        authIdpConfig:"",
         dboardConfig: {
           baseURl: "http://cc.rlcatalyst.com",
           authPath: "/user/login",
@@ -538,7 +540,6 @@ function getDefaultsConfig() {
             projectId: 'Unassigned',
             region: 'Global'
         },
-
         // cronjobTimeDelay: '"* * * * * *"',
 
         //getter methods
@@ -563,6 +564,9 @@ function getDefaultsConfig() {
         },
         get botCurrentFactoryDir() {
             return this.catalystHome + this.botCurrentFactory + "/";
+        },
+        get authIdpDir() {
+            return this.catalystHome + this.authIdpDirName + "/";
         }
     };
     return config;
@@ -620,7 +624,11 @@ function parseArguments() {
           name: "enableBotExecuterOsCheck",
           type: Boolean,
           description: "enableBotExecuterOsCheck"
-      }
+      },{
+        name: "auth-idp-config",
+        type: String,
+        description: "Authorization Config File"
+    }
     ]);
 
     var options = cli.parse();
@@ -663,6 +671,9 @@ function getConfig(config, options) {
     }
     if (options["license-key"]){
         config.licenseKey = options["license-key"];
+    }
+    if (options["auth-idp-config"]){
+        config.authIdpConfig = options["auth-idp-config"];        
     }
     return config;
 }
@@ -810,6 +821,8 @@ proc.on('close', function(code) {
         mkdirp.sync(config.chef.chefReposLocation);
         mkdirp.sync(config.chef.cookbooksDir);
         mkdirp.sync(config.puppet.puppetReposLocation);
+        console.log('IDP folder '+config.authIdpDir);
+        mkdirp.sync(config.authIdpDir);
         if (options['seed-data']) {
             fsExtra.emptydirSync(config.catalystDataDir);
             restoreSeedData(config, function() {

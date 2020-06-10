@@ -217,7 +217,10 @@ module.exports.setRoutes = function(app) {
     clientAppAccess.setRoutes(app,sessionVerificationFunc);
 
     app.get('/', function(req, res) {
+        //check if external login strategy is used before rendering
+        logger.debug("Serving Cat3..")
         res.redirect('/cat3');
+
     });
 
     //for public html files

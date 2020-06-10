@@ -92,7 +92,7 @@ LDAPUser.getLdapUser(function(err, ldapData) {
             passwordField: 'pass'
         }));
     } else {
-        logger.debug("No Ldap User found.");
+        logger.debug("No Ldap User found !!");
     }
 });
 
@@ -149,6 +149,41 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // app.use(app.router);
+var authStrategy = function(){
+    if(appConfig.authIdpConfig && appConfig.authIdpConfig != ""){
+        //check if the idpconfig file exists
+        var _idp = {};
+        fs.access( appConfig.authIdpDir+appConfig.authIdpConfig,fs.F_OK,(err) => {
+            if (err){
+                logger.debug("IDP based auth set, could not load file "+appConfig.authIdpConfig+". Loading default Auth.");
+                appConfig.authIdpConfig = null;
+                return;
+            }
+            //File exists load and update authIdpConfig
+            appConfig.authIdpConfig = JSON.parse(fs.readFileSync(appConfig.authIdpDir+appConfig.authIdpConfig,{encoding:'utf8', flag:'r'}));
+            logger.debug("Loaded IDP config file. About to use as Auth Strategy");
+            
+            //read cert field if found and is a saml
+            if(appConfig.authIdpConfig.strategy.toLowerCase().trim() == "saml"){
+                //read the cert file.
+                logger.debug("Reading cert : "+appConfig.authIdpConfig.saml.cert);
+                appConfig.authIdpConfig.cert = fs.readFileSync(appConfig.authIdpDir+appConfig.authIdpConfig.saml.cert,{encoding:'utf8', flag:'r'});
+                logger.debug(JSON.stringify(appConfig.authIdpConfig));
+                logger.debug("About to set passport strategy");
+                var SAMLPassportStrategy = require('./lib/samlPassportStrategy.js');
+                var samlstrategy = new SAMLPassportStrategy(passport, appConfig.authIdpConfig.saml);
+                samlstrategy.init();
+            }
+            else{
+                //to do add other strategy. Until then resetting appConfig.authIdpConfig
+                appConfig.authIdpConfig = null;
+            }
+            return;
+        })
+    }
+}
+
+authStrategy();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -240,6 +275,6 @@ botAuditTrailSummary.createCronJob();
 server.listen(app.get('port'), function () {
     logger.debug('Express server listening on port ' + app.get('port'));
     require('_pr/services/noticeService.js').init(io,server.address());
-    require('_pr/services/noticeService.js').test();
+    //require('_pr/services/noticeService.js').test();
 });
 
