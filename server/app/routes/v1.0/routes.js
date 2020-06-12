@@ -90,11 +90,12 @@ var routesRunbook = require('./routes_runbook');
  * Change app to router in internal routes files
  */
 
-module.exports.setRoutes = function(app) {
+module.exports.setRoutes = function(app,passport,authIdpConfig) {
 
     app.use(cors());
 
-    var verificationFunctions = auth.setRoutes(app);
+
+    var verificationFunctions = auth.setRoutes(app,passport,authIdpConfig);
     var sessionVerificationFunc = verificationFunctions.sessionVerificationFunc;
     var adminSessionVerificationFunc = verificationFunctions.adminSessionVerificationFunc;
 
@@ -217,11 +218,18 @@ module.exports.setRoutes = function(app) {
     clientAppAccess.setRoutes(app,sessionVerificationFunc);
 
     app.get('/', function(req, res) {
-        //check if external login strategy is used before rendering
-        logger.debug("Serving Cat3..")
-        res.redirect('/cat3');
-
+        logger.debug("hit /");
+        //if iDP configured then redirect to oidlogin in auth. Else load public static files.
+        if(authIdpConfig){
+            res.redirect('/oidlogin');
+        }
+        else{
+            res.redirect('/cat3');
+        }        
     });
+
+
+     
 
     //for public html files
     app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/public')));

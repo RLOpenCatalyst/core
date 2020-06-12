@@ -35,8 +35,11 @@ var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 var aws = require('aws-sdk');
 var tempAuthToken = require('_pr/model/temp-auth-token');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 
-module.exports.setRoutes = function(app) {
+module.exports.setRoutes = function(app,_passport,authIdpConfig) {
+
+
     app.post('/auth/createldapUser', function(req, res) {
         if (req.body) {
             LDAPUser.getLdapUser(function(err, ldapData) {
@@ -73,7 +76,7 @@ module.exports.setRoutes = function(app) {
 
                 } else {
                     logger.debug("No Ldap User found.");
-                    res.status(404).send("No Ldap User found..");
+                    res.status(404).send("No Ldap User found.");
                     return;
                 }
             });
@@ -82,145 +85,78 @@ module.exports.setRoutes = function(app) {
         }
     });
     app.post('/auth/signin', function(req, res, next) {
-        logger.debug("IDP Authentication Initiated..."+JSON.stringify(appConfig.authIdpConfig));
-        appConfig.authIdpConfig = null;
-        if (appConfig.authIdpConfig){
-            logger.debug("IDP Authentication Initiated...");
-            //To do
-            // passport.authenticate(,
-            //     {
-            //       successRedirect: '/',
-            //       failureRedirect: '/login'
-            //     });
-        }
-        else{
-            //not IDP based auth. Classic process.
-            if (req.body && req.body.username && req.body.pass) {
-                if (req.body.username === 'ec2-user') {
-                    var awsMetaData = new aws.MetadataService();
-                    awsMetaData.request('/latest/meta-data/instance-id', function(err, data) {
-                        if (err) {
-                            logger.error(err, err.stack);
-                            next(err);
-                        } else {
-                            logger.debug("Instance Id is " + data);
-                            var instanceId = data;
-                            var user = {
-                                "cn": req.body.username,
-                                "password": req.body.pass
-                            };
-                            req.session.user = user;
-                            if (req.body.username === 'ec2-user' && req.body.pass === instanceId) {
-                                user.roleName = "Admin";
-                                user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
+        if (req.body && req.body.username && req.body.pass) {
+            if (req.body.username === 'ec2-user') {
+                var awsMetaData = new aws.MetadataService();
+                awsMetaData.request('/latest/meta-data/instance-id', function(err, data) {
+                    if (err) {
+                        logger.error(err, err.stack);
+                        next(err);
+                    } else {
+                        logger.debug("Instance Id is " + data);
+                        var instanceId = data;
+                        var user = {
+                            "cn": req.body.username,
+                            "password": req.body.pass
+                        };
+                        req.session.user = user;
+                        if (req.body.username === 'ec2-user' && req.body.pass === instanceId) {
+                            user.roleName = "Admin";
+                            user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
 
-                                if (req.body.authType === 'token') {
-                                    AuthToken.createNew(req.session.user, function(err, authToken) {
-                                        req.session.destroy();
-                                        if (err) {
-                                            return next(err);
-                                        }
+                            if (req.body.authType === 'token') {
+                                AuthToken.createNew(req.session.user, function(err, authToken) {
+                                    req.session.destroy();
+                                    if (err) {
+                                        return next(err);
+                                    }
 
-                                        res.send(200, {
-                                            token: authToken.token
-                                        });
-                                        return;
+                                    res.send(200, {
+                                        token: authToken.token
                                     });
-                                } else {
-                                    req.logIn(user, function(err) {
-                                        if (err) {
-                                            return next(err);
-                                        }
-
-                                        return res.redirect('/private/index.html');
-                                    });
-                                }
+                                    return;
+                                });
                             } else {
-                                req.session.destroy();
-                                if (req.body.authType === 'token') {
-                                    return res.status(400).send({
-                                        message: "Invalid username or password"
-                                    });
-                                }
-                                res.redirect('/public/login.html?o=try');
+                                req.logIn(user, function(err) {
+                                    if (err) {
+                                        return next(err);
+                                    }
+
+                                    return res.redirect('/private/index.html');
+                                });
                             }
-                        }
-                    });
-
-                } else if (appConfig.authStrategy.externals) {
-                    logger.debug("LDAP Authentication>>>>>");
-                    passport.authenticate('ldap-custom-auth', function(err, user, info) {
-                        logger.debug('passport error ==>', err);
-                        logger.debug('passport user ==>', user);
-                        logger.debug('passport info ==>', info);
-
-                        if (err) {
-                            return next(err);
-                        }
-                        if (!user) {
+                        } else {
+                            req.session.destroy();
                             if (req.body.authType === 'token') {
                                 return res.status(400).send({
                                     message: "Invalid username or password"
                                 });
                             }
-                            return res.redirect('/public/login.html?o=try');
+                            res.redirect('/public/login.html?o=try');
                         }
-                        req.session.user = user;
-                        usersDao.getUser(user.cn, req, function(err, data) {
-                            logger.debug("User is not a Admin.");
-                            if (err) {
-                                req.session.destroy();
-                                next(err);
-                                return;
-                            }
-                            if (data && data.length) {
-                                user.roleId = data[0].userrolename;
+                    }
+                });
 
-                                logger.debug('Just before role:', data[0].userrolename);
-                                user.roleName = "Admin";
-                                user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
-                                if (req.body.authType === 'token') {
+            } else if (appConfig.authStrategy.externals) {
+                logger.debug("LDAP Authentication>>>>>");
+                passport.authenticate('ldap-custom-auth', function(err, user, info) {
+                    logger.debug('passport error ==>', err);
+                    logger.debug('passport user ==>', user);
+                    logger.debug('passport info ==>', info);
 
-                                    AuthToken.createNew(req.session.user, function(err, authToken) {
-                                        req.session.destroy();
-                                        if (err) {
-                                            return next(err);
-                                        }
-                                        res.send(200, {
-                                            token: authToken.token
-                                        });
-                                        return;
-                                    });
-                                } else {
-                                    req.logIn(user, function(err) {
-                                        if (err) {
-                                            return next(err);
-                                        }
-                                        return res.redirect('/private/index.html');
-                                    });
-                                }
-                            } else {
-                                req.session.destroy();
-                                if (req.body.authType === 'token') {
-                                    return res.status(400).send({
-                                        message: "Invalid username or password"
-                                    });
-                                }
-                                res.redirect('/public/login.html?o=try');
-                            }
-                        });
-                    })(req, res, next);
-                } else { // Local Authentication
-
-                    logger.debug("Local Authentication test...");
-                    var password = req.body.pass;
-                    var userName = req.body.username;
-                    var user = {
-                        "cn": userName,
-                        "password": password
-                    };
+                    if (err) {
+                        return next(err);
+                    }
+                    if (!user) {
+                        if (req.body.authType === 'token') {
+                            return res.status(400).send({
+                                message: "Invalid username or password"
+                            });
+                        }
+                        return res.redirect('/public/login.html?o=try');
+                    }
                     req.session.user = user;
-                    usersDao.getUser(userName, req, function(err, data) {
+                    usersDao.getUser(user.cn, req, function(err, data) {
                         logger.debug("User is not a Admin.");
                         if (err) {
                             req.session.destroy();
@@ -229,58 +165,29 @@ module.exports.setRoutes = function(app) {
                         }
                         if (data && data.length) {
                             user.roleId = data[0].userrolename;
-                            if (typeof data[0].password != 'undefined') {
-                                // check for password
-                                authUtil.checkPassword(password, data[0].password, function(err, isMatched) {
+
+                            logger.debug('Just before role:', data[0].userrolename);
+                            user.roleName = "Admin";
+                            user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
+                            if (req.body.authType === 'token') {
+
+                                AuthToken.createNew(req.session.user, function(err, authToken) {
+                                    req.session.destroy();
                                     if (err) {
-                                        req.session.destroy();
-                                        next(err);
-                                        return;
+                                        return next(err);
                                     }
-                                    if (!isMatched) {
-                                        req.session.destroy();
-                                        if (req.body.authType === 'token') {
-                                            return res.status(400).send({
-                                                message: "Invalid username or password"
-                                            });
-                                        }
-                                        res.redirect('/public/login.html?o=try');
-                                    } else {
-                                        logger.debug('Just before role:', data[0].userrolename);
-                                        user.roleName = "Admin";
-                                        user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
-
-                                        if (req.body.authType === 'token') {
-                                            AuthToken.createNew(req.session.user, function(err, authToken) {
-                                                req.session.destroy();
-                                                if (err) {
-                                                    return next(err);
-                                                }
-
-                                                res.send(200, {
-                                                    token: authToken.token
-                                                });
-                                                return;
-                                            });
-                                        } else {
-                                            req.logIn(user, function(err) {
-                                                if (err) {
-                                                    return next(err);
-                                                }
-
-                                                return res.redirect('/private/index.html');
-                                            });
-                                        }
-                                    }
+                                    res.send(200, {
+                                        token: authToken.token
+                                    });
+                                    return;
                                 });
                             } else {
-                                req.session.destroy();
-                                if (req.body.authType === 'token') {
-                                    return res.status(400).send({
-                                        message: "Invalid username or password"
-                                    });
-                                }
-                                res.redirect('/public/login.html?o=try');
+                                req.logIn(user, function(err) {
+                                    if (err) {
+                                        return next(err);
+                                    }
+                                    return res.redirect('/private/index.html');
+                                });
                             }
                         } else {
                             req.session.destroy();
@@ -292,16 +199,98 @@ module.exports.setRoutes = function(app) {
                             res.redirect('/public/login.html?o=try');
                         }
                     });
-                }
-            } else {
-                req.session.destroy();
-                if (req.body.authType === 'token') {
-                    return res.status(400).send({
-                        message: "Invalid username or password"
-                    });
-                }
-                res.redirect('/public/login.html?o=try');
+                })(req, res, next);
+            } else { // Local Authentication
+
+                logger.debug("Local Authentication");
+                var password = req.body.pass;
+                var userName = req.body.username;
+                var user = {
+                    "cn": userName,
+                    "password": password
+                };
+                req.session.user = user;
+                usersDao.getUser(userName, req, function(err, data) {
+                    logger.debug("User is not a Admin.");
+                    if (err) {
+                        req.session.destroy();
+                        next(err);
+                        return;
+                    }
+                    if (data && data.length) {
+                        user.roleId = data[0].userrolename;
+                        if (typeof data[0].password != 'undefined') {
+                            // check for password
+                            authUtil.checkPassword(password, data[0].password, function(err, isMatched) {
+                                if (err) {
+                                    req.session.destroy();
+                                    next(err);
+                                    return;
+                                }
+                                if (!isMatched) {
+                                    req.session.destroy();
+                                    if (req.body.authType === 'token') {
+                                        return res.status(400).send({
+                                            message: "Invalid username or password"
+                                        });
+                                    }
+                                    res.redirect('/public/login.html?o=try');
+                                } else {
+                                    logger.debug('Just before role:', data[0].userrolename);
+                                    user.roleName = "Admin";
+                                    user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
+
+                                    if (req.body.authType === 'token') {
+                                        AuthToken.createNew(req.session.user, function(err, authToken) {
+                                            req.session.destroy();
+                                            if (err) {
+                                                return next(err);
+                                            }
+
+                                            res.send(200, {
+                                                token: authToken.token
+                                            });
+                                            return;
+                                        });
+                                    } else {
+                                        req.logIn(user, function(err) {
+                                            if (err) {
+                                                return next(err);
+                                            }
+
+                                            return res.redirect('/private/index.html');
+                                        });
+                                    }
+                                }
+                            });
+                        } else {
+                            req.session.destroy();
+                            if (req.body.authType === 'token') {
+                                return res.status(400).send({
+                                    message: "Invalid username or password"
+                                });
+                            }
+                            res.redirect('/public/login.html?o=try');
+                        }
+                    } else {
+                        req.session.destroy();
+                        if (req.body.authType === 'token') {
+                            return res.status(400).send({
+                                message: "Invalid username or password"
+                            });
+                        }
+                        res.redirect('/public/login.html?o=try');
+                    }
+                });
             }
+        } else {
+            req.session.destroy();
+            if (req.body.authType === 'token') {
+                return res.status(400).send({
+                    message: "Invalid username or password"
+                });
+            }
+            res.redirect('/public/login.html?o=try');
         }
     });
 
@@ -332,8 +321,7 @@ module.exports.setRoutes = function(app) {
     });
 
     app.get('/login', function(req, res) {
-        res.redirect('/public/login.html');
-
+            res.redirect('/public/login.html');
     });
 
     app.get('/auth/userexists/:username', function(req, res) {
@@ -363,7 +351,7 @@ module.exports.setRoutes = function(app) {
                 }
 
             } else {
-                logger.debug("No Ldap User found....");
+                logger.debug("No Ldap User found.");
                 res.status(404).send("No Ldap User found.");
                 return;
             }
@@ -373,51 +361,110 @@ module.exports.setRoutes = function(app) {
     app.get('/auth/userrole', function(req, res) {
         res.send(req.session.cuserrole);
     });
+    
+    app.post('/oidlogin',function(req,res,next){
+        _passport.authenticate(authIdpConfig.strategy,function(err, user, info){
+             logger.debug("User : "+JSON.stringify(user));
+             logger.debug("Info : "+JSON.stringify(info));
+             user["roleId"]="Admin"; //to be received from IDP.
+             user["roleName"]="Admin";
+             req.logIn(user,function(err){
+                if(!err){
+                    logger.debug("logIn called..");                    
+                    user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
+                    req.session.user = user;
+                    MasterUtils.getPermissionSetForRoleName(user["roleName"],function(err1,pset){
+                        if(!err1){
+                            logger.debug("Got PermissionSet..redirecting.");
+                            req.session.user.permissionset = pset;
+                        }
+                        
+                        res.redirect('/private/index.html');
+                    })
+                } 
+                
 
+                 
+                 //res.redirect('/cat3');
+             });
+        })(req,res,next)
+     });
+ 
+     app.get('/oidlogin',function(req,res,next){
+         logger.debug("in oid login:");
+         next();
+     },
+     _passport.authenticate(authIdpConfig.strategy,
+             {
+               successRedirect: '/private/index.html',
+               failureRedirect: '/'
+             })
+         //res.send("whatever").status(200);
+         //res.redirect(authIdpConfig[authIdpConfig.strategy]["entryPoint"]);
+     );
 
 
     var verifySession = function verifySession(req, res, next) {
-        if (req.session && req.session.user) {
-            next();
-        } else {
-            var token = req.headers[appConfig.catalystAuthHeaderName];
-            var tempToken = req.query.ttok; // getting temp token
-            if (token) {
-                AuthToken.findByToken(token, function(err, authToken) {
-                    if (err) {
-                        logger.error('Unable to fetch token from db', err);
-                        res.send(403);
-                        return;
-                    }
-                    if (authToken) {
-                        req.session.user = authToken.sessionData;
-                        next();
-                       // req.session.destroy();
-                    } else {
-                        logger.debug("No Valid Session for User - 403");
-                        res.send(403);
-                    }
-                });
-            } else if (tempToken) { //checking for temp token
-                tempAuthToken.findByToken(tempToken, function(err, tempTokenData) {
-                    if (err) {
-                        logger.error('Unable to fetch token from db', err);
-                        res.send(403);
-                        return;
-                    }
-                    if (tempTokenData) {
-                        req.session.user = tempTokenData.sessionData;
-                        next();
-                        //req.session.destroy();
-                    } else {
-                        logger.debug("No Valid Session for User - 403");
-                        res.send(403);
-                        // req.session.destroy();
-                    }
-                });
+        
+        if(authIdpConfig){
+
+            logger.debug("IN verifySession........");
+            if(req.isAuthenticated()){
+                
+                logger.debug("Authenticated"+JSON.stringify(req.session.user));
+                logger.debug("Authenticated --- "+JSON.stringify(req.user));
+                next();
+            }
+            else{
+                logger.debug("Not Authenticated");
+                res.redirect("/cat3");
+                //res.send(403);
+                return;
+            }
+        }
+        else{
+            if (req.session && req.session.user) {
+                next();
             } else {
-                logger.debug("No Valid Session for User - 403");
-                res.send(403);
+                var token = req.headers[appConfig.catalystAuthHeaderName];
+                var tempToken = req.query.ttok; // getting temp token
+                if (token) {
+                    AuthToken.findByToken(token, function(err, authToken) {
+                        if (err) {
+                            logger.error('Unable to fetch token from db', err);
+                            res.send(403);
+                            return;
+                        }
+                        if (authToken) {
+                            req.session.user = authToken.sessionData;
+                            next();
+                        // req.session.destroy();
+                        } else {
+                            logger.debug("No Valid Session for User - 403");
+                            res.send(403);
+                        }
+                    });
+                } else if (tempToken) { //checking for temp token
+                    tempAuthToken.findByToken(tempToken, function(err, tempTokenData) {
+                        if (err) {
+                            logger.error('Unable to fetch token from db', err);
+                            res.send(403);
+                            return;
+                        }
+                        if (tempTokenData) {
+                            req.session.user = tempTokenData.sessionData;
+                            next();
+                            //req.session.destroy();
+                        } else {
+                            logger.debug("No Valid Session for User - 403");
+                            res.send(403);
+                            // req.session.destroy();
+                        }
+                    });
+                } else {
+                    logger.debug("No Valid Session for User - 403");
+                    res.send(403);
+                }
             }
         }
     };
@@ -438,18 +485,19 @@ module.exports.setRoutes = function(app) {
     }
 
     app.get('/auth/getpermissionset', verifySession, function(req, res) {
-        logger.debug('hit permissionset ');
+        logger.debug('hit permissionset -----');
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm,
             cryptoConfig.password);
         if (req && req.session && req.session.user && req.session.user.password)
             delete req.session.user.password;
         if (req && req.session && req.session.user) {
+            logger.debug("Checking license key"+appConfig.licenseKey);
             //Adding navbar items to be displayed
             var topMenu = [];
             if(appConfig.licenseKey){
                 var licenseKey = cryptography.decryptText(appConfig.licenseKey,cryptoConfig.decryptionEncoding,cryptoConfig.encryptionEncoding);
-
+                logger.debug("License Key..."+licenseKey);
                 if(licenseKey){
                     var _topMenu = licenseKey.split("-");
 

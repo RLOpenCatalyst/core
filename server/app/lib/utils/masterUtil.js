@@ -1940,6 +1940,19 @@ var MasterUtil = function () {
         callback(null, retVal);
     };
 
+    this.getPermissionSetForRoleName = function(roleName,callback){
+        permissionsetDao.getPermissionSet(roleName, function (err, permissionSet) {
+            if (err) {
+                callback(err, null);
+            }
+            if (permissionSet) {
+                callback(null, permissionSet);
+            } else {
+                callback(null, []);
+            }
+        });
+    };
+
     // Return all Puppet Servers specific to User
     this.getPuppetServers = function (orgList, callback) {
         var congifMgmtList = [];
@@ -2674,7 +2687,6 @@ var MasterUtil = function () {
                 }
             });
     }
-
 
     var getActiveExecutor = function (remoteServerDetails, orgId) {
         return new Promise((resolve, reject) => {

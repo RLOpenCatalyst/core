@@ -92,17 +92,10 @@ LDAPUser.getLdapUser(function(err, ldapData) {
             passwordField: 'pass'
         }));
     } else {
-        logger.debug("No Ldap User found !!");
+        logger.debug("No Ldap User found.");
     }
 });
 
-passport.serializeUser(function (user, done) {
-    done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-    done(null, user);
-});
 
 globalData.init();
 var mongoStore = new MongoStore({
@@ -122,7 +115,7 @@ logger.debug("Initializing Session store in mongo");
 var sessionMiddleware = expressSession({
     secret: 'sessionSekret',
     store: mongoStore,
-    resave: false,
+    resave: true,
     saveUninitialized: true
 });
 app.use(sessionMiddleware);
@@ -143,47 +136,17 @@ app.use(expressBodyParser.json({
     limit: '50mb'
 }))
 
-
 //setting up passport
-app.use(passport.initialize());
-app.use(passport.session());
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+});
+
 
 // app.use(app.router);
-var authStrategy = function(){
-    if(appConfig.authIdpConfig && appConfig.authIdpConfig != ""){
-        //check if the idpconfig file exists
-        var _idp = {};
-        fs.access( appConfig.authIdpDir+appConfig.authIdpConfig,fs.F_OK,(err) => {
-            if (err){
-                logger.debug("IDP based auth set, could not load file "+appConfig.authIdpConfig+". Loading default Auth.");
-                appConfig.authIdpConfig = null;
-                return;
-            }
-            //File exists load and update authIdpConfig
-            appConfig.authIdpConfig = JSON.parse(fs.readFileSync(appConfig.authIdpDir+appConfig.authIdpConfig,{encoding:'utf8', flag:'r'}));
-            logger.debug("Loaded IDP config file. About to use as Auth Strategy");
-            
-            //read cert field if found and is a saml
-            if(appConfig.authIdpConfig.strategy.toLowerCase().trim() == "saml"){
-                //read the cert file.
-                logger.debug("Reading cert : "+appConfig.authIdpConfig.saml.cert);
-                appConfig.authIdpConfig.cert = fs.readFileSync(appConfig.authIdpDir+appConfig.authIdpConfig.saml.cert,{encoding:'utf8', flag:'r'});
-                logger.debug(JSON.stringify(appConfig.authIdpConfig));
-                logger.debug("About to set passport strategy");
-                var SAMLPassportStrategy = require('./lib/samlPassportStrategy.js');
-                var samlstrategy = new SAMLPassportStrategy(passport, appConfig.authIdpConfig.saml);
-                samlstrategy.init();
-            }
-            else{
-                //to do add other strategy. Until then resetting appConfig.authIdpConfig
-                appConfig.authIdpConfig = null;
-            }
-            return;
-        })
-    }
-}
-
-authStrategy();
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -211,20 +174,84 @@ app.all('*', function (req, res, next) {
     next();
 });
 
+var loadIDP = function(cb){
+    logger.debug(JSON.stringify(appConfig.authIdpConfig));
+     if(appConfig.authIdpConfig && appConfig.authIdpConfig != ""){
+    //     //check if the idpconfig file exists
+        var _idp = {};
+        logger.debug(appConfig.authIdpDir+appConfig.authIdpConfig);
+   
+            //File should exists load and update authIdpConfig
+             appConfig.authIdpConfig = JSON.parse(fs.readFileSync(appConfig.authIdpDir+appConfig.authIdpConfig,{encoding:'utf8', flag:'r'}));
+             logger.debug("Loaded IDP config file. About to use as Auth Strategy");
+             logger.debug(JSON.stringify(appConfig.authIdpConfig));
+            cb();
+     
+    }
+    else{
+        cb();
+    }
+   
+    
+}
 
-logger.debug('Setting up application routes');
-var routes = require('./routes/v1.0/routes.js');
-var routerV1 = express.Router();
-routes.setRoutes(routerV1);
+var authStrategy = function(cb1){
+    //cb1();
+     loadIDP(function(){
+         if(appConfig.authIdpConfig && appConfig.authIdpConfig != ""){
+    //         //check if the idpconfig file exists
+             var _idp = {};
+    //         logger.debug(appConfig.authIdpConfig.strategy);
+    //         cb1();
+             if(appConfig.authIdpConfig.strategy.toLowerCase().trim() == "saml"){
+    //             //read the cert file.
+                 logger.debug("Reading cert : "+appConfig.authIdpConfig.saml.cert);
+                 appConfig.authIdpConfig.saml.cert = fs.readFileSync(appConfig.authIdpDir+appConfig.authIdpConfig.saml.cert,{encoding:'utf8', flag:'r'});
+                logger.debug(JSON.stringify(appConfig.authIdpConfig));
+                logger.debug("About to set passport strategy");
+                
+                require('./lib/samlPassportStrategy.js')(passport, appConfig.authIdpConfig.saml);
+                //var samlstrategy = new SAMLPassportStrategy(passport, appConfig.authIdpConfig.saml);
+                logger.debug("authenticate "+JSON.stringify(passport.authenticate));
+                //samlstrategy.init();
+                cb1();
+            }
+             else{
+    //             //to do add other strategy. Until then resetting appConfig.authIdpConfig
+                appConfig.authIdpConfig = null;
+                cb1();
+            }  
+               
+         }
+       else{
+             cb1();
+         }
+        
+    });
+}
 
-app.use(routerV1);
-app.use('/api/v1.0', routerV1);
+authStrategy(function(){
+    
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+    logger.debug('Setting up application routes');
+    var routes = require('./routes/v1.0/routes.js');
+    var routerV1 = express.Router();
+    routes.setRoutes(routerV1,passport,appConfig.authIdpConfig);
+
+    app.use(routerV1);
+    app.use('/api/v1.0', routerV1);
 
 
-logger.debug('setting up version 2 routes');
-var routerV2 = require('./routes/v2.0');
-app.use('/api/v2.0', routerV2);
+    logger.debug('setting up version 2 routes');
+    var routerV2 = require('./routes/v2.0');
+    app.use('/api/v2.0', routerV2);
 
+    
+
+});
 
 app.use(function (req, res, next) {
     if (req.accepts('json')) {
@@ -262,6 +289,11 @@ io.sockets.on('connection', function(socket) {
     });
 });
 
+server.listen(app.get('port'), function () {
+    logger.debug('Express server listening on port: ' + app.get('port'));
+    require('_pr/services/noticeService.js').init(io,server.address());
+    //require('_pr/services/noticeService.js').test();
+});
 
 var cronTabManager = require('_pr/cronjobs');
 cronTabManager.start();
@@ -272,9 +304,5 @@ catalystSync.executeScheduledBots();
 catalystSync.executeNewScheduledBots();
 catalystSync.getBotAuditLogData();
 botAuditTrailSummary.createCronJob();
-server.listen(app.get('port'), function () {
-    logger.debug('Express server listening on port ' + app.get('port'));
-    require('_pr/services/noticeService.js').init(io,server.address());
-    //require('_pr/services/noticeService.js').test();
-});
+
 
