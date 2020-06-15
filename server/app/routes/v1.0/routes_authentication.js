@@ -200,7 +200,25 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
                         }
                     });
                 })(req, res, next);
-            } else { // Local Authentication
+            } else if (appConfig.authIdpConfig && req.body.authSource != 'browser') {
+                //will be picked up from login/loginCtrl.js : to distinguish browser and api call.
+                logger.debug("Entering signin with idp----------------------------");
+                if (req.body.authType === 'token') {
+                    logger.debug("Token call received for ido.......");
+                    AuthToken.createNew(req.session.user, function(err, authToken) {
+                        //req.session.destroy();
+                        if (err) {
+                            return next(err);
+                        }
+
+                        res.send(200, {
+                            token: authToken.token
+                        });
+                        return;
+                    });
+                }
+            }
+            else { // Local Authentication
 
                 logger.debug("Local Authentication");
                 var password = req.body.pass;
@@ -241,6 +259,7 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
                                     user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
 
                                     if (req.body.authType === 'token') {
+                                        logger.debug("Token call received.......");
                                         AuthToken.createNew(req.session.user, function(err, authToken) {
                                             req.session.destroy();
                                             if (err) {
@@ -361,28 +380,54 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
     app.get('/auth/userrole', function(req, res) {
         res.send(req.session.cuserrole);
     });
+
+    app.get('/auth/refreshuser', function(req, res) {
+        if(authIdpConfig){
+            //refresh only when idp based login
+            if(req.isAuthenticated()){
+                res.send(req.session.user);
+            }
+            else{
+                //redirect to idp login
+                res.redirect('/');
+                //res.send("Not Authenticated").status(403);
+            }
+        }
+        
+    });
     
     app.post('/oidlogin',function(req,res,next){
         _passport.authenticate(authIdpConfig.strategy,function(err, user, info){
              logger.debug("User : "+JSON.stringify(user));
              logger.debug("Info : "+JSON.stringify(info));
-             user["roleId"]="Admin"; //to be received from IDP.
+             user["roleId"]="Admin,Designer,Consumer"; //to be received from IDP.
              user["roleName"]="Admin";
              req.logIn(user,function(err){
                 if(!err){
                     logger.debug("logIn called..");                    
                     user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
                     req.session.user = user;
-                    MasterUtils.getPermissionSetForRoleName(user["roleName"],function(err1,pset){
+                    MasterUtils.getPermissionSetForRoleName(user["roleId"],function(err1,pset){
                         if(!err1){
-                            logger.debug("Got PermissionSet..redirecting.");
+                            logger.debug("Got PermissionSet..creating token.");
                             req.session.user.permissionset = pset;
+                        
+                            //generate a new token and store in session.
+                            AuthToken.createNew(req.session.user, function(err, authToken) {
+                                //req.session.destroy();
+                                if (err) {
+                                    logger.debug("Could not generate token: "+ err);
+                                }
+                                else{
+                                    logger.debug("Generated new token : "+ authToken.token)
+                                    req.session.user["token"] = authToken.token;
+                                }        
+                                res.redirect('/cat3');
+                            });
                         }
                         
-                        res.redirect('/private/index.html');
                     })
-                } 
-                
+                }                
 
                  
                  //res.redirect('/cat3');
@@ -411,8 +456,8 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
             logger.debug("IN verifySession........");
             if(req.isAuthenticated()){
                 
-                logger.debug("Authenticated"+JSON.stringify(req.session.user));
-                logger.debug("Authenticated --- "+JSON.stringify(req.user));
+                logger.debug("Authenticated");
+                
                 next();
             }
             else{
