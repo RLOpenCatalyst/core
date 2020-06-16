@@ -31,12 +31,13 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','angul
 	'ui.grid.selection','ui.grid.cellNav'
 ]);
 
-angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window',
-	function ($rootScope, Auth, $state, $stateParams,$http) {
+angularApp.run(['$rootScope', 'auth','authenticationAPI','session', '$state', '$stateParams','$http','$window',
+	function ($rootScope, Auth, authenticationAPI, session , $state, $stateParams,$http) {
 		'use strict';
 		$rootScope.$on('$stateChangeStart', function (event, toState) {
 			//More function params: function (event, toState, toParams, fromState, fromParams)
 			function checkAuthentication() {
+				console.log("In statechange checkauth..................................");
 				if (toState.name !== 'signin' && !Auth.isLoggedIn()) {
 					event.preventDefault();
 					$state.go('signin');
@@ -57,7 +58,23 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window'
 					}
 				});
 			} else {
-				checkAuthentication();
+				//check if its an idp login session, then get a refreshedtoken.
+				console.log("About to refresh token");
+				authenticationAPI.refreshUserToken().then(function(response){
+					if(response){
+						if(response.data != "Not Authenticated"){
+							console.log(JSON.stringify(response));
+							session.setToken(response.data.token);
+							session.setUser(response.data);
+						}
+						else{
+							
+						}
+						
+					}
+					checkAuthentication();
+				});
+				
 			}
 		});
 		$rootScope.$on('$stateChangeError', function (evt, to, toParams, from, fromParams, error) {

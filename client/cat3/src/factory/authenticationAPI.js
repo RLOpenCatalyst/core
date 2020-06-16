@@ -29,6 +29,10 @@
 			var url = '/auth/getpermissionset';
 			return $http.get(fullUrl(url),session.getHeaderObject());
 		};
+		serviceInterface.refreshUserToken=function(){
+			var url = '/auth/refreshuser';
+			return $http.get(fullUrl(url),session.getHeaderObject());
+		}
 		return serviceInterface;
 	}]);
 })(angular);

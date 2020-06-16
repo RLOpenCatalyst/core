@@ -35,8 +35,11 @@ var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 var aws = require('aws-sdk');
 var tempAuthToken = require('_pr/model/temp-auth-token');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 
-module.exports.setRoutes = function(app) {
+module.exports.setRoutes = function(app,_passport,authIdpConfig) {
+
+
     app.post('/auth/createldapUser', function(req, res) {
         if (req.body) {
             LDAPUser.getLdapUser(function(err, ldapData) {
@@ -197,7 +200,25 @@ module.exports.setRoutes = function(app) {
                         }
                     });
                 })(req, res, next);
-            } else { // Local Authentication
+            } else if (appConfig.authIdpConfig && req.body.authSource != 'browser') {
+                //will be picked up from login/loginCtrl.js : to distinguish browser and api call.
+                logger.debug("Entering signin with idp----------------------------");
+                if (req.body.authType === 'token') {
+                    logger.debug("Token call received for ido.......");
+                    AuthToken.createNew(req.session.user, function(err, authToken) {
+                        //req.session.destroy();
+                        if (err) {
+                            return next(err);
+                        }
+
+                        res.send(200, {
+                            token: authToken.token
+                        });
+                        return;
+                    });
+                }
+            }
+            else { // Local Authentication
 
                 logger.debug("Local Authentication");
                 var password = req.body.pass;
@@ -238,6 +259,7 @@ module.exports.setRoutes = function(app) {
                                     user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
 
                                     if (req.body.authType === 'token') {
+                                        logger.debug("Token call received.......");
                                         AuthToken.createNew(req.session.user, function(err, authToken) {
                                             req.session.destroy();
                                             if (err) {
@@ -318,8 +340,7 @@ module.exports.setRoutes = function(app) {
     });
 
     app.get('/login', function(req, res) {
-        res.redirect('/public/login.html');
-
+            res.redirect('/public/login.html');
     });
 
     app.get('/auth/userexists/:username', function(req, res) {
@@ -360,50 +381,135 @@ module.exports.setRoutes = function(app) {
         res.send(req.session.cuserrole);
     });
 
+    app.get('/auth/refreshuser', function(req, res) {
+        if(authIdpConfig){
+            //refresh only when idp based login
+            if(req.isAuthenticated()){
+                res.send(req.session.user);
+            }
+            else{
+                //redirect to idp login
+                res.redirect('/');
+                //res.send("Not Authenticated").status(403);
+            }
+        }
+        
+    });
+    
+    app.post('/oidlogin',function(req,res,next){
+        _passport.authenticate(authIdpConfig.strategy,function(err, user, info){
+             logger.debug("User : "+JSON.stringify(user));
+             logger.debug("Info : "+JSON.stringify(info));
+             user["roleId"]="Admin,Designer,Consumer"; //to be received from IDP.
+             user["roleName"]="Admin";
+             req.logIn(user,function(err){
+                if(!err){
+                    logger.debug("logIn called..");                    
+                    user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
+                    req.session.user = user;
+                    MasterUtils.getPermissionSetForRoleName(user["roleId"],function(err1,pset){
+                        if(!err1){
+                            logger.debug("Got PermissionSet..creating token.");
+                            req.session.user.permissionset = pset;
+                        
+                            //generate a new token and store in session.
+                            AuthToken.createNew(req.session.user, function(err, authToken) {
+                                //req.session.destroy();
+                                if (err) {
+                                    logger.debug("Could not generate token: "+ err);
+                                }
+                                else{
+                                    logger.debug("Generated new token : "+ authToken.token)
+                                    req.session.user["token"] = authToken.token;
+                                }        
+                                res.redirect('/cat3');
+                            });
+                        }
+                        
+                    })
+                }                
+
+                 
+                 //res.redirect('/cat3');
+             });
+        })(req,res,next)
+     });
+ 
+     app.get('/oidlogin',function(req,res,next){
+         logger.debug("in oid login:");
+         next();
+     },
+     _passport.authenticate(authIdpConfig.strategy,
+             {
+               successRedirect: '/private/index.html',
+               failureRedirect: '/'
+             })
+         //res.send("whatever").status(200);
+         //res.redirect(authIdpConfig[authIdpConfig.strategy]["entryPoint"]);
+     );
 
 
     var verifySession = function verifySession(req, res, next) {
-        if (req.session && req.session.user) {
-            next();
-        } else {
-            var token = req.headers[appConfig.catalystAuthHeaderName];
-            var tempToken = req.query.ttok; // getting temp token
-            if (token) {
-                AuthToken.findByToken(token, function(err, authToken) {
-                    if (err) {
-                        logger.error('Unable to fetch token from db', err);
-                        res.send(403);
-                        return;
-                    }
-                    if (authToken) {
-                        req.session.user = authToken.sessionData;
-                        next();
-                       // req.session.destroy();
-                    } else {
-                        logger.debug("No Valid Session for User - 403");
-                        res.send(403);
-                    }
-                });
-            } else if (tempToken) { //checking for temp token
-                tempAuthToken.findByToken(tempToken, function(err, tempTokenData) {
-                    if (err) {
-                        logger.error('Unable to fetch token from db', err);
-                        res.send(403);
-                        return;
-                    }
-                    if (tempTokenData) {
-                        req.session.user = tempTokenData.sessionData;
-                        next();
-                        //req.session.destroy();
-                    } else {
-                        logger.debug("No Valid Session for User - 403");
-                        res.send(403);
-                        // req.session.destroy();
-                    }
-                });
+        
+        if(authIdpConfig){
+
+            logger.debug("IN verifySession........");
+            if(req.isAuthenticated()){
+                
+                logger.debug("Authenticated");
+                
+                next();
+            }
+            else{
+                logger.debug("Not Authenticated");
+                res.redirect("/cat3");
+                //res.send(403);
+                return;
+            }
+        }
+        else{
+            if (req.session && req.session.user) {
+                next();
             } else {
-                logger.debug("No Valid Session for User - 403");
-                res.send(403);
+                var token = req.headers[appConfig.catalystAuthHeaderName];
+                var tempToken = req.query.ttok; // getting temp token
+                if (token) {
+                    AuthToken.findByToken(token, function(err, authToken) {
+                        if (err) {
+                            logger.error('Unable to fetch token from db', err);
+                            res.send(403);
+                            return;
+                        }
+                        if (authToken) {
+                            req.session.user = authToken.sessionData;
+                            next();
+                        // req.session.destroy();
+                        } else {
+                            logger.debug("No Valid Session for User - 403");
+                            res.send(403);
+                        }
+                    });
+                } else if (tempToken) { //checking for temp token
+                    tempAuthToken.findByToken(tempToken, function(err, tempTokenData) {
+                        if (err) {
+                            logger.error('Unable to fetch token from db', err);
+                            res.send(403);
+                            return;
+                        }
+                        if (tempTokenData) {
+                            req.session.user = tempTokenData.sessionData;
+                            next();
+                            //req.session.destroy();
+                        } else {
+                            logger.debug("No Valid Session for User - 403");
+                            res.send(403);
+                            // req.session.destroy();
+                        }
+                    });
+                } else {
+                    logger.debug("No Valid Session for User - 403");
+                    res.send(403);
+                }
             }
         }
     };
@@ -424,18 +530,19 @@ module.exports.setRoutes = function(app) {
     }
 
     app.get('/auth/getpermissionset', verifySession, function(req, res) {
-        logger.debug('hit permissionset ');
+        logger.debug('hit permissionset -----');
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm,
             cryptoConfig.password);
         if (req && req.session && req.session.user && req.session.user.password)
             delete req.session.user.password;
         if (req && req.session && req.session.user) {
+            logger.debug("Checking license key"+appConfig.licenseKey);
             //Adding navbar items to be displayed
             var topMenu = [];
             if(appConfig.licenseKey){
                 var licenseKey = cryptography.decryptText(appConfig.licenseKey,cryptoConfig.decryptionEncoding,cryptoConfig.encryptionEncoding);
-
+                logger.debug("License Key..."+licenseKey);
                 if(licenseKey){
                     var _topMenu = licenseKey.split("-");
 

@@ -38,7 +38,8 @@
 			var promise = auth.login({
 				"username": $scope.username,
 				"pass": $scope.password,
-				"authType": "token"//this is how backend is identifying the difference between the normal login and token based login
+				"authType": "token",//this is how backend is identifying the difference between the normal login and token based login
+				"authSource": "browser"
 			});
 			promise.then(function(){
 				$scope.inCorrectLoginMessage = "";
