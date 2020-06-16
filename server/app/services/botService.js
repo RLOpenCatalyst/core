@@ -180,8 +180,9 @@ botService.getBotById = function getBotById(botId, callback) {
             callback(err, null);
             return;
         } else if (bot.length > 0) {
+            logger.info("Bot is found in the DB using botid : " + botId);
             if (bot[0].ymlDocFileId && bot[0].ymlDocFileId !== null) {
-                logger.info("in botservice......");
+
                 fileUpload.getReadStreamFileByFileId(bot[0].ymlDocFileId, function (err, file) {
                     if (err) {
                         logger.error("Error in fetching YAML Documents for : " + bot[0].name + " " + err);
@@ -329,10 +330,11 @@ botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNo
                     }
                 });
             }else{
-                settingService.getOrgUserFilter(userName,function(err,orgIds){
+                settingService.getOrgUserFilter(userName,function(err,orgIds) {
                     if(err){
                         next(err,null);
                     }else if(orgIds.length > 0){
+
                         queryObj.queryObj['orgId'] = {$in:orgIds};
                         botDao.getBotsList(queryObj, next);
                     }else{
@@ -354,6 +356,48 @@ botService.getBotsList = function getBotsList(botsQuery, actionStatus, serviceNo
             bots : results.botList.bots,            
             metaData : results.botList.metaData,     
         }        
+        callback(null,resultObj);
+        return;
+    });
+}
+
+botService.getAllBotsList = function getAllBotsList(botsQuery, userName, callback) {
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(botsQuery, 'bots', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['name', 'type', 'category', 'desc', 'orgName'];
+            paginationReq['select'] = ['name', 'type', 'input', 'category', 'desc', 'orgName', 'lastRunTime', 'executionCount','savedTime','id','_id']
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            settingService.getOrgUserFilter(userName,function(err,orgIds) {
+                if(err){
+                    next(err,null);
+                }else if(orgIds.length > 0) {
+                    queryObj.queryObj['orgId'] = {$in:orgIds};
+                    botDao.getBotsList(queryObj, next);
+                }else{
+                    botDao.getBotsList(queryObj, next);
+                }
+            });
+        },
+        function (filterBotList, next) {
+            apiUtil.paginationGetAllBotsResponse(filterBotList, reqData, callback);
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        var resultObj = {
+            bots : results.botList.bots,
+            metaData : results.botList.metaData,
+        }
         callback(null,resultObj);
         return;
     });
@@ -390,7 +434,10 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                 //TO DO: There is no else condition, need to check...
                 if (bots[0].type === 'script' || bots[0].type === 'chef' || bots[0].type === 'blueprints') {
                     logger.info("Executing BOTs Deatails",bots[0].execution[0].os,bots[0].execution[0].type);
+                    console.log(bots[0].orgId)
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
+                        console.log(".....................botServerDetails")
+                        console.log(botServerDetails)
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
                             callback(err, null);
@@ -559,6 +606,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
         }
     });
 }
+
 function executorOsTypeConditionCheck(botServerDetails,botRemoteServerDetails,bots) {
     let botType = bots[0].execution[0].type.toLowerCase();
     let botOSType = bots[0].execution[0].os.toLowerCase();
@@ -1103,7 +1151,7 @@ botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(b
     });
 }
 
-botService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(botId,status,callback){
+botService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(botId,status, callback) {
     async.waterfall([
         function(next){
             botDao.getBotsById(botId,next);
@@ -1226,6 +1274,10 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         if (err) {
                             logger.error("Error in fetching BOT Details for _id: " + bot.auditId + " " + err);
                         }else {
+                            console.log("............................................B")
+                            console.log("............................................")
+                            console.log("............................................")
+                            console.log(botDetails[0].ymlDocFileId)
                             fileUpload.getReadStreamFileByFileId(botDetails[0].ymlDocFileId, function (err, file) {
                                 if (err) {
                                     logger.error("Error in fetching YAML Documents for : " + bot.name + " " + err);

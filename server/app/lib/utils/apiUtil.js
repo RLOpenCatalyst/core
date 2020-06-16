@@ -139,11 +139,42 @@ var ApiUtil = function() {
         }
         return cronScheduler;
     }
+
     this.paginationResponse=function(data,req, callback) {
         var response={};
         var sortField=req.mirrorSort;
         response[req.id]=data.docs;
         response['metaData']={
+            totalRecords:data.total,
+            pageSize:data.limit,
+            page:data.page,
+            totalPages:data.pages,
+            sortBy:Object.keys(sortField)[0],
+            sortOrder:req.mirrorSort ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
+            filterBy:req.filterBy
+        };
+        callback(null, response);
+        return;
+    };
+
+    this.paginationGetAllBotsResponse = function(data, req, callback) {
+        var response={};
+        var sortField=req.mirrorSort;
+        var bots = data.docs;
+        for(var i=0; i<bots.length; i++) {
+            var inputStr = ""
+            var inputs = bots[i].input;
+            for(var j=0; j < inputs.length; j++) {
+                if(inputStr) {
+                    inputStr = inputStr +" , " + inputs[j].name
+                } else {
+                    inputStr = inputs[j].name
+                }
+            }
+            bots[i].input = inputStr;
+        }
+        response[req.id]=bots;
+        response['metaData']= {
             totalRecords:data.total,
             pageSize:data.limit,
             page:data.page,
