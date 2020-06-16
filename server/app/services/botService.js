@@ -434,10 +434,9 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                 //TO DO: There is no else condition, need to check...
                 if (bots[0].type === 'script' || bots[0].type === 'chef' || bots[0].type === 'blueprints') {
                     logger.info("Executing BOTs Deatails",bots[0].execution[0].os,bots[0].execution[0].type);
-                    console.log(bots[0].orgId)
+
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
-                        console.log(".....................botServerDetails")
-                        console.log(botServerDetails)
+
                         if (err) {
                             logger.error("Error while fetching BOTs Server Details");
                             callback(err, null);
@@ -1274,10 +1273,6 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         if (err) {
                             logger.error("Error in fetching BOT Details for _id: " + bot.auditId + " " + err);
                         }else {
-                            console.log("............................................B")
-                            console.log("............................................")
-                            console.log("............................................")
-                            console.log(botDetails[0].ymlDocFileId)
                             fileUpload.getReadStreamFileByFileId(botDetails[0].ymlDocFileId, function (err, file) {
                                 if (err) {
                                     logger.error("Error in fetching YAML Documents for : " + bot.name + " " + err);
