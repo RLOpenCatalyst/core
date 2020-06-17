@@ -24,6 +24,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
     app.get('/bot/all',function(req,res) {
         var loggedUser =  req.session.user.cn;
+        
         botService.getAllBotsList(req.query, loggedUser,function(err,data) {
             if (err) {
                 return res.status(500).send(err);
