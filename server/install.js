@@ -1,12 +1,9 @@
 /*
  Copyright [2016] [Relevance Lab]
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
  http://www.apache.org/licenses/LICENSE-2.0
-
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -75,19 +72,19 @@ function getDefaultsConfig() {
             }
         },
         dboardConfig: {
-          baseURl: "http://cc.rlcatalyst.com",
-          authPath: "/user/login",
-          servicePath: "/business_service",
-          interval: "Minutes",
-          repeat_every: 1
+            baseURl: "http://cc.rlcatalyst.com",
+            authPath: "/user/login",
+            servicePath: "/business_service",
+            interval: "Minutes",
+            repeat_every: 1
         },
-         newRelic:{
-         appName: "New Catalyst App",
-         licenseKey: "bd20baf865971e73848ee1f4e827ab4c43077786"
+        newRelic:{
+            appName: "New Catalyst App",
+            licenseKey: "bd20baf865971e73848ee1f4e827ab4c43077786"
         },
         settingWizardSteps:[{name :'Introduction',isCompleted:true},
             {name :'Org Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Organization',isCompleted:false,mandatoryCheck:true},
-                {name :'BusinessGroup',isCompleted:false,mandatoryCheck:true},{name:'Project',isCompleted:false,mandatoryCheck:true}]},
+                    {name :'BusinessGroup',isCompleted:false,mandatoryCheck:true},{name:'Project',isCompleted:false,mandatoryCheck:true}]},
             {name :'Config Management',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'ChefServer',isCompleted:false,mandatoryCheck:true},{name:'Environment',isCompleted:false,mandatoryCheck:true}]},
             {name :'User Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Team',isCompleted:false,mandatoryCheck:true},{name:'User',isCompleted:false,mandatoryCheck:true}]},
             {name :'Provider Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Provider',isCompleted:false,mandatoryCheck:true},{name:'VMImages',isCompleted:false,mandatoryCheck:true}]},
@@ -616,11 +613,11 @@ function parseArguments() {
         type: String,
         description: "Application license key"
     }
-    ,{
-          name: "enableBotExecuterOsCheck",
-          type: Boolean,
-          description: "enableBotExecuterOsCheck"
-      }
+        ,{
+            name: "enableBotExecuterOsCheck",
+            type: Boolean,
+            description: "enableBotExecuterOsCheck"
+        }
     ]);
 
     var options = cli.parse();
@@ -695,19 +692,17 @@ function restoreSeedData(config, callback) {
         dbName: process.env.DB_NAME || config.db.dbName,
         ssl: process.env.DB_SSL || config.db.ssl
     };
-    // const primaryConnectionStr = 'mongodb://rlcatalystdb-dev:PRPzfYtaaUPMcvSwXpILpL4lrIZWCmTFIiJJyhXIUPOqiUbscsXMSBVSgmHkWgu1nDb5TJ1neUa6VolQHATIvg==@rlcatalystdb-dev.documents.azure.com:10255/?ssl=true&replicaSet=globaldb'
-    const connectionString = 'mongodb://' + config.db.host + ':' + config.db.port + '/' + config.db.dbName;
-    // console.log(connectionString);
 
+    const connectionString = 'mongodb://' + dboptions.host + ':' + dboptions.port + '/' + dboptions.dbName + '?ssl=' + dboptions.ssl;
+    //logger.info(connectionString);
     mongoDbClient.connect(connectionString, function(err, db) {
         if (err) {
             throw "unable to connect to mongodb"
             return;
         }
-        console.log('connect to mongoDB');
-        // db.dropDatabase();
+        db.dropDatabase();
+
         var procMongoRestore = spawn('mongorestore', ['--host', config.db.host, '--port', config.db.port, '--db', config.db.dbName, '--drop', '../seed/mongodump/devops_new/']);
-        // var procMongoRestore = spawn('mongorestore', ['--uri', primaryConnectionStr, '--db', 'devops_new', '--drop', '../seed/mongodump/devops_new/']);
         procMongoRestore.on('error', function(mongoRestoreError) {
             console.error("mongorestore error ==> ", mongoRestoreError);
         });
@@ -791,7 +786,7 @@ function createConfigFile(config) {
     fs.writeFileSync('app/config/catalyst-config.json', configJson);
 }
 console.log('Installing node packages required for installation');
-proc = spawn('npm', ['install', "command-line-args@0.5.3", 'mkdirp@0.5.0', 'fs-extra@0.18.0', 'ldapjs@0.7.1', 'mongodb@3.4.1']);
+proc = spawn('npm', ['install', "command-line-args@0.5.3", 'mkdirp@0.5.0', 'fs-extra@0.18.0', 'ldapjs@0.7.1', 'mongodb@2.1.4']);
 proc.on('close', function(code) {
     if (code !== 0) {
         throw "Unable to install packages"

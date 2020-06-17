@@ -74,25 +74,25 @@
          </ul>
       </div>
    </div>
-   <div class="{{tab.isSet('ReadMe')? 'show-grid-tab':'hide-grid'}}">
+   <div ng-if="tab.isSet('ReadMe')" >
       <div ng-include="tab.templates.readme.url"></div>
    </div>
-   <div class="{{tab.isSet('Execute')? 'show-grid-tab':'hide-grid'}}">
+   <div ng-if="tab.isSet('Execute')" >
       <div ng-include="tab.templates.execute.url"></div>
    </div>
    <!-- <div class="{{tab.isSet('Param')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.param.url"></div>
    </div> -->
-   <div class="{{tab.isSet('Report')? 'show-grid-tab':'hide-grid'}}">
+   <div  ng-if="tab.isSet('Report')" >
       <div ng-include="tab.templates.report.url"></div>
    </div>
-   <div class="{{tab.isSet('Schedule')? 'show-grid-tab':'hide-grid'}}">
+   <div ng-if="tab.isSet('Schedule')" >
       <div ng-include="tab.templates.schedule.url"></div>
    </div>
    <!--<div class="{{tab.isSet('scheduledBots')? 'show-grid-tab':'hide-grid'}}">
       <div ng-include="tab.templates.scheduledBots.url"></div>
    </div>-->
-   <div class="{{tab.isSet('Settings')? 'show-grid-tab':'hide-grid'}}">
+   <div ng-if="tab.isSet('Settings')" >
       <div ng-include="tab.templates.settings.url"></div>
    </div>
    <!-- <div class="{{tab.isSet('Help')? 'show-grid-tab':'hide-grid'}}">

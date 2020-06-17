@@ -15,6 +15,7 @@
  */
 
 var logger = require('_pr/logger')(module);
+var appConfig = require('_pr/config');
 var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js');
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
@@ -530,7 +531,6 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
                             next(errbots)
                         }
                         else{
-                            console.log("TopbotList",topBotList);
                             for(var i = 0; i < topBotList.length;i++){
                                 if(topBotList[i].input){
                                    // logger.info("Found one with input " + topBotList[i].input.length);
@@ -657,7 +657,7 @@ auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
             }
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['startedOn','status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
@@ -667,7 +667,7 @@ auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
                 var edt=new Date(query.enddate).getTime()+86400000
                 queryObj.queryObj['$and'].push({startedOn:{$gte:sdt,$lte:edt}})
             }
-            if(query.user){
+            if(query.user !== appConfig.user){
                 queryObj.queryObj['$and'].push({user:query.user})
             }
             if(query.type && query.type=='snow'){
