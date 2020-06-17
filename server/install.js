@@ -695,17 +695,19 @@ function restoreSeedData(config, callback) {
         dbName: process.env.DB_NAME || config.db.dbName,
         ssl: process.env.DB_SSL || config.db.ssl
     };
+    // const primaryConnectionStr = 'mongodb://rlcatalystdb-dev:PRPzfYtaaUPMcvSwXpILpL4lrIZWCmTFIiJJyhXIUPOqiUbscsXMSBVSgmHkWgu1nDb5TJ1neUa6VolQHATIvg==@rlcatalystdb-dev.documents.azure.com:10255/?ssl=true&replicaSet=globaldb'
+    const connectionString = 'mongodb://' + config.db.host + ':' + config.db.port + '/' + config.db.dbName;
+    // console.log(connectionString);
 
-    const connectionString = 'mongodb://' + dboptions.host + ':' + dboptions.port + '/' + dboptions.dbName + '?ssl=' + dboptions.ssl;
-    logger.info(connectionString);
     mongoDbClient.connect(connectionString, function(err, db) {
         if (err) {
             throw "unable to connect to mongodb"
             return;
         }
-        db.dropDatabase();
-
+        console.log('connect to mongoDB');
+        // db.dropDatabase();
         var procMongoRestore = spawn('mongorestore', ['--host', config.db.host, '--port', config.db.port, '--db', config.db.dbName, '--drop', '../seed/mongodump/devops_new/']);
+        // var procMongoRestore = spawn('mongorestore', ['--uri', primaryConnectionStr, '--db', 'devops_new', '--drop', '../seed/mongodump/devops_new/']);
         procMongoRestore.on('error', function(mongoRestoreError) {
             console.error("mongorestore error ==> ", mongoRestoreError);
         });
@@ -789,7 +791,7 @@ function createConfigFile(config) {
     fs.writeFileSync('app/config/catalyst-config.json', configJson);
 }
 console.log('Installing node packages required for installation');
-proc = spawn('npm', ['install', "command-line-args@0.5.3", 'mkdirp@0.5.0', 'fs-extra@0.18.0', 'ldapjs@0.7.1', 'mongodb@2.1.4']);
+proc = spawn('npm', ['install', "command-line-args@0.5.3", 'mkdirp@0.5.0', 'fs-extra@0.18.0', 'ldapjs@0.7.1', 'mongodb@3.4.1']);
 proc.on('close', function(code) {
     if (code !== 0) {
         throw "Unable to install packages"

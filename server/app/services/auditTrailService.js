@@ -97,7 +97,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
 }
 
 auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId,auditObj,callback) {
-    if(auditType === 'BOTOLD' || auditType === 'BOT'){
+    if(auditType === 'BOTOLD' || auditType === 'BOT') {
         botAuditTrail.updateBotAuditTrail(auditId,auditObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -106,8 +106,13 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
             }
             callback(null,data);
             async.parallel({
-                botServiceNowSync:function(callback){
+                botServiceNowSync:function(callback) {
                     var botAuditTrailService = require('_pr/services/auditTrailService.js');
+                    console.log("...........................auditId")
+                    console.log("...........................auditId")
+                    console.log("...........................auditId")
+                    console.log("...........................auditId")
+                    console.log(auditId)
                     botAuditTrailService.syncCatalystWithServiceNow(auditId,function(err,data){
                         if(err){
                             logger.error("Error in updating Service Now Ticket Details:");
@@ -123,11 +128,17 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                         function(next){
                             auditTrail.getAuditTrails({_id:new ObjectId(auditId)},next)
                         },
-                        function(botAuditTrail,next){
+                        function(botAuditTrail, next){
                             if(botAuditTrail.length > 0 && auditObj.status
                                 && (auditObj.status !== null || auditObj.status !== '')){
                                 var botService = require('_pr/services/botService.js');
-                                botService.updateLastBotExecutionStatus(botAuditTrail[0].auditId,auditObj.status,function(err,data){
+                                console.log("................................F!A")
+                                console.log("................................F!A")
+                                console.log("................................F!A")
+                                console.log("................................F!A")
+                                console.log(botAuditTrail[0])
+                                console.log(auditObj.status)
+                                botService.updateLastBotExecutionStatus(botAuditTrail[0].auditId, auditObj.status,function(err,data){
                                     if(err){
                                         logger.error("Error in updating Last Execution Time Details:");
                                         callback(err,null);

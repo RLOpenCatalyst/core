@@ -434,7 +434,6 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                 //TO DO: There is no else condition, need to check...
                 if (bots[0].type === 'script' || bots[0].type === 'chef' || bots[0].type === 'blueprints') {
                     logger.info("Executing BOTs Deatails",bots[0].execution[0].os,bots[0].execution[0].type);
-
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
 
                         if (err) {
