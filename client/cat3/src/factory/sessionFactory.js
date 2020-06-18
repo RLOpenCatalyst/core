@@ -22,11 +22,13 @@
 			};
 			this.setUser = function (user) {
 				this._user = user;
+				//console.log("setUser---------------------------------");
 				localStorage.setItem('session.user', JSON.stringify(user));
 				this.setHeaderNavigation(user);
 				return this;
 			};
 			this.setUserFromLocalStorage = function () {
+				//console.log("setUserFromLocalStorage---------------------------------");
 				try {
 					this._userFromLocalStorage = JSON.parse(localStorage.getItem('session.user'));
 				} catch (e) {

@@ -74,8 +74,13 @@
 			};
 
 			this.logout = function () {
-				return authenticationAPI.logout().then(function () {
+				return authenticationAPI.logout().then(function (data) {
 					session.destroy();
+					//console.log("about to set windows loc href."+JSON.stringify(data));
+					if(data && data.data.redirectto){						
+						window.location.href = data.data.redirectto;
+					}
+					
 				});
 			};
 			return this;

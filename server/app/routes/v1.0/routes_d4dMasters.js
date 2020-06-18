@@ -4165,26 +4165,38 @@ module.exports.setRoutes = function (app, sessionVerification) {
 
     app.get('/d4dMasters/loggedInUser', function (req, res) {
         var loggedInUser = req.session.user.cn;
-        masterUtil.getLoggedInUser(loggedInUser, function (err, anUser) {
-            if (err) {
-                res.status(500).send("Failed to fetch User.");
-            }
-            if (!anUser) {
-                res.status(500).send("Invalid User.");
-            }
-            if (anUser.orgname_rowid[0] === "") {
-                res.send({
-                    "isSuperAdmin": true
-                });
-                return;
-            } else {
-                res.send({
-                    "isSuperAdmin": false
-                });
-                return;
-            }
-        });
+        //logger.debug("checking if superadmin...."+JSON.stringify(req.session.loginSource)+"..");
+        //if logged in using a idp strategy, assumed to be superadmin. TO DO: Change at org level.
+        if(req.session.loginSource){
+            res.send({
+                "isSuperAdmin": true
+            });
+            return;
+        }
+        else{
+            masterUtil.getLoggedInUser(loggedInUser, function (err, anUser) {
+                if (err) {
+                    res.status(500).send("Failed to fetch User.");
+                }
+                if (!anUser) {
+                    res.status(500).send("Invalid User.");
+                }
+                logger.debug("checking if superadmin...."+JSON.stringify(anUser));
+                if (anUser.orgname_rowid[0] === "") {
+                    res.send({
+                        "isSuperAdmin": true
+                    });
+                    return;
+                } else {
+                    res.send({
+                        "isSuperAdmin": false
+                    });
+                    return;
+                }
+            });
+        }
     });
+            
 
     app.get('/d4dMasters/orgs/all/users/7', function (req, res) {
         masterUtil.getUsersForAllOrg(function (err, users) {
