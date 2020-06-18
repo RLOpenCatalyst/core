@@ -37,9 +37,12 @@ angularApp.run(['$rootScope', 'auth','authenticationAPI','session', '$state', '$
 		$rootScope.$on('$stateChangeStart', function (event, toState) {
 			//More function params: function (event, toState, toParams, fromState, fromParams)
 			function checkAuthentication() {
-				console.log("In statechange checkauth..................................");
+				console.log("In statechange checkauth.................................."+toState.name);
+				console.log("In statechange islogged in.................................."+Auth.isLoggedIn());
 				if (toState.name !== 'signin' && !Auth.isLoggedIn()) {
+					console.log("here................................");
 					event.preventDefault();
+					Auth.destroyUser();
 					$state.go('signin');
 				} else if ((toState.name === 'signin' || toState.name === 'signinDefault') && Auth.isLoggedIn()) {
 					event.preventDefault();
@@ -47,12 +50,15 @@ angularApp.run(['$rootScope', 'auth','authenticationAPI','session', '$state', '$
 				}
 			}
 			if (Auth.getToken() && !Auth.isLoggedInFirst()) {
+				console.log("here. 1...............................");
 				Auth.isTokenValid().then(function (token) {
 					if (!token) {
+						console.log("here. 2...............................");
 						Auth.destroyUser();
 						event.preventDefault();
 						$state.go('signin');
 					} else {
+						console.log("here. 3...............................");
 						Auth.setUserFromLocalStorage();
 						checkAuthentication();
 					}
@@ -68,7 +74,7 @@ angularApp.run(['$rootScope', 'auth','authenticationAPI','session', '$state', '$
 							session.setUser(response.data);
 						}
 						else{
-							
+
 						}
 						
 					}

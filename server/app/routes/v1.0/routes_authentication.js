@@ -329,9 +329,22 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
                     return;
                 }
                 logger.debug('token removed', JSON.stringify(removeCount));
-                res.send(200, {
-                    message: 'token removed'
-                });
+                //Check idp and redirect to logout page
+                if(authIdpConfig){
+                    if(authIdpConfig[authIdpConfig.strategy].signouturl){
+                        logger.debug('IDP based logout..redirecting to', JSON.stringify(authIdpConfig[authIdpConfig.strategy].signouturl));
+                        res.send({"redirectto":authIdpConfig[authIdpConfig.strategy].signouturl});
+                        
+                    }
+                    else{
+                        res.redirect("/");
+                    }
+                }
+                else{
+                    res.send(200, {
+                        message: 'token removed'
+                    });
+                }
             });
         } else {
             res.redirect('/');
@@ -421,6 +434,8 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
                                 else{
                                     logger.debug("Generated new token : "+ authToken.token)
                                     req.session.user["token"] = authToken.token;
+                                    //loginsource would be used to determine if superadmin the loggedinuser call >> routes_d4dmasters
+                                    req.session["loginSource"] = authIdpConfig.strategy;
                                 }        
                                 res.redirect('/cat3');
                             });

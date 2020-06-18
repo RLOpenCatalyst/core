@@ -15,7 +15,7 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 			$httpProvider.defaults.headers.common[getAuthTokenDetails.tokenHeaderName] = getAuthTokenDetails.token;
 		}
 	}
-	console.log("hit****************************************");
+	//console.log("hit****************************************");
 	$urlRouterProvider.otherwise("/signin");
 	$stateProvider.state('signinDefault', {
 		url: "",
