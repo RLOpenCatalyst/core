@@ -24,6 +24,10 @@ var currentDirectory = __dirname;
 
 function getDefaultsConfig() {
     var config = {
+        ldap :{
+          host:"127.0.0.1",
+          "port":"10389"
+        },
         express: {
             port: 3001,
             express_sid_key: 'express.sid',
@@ -461,7 +465,18 @@ function getDefaultsConfig() {
         db: {
             dbName: 'devops_new',
             host: 'localhost',
-            port: '27017'
+            port: '27017',
+            enable_ssl: false,
+            enable_auth: false,
+            ssl_config:{
+                "CAFile": null,
+                "PEMFile": null
+            },
+            auth_config:{
+                "username":"",
+                "password":"",
+                "authenticated":""
+            }
         },
         authStrategy: {
             local: true,
@@ -653,8 +668,8 @@ function getConfig(config, options) {
     config.db.dbName = options['db-name'] ? options['db-name'] : config.db.dbName;
     config.enableBotExecuterOsCheck = options['enableBotExecuterOsCheck'] ? options['enableBotExecuterOsCheck'] : config.enableBotExecuterOsCheck;
     console.log("config--------------->",config);
-    //config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
-    //config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
+    config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
+    config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
     if (options['max-instance-count']) {
         var maxInstanceCount = parseInt(options['max-instance-count']);
         if (maxInstanceCount) {
@@ -752,8 +767,10 @@ function setupLdapUser(config, callback) {
             attrsOnly: true
         };
 
-        client.search('cn=' + ldapUser + ',dc=d4d-ldap,dc=relevancelab,dc=com', searchOpts, function(err, res) {
+        client.search('cn=' + ldapUser + ',dc=wimpi,dc=net', searchOpts, function(err, res) {
+        //client.search('cn=' + ldapUser + ',dc=d4d-ldap,dc=relevancelab,dc=com', searchOpts, function(err, res) {
             if (err) {
+                console.log(err);
                 console.error("Unable to preform search in ldap");
                 throw err;
             }
@@ -813,15 +830,16 @@ proc.on('close', function(code) {
         if (options['seed-data']) {
             fsExtra.emptydirSync(config.catalystDataDir);
             restoreSeedData(config, function() {
-                /*if (options['ldap-user']) {
-                 setupLdapUser(config, function() {
+                if (options['ldap-user']) {
+                    console.log("Setting ldap server")
+                 //setupLdapUser(config, function() {
                  createConfigFile(config);
                  installPackageJson();
-                 });
-                 } else {*/
+                 //});
+                 } else {
                 createConfigFile(config);
                 installPackageJson();
-                //}
+                }
             });
         } else {
             createConfigFile(config);
