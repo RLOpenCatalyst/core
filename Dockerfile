@@ -14,6 +14,7 @@ RUN /opt/chef/embedded/bin/gem install knife-windows -v 1.5.0
 
 RUN mkdir -p /rlc/client
 RUN mkdir -p /rlc/server
+RUN mkdir /mongdb
 
 ## Client
 ADD ./client/cat3 /rlc/client/cat3

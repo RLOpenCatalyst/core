@@ -164,11 +164,13 @@ var ApiUtil = function() {
         for(var i=0; i<bots.length; i++) {
             var inputStr = ""
             var inputs = bots[i].input;
-            for(var j=0; j < inputs.length; j++) {
-                if(inputStr) {
-                    inputStr = inputStr +" , " + inputs[j].name
-                } else {
-                    inputStr = inputs[j].name
+            if(inputs) {
+                for(var j=0; j < inputs.length; j++) {
+                    if(inputStr) {
+                        inputStr = inputStr +" , " + inputs[j].name
+                    } else {
+                        inputStr = inputs[j].name
+                    }
                 }
             }
             bots[i].input = inputStr;
