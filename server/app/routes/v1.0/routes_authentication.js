@@ -36,6 +36,7 @@ var aws = require('aws-sdk');
 var tempAuthToken = require('_pr/model/temp-auth-token');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
+var request = require('request');
 
 module.exports.setRoutes = function(app,_passport,authIdpConfig) {
 
@@ -85,7 +86,7 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
         }
     });
     app.post('/auth/signin', function(req, res, next) {
-        if (req.body && req.body.username && req.body.pass) {
+        if (req.body && req.body.username && (req.body.pass || req.body.apiKey)) {
             if (req.body.username === 'ec2-user') {
                 var awsMetaData = new aws.MetadataService();
                 awsMetaData.request('/latest/meta-data/instance-id', function(err, data) {
@@ -204,18 +205,76 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
                 //will be picked up from login/loginCtrl.js : to distinguish browser and api call.
                 logger.debug("Entering signin with idp----------------------------");
                 if (req.body.authType === 'token') {
-                    logger.debug("Token call received for ido.......");
-                    AuthToken.createNew(req.session.user, function(err, authToken) {
-                        //req.session.destroy();
-                        if (err) {
-                            return next(err);
-                        }
-
-                        res.send(200, {
-                            token: authToken.token
+                    logger.debug("Token call received for idp.......");
+                    //fetch api-token in body.
+                    var apiKey = req.body.apiKey;
+                    var userName = req.body.username;
+                    if(apiKey && userName){
+                            //Connect to appConfig.authIdpConfig[appConfig.authIdpConfig.strategy].verifyUrl+appConfig.authIdpConfig[appConfig.authIdpConfig.strategy].appId with the token
+                            
+                            var optionsA = {
+                                url: appConfig.authIdpConfig[appConfig.authIdpConfig.strategy].verifyUrl+appConfig.authIdpConfig[appConfig.authIdpConfig.strategy].appId,
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': appConfig.authIdpConfig[appConfig.authIdpConfig.strategy].authPrefix + apiKey,
+                                    'Accept': 'application/json'
+                                }
+                            };
+                            logger.debug("Entering IDP Auth with "+ JSON.stringify(optionsA));
+                            request(optionsA, function(err, resp){
+                                if(err){
+                                    logger.debug("Invalid Key."+err);
+                                    res.send(401, {
+                                        error: "Not Authorized"
+                                    });
+                                    return;
+                                }
+                                else{
+                                    logger.debug("Auth Successful.");
+                                    //if the app is returned, then token is valid.
+                                    //fetch the user from db. To Do: user reference to be changed to org when in tenenat modal.
+                                    var user = {
+                                        "cn": userName,
+                                        "apitoken": apiKey
+                                    };
+                                    user["roleId"]="Admin,Designer,Consumer"; //to be received from IDP.
+                                    user["roleName"]="Admin";
+                                    MasterUtils.getPermissionSetForRoleName(user["roleId"],function(err1,pset){
+                                        if(!err1){
+                                            logger.debug("Got PermissionSet..creating token.");
+                                            
+                                        
+                                            //generate a new token and store in session.
+                                            AuthToken.createNew(user, function(err2, authToken) {
+                                                //req.session.destroy();
+                                                if (err) {
+                                                    logger.debug("Could not generate token: "+ err2);
+                                                }
+                                                else{
+                                                    logger.debug("Generated new token : "+ authToken.token)
+                                                    res.status(200).send({
+                                                        token: authToken.token
+                                                    });
+                                                    return;
+                                                }        
+                                                
+                                            });
+                                        }
+                                        
+                                    })
+                                    
+                                }
+                            });
+                            
+                            
+                    }
+                    else{
+                        res.send(401, {
+                            error: "Not Authorized"
                         });
                         return;
-                    });
+                    }
+                    
                 }
             }
             else { // Local Authentication
@@ -454,14 +513,17 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
          logger.debug("in oid login:");
          next();
      },
+     function(req,res){
+    //      return res.redirect('/');
+    //  }
      _passport.authenticate(authIdpConfig.strategy,
              {
                successRedirect: '/private/index.html',
                failureRedirect: '/'
              })
          //res.send("whatever").status(200);
-         //res.redirect(authIdpConfig[authIdpConfig.strategy]["entryPoint"]);
-     );
+         res.redirect(authIdpConfig[authIdpConfig.strategy]["entryPoint"]);
+            });
 
 
     var verifySession = function verifySession(req, res, next) {
@@ -477,9 +539,16 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
             }
             else{
                 logger.debug("Not Authenticated");
-                res.redirect("/cat3");
+                
+                //
                 //res.send(403);
-                return;
+                if(authIdpConfig){
+                   return res.redirect('/oidlogin');
+                }
+                else{
+                    return res.redirect("/cat3");
+                }
+                
             }
         }
         else{

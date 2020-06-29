@@ -159,7 +159,7 @@ userService.checkPassword = function checkPassword(user, password, callback) {
     authUtil.checkPassword(password, user.password, function(err, isMatched) {
         if (err) {
             err.status = 500;
-            return allback(err)
+            return callback(err)
         }
         if (isMatched) {
             callback(null, user, true);
