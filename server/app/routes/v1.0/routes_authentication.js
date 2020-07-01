@@ -528,7 +528,7 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
 
     var verifySession = function verifySession(req, res, next) {
         
-        if(authIdpConfig){
+        if(authIdpConfig && !req.headers[appConfig.catalystAuthHeaderName]){
 
             logger.debug("IN verifySession........");
             if(req.isAuthenticated()){
