@@ -418,7 +418,8 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             var error = new Error();
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
                             error.status = 403;
-                            next(error, null);
+                            //next(error, null);
+                            encryptedParam(reqBody, next);
                         }
                     });
 
