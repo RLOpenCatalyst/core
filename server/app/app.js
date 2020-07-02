@@ -186,7 +186,7 @@ app.all('*', function (req, res, next) {
 });
 
 var loadIDP = function(cb){
-    logger.debug(JSON.stringify(appConfig.authIdpConfig));
+    logger.debug("IDP to be read from:"+JSON.stringify(appConfig.authIdpConfig));
      if(appConfig.authIdpConfig && appConfig.authIdpConfig != ""){
     //     //check if the idpconfig file exists
         var _idp = {};
@@ -216,9 +216,9 @@ var authStrategy = function(cb1){
     //         cb1();
              if(appConfig.authIdpConfig.strategy.toLowerCase().trim() == "saml"){
     //             //read the cert file.
-                 logger.debug("Reading cert : "+appConfig.authIdpConfig.saml.cert);
+                 logger.debug("Reading cert from file : "+appConfig.authIdpConfig.saml.cert);
                  appConfig.authIdpConfig.saml.cert = fs.readFileSync(appConfig.authIdpDir+appConfig.authIdpConfig.saml.cert,{encoding:'utf8', flag:'r'});
-                logger.debug(JSON.stringify(appConfig.authIdpConfig));
+                //logger.debug(JSON.stringify(appConfig.authIdpConfig));
                 logger.debug("About to set passport strategy");
                 
                 require('./lib/samlPassportStrategy.js')(passport, appConfig.authIdpConfig.saml);
