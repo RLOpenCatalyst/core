@@ -418,7 +418,8 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             var error = new Error();
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
                             error.status = 403;
-                            next(error, null);
+                            //next(error, null);
+                            encryptedParam(reqBody, next);
                         }
                     });
 
@@ -1118,14 +1119,16 @@ botService.getParticularBotsHistoryLogs = function getParticularBotsHistoryLogs(
 botService.updateLastBotExecutionStatus = function updateLastBotExecutionStatus(botId, status, callback) {
     async.waterfall([
         function (next) {
-            botDao.getBotsById(botId, next);
+            logger.debug("BotID:...... "+botId);
+            botDao.getBotsByBotId(botId, next);
         },
         function (bots, next) {
+            logger.debug("BotsLength: "+bots.length );
             if (bots.length > 0) {
                 var botObj = {
                     lastExecutionStatus: status
                 }
-                botDao.updateBotsDetail(botId, botObj, next);
+                botDao.updateBotsDetail(bots[0]._id, botObj, next);
             } else {
                 next({ code: 400, message: "Bots is not exist in DB" }, null)
             }

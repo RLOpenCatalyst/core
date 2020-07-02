@@ -37,10 +37,10 @@ angularApp.run(['$rootScope', 'auth','authenticationAPI','session', '$state', '$
 		$rootScope.$on('$stateChangeStart', function (event, toState) {
 			//More function params: function (event, toState, toParams, fromState, fromParams)
 			function checkAuthentication() {
-				console.log("In statechange checkauth.................................."+toState.name);
-				console.log("In statechange islogged in.................................."+Auth.isLoggedIn());
+				// console.log("In statechange checkauth.................................."+toState.name);
+				// console.log("In statechange islogged in.................................."+Auth.isLoggedIn());
 				if (toState.name !== 'signin' && !Auth.isLoggedIn()) {
-					console.log("here................................");
+				//	console.log("here................................");
 					event.preventDefault();
 					Auth.destroyUser();
 					$state.go('signin');
@@ -50,31 +50,31 @@ angularApp.run(['$rootScope', 'auth','authenticationAPI','session', '$state', '$
 				}
 			}
 			if (Auth.getToken() && !Auth.isLoggedInFirst()) {
-				console.log("here. 1...............................");
+			//	console.log("here. 1...............................");
 				Auth.isTokenValid().then(function (token) {
 					if (!token) {
-						console.log("here. 2...............................");
+			//			console.log("here. 2...............................");
 						Auth.destroyUser();
 						event.preventDefault();
 						$state.go('signin');
 					} else {
-						console.log("here. 3...............................");
+			//			console.log("here. 3...............................");
 						Auth.setUserFromLocalStorage();
 						checkAuthentication();
 					}
 				});
 			} else {
 				//check if its an idp login session, then get a refreshedtoken.
-				console.log("About to refresh token");
+		//		console.log("About to refresh token");
 				authenticationAPI.refreshUserToken().then(function(response){
 					if(response){
 						if(response.data != "Not Authenticated"){
-							console.log(JSON.stringify(response));
+				//			console.log(JSON.stringify(response));
 							session.setToken(response.data.token);
 							session.setUser(response.data);
 						}
 						else{
-
+							console.log(JSON.stringify(response));
 						}
 						
 					}
