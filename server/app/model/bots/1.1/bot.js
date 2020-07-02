@@ -280,6 +280,7 @@ BotSchema.statics.getBotsById = function(botId,callback){
 };
 
 BotSchema.statics.getBotsByBotId = function(botId,callback){
+    
     bot.find({id:botId}, function(err, bots) {
         if (err) {
             logger.error(err);
@@ -287,8 +288,10 @@ BotSchema.statics.getBotsByBotId = function(botId,callback){
             error.status = 500;
             return callback(error);
         }else if(bots.length > 0){
+            logger.debug("In here......"+JSON.stringify(bots));
             return callback(null, bots);
         }else{
+            logger.debug("In here......None");
             return callback(null, []);
         }
     });
