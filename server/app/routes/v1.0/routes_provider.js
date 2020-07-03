@@ -59,7 +59,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 res.status(500).send(errorResponses.db.error);
                 return;
             }
-            logger.debug("Provider list: ", JSON.stringify(providers));
+           // logger.debug("Provider list: ", JSON.stringify(providers));
             if (providers) {
                 var providerList = [];
                 var count = 0;
