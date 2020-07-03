@@ -40,7 +40,7 @@ var AuthUtil = function(){
 
     // Compare password with hashed password
     this.checkPassword = function(password,hashedPassword,callback){
-    	logger.debug("password: ",password,hashedPassword);
+    	//logger.debug("password: ",password,hashedPassword);
         bcrypt.compare(password,hashedPassword,function(err,isMatched){
             if(err){
                 logger.debug("Something wrong while matching password.");
