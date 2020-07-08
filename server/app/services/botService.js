@@ -418,7 +418,8 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                 botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
                                 botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
                             } else {
-                                if (appConfig.enableBotExecuterOsCheck === true || process.env.enableBotExecuterOsCheck === true) {
+                                //As env variable will always be in string changed the check value to string
+                                if (appConfig.enableBotExecuterOsCheck === true || process.env.enableBotExecuterOsCheck === 'true') {
                                     logger.info("Inn OS check condition");
                                     executorOsTypeConditionCheck(botServerDetails, botRemoteServerDetails, bots);
                                 } else {
@@ -433,7 +434,8 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             var error = new Error();
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
                             error.status = 403;
-                            next(error, null);
+                            //next(error, null);
+                            encryptedParam(reqBody, next);
                         }
                     });
 

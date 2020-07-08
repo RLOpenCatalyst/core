@@ -110,11 +110,6 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
             async.parallel({
                 botServiceNowSync:function(callback) {
                     var botAuditTrailService = require('_pr/services/auditTrailService.js');
-                    console.log("...........................auditId")
-                    console.log("...........................auditId")
-                    console.log("...........................auditId")
-                    console.log("...........................auditId")
-                    console.log(auditId)
                     botAuditTrailService.syncCatalystWithServiceNow(auditId,function(err,data){
                         if(err){
                             logger.error("Error in updating Service Now Ticket Details:");
@@ -134,12 +129,6 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                             if(botAuditTrail.length > 0 && auditObj.status
                                 && (auditObj.status !== null || auditObj.status !== '')){
                                 var botService = require('_pr/services/botService.js');
-                                console.log("................................F!A")
-                                console.log("................................F!A")
-                                console.log("................................F!A")
-                                console.log("................................F!A")
-                                console.log(botAuditTrail[0])
-                                console.log(auditObj.status)
                                 botService.updateLastBotExecutionStatus(botAuditTrail[0].auditId, auditObj.status,function(err,data){
                                     if(err){
                                         logger.error("Error in updating Last Execution Time Details:");
