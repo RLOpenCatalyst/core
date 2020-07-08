@@ -534,7 +534,8 @@ function formatGitHubResponse(gitHub,callback) {
         repositoryOwner:gitHub.repositoryOwner,
         repositoryType:gitHub.repositoryType,
         repositoryBranch:gitHub.repositoryBranch,
-        repoMode:gitHub.repoMode
+        repoMode:gitHub.repoMode,
+        isDefault:gitHub.isDefault
     };
     if (gitHub.organization.length) {
         formatted.orgId = gitHub.organization[0].rowid;

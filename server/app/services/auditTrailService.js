@@ -23,6 +23,7 @@ var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var botOld = require('_pr/model/bots/1.0/botOld.js');
 var botDao = require('_pr/model/bots/1.1/bot.js');
 var ObjectId = require('mongoose').Types.ObjectId;
+var gitHubModel = require('_pr/model/github/github.js');
 
 const errorType = 'auditTrailService';
 const botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary')
@@ -1130,8 +1131,23 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
                     if(err) {
                         next(err,null)
                     } else if(orgIds.length > 0) {
-                        filterQuery['orgId'] = { $in: orgIds }
-                        botDao.getAllBots(filterQuery, next)
+                        var query = {
+                            "orgId": { $in: orgIds },
+                            "isDefault": 'true'
+                        };
+                        var fields;
+                        gitHubModel.getGitRepository(query, fields, (err, res) => {
+                            if (!err && res.length>0) {
+                                filterQuery['orgId'] = { $in: orgIds };
+                                filterQuery['gitHubId'] = res[0]._id;
+                                botDao.getAllBots(filterQuery, next)
+                            }
+                            else {
+                                logger.error("Default Github account not found for bot summary with OrgIDs: " + orgIds);
+                                filterQuery['gitHubId'] = '';
+                                botDao.getAllBots(filterQuery, next)
+                            }
+                        });
                     } else {
                         botDao.getAllBots(filterQuery, next)
                     }

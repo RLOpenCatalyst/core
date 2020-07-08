@@ -13,8 +13,10 @@
 var gitHubService = require('_pr/services/gitHubService');
 var noticeService = require('_pr/services/noticeService');
 var async = require('async');
+var gitHubModel = require('_pr/model/github/github.js');
 var validate = require('express-validation');
 var gitHubValidator = require('_pr/validators/gitHubValidator');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -251,7 +253,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 if (err) {
                     res.status(err.status).send(err);
                 } else {
-                    return res.status(200).send(results);
+                    delete req.session.botcache;
+                    var query = {
+                        "_id" : {'$nin':[ObjectId(req.params.gitHubId)]}
+                    };
+                    var fields = {
+                        'isDefault' : false
+                    };
+                    gitHubModel.updateDefaultGitHub(query, fields, (err, resGithb) => {
+                        if (!err) {
+                            return res.status(200).send(resGithb);
+                        }
+                        else {
+                            logger.error("Error in getting GITHUB details "+err);
+                        }
+                    });
                 }
             }
         );
@@ -550,6 +566,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.delete('/git-hub/:gitHubId', deleteGitHub);
 
     function deleteGitHub(req, res) {
+        delete req.session.botcache;
         async.waterfall(
             [
                 function(next) {
