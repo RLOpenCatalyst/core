@@ -220,8 +220,9 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
                                     'Accept': 'application/json'
                                 }
                             };
-                            logger.debug("Entering IDP Auth with "+ JSON.stringify(optionsA));
+                            logger.debug("Entering IDP Auth");
                             request(optionsA, function(err, resp){
+                                logger.debug("Response rcvd from idp test..");
                                 if(err){
                                     logger.debug("Invalid Key."+err);
                                     res.send(401, {
@@ -230,38 +231,65 @@ module.exports.setRoutes = function(app,_passport,authIdpConfig) {
                                     return;
                                 }
                                 else{
-                                    logger.debug("Auth Successful.");
-                                    //if the app is returned, then token is valid.
-                                    //fetch the user from db. To Do: user reference to be changed to org when in tenenat modal.
-                                    var user = {
-                                        "cn": userName,
-                                        "apitoken": apiKey
-                                    };
-                                    user["roleId"]="Admin,Designer,Consumer"; //to be received from IDP.
-                                    user["roleName"]="Admin";
-                                    MasterUtils.getPermissionSetForRoleName(user["roleId"],function(err1,pset){
-                                        if(!err1){
-                                            logger.debug("Got PermissionSet..creating token.");
-                                            
-                                        
-                                            //generate a new token and store in session.
-                                            AuthToken.createNew(user, function(err2, authToken) {
-                                                //req.session.destroy();
-                                                if (err) {
-                                                    logger.debug("Could not generate token: "+ err2);
+                                    //Check the response for status code
+                                    if(resp.statusCode){
+                                        if(resp.statusCode != 200){
+                                            res.send(401, {
+                                                error: "Not Authorized"
+                                            });
+                                            return;
+                                        }
+                                        else{
+                                            logger.debug("Auth Successful.");
+                                            //if the app is returned, then token is valid.
+                                            //fetch the user from db. To Do: user reference to be changed to org when in tenenat modal.
+                                            var user = {
+                                                "cn": userName,
+                                                "apitoken": apiKey
+                                            };
+                                            user["roleId"]="Admin,Designer,Consumer"; //to be received from IDP.
+                                            user["roleName"]="Admin";
+                                            MasterUtils.getPermissionSetForRoleName(user["roleId"],function(err1,pset){
+                                                logger.debug("Rcvd ... " + err1);
+                                                //logger.debug("pset ... " + JSON.stringify(pset));
+                                                if(err1 == null){
+                                                    logger.debug("Got PermissionSet..creating token.");
+                                                    
+                                                
+                                                    //generate a new token and store in session.
+                                                    AuthToken.createNew(user, function(err2, authToken) {
+                                                        //req.session.destroy();
+                                                        if (err) {
+                                                            logger.debug("Could not generate token: "+ err2);
+                                                        }
+                                                        else{
+                                                            logger.debug("Generated new token : "+ authToken.token)
+                                                            res.status(200).send({
+                                                                token: authToken.token
+                                                            });
+                                                            return;
+                                                        }        
+                                                        
+                                                    });
                                                 }
                                                 else{
-                                                    logger.debug("Generated new token : "+ authToken.token)
-                                                    res.status(200).send({
-                                                        token: authToken.token
+                                                    logger.debug("Not Authorized "+JSON.stringify(err1));
+                                                    res.send(401, {
+                                                        error: "Not Authorized"
                                                     });
                                                     return;
-                                                }        
+                                                }
                                                 
-                                            });
+                                            })
                                         }
-                                        
-                                    })
+                                    }
+                                    else{
+                                        res.send(401, {
+                                            error: "Not Authorized"
+                                        });
+                                        return;
+                                    }
+                                    
                                     
                                 }
                             });
