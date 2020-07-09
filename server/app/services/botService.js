@@ -364,10 +364,16 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
     var botId = null;
     var botRemoteServerDetails = {};
     var bots = [];
-    var taskId = null;
+    var taskId = 'xxxxxx';
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     logger.info("Entering WF");
+    if (reqBody.data){
+        if(reqBody.data.sysid){
+            logger.info("SYS ID",reqBody.data.sysid)
+            taskId = reqBody.data.sysid
+        }
+    }
     async.waterfall([
         function (next) {
             botDao.getBotsByBotId(botsId, next);
@@ -375,23 +381,6 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
         function (botList, next) {
             bots = botList;
             logger.info("Got Bots " + JSON.stringify(bots));
-            if(bots.length > 0) {
-                if(bots[0].params){
-                    if(bot[0].params.data){
-                        if(bot[0].params.data.sysid){
-                            sysId = bot[0].params.data.sysid
-                            logger.info("Task ID",sysId)
-                            var decryptedTaskId = cryptography.decryptText(sysId, cryptoConfig.decryptionEncoding,
-                                cryptoConfig.encryptionEncoding);
-                            logger.info("Decrypted Task ID",decryptedTaskId)
-                            taskId = decryptedTaskId
-                            logger.info(taskId)
-                        }else{
-                            logger.info("Task ID does not exist")
-                        }
-                    }
-                }
-            }
             if (schedulerCallCheck)
                 scheduledBots.getScheduledBotsByBotId(botsId, next);
             else next(null, []);
@@ -437,7 +426,8 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             encryptedParam(reqBody, next);
                         } else {
                             var error = new Error();
-                            error.message = 'task_id'+taskId+' BOTs Remote Engine is not configured or not in running mode';
+                            logger.error("task_id"+taskId+" BOTs Remote Engine is not configured or not in running mode")
+                            error.message = 'BOTs Remote Engine is not configured or not in running mode';
                             error.status = 403;
                             //next(error, null);
                             encryptedParam(reqBody, next);
@@ -448,7 +438,8 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
 
             } else {
                 var error = new Error();
-                error.message = 'task_id'+taskId+' There is no record available in DB against BOT : ' + botsId;
+                logger.error("task_id"+taskId+" There is no record available in DB against BOT :"+botsId)
+                error.message = 'There is no record available in DB against BOT : ' + botsId;
                 error.status = 403;
                 next(error, null);
             }
@@ -507,7 +498,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                     date: startHour,
                                 }, { $inc: { "runningCount": 1 } }, { upsert: true }, function (err, data) {
                                     if (err) logger.error(JSON.stringify(err))
-                                    else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+                                    else logger.info("task_id"+taskId+" Running count of bot ", botDetails[0].name, "incremented successfully")
                                 })
                                 auditTrailService.insertAuditTrail(botDetails[0], auditTrailObj, actionObj, next);
                             },
@@ -556,6 +547,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         } else {
                             var err = new Error('Invalid BOT Type');
+                            logger.error("task_id"+taskId+" Invalid BOT Type")
                             err.status = 400;
                             err.msg = 'Invalid BOT Type';
                             callback(err, null);
