@@ -364,6 +364,9 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
     var botId = null;
     var botRemoteServerDetails = {};
     var bots = [];
+    var taskId = null;
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     logger.info("Entering WF");
     async.waterfall([
         function (next) {
@@ -372,13 +375,30 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
         function (botList, next) {
             bots = botList;
             logger.info("Got Bots " + JSON.stringify(bots));
+            if(bots.length > 0) {
+                if(bots[0].params){
+                    if(bot[0].params.data){
+                        if(bot[0].params.data.sysid){
+                            sysId = bot[0].params.data.sysid
+                            logger.info("Task ID",sysId)
+                            var decryptedTaskId = cryptography.decryptText(sysId, cryptoConfig.decryptionEncoding,
+                                cryptoConfig.encryptionEncoding);
+                            logger.info("Decrypted Task ID",decryptedTaskId)
+                            taskId = decryptedTaskId
+                            logger.info(taskId)
+                        }else{
+                            logger.info("Task ID does not exist")
+                        }
+                    }
+                }
+            }
             if (schedulerCallCheck)
                 scheduledBots.getScheduledBotsByBotId(botsId, next);
             else next(null, []);
         },
         function (scheduledBots, next) {
             if (bots.length > 0) {
-                logger.info("Got Bots " + JSON.stringify(scheduledBots));
+                logger.info("task_id"+taskId+" Got Bots " + JSON.stringify(scheduledBots));
                 botId = bots[0]._id;
                 if (scheduledBots.length > 0) {
                     //included check for params if empty.
@@ -393,31 +413,31 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     //logger.info("Executing BOTs Deatails", bots[0].execution[0].os, bots[0].execution[0].type);
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
-                            logger.error("Error while fetching BOTs Server Details");
+                            logger.error("task_id"+taskId+" Error while fetching BOTs Server Details");
                             callback(err, null);
                             return;
 
                         } else if (botServerDetails !== null && botServerDetails.length > 0) {
-                            logger.info("Checking flag status--->", appConfig.enableBotExecuterOsCheck)
+                            logger.info("task_id"+taskId+" Checking flag status--->", appConfig.enableBotExecuterOsCheck)
                             if (bots[0].type === 'blueprints') {
                                 botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
                                 botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
                             } else {
                                 //As env variable will always be in string changed the check value to string
                                 if (appConfig.enableBotExecuterOsCheck === true || process.env.enableBotExecuterOsCheck === 'true') {
-                                    logger.info("Inn OS check condition");
+                                    logger.info("task_id"+taskId+" Inn OS check condition");
                                     executorOsTypeConditionCheck(botServerDetails, botRemoteServerDetails, bots);
                                 } else {
 
                                     botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
                                     botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
-                                    logger.info("Default Details as working without Multiple executor feature", botRemoteServerDetails.hostIP, botRemoteServerDetails.hostPort);
+                                    logger.info("task_id"+taskId+" Default Details as working without Multiple executor feature", botRemoteServerDetails.hostIP, botRemoteServerDetails.hostPort);
                                 }
                             }
                             encryptedParam(reqBody, next);
                         } else {
                             var error = new Error();
-                            error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                            error.message = 'task_id'+taskId+' BOTs Remote Engine is not configured or not in running mode';
                             error.status = 403;
                             //next(error, null);
                             encryptedParam(reqBody, next);
@@ -428,7 +448,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
 
             } else {
                 var error = new Error();
-                error.message = 'There is no record available in DB against BOT : ' + botsId;
+                error.message = 'task_id'+taskId+' There is no record available in DB against BOT : ' + botsId;
                 error.status = 403;
                 next(error, null);
             }
@@ -440,7 +460,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             if (reqBody.nodeIds) {
                 botObj.params.nodeIds = reqBody.nodeIds;
             }
-            logger.info("Updating bot details" + JSON.stringify(botObj));
+            logger.info("task_id"+taskId+" Updating bot details" + JSON.stringify(botObj));
             botDao.updateBotsDetail(botId, botObj, next);
         },
         function (updateStatus, next) {
@@ -448,7 +468,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
         },
         function (botDetails, next) {
             if (botDetails.length > 0) {
-                logger.info("Executor in parallel " + JSON.stringify(botDetails));
+                logger.info("task_id"+taskId+" Executor in parallel " + JSON.stringify(botDetails));
                 async.parallel({
                     executor: function (callback) {
                         async.waterfall([
@@ -549,17 +569,17 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     }
                 });
             } else {
-                logger.info("No Botdetails found ");
+                logger.info("task_id"+taskId+" No Botdetails found ");
                 next(null, botDetails);
             }
         }
     ], function (err, results) {
         if (err) {
-            logger.error(err);
+            logger.error("task_id"+taskId+" "+ err);
             callback(err, null);
             return;
         } else {
-            logger.info("Completed Bot execution " + JSON.stringify(results));
+            logger.info("task_id"+taskId+" Completed Bot execution " + JSON.stringify(results));
             callback(null, results);
             return;
         }

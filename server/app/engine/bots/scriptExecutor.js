@@ -208,7 +208,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     });
     request.post(options, function (err, res, body) {
         if (err) {
-            logger.error(err);
+            logger.error("Logging body"+JSON.stringify(body))
+            logger.error("Error: ",err)
             var timestampEnded = new Date().getTime();
             logsDao.insertLog({
                 referenceId: logsReferenceIds,
