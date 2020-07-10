@@ -121,8 +121,21 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 
 
 function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetails,callback) {
+    logger.info("Bot script details",JSON.stringify(botsScriptDetails))
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var taskId = 'xxxxxx';
+    if (botsScriptDetails.params){
+        if(botsScriptDetails.params.data){
+            if(botsScriptDetails.params.data.sysid){
+                sysId = botsScriptDetails.params.data.sysid
+                var decryptedText = cryptography.decryptText(sysId, cryptoConfig.decryptionEncoding,
+                    cryptoConfig.encryptionEncoding);
+                taskId = decryptedText
+                logger.info("Task ID",taskId)
+            }
+        }
+    }
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails.id, actionId];
     var replaceTextObj = {
@@ -208,7 +221,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     });
     request.post(options, function (err, res, body) {
         if (err) {
-            logger.error(err);
+            logger.error("task_id"+taskId+" "+JSON.stringify(err))
+            logger.error("Error: task_id"+taskId+" Configure appropriate bot executor with proper osType ")
             var timestampEnded = new Date().getTime();
             logsDao.insertLog({
                 referenceId: logsReferenceIds,
