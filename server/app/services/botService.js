@@ -379,7 +379,16 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
     var botId = null;
     var botRemoteServerDetails = {};
     var bots = [];
+    var taskId = 'xxxxxx';
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     logger.info("Entering WF");
+    if (reqBody.data){
+        if(reqBody.data.sysid){
+            logger.info("SYS ID",reqBody.data.sysid)
+            taskId = reqBody.data.sysid
+        }
+    }
     async.waterfall([
         function (next) {
             botDao.getBotsByBotId(botsId, next);
@@ -408,30 +417,31 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     //logger.info("Executing BOTs Deatails", bots[0].execution[0].os, bots[0].execution[0].type);
                     masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
                         if (err) {
-                            logger.error("Error while fetching BOTs Server Details");
+                            logger.error("Error while fetching BOTs Server Details "+"task_id"+taskId);
                             callback(err, null);
                             return;
 
                         } else if (botServerDetails !== null && botServerDetails.length > 0) {
-                            logger.info("Checking flag status--->", appConfig.enableBotExecuterOsCheck)
+                            logger.info("task_id"+taskId+" Checking flag status--->", appConfig.enableBotExecuterOsCheck)
                             if (bots[0].type === 'blueprints') {
                                 botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
                                 botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
                             } else {
                                 //As env variable will always be in string changed the check value to string
                                 if (appConfig.enableBotExecuterOsCheck === true || process.env.enableBotExecuterOsCheck === 'true') {
-                                    logger.info("Inn OS check condition");
+                                    logger.info("task_id"+taskId+" Inn OS check condition");
                                     executorOsTypeConditionCheck(botServerDetails, botRemoteServerDetails, bots);
                                 } else {
 
                                     botRemoteServerDetails.hostIP = botServerDetails[0].hostIP;
                                     botRemoteServerDetails.hostPort = botServerDetails[0].hostPort;
-                                    logger.info("Default Details as working without Multiple executor feature", botRemoteServerDetails.hostIP, botRemoteServerDetails.hostPort);
+                                    logger.info("task_id"+taskId+" Default Details as working without Multiple executor feature", botRemoteServerDetails.hostIP, botRemoteServerDetails.hostPort);
                                 }
                             }
                             encryptedParam(reqBody, next);
                         } else {
                             var error = new Error();
+                            logger.error("task_id"+taskId+" BOTs Remote Engine is not configured or not in running mode")
                             error.message = 'BOTs Remote Engine is not configured or not in running mode';
                             error.status = 403;
                             //next(error, null);
@@ -443,6 +453,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
 
             } else {
                 var error = new Error();
+                logger.error("task_id"+taskId+" There is no record available in DB against BOT :"+botsId)
                 error.message = 'There is no record available in DB against BOT : ' + botsId;
                 error.status = 403;
                 next(error, null);
@@ -455,7 +466,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             if (reqBody.nodeIds) {
                 botObj.params.nodeIds = reqBody.nodeIds;
             }
-            logger.info("Updating bot details" + JSON.stringify(botObj));
+            logger.info("task_id"+taskId+" Updating bot details" + JSON.stringify(botObj));
             botDao.updateBotsDetail(botId, botObj, next);
         },
         function (updateStatus, next) {
@@ -463,7 +474,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
         },
         function (botDetails, next) {
             if (botDetails.length > 0) {
-                logger.info("Executor in parallel " + JSON.stringify(botDetails));
+                logger.info("task_id"+taskId+" Executor in parallel " + JSON.stringify(botDetails));
                 async.parallel({
                     executor: function (callback) {
                         async.waterfall([
@@ -503,7 +514,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                     gitHubId: botDetails[0].gitHubId
                                 }, { $inc: { "runningCount": 1 } }, { upsert: true }, function (err, data) {
                                     if (err) logger.error(JSON.stringify(err))
-                                    else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
+                                    else logger.info("task_id"+taskId+" Running count of bot ", botDetails[0].name, "incremented successfully")
                                 })
                                 auditTrailService.insertAuditTrail(botDetails[0], auditTrailObj, actionObj, next);
                             },
@@ -527,6 +538,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                     jenkinsExecutor.execute(botDetails[0], auditTrail, reqBody, userName, next);
                                 } else {
                                     var err = new Error('Invalid BOT Type');
+                                    logger.error("Error: Invalid BOT Type "+"task_id"+taskId)
                                     err.status = 400;
                                     err.msg = 'Invalid BOT Type';
                                     callback(err, null);
@@ -552,6 +564,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         } else {
                             var err = new Error('Invalid BOT Type');
+                            logger.error("Error: Invalid BOT Type "+"task_id"+taskId)
                             err.status = 400;
                             err.msg = 'Invalid BOT Type';
                             callback(err, null);
@@ -565,7 +578,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     }
                 });
             } else {
-                logger.info("No Botdetails found ");
+                logger.error("Error: No Botdetails found "+"task_id"+taskId);
                 next(null, botDetails);
             }
         }
@@ -575,7 +588,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
             callback(err, null);
             return;
         } else {
-            logger.info("Completed Bot execution " + JSON.stringify(results));
+            logger.info("task_id"+taskId+" Completed Bot execution " + JSON.stringify(results));
             callback(null, results);
             return;
         }
