@@ -500,6 +500,7 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                                     botID: botDetails[0].id,
                                     user: userName,
                                     date: startHour,
+                                    gitHubId: botDetails[0].gitHubId
                                 }, { $inc: { "runningCount": 1 } }, { upsert: true }, function (err, data) {
                                     if (err) logger.error(JSON.stringify(err))
                                     else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
@@ -822,7 +823,7 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
                                                             logger.error("Error in removing YAML File. ", err);
                                                         }
                                                         if (runbookObjList.length === runbookFiles.length) {
-                                                            next(null, runbookObjList);
+                                                            //next(null, runbookObjList);
                                                             return;
                                                         }
                                                     });
@@ -838,7 +839,7 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
                                                             logger.error(err);
                                                             runbookObjList.push(err);
                                                             if (runbookObjList.length === runbookFiles.length) {
-                                                                next(null, runbookObjList);
+                                                                //next(null, runbookObjList);
                                                                 return;
                                                             }
                                                         } else if (runbookList.length > 0) {
@@ -848,7 +849,7 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
                                                                 }
                                                                 runbookObjList.push(runbookObj);
                                                                 if (runbookObjList.length === runbookFiles.length) {
-                                                                    next(null, runbookObjList);
+                                                                    //next(null, runbookObjList);
                                                                     return;
                                                                 }
                                                             })
@@ -859,7 +860,7 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
                                                                 }
                                                                 runbookObjList.push(runbookObj);
                                                                 if (runbookObjList.length === runbookFiles.length) {
-                                                                    next(null, runbookObjList);
+                                                                    //next(null, runbookObjList);
                                                                     return;
                                                                 }
                                                             });
@@ -870,7 +871,7 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
                                         } else {
                                             runbookObjList.push(result);
                                             if (runbookObjList.length === runbookFiles.length) {
-                                                next(null, runbookObjList);
+                                                //next(null, runbookObjList);
                                                 return;
                                             }
                                         }
@@ -1027,7 +1028,7 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) 
                                     })
                                 }
                             })
-
+                        
                         })(botsList[i]);
                     }
                 } else {

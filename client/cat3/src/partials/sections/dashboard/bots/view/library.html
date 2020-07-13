@@ -2,7 +2,7 @@
 <loading size="large" name="pageLoadBot" type="block" align="center"></loading>
 <div id="botLibraryPage" ng-show="!pageLoadBot">
    <div class="page-name">
-      BOTs Library&nbsp;
+      BOTs Library : {{gitHubRepoName}} &nbsp; 
        <!--<span class="label label-warning"><small>Time Saved: </small>{{botSummary.totalSavedTimeForBots.days ? botSummary.totalSavedTimeForBots.days:0}}d {{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span>-->
       <span class="pull-right">
         <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
@@ -316,7 +316,7 @@
        ng-show="noShowForServiceNow">
     <div class="alert alert-info text-center no-data"
          ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
-      No data Available
+         No BOTs available. Check if your BOT repository is synchronised
     </div>
     <div id="grid1"
          ng-show="!isCardViewActive"

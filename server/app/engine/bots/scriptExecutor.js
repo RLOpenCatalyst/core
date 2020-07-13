@@ -83,6 +83,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                     botID: botDetails.id,
                                     user: userName,
                                     date: startHour,
+                                    gitHubId: botDetails.gitHubId
                                 }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
                                     if(err) logger.error(JSON.stringify(err))
                                     else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
@@ -245,6 +246,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                 botID: botsScriptDetails.id,
                 user: userName,
                 date: startHour,
+                gitHubId: botsScriptDetails.gitHubId
             }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
                 if(err) logger.error(JSON.stringify(err))
                 else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
@@ -307,6 +309,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     botID: botsScriptDetails.id,
                     user: userName,
                     date: startHour,
+                    gitHubId: botsScriptDetails.gitHubId
                 }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
                     if(err) logger.error(JSON.stringify(err))
                     else logger.info("Running count of bot ", botsScriptDetails[0].name, "incremented successfully")
@@ -459,6 +462,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                     botID: botDetails.id,
                     user: userName,
                     date: startHour,
+                    gitHubId: botDetails.gitHubId
                 }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
                     if(err) logger.error(JSON.stringify(err))
                     else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
@@ -534,6 +538,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,auditTrailId,user
                         botID: botDetails.id,
                         user: userName,
                         date: startHour,
+                        gitHubId: botDetails.gitHubId
                     }, { $inc: { "failedCount": 1, "runningCount": -1} }, function (err, data) {
                         if(err) logger.error(JSON.stringify(err))
                         else logger.info("Running count of bot ", botDetails[0].name, "incremented successfully")
