@@ -94,6 +94,11 @@ var GitHubSchema = new Schema({
         type: Number,
         required: false,
         default:Date.now()
+    },
+    isDefault:{
+        type: Boolean,
+        required: false,
+        default:false
     }
 });
 
@@ -120,6 +125,8 @@ GitHubSchema.statics.getGitHubList = function (params, callback) {
             error.status = 500;
             return callback(error);
         }
+        params.options.sort = {};
+        params.options.sort.isDefault = -1;
         GitHub.aggregate([
             {$match: params.queryObj},
             {
@@ -216,6 +223,20 @@ GitHubSchema.statics.getGitRepository = function (query,field, callback) {
                 return callback(err);
             } else {
                 return callback(null, results);
+            }
+        }
+    );
+};
+GitHubSchema.statics.updateDefaultGitHub = function (gitHubIdQuery, fields, callback) {
+    this.update(gitHubIdQuery, {$set: fields},{multi: true},
+        function (err, result) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if ((result.ok === 1 && result.n == 1)) {
+                return callback(null, true);
+            } else {
+                return callback(null, null);
             }
         }
     );

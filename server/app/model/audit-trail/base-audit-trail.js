@@ -125,6 +125,10 @@ var AuditTrailSchema = function AuditTrail() {
         isDeleted: {
             type: Boolean,
             default:false
+        },
+        gitHubId: {
+            type: String,
+            required:true
         }
     });
 };
