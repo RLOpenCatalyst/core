@@ -147,8 +147,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
                     }else{
                         cmd = 'curl -L ' + burl  + '/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/archive?AT='+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/get/'+formattedGitHub.repositoryBranch + '.tar.gz >  '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
                     }
-                }
-                logger.info(cmd);
+                };
                 gitHubCloning(formattedGitHub,task,cmd,function(err,res){
                     if(err){
                         callback(err,null);

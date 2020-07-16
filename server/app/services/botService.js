@@ -731,7 +731,6 @@ botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId, c
     });
 }
 
-
 botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId, callback) {
     async.waterfall([
         function (next) {
@@ -1353,7 +1352,6 @@ function removeScriptFile(filePath) {
     })
 }
 
-
 botService.getBotBysource = function (source, callback) {
     var query = {};
     var fields = { repositoryName: 1, _id: 1 };
@@ -1477,8 +1475,23 @@ botService.getAllBotsList = function getAllBotsList(botsQuery, userName, callbac
                 if (err) {
                     next(err, null);
                 } else if (orgIds.length > 0) {
-                    queryObj.queryObj['orgId'] = { $in: orgIds };
-                    botDao.getBotsList(queryObj, next);
+                    var query = {
+                        "orgId": { $in: orgIds },
+                        "isDefault": 'true'
+                    };
+                    var fields;
+                    gitHubModel.getGitRepository(query, fields, (err, res) => {
+                        if (!err && res.length > 0) {
+                            queryObj.queryObj['orgId'] = { $in: orgIds };
+                            queryObj.queryObj['gitHubId'] = res[0]._id;
+                            botDao.getBotsList(queryObj, next);
+                        }
+                        else {
+                            logger.error("Default Github account not found for OrgIDs: " + orgIds);
+                            queryObj.queryObj['gitHubId'] = '';
+                            botDao.getBotsList(queryObj, next);
+                        }
+                    });
                 } else {
                     botDao.getBotsList(queryObj, next);
                 }
