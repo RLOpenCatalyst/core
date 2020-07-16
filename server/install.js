@@ -465,6 +465,7 @@ function getDefaultsConfig() {
             port: '27017',
             enable_ssl: false,
             enable_auth: false,
+            ssl: false,
             ssl_config:{
                 "CAFile": null,
                 "PEMFile": null
