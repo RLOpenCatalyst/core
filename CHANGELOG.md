@@ -1,3 +1,13 @@
+4.3.0 - July 16th, 2020
+---------------------------
+* Servicenow app : Generate forms automatically when BOTs are added
+* Servicenow app : Dynamic Service catalog items must have different approval workflows.
+* Create new APIs to get all the BOTs and modify the input parameter into single string data.
+* BOTs server configuration form in service now.
+* Outbound APIs in the servicenow to fetch the Catalyst BOTs.
+* Botengine Bitbucket Sync using new approach
+* Exception handling for bot execution in Botengine
+
 3.9.0 - March 7th , 2017
 ----------------------------
 * BOTs Engine and New Framework

@@ -10,16 +10,16 @@ const dboptions = {
     host: process.env.DB_HOST || appConfig.db.host,
     port: process.env.DB_PORT || appConfig.db.port,
     dbName: process.env.DB_NAME || appConfig.db.dbName,
-    ssl: process.env.DB_SSL || appConfig.db.ssl,
-    enable_ssl: process.env.ENABLE_SSL || appConfig.db.enable_ssl,
-    enable_auth: process.env.ENABLE_AUTH || appConfig.db.enable_auth,
+    ssl: process.env.DB_SSL === 'true' || appConfig.db.ssl,
+    enable_ssl: (process.env.ENABLE_SSL === 'true') || appConfig.db.enable_ssl,
+    enable_auth: process.env.ENABLE_AUTH === 'true' || appConfig.db.enable_auth,
     ssl_config:{
         "CAFile": process.env.CAFILE || appConfig.db.ssl_config.CAFile,
         "PEMFile": process.env.PEMFILE || appConfig.db.ssl_config.PEMFile
     },
     auth_config:{
-        "username":process.env.USERNAME || appConfig.db.auth_config.username,
-        "password":process.env.PASSWORD || appConfig.db.auth_config.password,
+        "username":process.env.username || appConfig.db.auth_config.username,
+        "password":process.env.password || appConfig.db.auth_config.password,
         "authenticated":process.env.authenticated || appConfig.db.auth_config.authenticated
     }
 };
@@ -37,12 +37,19 @@ if(dboptions.enable_ssl){
     mongoOptions.sslKey = key;
     mongoOptions.sslCert = cert;
 }
-logger.info(connectionString);
+
+if(dboptions.enable_auth){
+    connectionString = 'mongodb://'+dboptions.auth_config.username+':'+dboptions.auth_config.password+'@' + dboptions.host + ':' + dboptions.port + '/' + dboptions.dbName + '?ssl=' + dboptions.enable_ssl+'&authSource=admin';
+}
+
+logger.info("Connecting to mongodb in file upload.");
 mongoDbClient.connect(connectionString, {server : mongoOptions}, function (err, db) {
     if (err) {
-        throw "unable to connect to mongodb"
+        logger.error(err);
+        throw "unable to connect to mongodb";
         return;
     }else{
+        logger.info("Mongodb connected successfully in file upload.");
         gfs = Grid(db, mongoDbClient);
     }
 

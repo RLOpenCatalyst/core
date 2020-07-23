@@ -50,6 +50,10 @@ var BotAuditTrailSummarySchema= new Schema ({
         type: Number,
         default: 0
     },
+    gitHubId: {
+        type: String,
+        required: true
+    }
 })
 
 BotAuditTrailSummarySchema.index({ user: 1, botID: 1, date:1}, { unique: true });
