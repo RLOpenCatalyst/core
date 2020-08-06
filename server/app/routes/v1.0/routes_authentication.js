@@ -81,6 +81,47 @@ module.exports.setRoutes = function(app) {
             res.send(req.body);
         }
     });
+
+    app.post('/auth/register', function (req, res, next) {
+        var bodyJson = JSON.parse(JSON.stringify(req.body));
+        authUtil.hashPassword(bodyJson["password"], function (err, hashedPassword) {
+            if (err) {
+                logger.error('Hit error', err);
+                res.send(500);
+                return;
+            }
+            bodyJson["password"] = hashedPassword;
+            d4dModelNew.d4dModelMastersUsers.findOne({
+                loginname: bodyJson["loginname"],
+                id: '7'
+            }, function (err, data) {
+                if(err || Object.keys(data).length === 0) {
+                    logger.error('Hit error', err);
+                    res.status(500).send({err: 'Something went wrong'});
+                    return
+                }
+                if(Object.keys(data).length > 0 && !data.active){
+                    d4dModelNew.d4dModelMastersUsers.update({
+                        loginname: bodyJson["loginname"],
+                        id: '7'
+                    },{active: true, password: bodyJson['password']}, function (err, doc) {
+                        if(err){
+                            logger.error('Hit error', err);
+                            res.status(500).send({err:'Something went wrong'});
+                        }else{
+                            logger.info('Updated password successfully');
+                            res.status(204).send({message:'Password set successfully'});
+                        }
+                    })
+                }else{
+                    logger.error(`Password already registered, can't register again`);
+                    res.status(500).send({err: `Password already registered, can't register again`});
+                }
+
+            })
+        })
+    });
+
     app.post('/auth/signin', function(req, res, next) {
         if (req.body && req.body.username && req.body.pass) {
             if (req.body.username === 'ec2-user') {
