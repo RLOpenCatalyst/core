@@ -24,8 +24,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
     app.get('/bot/all',function(req,res) {
         var loggedUser =  req.session.user.cn;
-        
+
         botService.getAllBotsList(req.query, loggedUser,function(err,data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
+    });
+
+    app.post('/bot/history',function(req,res) {
+        const loggedUser =  req.session.user.cn;
+        const rqObj =  req.body;
+        botService.addBotHistoryAudit(rqObj, loggedUser, function(err, data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
+    });
+
+    app.post('/bot/historyList',function(req,res) {
+        const loggedUser =  req.session.user.cn;
+        const rqObjList =  req.body;
+        botService.insertBotHistoryAudit(rqObjList, loggedUser, function(err,data) {
             if (err) {
                 return res.status(500).send(err);
             } else {

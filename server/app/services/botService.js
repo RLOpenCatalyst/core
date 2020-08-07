@@ -52,6 +52,8 @@ var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureC
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary');
 
+const botHistoryAuditTrail = require('_pr/model/audit-trail/bot-history-audit-trail');
+
 var appConfig = require('_pr/config');
 var botService = module.exports = {};
 
@@ -450,6 +452,8 @@ botService.executeBots = function executeBots(botsId, reqBody, userName, executi
                     });
 
                 }
+
+            } else if(bots[0].type === 'lambda') {
 
             } else {
                 var error = new Error();
@@ -1514,3 +1518,23 @@ botService.getAllBotsList = function getAllBotsList(botsQuery, userName, callbac
         return;
     });
 }
+
+botService.addBotHistoryAudit = function addBotHistoryAudit(obj, userName, callback) {
+    botHistoryAuditTrail.addBotHistoryAudit(obj, (err, status) => {
+        if(err) {
+            callback(err, null);
+        } else {
+            callback(null, status);
+        };
+    });
+};
+
+botService.insertBotHistoryAudit = function insertBotHistoryAudit(objList, userName, callback) {
+    botHistoryAuditTrail.insertBotHistoryAudit(objList, (err, status) => {
+        if(err) {
+            callback(err, null);
+        } else {
+            callback(null, status);
+        };
+    });
+};
