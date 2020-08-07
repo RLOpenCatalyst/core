@@ -34,6 +34,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
+    app.get('/bot/history/:actionLogId',function(req,res) {
+        const actionLogId =  req.params.actionLogId;
+        botService.getBotHistoryAudit(actionLogId, function(err, data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
+    });
+
     app.post('/bot/history',function(req,res) {
         const loggedUser =  req.session.user.cn;
         const rqObj =  req.body;

@@ -1538,3 +1538,13 @@ botService.insertBotHistoryAudit = function insertBotHistoryAudit(objList, userN
         };
     });
 };
+
+botService.getBotHistoryAudit = function getBotHistoryAudit(actionLogId, callback) {
+    botHistoryAuditTrail.findOneByQuery({ actionLogId : actionLogId }, {}, {}, (err, status) => {
+        if(err) {
+            callback(err, null);
+        } else {
+            callback(null, status);
+        };
+    });
+};
