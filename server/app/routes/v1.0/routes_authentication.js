@@ -23,6 +23,7 @@ var usersGroups = require('_pr/model/user-groups.js');
 var usersRoles = require('_pr/model/user-roles.js');
 var cusers = require('_pr/model/d4dmasters/users.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var ldapSettings = appConfig.ldap;
