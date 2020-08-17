@@ -13,10 +13,14 @@
 
 // The file contains all the end points for AppDeploy
 
+swaggerUi = require('swagger-ui-express'),
+swaggerDocument = require('_pr/swagger.json');
+
 var logger = require('_pr/logger')(module);
 var botService = require('_pr/services/botService.js');
 var gitHubModel = require('_pr/model/github/github.js');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.all('/bot*', sessionVerificationFunc);
 
     app.get('/bot',function(req,res){
