@@ -18,7 +18,7 @@
        
         $rootScope.$emit('treeNameUpdate', treeNames);
         var botsTab = {
-            tab: "Execute",
+            tab: "Report",
             setTab: function (tabId) {
                 botsTab.tab = tabId;
             },
@@ -92,7 +92,7 @@
                 }
             }
             $scope.tab = botsTab;
-            $scope.tab.tab="Execute";
+            $scope.tab.tab="Report";
         }, function (error) {
             toastr.error(error);
             $scope.errorMessage = "No Records found";

@@ -23,10 +23,60 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.all('/bot*', sessionVerificationFunc);
 
-    app.get('/bot',function(req,res){
+    /**
+     * Get the list the bots
+     */
+    app.get('/bot/all',function(req,res) {
+        var loggedUser =  req.session.user.cn;
+
+        botService.getAllBotsList(req.query, loggedUser,function(err,data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
+    });
+
+    app.get('/bot/history/:actionLogId',function(req,res) {
+        const actionLogId =  req.params.actionLogId;
+        botService.getBotHistoryAudit(actionLogId, function(err, data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
+    });
+
+    app.post('/bot/history',function(req,res) {
+        const loggedUser =  req.session.user.cn;
+        const rqObj =  req.body;
+        botService.addBotHistoryAudit(rqObj, loggedUser, function(err, data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
+    });
+
+    app.post('/bot/historyList',function(req,res) {
+        const loggedUser =  req.session.user.cn;
+        const rqObjList =  req.body;
+        botService.insertBotHistoryAudit(rqObjList, loggedUser, function(err,data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        });
+    });
+
+    app.get('/bot',function(req,res) {
         var actionStatus = null,serviceNowCheck =null;
         var loggedUser =  req.session.user.cn;
-        if(req.query.actionStatus && req.query.actionStatus !== null){
+        if(req.query.actionStatus && req.query.actionStatus !== null) {
             actionStatus = req.query.actionStatus;
         }
         if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
@@ -51,8 +101,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.delete('/bot/:botId',function(req,res){
-        botService.removeBotsById(req.params.botId, function(err,data){
+    app.delete('/bot/:botId',function(req,res) {
+        botService.removeBotsById(req.params.botId, function(err,data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -203,6 +253,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     });
+
     app.put('/bot/:botId/scheduler',function(req,res){
         botService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
             if (err) {

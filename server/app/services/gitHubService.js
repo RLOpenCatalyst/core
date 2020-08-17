@@ -147,8 +147,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
                     }else{
                         cmd = 'curl -L ' + burl  + '/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/archive?AT='+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/get/'+formattedGitHub.repositoryBranch + '.tar.gz >  '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
                     }
-                }
-                logger.info(cmd);
+                };
                 gitHubCloning(formattedGitHub,task,cmd,function(err,res){
                     if(err){
                         callback(err,null);
@@ -534,7 +533,8 @@ function formatGitHubResponse(gitHub,callback) {
         repositoryOwner:gitHub.repositoryOwner,
         repositoryType:gitHub.repositoryType,
         repositoryBranch:gitHub.repositoryBranch,
-        repoMode:gitHub.repoMode
+        repoMode:gitHub.repoMode,
+        isDefault:gitHub.isDefault
     };
     if (gitHub.organization.length) {
         formatted.orgId = gitHub.organization[0].rowid;
@@ -653,13 +653,21 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                         function(botRemoteServerDetails,next){
                                             var postData  = {
                                                 "username":gitHubDetails.repositoryUserName, 
-                                                "password":gitHubDetails.repositoryPassword, 
                                                 "branch":gitHubDetails.repositoryBranch,
                                                 "repoMode":gitHubDetails.repoMode,
                                                 "repoUrl" : gitHubDetails.repositoryOwner+'/'+gitHubDetails.repositoryName+'/get/'+gitHubDetails.repositoryBranch + '.tar.gz',
-                                                "repo":gitHubDetails.repositoryOwner+'/'+gitHubDetails.repositoryName};
+                                                "repo":gitHubDetails.repositoryOwner+'/'+gitHubDetails.repositoryName
+                                            };
+                                            var authType;
+                                            if(gitHubDetails.authenticationType == "userName"){
+                                                postData.password = gitHubDetails.repositoryPassword;
+                                                authType = 'password';
+                                            }else if (gitHubDetails.authenticationType == "token"){
+                                                postData.token = gitHubDetails.repositoryToken;
+                                                authType = 'token';
+                                            }
                                             var options = {
-                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory?auth=password",
+                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory?auth="+authType,
                                                 headers: {
                                                     'Content-Type': 'application/json'
                                                 },

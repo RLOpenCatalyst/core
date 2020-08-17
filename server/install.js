@@ -1,12 +1,9 @@
 /*
  Copyright [2016] [Relevance Lab]
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
  http://www.apache.org/licenses/LICENSE-2.0
-
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +21,10 @@ var currentDirectory = __dirname;
 
 function getDefaultsConfig() {
     var config = {
+        ldap :{
+          host:"127.0.0.1",
+          "port":"10389"
+        },
         express: {
             port: 3001,
             express_sid_key: 'express.sid',
@@ -75,19 +76,19 @@ function getDefaultsConfig() {
             }
         },
         dboardConfig: {
-          baseURl: "http://cc.rlcatalyst.com",
-          authPath: "/user/login",
-          servicePath: "/business_service",
-          interval: "Minutes",
-          repeat_every: 1
+            baseURl: "http://cc.rlcatalyst.com",
+            authPath: "/user/login",
+            servicePath: "/business_service",
+            interval: "Minutes",
+            repeat_every: 1
         },
-         newRelic:{
-         appName: "New Catalyst App",
-         licenseKey: "bd20baf865971e73848ee1f4e827ab4c43077786"
+        newRelic:{
+            appName: "New Catalyst App",
+            licenseKey: "bd20baf865971e73848ee1f4e827ab4c43077786"
         },
         settingWizardSteps:[{name :'Introduction',isCompleted:true},
             {name :'Org Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Organization',isCompleted:false,mandatoryCheck:true},
-                {name :'BusinessGroup',isCompleted:false,mandatoryCheck:true},{name:'Project',isCompleted:false,mandatoryCheck:true}]},
+                    {name :'BusinessGroup',isCompleted:false,mandatoryCheck:true},{name:'Project',isCompleted:false,mandatoryCheck:true}]},
             {name :'Config Management',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'ChefServer',isCompleted:false,mandatoryCheck:true},{name:'Environment',isCompleted:false,mandatoryCheck:true}]},
             {name :'User Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Team',isCompleted:false,mandatoryCheck:true},{name:'User',isCompleted:false,mandatoryCheck:true}]},
             {name :'Provider Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Provider',isCompleted:false,mandatoryCheck:true},{name:'VMImages',isCompleted:false,mandatoryCheck:true}]},
@@ -461,7 +462,19 @@ function getDefaultsConfig() {
         db: {
             dbName: 'devops_new',
             host: 'localhost',
-            port: '27017'
+            port: '27017',
+            enable_ssl: false,
+            enable_auth: false,
+            ssl: false,
+            ssl_config:{
+                "CAFile": null,
+                "PEMFile": null
+            },
+            auth_config:{
+                "username":"",
+                "password":"",
+                "authenticated":""
+            }
         },
         authStrategy: {
             local: true,
@@ -616,11 +629,11 @@ function parseArguments() {
         type: String,
         description: "Application license key"
     }
-    ,{
-          name: "enableBotExecuterOsCheck",
-          type: Boolean,
-          description: "enableBotExecuterOsCheck"
-      }
+        ,{
+            name: "enableBotExecuterOsCheck",
+            type: Boolean,
+            description: "enableBotExecuterOsCheck"
+        }
     ]);
 
     var options = cli.parse();
@@ -653,8 +666,8 @@ function getConfig(config, options) {
     config.db.dbName = options['db-name'] ? options['db-name'] : config.db.dbName;
     config.enableBotExecuterOsCheck = options['enableBotExecuterOsCheck'] ? options['enableBotExecuterOsCheck'] : config.enableBotExecuterOsCheck;
     console.log("config--------------->",config);
-    //config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
-    //config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
+    config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
+    config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
     if (options['max-instance-count']) {
         var maxInstanceCount = parseInt(options['max-instance-count']);
         if (maxInstanceCount) {
@@ -697,7 +710,7 @@ function restoreSeedData(config, callback) {
     };
 
     const connectionString = 'mongodb://' + dboptions.host + ':' + dboptions.port + '/' + dboptions.dbName + '?ssl=' + dboptions.ssl;
-    logger.info(connectionString);
+    //logger.info(connectionString);
     mongoDbClient.connect(connectionString, function(err, db) {
         if (err) {
             throw "unable to connect to mongodb"
@@ -752,8 +765,10 @@ function setupLdapUser(config, callback) {
             attrsOnly: true
         };
 
-        client.search('cn=' + ldapUser + ',dc=d4d-ldap,dc=relevancelab,dc=com', searchOpts, function(err, res) {
+        client.search('cn=' + ldapUser + ',dc=wimpi,dc=net', searchOpts, function(err, res) {
+        //client.search('cn=' + ldapUser + ',dc=d4d-ldap,dc=relevancelab,dc=com', searchOpts, function(err, res) {
             if (err) {
+                console.log(err);
                 console.error("Unable to preform search in ldap");
                 throw err;
             }
@@ -813,15 +828,16 @@ proc.on('close', function(code) {
         if (options['seed-data']) {
             fsExtra.emptydirSync(config.catalystDataDir);
             restoreSeedData(config, function() {
-                /*if (options['ldap-user']) {
-                 setupLdapUser(config, function() {
+                if (options['ldap-user']) {
+                    console.log("Setting ldap server")
+                 //setupLdapUser(config, function() {
                  createConfigFile(config);
                  installPackageJson();
-                 });
-                 } else {*/
+                 //});
+                 } else {
                 createConfigFile(config);
                 installPackageJson();
-                //}
+                }
             });
         } else {
             createConfigFile(config);

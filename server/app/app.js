@@ -44,11 +44,23 @@ const dboptions = {
     host: process.env.DB_HOST || appConfig.db.host,
     port: process.env.DB_PORT || appConfig.db.port,
     dbName: process.env.DB_NAME || appConfig.db.dbName,
-    ssl: process.env.DB_SSL || appConfig.db.ssl
+    ssl: process.env.DB_SSL === 'true' || appConfig.db.ssl,
+    enable_ssl: process.env.ENABLE_SSL === 'true' || appConfig.db.enable_ssl,
+    enable_auth: process.env.ENABLE_AUTH === 'true' || appConfig.db.enable_auth,
+    ssl_config:{
+        "CAFile": process.env.CAFILE || appConfig.db.ssl_config.CAFile,
+        "PEMFile": process.env.PEMFILE || appConfig.db.ssl_config.PEMFile
+    },
+    auth_config:{
+        "username":process.env.username || appConfig.db.auth_config.username,
+        "password":process.env.password || appConfig.db.auth_config.password,
+        "authenticated":process.env.authenticated || appConfig.db.auth_config.authenticated
+    }
 };
 
 // Initialise the mongodb connections along with that mongoose ORM would be configure
 const mongoDbConnect = require('_pr/lib/mongodb');
+
 mongoDbConnect(dboptions, function (err) {
     if (err) {
         logger.error("Unable to connect to mongo db >>" + err);
@@ -63,12 +75,11 @@ mongoDbConnect(dboptions, function (err) {
 const socketIo = require('_pr/socket.io');
 const logger = require('_pr/logger')(module);
 const expressLogger = require('_pr/logger').ExpressLogger();
-
+const LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 const botAuditTrailSummary = require('_pr/db-script/botAuditTrailSummarize');
 const passportLdapStrategy = require('./lib/ldapPassportStrategy.js');
 const passportADStrategy = require('./lib/adPassportStrategy.js');
 const globalData = require('_pr/config/global-data.js');
-const LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 const catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 logger.debug('Starting Catalyst');

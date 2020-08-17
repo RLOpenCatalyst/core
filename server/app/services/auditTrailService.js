@@ -15,6 +15,7 @@
  */
 
 var logger = require('_pr/logger')(module);
+var appConfig = require('_pr/config');
 var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js');
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
@@ -22,6 +23,7 @@ var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var botOld = require('_pr/model/bots/1.0/botOld.js');
 var botDao = require('_pr/model/bots/1.1/bot.js');
 var ObjectId = require('mongoose').Types.ObjectId;
+var gitHubModel = require('_pr/model/github/github.js');
 
 const errorType = 'auditTrailService';
 const botAuditTrailSummary = require('_pr/model/audit-trail/bot-audit-trail-summary')
@@ -54,7 +56,8 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
         user: actionObj.catUser,
         startedOn: new Date().getTime(),
         providerType: auditDetails.providerType,
-        action: actionObj.action
+        action: actionObj.action,
+        gitHubId: auditDetails.gitHubId
     };
     if(actionObj.auditType === 'BOTOLD' || actionObj.auditType === 'BOT'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
@@ -97,7 +100,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
 }
 
 auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId,auditObj,callback) {
-    if(auditType === 'BOTOLD' || auditType === 'BOT'){
+    if(auditType === 'BOTOLD' || auditType === 'BOT') {
         botAuditTrail.updateBotAuditTrail(auditId,auditObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -106,7 +109,7 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
             }
             callback(null,data);
             async.parallel({
-                botServiceNowSync:function(callback){
+                botServiceNowSync:function(callback) {
                     var botAuditTrailService = require('_pr/services/auditTrailService.js');
                     botAuditTrailService.syncCatalystWithServiceNow(auditId,function(err,data){
                         if(err){
@@ -123,11 +126,11 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                         function(next){
                             auditTrail.getAuditTrails({_id:new ObjectId(auditId)},next)
                         },
-                        function(botAuditTrail,next){
+                        function(botAuditTrail, next){
                             if(botAuditTrail.length > 0 && auditObj.status
                                 && (auditObj.status !== null || auditObj.status !== '')){
                                 var botService = require('_pr/services/botService.js');
-                                botService.updateLastBotExecutionStatus(botAuditTrail[0].auditId,auditObj.status,function(err,data){
+                                botService.updateLastBotExecutionStatus(botAuditTrail[0].auditId, auditObj.status,function(err,data){
                                     if(err){
                                         logger.error("Error in updating Last Execution Time Details:");
                                         callback(err,null);
@@ -519,7 +522,6 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
                             next(errbots)
                         }
                         else{
-                            console.log("TopbotList",topBotList);
                             for(var i = 0; i < topBotList.length;i++){
                                 if(topBotList[i].input){
                                    // logger.info("Found one with input " + topBotList[i].input.length);
@@ -646,7 +648,7 @@ auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
             }
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['startedOn','status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
@@ -656,14 +658,46 @@ auditTrailService.getAuditTrail = function getAuditTrail(query, callback) {
                 var edt=new Date(query.enddate).getTime()+86400000
                 queryObj.queryObj['$and'].push({startedOn:{$gte:sdt,$lte:edt}})
             }
-            if(query.user){
+            if(query.user !== appConfig.user){
                 queryObj.queryObj['$and'].push({user:query.user})
             }
             if(query.type && query.type=='snow'){
                 queryObj.queryObj['$and'].push({auditId:{$in:snowbotsids}})
             }
-           
-            auditTrail.getAuditTrailList(queryObj, next);
+            if(query.auditForDashboard=="true" && query.type=='snow'){
+                var gitHubQuery = {
+                    "isDefault": 'true'
+                };
+                gitHubModel.getGitRepository(gitHubQuery, '', (err, res) => {
+                    if (!err && res.length>0) {
+                        queryObj.queryObj['$and'].push({gitHubId: res[0]._id.toString()})
+                        auditTrail.getAuditTrailList(queryObj, next);
+                    }
+                    else {
+                        logger.error("Default Github account not found for bot summary");
+                        queryObj.queryObj['$and'].push({gitHubId: ''})
+                        auditTrail.getAuditTrailList(queryObj, next);
+                    }
+                });
+            }
+            if(query.auditForDashboard=="true"){
+                var gitHubQuery = {
+                    "isDefault": 'true'
+                };
+                gitHubModel.getGitRepository(gitHubQuery, '', (err, res) => {
+                    if (!err && res.length>0) {
+                        queryObj.queryObj['$and'].push({gitHubId: res[0]._id.toString()})
+                        auditTrail.getAuditTrailList(queryObj, next);
+                    }
+                    else {
+                        logger.error("Default Github account not found for bot summary");
+                        queryObj.queryObj['$and'].push({gitHubId: ''})
+                        auditTrail.getAuditTrailList(queryObj, next);
+                    }
+                });
+            }else{
+                auditTrail.getAuditTrailList(queryObj, next);
+            }
         },
         function(auditTrailList, next) {
             apiUtil.paginationResponse(auditTrailList, reqData, next);
@@ -1119,15 +1153,46 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
                     if(err) {
                         next(err,null)
                     } else if(orgIds.length > 0) {
-                        filterQuery['orgId'] = { $in: orgIds }
-                        botDao.getAllBots(filterQuery, next)
+                        var query = {
+                            "orgId": { $in: orgIds },
+                            "isDefault": 'true'
+                        };
+                        var fields;
+                        gitHubModel.getGitRepository(query, fields, (err, res) => {
+                            if (!err && res.length>0) {
+                                filterQuery['orgId'] = { $in: orgIds };
+                                filterQuery['gitHubId'] = res[0]._id;
+                                botDao.getAllBots(filterQuery, next)
+                            }
+                            else {
+                                logger.error("Default Github account not found for bot summary with OrgIDs: " + orgIds);
+                                filterQuery['gitHubId'] = '';
+                                botDao.getAllBots(filterQuery, next)
+                            }
+                        });
                     } else {
                         botDao.getAllBots(filterQuery, next)
                     }
                 })
             }
         },
-        function(botsList, next) {
+        function(botsList, next){
+            var gitHubquery = {
+                "isDefault": 'true'
+            };
+            var gitHubIdData;
+            gitHubModel.getGitRepository(gitHubquery, '', (err, res) => {
+                if (!err && res.length>0) {
+                    gitHubIdData = res[0]._id.toString();
+                    next(null, botsList, gitHubIdData);
+                }
+                else {
+                    logger.error("Default Github account not found for bot summary");
+                    next(null, botsList, '');
+                }
+            });
+        },
+        function(botsList, gitHubIdData, next) {
             var totalBots = botsList.length;
             var botIdList = [];
             var snowBotId = [];
@@ -1158,9 +1223,10 @@ auditTrailService.getBotSummary = function getBotSummary(queryParam, BOTSchema, 
                 querymatch['date']={$gte:sdt,$lte:edt}   
                 snowQueryMatch['date']={$gte:sdt,$lte:edt}       
             }
-            querymatch["botID"]={"$in":botIdList};            
+            querymatch["botID"]={"$in":botIdList};          
             snowQueryMatch["botID"]={"$in":snowBotId};
-            
+            snowQueryMatch["gitHubId"]=gitHubIdData;
+            querymatch["gitHubId"] = gitHubIdData;
             query.push({$match:querymatch})
             snowQuery.push({$match:snowQueryMatch})
             query.push({
@@ -1360,4 +1426,25 @@ function convertMS( milliseconds ) {
         minutes: minute,
         seconds: seconds
     };
+}
+
+function getDefaultGithub(callback){
+    var gitHubquery = {
+        "isDefault": 'true'
+    };
+    var gitHubIdData;
+    gitHubModel.getGitRepository(gitHubquery, '', (err, res) => {
+        if (!err && res.length>0) {
+            gitHubIdData = res[0]._id.toString();
+            logger.info("GITHUBIDD", gitHubIdData.toString());
+            //querymatch["gitHubId"] = gitHubIdData.toString();
+            //callback(null, gitHubIdData);
+            //return gitHubIdData.toString()
+            //query["gitHubId"] = gitHubIdData.toString();
+            //filterQuery['gitHubId'] = res[0]._id;
+        }
+        else {
+            logger.error("Default Github account not found for bot summary");
+        }
+    });
 }
