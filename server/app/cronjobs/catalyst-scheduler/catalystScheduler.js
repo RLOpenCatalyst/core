@@ -4,6 +4,7 @@ var taskDao = require('_pr/model/classes/tasks/tasks.js');
 var botOld = require('_pr/model/bots/1.0/botOld.js');
 var botDao = require('_pr/model/bots/1.1/bot.js');
 var schedulerService = require('_pr/services/schedulerService');
+var botengineHealthService = require('_pr/services/botengineHealthService');
 var async = require('async');
 var cronTab = require('node-crontab');
 var auditQueue = require('_pr/config/global-data.js');
@@ -214,6 +215,33 @@ catalystSync.executeNewScheduledBots = function executeNewScheduledBots() {
             return;
         }
     });
+}
+
+catalystSync.botengineHealth = function botengineHealth() {
+    setInterval( function () {
+    logger.info("inside catalyst scheduler");
+    schedulerService.botengineHealth(function(err, data){
+        if (err) {
+            logger.error("Failed to sync: ", err);
+            return;
+        }else{
+            console.logs("Sync started for scheduler");
+            return data;
+        }
+
+    });
+    logger.info("inside botenginehealth");
+    botengineHealthService.getTotalAvailability(function(err, data){
+        if(err){
+            logger.error("Failed to sync: ", err);
+            return;
+        }else{
+            console.logs("Sync started for availability");
+            return data;
+        }
+
+    });
+},120000)
 }
 
 catalystSync.getBotAuditLogData = function getBotAuditLogData(){
