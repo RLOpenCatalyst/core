@@ -106,7 +106,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         logger.info('Entered - bots-summary')
         //Enabling session caching for summary data.
         if(req.session.botcache){
-            if(moment().diff(req.session.botcache.lastrequestdate,'minutes') < 5){
+            if(moment().diff(req.session.botcache.lastrequestdate,'minutes') < 2){
                 //read from cache if query matches
                 if(JSON.stringify(req.session.botcache.lastquery) === JSON.stringify(req.query) && req.session.botcache.botSummary){
                     logger.info('Serving from cache..last request was sooner ');
@@ -131,12 +131,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 req.session.botcache.botSummary = botSummary;
 
             }
-            else
+            else{
                 botSummary.lastrequestdate = new Date();
-            req.session.botcache = {
+                req.session.botcache = {
                 lastrequestdate : moment(),
                 lastquery : req.query,
                 botSummary : botSummary
+                }
             }
             return res.status(200).send(botSummary);
         })

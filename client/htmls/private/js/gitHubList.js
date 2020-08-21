@@ -232,7 +232,13 @@ function getGlobalGitServers() {
                     return $tdAction;
                 }
             }
-        ]
+        ],
+        rowCallback: function(row, data, index){
+            if(data.isDefault == true){
+                $(row).find('td:eq(0)').css('color', 'blue');
+                $(row).find('td:eq(0)').text('*  '+data.repositoryName);
+            }
+          }
     } );
 };
 
@@ -460,15 +466,30 @@ $('#gitCloneImport').submit(function(){
 $('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
     $('#gitHubListLoader').show();
     var $this = $(this);
+    var updateData = {
+        "orgId":$this.parents('tr').attr('orgId'), 
+        "repositoryName":$this.parents('tr').attr('githubName'),
+        "repositoryOwner":$this.parents('tr').attr('repositoryOwner'),
+        "repositoryType":$this.parents('tr').attr('repositoryType'),
+        "isDefault":"true"
+    }
     $.ajax({
         url: '../git-hub/' + $this.parents('tr').attr('githubId') + '/sync',
         method: 'GET',
         success: function(data) {
             toastr.success('Successfully cloned.');
+            $.ajax({
+                url: '../git-hub/'+ $this.parents('tr').attr('githubId'),
+                async:false,
+                method: 'PUT',
+                data: updateData,
+                success: function(data) {
+                  getGlobalGitServers();
+                }
+              });
             $('#gitHubListLoader').hide();
         },
         error: function(jxhr) {
-            console.log(jxhr);
             var msg = "Unable to Fetch GitRepo please try again later";
             if (jxhr.responseJSON && jxhr.responseJSON.message) {
                 msg = jxhr.responseJSON.message;

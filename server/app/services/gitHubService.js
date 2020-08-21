@@ -147,8 +147,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
                     }else{
                         cmd = 'curl -L ' + burl  + '/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/archive?AT='+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/get/'+formattedGitHub.repositoryBranch + '.tar.gz >  '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
                     }
-                }
-                logger.info(cmd);
+                };
                 gitHubCloning(formattedGitHub,task,cmd,function(err,res){
                     if(err){
                         callback(err,null);
@@ -534,7 +533,8 @@ function formatGitHubResponse(gitHub,callback) {
         repositoryOwner:gitHub.repositoryOwner,
         repositoryType:gitHub.repositoryType,
         repositoryBranch:gitHub.repositoryBranch,
-        repoMode:gitHub.repoMode
+        repoMode:gitHub.repoMode,
+        isDefault:gitHub.isDefault
     };
     if (gitHub.organization.length) {
         formatted.orgId = gitHub.organization[0].rowid;

@@ -44,22 +44,23 @@ const dboptions = {
     host: process.env.DB_HOST || appConfig.db.host,
     port: process.env.DB_PORT || appConfig.db.port,
     dbName: process.env.DB_NAME || appConfig.db.dbName,
-    ssl: process.env.DB_SSL || appConfig.db.ssl,
-    enable_ssl: process.env.ENABLE_SSL || appConfig.db.enable_ssl,
-    enable_auth: process.env.ENABLE_AUTH || appConfig.db.enable_auth,
+    ssl: process.env.DB_SSL === 'true' || appConfig.db.ssl,
+    enable_ssl: process.env.ENABLE_SSL === 'true' || appConfig.db.enable_ssl,
+    enable_auth: process.env.ENABLE_AUTH === 'true' || appConfig.db.enable_auth,
     ssl_config:{
         "CAFile": process.env.CAFILE || appConfig.db.ssl_config.CAFile,
         "PEMFile": process.env.PEMFILE || appConfig.db.ssl_config.PEMFile
     },
     auth_config:{
-        "username":process.env.USERNAME || appConfig.db.auth_config.username,
-        "password":process.env.PASSWORD || appConfig.db.auth_config.password,
+        "username":process.env.username || appConfig.db.auth_config.username,
+        "password":process.env.password || appConfig.db.auth_config.password,
         "authenticated":process.env.authenticated || appConfig.db.auth_config.authenticated
     }
 };
 
 // Initialise the mongodb connections along with that mongoose ORM would be configure
 const mongoDbConnect = require('_pr/lib/mongodb');
+
 mongoDbConnect(dboptions, function (err) {
     if (err) {
         logger.error("Unable to connect to mongo db >>" + err);
@@ -86,7 +87,6 @@ logger.debug('Logger Initialized');
 
 
 LDAPUser.getLdapUser(function(err, ldapData) {
-    console.log(JSON.stringify(ldapData))
     if (err) {
         logger.error("Failed to get ldap-user: ", err);
         return;

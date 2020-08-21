@@ -247,17 +247,17 @@
             if($scope.failedBotsselected)
                 var param={
                     inlineLoader:true,
-                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder + '&filterBy=actionStatus:failed'
+                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder + '&filterBy=actionStatus:failed' + '&auditForDashboard=true'
                 };
             else if($scope.scheduledBotsSelected)
                 var param={
                     inlineLoader:true,
-                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&filterBy=actionStatus:success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=startedOn&sortOrder=' + $scope.paginationParams.sortOrder+'&type=snow'
+                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&filterBy=actionStatus:success&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=startedOn&sortOrder=' + $scope.paginationParams.sortOrder+'&type=snow' + '&auditForDashboard=true'
                 };
             else if($scope.runningBotsselected)
                 var param={
                     inlineLoader:true,
-                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=startedOn&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/audit-trail?startdate='+ $scope.ticketsResolveStartsOn+ '&enddate='+ $scope.ticketsResolveEndsOn +'&page=' + $scope.botServiceNowLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=startedOn&sortOrder=' + $scope.paginationParams.sortOrder + '&auditForDashboard=true'
                 };
 
             $scope.dataTransform(param);
@@ -327,6 +327,23 @@
                 $scope.botSummary = result;
                 $scope.totalRuns = result.totalRuns;
                 $scope.timeSaved = result.totalSavedTimeForBots;
+            }, function (error) {
+                $scope.pageLoadBot=false;
+                toastr.error(error);
+                $scope.errorMessage = "No Records found";
+            });
+            $scope.isBotDetailsLoading = false;
+            var param = {
+                inlineLoader: true,
+                url: '/git-hub'
+            };
+            genSevs.promiseGet(param).then(function (result) {
+                $scope.pageLoadBot=false;
+                for(var i=0;i<result.data.length;i++){
+                    if(result && result.data[i].isDefault == true){
+                        $scope.gitHubRepoName = result.data[i].repositoryName;
+                    }
+                }
             }, function (error) {
                 $scope.pageLoadBot=false;
                 toastr.error(error);
