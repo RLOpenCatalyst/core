@@ -45,6 +45,7 @@ var settingsService = require('_pr/services/settingsService');
 var organizationService = require('_pr/services/organizationService');
 var settingWizard = require('_pr/model/setting-wizard');
 var request = require('request');
+var schedulerService = require('_pr/services/schedulerService');
 
 
 module.exports.setRoutes = function (app, sessionVerification) {
@@ -875,6 +876,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     });
                     } else if (req.params.id === '32') {
                     // For BOTs Remote Server Detail
+                    console.log("botengine",req.body);
                     masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
                         if (err) {
                             res.status(500).send('Not able to fetch BOTs Remote Server Details');
@@ -3044,6 +3046,9 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                             if(err){
                                                 logger.error("Unable to connect remote server");
                                                 bodyJson["active"] =false;
+                                                bodyJson["lastSync"] =new Date().getTime();
+                                                bodyJson["availability"] =0;
+                                                bodyJson["from_date"] =new Date().getTime();
                                                 var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
                                                 remoteBotServerModel.save(function (err, data) {
                                                     if (err) {
@@ -3057,6 +3062,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 });
                                             }else{
                                                 bodyJson["active"] =true;
+                                                bodyJson["lastSync"] =new Date().getTime();
+                                                bodyJson["availability"] =availability;
                                                 var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
                                                 remoteBotServerModel.save(function (err, data) {
                                                     if (err) {
@@ -3434,7 +3441,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                     hostPort:bodyJson["hostPort"],
                                                                     active:false,
                                                                     name:bodyJson["name"],
-                                                                    osType:bodyJson["osType"]
+                                                                    osType:bodyJson["osType"],
+                                                                    lastSync:bodyJson["lastSync"]
                                                                 };
                                                                 d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
                                                                     rowid: bodyJson["rowid"],
@@ -3459,7 +3467,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                     hostIP:bodyJson["hostIP"],
                                                                     hostPort:bodyJson["hostPort"],
                                                                     active:true,
-                                                                    name:bodyJson["name"]
+                                                                    name:bodyJson["name"],
+                                                                    lastSync:bodyJson["lastSync"]
                                                                 };
                                                                 d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
                                                                     rowid: bodyJson["rowid"],
@@ -3488,7 +3497,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                             hostPort:bodyJson["hostPort"],
                                                             active:false,
                                                             name:bodyJson["name"],
-                                                            osType:bodyJson["osType"]
+                                                            osType:bodyJson["osType"],
+                                                            lastSync:bodyJson["lastSync"]
                                                         };
                                                         d4dModelNew.d4dModelMastersBOTsRemoteServer.update({
                                                             rowid: bodyJson["rowid"],

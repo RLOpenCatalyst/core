@@ -24,6 +24,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var moment = require('moment');
+var schedulerService = require('_pr/services/schedulerService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/audit-trail*', sessionVerificationFunc);
@@ -33,12 +34,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         //adding user to query
         req.query.user = req.session.user.cn;
         logger.info(req.query.user)
+        console.log("....................",req.query.user,req.query);
         auditTrailService.getAuditTrail(req.query,function(err,auditTrailList){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
             }
             return res.status(200).send(auditTrailList);
+        })
+    });
+
+    app.get('/audit-trail/botengine-health', function(req,res){
+
+       // console.log("&&&&&&&&&&&&&&&",req.query.user,req.data);
+        schedulerService.botengineHealth(req.data,function(err,healthData){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(healthData);
         })
     });
 

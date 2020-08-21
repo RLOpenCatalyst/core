@@ -22,6 +22,8 @@ var client = new Client();
 var request = require('request');
 var auditQueue = require('_pr/config/global-data.js');
 var noticeService = require('_pr/services/noticeService.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var botengineHealthService = require('_pr/services/botengineHealthService.js');
 
 
 var schedulerService = module.exports = {};
@@ -413,6 +415,57 @@ schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDe
             return;
         }
     });
+}
+
+schedulerService.botengineHealth = function botengineHealth(data, callback){
+    var lastSync = new Date().getTime();
+    
+    d4dModelNew.d4dModelMastersBOTsRemoteServer.find({
+        
+        id: '32'
+    },function (err,remoteServerDetails) {
+
+        if(err){
+            
+            callback(null);
+            return;
+        }else{
+            for(var i=0;i<remoteServerDetails.length;i++){
+            
+            var options = {
+                url: "http://" + remoteServerDetails[i]["hostIP"] + ":" + remoteServerDetails[i]["hostPort"],
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+    
+            request.get(options, function (err, response, body) {
+                if (err) {
+                    var lastSync = [];
+                    var lastSync = new Date().getTime();
+                    botengineHealthService.getTotalAvailability();
+                    
+                    //logger.info("Last Sync is  updated successfully in error case" , ' lastSync-' + lastSync);
+                    
+                } else {
+
+                    botengineHealthService.getTotalAvailability();
+                    
+                    
+                }
+                if (typeof callback === "function"){
+                    return callback(remoteServerDetails);
+                }
+                
+            });
+            //console.log("Final result for list of Botengine",remoteServerDetails);
+
+        }
+        
+        }
+        
+    });
+    
 }
 
 
