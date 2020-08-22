@@ -48,10 +48,10 @@
           <!--left side navbar-->
           <ul class="nav navbar-nav">
 
-            <li class="left-projects-links" id="workflowStyle" data-target="Workflow" navigation="Workflow">
-              <a class="navigationTab" id="workflow" href="#ajax/Workflow/workflow.html"  onclick="setleftnavigation(this,'workflow');" >
-                <i class="fa fa-history white"></i>&nbsp;WORKFLOW</a>
-            </li>
+            <!--<li style="display:none;" class="left-projects-links" id="workflowStyle" data-target="Workflow" navigation="Workflow" >-->
+              <!--<a class="navigationTab" id="workflow" href="#ajax/Workflow/workflow.html"  onclick="setleftnavigation(this,'workflow');" >-->
+                <!--<i class="fa fa-history white"></i>&nbsp;WORKFLOW</a>-->
+            <!--</li>-->
 
             <li class="left-projects-links hidden" id="botStyle" data-target="#Workspace" navigation="Workspace,Workspace1">
               <a class="navigationTab" id="bots" href="#"  onclick="setleftnavigation(this,'bots');" >
@@ -59,26 +59,26 @@
               </a>
             </li>
 
-            <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
-              <a class="active navigationTab" id="workZoneNew" href="#" onclick="setleftnavigation(this,'org');">
-              <i class="fa fa-credit-card"></i>&nbsp;WORKZONE 
-              </a>
-            </li>
+            <!--<li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1" style="display:none;">-->
+              <!--<a class="active navigationTab" id="workZoneNew" href="#" onclick="setleftnavigation(this,'org');">-->
+              <!--<i class="fa fa-credit-card"></i>&nbsp;WORKZONE-->
+              <!--</a>-->
+            <!--</li>-->
             <!--design starts here-->
-            <li class="left-projects-links hidden" id="designStyle" data-target="#blueprints"  navigation="blueprints">
-              <a href="#" id="designNew" onclick="setleftnavigation(this,'Design');" class="navigationTab">
-              <i class="fa fa-puzzle-piece"></i>&nbsp;DESIGN
-              </a>
-            </li>
-            <!--track-->
-            <li class="left-projects-links hidden" id="trackStyle" data-target="#Track" navigation="Track">
-              <a class="dropdown-toggle navigationTab" href="#ajax/trackSettings.html" id="trackNew"  onclick="setleftnavigation(this,'Track');"><i class="fa fa-anchor"></i>&nbsp;TRACK</a>
-            </li>
-            <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
-              <a class="navigationTab" id="analytics" href="#"  onclick="setleftnavigation(this,'analytics');" >
-                <i class="fa fa-cloud white"></i>&nbsp;CLOUD
-              </a>
-            </li>
+            <!--<li class="left-projects-links hidden" id="designStyle" data-target="#blueprints"  navigation="blueprints" style="display:none;">-->
+              <!--<a href="#" id="designNew" onclick="setleftnavigation(this,'Design');" class="navigationTab">-->
+              <!--<i class="fa fa-puzzle-piece"></i>&nbsp;DESIGN-->
+              <!--</a>-->
+            <!--</li>-->
+            <!--&lt;!&ndash;track&ndash;&gt;-->
+            <!--<li class="left-projects-links hidden" id="trackStyle" data-target="#Track" navigation="Track" style="display:none;">-->
+              <!--<a class="dropdown-toggle navigationTab" href="#ajax/trackSettings.html" id="trackNew"  onclick="setleftnavigation(this,'Track');"><i class="fa fa-anchor"></i>&nbsp;TRACK</a>-->
+            <!--</li>-->
+            <!--<li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1" style="display:none;">-->
+              <!--<a class="navigationTab" id="analytics" href="#"  onclick="setleftnavigation(this,'analytics');" >-->
+                <!--<i class="fa fa-cloud white"></i>&nbsp;CLOUD-->
+              <!--</a>-->
+            <!--</li>-->
 
 
 
@@ -838,6 +838,7 @@ function locationClick(){
 
 function setleftnavigation(toplink, breadcrumbHeader) {
     var TabID = $(toplink).attr('id');
+    console.log(TabID);
     if (TabID === "bots") {
         if(isAngularIntegration){
           var checkUrl = window.location.href;
@@ -1674,6 +1675,17 @@ function saveAtrributesHandler(e) {
     createAttribTableRowFromJson(attributes);
     $modal.modal('hide');
 }
+
+function hideTabs() {
+    $("ul li a i").each(function() {
+        var optionText = $(this).text();
+        console.log(optionText);
+        if (optionText.trim() == "WORKFLOW" || optionText.trim() == "BOTS" || optionText.trim() == "WORKZONE" || optionText.trim() == "DESIGN" || optionText.trim() == "TRACK" || optionText.trim() == "CLOUD")
+            $(this).hide();
+    });
+}
+
+hideTabs()
 </script>
 <script src="js/blueprintLaunch.js"></script>
 <script src="js/blueprintCommon.js"></script>

@@ -13,7 +13,7 @@
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav header-content">
-				<li class="dropdown" title="Workflow">
+				<li class="dropdown" title="Workflow" ng-if="headersList">
 					<a  href="/private/index.html#ajax/Workflow/workflow.html" style="color: white;">
 						<i class="fa fa-history white"></i> WORKFLOW</a>
 				</li>
@@ -23,27 +23,27 @@
 					</div>
 				</li>
 				<li>
-					<div id="workzone" class="headNavigItem" ng-if="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
+					<div id="workzone" class="headNavigItem" ng-if="workZoneBool && headersList" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
 						<!--<a href="../../../../#ajax/Dev.html">-->
 							<i class="fa fa-credit-card white" ng-class="{'header-selected-item':moduleSelection.filterView.workzone}"></i> WORKZONE
 						<!--</a>-->
 					</div>
 				</li>
 				<li>
-					<div id="design" class="headNavigItem" ng-if="designBool" ui-sref='dashboard.design' ui-sref-active='activeSection'>
+					<div id="design" class="headNavigItem" ng-if="designBool && headersList" ui-sref='dashboard.design' ui-sref-active='activeSection'>
 							<i class="fa fa-puzzle-piece white" ng-class="{'header-selected-item':moduleSelection.filterView.design}"></i> DESIGN
 						</a>
 					</div>
 				</li>
 				<li>
-					<div id="track" class="headNavigItem" ng-if="trackBool" ui-sref-active='activeSection'>
+					<div id="track" class="headNavigItem" ng-if="trackBool && headersList" ui-sref-active='activeSection'>
 						<a href="/private/index.html#ajax/trackSettings.html">
 							<i class="fa fa-anchor white"></i> TRACK
 						</a>
 					</div>
 				</li>
 				<li>
-					<div id="analytics" class="headNavigItem" ng-if="analyticsBool" ui-sref='dashboard.analytics' ui-sref-active='activeSection'>
+					<div id="analytics" class="headNavigItem" ng-if="analyticsBool && headersList" ui-sref='dashboard.analytics' ui-sref-active='activeSection'>
 						<i class="fa fa-cloud white"></i> CLOUD
 					</div>
 				</li>

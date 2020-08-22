@@ -76,6 +76,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'a
 	'use strict';
 	//global Scope Constant Defined;
 	$rootScope.app = $rootScope.app || {};
+	$rootScope.headersList = false;
 	$rootScope.app.isDashboard = false;
 	$rootScope.appDetails = $rootScope.appDetails || {};
 	$rootScope.$on('SET_HEADER', function () {
