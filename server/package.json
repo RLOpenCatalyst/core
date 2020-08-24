@@ -53,7 +53,7 @@
     "mocha": "2.4.5",
     "moment": ">=2.19.3",
     "mongodb": "^2.2.36",
-    "mongoose": "4.9.6",
+    "mongoose": "5.7.5",
     "mongoose-double": "0.0.1",
     "mongoose-paginate": "5.0.3",
     "mongoose-schema-extend": "0.2.2",
