@@ -86,8 +86,6 @@ module.exports.setRoutes = function (app) {
     });
     app.post('/auth/signin', function (req, res, next) {
         if (req.body && req.body.username && req.body.pass) {
-            console.log("======================================================================");
-            console.log("======================================================================");
             console.log(req.body);
             if (req.body.username === 'ec2-user') {
                 var awsMetaData = new aws.MetadataService();
@@ -99,7 +97,7 @@ module.exports.setRoutes = function (app) {
                         logger.debug("Instance Id is " + data);
                         var instanceId = data;
                         var user = {
-                            "cn": req.body.username,
+                            "cn": req.body.username,    
                             "password": req.body.pass
                         };
                         req.session.user = user;

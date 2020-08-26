@@ -11,10 +11,12 @@
     },
     "servers": [
         {
-            "url": "http://localhost:3001/"
-        },
-        {
-            "url": "https://localhost:3001/"
+            "url": "{server}",
+            "variables":{
+                "server":{
+                    "default": "http://localhost:3001"
+                }
+            }
         }
     ],
     "tags": [
