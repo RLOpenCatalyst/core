@@ -2561,6 +2561,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function (req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
         var bodyJson = JSON.parse(JSON.stringify(req.body));
+        var availability = 0;
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
         var rowtoedit = null;
@@ -3063,7 +3064,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                             }else{
                                                 bodyJson["active"] =true;
                                                 bodyJson["lastSync"] =new Date().getTime();
-                                                bodyJson["availability"] =availability;
+                                                bodyJson["availability"] =0;
                                                 var remoteBotServerModel = new d4dModelNew.d4dModelMastersBOTsRemoteServer(bodyJson);
                                                 remoteBotServerModel.save(function (err, data) {
                                                     if (err) {
