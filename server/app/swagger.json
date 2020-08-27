@@ -1,0 +1,952 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Catalyst-core BOTS",
+        "description": "Documentation for catalyst-core BOT API's",
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "{server}",
+            "variables":{
+                "server":{
+                    "default": "http://localhost:3001"
+                }
+            }
+        }
+    ],
+    "tags": [
+        {
+            "name": "CATALYST-CORE BOTS",
+            "description": "API for catalyst-core BOTS"
+        }
+    ],
+    "paths": {
+        "/auth/signin": {
+            "post": {
+                "tags": [
+                    "AUTHENTICATION"
+                ],
+                "summary": "Authentication of user",
+                "requestBody": {
+                    "description": "Authentication details to login",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/auth"
+                            }
+                        },
+                        "application/xml": {
+                            "schema": {
+                                "$ref": "#/components/schemas/auth"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Authentication successfull",
+                        "content": {}
+                    },
+                    "500": {
+                        "description": "Authentication failed",
+                        "content": {}
+                    }
+                },
+                "x-codegen-request-body-name": "body"
+            }
+        },
+        "/botOld": {
+            "get": {
+                "tags": [
+                    "OLD BOTS"
+                ],
+                "summary": "Get BOT list",
+                "operationId": "getBotsList",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "To get the Botslist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting Botslist",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/botOld/{botId}": {
+            "delete": {
+                "tags": [
+                    "OLD BOTS"
+                ],
+                "summary": "Remove SoftBots by Id",
+                "operationId": "removeSoftBotsById",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "To remove softBots",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Removed Soft Bots successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in removing Soft Bots",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/botOld/{botId}/bot-history": {
+            "get": {
+                "tags": [
+                    "OLD BOTS"
+                ],
+                "summary": "Get BotsHistory",
+                "operationId": "getBotsHistory",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "To get BotsHistory",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "BotsHistory List",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting BotsHistory list",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/botOld/{botId}/bot-history/{historyId}": {
+            "get": {
+                "tags": [
+                    "OLD BOTS"
+                ],
+                "summary": "Get particular BOT history",
+                "operationId": "getPerticularBotsHistory",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "To get particular BotsHistory",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "historyId",
+                        "in": "path",
+                        "description": "To get particular Bot history logs",
+                        "required": true,
+                        "schema": {}
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Particular BotsHistory List",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting particular Bot History logs",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/botOld/": {
+            "post": {
+                "tags": [
+                    "OLD BOTS"
+                ],
+                "summary": "Execute bots",
+                "operationId": "executeBots",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Execute bots",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/botOld"
+                            }
+                        },
+                        "application/xml": {
+                            "schema": {
+                                "$ref": "#/components/schemas/botOld"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bot executed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in Bot execution",
+                        "content": {}
+                    }
+                },
+                "x-codegen-request-body-name": "botId"
+            }
+        },
+        "/botOld/{botId}/scheduler": {
+            "put": {
+                "tags": [
+                    "OLD BOTS"
+                ],
+                "summary": "Update Bot scheduler",
+                "operationId": "updateBotsScheduler",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "Updating Bot scheduler",
+                        "required": true,
+                        "schema": {}
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bot scheduler updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/botOld"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in updating Bot scheduler",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/bot/": {
+            "get": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Get BOT list",
+                "operationId": "getBotsList",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Botlist",
+                        "in": "query",
+                        "description": "Bot list",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "To get the list of BOTS",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting list of Bots",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/bot/{botId}": {
+            "delete": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Remove Bots by Id",
+                "operationId": "removeBotsById",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "To remove Bots",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Removed Bots successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in removing Bots",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/bot/{botId}/bot-history": {
+            "get": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Get BOT history list",
+                "operationId": "getBotsHistory",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "To get Bot history list",
+                        "required": true,
+                        "schema": {}
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Bots history",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting list of Bots history",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/bot/{botId}/bot-history/{historyId}": {
+            "get": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Get particular BOT history",
+                "operationId": "getParticularBotsHistory",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "To get particular Bot history",
+                        "required": true,
+                        "schema": {}
+                    },
+                    {
+                        "name": "historyId",
+                        "in": "path",
+                        "description": "To get particular Bot history",
+                        "required": true,
+                        "schema": {}
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of particular Bot history",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting particular Bot history",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/bot/{botId}/bot-history/{historyId}/logs": {
+            "get": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Get particular BOT history logs",
+                "operationId": "getParticularBotsHistoryLogs",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "To get particular Bot history logs",
+                        "required": true,
+                        "schema": {}
+                    },
+                    {
+                        "name": "historyId",
+                        "in": "path",
+                        "description": "To get particular Bot history logs",
+                        "required": true,
+                        "schema": {}
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of particular Bot history logs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting particular bot history logs",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/bot/{botId}/execute": {
+            "post": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Execute bots",
+                "operationId": "executeBots",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Execute bots",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/bot"
+                            }
+                        },
+                        "application/xml": {
+                            "schema": {
+                                "$ref": "#/components/schemas/bot"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bot executed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in executing Bots",
+                        "content": {}
+                    }
+                },
+                "x-codegen-request-body-name": "botId"
+            }
+        },
+        "/bot/{botId}/scheduler": {
+            "put": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Update Bot scheduler",
+                "operationId": "updateBotsScheduler",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "path",
+                        "description": "Updating Bot scheduler",
+                        "required": true,
+                        "schema": {}
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bot scheduler updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in updating Bot scheduler",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/botSchedulerList": {
+            "get": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Get scheduled Bot list",
+                "operationId": "getScheduledBotList",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "botId",
+                        "in": "query",
+                        "description": "To get bot scheduler list",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of scheduled Bot list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting list of scheduled Bot list",
+                        "content": {}
+                    }
+                }
+            }
+        },
+        "/botSource": {
+            "get": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Get Bot by source",
+                "operationId": "getBotBysource",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "source",
+                        "in": "query",
+                        "description": "To get bot by source",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Bots by source",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cloudProviders": {
+            "get": {
+                "tags": [
+                    "NEW BOTS"
+                ],
+                "summary": "Get cloud providers data",
+                "operationId": "cloudProviders",
+                "parameters": [
+                    {
+                        "name": "x-catalyst-auth",
+                        "in": "header",
+                        "description": "an authorization header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "To get cloud providers data",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of cloud providers data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/bot"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error in getting list of cloud providers data",
+                        "content": {}
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "botOld": {
+                "required": [
+                    "botId",
+                    "historyId"
+                ],
+                "type": "object",
+                "properties": {
+                    "botId": {
+                        "type": "string"
+                    },
+                    "historyId": {
+                        "type": "string"
+                    }
+                },
+                "BOTS": {
+                    "$ref": "#/components/schemas/botOld"
+                }
+            },
+            "bot": {
+                "required": [
+                    "botId",
+                    "historyId",
+                    "RequestBody",
+                    "source",
+                    "name"
+
+                ],
+                "type": "object",
+                "properties": {
+                    "botId": {
+                        "type": "string"
+                    },
+                    "historyId": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "RequestBody": {
+                        "type": "string"
+                    }
+                },
+                "BOTS": {
+                    "$ref": "#/components/schemas/botOld"
+                }
+            },
+            "auth": {
+                "required": [
+                    "RequestBody"
+                ],
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "example": "relevancelab"
+                    },
+                    "pass": {
+                        "type": "string",
+                        "example": "relevancelab@123"
+                    },
+                    "authType": {
+                        "type": "string",
+                        "example": "token"
+                    }
+                }
+            }
+        }
+    }
+}

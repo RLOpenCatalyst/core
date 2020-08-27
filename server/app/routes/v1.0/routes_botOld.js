@@ -12,26 +12,27 @@
  */
 
 // The file contains all the end points for AppDeploy
+swaggerUi = require('swagger-ui-express'),
+    swaggerDocument = require('_pr/swagger.json');
 
 var logger = require('_pr/logger')(module);
 var botOldService = require('_pr/services/botOldService.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 
-
-module.exports.setRoutes = function(app, sessionVerificationFunc) {
+module.exports.setRoutes = function (app, sessionVerificationFunc) {
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.all('/botOld*', sessionVerificationFunc);
-
-    app.get('/botOld',function(req,res){
-        var actionStatus = null,serviceNowCheck = false;
+    app.get('/botOld', function (req, res) {
+        var actionStatus = null, serviceNowCheck = false;
         var loggedUser = req.session.user.cn;
-        if(req.query.actionStatus && req.query.actionStatus !== null){
+        if (req.query.actionStatus && req.query.actionStatus !== null) {
             actionStatus = req.query.actionStatus;
         }
-        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
+        if (req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true') {
             serviceNowCheck = true;
         }
-        botOldService.getBotsList(req.query,actionStatus,serviceNowCheck,loggedUser, function(err,data){
+        botOldService.getBotsList(req.query, actionStatus, serviceNowCheck, loggedUser, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -40,9 +41,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-
-    app.delete('/botOld/:botId',function(req,res){
-        botOldService.removeSoftBotsById(req.params.botId, function(err,data){
+    app.delete('/botOld/:botId', function (req, res) {
+        botOldService.removeSoftBotsById(req.params.botId, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -51,12 +51,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/botOld/:botId/bot-history',function(req,res){
+    app.get('/botOld/:botId/bot-history', function (req, res) {
         var serviceNowCheck = false;
-        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
+        if (req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true') {
             serviceNowCheck = true;
         }
-        botOldService.getBotsHistory(req.params.botId,req.query, serviceNowCheck,function(err,data){
+        botOldService.getBotsHistory(req.params.botId, req.query, serviceNowCheck, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -65,8 +65,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/botOld/:botId/bot-history/:historyId',function(req,res){
-        botOldService.getPerticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
+    app.get('/botOld/:botId/bot-history/:historyId', function (req, res) {
+        botOldService.getPerticularBotsHistory(req.params.botId, req.params.historyId, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -75,9 +75,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.post('/botOld/:botId/execute',function(req,res){
+    app.post('/botOld/:botId/execute', function (req, res) {
         var reqBody = null;
-        if(req.body.category && req.body.category ==='Blueprints') {
+        if (req.body.category && req.body.category === 'Blueprints') {
             if (!req.body.envId) {
                 res.send(400, {
                     "message": "Invalid Environment Id"
@@ -96,33 +96,33 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 version: req.body.version,
                 tagServer: req.body.tagServer
             }
-        }else{
+        } else {
             reqBody = {
                 userName: req.session.user.cn,
                 hostProtocol: req.protocol + '://' + req.get('host'),
                 choiceParam: req.body.choiceParam,
                 appData: req.body.appData,
                 tagServer: req.body.tagServer,
-                paramOptions:{
+                paramOptions: {
                     cookbookAttributes: req.body.cookbookAttributes,
                     scriptParams: req.body.scriptParams
                 }
             }
         }
-        if(reqBody !== null) {
+        if (reqBody !== null) {
             botOldService.executeBots(req.params.botId, reqBody, function (err, data) {
                 if (err) {
                     return res.status(500).send(err);
                 } else {
-                    data.botId=req.params.botId;
+                    data.botId = req.params.botId;
                     return res.status(200).send(data);
                 }
             })
         }
     });
 
-    app.put('/botOld/:botId/scheduler',function(req,res){
-        botOldService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
+    app.put('/botOld/:botId/scheduler', function (req, res) {
+        botOldService.updateBotsScheduler(req.params.botId, req.body, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -131,3 +131,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 };
+
