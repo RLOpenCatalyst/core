@@ -31,7 +31,7 @@
     "express-validation": "0.5.0",
     "extend": "2.0.2",
     "farmhash": "1.1.0",
-    "fast-csv": "2.0.0",
+    "fast-csv": "4.3.6",
     "filehound": "1.13.0",
     "format-message": "5.1.1",
     "fs": "0.0.2",
