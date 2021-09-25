@@ -23,8 +23,8 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
-var promisify = require("promisify-node");
-var fse = promisify(require("fs-extra"));
+// var promisify = require("promisify-node");
+// var fse = promisify(require("fs-extra"));
 
 
 var cicdDashboardService = module.exports = {};

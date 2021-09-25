@@ -24,7 +24,7 @@ module.exports = function(grunt) {
 				files: [{
 					expand: true,
 					cwd: 'lib/',
-					src: ['**/*.js', '!**/*.min.js'],
+					src: ['**/*.js', '!**/*.min.js', '!**/intro.js', '!**/outro.js'],
 					dest: 'lib/',
 					ext: '.min.js'
 				}]
@@ -82,7 +82,7 @@ module.exports = function(grunt) {
 					{'catalyst/partials/global.css':'src/partials/global.scss'},
 					{'catalyst/partials/globals/treeComponent/treeDirective.css':'src/partials/globals/treeComponent/treeDirective.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/workzone.css':'src/partials/sections/dashboard/workzone/workzone.scss'},
-					{'catalyst/partials/sections/dashboard/workzone/instance/instance.css':'src/partials/sections/dashboard/workzone/instance/instance.scss'},			 
+					{'catalyst/partials/sections/dashboard/workzone/instance/instance.css':'src/partials/sections/dashboard/workzone/instance/instance.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/blueprint/blueprint.css':'src/partials/sections/dashboard/workzone/blueprint/blueprint.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/cloudFormation/cloudFormation.css':'src/partials/sections/dashboard/workzone/cloudFormation/cloudFormation.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/container/container.css':'src/partials/sections/dashboard/workzone/container/container.scss'},
@@ -97,7 +97,7 @@ module.exports = function(grunt) {
 		},
 		watch: {
 			clientJS: {
-				files: [					
+				files: [
 					'src/**/*.js'
 				],
 				tasks: ['newer:jshint:client']
@@ -110,55 +110,55 @@ module.exports = function(grunt) {
 		copy: {
 			main: {
 				files: [
-				{
-					expand: true,
-					cwd: 'src/',
-					src: ['partials/**/*.html'],
-					dest: 'dist/src/',
-					filter: 'isFile'
-				},
-				{
-					expand: true,
-					cwd: 'catalyst/',
-					src: ['partials/**/*.css'],
-					dest: 'dist/catalyst/',
-					filter: 'isFile'
-				},
-				{
-					expand: true,
-					src: ['lib/**/*.js', 'lib/**/*.css'],
-					dest: 'dist/',
-					filter: 'isFile'
-				},
-				{
-					expand: true,
-					src: ['customlib/*.js'],
-					dest: 'dist/',
-					filter: 'isFile'
-				},
-				{
-					expand: true,
-					src: ['styles/**/*.*'],
-					dest: 'dist/',
-					filter: 'isFile'
-				},
-				{
-					expand: true,
-					src: ['data/*.json', 'images/**/*.*'],
-					dest: 'dist/',
-					filter: 'isFile'
-				},
-				{
-					expand: true,
-					src: ['catalyst/**/*.js'],
-					dest: 'dist/',
-					filter: 'isFile'
-				},
-				{
-					src: ['uiConfig.js'],
-					dest: 'dist/',
-					filter: 'isFile'
-				}]
+					{
+						expand: true,
+						cwd: 'src/',
+						src: ['partials/**/*.html'],
+						dest: 'dist/src/',
+						filter: 'isFile'
+					},
+					{
+						expand: true,
+						cwd: 'catalyst/',
+						src: ['partials/**/*.css'],
+						dest: 'dist/catalyst/',
+						filter: 'isFile'
+					},
+					{
+						expand: true,
+						src: ['lib/**/*.js', 'lib/**/*.css'],
+						dest: 'dist/',
+						filter: 'isFile'
+					},
+					{
+						expand: true,
+						src: ['customlib/*.js'],
+						dest: 'dist/',
+						filter: 'isFile'
+					},
+					{
+						expand: true,
+						src: ['styles/**/*.*'],
+						dest: 'dist/',
+						filter: 'isFile'
+					},
+					{
+						expand: true,
+						src: ['data/*.json', 'images/**/*.*'],
+						dest: 'dist/',
+						filter: 'isFile'
+					},
+					{
+						expand: true,
+						src: ['catalyst/**/*.js'],
+						dest: 'dist/',
+						filter: 'isFile'
+					},
+					{
+						src: ['uiConfig.js'],
+						dest: 'dist/',
+						filter: 'isFile'
+					}]
 			}
 		},
 		jshint: {

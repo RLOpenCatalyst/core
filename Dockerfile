@@ -1,10 +1,10 @@
-FROM node:6.17.1
+FROM node:16.8.0
 RUN apt-get update -qq && apt-get install -y build-essential libpq-dev libkrb5-dev make g++ ruby libstdc++6 ruby-all-dev
 
-RUN npm install -g kerberos
+RUN npm install --unsafe-perm -g kerberos
 
 ##Client
-RUN npm install -g grunt-cli
+RUN npm install --unsafe-perm -g grunt-cli@1.2.0
 ##Its not needed as docker taking its role
 ##RUN npm install -g npm
 ##RUN npm install forever --global
@@ -20,13 +20,15 @@ RUN mkdir /mongdb
 ADD ./client/cat3 /rlc/client/cat3
 ADD ./client/htmls /rlc/client/htmls
 WORKDIR /rlc/client/cat3
-RUN npm install --production
+# RUN npm install --production
+RUN npm install --legacy-peer-deps
 RUN npm run-script build-prod 
 
 ## Server
 WORKDIR /rlc/server
 ADD ./server /rlc/server
 RUN node install.js
+RUN node app/bin/postInstallscript.js
 
 EXPOSE 3001
 
@@ -34,5 +36,4 @@ EXPOSE 3001
 # CMD forever start app.js
 WORKDIR /rlc/server/app
 CMD node app.js
-
 

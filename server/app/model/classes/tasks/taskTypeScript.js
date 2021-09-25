@@ -16,7 +16,8 @@
 
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
-var extend = require('mongoose-schema-extend');
+// var extend = require('mongoose-schema-extend');
+var extendSchema = require('mongoose-extend-schema');
 var instancesDao = require('_pr/model/classes/instance/instance.js');
 var scriptService = require('_pr/services/scriptService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
@@ -31,7 +32,7 @@ var uuid = require('node-uuid');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 
-var scriptTaskSchema = taskTypeSchema.extend({
+var scriptTaskSchema = extendSchema(taskTypeSchema, {
     _id: false,
     nodeIds: [String],
     scriptTypeName: String,

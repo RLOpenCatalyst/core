@@ -636,23 +636,22 @@ function parseArguments() {
         }
     ]);
 
-    var options = cli.parse();
+    var options = cli;
 
     /* generate a usage guide */
-    var usage = cli.getUsage({
-        header: "catalyst help",
-        footer: "For more information, visit http://www.relevancelab.com"
-    });
+    // var usage = cli.getUsage({
+    //     header: "catalyst help",
+    //     footer: "For more information, visit http://www.relevancelab.com"
+    // });
 
-    if (options.help) {
-        console.log(usage);
-        process.exit(0);
-    }
+    // if (options.help) {
+    //     console.log(usage);
+    //     process.exit(0);
+    // }
     return options;
 }
 
 function getConfig(config, options) {
-    console.log("option-----------",options);
     //parsing arguments
     if (options['catalyst-port']) {
         var catalystPort = parseInt(options['catalyst-port']);
@@ -665,7 +664,6 @@ function getConfig(config, options) {
     config.db.port = options['db-port'] ? options['db-port'] : config.db.port;
     config.db.dbName = options['db-name'] ? options['db-name'] : config.db.dbName;
     config.enableBotExecuterOsCheck = options['enableBotExecuterOsCheck'] ? options['enableBotExecuterOsCheck'] : config.enableBotExecuterOsCheck;
-    console.log("config--------------->",config);
     config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
     config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
     if (options['max-instance-count']) {
@@ -682,7 +680,7 @@ function getConfig(config, options) {
 
 function installPackageJson() {
     console.log("Installing node packages from pacakge.json");
-    var procInstall = spawn('npm', ['install', '--unsafe-perm']);
+    var procInstall = spawn('npm', ['install']);
     procInstall.stdout.on('data', function(data) {
         console.log("" + data);
     });
@@ -701,7 +699,7 @@ function installPackageJson() {
 }
 
 function restoreSeedData(config, callback) {
-    var mongoDbClient = require('mongodb');
+    var mongoDbClient = require('mongodb').MongoClient;
     const dboptions = {
         host: process.env.DB_HOST || config.db.host,
         port: process.env.DB_PORT || config.db.port,
@@ -711,11 +709,12 @@ function restoreSeedData(config, callback) {
 
     const connectionString = 'mongodb://' + dboptions.host + ':' + dboptions.port + '/' + dboptions.dbName + '?ssl=' + dboptions.ssl;
     //logger.info(connectionString);
-    mongoDbClient.connect(connectionString, function(err, db) {
+    mongoDbClient.connect(connectionString, function(err, client) {
         if (err) {
             throw "unable to connect to mongodb"
             return;
         }
+        var db = client.db(dboptions.dbName);
         db.dropDatabase();
 
         var procMongoRestore = spawn('mongorestore', ['--host', config.db.host, '--port', config.db.port, '--db', config.db.dbName, '--drop', '../seed/mongodump/devops_new/']);
@@ -804,7 +803,7 @@ function createConfigFile(config) {
     fs.writeFileSync('app/config/catalyst-config.json', configJson);
 }
 console.log('Installing node packages required for installation');
-proc = spawn('npm', ['install', "command-line-args@0.5.3", 'mkdirp@0.5.0', 'fs-extra@0.18.0', 'ldapjs@0.7.1', 'mongodb@2.1.4']);
+proc = spawn('npm', ['install']);
 proc.on('close', function(code) {
     if (code !== 0) {
         throw "Unable to install packages"
@@ -832,16 +831,16 @@ proc.on('close', function(code) {
                     console.log("Setting ldap server")
                  //setupLdapUser(config, function() {
                  createConfigFile(config);
-                 installPackageJson();
+                 //installPackageJson();
                  //});
                  } else {
                 createConfigFile(config);
-                installPackageJson();
+                //installPackageJson();
                 }
             });
         } else {
             createConfigFile(config);
-            installPackageJson();
+            //installPackageJson();
         }
     }
 });

@@ -1271,7 +1271,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                     var instance = {
                                                         name: req.body.fqdn,
                                                         orgId: req.params.orgId,
-                                                        orgName: project[0].orgname,
+                                                        orgName: project[0].orgname.toString(),
                                                         bgId: req.params.bgId,
                                                         bgName: project[0].productgroupname,
                                                         projectId: req.params.projectId,
@@ -1414,7 +1414,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 var instanceLog = {
                     actionId: actionLog._id,
                     instanceId: instance.id,
-                    orgName: project[0].orgname,
+                    orgName: project[0].orgname.toString(),
                     bgName: project[0].productgroupname,
                     projectName: project[0].projectname,
                     envName: envName,
@@ -1495,7 +1495,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             var runlist = sensuCookBooks;
                             var jsonAttributes = {};
 
-                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, instance.id);
+                            // jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, instance.id);
 
                             bootstarpOption['runlist'] = runlist;
                             bootstarpOption['jsonAttributes'] = jsonAttributes;

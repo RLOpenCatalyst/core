@@ -17,7 +17,8 @@ limitations under the License.
 
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
-var extend = require('mongoose-schema-extend');
+// var extend = require('mongoose-schema-extend');
+var extendSchema = require('mongoose-extend-schema');
 var ObjectId = require('mongoose').Types.ObjectId;
 var Jenkins = require('_pr/lib/jenkins');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
@@ -25,7 +26,7 @@ var taskTypeSchema = require('./taskTypeSchema');
 var Blueprints = require('_pr/model/blueprint');
 
 
-var jenkinsTaskSchema = taskTypeSchema.extend({
+var jenkinsTaskSchema = extendSchema(taskTypeSchema, {
     _id:false,
     jenkinsServerId: String,
     jobName: String,

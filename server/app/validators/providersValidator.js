@@ -20,7 +20,8 @@ var providersValidator = module.exports = {};
 providersValidator.create = {
     body: {
         name: Joi.string().max(40).required(),
-        type: Joi.string().max(15).valid('AWS', 'gcp').required(),
+        // type: Joi.string().max(15).valid('AWS', 'gcp').required(),
+        type: Joi.string().max(15).valid('AWS').required(),
         organizationId: Joi.string().max(40).required(),
         providerDetails: Joi.required()
     }
@@ -32,7 +33,8 @@ providersValidator.update = {
     },
     body: {
         name: Joi.string().max(40),
-        type: Joi.string().max(15).valid('AWS', 'gcp'),
+        // type: Joi.string().max(15).valid('AWS', 'gcp'),
+        type: Joi.string().max(15).valid('AWS'),
         organizationId: Joi.string().max(40)
     }
 };

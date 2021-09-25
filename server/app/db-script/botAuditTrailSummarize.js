@@ -161,7 +161,7 @@ function addResolvetagforSnowBots(){
 logger.info('inside addResolvetagforSnowBots')
 botModel.update({"input.name":"sysid"},{"isResolved":true},{upsert:true,multi:true},function(err,result){
     if(err){
-        logger.err('err at addResolvetagforSnowBots'+JSON.stringify(err))
+        logger.error('err at addResolvetagforSnowBots'+JSON.stringify(err))
     }else{
         logger.info('asdResolvetagforSnowBots result'+JSON.stringify(result))
 
