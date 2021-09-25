@@ -261,9 +261,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                 if (err) {
                                     logger.error("resourceMapService.createNewResourceMap is Failed ==>", err);
                                 }
-                                callback(null, {
-                                    stackId: cloudFormation._id,
-                                });
+                                // callback(null, {
+                                //     stackId: cloudFormation._id,
+                                // });
                                 awsCF.waitForStackCompleteStatus(stackData.StackId, function (err, completeStack) {
                                     if (err) {
                                         logger.error('Unable to wait for stack status', err);
@@ -456,7 +456,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             var instance = {
                                                                 name: instanceName,
                                                                 orgId: launchParams.orgId,
-                                                                orgName: launchParams.orgName,
+                                                                orgName: launchParams.orgName.toString(),
                                                                 bgId: launchParams.bgId,
                                                                 bgName: launchParams.bgName,
                                                                 projectId: launchParams.projectId,
@@ -582,7 +582,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                         "actionLogId": launchParams.actionLogId,
                                                                         "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                         "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                        "masterDetails.orgName": launchParams.orgName,
+                                                                        "masterDetails.orgName": launchParams.orgName.toString(),
                                                                         "masterDetails.bgName": launchParams.bgName,
                                                                         "masterDetails.projectName": launchParams.projectName,
                                                                         "masterDetails.envName": launchParams.envName
@@ -596,7 +596,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 var instanceLog = {
                                                                     actionId: actionLog._id,
                                                                     instanceId: instance.id,
-                                                                    orgName: launchParams.orgName,
+                                                                    orgName: launchParams.orgName.toString(),
                                                                     bgName: launchParams.bgName,
                                                                     projectName: launchParams.projectName,
                                                                     envName: launchParams.envName,
@@ -664,7 +664,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 "actionLogId": launchParams.actionLogId,
                                                                                 "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                                 "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                                "masterDetails.orgName": launchParams.orgName,
+                                                                                "masterDetails.orgName": launchParams.orgName.toString(),
                                                                                 "masterDetails.bgName": launchParams.bgName,
                                                                                 "masterDetails.projectName": launchParams.projectName,
                                                                                 "masterDetails.envName": launchParams.envName,
@@ -735,7 +735,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     "actionLogId": launchParams.actionLogId,
                                                                                     "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                                     "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                                    "masterDetails.orgName": launchParams.orgName,
+                                                                                    "masterDetails.orgName": launchParams.orgName.toString(),
                                                                                     "masterDetails.bgName": launchParams.bgName,
                                                                                     "masterDetails.projectName": launchParams.projectName,
                                                                                     "masterDetails.envName": launchParams.envName,
@@ -873,7 +873,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             "actionLogId": launchParams.actionLogId,
                                                                                             "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                                             "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                                            "masterDetails.orgName": launchParams.orgName,
+                                                                                            "masterDetails.orgName": launchParams.orgName.toString(),
                                                                                             "masterDetails.bgName": launchParams.bgName,
                                                                                             "masterDetails.projectName": launchParams.projectName,
                                                                                             "masterDetails.envName": launchParams.envName,
@@ -948,7 +948,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                 "actionLogId": launchParams.actionLogId,
                                                                                                 "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                                                 "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                                                "masterDetails.orgName": launchParams.orgName,
+                                                                                                "masterDetails.orgName": launchParams.orgName.toString(),
                                                                                                 "masterDetails.bgName": launchParams.bgName,
                                                                                                 "masterDetails.projectName": launchParams.projectName,
                                                                                                 "masterDetails.envName": launchParams.envName,
@@ -1068,7 +1068,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                 "actionLogId": launchParams.actionLogId,
                                                                                                 "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                                                 "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                                                "masterDetails.orgName": launchParams.orgName,
+                                                                                                "masterDetails.orgName": launchParams.orgName.toString(),
                                                                                                 "masterDetails.bgName": launchParams.bgName,
                                                                                                 "masterDetails.projectName": launchParams.projectName,
                                                                                                 "masterDetails.envName": launchParams.envName,
