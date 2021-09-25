@@ -17,7 +17,8 @@
 
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
-var extend = require('mongoose-schema-extend');
+// var extend = require('mongoose-schema-extend');
+var extendSchema = require('mongoose-extend-schema');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('../../dao/schema-validator');
 var ChefTask = require('./taskTypeChef');

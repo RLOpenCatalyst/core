@@ -17,7 +17,8 @@ limitations under the License.
 
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
-var extend = require('mongoose-schema-extend');
+// var extend = require('mongoose-schema-extend');
+var extendSchema = require('mongoose-extend-schema');
 var ObjectId = require('mongoose').Types.ObjectId;
 var instancesDao = require('_pr/model/classes/instance/instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
@@ -34,7 +35,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Docker = require('_pr/model/docker.js');
 var uuid = require('node-uuid');
-var chefTaskSchema = taskTypeSchema.extend({
+var chefTaskSchema = extendSchema(taskTypeSchema, {
     _id: false,
     nodeIds: [String],
     runlist: [String],
