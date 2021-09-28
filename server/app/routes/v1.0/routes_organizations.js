@@ -1495,7 +1495,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             var runlist = sensuCookBooks;
                             var jsonAttributes = {};
 
-                            // jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, instance.id);
+                            //jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor, instance.id);
 
                             bootstarpOption['runlist'] = runlist;
                             bootstarpOption['jsonAttributes'] = jsonAttributes;
