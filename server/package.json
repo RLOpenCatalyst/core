@@ -78,7 +78,7 @@
     "shell-escape": "0.2.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "4.2.0",
-    "ssh2": "0.4.10",
+    "ssh2": "1.4.0",
     "supertest": "^3.0.0",
     "swagger-jsdoc": "6.1.0",
     "swagger-ui-express": "^4.1.4",
