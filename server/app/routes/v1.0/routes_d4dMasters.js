@@ -2226,26 +2226,47 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 var data = fs.readFileSync(fil.path); //, function(err, data) {
                 if (folderpath == '') {
                     logger.debug("this is where file gets saved as (no folderpath): %s %s / %s %s __ %s", chefRepoPath, req.params.orgname, suffix, controlName, fil.name);
-                    fs.writeFile(chefRepoPath + req.params.orgname + '/' + suffix + controlName + '__' + fil.name, data);
-                    logger.debug("File saved Successfully: ");
+                    fs.writeFile(chefRepoPath + req.params.orgname + '/' + suffix + controlName + '__' + fil.name, data, function(err,result){
+                        if(err){
+                            logger.error("File not saved "+ err);
+                        }else{
+                            logger.debug("File saved Successfully: ");
+                        }
+                    });
                 } else {
                     if (folderpath.indexOf('.chef') > 0) { //identifying if its a chef config file
                         logger.debug("this is where file gets saved as .chef (with folderpath):    %s %s %s %s", chefRepoPath, req.params.orgid, folderpath, fil.name);
-                        fs.writeFile(chefRepoPath + req.params.orgid + folderpath + fil.name, data);
+                        fs.writeFile(chefRepoPath + req.params.orgid + folderpath + fil.name, data, function(err,result){
+                            if(err){
+                                logger.error("File not saved "+ err);
+                            }
+                        });
                     } else if (folderpath.indexOf('.puppet') > 0) { //identifying if its a chef config file
                         logger.debug("this is where file gets saved as .chef (with folderpath) for puppet:    %s %s %s %s", chefRepoPath, req.params.orgid, folderpath, fil.name);
-                        fs.writeFile(chefRepoPath + req.params.orgid + folderpath + fil.name, data);
+                        fs.writeFile(chefRepoPath + req.params.orgid + folderpath + fil.name, data, function(err,result){
+                            if(err){
+                                logger.error("File not saved "+ err);
+                            }
+                        });
                     } else //not a a chef config file
                     {
                         logger.debug("Folderpath rcvd: %s", folderpath);
 
                         if (fil.name == saveAsfileName) {
                             logger.debug("this is where file gets saved as (with folderpath): %s %s / %s %s __ %s", chefRepoPath, req.params.orgid, suffix, controlName, fil.name);
-                            fs.writeFile(chefRepoPath + req.params.orgname + '/' + suffix + controlName + '__' + fil.name, data);
+                            fs.writeFile(chefRepoPath + req.params.orgname + '/' + suffix + controlName + '__' + fil.name, data, function(err,result){
+                                if(err){
+                                    logger.error("File not saved "+ err);
+                                }
+                            });
 
                         } else {
                             logger.debug("this is where file gets saved as (with folderpath) fixed name: %s %s %s / %s", chefRepoPath, req.params.orgid, folderpath, saveAsfileName);
-                            fs.writeFile(chefRepoPath + req.params.orgname + folderpath + '/' + saveAsfileName, data);
+                            fs.writeFile(chefRepoPath + req.params.orgname + folderpath + '/' + saveAsfileName, data, function(err,result){
+                                if(err){
+                                    logger.error("File not saved "+ err);
+                                }
+                            });
                         }
 
                     }

@@ -16,7 +16,7 @@ limitations under the License.
 
 // Load application npm package
 // require('@risingstack/trace');
-require('newrelic')
+// require('newrelic')
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -252,6 +252,6 @@ catalystSync.botengineHealth();
 server.listen(app.get('port'), function () {
     logger.debug('Express server listening on port ' + app.get('port'));
     require('_pr/services/noticeService.js').init(io,server.address());
-    require('_pr/services/noticeService.js').test();
+    // require('_pr/services/noticeService.js').test();
 });
 
